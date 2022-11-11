@@ -1125,13 +1125,16 @@ export default class GridController {
       if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
         exportedColumns = _this.getAllColumns()
       } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
-        const { newAllColumns, newColumnsSorting } = await _this._loadColumns(
-          exportedRows,
-          state.columnsVisibility,
-          state.columnsSorting
-        )
+        const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+          await _this._loadColumns(
+            exportedRows,
+            state.columnsVisibility,
+            state.columnsSorting
+          )
         _this._sortColumns(newAllColumns, newColumnsSorting)
-        exportedColumns = newAllColumns
+        exportedColumns = newAllColumns.filter(
+          column => newColumnsVisibility[column.name]
+        )
       } else {
         throw Error('Unsupported columns option: ' + exportOptions.columns)
       }
