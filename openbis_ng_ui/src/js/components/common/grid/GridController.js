@@ -1197,7 +1197,7 @@ export default class GridController {
     } catch (e) {
       this.context.setState({
         exportState: {
-          error: e.message
+          error: e
         }
       })
     }
@@ -1358,7 +1358,7 @@ export default class GridController {
     } catch (e) {
       this.context.setState({
         exportState: {
-          error: e.message
+          error: e
         }
       })
     }
