@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
@@ -261,12 +262,12 @@ class Grid extends React.PureComponent {
       <React.Fragment>
         <GridExportLoading loading={!!exportState.loading} />
         <GridExportError
-          open={!!exportState.error}
+          open={!_.isEmpty(exportState.error)}
           error={exportState.error}
           onClose={this.controller.handleExportCancel}
         />
         <GridExportWarnings
-          open={!!exportState.warnings}
+          open={!_.isEmpty(exportState.warnings)}
           warnings={exportState.warnings}
           onDownload={() =>
             this.controller.handleExportDownload(

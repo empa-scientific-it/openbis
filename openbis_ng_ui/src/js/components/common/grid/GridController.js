@@ -1348,7 +1348,7 @@ export default class GridController {
       })
 
       if (exportResult.status === 'OK') {
-        const filePath = exportResult.result
+        const filePath = exportResult.result.file_name
         const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
         const fileUrl =
           '/openbis/download/?sessionID=' +
@@ -1356,10 +1356,10 @@ export default class GridController {
           '&filePath=' +
           encodeURIComponent(filePath)
 
-        if (exportResult.warnings) {
+        if (!_.isEmpty(exportResult.result.warnings)) {
           this.context.setState({
             exportState: {
-              warnings: exportResult.warnings,
+              warnings: exportResult.result.warnings,
               fileName,
               fileUrl
             }
