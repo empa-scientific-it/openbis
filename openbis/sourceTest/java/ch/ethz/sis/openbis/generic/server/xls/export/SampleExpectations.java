@@ -11,6 +11,7 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
@@ -56,13 +57,13 @@ class SampleExpectations extends Expectations
 
                 final SampleType sampleType = new SampleType();
                 sampleType.setCode("STORAGE");
-                sampleType.setPermId(new EntityTypePermId("STORAGE"));
+                sampleType.setPermId(new EntityTypePermId("STORAGE", EntityKind.SAMPLE));
                 sampleType.setFetchOptions(fetchOptions.withType());
                 sampleType.setPropertyAssignments(List.of(namePropertyAssignment, boxesCountPropertyAssignment));
 
                 final SampleType defaultSampleType = new SampleType();
                 defaultSampleType.setCode("DEFAULT");
-                defaultSampleType.setPermId(new EntityTypePermId("DEFAULT"));
+                defaultSampleType.setPermId(new EntityTypePermId("DEFAULT", EntityKind.SAMPLE));
                 defaultSampleType.setFetchOptions(fetchOptions.withType());
                 defaultSampleType.setPropertyAssignments(List.of(namePropertyAssignment));
 

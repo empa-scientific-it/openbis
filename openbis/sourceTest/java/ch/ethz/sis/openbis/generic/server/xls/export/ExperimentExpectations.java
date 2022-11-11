@@ -59,7 +59,7 @@ class ExperimentExpectations extends Expectations
                 experiments[0].setCode("STORAGES_COLLECTION");
                 experiments[0].setProject(projects[0]);
                 experiments[0].setType(experimentTypes[0]);
-                experiments[0].setProperty("$NAME", "Storages Collection");
+                experiments[0].setProperty("$NAME", "a".repeat(Short.MAX_VALUE + 1));
                 experiments[0].setProperty("$DEFAULT_OBJECT_TYPE", "EXPERIMENTAL_STEP");
 
                 experiments[1] = new Experiment();
@@ -79,7 +79,7 @@ class ExperimentExpectations extends Expectations
                 experiments[2].setCode("TEST");
                 experiments[2].setProject(projects[2]);
                 experiments[2].setType(experimentTypes[0]);
-                experiments[2].setProperty("$NAME", "Test");
+                experiments[2].setProperty("$NAME", "b".repeat(Short.MAX_VALUE + 1));
                 experiments[2].setProperty("$DEFAULT_OBJECT_TYPE", "DEFAULT_SAMPLE");
 
                 return Arrays.stream(experiments).collect(Collectors.toMap(Experiment::getIdentifier,

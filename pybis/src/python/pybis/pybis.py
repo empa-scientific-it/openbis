@@ -10,18 +10,18 @@ Work with openBIS using Python.
 
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import time
-from xml.dom import NotSupportedErr
 import zlib
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from pathlib import Path
+from typing import List
 from urllib.parse import quote, urljoin, urlparse
 
 import requests
 import urllib3
+from dateutil.relativedelta import relativedelta
 from pandas import DataFrame
 
 from . import data_set as pbds
@@ -41,9 +41,9 @@ from .entity_type import (
     MaterialType,
     SampleType,
 )
-from .experiment import Experiment
 from .group import Group
 from .openbis_object import OpenBisObject, Transaction
+from .experiment import Experiment
 from .person import Person
 from .project import Project
 from .role_assignment import RoleAssignment
@@ -145,6 +145,46 @@ def is_session_token(token: str):
 
 def is_personal_access_token(token: str):
     return token.startswith("$pat")
+
+
+def save_config(config_filepath: Path, config: dict) -> dict:
+    with open(config_filepath, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(config))
+
+
+def read_config(config_filepath: Path) -> dict:
+    if config_filepath.exists():
+        with open(config_filepath, "r") as fh:
+            config = json.load(fh)
+        return config
+    else:
+        return {}
+
+
+def get_global_config():
+    config_filepath = PYBIS_FOLDER / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_global_config(hostname=None, token=None):
+    global_openbis = PYBIS_FOLDER / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=global_openbis, config=config)
+    return
+
+
+def get_local_config():
+    config_filepath = Path.cwd() / CONFIG_FILENAME
+    config = read_config(config_filepath=config_filepath)
+    return config
+
+
+def set_local_config(hostname=None, token=None):
+    local_openbis = Path.cwd() / CONFIG_FILENAME
+    config = {"hostname": hostname, "token": token}
+    save_config(config_filepath=local_openbis, config=config)
+    return
 
 
 def get_saved_tokens():
@@ -1181,7 +1221,10 @@ class Openbis:
         """
         token_path = self._save_token_to_disk(os_home)
 
-        token_user_name = self.token.split("-")[0]
+        lastIndexOfMinus = len(self.token) - "".join(reversed(self.token)).index("-") - 1
+        token_user_name = self.token[0:lastIndexOfMinus]
+        if token_user_name.startswith("$pat-"):
+            token_user_name = token_user_name[5:]
         from pwd import getpwnam
 
         token_user_name_uid = getpwnam(token_user_name).pw_uid
@@ -1610,16 +1653,9 @@ class Openbis:
             self.datastores = datastores[attrs]
             return datastores[attrs]
 
-    def gen_code(self, entity, prefix=""):
-        """Get the next sequence number for a Sample, Experiment, DataSet and Material. Other entities are currently not supported.
-        Usage::
-            gen_code('SAMPLE', 'SAM-')
-            gen_code('EXPERIMENT', 'EXP-')
-            gen_code('DATASET', '')
-            gen_code('MATERIAL', 'MAT-')
-        """
-
+    def gen_codes(self, entity: str, prefix: str = "", count: int = 1) -> List[str]:
         entity = entity.upper()
+
         entity2enum = {
             "DATASET": "DATA_SET",
             "OBJECT": "SAMPLE",
@@ -1635,13 +1671,22 @@ class Openbis:
             )
 
         request = {
-            "method": "generateCode",
-            "params": [self.token, prefix, entity2enum[entity]],
+            "method": "createCodes",
+            "params": [self.token, prefix, entity2enum[entity], count],
         }
         try:
-            return self._post_request(self.as_v1, request)
+            return self._post_request(self.as_v3, request)
         except Exception as e:
-            raise ValueError(f"Could not generate a code for {entity}: {e}")
+            raise ValueError(f"Could not generate a code(s) for {entity}: {e}")
+
+    def gen_code(self, entity, prefix="") -> str:
+        """Get the next sequence number for a Sample, Experiment, DataSet and Material. Other entities are currently not supported.
+        Usage::
+            gen_code('sample', 'SAM-')
+            gen_code('collection', 'COL-')
+            gen_code('dataset', '')
+        """
+        return self.gen_codes(entity=entity, prefix=prefix)[0]
 
     def gen_permId(self, count=1):
         """Generate a permId (or many permIds) for a dataSet"""
@@ -2022,7 +2067,7 @@ class Openbis:
         try:
             resp = self._post_request(self.as_v3, request)
         except ValueError as exc:
-            raise NotSupportedErr(
+            raise NotImplementedError(
                 "Your openBIS instance does not support personal access tokens. Please upgrade your server and activate them."
             )
         try:
@@ -2073,7 +2118,7 @@ class Openbis:
         try:
             resp = self._post_request(self.as_v3, request)
         except ValueError:
-            raise NotSupportedErr(
+            raise NotImplementedError(
                 "This method is not supported by your openBIS instance."
             )
 

@@ -11,6 +11,7 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -122,14 +123,14 @@ class DataSetExpectations extends Expectations
 
                 dataSetTypes[0] = new DataSetType();
                 dataSetTypes[0].setFetchOptions(typeFetchOptions);
-                dataSetTypes[0].setPermId(new EntityTypePermId("ATTACHMENT"));
+                dataSetTypes[0].setPermId(new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET));
                 dataSetTypes[0].setPropertyAssignments(
                         List.of(namePropertyAssignment, attachmentPropertyAssignment)
                 );
 
                 dataSetTypes[1] = new DataSetType();
                 dataSetTypes[1].setFetchOptions(typeFetchOptions);
-                dataSetTypes[1].setPermId(new EntityTypePermId("RAW_DATA"));
+                dataSetTypes[1].setPermId(new EntityTypePermId("RAW_DATA", EntityKind.DATA_SET));
                 dataSetTypes[1].setPropertyAssignments(List.of(namePropertyAssignment, notesPropertyAssignment));
                 return dataSetTypes;
             }

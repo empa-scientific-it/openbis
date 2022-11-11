@@ -43,6 +43,7 @@ class DataSetTypeExpectations extends Expectations
 
                 final DataSetType dataSetType = new DataSetType();
                 dataSetType.setFetchOptions(fetchOptions);
+                dataSetType.setPermId(new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET));
                 dataSetType.setCode("ATTACHMENT");
                 dataSetType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 

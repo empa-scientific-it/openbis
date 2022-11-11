@@ -1,3 +1,11 @@
+## Changes with pybis-1.34.2
+
+- fix syslog error
+
+## Changes with pybis-1.34.1
+
+- better handling of configuration
+
 ## Changes with pybis-1.34.0
 
 - better error handling when connecting to openBIS server

@@ -75,8 +75,12 @@ class Things:
             self.__objects = self.__objects_initializer(response=self.response)
         return self.__objects
 
-    def __repr__(self):
-        return tabulate(self.df, headers=list(self.df))
+    def __repr__(self, headers=None, sort_by=None):
+        if headers is None:
+            headers = list(self.df)
+        if sort_by:
+            return tabulate(self.df.sort_values(by=sort_by), headers=headers)
+        return tabulate(self.df, headers=headers)
 
     def __len__(self):
         return len(self.df)
