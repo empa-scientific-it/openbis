@@ -187,6 +187,17 @@ public class XLSExportTest
                         List.of()
                 },
                 {
+                        "export-sample-type-with-bare-sample-property.xlsx",
+                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
+                        SampleTypeWithBareSamplePropertyExpectations.class,
+                        Collections.singletonList(
+                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of()
+                },
+                {
                         "export-sample-type-with-omitted-sample-property.xlsx",
                         Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithSamplePropertyExpectations.class,

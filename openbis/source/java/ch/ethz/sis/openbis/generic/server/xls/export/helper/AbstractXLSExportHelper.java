@@ -2,13 +2,9 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -143,31 +138,20 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
         {
             case SAMPLE:
             {
-                return dataTypeString + ':' + propertyType.getSampleType().getCode();
+                return dataTypeString +
+                        ((propertyType.getSampleType() != null) ? ':' + propertyType.getSampleType().getCode() : "");
             }
             case MATERIAL:
             {
-                return dataTypeString + ':' + propertyType.getMaterialType().getCode();
+                return dataTypeString +
+                        ((propertyType.getMaterialType() != null)
+                                ? ':' + propertyType.getMaterialType().getCode() : "");
             }
             default:
             {
                 return dataTypeString;
             }
         }
-    }
-
-    protected <T extends IEntityTypeHolder> Collection<Collection<T>> groupByType(
-            final Collection<T> entityTypeHolders)
-    {
-        final HashMap<String, Collection<T>> permIdToEntityTypeMap = entityTypeHolders.stream().collect(
-                Collectors.toMap(
-                entityTypeHolder -> entityTypeHolder.getType().getPermId().toString(),
-                List::of,
-                (entityTypeHolders1, entityTypeHolders2) -> Stream.of(entityTypeHolders1, entityTypeHolders2)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList()),
-                HashMap::new));
-        return permIdToEntityTypeMap.values();
     }
 
     @Override
