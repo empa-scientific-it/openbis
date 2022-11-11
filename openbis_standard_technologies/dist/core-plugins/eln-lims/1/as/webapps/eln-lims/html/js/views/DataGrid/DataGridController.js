@@ -75,8 +75,7 @@ function DataGridController(
                     onSettingsChange: _this._onSettingsChange,
                     onRowClick: rowClickEventHandler,
                     exportable: exportable,
-                    onExportXLS: _this._onExportXLS,
-                    onExportTSV: _this._onExportTSV,
+                    exportXLS: _this._exportXLS,
                     selectable: false,
                     multiselectable: multiselectable,
                     actions: _this._actions(extraOptions),
@@ -279,7 +278,7 @@ function DataGridController(
         mainController.serverFacade.setSetting(configKey, elnGridSettingsStr)
     }
 
-	this._onExportXLS = function (parameters) {
+	this._exportXLS = function (parameters) {
 		let serviceParameters = {
 			"method" : "export",
 			"file_name" : parameters.exportedFilePrefix,
@@ -289,42 +288,12 @@ function DataGridController(
 			"text_formatting" : parameters.exportedValues
 		}
 
-		Util.blockUI()
-
-		mainController.serverFacade.customASService(serviceParameters, function(result) {
-			Util.unblockUI()
-
-			if(result.result.status === "OK"){
-				const filePath = result.result.result
-				const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
-				const fileUrl =
-				  '/openbis/download/?sessionID=' +
-				  encodeURIComponent(mainController.serverFacade.getSession()) +
-				  '&filePath=' +
-				  encodeURIComponent(filePath)
-
-				const link = document.createElement('a')
-				link.href = fileUrl
-				link.download = fileName
-				link.click()
-			}else if(result.result.status === "error"){
-				Util.showError(result.result.message)
-			}else{
-				Util.showError(JSON.stringify(result))
-			}
-		}, "xls-export", function(error) {
-			Util.unblockUI()
-			Util.showError(JSON.stringify(error));
-		}, true);
-	}
-
-	this._onExportTSV = function (parameters) {
-		Util.blockUI()
-		parameters.exportedFileDownload().then(function(){
-			Util.unblockUI()
-		}, function(error){
-			Util.unblockUI()
-			Util.showError(JSON.stringify(error))
+		return new Promise(function(resolve, reject){
+			mainController.serverFacade.customASService(serviceParameters, function(result) {
+				resolve({ sessionToken: mainController.serverFacade.getSession(), exportResult: result.result})
+			}, "xls-export", function(error) {
+				reject(error)
+			}, true);
 		})
 	}
 

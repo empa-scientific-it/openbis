@@ -22,13 +22,13 @@ export default class GridWithOpenbis extends React.PureComponent {
 
   render() {
     logger.log(logger.DEBUG, 'GridWithOpenbis.render')
+
     return (
       <Grid
         {...this.props}
         loadSettings={this.loadSettings}
         onSettingsChange={this.onSettingsChange}
-        onExportXLS={this.onExportXLS}
-        onExportTSV={this.onExportTSV}
+        exportXLS={this.exportXLS}
       />
     )
   }
@@ -83,60 +83,25 @@ export default class GridWithOpenbis extends React.PureComponent {
     await openbis.updatePersons([update])
   }
 
-  async onExportXLS({
+  async exportXLS({
     exportedFilePrefix,
     exportedIds,
     exportedProperties,
     exportedValues
   }) {
-    try {
-      AppController.getInstance().loadingChange(true)
+    const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
 
-      const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
+    const serviceOptions = new openbis.CustomASServiceExecutionOptions()
+    serviceOptions.withParameter('method', 'export')
+    serviceOptions.withParameter('file_name', exportedFilePrefix)
+    serviceOptions.withParameter('ids', exportedIds)
+    serviceOptions.withParameter('export_referred', true)
+    serviceOptions.withParameter('export_properties', exportedProperties)
+    serviceOptions.withParameter('text_formatting', exportedValues)
 
-      const serviceOptions = new openbis.CustomASServiceExecutionOptions()
-      serviceOptions.withParameter('method', 'export')
-      serviceOptions.withParameter('file_name', exportedFilePrefix)
-      serviceOptions.withParameter('ids', exportedIds)
-      serviceOptions.withParameter('export_referred', true)
-      serviceOptions.withParameter('export_properties', exportedProperties)
-      serviceOptions.withParameter('text_formatting', exportedValues)
+    const sessionToken = AppController.getInstance().getSessionToken()
+    const exportResult = await openbis.executeService(serviceId, serviceOptions)
 
-      const result = await openbis.executeService(serviceId, serviceOptions)
-
-      if (result.status === 'OK') {
-        const filePath = result.result
-        const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
-        const fileUrl =
-          '/openbis/download/?sessionID=' +
-          encodeURIComponent(AppController.getInstance().getSessionToken()) +
-          '&filePath=' +
-          encodeURIComponent(filePath)
-
-        const link = document.createElement('a')
-        link.href = fileUrl
-        link.download = fileName
-        link.click()
-      } else if (result.status === 'error') {
-        AppController.getInstance().errorChange(result.message)
-      } else {
-        AppController.getInstance().errorChange(JSON.stringify(result))
-      }
-    } catch (e) {
-      AppController.getInstance().errorChange(JSON.stringify(e.message))
-    } finally {
-      AppController.getInstance().loadingChange(false)
-    }
-  }
-
-  async onExportTSV({ exportedFileDownload }) {
-    try {
-      AppController.getInstance().loadingChange(true)
-      await exportedFileDownload()
-    } catch (e) {
-      AppController.getInstance().errorChange(JSON.stringify(e.message))
-    } finally {
-      AppController.getInstance().loadingChange(false)
-    }
+    return { sessionToken, exportResult }
   }
 }

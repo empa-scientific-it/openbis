@@ -13,6 +13,9 @@ import GridSelectionInfo from '@src/js/components/common/grid/GridSelectionInfo.
 import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
+import GridExportLoading from '@src/js/components/common/grid/GridExportLoading.jsx'
+import GridExportWarning from '@src/js/components/common/grid/GridExportWarning.jsx'
+import GridExportError from '@src/js/components/common/grid/GridExportError.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridColumnsConfig from '@src/js/components/common/grid/GridColumnsConfig.jsx'
 import GridFiltersConfig from '@src/js/components/common/grid/GridFiltersConfig.jsx'
@@ -132,6 +135,7 @@ class Grid extends React.PureComponent {
                 </TableBody>
               </Table>
             </div>
+            {this.renderExportState()}
           </Loading>
         </div>
       </div>
@@ -243,6 +247,36 @@ class Grid extends React.PureComponent {
         onExport={this.controller.handleExport}
         onExportOptionsChange={this.controller.handleExportOptionsChange}
       />
+    )
+  }
+
+  renderExportState() {
+    const { exportState } = this.state
+
+    if (!exportState) {
+      return null
+    }
+
+    return (
+      <React.Fragment>
+        <GridExportLoading loading={!!exportState.loading} />
+        <GridExportError
+          open={!!exportState.error}
+          error={exportState.error}
+          onClose={this.controller.handleExportCancel}
+        />
+        <GridExportWarning
+          open={!!exportState.warning}
+          message={exportState.warning}
+          onDownload={() =>
+            this.controller.handleExportDownload(
+              exportState.fileName,
+              exportState.fileUrl
+            )
+          }
+          onCancel={this.controller.handleExportCancel}
+        />
+      </React.Fragment>
     )
   }
 

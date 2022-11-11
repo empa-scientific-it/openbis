@@ -72,6 +72,13 @@ export default class GridController {
       heights: {},
       sortings: sortings,
       totalCount: 0,
+      exportState: {
+        loading: false,
+        warning: null,
+        error: null,
+        fileName: null,
+        filePath: null
+      },
       exportOptions: {
         columns: GridExportOptions.VISIBLE_COLUMNS,
         rows: GridExportOptions.CURRENT_PAGE,
@@ -1038,15 +1045,7 @@ export default class GridController {
     const state = this.context.getState()
     const props = this.context.getProps()
 
-    const { onExportTSV } = props
     const { exportOptions } = state
-
-    if (!onExportTSV) {
-      console.error(
-        'Missing onExportTSV callback function for grid with id: ' + props.id
-      )
-      return
-    }
 
     function _stringToUtf16ByteArray(str) {
       var bytes = []
@@ -1185,116 +1184,199 @@ export default class GridController {
       }
     }
 
-    onExportTSV({
-      exportedFileDownload: _exportedFileDownload
-    })
+    try {
+      this.context.setState({
+        exportState: {
+          loading: true
+        }
+      })
+      await _exportedFileDownload()
+      this.context.setState({
+        exportState: null
+      })
+    } catch (e) {
+      this.context.setState({
+        exportState: {
+          error: e.message
+        }
+      })
+    }
   }
 
   async handleExportXLS(exportable) {
     const state = this.context.getState()
     const props = this.context.getProps()
 
-    if (!props.onExportXLS) {
+    if (!props.exportXLS) {
       console.error(
-        'Missing onExportXLS callback function for grid with id: ' + props.id
+        'Missing exportXLS callback function for grid with id: ' + props.id
       )
       return
     }
 
-    let exportedRows = []
-
-    if (state.exportOptions.rows === GridExportOptions.ALL_PAGES) {
-      if (state.local) {
-        exportedRows = state.sortedRows
-      } else if (props.loadRows) {
-        const columns = {}
-
-        state.allColumns.forEach(column => {
-          columns[column.name] = column
-        })
-
-        const loadedResult = await props.loadRows({
-          columns: columns,
-          filterMode: state.filterMode,
-          filters: state.filters,
-          globalFilter: state.globalFilter,
-          page: 0,
-          pageSize: 1000000,
-          sortings: state.sortings
-        })
-        exportedRows = loadedResult.rows
-      }
-    } else if (state.exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
-      exportedRows = state.rows
-    } else if (state.exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
-      exportedRows = Object.values(state.multiselectedRows).map(
-        selectedRow => selectedRow.data
-      )
-    } else {
-      throw Error('Unsupported rows option: ' + state.exportOptions.columns)
-    }
-
-    if (exportedRows.some(row => _.isEmpty(row.exportableId))) {
-      throw Error(
-        "Some of the rows to be exported do not have 'exportableId' set."
-      )
-    }
-
-    let exportedProperties = {}
-
-    if (state.exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
-      exportedProperties = {}
-    } else if (
-      state.exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS
-    ) {
-      const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
-        await this._loadColumns(
-          exportedRows,
-          state.columnsVisibility,
-          state.columnsSorting
-        )
-
-      this._sortColumns(newAllColumns, newColumnsSorting)
-
-      newAllColumns.forEach(column => {
-        if (column.exportableProperty && newColumnsVisibility[column.name]) {
-          const propertyCode = column.exportableProperty.code
-          const propertyTypesMap = column.exportableProperty.types
-
-          Object.keys(propertyTypesMap).forEach(kind => {
-            const propertyTypesForKind = propertyTypesMap[kind]
-
-            propertyTypesForKind.forEach(propertyTypePermId => {
-              let exportedPropertiesForKind = exportedProperties[kind]
-
-              if (!exportedPropertiesForKind) {
-                exportedProperties[kind] = exportedPropertiesForKind = {}
-              }
-
-              let exportedPropertiesForKindAndType =
-                exportedPropertiesForKind[propertyTypePermId]
-
-              if (!exportedPropertiesForKindAndType) {
-                exportedPropertiesForKind[propertyTypePermId] =
-                  exportedPropertiesForKindAndType = []
-              }
-
-              exportedPropertiesForKindAndType.push(propertyCode)
-            })
-          })
+    try {
+      this.context.setState({
+        exportState: {
+          loading: true
         }
       })
-    } else {
-      throw Error('Unsupported columns option: ' + state.exportOptions.columns)
+
+      let exportedRows = []
+
+      if (state.exportOptions.rows === GridExportOptions.ALL_PAGES) {
+        if (state.local) {
+          exportedRows = state.sortedRows
+        } else if (props.loadRows) {
+          const columns = {}
+
+          state.allColumns.forEach(column => {
+            columns[column.name] = column
+          })
+
+          const loadedResult = await props.loadRows({
+            columns: columns,
+            filterMode: state.filterMode,
+            filters: state.filters,
+            globalFilter: state.globalFilter,
+            page: 0,
+            pageSize: 1000000,
+            sortings: state.sortings
+          })
+          exportedRows = loadedResult.rows
+        }
+      } else if (state.exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
+        exportedRows = state.rows
+      } else if (state.exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+        exportedRows = Object.values(state.multiselectedRows).map(
+          selectedRow => selectedRow.data
+        )
+      } else {
+        throw Error('Unsupported rows option: ' + state.exportOptions.columns)
+      }
+
+      if (exportedRows.some(row => _.isEmpty(row.exportableId))) {
+        throw Error(
+          "Some of the rows to be exported do not have 'exportableId' set."
+        )
+      }
+
+      let exportedProperties = {}
+
+      if (state.exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
+        exportedProperties = {}
+      } else if (
+        state.exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS
+      ) {
+        const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+          await this._loadColumns(
+            exportedRows,
+            state.columnsVisibility,
+            state.columnsSorting
+          )
+
+        this._sortColumns(newAllColumns, newColumnsSorting)
+
+        newAllColumns.forEach(column => {
+          if (column.exportableProperty && newColumnsVisibility[column.name]) {
+            const propertyCode = column.exportableProperty.code
+            const propertyTypesMap = column.exportableProperty.types
+
+            Object.keys(propertyTypesMap).forEach(kind => {
+              const propertyTypesForKind = propertyTypesMap[kind]
+
+              propertyTypesForKind.forEach(propertyTypePermId => {
+                let exportedPropertiesForKind = exportedProperties[kind]
+
+                if (!exportedPropertiesForKind) {
+                  exportedProperties[kind] = exportedPropertiesForKind = {}
+                }
+
+                let exportedPropertiesForKindAndType =
+                  exportedPropertiesForKind[propertyTypePermId]
+
+                if (!exportedPropertiesForKindAndType) {
+                  exportedPropertiesForKind[propertyTypePermId] =
+                    exportedPropertiesForKindAndType = []
+                }
+
+                exportedPropertiesForKindAndType.push(propertyCode)
+              })
+            })
+          }
+        })
+      } else {
+        throw Error(
+          'Unsupported columns option: ' + state.exportOptions.columns
+        )
+      }
+
+      const exportedIds = exportedRows.map(row => row.exportableId)
+
+      const { sessionToken, exportResult } = await props.exportXLS({
+        exportedFilePrefix: exportable.filePrefix,
+        exportedIds: exportedIds,
+        exportedProperties: exportedProperties,
+        exportedValues: state.exportOptions.values
+      })
+
+      if (exportResult.status === 'OK') {
+        const filePath = exportResult.result
+        const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
+        const fileUrl =
+          '/openbis/download/?sessionID=' +
+          encodeURIComponent(sessionToken) +
+          '&filePath=' +
+          encodeURIComponent(filePath)
+
+        if (exportResult.warning) {
+          this.context.setState({
+            exportState: {
+              warning: exportResult.warning,
+              fileName,
+              fileUrl
+            }
+          })
+        } else {
+          this.context.setState({
+            exportState: null
+          })
+          this.handleExportDownload(fileName, fileUrl)
+        }
+      } else if (exportResult.status === 'error') {
+        this.context.setState({
+          exportState: {
+            error: exportResult.message
+          }
+        })
+      } else {
+        this.context.setState({
+          exportState: {
+            error: JSON.stringify(exportResult)
+          }
+        })
+      }
+    } catch (e) {
+      this.context.setState({
+        exportState: {
+          error: e.message
+        }
+      })
     }
+  }
 
-    const exportedIds = exportedRows.map(row => row.exportableId)
+  handleExportDownload(fileName, fileUrl) {
+    this.context.setState({
+      exportState: null
+    })
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = fileName
+    link.click()
+  }
 
-    props.onExportXLS({
-      exportedFilePrefix: exportable.filePrefix,
-      exportedIds: exportedIds,
-      exportedProperties: exportedProperties,
-      exportedValues: state.exportOptions.values
+  handleExportCancel() {
+    this.context.setState({
+      exportState: null
     })
   }
 
