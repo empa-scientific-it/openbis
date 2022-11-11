@@ -74,7 +74,7 @@ export default class GridController {
       totalCount: 0,
       exportState: {
         loading: false,
-        warning: null,
+        warnings: null,
         error: null,
         fileName: null,
         filePath: null
@@ -1356,10 +1356,10 @@ export default class GridController {
           '&filePath=' +
           encodeURIComponent(filePath)
 
-        if (exportResult.warning) {
+        if (exportResult.warnings) {
           this.context.setState({
             exportState: {
-              warning: exportResult.warning,
+              warnings: exportResult.warnings,
               fileName,
               fileUrl
             }

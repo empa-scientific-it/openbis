@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
@@ -13,7 +14,7 @@ const styles = theme => ({
   }
 })
 
-class GridExportWarning extends React.PureComponent {
+class GridExportWarnings extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -28,15 +29,15 @@ class GridExportWarning extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'GridExportWarning.render')
+    logger.log(logger.DEBUG, 'GridExportWarnings.render')
 
-    const { open, message, classes } = this.props
+    const { open, classes } = this.props
 
     return (
       <Dialog
         open={open}
         title={messages.get(messages.WARNING)}
-        content={<Message type='warning'>{message}</Message>}
+        content={this.renderWarnings()}
         actions={
           <div>
             <Button
@@ -56,6 +57,20 @@ class GridExportWarning extends React.PureComponent {
       />
     )
   }
+
+  renderWarnings() {
+    const { warnings } = this.props
+
+    if (_.isEmpty(warnings)) {
+      return null
+    }
+
+    return warnings.map((warning, index) => (
+      <Message key={index} type='warning'>
+        {warning}
+      </Message>
+    ))
+  }
 }
 
-export default withStyles(styles)(GridExportWarning)
+export default withStyles(styles)(GridExportWarnings)

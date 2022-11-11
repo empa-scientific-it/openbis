@@ -14,7 +14,7 @@ import GridRow from '@src/js/components/common/grid/GridRow.jsx'
 import GridRowFullWidth from '@src/js/components/common/grid/GridRowFullWidth.jsx'
 import GridExports from '@src/js/components/common/grid/GridExports.jsx'
 import GridExportLoading from '@src/js/components/common/grid/GridExportLoading.jsx'
-import GridExportWarning from '@src/js/components/common/grid/GridExportWarning.jsx'
+import GridExportWarnings from '@src/js/components/common/grid/GridExportWarnings.jsx'
 import GridExportError from '@src/js/components/common/grid/GridExportError.jsx'
 import GridPaging from '@src/js/components/common/grid/GridPaging.jsx'
 import GridColumnsConfig from '@src/js/components/common/grid/GridColumnsConfig.jsx'
@@ -265,9 +265,9 @@ class Grid extends React.PureComponent {
           error={exportState.error}
           onClose={this.controller.handleExportCancel}
         />
-        <GridExportWarning
-          open={!!exportState.warning}
-          message={exportState.warning}
+        <GridExportWarnings
+          open={!!exportState.warnings}
+          warnings={exportState.warnings}
           onDownload={() =>
             this.controller.handleExportDownload(
               exportState.fileName,
