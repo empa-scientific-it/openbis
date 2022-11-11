@@ -38,6 +38,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         Version("Version", true),
         Code("Code", true),
         Mandatory("Mandatory", false),
+        DefaultValue("Default Value", false),  // Ignored, only used by PropertyAssignmentImportHelper
         ShowInEditViews("Show in edit views", false),
         Section("Section", false),
         PropertyLabel("Property label", true),

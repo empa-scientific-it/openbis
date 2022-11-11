@@ -108,6 +108,10 @@ function SideMenuWidgetController(mainController) {
     }
 
     this.addSubSideMenu = function(subSideMenu) {
+        // Remove old from DOM if present
+        var elementId = subSideMenu.attr('id');
+        $("#" + elementId).remove();
+        // Add new
         subSideMenu.css("margin-left", "3px");
         this._sideMenuWidgetModel.subSideMenu = subSideMenu;
         this._sideMenuWidgetModel.percentageOfUsage = 0.5;

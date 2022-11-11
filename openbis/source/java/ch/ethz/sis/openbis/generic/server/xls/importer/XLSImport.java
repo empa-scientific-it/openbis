@@ -62,7 +62,7 @@ public class XLSImport
 
     private final ExperimentTypeImportHelper experimentTypeHelper;
 
-    private final DatasetTypeImportHelper datasetHelper;
+    private final DatasetTypeImportHelper datasetTypeHelper;
 
     private final SpaceImportHelper spaceHelper;
 
@@ -97,7 +97,7 @@ public class XLSImport
         this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, versions);
         this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, options, versions);
         this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.datasetHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, versions);
+        this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, versions);
         this.spaceHelper = new SpaceImportHelper(this.delayedExecutor, mode, options);
         this.projectHelper = new ProjectImportHelper(this.delayedExecutor, mode, options);
         this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options);
@@ -192,10 +192,11 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create sample type
+                        boolean sTisNewVersion = sampleTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         sampleTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.SAMPLE_TYPE);
                         // parse and assignment properties
-                        if (lineNumber + 2 != blockEnd)
+                        if (sTisNewVersion && lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -207,10 +208,11 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create experiment type
+                        boolean eTisNewVersion = experimentTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         experimentTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.EXPERIMENT_TYPE);
                         // parse and assignment properties
-                        if (lineNumber + 2 != blockEnd)
+                        if (eTisNewVersion && lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -222,10 +224,11 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create dataset type
-                        datasetHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
+                        boolean dTisNewVersion = datasetTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
+                        datasetTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.DATASET_TYPE);
                         // parse and assignment properties
-                        if (lineNumber + 2 != blockEnd)
+                        if (dTisNewVersion && lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);

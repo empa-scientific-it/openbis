@@ -230,13 +230,6 @@ public class XLSExport
                                             exportHelperFactory, propertyType.getSampleType(),
                                             ExportableKind.SAMPLE_TYPE, SAMPLE);
                                 }
-                                case MATERIAL:
-                                {
-
-                                    return getExportablePermIdStreamForEntityType(api, sessionToken, processedIds,
-                                            exportHelperFactory, propertyType.getMaterialType(),
-                                            ExportableKind.MATERIAL_TYPE, MATERIAL);
-                                }
                                 default:
                                 {
                                     return Stream.empty();

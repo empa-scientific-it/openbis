@@ -44,6 +44,29 @@ public abstract class BasicImportHelper extends AbstractImportHelper
 
     protected abstract void updateObject(Map<String, Integer> header, List<String> values, int page, int line);
 
+    public boolean isNewVersion(List<List<String>> page, int pageIndex, int start, int end)
+    {
+        int lineIndex = start;
+        try
+        {
+            Map<String, Integer> header = parseHeader(page.get(lineIndex), true);
+            lineIndex++;
+            if (lineIndex < end)
+            {
+                validateLine(header, page.get(lineIndex));
+                return isNewVersion(header, page.get(lineIndex));
+            } else {
+                throw new Exception("Version can't be obtained: lineIndex < end");
+            }
+        } catch (Exception e)
+        {
+            UserFailureException userFailureException = new UserFailureException(
+                    "sheet: " + (pageIndex + 1) + " line: " + (lineIndex + 1) + " message: " + e.getMessage());
+            userFailureException.setStackTrace(e.getStackTrace());
+            throw userFailureException;
+        }
+    }
+
     public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
     {
         int lineIndex = start;

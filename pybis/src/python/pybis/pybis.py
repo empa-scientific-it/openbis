@@ -1222,7 +1222,7 @@ class Openbis:
         token_path = self._save_token_to_disk(os_home)
 
         lastIndexOfMinus = len(self.token) - "".join(reversed(self.token)).index("-") - 1
-        token_user_name = session[0:lastIndexOfMinus]
+        token_user_name = self.token[0:lastIndexOfMinus]
         if token_user_name.startswith("$pat-"):
             token_user_name = token_user_name[5:]
         from pwd import getpwnam
