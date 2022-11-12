@@ -318,18 +318,6 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           },
           {
-            id: node.id + '__components',
-            text: 'Components',
-            object: {
-              type: 'objectComponents'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
-          },
-          {
             id: node.id + '__datasets',
             text: 'Data Sets',
             object: {
@@ -342,14 +330,9 @@ export default class DatabaseBrowserController extends BrowserController {
             expanded: true
           }
         ],
-        totalCount: 3
+        totalCount: 2
       }
     } else if (node.object.type === objectType.DATA_SET) {
-      return {
-        nodes: [],
-        totalCount: 0
-      }
-      /*
       return {
         nodes: [
           {
@@ -363,23 +346,10 @@ export default class DatabaseBrowserController extends BrowserController {
             sortings: SORTINGS,
             sortingId: 'code_asc',
             expanded: true
-          },
-          {
-            id: node.id + '__components',
-            text: 'Components',
-            object: {
-              type: 'dataSetComponents'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
           }
         ],
-        totalCount: 2
+        totalCount: 1
       }
-      */
     } else if (node.object.type === 'spaces') {
       return this.searchSpaces(params)
     } else if (node.object.type === 'projects') {
@@ -390,13 +360,9 @@ export default class DatabaseBrowserController extends BrowserController {
       return this.searchSamples(params)
     } else if (node.object.type === 'objectChildren') {
       return this.searchSamples(params)
-    } else if (node.object.type === 'objectComponents') {
-      return this.searchSamples(params)
     } else if (node.object.type === 'dataSets') {
       return this.searchDataSets(params)
     } else if (node.object.type === 'dataSetChildren') {
-      return this.searchDataSets(params)
-    } else if (node.object.type === 'dataSetComponents') {
       return this.searchDataSets(params)
     } else {
       return null
@@ -527,32 +493,21 @@ export default class DatabaseBrowserController extends BrowserController {
       criteria.withoutSpace()
       criteria.withoutProject()
       criteria.withoutExperiment()
-      criteria.withoutContainer()
-      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.SPACE) {
       criteria.withSpace().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutProject()
-      criteria.withoutContainer()
-      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.PROJECT) {
       criteria.withProject().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutExperiment()
-      criteria.withoutContainer()
-      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.COLLECTION) {
       criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
-      criteria.withoutContainer()
-      // TODO add criteria.withoutParents() when available in V3 API
     }
     if (node.parent.object.type === objectType.OBJECT) {
       if (node.object.type === 'objectChildren') {
         criteria.withParents().withPermId().thatEquals(node.parent.object.id)
-      }
-      if (node.object.type === 'objectComponents') {
-        criteria.withContainer().withPermId().thatEquals(node.parent.object.id)
       }
     }
 
@@ -598,29 +553,16 @@ export default class DatabaseBrowserController extends BrowserController {
     if (node.parent.object.type === objectType.COLLECTION) {
       criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
       criteria.withoutSample()
-      // TODO add criteria.withoutParents() when available in V3 API
-      // TODO add criteria.withoutContainer() when available in V3 API
     }
     if (node.parent.object.type === objectType.OBJECT) {
       criteria.withSample().withPermId().thatEquals(node.parent.object.id)
-      // TODO add criteria.withoutParents() when available in V3 API
-      // TODO add criteria.withoutContainer() when available in V3 API
     }
-    /*
-    TODO fix needed for criteria.withContainer() in V3 API (currently when a given 
-    data set which is set as container in the search criteria does not have any 
-    contained data sets then a list of all data sets available in the system is returned 
-    instead of an empty list)
 
     if (node.parent.object.type === objectType.DATA_SET) {
       if (node.object.type === 'dataSetChildren') {
         criteria.withParents().withPermId().thatEquals(node.parent.object.id)
       }
-      if (node.object.type === 'dataSetComponents') {
-        criteria.withContainer().withPermId().thatEquals(node.parent.object.id)
-      }
     }
-    */
 
     const fetchOptions = new openbis.DataSetFetchOptions()
     if (node.sortings && node.sortingId) {
@@ -645,8 +587,8 @@ export default class DatabaseBrowserController extends BrowserController {
       object: {
         type: objectType.DATA_SET,
         id: dataSet.getPermId().getPermId()
-      }
-      //canHaveChildren: true
+      },
+      canHaveChildren: true
     }))
 
     return {
