@@ -167,7 +167,126 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async doLoadUnfilteredNodes(params) {
+    const _this = this
     const { node } = params
+
+    async function addSpacesNode(nodes) {
+      const spacesNode = {
+        id: node.id + '__spaces',
+        text: 'Spaces',
+        object: {
+          type: 'spaces'
+        },
+        parent: node,
+        canHaveChildren: true,
+        sortings: SORTINGS,
+        sortingId: 'code_asc'
+      }
+
+      const spaces = await _this.searchSpaces({ ...params, node: spacesNode })
+
+      if (spaces) {
+        spacesNode.children = spaces
+        nodes.push(spacesNode)
+      }
+    }
+
+    async function addProjectsNode(nodes) {
+      const projectsNode = {
+        id: node.id + '__projects',
+        text: 'Projects',
+        object: {
+          type: 'projects'
+        },
+        parent: node,
+        canHaveChildren: true,
+        sortings: SORTINGS,
+        sortingId: 'code_asc'
+      }
+
+      const projects = await _this.searchProjects({
+        ...params,
+        node: projectsNode
+      })
+
+      if (projects) {
+        projectsNode.children = projects
+        nodes.push(projectsNode)
+      }
+    }
+
+    async function addExperimentsNode(nodes) {
+      const experimentsNode = {
+        id: node.id + '__collections',
+        text: 'Collections',
+        object: {
+          type: 'collections'
+        },
+        parent: node,
+        canHaveChildren: true,
+        sortings: SORTINGS,
+        sortingId: 'code_asc'
+      }
+
+      const experiments = await _this.searchExperiments({
+        ...params,
+        node: experimentsNode
+      })
+
+      if (experiments) {
+        experimentsNode.children = experiments
+        nodes.push(experimentsNode)
+      }
+    }
+
+    async function addSamplesNode(nodes) {
+      const samplesNode = {
+        id: node.id + '__objects',
+        text: 'Objects',
+        object: {
+          type: 'objects'
+        },
+        parent: node,
+        canHaveChildren: true,
+        sortings: SORTINGS,
+        sortingId: 'code_asc'
+      }
+
+      const samples = await _this.searchSamples({
+        ...params,
+        node: samplesNode
+      })
+
+      if (samples) {
+        samplesNode.children = samples
+        nodes.push(samplesNode)
+      }
+    }
+
+    async function addDataSetsNode(nodes) {
+      const dataSetsNode = {
+        id: node.id + '__datasets',
+        text: 'Data Sets',
+        object: {
+          type: 'dataSets'
+        },
+        parent: node,
+        canHaveChildren: true,
+        sortings: SORTINGS,
+        sortingId: 'code_asc'
+      }
+
+      const dataSets = await _this.searchDataSets({
+        ...params,
+        node: dataSetsNode
+      })
+
+      if (dataSets) {
+        dataSetsNode.children = dataSets
+        nodes.push(dataSetsNode)
+      }
+    }
+
     if (!node) {
       return {
         nodes: [
@@ -183,178 +302,78 @@ export default class DatabaseBrowserController extends BrowserController {
         totalCount: 1
       }
     } else if (node.object.type === 'root') {
+      const nodes = []
+
+      await addSpacesNode(nodes)
+      await addSamplesNode(nodes)
+
       return {
-        nodes: [
-          {
-            id: node.id + '__spaces',
-            text: 'Spaces',
-            object: {
-              type: 'spaces'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
-          },
-          {
-            id: node.id + '__objects',
-            text: 'Objects',
-            object: {
-              type: 'objects'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
-          }
-        ],
-        totalCount: 2
+        nodes: nodes,
+        totalCount: nodes.length
       }
     } else if (node.object.type === objectType.SPACE) {
+      const nodes = []
+
+      await addProjectsNode(nodes)
+      await addSamplesNode(nodes)
+
       return {
-        nodes: [
-          {
-            id: node.id + '__projects',
-            text: 'Projects',
-            object: {
-              type: 'projects'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          },
-          {
-            id: node.id + '__objects',
-            text: 'Objects',
-            object: {
-              type: 'objects'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          }
-        ],
-        totalCount: 2
+        nodes: nodes,
+        totalCount: nodes.length
       }
     } else if (node.object.type === objectType.PROJECT) {
+      const nodes = []
+
+      await addExperimentsNode(nodes)
+      await addSamplesNode(nodes)
+
       return {
-        nodes: [
-          {
-            id: node.id + '__collections',
-            text: 'Collections',
-            object: {
-              type: 'collections'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          },
-          {
-            id: node.id + '__objects',
-            text: 'Objects',
-            object: {
-              type: 'objects'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          }
-        ],
-        totalCount: 2
+        nodes: nodes,
+        totalCount: nodes.length
       }
     } else if (node.object.type === objectType.COLLECTION) {
+      const nodes = []
+
+      await addSamplesNode(nodes)
+      await addDataSetsNode(nodes)
+
       return {
-        nodes: [
-          {
-            id: node.id + '__objects',
-            text: 'Objects',
-            object: {
-              type: 'objects'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          },
-          {
-            id: node.id + '__datasets',
-            text: 'Data Sets',
-            object: {
-              type: 'dataSets'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          }
-        ],
-        totalCount: 2
+        nodes: nodes,
+        totalCount: nodes.length
       }
     } else if (node.object.type === objectType.OBJECT) {
+      const nodes = []
+
+      await addSamplesNode(nodes)
+      await addDataSetsNode(nodes)
+
       return {
-        nodes: [
-          {
-            id: node.id + '__children',
-            text: 'Children',
-            object: {
-              type: 'objectChildren'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          },
-          {
-            id: node.id + '__datasets',
-            text: 'Data Sets',
-            object: {
-              type: 'dataSets'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          }
-        ],
-        totalCount: 2
+        nodes: nodes,
+        totalCount: nodes.length
       }
     } else if (node.object.type === objectType.DATA_SET) {
+      const nodes = []
+
+      await addDataSetsNode(nodes)
+
       return {
-        nodes: [
-          {
-            id: node.id + '__children',
-            text: 'Children',
-            object: {
-              type: 'dataSetChildren'
-            },
-            parent: node,
-            canHaveChildren: true,
-            sortings: SORTINGS,
-            sortingId: 'code_asc'
-          }
-        ],
-        totalCount: 1
+        nodes: nodes,
+        totalCount: nodes.length
       }
     } else if (node.object.type === 'spaces') {
-      return this.searchSpaces(params)
+      return await this.searchSpaces(params)
     } else if (node.object.type === 'projects') {
-      return this.searchProjects(params)
+      return await this.searchProjects(params)
     } else if (node.object.type === 'collections') {
-      return this.searchExperiments(params)
+      return await this.searchExperiments(params)
     } else if (node.object.type === 'objects') {
-      return this.searchSamples(params)
+      return await this.searchSamples(params)
     } else if (node.object.type === 'objectChildren') {
-      return this.searchSamples(params)
+      return await this.searchSamples(params)
     } else if (node.object.type === 'dataSets') {
-      return this.searchDataSets(params)
+      return await this.searchDataSets(params)
     } else if (node.object.type === 'dataSetChildren') {
-      return this.searchDataSets(params)
+      return await this.searchDataSets(params)
     } else {
       return null
     }
@@ -386,9 +405,13 @@ export default class DatabaseBrowserController extends BrowserController {
       canHaveChildren: true
     }))
 
-    return {
-      nodes: nodes,
-      totalCount: result.getTotalCount()
+    if (_.isEmpty(nodes)) {
+      return null
+    } else {
+      return {
+        nodes: nodes,
+        totalCount: result.getTotalCount()
+      }
     }
   }
 
@@ -427,9 +450,13 @@ export default class DatabaseBrowserController extends BrowserController {
       canHaveChildren: true
     }))
 
-    return {
-      nodes: nodes,
-      totalCount: result.getTotalCount()
+    if (_.isEmpty(nodes)) {
+      return null
+    } else {
+      return {
+        nodes: nodes,
+        totalCount: result.getTotalCount()
+      }
     }
   }
 
@@ -468,9 +495,13 @@ export default class DatabaseBrowserController extends BrowserController {
       canHaveChildren: true
     }))
 
-    return {
-      nodes: nodes,
-      totalCount: result.getTotalCount()
+    if (_.isEmpty(nodes)) {
+      return null
+    } else {
+      return {
+        nodes: nodes,
+        totalCount: result.getTotalCount()
+      }
     }
   }
 
@@ -497,9 +528,7 @@ export default class DatabaseBrowserController extends BrowserController {
       criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
     }
     if (node.parent.object.type === objectType.OBJECT) {
-      if (node.object.type === 'objectChildren') {
-        criteria.withParents().withPermId().thatEquals(node.parent.object.id)
-      }
+      criteria.withParents().withPermId().thatEquals(node.parent.object.id)
     }
 
     const fetchOptions = new openbis.SampleFetchOptions()
@@ -529,9 +558,13 @@ export default class DatabaseBrowserController extends BrowserController {
       canHaveChildren: true
     }))
 
-    return {
-      nodes: nodes,
-      totalCount: result.getTotalCount()
+    if (_.isEmpty(nodes)) {
+      return null
+    } else {
+      return {
+        nodes: nodes,
+        totalCount: result.getTotalCount()
+      }
     }
   }
 
@@ -550,9 +583,7 @@ export default class DatabaseBrowserController extends BrowserController {
     }
 
     if (node.parent.object.type === objectType.DATA_SET) {
-      if (node.object.type === 'dataSetChildren') {
-        criteria.withParents().withPermId().thatEquals(node.parent.object.id)
-      }
+      criteria.withParents().withPermId().thatEquals(node.parent.object.id)
     }
 
     const fetchOptions = new openbis.DataSetFetchOptions()
@@ -582,9 +613,13 @@ export default class DatabaseBrowserController extends BrowserController {
       canHaveChildren: true
     }))
 
-    return {
-      nodes: nodes,
-      totalCount: result.getTotalCount()
+    if (_.isEmpty(nodes)) {
+      return null
+    } else {
+      return {
+        nodes: nodes,
+        totalCount: result.getTotalCount()
+      }
     }
   }
 
