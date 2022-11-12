@@ -224,8 +224,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           },
           {
             id: node.id + '__objects',
@@ -236,8 +235,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           }
         ],
         totalCount: 2
@@ -254,8 +252,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           },
           {
             id: node.id + '__objects',
@@ -266,8 +263,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           }
         ],
         totalCount: 2
@@ -284,8 +280,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           },
           {
             id: node.id + '__datasets',
@@ -296,8 +291,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           }
         ],
         totalCount: 2
@@ -314,8 +308,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           },
           {
             id: node.id + '__datasets',
@@ -326,8 +319,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           }
         ],
         totalCount: 2
@@ -344,8 +336,7 @@ export default class DatabaseBrowserController extends BrowserController {
             parent: node,
             canHaveChildren: true,
             sortings: SORTINGS,
-            sortingId: 'code_asc',
-            expanded: true
+            sortingId: 'code_asc'
           }
         ],
         totalCount: 1
