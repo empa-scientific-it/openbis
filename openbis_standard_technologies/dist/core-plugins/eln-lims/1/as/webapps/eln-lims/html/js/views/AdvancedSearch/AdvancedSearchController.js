@@ -149,7 +149,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 					if(entityExportableKind && entity.permId){
 						rowData.exportableId = {
 							exportable_kind: entityExportableKind,
-							perm_id: entity.permId.permId
+							perm_id: entity.permId.permId,
+							type_perm_id: entity.type ? entity.type.code : null
 						}
 					}
 

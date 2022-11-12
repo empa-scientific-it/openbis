@@ -1125,9 +1125,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var dynamicColumnsFunc = function(entities) {
 				//1. Get properties with actual data
 				var foundPropertyCodes = {};
-				var foundTypes = {}
 				for(var rIdx = 0; rIdx < entities.length; rIdx++) {
-					var row = entities[rIdx]
 					var entity = entities[rIdx].$object;
 					if(isGlobalSearch) {
 						switch(entity.objectKind) {
@@ -1150,12 +1148,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						if(entity.properties[propertyCode]) {
 							foundPropertyCodes[propertyCode] = true;
 						}
-					}
-
-					if(row.entityKind && row.entityType){
-						let foundTypesForKind = foundTypes[row.entityKind] || {}
-						foundTypesForKind[row.entityType] = true
-						foundTypes[row.entityKind] = foundTypesForKind
 					}
 				}
 
@@ -1215,6 +1207,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyCode,
+						exportableProperty : propertyCode,
 						filterable : !isGlobalSearch,
 						render: renderValue,
 						renderFilter: renderFilter,
@@ -1233,17 +1226,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						entityType: entity.entityType
 					}
 				}))
-
-				propertyColumnsToSort.forEach(propertyColumn => {
-					propertyColumn.exportableProperty = {
-						code: propertyColumn.property,
-						types: {
-							"SAMPLE": foundTypes["Sample"] ? Object.keys(foundTypes["Sample"]) : [],
-							"EXPERIMENT": foundTypes["Experiment"] ? Object.keys(foundTypes["Experiment"]) : [],
-							"DATASET": foundTypes["DataSet"] ? Object.keys(foundTypes["DataSet"]) : [],
-						}
-					}
-				})
 
 				return propertyColumnsToSort;
 			}

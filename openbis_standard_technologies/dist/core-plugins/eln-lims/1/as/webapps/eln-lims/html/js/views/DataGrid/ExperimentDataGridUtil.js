@@ -102,7 +102,8 @@ var ExperimentDataGridUtil = new function() {
 									'id' : entity.permId,
 									'exportableId' : {
 										exportable_kind: 'EXPERIMENT',
-										perm_id: entity.permId
+										perm_id: entity.permId,
+										type_perm_id: entity.experimentTypeCode
 									},
 									'code' : entity.code,
 									'identifier' : entity.identifier,
@@ -143,15 +144,6 @@ var ExperimentDataGridUtil = new function() {
                     entityType: entity.type
                 }
             }))
-
-            propertyColumnsToSort.forEach(propertyColumn => {
-                propertyColumn.exportableProperty = {
-                    code: propertyColumn.property,
-                    types: {
-                        "EXPERIMENT": Object.keys(foundExperimentTypes)
-                    }
-                }
-            })
 
             return propertyColumnsToSort;
         }

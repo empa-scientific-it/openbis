@@ -132,15 +132,6 @@ var SampleDataGridUtil = new function() {
 				}
 			}))
 
-			propertyColumnsToSort.forEach(propertyColumn => {
-				propertyColumn.exportableProperty = {
-					code: propertyColumn.property,
-					types: {
-						"SAMPLE": Object.keys(foundSampleTypes)
-					}
-				}
-			})
-
 			return propertyColumnsToSort;
 		}
 
@@ -414,7 +405,8 @@ var SampleDataGridUtil = new function() {
 										'id' : sample.permId,
 										'exportableId' : {
 											exportable_kind: 'SAMPLE',
-											perm_id: sample.permId
+											perm_id: sample.permId,
+											type_perm_id: sample.sampleTypeCode
 										},
 										'$object' : sample,
 										'identifier' : sample.identifier, 
@@ -659,7 +651,8 @@ var SampleDataGridUtil = new function() {
 									'id' : sample.permId,
 									'exportableId' : {
 										exportable_kind: 'SAMPLE',
-										perm_id: sample.permId
+										perm_id: sample.permId,
+										type_perm_id: sample.sampleTypeCode
 									},
 									'$object' : sample,
 									'identifier' : sample.identifier, 
@@ -786,6 +779,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
+                        exportableProperty: propertyType.code,
                         filterable : true,
                         sortable : false,
                         metadata: {
@@ -813,6 +807,7 @@ var SampleDataGridUtil = new function() {
                         return {
                             label : propertyType.label,
                             property : propertyType.code,
+                            exportableProperty: propertyType.code,
                             filterable: true,
                             sortable : true,
                             metadata: {
@@ -856,6 +851,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
+                        exportableProperty: propertyType.code,
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -872,6 +868,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
+                        exportableProperty: propertyType.code,
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -903,6 +900,7 @@ var SampleDataGridUtil = new function() {
                 propertyColumnsToSort.push({
                     label : propertyType.label,
                     property : propertyType.code,
+                    exportableProperty: propertyType.code,
                     filterable : true,
                     sortable : propertyType.dataType !== "XML",
                     truncate: true,

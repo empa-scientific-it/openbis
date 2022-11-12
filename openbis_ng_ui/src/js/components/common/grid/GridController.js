@@ -1288,6 +1288,9 @@ export default class GridController {
       if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
         exportedProperties = {}
       } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
+        const exportablePropertyCodes = []
+
+        // find visible exportable columns for the exported rows
         const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
           await _this._loadColumns(
             exportedRows,
@@ -1299,30 +1302,23 @@ export default class GridController {
 
         newAllColumns.forEach(column => {
           if (column.exportableProperty && newColumnsVisibility[column.name]) {
-            const propertyCode = column.exportableProperty.code
-            const propertyTypesMap = column.exportableProperty.types
+            exportablePropertyCodes.push(column.exportableProperty)
+          }
+        })
 
-            Object.keys(propertyTypesMap).forEach(kind => {
-              const propertyTypesForKind = propertyTypesMap[kind]
+        // build exported properties map: { kind: { type: [property_code, ...], ... }, ... }
+        exportedRows.forEach(exportedRow => {
+          const { exportable_kind, type_perm_id } = exportedRow.exportableId
 
-              propertyTypesForKind.forEach(propertyTypePermId => {
-                let exportedPropertiesForKind = exportedProperties[kind]
+          if (exportable_kind && type_perm_id) {
+            let exportedPropertiesForKind = exportedProperties[exportable_kind]
 
-                if (!exportedPropertiesForKind) {
-                  exportedProperties[kind] = exportedPropertiesForKind = {}
-                }
+            if (!exportedPropertiesForKind) {
+              exportedProperties[exportable_kind] = exportedPropertiesForKind =
+                {}
+            }
 
-                let exportedPropertiesForKindAndType =
-                  exportedPropertiesForKind[propertyTypePermId]
-
-                if (!exportedPropertiesForKindAndType) {
-                  exportedPropertiesForKind[propertyTypePermId] =
-                    exportedPropertiesForKindAndType = []
-                }
-
-                exportedPropertiesForKindAndType.push(propertyCode)
-              })
-            })
+            exportedPropertiesForKind[type_perm_id] = exportablePropertyCodes
           }
         })
       } else {
