@@ -2,7 +2,6 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DATA_SET;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.EXPERIMENT;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.MATERIAL;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
@@ -54,13 +53,14 @@ public class XLSExport
 
     private static final String ZIP_EXTENSION = ".zip";
 
-    public static ExportResult export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
-            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
+    public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
+            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+            final boolean exportReferredMasterData,
             final Map<String, Map<String, Collection<String>>> exportProperties,
             final TextFormatting textFormatting) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferred, exportProperties, textFormatting);
+                exportReferredMasterData, exportProperties, textFormatting);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final ByteArrayOutputStream baos = getByteArrayOutputStream(filePrefix, exportResult, scripts);
@@ -126,7 +126,7 @@ public class XLSExport
     }
 
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
-            Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
+            Collection<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
             final Map<String, Map<String, Collection<String>>> exportProperties, final TextFormatting textFormatting)
     {
         if (!isValid(exportablePermIds))
@@ -139,7 +139,7 @@ public class XLSExport
 
         final ExportHelperFactory exportHelperFactory = new ExportHelperFactory(wb);
 
-        if (exportReferred)
+        if (exportReferredMasterData)
         {
             exportablePermIds = expandReference(api, sessionToken, exportablePermIds, exportHelperFactory);
         }
