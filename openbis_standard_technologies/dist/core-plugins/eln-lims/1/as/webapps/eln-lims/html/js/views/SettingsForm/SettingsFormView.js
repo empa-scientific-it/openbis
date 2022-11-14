@@ -80,9 +80,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$header.append(FormUtil.getToolbar(toolbarModel));
 
 			var texts = ELNDictionary.settingsView.sections;
+            var isNoGroup = this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS";
 
-            if(this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS") {
+            if(isNoGroup) {
                 $formColumn.append($("<h2>").append("Instance Settings"));
+                if(profile.isMultiGroup()) {
+                    $formColumn.append(FormUtil.getWarningText("These Settings apply to the whole openBIS instance and affect all groups. "));
+                }
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
 	            this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
@@ -90,8 +94,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
             $formColumn.append($("<h2>").append("Group Settings"));
 
-            if(profile.isMultiGroup()) {
-                $formColumn.append(FormUtil.getWarningText("Storages and Templates shown are the ones belonging to the group settings selected."));
+            if(isNoGroup && profile.isMultiGroup()) {
+                $formColumn.append(FormUtil.getWarningText("These Settings apply to all Spaces that do not belong to any of the groups defined in the user management config file. "));
+            } else if(profile.isMultiGroup()) {
+                $formColumn.append(FormUtil.getWarningText("These Settings apply to all Spaces that belong to the group. "));
             }
 
             this._paintStoragesSection($formColumn, texts.storages);
