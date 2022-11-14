@@ -6,9 +6,14 @@ export default class ImportAllFormFacade {
       const reader = new FileReader()
       reader.onload = () => {
         const resultBase64 = reader.result.split(',')[1]
-        const serviceId = new openbis.CustomASServiceCode('xls-import-api')
+        const serviceId = new openbis.CustomASServiceCode('xls-import')
         const serviceOptions = new openbis.CustomASServiceExecutionOptions()
-        serviceOptions.withParameter('xls_name', file.name)
+        serviceOptions.withParameter('method', 'import')
+        serviceOptions.withParameter(
+          'zip',
+          file.name.toLowerCase().endsWith('.zip')
+        )
+        serviceOptions.withParameter('xls_name', 'DEFAULT')
         serviceOptions.withParameter('xls_base64', resultBase64)
         serviceOptions.withParameter('update_mode', updateMode)
         openbis.executeService(serviceId, serviceOptions).then(result => {
