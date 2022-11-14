@@ -23,7 +23,8 @@ function DataGridController(
     rowClickEventHandler,
     showAllColumns,
     configKey,
-    isMultiselectable,
+    multiselectable,
+    exportable,
     heightPercentage,
     filterModes
 ) {
@@ -50,7 +51,7 @@ function DataGridController(
         $container.empty().append($element)
     }
 
-    this.setId = function(id){
+    this.setId = function (id) {
         this.id = id
     }
 
@@ -73,8 +74,10 @@ function DataGridController(
                     loadRows: _this._loadRows,
                     onSettingsChange: _this._onSettingsChange,
                     onRowClick: rowClickEventHandler,
+                    exportable: exportable,
+                    exportXLS: _this._exportXLS,
                     selectable: false,
-                    multiselectable: isMultiselectable,
+                    multiselectable: multiselectable,
                     actions: _this._actions(extraOptions),
                 })
             )
@@ -155,12 +158,12 @@ function DataGridController(
                         value = params.value
                     }
 
-                    if(value === null || value === undefined || value === ""){
+                    if (value === null || value === undefined || value === "") {
                         return
-                    }else{
-                        if(_.isString(value)){
+                    } else {
+                        if (_.isString(value)) {
                             $(params.container).empty().text(value)
-                        }else{
+                        } else {
                             $(params.container).empty().append(value)
                         }
                     }
@@ -191,6 +194,7 @@ function DataGridController(
                         index === columns.length - 1),
                 configurable: !column.hide && !column.canNotBeHidden,
                 exportable: column.isExportable,
+                exportableProperty: column.exportableProperty,
                 truncate: column.truncate,
                 metadata: column.metadata,
             }
@@ -273,6 +277,25 @@ function DataGridController(
         let elnGridSettingsStr = JSON.stringify(elnGridSettingsObj)
         mainController.serverFacade.setSetting(configKey, elnGridSettingsStr)
     }
+
+	this._exportXLS = function (parameters) {
+		let serviceParameters = {
+			"method" : "export",
+			"file_name" : parameters.exportedFilePrefix,
+			"ids" : parameters.exportedIds,
+			"export_referred_master_data" : false,
+			"export_properties" : parameters.exportedProperties,
+			"text_formatting" : parameters.exportedValues
+		}
+
+		return new Promise(function(resolve, reject){
+			mainController.serverFacade.customASService(serviceParameters, function(result) {
+				resolve({ sessionToken: mainController.serverFacade.getSession(), exportResult: result.result})
+			}, "xls-export", function(error) {
+				reject(error)
+			}, true);
+		})
+	}
 
     this.refresh = function () {
         if (_this.controller) {

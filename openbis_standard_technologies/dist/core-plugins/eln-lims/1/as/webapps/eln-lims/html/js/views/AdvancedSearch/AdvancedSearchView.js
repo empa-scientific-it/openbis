@@ -954,7 +954,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var columns = _this.firstColumns.concat([ {
 				label : 'Entity Kind',
 				property : 'entityKind',
-				isExportable: true,
 				filterable: false,
 				sortable : false,
 				render : function(data) {
@@ -969,7 +968,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
                 label : 'Name',
                 property : '$NAME',
-                isExportable: true,
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data) {
@@ -982,7 +980,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             }, {
                 label : 'Identifier',
                 property : 'identifier',
-                isExportable: true,
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data, grid) {
@@ -1011,13 +1008,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             }, {
 				label : 'Entity Type',
 				property : 'entityType',
-				isExportable: true,
 				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch
 			}, {
 				label : 'Code',
 				property : 'code',
-				isExportable: true,
 				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				render : function(data, grid) {
@@ -1046,7 +1041,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
-				isExportable: false,
 				filterable: !isGlobalSearch,
 				sortable : false
 			}]);
@@ -1055,7 +1049,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Archiving status',
                     property : 'status',
-                    isExportable: false,
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1065,7 +1058,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Present in archive',
                     property : 'presentInArchive',
-                    isExportable: false,
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1078,7 +1070,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Storage confirmation',
                     property : 'storageConfirmation',
-                    isExportable: false,
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1096,7 +1087,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				columns.push({
 					label : 'Matched',
 					property : 'matched',
-					isExportable: true,
 					filterable: false,
 					sortable : false,
 					truncate: true,
@@ -1108,7 +1098,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				columns.push({
 					label : 'Rank',
 					property : 'rank',
-					isExportable: true,
 					filterable: false,
 					sortable : false,
                     render : function(data, grid) {
@@ -1128,7 +1117,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columns.push({
 				label : '---------------',
 				property : null,
-				isExportable: false,
 				filterable: false,
 				sortable : false
 			});
@@ -1219,6 +1207,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyCode,
+						exportableProperty : propertyCode,
 						filterable : !isGlobalSearch,
 						render: renderValue,
 						renderFilter: renderFilter,
@@ -1246,7 +1235,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : '---------------',
 				property : null,
-				isExportable: false,
 				filterable: false,
 				sortable : false
 			});
@@ -1254,7 +1242,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Registrator',
 				property : 'registrator',
-				isExportable: true,
 				filterable : !isGlobalSearch,
 				sortable : false
 			});
@@ -1262,7 +1249,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Registration Date',
 				property : 'registrationDate',
-				isExportable: true,
 				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				renderFilter : function(params) {
@@ -1273,7 +1259,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Modifier',
 				property : 'modifier',
-				isExportable: true,
 				filterable : !isGlobalSearch,
 				sortable : false
 			});
@@ -1281,7 +1266,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Modification Date',
 				property : 'modificationDate',
-				isExportable: true,
 				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				renderFilter : function(params) {
@@ -1292,7 +1276,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
             var filterModes = isGlobalSearch ? [] : null
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, 70, filterModes);
+			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, {
+				fileFormat: 'XLS',
+				filePrefix: 'advanced-search'
+			}, 70, filterModes);
 			return dataGrid;
 	}
 

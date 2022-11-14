@@ -145,7 +145,10 @@ function StorageListView(storageListController, storageListModel) {
 			}});
 		}
 
-		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET", isMultiselectable, 60);
+		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET", isMultiselectable, {
+			fileFormat: 'TSV',
+			filePrefix: 'storage'
+		}, 60);
 
 		var $dataGridContainer = $("<div>");
 		this._dataGrid.init($dataGridContainer, extraOptions);

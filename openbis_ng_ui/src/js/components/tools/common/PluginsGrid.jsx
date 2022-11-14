@@ -1,5 +1,6 @@
 import React from 'react'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import EntityKind from '@src/js/components/common/dto/EntityKind.js'
@@ -21,8 +22,9 @@ class PluginsGrid extends React.PureComponent {
     } = this.props
 
     return (
-      <GridWithSettings
+      <GridWithOpenbis
         id={id}
+        settingsId={id}
         controllerRef={controllerRef}
         header={this.getHeader()}
         sort='name'
@@ -69,6 +71,7 @@ class PluginsGrid extends React.PureComponent {
           }
         ]}
         rows={rows}
+        exportable={this.getExportable()}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}
@@ -83,6 +86,22 @@ class PluginsGrid extends React.PureComponent {
       return messages.get(messages.DYNAMIC_PROPERTY_PLUGINS)
     } else if (pluginType === openbis.PluginType.ENTITY_VALIDATION) {
       return messages.get(messages.ENTITY_VALIDATION_PLUGINS)
+    }
+  }
+
+  getExportable() {
+    const { pluginType } = this.props
+
+    if (pluginType === openbis.PluginType.DYNAMIC_PROPERTY) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'dynamic-property-plugins'
+      }
+    } else if (pluginType === openbis.PluginType.ENTITY_VALIDATION) {
+      return {
+        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        filePrefix: 'entity-validation-plugins'
+      }
     }
   }
 }

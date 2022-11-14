@@ -79,7 +79,14 @@ class GridExports extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'GridExports.render')
 
-    const { id, exportOptions, disabled, multiselectable, classes } = this.props
+    const {
+      id,
+      exportOptions,
+      disabled,
+      multiselectable,
+      multiselectedRows,
+      classes
+    } = this.props
     const { el } = this.state
 
     const rowsOptions = [
@@ -187,6 +194,10 @@ class GridExports extends React.PureComponent {
                 id={id + '.trigger-exports-button-id'}
                 label={messages.get(messages.EXPORT)}
                 type='neutral'
+                disabled={
+                  exportOptions.rows === GridExportOptions.SELECTED_ROWS &&
+                  _.isEmpty(multiselectedRows)
+                }
                 onClick={this.handleExport}
               />
             </div>

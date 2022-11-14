@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import AppController from '@src/js/components/AppController.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import EntityTypesGrid from '@src/js/components/types/common/EntityTypesGrid.jsx'
 import VocabularyTypesGrid from '@src/js/components/types/common/VocabularyTypesGrid.jsx'
 import PropertyTypesGrid from '@src/js/components/types/common/PropertyTypesGrid.jsx'
@@ -73,6 +74,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: _.get(object, 'code'),
+        exportableId: {
+          exportable_kind: 'SAMPLE_TYPE',
+          perm_id: object.getPermId().getPermId()
+        },
         code: _.get(object, 'code'),
         description: _.get(object, 'description'),
         subcodeUnique: _.get(object, 'subcodeUnique', false),
@@ -103,6 +108,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: _.get(object, 'code'),
+        exportableId: {
+          exportable_kind: 'EXPERIMENT_TYPE',
+          perm_id: object.getPermId().getPermId()
+        },
         code: _.get(object, 'code'),
         description: _.get(object, 'description'),
         validationPlugin: _.get(object, 'validationPlugin.name')
@@ -130,6 +139,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: _.get(object, 'code'),
+        exportableId: {
+          exportable_kind: 'DATASET_TYPE',
+          perm_id: object.getPermId().getPermId()
+        },
         code: _.get(object, 'code'),
         description: _.get(object, 'description'),
         validationPlugin: _.get(object, 'validationPlugin.name'),
@@ -184,6 +197,10 @@ class TypeSearch extends React.Component {
       .filter(result.objects, this.props.searchText, ['code', 'description'])
       .map(object => ({
         id: object.code,
+        exportableId: {
+          exportable_kind: 'VOCABULARY',
+          perm_id: object.getPermId().getPermId()
+        },
         code: object.code,
         description: object.description,
         urlTemplate: object.urlTemplate
@@ -382,6 +399,10 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.SAMPLE}
             rows={this.state.objectTypes}
+            exportable={{
+              fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+              filePrefix: 'object-types'
+            }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.OBJECT_TYPE
             )}
@@ -407,6 +428,10 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.EXPERIMENT}
             rows={this.state.collectionTypes}
+            exportable={{
+              fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+              filePrefix: 'collection-types'
+            }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.COLLECTION_TYPE
             )}
@@ -430,6 +455,10 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.DATA_SET}
             rows={this.state.dataSetTypes}
+            exportable={{
+              fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+              filePrefix: 'data-set-types'
+            }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.DATA_SET_TYPE
             )}
@@ -455,6 +484,10 @@ class TypeSearch extends React.Component {
             }
             kind={openbis.EntityKind.MATERIAL}
             rows={this.state.materialTypes}
+            exportable={{
+              fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+              filePrefix: 'material-types'
+            }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.MATERIAL_TYPE
             )}
