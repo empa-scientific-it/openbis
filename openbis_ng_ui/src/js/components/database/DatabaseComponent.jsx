@@ -36,15 +36,24 @@ class DatabaseComponent extends React.PureComponent {
       )
       json = experiments[object.id]
     } else if (object.type === objectType.OBJECT) {
+      const fetchOptions = new openbis.SampleFetchOptions()
+      fetchOptions.withSpace()
+      fetchOptions.withProject()
+      fetchOptions.withExperiment()
+      fetchOptions.withParents()
       const samples = await openbis.getSamples(
         [new openbis.SamplePermId(object.id)],
-        new openbis.SampleFetchOptions()
+        fetchOptions
       )
       json = samples[object.id]
     } else if (object.type === objectType.DATA_SET) {
+      const fetchOptions = new openbis.DataSetFetchOptions()
+      fetchOptions.withExperiment()
+      fetchOptions.withSample()
+      fetchOptions.withParents()
       const dataSets = await openbis.getDataSets(
         [new openbis.DataSetPermId(object.id)],
-        new openbis.DataSetFetchOptions()
+        fetchOptions
       )
       json = dataSets[object.id]
     }
