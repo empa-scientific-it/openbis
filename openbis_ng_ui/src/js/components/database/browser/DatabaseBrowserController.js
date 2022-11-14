@@ -3,6 +3,22 @@ import BrowserController from '@src/js/components/common/browser2/BrowserControl
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
+const TYPE_SPACES = 'spaces'
+const TYPE_PROJECTS = 'projects'
+const TYPE_COLLECTIONS = 'collections'
+const TYPE_OBJECTS = 'objects'
+const TYPE_OBJECT_CHILDREN = 'objectChildren'
+const TYPE_DATA_SETS = 'dataSets'
+const TYPE_DATA_SET_CHILDREN = 'dataSetChildren'
+
+const TEXT_SPACES = 'Spaces'
+const TEXT_PROJECTS = 'Projects'
+const TEXT_COLLECTIONS = 'Collections'
+const TEXT_OBJECTS = 'Objects'
+const TEXT_OBJECT_CHILDREN = 'Children'
+const TEXT_DATA_SETS = 'Data Sets'
+const TEXT_DATA_SET_CHILDREN = 'Children'
+
 const SORTINGS = {
   code_asc: {
     label: 'Code ASC',
@@ -35,7 +51,7 @@ export default class DatabaseBrowserController extends BrowserController {
     const { object } = params
 
     if (object.type === objectType.SPACE) {
-      return [{ type: 'spaces' }, object]
+      return [{ type: TYPE_SPACES }, object]
     } else if (object.type === objectType.PROJECT) {
       const id = new openbis.ProjectPermId(object.id)
       const fetchOptions = new openbis.ProjectFetchOptions()
@@ -52,7 +68,7 @@ export default class DatabaseBrowserController extends BrowserController {
           }
         })
         if (spacePath) {
-          return [...spacePath, { type: 'projects' }, object]
+          return [...spacePath, { type: TYPE_PROJECTS }, object]
         }
       }
     } else if (object.type === objectType.COLLECTION) {
@@ -71,7 +87,7 @@ export default class DatabaseBrowserController extends BrowserController {
           }
         })
         if (projectPath) {
-          return [...projectPath, { type: 'collections' }, object]
+          return [...projectPath, { type: TYPE_COLLECTIONS }, object]
         }
       }
     } else if (object.type === objectType.OBJECT) {
@@ -93,7 +109,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (experimentPath) {
-            return [...experimentPath, { type: 'objects' }, object]
+            return [...experimentPath, { type: TYPE_OBJECTS }, object]
           }
         } else if (sample.getProject()) {
           const projectPath = await this.doLoadNodePath({
@@ -103,7 +119,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (projectPath) {
-            return [...projectPath, { type: 'objects' }, object]
+            return [...projectPath, { type: TYPE_OBJECTS }, object]
           }
         } else if (sample.getSpace()) {
           const spacePath = await this.doLoadNodePath({
@@ -113,10 +129,10 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (spacePath) {
-            return [...spacePath, { type: 'objects' }, object]
+            return [...spacePath, { type: TYPE_OBJECTS }, object]
           }
         } else {
-          return [{ type: 'objects' }, object]
+          return [{ type: TYPE_OBJECTS }, object]
         }
       }
     } else if (object.type === objectType.DATA_SET) {
@@ -137,7 +153,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (samplePath) {
-            return [...samplePath, { type: 'dataSets' }, object]
+            return [...samplePath, { type: TYPE_DATA_SETS }, object]
           }
         } else if (dataSet.getExperiment()) {
           const experimentPath = await this.doLoadNodePath({
@@ -147,7 +163,7 @@ export default class DatabaseBrowserController extends BrowserController {
             }
           })
           if (experimentPath) {
-            return [...experimentPath, { type: 'dataSets' }, object]
+            return [...experimentPath, { type: TYPE_DATA_SETS }, object]
           }
         }
       }
@@ -172,10 +188,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     async function addSpacesNode(nodes) {
       const spacesNode = {
-        id: node.id + '__spaces',
-        text: 'Spaces',
+        id: node.id + '__' + TYPE_SPACES,
+        text: TEXT_SPACES,
         object: {
-          type: 'spaces'
+          type: TYPE_SPACES
         },
         parent: node,
         canHaveChildren: true,
@@ -193,10 +209,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     async function addProjectsNode(nodes) {
       const projectsNode = {
-        id: node.id + '__projects',
-        text: 'Projects',
+        id: node.id + '__' + TYPE_PROJECTS,
+        text: TEXT_PROJECTS,
         object: {
-          type: 'projects'
+          type: TYPE_PROJECTS
         },
         parent: node,
         canHaveChildren: true,
@@ -217,10 +233,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     async function addExperimentsNode(nodes) {
       const experimentsNode = {
-        id: node.id + '__collections',
-        text: 'Collections',
+        id: node.id + '__' + TYPE_COLLECTIONS,
+        text: TEXT_COLLECTIONS,
         object: {
-          type: 'collections'
+          type: TYPE_COLLECTIONS
         },
         parent: node,
         canHaveChildren: true,
@@ -240,16 +256,31 @@ export default class DatabaseBrowserController extends BrowserController {
     }
 
     async function addSamplesNode(nodes) {
-      const samplesNode = {
-        id: node.id + '__objects',
-        text: 'Objects',
-        object: {
-          type: 'objects'
-        },
+      let samplesNode = {
         parent: node,
         canHaveChildren: true,
         sortings: SORTINGS,
         sortingId: 'code_asc'
+      }
+
+      if (node.object.type === objectType.OBJECT) {
+        samplesNode = {
+          ...samplesNode,
+          id: node.id + '__' + TYPE_OBJECT_CHILDREN,
+          text: TEXT_OBJECT_CHILDREN,
+          object: {
+            type: TYPE_OBJECT_CHILDREN
+          }
+        }
+      } else {
+        samplesNode = {
+          ...samplesNode,
+          id: node.id + '__' + TYPE_OBJECTS,
+          text: TEXT_OBJECTS,
+          object: {
+            type: TYPE_OBJECTS
+          }
+        }
       }
 
       const samples = await _this.searchSamples({
@@ -264,16 +295,31 @@ export default class DatabaseBrowserController extends BrowserController {
     }
 
     async function addDataSetsNode(nodes) {
-      const dataSetsNode = {
-        id: node.id + '__datasets',
-        text: 'Data Sets',
-        object: {
-          type: 'dataSets'
-        },
+      let dataSetsNode = {
         parent: node,
         canHaveChildren: true,
         sortings: SORTINGS,
         sortingId: 'code_asc'
+      }
+
+      if (node.object.type === objectType.DATA_SET) {
+        dataSetsNode = {
+          ...dataSetsNode,
+          id: node.id + '__' + TYPE_DATA_SET_CHILDREN,
+          text: TEXT_DATA_SET_CHILDREN,
+          object: {
+            type: TYPE_DATA_SET_CHILDREN
+          }
+        }
+      } else {
+        dataSetsNode = {
+          ...dataSetsNode,
+          id: node.id + '__' + TYPE_DATA_SETS,
+          text: TEXT_DATA_SETS,
+          object: {
+            type: TYPE_DATA_SETS
+          }
+        }
       }
 
       const dataSets = await _this.searchDataSets({
@@ -360,19 +406,19 @@ export default class DatabaseBrowserController extends BrowserController {
         nodes: nodes,
         totalCount: nodes.length
       }
-    } else if (node.object.type === 'spaces') {
+    } else if (node.object.type === TYPE_SPACES) {
       return await this.searchSpaces(params)
-    } else if (node.object.type === 'projects') {
+    } else if (node.object.type === TYPE_PROJECTS) {
       return await this.searchProjects(params)
-    } else if (node.object.type === 'collections') {
+    } else if (node.object.type === TYPE_COLLECTIONS) {
       return await this.searchExperiments(params)
-    } else if (node.object.type === 'objects') {
+    } else if (node.object.type === TYPE_OBJECTS) {
       return await this.searchSamples(params)
-    } else if (node.object.type === 'objectChildren') {
+    } else if (node.object.type === TYPE_OBJECT_CHILDREN) {
       return await this.searchSamples(params)
-    } else if (node.object.type === 'dataSets') {
+    } else if (node.object.type === TYPE_DATA_SETS) {
       return await this.searchDataSets(params)
-    } else if (node.object.type === 'dataSetChildren') {
+    } else if (node.object.type === TYPE_DATA_SET_CHILDREN) {
       return await this.searchDataSets(params)
     } else {
       return null
@@ -725,10 +771,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createSpacesNode(spaces, parent) {
       const spacesNode = {
-        id: parent.id + '__spaces',
-        text: 'Spaces',
+        id: parent.id + '__' + TYPE_SPACES,
+        text: TEXT_SPACES,
         object: {
-          type: 'spaces'
+          type: TYPE_SPACES
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
@@ -776,10 +822,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createProjectsNode(projects, parent) {
       const projectsNode = {
-        id: parent.id + '__projects',
-        text: 'Projects',
+        id: parent.id + '__' + TYPE_PROJECTS,
+        text: TEXT_PROJECTS,
         object: {
-          type: 'projects'
+          type: TYPE_PROJECTS
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
@@ -828,10 +874,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createExperimentsNode(experiments, parent) {
       const experimentsNode = {
-        id: parent.id + '__collections',
-        text: 'Collections',
+        id: parent.id + '__' + TYPE_COLLECTIONS,
+        text: TEXT_COLLECTIONS,
         object: {
-          type: 'collections'
+          type: TYPE_COLLECTIONS
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
@@ -884,10 +930,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createSamplesNode(samples, parent) {
       const samplesNode = {
-        id: parent.id + '__objects',
-        text: 'Objects',
+        id: parent.id + '__' + TYPE_OBJECTS,
+        text: TEXT_OBJECTS,
         object: {
-          type: 'objects'
+          type: TYPE_OBJECTS
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
@@ -925,10 +971,10 @@ export default class DatabaseBrowserController extends BrowserController {
 
     function createDataSetsNode(dataSets, parent) {
       const dataSetsNode = {
-        id: parent.id + '__datasets',
-        text: 'Data Sets',
+        id: parent.id + '__' + TYPE_DATA_SETS,
+        text: TEXT_DATA_SETS,
         object: {
-          type: 'dataSets'
+          type: TYPE_DATA_SETS
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
