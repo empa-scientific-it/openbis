@@ -5,6 +5,7 @@ testValidationPlugin.setName('TEST_VALIDATION_PLUGIN')
 
 const testObjectType = new openbis.SampleType()
 testObjectType.setCode('TEST_OBJECT_TYPE')
+testObjectType.setPermId(new openbis.EntityTypePermId(testObjectType.getCode()))
 testObjectType.setDescription('Test Description')
 testObjectType.setValidationPlugin(testValidationPlugin)
 testObjectType.setGeneratedCodePrefix('Test Prefix')
@@ -17,19 +18,31 @@ testObjectType.setListable(true)
 
 const anotherObjectType = new openbis.SampleType()
 anotherObjectType.setCode('ANOTHER_OBJECT_TYPE')
+anotherObjectType.setPermId(
+  new openbis.EntityTypePermId(anotherObjectType.getCode())
+)
 anotherObjectType.setDescription('Another Description')
 
 const testCollectionType = new openbis.ExperimentType()
 testCollectionType.setCode('TEST_COLLECTION_TYPE')
+testCollectionType.setPermId(
+  new openbis.EntityTypePermId(testCollectionType.getCode())
+)
 testCollectionType.setDescription('Test Description')
 testCollectionType.setValidationPlugin(testValidationPlugin)
 
 const anotherCollectionType = new openbis.ExperimentType()
 anotherCollectionType.setCode('ANOTHER_COLLECTION_TYPE')
+anotherCollectionType.setPermId(
+  new openbis.EntityTypePermId(anotherCollectionType.getCode())
+)
 anotherCollectionType.setDescription('Another Description')
 
 const testDataSetType = new openbis.DataSetType()
 testDataSetType.setCode('TEST_DATA_SET_TYPE')
+testDataSetType.setPermId(
+  new openbis.EntityTypePermId(testDataSetType.getCode())
+)
 testDataSetType.setDescription('Test Description')
 testDataSetType.setValidationPlugin(testValidationPlugin)
 testDataSetType.setMainDataSetPattern('Test Main Data Set Pattern')
@@ -38,15 +51,24 @@ testDataSetType.setDisallowDeletion(true)
 
 const anotherDataSetType = new openbis.DataSetType()
 anotherDataSetType.setCode('ANOTHER_DATA_SET_TYPE')
+anotherDataSetType.setPermId(
+  new openbis.EntityTypePermId(anotherDataSetType.getCode())
+)
 anotherDataSetType.setDescription('Another Description')
 
 const testMaterialType = new openbis.MaterialType()
 testMaterialType.setCode('TEST_MATERIAL_TYPE')
+testMaterialType.setPermId(
+  new openbis.EntityTypePermId(testMaterialType.getCode())
+)
 testMaterialType.setDescription('Test Description')
 testMaterialType.setValidationPlugin(testValidationPlugin)
 
 const anotherMaterialType = new openbis.MaterialType()
 anotherMaterialType.setCode('ANOTHER_MATERIAL_TYPE')
+anotherMaterialType.setPermId(
+  new openbis.EntityTypePermId(anotherMaterialType.getCode())
+)
 anotherMaterialType.setDescription('Another Description')
 
 const testVocabularyType = new openbis.Vocabulary()
