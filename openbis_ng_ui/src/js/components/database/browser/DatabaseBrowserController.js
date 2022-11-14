@@ -195,6 +195,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         parent: node,
         canHaveChildren: true,
+        selectable: false,
         sortings: SORTINGS,
         sortingId: 'code_asc'
       }
@@ -216,6 +217,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         parent: node,
         canHaveChildren: true,
+        selectable: false,
         sortings: SORTINGS,
         sortingId: 'code_asc'
       }
@@ -240,6 +242,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         parent: node,
         canHaveChildren: true,
+        selectable: false,
         sortings: SORTINGS,
         sortingId: 'code_asc'
       }
@@ -259,6 +262,7 @@ export default class DatabaseBrowserController extends BrowserController {
       let samplesNode = {
         parent: node,
         canHaveChildren: true,
+        selectable: false,
         sortings: SORTINGS,
         sortingId: 'code_asc'
       }
@@ -298,6 +302,7 @@ export default class DatabaseBrowserController extends BrowserController {
       let dataSetsNode = {
         parent: node,
         canHaveChildren: true,
+        selectable: false,
         sortings: SORTINGS,
         sortingId: 'code_asc'
       }
@@ -778,6 +783,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
+        selectable: false,
         expanded: true
       }
 
@@ -829,6 +835,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
+        selectable: false,
         expanded: true
       }
 
@@ -881,6 +888,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
+        selectable: false,
         expanded: true
       }
 
@@ -937,6 +945,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
+        selectable: false,
         expanded: true
       }
 
@@ -978,6 +987,7 @@ export default class DatabaseBrowserController extends BrowserController {
         },
         canHaveChildren: true,
         children: { nodes: [], totalCount: 0 },
+        selectable: false,
         expanded: true
       }
 

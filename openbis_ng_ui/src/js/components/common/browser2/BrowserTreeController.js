@@ -153,9 +153,13 @@ export default class BrowserTreeController {
           )
         }
 
+        const selectable = loadedNode.selectable !== false
+
         state.nodes[loadedNode.id] = {
           ...loadedNode,
+          selectable: selectable,
           selected:
+            selectable &&
             loadedNode.object &&
             _.isEqual(loadedNode.object, state.selectedObject),
           expandedOnLoad: !!loadedNode.expanded,
@@ -345,6 +349,11 @@ export default class BrowserTreeController {
 
     Object.keys(state.nodes).forEach(id => {
       const node = state.nodes[id]
+
+      if (!node.selectable) {
+        return
+      }
+
       const selected = node.object && _.isEqual(nodeObject, node.object)
 
       if (selected ^ node.selected) {
