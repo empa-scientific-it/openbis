@@ -119,10 +119,8 @@ public class XLSImport
                 final BufferedInputStream bis = new BufferedInputStream(zis);
         )
         {
-            while (zis.available() > 0)
-            {
-                final ZipEntry zipEntry = zis.getNextEntry();
-                if (zipEntry != null)
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null)
                 {
                     final String entryName = zipEntry.getName();
                     if (entryName.startsWith("scripts/"))
@@ -141,7 +139,7 @@ public class XLSImport
                         }
                     }
                     zis.closeEntry();
-                }
+                zipEntry = zis.getNextEntry();
             }
         }
 
