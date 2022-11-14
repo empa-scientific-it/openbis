@@ -58,6 +58,7 @@ def _import(context, parameters):
                 'xls' : excel byte blob,    - optional
                 'xls_base64' : base64-encoded excel byte blob - optional
                 'xls_name': identifier of excel file - mandatory
+                'zip' : True / False - optional (default: False)
                 'scripts': {                - optional
                     file path: loaded file
                 },
@@ -77,6 +78,7 @@ def _import(context, parameters):
     xls_byte_arrays = parameters.get('xls', None)
     xls_base64_string = parameters.get('xls_base64', None)
     xls_name = parameters.get('xls_name', None)
+    zip = parameters.get('zip', False)
     scripts = parameters.get('scripts', {})
     mode = get_update_mode(parameters)
     options = get_import_options(parameters)
@@ -84,10 +86,14 @@ def _import(context, parameters):
     if xls_byte_arrays is None and xls_base64_string is not None:
         xls_byte_arrays = [ base64.b64decode(xls_base64_string) ]
 
-    importXls = XLSImport(session_token, api, scripts, mode, options, xls_name)
+    import_xls = XLSImport(session_token, api, scripts, mode, options, xls_name)
 
     ids = ArrayList()
-    for xls_byte_array in xls_byte_arrays:
-        ids.addAll(importXls.importXLS(xls_byte_array))
+    if not zip:
+        for xls_byte_array in xls_byte_arrays:
+            ids.addAll(import_xls.importXLS(xls_byte_array))
+    else:
+        for xls_byte_array in xls_byte_arrays:
+            ids.addAll(import_xls.importZip(xls_byte_array).getIds())
 
     return ids

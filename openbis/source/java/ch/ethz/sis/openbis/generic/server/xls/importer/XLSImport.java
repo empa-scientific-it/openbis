@@ -76,11 +76,13 @@ public class XLSImport
 
     private final PropertyAssignmentImportHelper propertyAssignmentHelper;
 
-    private final ScriptImportHelper scriptHelper;
+    private ScriptImportHelper scriptHelper;
 
     private final SemanticAnnotationImportHelper semanticAnnotationImportHelper;
 
     private final DatabaseConsistencyChecker dbChecker;
+
+    private final ImportModes mode;
 
     public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options,
             String xlsName)
@@ -92,6 +94,7 @@ public class XLSImport
         this.versions = VersionInfoHandler.loadVersions(options, xlsName);
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.versions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
+        this.mode = mode;
 
         this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, versions);
         this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, versions);
@@ -111,7 +114,7 @@ public class XLSImport
     public ImportZipResult importZip(byte[] zip) throws IOException
     {
         final Map<String, String> scripts = new HashMap<>();
-        List<IObjectId> ids = null;
+        byte[] xls = null;
         try
         (
                 final ByteArrayInputStream bais = new ByteArrayInputStream(zip);
@@ -121,33 +124,37 @@ public class XLSImport
         {
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null)
+            {
+                final String entryName = zipEntry.getName();
+                if (entryName.startsWith("scripts/"))
                 {
-                    final String entryName = zipEntry.getName();
-                    if (entryName.startsWith("scripts/"))
+                    final String scriptFileName = entryName.substring(8);
+                    final String scriptContent = new String(bis.readAllBytes());
+                    scripts.put(scriptFileName, scriptContent);
+                } else if (entryName.endsWith(".xlsx"))
+                {
+                    if (xls == null)
                     {
-                        final String scriptFileName = entryName.substring(8);
-                        final String scriptContent = new String(bis.readAllBytes());
-                        scripts.put(scriptFileName, scriptContent);
-                    } else if (entryName.endsWith(".xlsx"))
+                        xls = bis.readAllBytes();
+                    } else
                     {
-                        if (ids == null)
-                        {
-                            ids = importXLS(bis.readAllBytes());
-                        } else
-                        {
-                            throw new IllegalArgumentException("More than one XLSX file found in the archive.");
-                        }
+                        throw new IllegalArgumentException("More than one XLSX file found in the archive.");
                     }
-                    zis.closeEntry();
+                }
+                zis.closeEntry();
                 zipEntry = zis.getNextEntry();
             }
         }
 
-        if (ids == null)
+        if (xls != null)
+        {
+            this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, this.mode, this.options, scripts);
+            final List<IObjectId> ids = importXLS(xls);
+            return new ImportZipResult(ids, scripts);
+        } else
         {
             throw new IllegalArgumentException("No XLSX file found in the archive.");
         }
-        return new ImportZipResult(ids, scripts);
     }
 
     public List<IObjectId> importXLS(byte[] xls)
