@@ -95,7 +95,7 @@ export default class GridWithOpenbis extends React.PureComponent {
     serviceOptions.withParameter('method', 'export')
     serviceOptions.withParameter('file_name', exportedFilePrefix)
     serviceOptions.withParameter('ids', exportedIds)
-    serviceOptions.withParameter('export_referred', true)
+    serviceOptions.withParameter('export_referred_master_data', false)
     serviceOptions.withParameter('export_properties', exportedProperties)
     serviceOptions.withParameter('text_formatting', exportedValues)
 
