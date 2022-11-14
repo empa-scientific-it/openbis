@@ -768,10 +768,6 @@ public class XLSExportTest
     private static void assertCellsEqual(final Cell actual, final Cell expected)
     {
         assertEquals(getStringValue(actual), getStringValue(expected), getErrorMessage(actual, "Values"));
-        assertEquals(actual.getCellStyle().getFillPatternEnum(), expected.getCellStyle().getFillPatternEnum(),
-                getErrorMessage(actual, "Fill patterns"));
-        assertEquals(actual.getCellStyle().getFillForegroundColor(), expected.getCellStyle().getFillForegroundColor(),
-                getErrorMessage(actual, "Fill foreground colors"));
     }
 
     private static String getStringValue(final Cell cell)
