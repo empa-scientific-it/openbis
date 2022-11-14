@@ -41,7 +41,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
         if (dataSetType != null)
         {
             final String permId = dataSetType.getPermId().getPermId();
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATA_SET_TYPE"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATASET_TYPE"));
             warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "Version", "Code",
                     "Description", "Validation script"));
 
