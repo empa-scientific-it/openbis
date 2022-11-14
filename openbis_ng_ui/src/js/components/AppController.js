@@ -159,6 +159,10 @@ export class AppController {
     }
   }
 
+  async loadingChange(loading) {
+    await this.context.setState({ loading: loading })
+  }
+
   async errorChange(error) {
     await this.context.setState({ error: error })
   }
@@ -318,6 +322,11 @@ export class AppController {
 
   getSession() {
     return this.context.getState().session
+  }
+
+  getSessionToken() {
+    const session = this.getSession()
+    return session ? session.sessionToken : null
   }
 
   getUser() {

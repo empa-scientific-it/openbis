@@ -32,13 +32,14 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
@@ -52,13 +53,14 @@ public class XLSExport
 
     private static final String ZIP_EXTENSION = ".zip";
 
-    public static ExportResult export(final String filePrefix, final IApplicationServerApi api, final String sessionToken,
-            final Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
+    public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
+            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+            final boolean exportReferredMasterData,
             final Map<String, Map<String, Collection<String>>> exportProperties,
             final TextFormatting textFormatting) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferred, exportProperties, textFormatting);
+                exportReferredMasterData, exportProperties, textFormatting);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final ByteArrayOutputStream baos = getByteArrayOutputStream(filePrefix, exportResult, scripts);
@@ -124,7 +126,7 @@ public class XLSExport
     }
 
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
-            Collection<ExportablePermId> exportablePermIds, final boolean exportReferred,
+            Collection<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
             final Map<String, Map<String, Collection<String>>> exportProperties, final TextFormatting textFormatting)
     {
         if (!isValid(exportablePermIds))
@@ -137,7 +139,7 @@ public class XLSExport
 
         final ExportHelperFactory exportHelperFactory = new ExportHelperFactory(wb);
 
-        if (exportReferred)
+        if (exportReferredMasterData)
         {
             exportablePermIds = expandReference(api, sessionToken, exportablePermIds, exportHelperFactory);
         }
@@ -223,27 +225,10 @@ public class XLSExport
                                 }
                                 case SAMPLE:
                                 {
-                                    final SampleType sampleType = propertyType.getSampleType();
-                                    final ExportablePermId samplePropertyExportablePermId =
-                                            new ExportablePermId(ExportableKind.SAMPLE_TYPE,
-                                                    new EntityTypePermId(sampleType.getCode(),
-                                                            SAMPLE));
 
-                                    if (processedIds.contains(samplePropertyExportablePermId))
-                                    {
-                                        return Stream.empty();
-                                    } else
-                                    {
-                                        processedIds.add(samplePropertyExportablePermId);
-
-                                        final Stream<ExportablePermId> samplePropertyExpandedExportablePermIds =
-                                                getExpandedExportablePermIds(api, sessionToken,
-                                                        samplePropertyExportablePermId, processedIds,
-                                                        exportHelperFactory);
-
-                                        return Stream.concat(samplePropertyExpandedExportablePermIds,
-                                                Stream.of(samplePropertyExportablePermId));
-                                    }
+                                    return getExportablePermIdStreamForEntityType(api, sessionToken, processedIds,
+                                            exportHelperFactory, propertyType.getSampleType(),
+                                            ExportableKind.SAMPLE_TYPE, SAMPLE);
                                 }
                                 default:
                                 {
@@ -255,6 +240,37 @@ public class XLSExport
         }
 
         return Stream.empty();
+    }
+
+    private static Stream<ExportablePermId> getExportablePermIdStreamForEntityType(final IApplicationServerApi api,
+            final String sessionToken, final Set<ExportablePermId> processedIds,
+            final ExportHelperFactory exportHelperFactory, final ICodeHolder codeHolder,
+            final ExportableKind exportableKind, final EntityKind entityKind)
+    {
+        if (codeHolder != null)
+        {
+            final ExportablePermId entityPropertyExportablePermId =
+                    new ExportablePermId(exportableKind, new EntityTypePermId(codeHolder.getCode(), entityKind));
+
+            if (processedIds.contains(entityPropertyExportablePermId))
+            {
+                return Stream.empty();
+            } else
+            {
+                processedIds.add(entityPropertyExportablePermId);
+
+                final Stream<ExportablePermId> entityPropertyExpandedExportablePermIds =
+                        getExpandedExportablePermIds(api, sessionToken,
+                                entityPropertyExportablePermId, processedIds,
+                                exportHelperFactory);
+
+                return Stream.concat(entityPropertyExpandedExportablePermIds,
+                        Stream.of(entityPropertyExportablePermId));
+            }
+        } else
+        {
+            return Stream.empty();
+        }
     }
 
     static Collection<Collection<ExportablePermId>> group(final Collection<ExportablePermId> exportablePermIds)

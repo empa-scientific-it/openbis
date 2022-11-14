@@ -27,7 +27,8 @@ def export(context, parameters):
                     },
                     ...
                 ],
-                "export_referred": true | false, - whether to export referred vocabularies and sample properties
+                "export_referred_master_data": true | false, - whether to export referred vocabularies and the types of
+                        the properties of type sample
                 "export_properties": { - everything in this section is optional
                     "SAMPLE": {
                         "<typePermID>": ["<property code>", ...] - properties of each sample type
@@ -75,7 +76,8 @@ def export(context, parameters):
         api = context.getApplicationService()
         text_formatting = XLSExport.TextFormatting.valueOf(parameters.get("text_formatting"))
         xls_import_result = XLSExport.export(file_name, api, session_token, vocabularies,
-                                             parameters.get("export_referred"), export_properties, text_formatting)
+                                             parameters.get("export_referred_master_data"), export_properties,
+                                             text_formatting)
     except Exception as e:
         return {"status": "error", "message": str(e)}
     return {"status": "OK", "result": {

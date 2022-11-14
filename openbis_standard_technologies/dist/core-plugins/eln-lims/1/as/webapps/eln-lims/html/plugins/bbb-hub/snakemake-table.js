@@ -70,7 +70,10 @@ var SnakemakeTable = new function() {
             callback(dataList);
         };
 
-        var dataGridController = new DataGridController(null, columns, [], null, getDataList, null, true, "ENTITY_TABLE_BBB", null, 90);
+        var dataGridController = new DataGridController(null, columns, [], null, getDataList, null, true, "ENTITY_TABLE_BBB", null, {
+            fileFormat: 'TSV',
+            filePrefix: 'entities'
+        }, 90);
         dataGridController.init(container);
     }
 

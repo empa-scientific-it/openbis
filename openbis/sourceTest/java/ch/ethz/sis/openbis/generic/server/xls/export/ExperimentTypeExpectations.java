@@ -45,6 +45,7 @@ class ExperimentTypeExpectations extends Expectations
                 experimentType.setFetchOptions(fetchOptions);
                 experimentType.setPermId(new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT));
                 experimentType.setCode("DEFAULT_EXPERIMENT");
+                experimentType.setDescription("Default experiment");
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 final Plugin validationPlugin = new Plugin();

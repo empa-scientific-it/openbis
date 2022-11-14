@@ -116,8 +116,17 @@ function AdvancedSearchController(mainController, forceSearch) {
 					}
 
 					//properties
+					var entityExportableKind = null;
 					if(entity["@type"]) {
 						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+
+						if(rowData.entityKind === "Sample"){
+							entityExportableKind = "SAMPLE"
+						}else if(rowData.entityKind === "Experiment"){
+							entityExportableKind = "EXPERIMENT"
+						}else if(rowData.entityKind === "DataSet"){
+							entityExportableKind = "DATASET"
+						}
 					}
 
 					if(entity.experiment) {
@@ -136,6 +145,14 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
 					rowData.$object = entity;
 					rowData.id = rowData.permId
+
+					if(entityExportableKind && entity.permId){
+						rowData.exportableId = {
+							exportable_kind: entityExportableKind,
+							perm_id: entity.permId.permId,
+							type_perm_id: entity.type ? entity.type.code : null
+						}
+					}
 
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;

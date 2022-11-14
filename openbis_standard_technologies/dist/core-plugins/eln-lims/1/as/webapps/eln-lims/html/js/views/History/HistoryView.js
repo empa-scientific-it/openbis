@@ -119,6 +119,10 @@ function HistoryView(controller, model) {
             null,
             false,
             this._model.entity["@type"] + "_HISTORY",
+            {
+                fileFormat: 'TSV',
+                filePrefix: 'history'
+            },
             false
         )
 

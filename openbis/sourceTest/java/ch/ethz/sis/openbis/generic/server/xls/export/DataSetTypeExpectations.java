@@ -13,13 +13,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CollectionMatcher;
 
 class DataSetTypeExpectations extends Expectations
@@ -45,6 +41,7 @@ class DataSetTypeExpectations extends Expectations
                 dataSetType.setFetchOptions(fetchOptions);
                 dataSetType.setPermId(new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET));
                 dataSetType.setCode("ATTACHMENT");
+                dataSetType.setDescription("Attachment");
                 dataSetType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
 
                 return Collections.singletonMap(new EntityTypePermId("ATTACHMENT"), dataSetType);

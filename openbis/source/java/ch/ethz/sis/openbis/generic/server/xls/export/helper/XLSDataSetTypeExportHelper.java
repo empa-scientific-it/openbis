@@ -41,16 +41,16 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
         if (dataSetType != null)
         {
             final String permId = dataSetType.getPermId().getPermId();
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATA_SET_TYPE"));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATASET_TYPE"));
             warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "Version", "Code",
-                    "Validation script"));
+                    "Description", "Validation script"));
 
             final Plugin validationPlugin = dataSetType.getValidationPlugin();
             final String script = validationPlugin != null
                     ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
             warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, permId, "1",
-                    dataSetType.getCode(), script));
+                    dataSetType.getCode(), dataSetType.getDescription(), script));
 
             final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
                     dataSetType.getPropertyAssignments(), ExportableKind.DATASET_TYPE, permId);

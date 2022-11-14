@@ -1,8 +1,9 @@
 import openbis from '@src/js/services/openbis.js'
+import ids from '@src/js/common/consts/ids.js'
 
 export default class ActiveUserReportFacade {
   async sendReport() {
-    const serviceId = new openbis.CustomASServiceCode('openbis-ng-ui-service')
+    const serviceId = new openbis.CustomASServiceCode(ids.WEB_APP_SERVICE)
     const serviceOptions = new openbis.CustomASServiceExecutionOptions()
     serviceOptions.withParameter('method', 'sendCountActiveUsersEmail')
     return openbis.executeService(serviceId, serviceOptions)

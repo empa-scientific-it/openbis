@@ -1,5 +1,6 @@
 import React from 'react'
-import GridWithSettings from '@src/js/components/common/grid/GridWithSettings.jsx'
+import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -12,8 +13,9 @@ class VocabularyTypesGrid extends React.PureComponent {
       this.props
 
     return (
-      <GridWithSettings
+      <GridWithOpenbis
         id={id}
+        settingsId={id}
         controllerRef={controllerRef}
         header={messages.get(messages.VOCABULARY_TYPES)}
         columns={[
@@ -38,6 +40,10 @@ class VocabularyTypesGrid extends React.PureComponent {
         ]}
         rows={rows}
         sort='code'
+        exportable={{
+          fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+          filePrefix: 'vocabulary-types'
+        }}
         selectable={true}
         selectedRowId={selectedRowId}
         onSelectedRowChange={onSelectedRowChange}

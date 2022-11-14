@@ -3615,7 +3615,7 @@ function ServerFacade(openbisServer) {
                                 mainController.openbisV3.getOperationExecutions([asyncExecutionId], asyncOptions).done(function(asyncWaitResults) {
                                     var asyncWaitResult = asyncWaitResults[asyncExecutionId.permId];
                                     if(asyncWaitResult.details.error !== null) {
-                                        Util.showError(asyncWaitResult.details.error.message);
+                                        failureHander(asyncWaitResult.details.error.message);
                                     } else if(asyncWaitResult.details.results !== null) {
                                         callbackFunction(asyncWaitResult.details.results[0]);
                                     } else {
@@ -3631,57 +3631,6 @@ function ServerFacade(openbisServer) {
                        }).fail(failureHander);
                    }
 		});
-	}
-
-	this.xlsExportTest = function() {
-		this.customASService({
-			"method": "export",
-			"file_name": "test",
-			"ids": [
-				{"exportable_kind": "VOCABULARY", "perm_id": "$STORAGE_POSITION.STORAGE_BOX_SIZE"},
-				{"exportable_kind": "VOCABULARY", "perm_id": "$DEFAULT_COLLECTION_VIEWS"},
-				{"exportable_kind": "VOCABULARY", "perm_id": "$LIFE_SCIENCES_TYPES.VERSION"},
-				{"exportable_kind": "VOCABULARY", "perm_id": "$ORDER.ORDER_STATUS"},
-				{"exportable_kind": "VOCABULARY", "perm_id": "$PRODUCT.CURRENCY"},
-
-				{"exportable_kind": "EXPERIMENT_TYPE", "perm_id": "UNKNOWN"},
-				{"exportable_kind": "EXPERIMENT_TYPE", "perm_id": "DEFAULT_EXPERIMENT"},
-				{"exportable_kind": "EXPERIMENT_TYPE", "perm_id": "COLLECTION"},
-
-				{"exportable_kind": "SAMPLE_TYPE", "perm_id": "UNKNOWN"},
-				{"exportable_kind": "SAMPLE_TYPE", "perm_id": "STORAGE"},
-
-				{"exportable_kind": "DATASET_TYPE", "perm_id": "UNKNOWN"},
-				{"exportable_kind": "DATASET_TYPE", "perm_id": "ATTACHMENT"},
-
-				{"exportable_kind": "DATASET_TYPE", "perm_id": "UNKNOWN"},
-
-				{"exportable_kind": "SAMPLE", "perm_id": "20220923164057010-1"},
-				{"exportable_kind": "SAMPLE", "perm_id": "20221103154815911-47"},
-
-				{"exportable_kind": "PROJECT", "perm_id": "20220923164057010-1"},
-
-				{"exportable_kind": "SPACE", "perm_id": "DEFAULT"},
-			],
-			"export_referred": true,
-			"export_properties": {
-				"SAMPLE": {
-					"EXPERIMENTAL_STEP": ["$NAME", "EXPERIMENTAL_STEP.EXPERIMENTAL_GOALS",
-						"EXPERIMENTAL_STEP.EXPERIMENTAL_DESCRIPTION", "EXPERIMENTAL_STEP.EXPERIMENTAL_RESULTS"],
-					"UNKNOWN": []
-				},
-				"EXPERIMENT": {
-					"COLLECTION": ["$DEFAULT_OBJECT_TYPE"],
-					"DEFAULT_EXPERIMENT": ["$NAME", "NOTES"]
-				},
-				"DATASET": {
-					"ATTACHMENT": []
-				}
-			},
-			"text_formatting": "PLAIN"
-		}, function(result) {
-			console.log("Result: " + JSON.stringify(result));
-		}, "xls-export");
 	}
 
 	//

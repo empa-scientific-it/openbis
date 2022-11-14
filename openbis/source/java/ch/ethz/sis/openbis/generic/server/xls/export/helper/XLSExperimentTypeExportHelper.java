@@ -43,14 +43,14 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
             final String permId = experimentType.getPermId().getPermId();
             warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "EXPERIMENT_TYPE"));
             warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "Version", "Code",
-                    "Validation script"));
+                    "Description", "Validation script"));
 
             final Plugin validationPlugin = experimentType.getValidationPlugin();
             final String script = validationPlugin != null
                     ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
             warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, permId, "1",
-                    experimentType.getCode(), script));
+                    experimentType.getCode(), experimentType.getDescription(), script));
 
             final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
                     experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId);
