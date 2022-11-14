@@ -377,7 +377,9 @@ def importData(context, bytes, file_name, experimentsByType, spacesByType, mode,
     sessionToken = context.getSessionToken()
     api = context.getApplicationService()
     props = CustomASServiceExecutionOptions().withParameter('xls', [bytes])
-    props.withParameter('xls_name', file_name)
+    props.withParameter('method', 'import')
+    props.withParameter('zip', False)
+    props.withParameter('xls_name', 'DEFAULT')
     props.withParameter('update_mode', mode)
     props.withParameter('disallow_creations', mode == 'UPDATE_IF_EXISTS')
     props.withParameter('render_result', False)
@@ -388,7 +390,7 @@ def importData(context, bytes, file_name, experimentsByType, spacesByType, mode,
         props.withParameter('experiments_by_type', experimentsByType)
     if spacesByType is not None:
         props.withParameter('spaces_by_type', spacesByType)
-    return api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
+    return api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
 
 def getUserManagementMaintenanceTaskConfig(context, parameters):
     from ch.systemsx.cisd.common.filesystem import FileUtilities
