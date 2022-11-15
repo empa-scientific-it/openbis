@@ -109,6 +109,8 @@ const keys = {
   IMPORT: 'IMPORT',
   IMPORT_SUCCEEDED: 'IMPORT_SUCCEEDED',
   IMPORT_FAILED: 'IMPORT_FAILED',
+  IMPORT_FILE: 'IMPORT_FILE',
+  IMPORT_FILE_DESCRIPTION: 'IMPORT_FILE_DESCRIPTION',
   INHERITED_FROM: 'INHERITED_FROM',
   INITIAL_VALUE: 'INITIAL_VALUE',
   INTERNAL: 'INTERNAL',
@@ -268,8 +270,6 @@ const keys = {
   VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED: 'VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED',
   WARNING: 'WARNING',
   XML_SCHEMA: 'XML_SCHEMA',
-  XLS_FILE: 'XLS_FILE',
-  XLS_FILE_DESCRIPTION: 'XLS_FILE_DESCRIPTION',
   XSLT_SCRIPT: 'XSLT_SCRIPT',
   YEAR_OR_YEARS: 'YEAR_OR_YEARS'
 }
@@ -385,6 +385,8 @@ const messages_en = {
   [keys.IMPORT]: 'Import',
   [keys.IMPORT_SUCCEEDED]: 'Successfully imported data.',
   [keys.IMPORT_FAILED]: 'Import failed.',
+  [keys.IMPORT_FILE]: 'XLS or ZIP File',
+  [keys.IMPORT_FILE_DESCRIPTION]: 'Excel or zip file that contains the data to import. The import accepts both master data (i.e. entity types, property types and vocabulary types) as well as entities (i.e. spaces, projects, collections and objects).',
   [keys.INHERITED_FROM]: 'Inherited From',
   [keys.INITIAL_VALUE]: 'Initial Value',
   [keys.INTERNAL]: 'Internal',
@@ -544,8 +546,6 @@ const messages_en = {
   [keys.VOCABULARY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED]: 'The vocabulary parameters cannot be changed. The vocabulary cannot be removed.',
   [keys.WARNING]: 'Warning',
   [keys.XML_SCHEMA]: 'XML Schema',
-  [keys.XLS_FILE]: 'XLS File',
-  [keys.XLS_FILE_DESCRIPTION]: 'Excel file that contains the data to import. The import accepts both master data (i.e. entity types, property types and vocabulary types) as well as entities (i.e. spaces, projects, collections and objects).',
   [keys.XSLT_SCRIPT]: 'XSLT Script',
   [keys.YEAR_OR_YEARS]: '${0} year(s)'
 }

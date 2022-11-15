@@ -84,9 +84,9 @@ class ImportAllFormParameters extends React.PureComponent {
       <div className={classes.field}>
         <FileChooserField
           reference={this.references.file}
-          label={messages.get(messages.XLS_FILE)}
+          label={messages.get(messages.IMPORT_FILE)}
           name='file'
-          description={messages.get(messages.XLS_FILE_DESCRIPTION)}
+          description={messages.get(messages.IMPORT_FILE_DESCRIPTION)}
           mandatory={true}
           error={error}
           value={value}
