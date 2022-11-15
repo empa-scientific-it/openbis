@@ -1,24 +1,11 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import org.apache.log4j.Logger;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.DelayedExecutionDecorator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ScriptTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.handler.ExcelParser;
 import ch.ethz.sis.openbis.generic.server.xls.importer.handler.VersionInfoHandler;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.DatasetTypeImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.ExperimentImportHelper;
@@ -33,10 +20,16 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SemanticAnnotation
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SpaceImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.VocabularyImportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.importer.helper.VocabularyTermImportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.importer.handler.ExcelParser;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.DatabaseConsistencyChecker;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class XLSImport
 {
@@ -76,13 +69,11 @@ public class XLSImport
 
     private final PropertyAssignmentImportHelper propertyAssignmentHelper;
 
-    private ScriptImportHelper scriptHelper;
+    private final ScriptImportHelper scriptHelper;
 
     private final SemanticAnnotationImportHelper semanticAnnotationImportHelper;
 
     private final DatabaseConsistencyChecker dbChecker;
-
-    private final ImportModes mode;
 
     public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options,
             String xlsName)
@@ -94,7 +85,6 @@ public class XLSImport
         this.versions = VersionInfoHandler.loadVersions(options, xlsName);
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.versions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
-        this.mode = mode;
 
         this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, versions);
         this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, versions);
@@ -111,53 +101,7 @@ public class XLSImport
         this.semanticAnnotationImportHelper = new SemanticAnnotationImportHelper(this.delayedExecutor, mode, options);
     }
 
-    public ImportZipResult importZip(byte[] zip) throws IOException
-    {
-        final Map<String, String> scripts = new HashMap<>();
-        byte[] xls = null;
-        try
-        (
-                final ByteArrayInputStream bais = new ByteArrayInputStream(zip);
-                final ZipInputStream zis = new ZipInputStream(bais);
-                final BufferedInputStream bis = new BufferedInputStream(zis);
-        )
-        {
-            ZipEntry zipEntry = zis.getNextEntry();
-            while (zipEntry != null)
-            {
-                final String entryName = zipEntry.getName();
-                if (entryName.startsWith("scripts/"))
-                {
-                    final String scriptFileName = entryName.substring(8);
-                    final String scriptContent = new String(bis.readAllBytes());
-                    scripts.put(scriptFileName, scriptContent);
-                } else if (entryName.endsWith(".xlsx"))
-                {
-                    if (xls == null)
-                    {
-                        xls = bis.readAllBytes();
-                    } else
-                    {
-                        throw new IllegalArgumentException("More than one XLSX file found in the archive.");
-                    }
-                }
-                zis.closeEntry();
-                zipEntry = zis.getNextEntry();
-            }
-        }
-
-        if (xls != null)
-        {
-            this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, this.mode, this.options, scripts);
-            final List<IObjectId> ids = importXLS(xls);
-            return new ImportZipResult(ids, scripts);
-        } else
-        {
-            throw new IllegalArgumentException("No XLSX file found in the archive.");
-        }
-    }
-
-    public List<IObjectId> importXLS(byte[] xls)
+    public List<IObjectId> importXLS(byte xls[])
     {
         this.dbChecker.checkVersionsOnDataBase();
 
@@ -324,28 +268,4 @@ public class XLSImport
         }
         return true;
     }
-
-    public static class ImportZipResult
-    {
-
-        private final List<IObjectId> ids;
-
-        /** Name to content map of scripts.  */
-        private final Map<String, String> scripts;
-
-        public ImportZipResult(final List<IObjectId> ids, final Map<String, String> scripts) {
-            this.ids = ids;
-            this.scripts = scripts;
-        }
-
-        public List<IObjectId> getIds() {
-            return ids;
-        }
-
-        public Map<String, String> getScripts() {
-            return scripts;
-        }
-
-    }
-
 }

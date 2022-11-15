@@ -37,7 +37,7 @@ helper = MasterDataRegistrationHelper(sys.path)
 props = CustomASServiceExecutionOptions().withParameter('xls', helper.getByteArray("common-data-model.xls"))\
     .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
     .withParameter('scripts', helper.getAllScripts())
-result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
+result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
 
 if not ELNFixes.isMultiGroup():
     props = CustomASServiceExecutionOptions().withParameter('xls', helper.getByteArray("single-group-data-model.xls"))\

@@ -83,17 +83,16 @@ def _import(context, parameters):
     mode = get_update_mode(parameters)
     options = get_import_options(parameters)
 
+    if zip:
+        raise UserFailureException('Zip imports not yet supported');
+
     if xls_byte_arrays is None and xls_base64_string is not None:
         xls_byte_arrays = [ base64.b64decode(xls_base64_string) ]
 
-    import_xls = XLSImport(session_token, api, scripts, mode, options, xls_name)
+    importXls = XLSImport(session_token, api, scripts, mode, options, xls_name)
 
     ids = ArrayList()
-    if not zip:
-        for xls_byte_array in xls_byte_arrays:
-            ids.addAll(import_xls.importXLS(xls_byte_array))
-    else:
-        for xls_byte_array in xls_byte_arrays:
-            ids.addAll(import_xls.importZip(xls_byte_array).getIds())
+    for xls_byte_array in xls_byte_arrays:
+        ids.addAll(importXls.importXLS(xls_byte_array))
 
     return ids
