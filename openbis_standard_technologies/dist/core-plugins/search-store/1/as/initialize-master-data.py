@@ -27,7 +27,7 @@ sessionToken = api.loginAsSystem()
 props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays())\
     .withParameter('method', 'import').withParameter('zip', False).withParameter('xls_name', 'SEARCH-STORE').withParameter('update_mode', 'IGNORE_EXISTING')\
     .withParameter('scripts', helper.getAllScripts())
-result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
+result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
 api.logout(sessionToken)
 print("======================== master-data xls ingestion result ========================")
 print(result)
