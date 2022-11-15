@@ -35,7 +35,7 @@ if ELNFixes.isELNInstalled():
 
 helper = MasterDataRegistrationHelper(sys.path)
 props = CustomASServiceExecutionOptions().withParameter('xls', helper.getByteArray("common-data-model.xls"))\
-    .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
+    .withParameter('method', 'import').withParameter('zip', False).withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
     .withParameter('scripts', helper.getAllScripts())
 result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
 
