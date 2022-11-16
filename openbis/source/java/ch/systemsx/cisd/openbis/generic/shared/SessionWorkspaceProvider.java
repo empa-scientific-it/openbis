@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
@@ -156,10 +161,9 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
-    public void write(String sessionToken, String relativePathToFile, byte[] bytes) throws IOException {
-        File sessionWorkspace = getSessionWorkspace(sessionToken);
-        File targetFile = new File(sessionWorkspace, relativePathToFile);
-        Files.write(targetFile.toPath(), bytes);
+    public OutputStream createOutputStream(final String sessionToken, final String relativePathToFile) throws IOException
+    {
+        return new FileOutputStream(new File(getSessionWorkspace(sessionToken), relativePathToFile));
     }
 
     @Override
