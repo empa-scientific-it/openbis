@@ -156,6 +156,13 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
+    public void write(String sessionToken, String relativePathToFile, byte[] bytes) throws IOException {
+        File sessionWorkspace = getSessionWorkspace(sessionToken);
+        File targetFile = new File(sessionWorkspace, relativePathToFile);
+        Files.write(targetFile.toPath(), bytes);
+    }
+
+    @Override
     public InputStream read(String sessionToken, String relativePathToFile) throws IOException {
         File sessionWorkspace = getSessionWorkspace(sessionToken);
         File targetFile = new File(sessionWorkspace, relativePathToFile);

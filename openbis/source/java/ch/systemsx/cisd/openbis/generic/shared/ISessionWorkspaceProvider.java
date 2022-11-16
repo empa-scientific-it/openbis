@@ -33,6 +33,8 @@ public interface ISessionWorkspaceProvider
 
     void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException;
 
+    void write(String sessionToken, String relativePathToFile, byte[] bytes) throws IOException;
+
     InputStream read(String sessionToken, String relativePathToFile) throws IOException;
 
     void delete(String sessionToken, String relativePathToFile) throws IOException;
