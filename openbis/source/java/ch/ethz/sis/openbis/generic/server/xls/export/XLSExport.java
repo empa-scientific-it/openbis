@@ -7,10 +7,8 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,29 +61,17 @@ public class XLSExport
                 exportReferredMasterData, exportProperties, textFormatting);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final ByteArrayOutputStream baos = getByteArrayOutputStream(filePrefix, exportResult, scripts);
-        try (final PipedInputStream pis = new PipedInputStream())
-        {
-            new Thread(() ->
-            {
-                try (final PipedOutputStream pos = new PipedOutputStream(pis))
-                {
-                    baos.writeTo(pos);
-                } catch (final IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }).start();
 
-            final String fullFileName = filePrefix + "." +
-                    new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
-                    (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
-            sessionWorkspaceProvider.write(sessionToken, fullFileName, pis);
-            return new ExportResult(fullFileName, exportResult.getWarnings());
-        }
+        final String fullFileName = filePrefix + "." +
+                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
+                (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
+        final OutputStream os = sessionWorkspaceProvider.createOutputStream(sessionToken, fullFileName);
+        writeToOutputStream(os, filePrefix, exportResult, scripts);
+
+        return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 
-    private static ByteArrayOutputStream getByteArrayOutputStream(final String outputFileName,
+    private static void writeToOutputStream(final OutputStream os, final String filePrefix,
             final PrepareWorkbookResult exportResult, final Map<String, String> scripts) throws IOException
     {
         if (scripts.isEmpty())
@@ -93,20 +79,17 @@ public class XLSExport
             try
             (
                     final Workbook wb = exportResult.getWorkbook();
-                    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    final BufferedOutputStream bos = new BufferedOutputStream(baos)
+                    final BufferedOutputStream bos = new BufferedOutputStream(os)
             )
             {
                 wb.write(bos);
-                return baos;
             }
         } else
         {
             try
             (
                     final Workbook wb = exportResult.getWorkbook();
-                    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    final ZipOutputStream zos = new ZipOutputStream(baos);
+                    final ZipOutputStream zos = new ZipOutputStream(os);
                     final BufferedOutputStream bos = new BufferedOutputStream(zos)
             )
             {
@@ -118,9 +101,8 @@ public class XLSExport
                     zos.closeEntry();
                 }
 
-                zos.putNextEntry(new ZipEntry(outputFileName + XLSX_EXTENSION));
+                zos.putNextEntry(new ZipEntry(filePrefix + XLSX_EXTENSION));
                 wb.write(bos);
-                return baos;
             }
         }
     }
