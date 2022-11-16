@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.util.Map;
 
 /**
@@ -36,7 +36,7 @@ public interface ISessionWorkspaceProvider
 
     void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException;
 
-    OutputStream createOutputStream(String sessionToken, String relativePathToFile) throws IOException;
+    FileOutputStream getFileOutputStream(String sessionToken, String relativePathToFile) throws IOException;
 
     InputStream read(String sessionToken, String relativePathToFile) throws IOException;
 

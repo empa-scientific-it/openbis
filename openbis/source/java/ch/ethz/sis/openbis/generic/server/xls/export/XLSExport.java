@@ -7,6 +7,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
 
 import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -65,13 +67,13 @@ public class XLSExport
         final String fullFileName = filePrefix + "." +
                 new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                 (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
-        final OutputStream os = sessionWorkspaceProvider.createOutputStream(sessionToken, fullFileName);
+        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
         writeToOutputStream(os, filePrefix, exportResult, scripts);
-
+        IOUtils.closeQuietly(os);
         return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 
-    private static void writeToOutputStream(final OutputStream os, final String filePrefix,
+    private static void writeToOutputStream(final FileOutputStream os, final String filePrefix,
             final PrepareWorkbookResult exportResult, final Map<String, String> scripts) throws IOException
     {
         if (scripts.isEmpty())

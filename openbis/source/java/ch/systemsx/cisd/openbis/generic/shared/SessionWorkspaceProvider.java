@@ -161,7 +161,7 @@ public class SessionWorkspaceProvider implements ISessionWorkspaceProvider
     }
 
     @Override
-    public OutputStream createOutputStream(final String sessionToken, final String relativePathToFile) throws IOException
+    public FileOutputStream getFileOutputStream(final String sessionToken, final String relativePathToFile) throws IOException
     {
         return new FileOutputStream(new File(getSessionWorkspace(sessionToken), relativePathToFile));
     }
