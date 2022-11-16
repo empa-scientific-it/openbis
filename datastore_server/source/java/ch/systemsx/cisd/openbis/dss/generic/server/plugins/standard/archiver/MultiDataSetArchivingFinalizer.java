@@ -321,57 +321,14 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             if (parameters.isSanityCheck())
             {
                 operationLog.info("Starting sanity check of the file archived in the replicated destination");
-
-                RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
-                        new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
-                                parameters.getWaitForSanityCheckMaxWaitingTime(),
-                                new Log4jSimpleLogger(operationLog))
-                        {
-                            @Override protected Map<String, Status> call()
-                            {
-                                ArchiverTaskContext archiverContext = new ArchiverTaskContext(
-                                        ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
-                                        ServiceProvider.getHierarchicalContentProvider());
-
-                                Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
-
-                                MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
-                                        archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
-                                        new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-
-                                IHierarchicalContent replicaContent = null;
-
-                                try
-                                {
-                                    replicaContent =
-                                            operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
-
-                                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                                            new Log4jSimpleLogger(operationLog));
-                                } finally
-                                {
-                                    if (replicaContent != null)
-                                    {
-                                        try
-                                        {
-                                            replicaContent.close();
-                                        } catch (Exception e)
-                                        {
-                                            operationLog.warn("Could not close replicated content node", e);
-                                        }
-                                    }
-                                }
-                            }
-                        };
-
                 try
                 {
                     if (parameters.isWaitForSanityCheck())
                     {
-                        sanityCheckCaller.callWithRetry();
+                        createSanityCheckAction(dataSets, parameters).callWithRetry();
                     } else
                     {
-                        sanityCheckCaller.call();
+                        createSanityCheckAction(dataSets, parameters).call();
                     }
                 } catch (Exception e)
                 {
@@ -384,6 +341,50 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             return false;
         }
+    }
+
+    private RetryCaller<Map<String, Status>, RuntimeException> createSanityCheckAction(List<DatasetDescription> dataSets, Parameters parameters)
+    {
+        return new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
+                parameters.getWaitForSanityCheckMaxWaitingTime(),
+                new Log4jSimpleLogger(operationLog))
+        {
+            @Override protected Map<String, Status> call()
+            {
+                ArchiverTaskContext archiverContext = new ArchiverTaskContext(
+                        ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
+                        ServiceProvider.getHierarchicalContentProvider());
+
+                Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+
+                MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
+                        archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                        new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+
+                IHierarchicalContent replicaContent = null;
+
+                try
+                {
+                    replicaContent =
+                            operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
+
+                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                            new Log4jSimpleLogger(operationLog));
+                } finally
+                {
+                    if (replicaContent != null)
+                    {
+                        try
+                        {
+                            replicaContent.close();
+                        } catch (Exception e)
+                        {
+                            operationLog.warn("Could not close replicated content node", e);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     private List<String> extracCodes(List<DatasetDescription> datasets)
