@@ -285,22 +285,26 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             {
                 if (replicatedFile.length() != originalSize)
                 {
-                    operationLog.info("Waiting for the file size of the replicated file to match the original file size.");
+                    operationLog.info(
+                            "Waiting for the file size of the replicated file to match the original file size. Replicated file: "
+                                    + replicatedFile.getAbsolutePath());
                     return false;
                 } else
                 {
-                    operationLog.info("Replicated file has the same file size as the original file.");
+                    operationLog.info(
+                            "Replicated file has the same file size as the original file. Replicated file: " + replicatedFile.getAbsolutePath());
                 }
 
                 if (parameters.isWaitForTFlag())
                 {
                     if (!MultiDataSetArchivingUtils.isTFlagSet(replicatedFile, operationLog, machineLog))
                     {
-                        operationLog.info("Waiting for T flag to be set on the replicated file.");
+                        operationLog.info(
+                                "Waiting for T flag to be set on the replicated file. Replicated file: " + replicatedFile.getAbsolutePath());
                         return false;
                     } else
                     {
-                        operationLog.info("Replicated file has T flag set.");
+                        operationLog.info("Replicated file has T flag set. Replicated file: " + replicatedFile.getAbsolutePath());
                     }
                 }
 
@@ -320,7 +324,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             if (parameters.isSanityCheck())
             {
-                operationLog.info("Starting sanity check of the file archived in the replicated destination");
+                operationLog.info("Starting sanity check of the file archived in the replicated destination. Replicated file: "
+                        + replicatedFile.getAbsolutePath());
                 try
                 {
                     if (parameters.isWaitForSanityCheck())
@@ -332,7 +337,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                     }
                 } catch (Exception e)
                 {
-                    operationLog.error("Failed sanity check of the file archived in the replicated destination", e);
+                    operationLog.error("Failed sanity check of the file archived in the replicated destination. Replicated file: "
+                            + replicatedFile.getAbsolutePath(), e);
                     return false;
                 }
             }
