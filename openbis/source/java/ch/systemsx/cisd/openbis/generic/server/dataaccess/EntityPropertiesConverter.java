@@ -393,7 +393,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             return;
         }
         Set<EntityTypePropertyTypePE> definedProperties = new HashSet<EntityTypePropertyTypePE>();
-        definedProperties.addAll(entityTypePE.getEntityTypePropertyTypes());
+        for (T p : properties)
+        {
+            definedProperties.add(p.getEntityTypePropertyType());
+        }
         for (EntityTypePropertyTypePE etpt : assignedProperties)
         {
             if (etpt.isMandatory() && (definedProperties.contains(etpt) == false))
