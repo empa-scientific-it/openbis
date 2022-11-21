@@ -793,10 +793,9 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 status = Status.createError(e.getMessage());
             }
 
-            result.addResult(dataSets, status, Operation.UNARCHIVE);
-
             if (status.isError())
             {
+                result.addResult(dataSets, status, Operation.UNARCHIVE);
                 return result;
             }
         }
@@ -830,67 +829,37 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         final IMultiDataSetFileOperationsManager operations = getFileOperations();
         final File containerFile = new File(operations.getOriginalArchiveFilePath(container.getPath()));
-
-        Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
-        WaitingHelper helper = new WaitingHelper(unarchivingMaxWaitingTime, unarchivingPollingTime, timeProvider, logger, true);
-        FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger,
-                "Waiting for unarchiving of file: " + container.getPath());
+        final MutableObject<Status> lastStatus = new MutableObject<>();
 
         executePrepareUnarchivingCommand(containerId);
 
-        MutableObject<Status> lastStatus = new MutableObject<>(Status.createError("Operation timed out"));
-        helper.waitOn(timeProvider.getTimeInMilliseconds(), new IWaitingCondition()
+        if (unarchivingMaxWaitingTime != null && unarchivingPollingTime != null)
         {
-            @Override
-            public boolean conditionFulfilled()
+            Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
+            WaitingHelper helper = new WaitingHelper(unarchivingMaxWaitingTime, unarchivingPollingTime, timeProvider, logger, true);
+            FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger,
+                    "Waiting for unarchiving of file: " + container.getPath());
+
+            helper.waitOn(timeProvider.getTimeInMilliseconds(), new IWaitingCondition()
             {
-                try
+                @Override
+                public boolean conditionFulfilled()
                 {
-                    if (unarchivingWaitForTFlag)
-                    {
-                        boolean isTFlagSet = MultiDataSetArchivingUtils.isTFlagSet(containerFile, operationLog, machineLog);
-
-                        if (isTFlagSet)
-                        {
-                            operationLog.info("Unarchiving is waiting for T flag to disappear. File: " + containerFile.getAbsolutePath());
-                            return false;
-                        } else
-                        {
-                            operationLog.info("Unarchiving can proceed as T flag is not set. File: " + containerFile.getAbsolutePath());
-                        }
-                    }
-
-                    operationLog.info("Unarchiving is about to copy the file from the archive back to the store. File: "
-                            + containerFile.getAbsolutePath());
-
-                    Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
-
-                    if (status.isError())
-                    {
-                        operationLog.info(
-                                "Unarchiving attempt failed with error: " + status.tryGetErrorMessage() + ". File: "
-                                        + containerFile.getAbsolutePath());
-                        lastStatus.setValue(status);
-                        return false;
-                    } else
-                    {
-                        lastStatus.setValue(Status.OK);
-                        return true;
-                    }
-                } catch (Exception e)
-                {
-                    operationLog.info("Unarchiving attempt failed. File: " + containerFile.getAbsolutePath(), e);
-                    lastStatus.setValue(Status.createError(e.getMessage()));
-                    return false;
+                    Status status = doUnarchive(dataSets, container, containerFile);
+                    lastStatus.setValue(status);
+                    return status.isOK();
                 }
-            }
 
-            @Override
-            public String toString()
-            {
-                return "Waiting for unarchiving of file: " + containerFile.getAbsolutePath();
-            }
-        }, pause);
+                @Override
+                public String toString()
+                {
+                    return "Waiting for unarchiving of file: " + containerFile.getAbsolutePath();
+                }
+            }, pause);
+        } else
+        {
+            lastStatus.setValue(doUnarchive(dataSets, container, containerFile));
+        }
 
         if (lastStatus.getValue().isOK())
         {
@@ -902,6 +871,48 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
 
         return lastStatus.getValue();
+    }
+
+    private Status doUnarchive(final List<DatasetDescription> dataSets, final MultiDataSetArchiverContainerDTO container, final File containerFile)
+    {
+        try
+        {
+            final IMultiDataSetFileOperationsManager operations = getFileOperations();
+
+            if (unarchivingWaitForTFlag)
+            {
+                boolean isTFlagSet = MultiDataSetArchivingUtils.isTFlagSet(containerFile, operationLog, machineLog);
+
+                if (isTFlagSet)
+                {
+                    operationLog.info("Unarchiving is waiting for T flag to disappear. File: " + containerFile.getAbsolutePath());
+                    return Status.createError("Unarchiving is waiting for T flag to disappear");
+                } else
+                {
+                    operationLog.info("Unarchiving can proceed as T flag is not set. File: " + containerFile.getAbsolutePath());
+                }
+            }
+
+            operationLog.info("Unarchiving is about to copy the file from the archive back to the store. File: "
+                    + containerFile.getAbsolutePath());
+
+            Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+
+            if (status.isError())
+            {
+                operationLog.info(
+                        "Unarchiving attempt failed with error: " + status.tryGetErrorMessage() + ". File: "
+                                + containerFile.getAbsolutePath());
+                return status;
+            } else
+            {
+                return Status.OK;
+            }
+        } catch (Exception e)
+        {
+            operationLog.info("Unarchiving attempt failed. File: " + containerFile.getAbsolutePath(), e);
+            return Status.createError(e.getMessage());
+        }
     }
 
     private void executePrepareUnarchivingCommand(Long containerId)
