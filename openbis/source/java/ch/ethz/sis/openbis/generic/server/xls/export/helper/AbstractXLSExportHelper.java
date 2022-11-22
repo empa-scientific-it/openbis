@@ -80,7 +80,7 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
     }
 
     protected Collection<String> addRow(final int rowNumber, final boolean bold,
-            final ExportableKind exportableKind, final String permId, final String... values)
+            final ExportableKind exportableKind, final String idForWarningsOrErrors, final String... values)
     {
         final Collection<String> warnings = new ArrayList<>();
 
@@ -96,8 +96,20 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
                 cell.setCellValue(value);
             } else
             {
-                warnings.add(String.format("The value of the exportable with the perm ID '%s' of the kind %s exceeds " +
-                        "the maximum value supported by Excel: %d.", permId, exportableKind.toString(),
+                String kindDisplayName = null;
+                if (exportableKind == ExportableKind.SAMPLE) {
+                    kindDisplayName = "OBJECT";
+                } else if (exportableKind == ExportableKind.SAMPLE_TYPE) {
+                    kindDisplayName = "OBJECT_TYPE";
+                } else if (exportableKind == ExportableKind.EXPERIMENT) {
+                    kindDisplayName = "COLLECTION";
+                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE) {
+                    kindDisplayName = "COLLECTION_TYPE";
+                } else {
+                    kindDisplayName = exportableKind.toString();
+                }
+                warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Exceeds " +
+                        "the maximum value supported by Excel: %d.", rowNumber, idForWarningsOrErrors, kindDisplayName,
                         Short.MAX_VALUE));
                 cell.setCellStyle(errorCellStyle);
             }
