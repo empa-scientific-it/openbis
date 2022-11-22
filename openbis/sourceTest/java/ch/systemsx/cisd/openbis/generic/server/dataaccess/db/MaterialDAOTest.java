@@ -136,16 +136,6 @@ public final class MaterialDAOTest extends AbstractDAOTest
         materialDAO.delete(deletedMaterial);
 
         assertNull(materialDAO.tryFindMaterial(identifier));
-
-        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-                daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL).listEntityPropertyTypes(
-                        deletedMaterial.getEntityType());
-        for (MaterialPropertyPE property : deletedMaterial.getProperties())
-        {
-            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        }
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)

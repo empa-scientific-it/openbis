@@ -16,16 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.hibernate.Session;
 
@@ -384,22 +375,35 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return assignedProperties;
     }
 
-    private <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
-            EntityTypePE entityTypePE, List<EntityTypePropertyTypePE> assignedProperties)
+    private <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> propertyValues,
+                                                                       EntityTypePE entityTypePE, List<EntityTypePropertyTypePE> assignedProperties)
     {
-        assert properties != null;
+        assert propertyValues != null;
         if (assignedProperties == null || assignedProperties.size() == 0)
         {
             return;
         }
-        Set<EntityTypePropertyTypePE> definedProperties = new HashSet<EntityTypePropertyTypePE>();
-        for (T p : properties)
-        {
-            definedProperties.add(p.getEntityTypePropertyType());
-        }
+
+        List<EntityTypePropertyTypePE> mandatoryAssignedProperties = new ArrayList<>(0);
         for (EntityTypePropertyTypePE etpt : assignedProperties)
         {
-            if (etpt.isMandatory() && (definedProperties.contains(etpt) == false))
+            if (etpt.isMandatory()) {
+                mandatoryAssignedProperties.add(etpt);
+            }
+        }
+        if (mandatoryAssignedProperties.isEmpty()) {
+            return;
+        }
+
+        Set<EntityTypePropertyTypePE> definedProperties = new HashSet<EntityTypePropertyTypePE>();
+        for (T p : propertyValues)
+        {
+            definedProperties.add(p.getEntityTypePropertyType()); // This line causes performance issues
+        }
+
+        for (EntityTypePropertyTypePE etpt : mandatoryAssignedProperties)
+        {
+            if (definedProperties.contains(etpt) == false)
             {
                 throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, etpt
                         .getPropertyType().getCode());
