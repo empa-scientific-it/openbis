@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Set;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -35,4 +37,8 @@ public interface IEntityTypePropertyType extends IIdHolder
      */
     public EntityTypePE getEntityType();
 
+    /**
+     * Returns the set of {@link EntityPropertyPE} associated with this entity type property type.
+     */
+    public Set<? extends EntityPropertyPE> getPropertyValues();
 }

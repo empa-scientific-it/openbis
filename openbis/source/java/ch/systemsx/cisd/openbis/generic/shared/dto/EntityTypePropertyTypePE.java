@@ -67,6 +67,8 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     protected EntityTypePE entityType;
 
+    protected Set<EntityPropertyPE> propertyValues;
+
     private PropertyTypePE propertyType;
 
     private ScriptPE script;
@@ -115,6 +117,13 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     }
 
     abstract public void setPropertyType(final PropertyTypePE propertyType);
+
+    @SuppressWarnings("unused")
+    // for Hibernate only
+    private void setPropertyValues(final Set<EntityPropertyPE> propertyValues)
+    {
+        this.propertyValues = propertyValues;
+    }
 
     @Transient
     public boolean isScriptable()
