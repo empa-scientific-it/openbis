@@ -53,7 +53,8 @@ dependencies {
 			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/exports-api/lib/slf4j-api-1.7.21.jar"),
 			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/exports-api/lib/xalan-2.7.2.jar"),
 			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/zenodo-exports-api/lib/job-scheduler.jar"),
-			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/password-reset-api/lib/persistentkeyvaluestore.jar")
+			files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/password-reset-api/lib/persistentkeyvaluestore.jar"),
+			files("../../../openbis-hvl.ethz.ch/deployed/core-plugins/hvl-dropbox/1/dss/dropboxes/hvl-dropbox/lib/jmatio-1.5.jar")
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
                        project(path: ':common', configuration: 'tests'),

@@ -81,7 +81,7 @@ public class XLSExperimentExportHelper extends AbstractXLSExportHelper
                         .collect(Collectors.toList()));
 
                 warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT,
-                        experiment.getPermId().getPermId(), experimentValues.toArray(String[]::new)));
+                        experiment.getIdentifier().getIdentifier(), experimentValues.toArray(String[]::new)));
             }
 
             rowNumber++;

@@ -38,7 +38,7 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
 
         for (final Project project : projects)
         {
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, project.getPermId().getPermId(),
+            warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, project.getIdentifier().getIdentifier(),
                     project.getIdentifier().getIdentifier(), project.getCode(), project.getDescription(),
                     project.getSpace().getCode()));
         }

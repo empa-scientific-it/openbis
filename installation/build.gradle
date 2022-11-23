@@ -43,7 +43,7 @@ dependencies {
     archives 'apache:commons-io:2.6',
             'apache:log4j:1.2.15',
             'sis:sis-base:18.09.0',
-            'postgresql:postgresql:42.1.4.jre7',
+            'postgresql:postgresql:42.5.0',
             'gradle:core:7.4'
             
 }

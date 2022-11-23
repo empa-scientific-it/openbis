@@ -90,7 +90,7 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
                         .map(getPropertiesMappingFunction(textFormatting, properties))
                         .collect(Collectors.toList()));
                 
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE, sample.getPermId().getPermId(),
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE, sample.getIdentifier().getIdentifier(),
                         sampleValues.toArray(String[]::new)));
             }
 
