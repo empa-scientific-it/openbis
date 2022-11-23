@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.time.DateUtils;
 
 import ch.rinn.restrictions.Private;
@@ -48,14 +49,19 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
+import ch.systemsx.cisd.common.utilities.IWaitingCondition;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.common.utilities.WaitingHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.FileBasedPause;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
@@ -158,11 +164,17 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY = "wait-for-sanity-check-max-waiting-time";
 
-    public static final String WAIT_FOR_UNARCHIVING_KEY = "wait-for-unarchiving";
+    public static final String UNARCHIVING_PREPARE_COMMAND_TEMPLATE = "unarchiving-prepare-command-template";
 
-    public static final String WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME_KEY = "wait-for-unarchiving-initial-waiting-time";
+    public static final String UNARCHIVING_PREPARE_COMMAND_CONTAINER_ID = "container-id";
 
-    public static final String WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME_KEY = "wait-for-unarchiving-max-waiting-time";
+    public static final String UNARCHIVING_PREPARE_COMMAND_CONTAINER_PATH = "container-path";
+
+    public static final String UNARCHIVING_POLLING_TIME_KEY = "unarchiving-polling-time";
+
+    public static final String UNARCHIVING_MAX_WAITING_TIME_KEY = "unarchiving-max-waiting-time";
+
+    public static final String UNARCHIVING_WAIT_FOR_T_FLAG = "unarchiving-wait-for-t-flag";
 
     public static final boolean DEFAULT_WAIT_FOR_SANITY_CHECK = false;
 
@@ -170,11 +182,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME = 30 * DateUtils.MILLIS_PER_MINUTE;
 
-    public static final boolean DEFAULT_WAIT_FOR_UNARCHIVING = false;
-
-    public static final long DEFAULT_WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME = 10 * 1000;
-
-    public static final long DEFAULT_WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME = 6 * DateUtils.MILLIS_PER_HOUR;
+    public static final boolean DEFAULT_UNARCHIVING_WAIT_FOR_T_FLAG = false;
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
@@ -210,11 +218,13 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     private final long waitForSanityCheckMaxWaitingTime;
 
-    private final boolean waitForUnarchiving;
+    private final String unarchivingPrepareCommandTemplate;
 
-    private final long waitForUnarchivingInitialWaitingTime;
+    private final Long unarchivingPollingTime;
 
-    private final long waitForUnarchivingMaxWaitingTime;
+    private final Long unarchivingMaxWaitingTime;
+
+    private final boolean unarchivingWaitForTFlag;
 
     private final Properties cleanerProperties;
 
@@ -257,12 +267,31 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
         waitForSanityCheckMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
                 DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
-        waitForUnarchiving = PropertyUtils.getBoolean(properties, WAIT_FOR_UNARCHIVING_KEY, DEFAULT_WAIT_FOR_UNARCHIVING);
-        waitForUnarchivingInitialWaitingTime =
-                DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME_KEY,
-                        DEFAULT_WAIT_FOR_UNARCHIVING_INITIAL_WAITING_TIME);
-        waitForUnarchivingMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME_KEY,
-                DEFAULT_WAIT_FOR_UNARCHIVING_MAX_WAITING_TIME);
+
+        unarchivingPrepareCommandTemplate = PropertyUtils.getProperty(properties, UNARCHIVING_PREPARE_COMMAND_TEMPLATE);
+
+        String unarchivingPollingTimeString = PropertyUtils.getProperty(properties, UNARCHIVING_POLLING_TIME_KEY);
+        unarchivingPollingTime = unarchivingPollingTimeString != null ? DateTimeUtils.parseDurationToMillis(unarchivingPollingTimeString) : null;
+
+        String unarchivingMaxWaitingTimeString = PropertyUtils.getProperty(properties, UNARCHIVING_MAX_WAITING_TIME_KEY);
+        unarchivingMaxWaitingTime =
+                unarchivingMaxWaitingTimeString != null ? DateTimeUtils.parseDurationToMillis(unarchivingMaxWaitingTimeString) : null;
+
+        unarchivingWaitForTFlag = PropertyUtils.getBoolean(properties, UNARCHIVING_WAIT_FOR_T_FLAG, DEFAULT_UNARCHIVING_WAIT_FOR_T_FLAG);
+
+        if (unarchivingWaitForTFlag && (unarchivingPollingTime == null || unarchivingMaxWaitingTime == null))
+        {
+            throw new IllegalArgumentException(
+                    UNARCHIVING_POLLING_TIME_KEY + " and " + UNARCHIVING_MAX_WAITING_TIME_KEY + " properties cannot be empty when "
+                            + UNARCHIVING_WAIT_FOR_T_FLAG + " property is set to true.");
+        }
+
+        if (unarchivingPollingTime == null ^ unarchivingMaxWaitingTime == null)
+        {
+            throw new IllegalArgumentException(
+                    UNARCHIVING_POLLING_TIME_KEY + " and " + UNARCHIVING_MAX_WAITING_TIME_KEY
+                            + " properties have to be either both empty or both set.");
+        }
 
         cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
                 .getProperties();
@@ -567,42 +596,14 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     {
         Map<String, Status> statusMap = null;
 
-        operationLog.info("Starting sanity check of the file archived in the final destination");
-
-        RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
-                new RetryCaller<Map<String, Status>, RuntimeException>(waitForSanityCheckInitialWaitingTime, waitForSanityCheckMaxWaitingTime,
-                        new Log4jSimpleLogger(operationLog))
-                {
-                    @Override protected Map<String, Status> call()
-                    {
-                        IHierarchicalContent archivedContent = null;
-                        try
-                        {
-                            archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
-                            return MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
-                                    new Log4jSimpleLogger(operationLog));
-                        } finally
-                        {
-                            if (archivedContent != null)
-                            {
-                                try
-                                {
-                                    archivedContent.close();
-                                } catch (Exception e)
-                                {
-                                    operationLog.warn("Could not close archived content node", e);
-                                }
-                            }
-                        }
-                    }
-                };
+        operationLog.info("Starting sanity check of the file archived in the final destination. File: " + containerPath);
 
         if (waitForSanityCheck)
         {
-            statusMap = sanityCheckCaller.callWithRetry();
+            statusMap = createArchivingSanityCheckAction(containerPath, dataSets, context).callWithRetry();
         } else
         {
-            statusMap = sanityCheckCaller.call();
+            statusMap = createArchivingSanityCheckAction(containerPath, dataSets, context).call();
         }
 
         if (needsToWaitForReplication() == false)
@@ -612,6 +613,38 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 statuses.addResult(dataSetCode, statusMap.get(dataSetCode), Operation.ARCHIVE);
             }
         }
+    }
+
+    private RetryCaller<Map<String, Status>, RuntimeException> createArchivingSanityCheckAction(String containerPath,
+            List<DatasetDescription> dataSets,
+            ArchiverTaskContext context)
+    {
+        return new RetryCaller<Map<String, Status>, RuntimeException>(waitForSanityCheckInitialWaitingTime, waitForSanityCheckMaxWaitingTime,
+                new Log4jSimpleLogger(operationLog))
+        {
+            @Override protected Map<String, Status> call()
+            {
+                IHierarchicalContent archivedContent = null;
+                try
+                {
+                    archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
+                    return MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
+                            new Log4jSimpleLogger(operationLog));
+                } finally
+                {
+                    if (archivedContent != null)
+                    {
+                        try
+                        {
+                            archivedContent.close();
+                        } catch (Exception e)
+                        {
+                            operationLog.warn("Could not close archived content node", e);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     @Override
@@ -692,7 +725,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             }
 
             SegmentedStoreUtils.freeSpace(scratchShare, service, dataSets, directoryProvider, shareIdManager, new Log4jSimpleLogger(operationLog));
-
         }
 
         private long getSize(DatasetDescription dataSet)
@@ -748,68 +780,28 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         context.getUnarchivingPreparation().prepareForUnarchiving(dataSets);
 
-        IMultiDataSetFileOperationsManager operations = getFileOperations();
         for (Long containerId : containerIds)
         {
-            RetryCaller<Status, RuntimeException> unarchiveCaller =
-                    new RetryCaller<Status, RuntimeException>(waitForUnarchivingInitialWaitingTime, waitForUnarchivingMaxWaitingTime,
-                            new Log4jSimpleLogger(operationLog))
-                    {
-                        @Override protected Status call()
-                        {
-                            MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
-                            File containerFile = new File(operations.getOriginalArchiveFilePath(container.getPath()));
-
-                            if (MultiDataSetArchivingUtils.isTFlagSet(containerFile, operationLog, machineLog))
-                            {
-                                operationLog.info("Unarchiving file: " + containerFile.getAbsolutePath() + " with T flag set.");
-                            } else
-                            {
-                                operationLog.info("Unarchiving file: " + containerFile.getAbsolutePath() + " without T flag set.");
-                            }
-
-                            Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
-
-                            if (status.isError())
-                            {
-                                // throw an exception to trigger the retry logic but keep the original error status
-                                throw new ExceptionWithStatus(status);
-                            } else
-                            {
-                                return status;
-                            }
-                        }
-                    };
-
-            Status status = null;
+            Status status;
 
             try
             {
-                if (waitForUnarchiving)
-                {
-                    status = unarchiveCaller.callWithRetry();
-                } else
-                {
-                    status = unarchiveCaller.call();
-                }
-            } catch (ExceptionWithStatus e)
-            {
-                // retrieve the original error status
-                status = e.getStatus();
+                status = doUnarchive(dataSets, containerId);
             } catch (Exception e)
             {
+                operationLog.error("Unarchiving failed. Container id: " + containerId, e);
                 status = Status.createError(e.getMessage());
             }
 
             if (status.isError())
             {
-                operationLog.error("Unarchiving failed for containerId: " + containerId + " with status: " + status);
                 result.addResult(dataSets, status, Operation.UNARCHIVE);
                 return result;
             }
         }
 
         IHierarchicalContentProvider contentProvider = context.getHierarchicalContentProvider();
+
         for (String dataSetCode : dataSetCodes)
         {
             IHierarchicalContent content = contentProvider.asContentWithoutModifyingAccessTimestamp(dataSetCode);
@@ -824,6 +816,130 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         result.addResult(dataSets, Status.OK, Operation.UNARCHIVE);
         return result;
+    }
+
+    protected Status doUnarchive(final List<DatasetDescription> dataSets, final Long containerId)
+    {
+        final MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
+
+        if (container == null)
+        {
+            throw new RuntimeException("Archive container with id: " + containerId + " not found.");
+        }
+
+        final IMultiDataSetFileOperationsManager operations = getFileOperations();
+        final File containerFile = new File(operations.getOriginalArchiveFilePath(container.getPath()));
+        final MutableObject<Status> lastStatus = new MutableObject<>();
+
+        executePrepareUnarchivingCommand(containerId);
+
+        if (unarchivingMaxWaitingTime != null && unarchivingPollingTime != null)
+        {
+            Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
+            WaitingHelper helper = new WaitingHelper(unarchivingMaxWaitingTime, unarchivingPollingTime, timeProvider, logger, true);
+            FileBasedPause pause = new FileBasedPause(pauseFile, pauseFilePollingTime, timeProvider, logger,
+                    "Waiting for unarchiving of file: " + container.getPath());
+
+            helper.waitOn(timeProvider.getTimeInMilliseconds(), new IWaitingCondition()
+            {
+                @Override
+                public boolean conditionFulfilled()
+                {
+                    Status status = doUnarchive(dataSets, container, containerFile);
+                    lastStatus.setValue(status);
+                    return status.isOK();
+                }
+
+                @Override
+                public String toString()
+                {
+                    return "Waiting for unarchiving of file: " + containerFile.getAbsolutePath();
+                }
+            }, pause);
+        } else
+        {
+            lastStatus.setValue(doUnarchive(dataSets, container, containerFile));
+        }
+
+        if (lastStatus.getValue().isOK())
+        {
+            operationLog.info("Unarchiving succeeded. File: " + containerFile.getAbsolutePath());
+        } else
+        {
+            operationLog.error(
+                    "Unarchiving failed with error: " + lastStatus.getValue().tryGetErrorMessage() + ". File: " + containerFile.getAbsolutePath());
+        }
+
+        return lastStatus.getValue();
+    }
+
+    private Status doUnarchive(final List<DatasetDescription> dataSets, final MultiDataSetArchiverContainerDTO container, final File containerFile)
+    {
+        try
+        {
+            final IMultiDataSetFileOperationsManager operations = getFileOperations();
+
+            if (unarchivingWaitForTFlag)
+            {
+                boolean isTFlagSet = MultiDataSetArchivingUtils.isTFlagSet(containerFile, operationLog, machineLog);
+
+                if (isTFlagSet)
+                {
+                    operationLog.info("Unarchiving is waiting for T flag to disappear. File: " + containerFile.getAbsolutePath());
+                    return Status.createError("Unarchiving is waiting for T flag to disappear");
+                } else
+                {
+                    operationLog.info("Unarchiving can proceed as T flag is not set. File: " + containerFile.getAbsolutePath());
+                }
+            }
+
+            operationLog.info("Unarchiving is about to copy the file from the archive back to the store. File: "
+                    + containerFile.getAbsolutePath());
+
+            Status status = operations.restoreDataSetsFromContainerInFinalDestination(container.getPath(), dataSets);
+
+            if (status.isError())
+            {
+                operationLog.info(
+                        "Unarchiving attempt failed with error: " + status.tryGetErrorMessage() + ". File: "
+                                + containerFile.getAbsolutePath());
+                return status;
+            } else
+            {
+                return Status.OK;
+            }
+        } catch (Exception e)
+        {
+            operationLog.info("Unarchiving attempt failed. File: " + containerFile.getAbsolutePath(), e);
+            return Status.createError(e.getMessage());
+        }
+    }
+
+    private void executePrepareUnarchivingCommand(Long containerId)
+    {
+        IMultiDataSetFileOperationsManager operations = getFileOperations();
+        MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
+        File containerFile = new File(operations.getOriginalArchiveFilePath(container.getPath()));
+
+        if (unarchivingPrepareCommandTemplate != null)
+        {
+            Template prepareCommandTemplate = new Template(unarchivingPrepareCommandTemplate);
+            prepareCommandTemplate.attemptToBind(UNARCHIVING_PREPARE_COMMAND_CONTAINER_ID, String.valueOf(containerId));
+            prepareCommandTemplate.attemptToBind(UNARCHIVING_PREPARE_COMMAND_CONTAINER_PATH, containerFile.getAbsolutePath());
+            String prepareCommand = prepareCommandTemplate.createText(false);
+
+            ProcessResult prepareResult = MultiDataSetArchivingUtils.executeShellCommand(prepareCommand, operationLog, machineLog);
+
+            if (prepareResult.isOK())
+            {
+                operationLog.info("Prepare unarchiving command: '" + prepareCommand + "' successfully executed.");
+            } else
+            {
+                throw new RuntimeException(
+                        "Prepare unarchiving command: '" + prepareCommand + "' failed. Exit value: " + prepareResult.getExitValue()
+                                + ".", prepareResult.getProcessIOResult().tryGetException());
+            }
+        }
     }
 
     private void assertFilesExists(String dataSetCode, IHierarchicalContentNode node)

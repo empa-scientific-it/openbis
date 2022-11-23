@@ -285,22 +285,26 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             {
                 if (replicatedFile.length() != originalSize)
                 {
-                    operationLog.info("Waiting for the file size of the replicated file to match the original file size.");
+                    operationLog.info(
+                            "Waiting for the file size of the replicated file to match the original file size. Replicated file: "
+                                    + replicatedFile.getAbsolutePath());
                     return false;
                 } else
                 {
-                    operationLog.info("Replicated file has the same file size as the original file.");
+                    operationLog.info(
+                            "Replicated file has the same file size as the original file. Replicated file: " + replicatedFile.getAbsolutePath());
                 }
 
                 if (parameters.isWaitForTFlag())
                 {
                     if (!MultiDataSetArchivingUtils.isTFlagSet(replicatedFile, operationLog, machineLog))
                     {
-                        operationLog.info("Waiting for T flag to be set on the replicated file.");
+                        operationLog.info(
+                                "Waiting for T flag to be set on the replicated file. Replicated file: " + replicatedFile.getAbsolutePath());
                         return false;
                     } else
                     {
-                        operationLog.info("Replicated file has T flag set.");
+                        operationLog.info("Replicated file has T flag set. Replicated file: " + replicatedFile.getAbsolutePath());
                     }
                 }
 
@@ -320,62 +324,21 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             if (parameters.isSanityCheck())
             {
-                operationLog.info("Starting sanity check of the file archived in the replicated destination");
-
-                RetryCaller<Map<String, Status>, RuntimeException> sanityCheckCaller =
-                        new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
-                                parameters.getWaitForSanityCheckMaxWaitingTime(),
-                                new Log4jSimpleLogger(operationLog))
-                        {
-                            @Override protected Map<String, Status> call()
-                            {
-                                ArchiverTaskContext archiverContext = new ArchiverTaskContext(
-                                        ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
-                                        ServiceProvider.getHierarchicalContentProvider());
-
-                                Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
-
-                                MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
-                                        archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
-                                        new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-
-                                IHierarchicalContent replicaContent = null;
-
-                                try
-                                {
-                                    replicaContent =
-                                            operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
-
-                                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                                            new Log4jSimpleLogger(operationLog));
-                                } finally
-                                {
-                                    if (replicaContent != null)
-                                    {
-                                        try
-                                        {
-                                            replicaContent.close();
-                                        } catch (Exception e)
-                                        {
-                                            operationLog.warn("Could not close replicated content node", e);
-                                        }
-                                    }
-                                }
-                            }
-                        };
-
+                operationLog.info("Starting sanity check of the file archived in the replicated destination. Replicated file: "
+                        + replicatedFile.getAbsolutePath());
                 try
                 {
                     if (parameters.isWaitForSanityCheck())
                     {
-                        sanityCheckCaller.callWithRetry();
+                        createSanityCheckAction(dataSets, parameters).callWithRetry();
                     } else
                     {
-                        sanityCheckCaller.call();
+                        createSanityCheckAction(dataSets, parameters).call();
                     }
                 } catch (Exception e)
                 {
-                    operationLog.error("Failed sanity check of the file archived in the replicated destination", e);
+                    operationLog.error("Failed sanity check of the file archived in the replicated destination. Replicated file: "
+                            + replicatedFile.getAbsolutePath(), e);
                     return false;
                 }
             }
@@ -384,6 +347,50 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         {
             return false;
         }
+    }
+
+    private RetryCaller<Map<String, Status>, RuntimeException> createSanityCheckAction(List<DatasetDescription> dataSets, Parameters parameters)
+    {
+        return new RetryCaller<Map<String, Status>, RuntimeException>(parameters.getWaitForSanityCheckInitialWaitingTime(),
+                parameters.getWaitForSanityCheckMaxWaitingTime(),
+                new Log4jSimpleLogger(operationLog))
+        {
+            @Override protected Map<String, Status> call()
+            {
+                ArchiverTaskContext archiverContext = new ArchiverTaskContext(
+                        ServiceProvider.getDataStoreService().getDataSetDirectoryProvider(),
+                        ServiceProvider.getHierarchicalContentProvider());
+
+                Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+
+                MultiDataSetFileOperationsManager operationsManager = new MultiDataSetFileOperationsManager(
+                        archiverProperties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory(),
+                        new SimpleFreeSpaceProvider(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+
+                IHierarchicalContent replicaContent = null;
+
+                try
+                {
+                    replicaContent =
+                            operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
+
+                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
+                            new Log4jSimpleLogger(operationLog));
+                } finally
+                {
+                    if (replicaContent != null)
+                    {
+                        try
+                        {
+                            replicaContent.close();
+                        } catch (Exception e)
+                        {
+                            operationLog.warn("Could not close replicated content node", e);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     private List<String> extracCodes(List<DatasetDescription> datasets)
