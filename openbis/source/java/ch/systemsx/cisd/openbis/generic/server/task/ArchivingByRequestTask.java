@@ -248,7 +248,23 @@ public class ArchivingByRequestTask extends AbstractGroupMaintenanceTask
         Map<String, List<DataSet>> dataSetsByGroups = new TreeMap<>();
         for (DataSet dataSet : dataSets)
         {
-            String spaceCode = dataSet.getExperiment().getProject().getSpace().getCode();
+            String spaceCode = null;
+
+            if (dataSet.getExperiment() != null)
+            {
+                spaceCode = dataSet.getExperiment().getProject().getSpace().getCode();
+            } else if (dataSet.getSample() != null && dataSet.getSample().getSpace() != null)
+            {
+                // all space, project and experiment samples have space set
+                spaceCode = dataSet.getSample().getSpace().getCode();
+            }
+
+            if (spaceCode == null)
+            {
+                operationLog.warn("Data set: " + dataSet.getCode() + " does not belong to a space. It will not be archived.");
+                continue;
+            }
+
             String[] prefixAndCode = StringUtils.split(spaceCode, "_", 2);
             String groupKey = "";
             if (prefixAndCode.length == 2)
