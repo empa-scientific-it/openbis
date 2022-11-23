@@ -86,12 +86,10 @@ public class XLSExportTest
             );
 
     private static final List<String> EXPERIMENT_IMPORT_WARNINGS = List.of(
-            "The value of the exportable with the perm ID '200001010000000-0001' " +
-                    "of the kind EXPERIMENT exceeds " +
-                    "the maximum value supported by Excel: 32767.",
-            "The value of the exportable with the perm ID '200001010000000-0003' " +
-                    "of the kind EXPERIMENT exceeds " +
-                    "the maximum value supported by Excel: 32767.");
+            "Line: 5 Kind: /TEST/TEST/TEST ID: 'COLLECTION' - "
+                    + "Value exceeds the maximum size supported by Excel: 32767.",
+            "Line: 4 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
+                    + "Value exceeds the maximum size supported by Excel: 32767.");
 
     private Mockery mockery;
 
