@@ -184,11 +184,12 @@ export default class DatabaseBrowserController extends BrowserController {
 
   async doLoadUnfilteredNodes(params) {
     const _this = this
-    const { node } = params
+    const { node, sortingIds } = params
 
     async function addSpacesNode(nodes) {
+      const spacesNodeId = node.id + '__' + TYPE_SPACES
       const spacesNode = {
-        id: node.id + '__' + TYPE_SPACES,
+        id: spacesNodeId,
         text: TEXT_SPACES,
         object: {
           type: TYPE_SPACES
@@ -197,7 +198,7 @@ export default class DatabaseBrowserController extends BrowserController {
         canHaveChildren: true,
         selectable: false,
         sortings: SORTINGS,
-        sortingId: 'code_asc'
+        sortingId: sortingIds[spacesNodeId] || 'code_asc'
       }
 
       const spaces = await _this.searchSpaces({ ...params, node: spacesNode })
@@ -209,8 +210,9 @@ export default class DatabaseBrowserController extends BrowserController {
     }
 
     async function addProjectsNode(nodes) {
+      const projectsNodeId = node.id + '__' + TYPE_PROJECTS
       const projectsNode = {
-        id: node.id + '__' + TYPE_PROJECTS,
+        id: projectsNodeId,
         text: TEXT_PROJECTS,
         object: {
           type: TYPE_PROJECTS
@@ -219,7 +221,7 @@ export default class DatabaseBrowserController extends BrowserController {
         canHaveChildren: true,
         selectable: false,
         sortings: SORTINGS,
-        sortingId: 'code_asc'
+        sortingId: sortingIds[projectsNodeId] || 'code_asc'
       }
 
       const projects = await _this.searchProjects({
@@ -234,8 +236,9 @@ export default class DatabaseBrowserController extends BrowserController {
     }
 
     async function addExperimentsNode(nodes) {
+      const experimentsNodeId = node.id + '__' + TYPE_COLLECTIONS
       const experimentsNode = {
-        id: node.id + '__' + TYPE_COLLECTIONS,
+        id: experimentsNodeId,
         text: TEXT_COLLECTIONS,
         object: {
           type: TYPE_COLLECTIONS
@@ -244,7 +247,7 @@ export default class DatabaseBrowserController extends BrowserController {
         canHaveChildren: true,
         selectable: false,
         sortings: SORTINGS,
-        sortingId: 'code_asc'
+        sortingId: sortingIds[experimentsNodeId] || 'code_asc'
       }
 
       const experiments = await _this.searchExperiments({
@@ -263,27 +266,30 @@ export default class DatabaseBrowserController extends BrowserController {
         parent: node,
         canHaveChildren: true,
         selectable: false,
-        sortings: SORTINGS,
-        sortingId: 'code_asc'
+        sortings: SORTINGS
       }
 
       if (node.object.type === objectType.OBJECT) {
+        const samplesNodeId = node.id + '__' + TYPE_OBJECT_CHILDREN
         samplesNode = {
           ...samplesNode,
-          id: node.id + '__' + TYPE_OBJECT_CHILDREN,
+          id: samplesNodeId,
           text: TEXT_OBJECT_CHILDREN,
           object: {
             type: TYPE_OBJECT_CHILDREN
-          }
+          },
+          sortingId: sortingIds[samplesNodeId] || 'code_asc'
         }
       } else {
+        const samplesNodeId = node.id + '__' + TYPE_OBJECTS
         samplesNode = {
           ...samplesNode,
-          id: node.id + '__' + TYPE_OBJECTS,
+          id: samplesNodeId,
           text: TEXT_OBJECTS,
           object: {
             type: TYPE_OBJECTS
-          }
+          },
+          sortingId: sortingIds[samplesNodeId] || 'code_asc'
         }
       }
 
@@ -303,27 +309,30 @@ export default class DatabaseBrowserController extends BrowserController {
         parent: node,
         canHaveChildren: true,
         selectable: false,
-        sortings: SORTINGS,
-        sortingId: 'code_asc'
+        sortings: SORTINGS
       }
 
       if (node.object.type === objectType.DATA_SET) {
+        const dataSetsNodeId = node.id + '__' + TYPE_DATA_SET_CHILDREN
         dataSetsNode = {
           ...dataSetsNode,
-          id: node.id + '__' + TYPE_DATA_SET_CHILDREN,
+          id: dataSetsNodeId,
           text: TEXT_DATA_SET_CHILDREN,
           object: {
             type: TYPE_DATA_SET_CHILDREN
-          }
+          },
+          sortingId: sortingIds[dataSetsNodeId] || 'code_asc'
         }
       } else {
+        const dataSetsNodeId = node.id + '__' + TYPE_DATA_SETS
         dataSetsNode = {
           ...dataSetsNode,
-          id: node.id + '__' + TYPE_DATA_SETS,
+          id: dataSetsNodeId,
           text: TEXT_DATA_SETS,
           object: {
             type: TYPE_DATA_SETS
-          }
+          },
+          sortingId: sortingIds[dataSetsNodeId] || 'code_asc'
         }
       }
 

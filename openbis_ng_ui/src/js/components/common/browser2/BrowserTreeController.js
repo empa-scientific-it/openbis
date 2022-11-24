@@ -95,7 +95,8 @@ export default class BrowserTreeController {
     const loadPromise = this.doLoadNodes({
       node: node.id === INTERNAL_ROOT_ID ? null : node,
       offset: offset,
-      limit: limit
+      limit: limit,
+      sortingIds: state.sortingIds
     })
 
     this.lastLoadPromise[nodeId] = loadPromise
