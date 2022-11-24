@@ -231,6 +231,19 @@ public class ELNCollectionTypeMigration {
 
     public static void beforeUpgrade(String sessionToken) {
         operationLog.info("ELNCollectionTypeMigration beforeUpgrade START");
+        removeKindFromScript();
+        migrateCollectionTypes(sessionToken);
+    }
+
+    private static final String REMOVE_KIND_FROM_SCRIPTS = "UPDATE scripts SET entity_kind = NULL;";
+    private static void removeKindFromScript() {
+        // This fix is needed on legacy installations
+        // On some of this MANAGE_SCRIPTS for one KIND have been assigned to other KIND types violating the rules.
+        // All Kinds with properties are potentially compatible making the KIND restriction really pointless.
+        executeNativeUpdate(REMOVE_KIND_FROM_SCRIPTS);
+    }
+
+    private static void migrateCollectionTypes(String sessionToken) {
         // Obtain property types used by experiments that should be of type COLLECTION
         for (String experimentCode:experimentsOfTypeCollection) {
             Set<ExperimentType> experimentTypes = getExperimentTypes(sessionToken, new String[]{experimentCode});
