@@ -35,6 +35,8 @@ class UserManagerConfig
 
     private List<UserGroup> groups;
 
+    private List<String> instanceAdmins;
+
     public List<String> getGlobalSpaces()
     {
         return globalSpaces;
@@ -83,6 +85,16 @@ class UserManagerConfig
     public void setGroups(List<UserGroup> groups)
     {
         this.groups = groups;
+    }
+
+    public List<String> getInstanceAdmins()
+    {
+        return instanceAdmins;
+    }
+
+    public void setInstanceAdmins(List<String> instanceAdmins)
+    {
+        this.instanceAdmins = instanceAdmins;
     }
 
 }

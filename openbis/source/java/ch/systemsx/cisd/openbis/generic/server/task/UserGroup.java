@@ -46,6 +46,8 @@ public class UserGroup
 
     private List<String> admins;
 
+    private List<String> permanentUsers;
+
     private List<String> shareIds;
 
     public String getName()
@@ -125,6 +127,16 @@ public class UserGroup
     public void setAdmins(List<String> admins)
     {
         this.admins = admins;
+    }
+
+    public List<String> getPermanentUsers()
+    {
+        return permanentUsers;
+    }
+
+    public void setPermanentUsers(List<String> permanentUsers)
+    {
+        this.permanentUsers = permanentUsers;
     }
 
     public List<String> getLdapGroupKeys()

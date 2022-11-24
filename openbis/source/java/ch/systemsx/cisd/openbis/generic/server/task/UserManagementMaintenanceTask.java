@@ -158,6 +158,10 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
             {
                 knownUsers.addAll(group.getUsers());
             }
+            if (group.getPermanentUsers() != null)
+            {
+                knownUsers.addAll(group.getPermanentUsers());
+            }
         }
         userManager.manage(knownUsers);
         handleReport(report);
