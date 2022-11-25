@@ -209,6 +209,10 @@ export default class BrowserController {
     return this._getTreeController().getRoot()
   }
 
+  getNodeSetAsRoot() {
+    return this._getTreeController().getNodeSetAsRoot()
+  }
+
   getSelectedObject() {
     return this._getTreeController().getSelectedObject()
   }

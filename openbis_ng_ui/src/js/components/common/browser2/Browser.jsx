@@ -97,6 +97,7 @@ class Browser extends React.PureComponent {
     return (
       <div className={classes.browser}>
         {this.renderFilter()}
+        {this.renderNodeSetAsRoot()}
         {fullTree && (
           <div
             className={util.classNames(
@@ -152,6 +153,20 @@ class Browser extends React.PureComponent {
           </div>
         }
       />
+    )
+  }
+
+  renderNodeSetAsRoot() {
+    const nodeSetAsRoot = this.controller.getNodeSetAsRoot()
+
+    if (!nodeSetAsRoot) {
+      return null
+    }
+
+    return (
+      <div onClick={() => this.controller.setNodeAsRoot(null)}>
+        Root: {nodeSetAsRoot.text}
+      </div>
     )
   }
 }

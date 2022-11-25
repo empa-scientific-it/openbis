@@ -22,6 +22,7 @@ export default class BrowserTreeController {
       loaded: false,
       loading: false,
       rootId: null,
+      nodeSetAsRoot: null,
       nodes: {},
       selectedObject: null,
       expandedIds: {},
@@ -61,24 +62,30 @@ export default class BrowserTreeController {
   }
 
   async _doLoadRoot(state) {
-    state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
-    await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
-    const internalRoot = state.nodes[INTERNAL_ROOT_ID]
-    delete state.nodes[INTERNAL_ROOT_ID]
+    if (state.nodeSetAsRoot) {
+      state.nodes[state.nodeSetAsRoot.id] = state.nodeSetAsRoot
+      await this._doLoadNode(state, state.nodeSetAsRoot.id, 0, LOAD_LIMIT)
+      state.rootId = state.nodeSetAsRoot.id
+    } else {
+      state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
+      await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
+      const internalRoot = state.nodes[INTERNAL_ROOT_ID]
+      delete state.nodes[INTERNAL_ROOT_ID]
 
-    if (
-      internalRoot.children.length === 0 ||
-      internalRoot.children.length > 1
-    ) {
-      throw new Error(
-        'Found ' +
-          internalRoot.children.length +
-          ' root candidates. Expected to find 1.'
-      )
+      if (
+        internalRoot.children.length === 0 ||
+        internalRoot.children.length > 1
+      ) {
+        throw new Error(
+          'Found ' +
+            internalRoot.children.length +
+            ' root candidates. Expected to find 1.'
+        )
+      }
+
+      const rootId = internalRoot.children[0]
+      state.rootId = rootId
     }
-
-    const rootId = internalRoot.children[0]
-    state.rootId = rootId
   }
 
   async _doLoadNode(state, nodeId, offset, limit) {
@@ -332,7 +339,11 @@ export default class BrowserTreeController {
   }
 
   async setNodeAsRoot(nodeId) {
-    return nodeId
+    const { nodes } = this.context.getState()
+    await this.context.setState({
+      nodeSetAsRoot: nodes[nodeId]
+    })
+    await this.load()
   }
 
   async selectObject(nodeObject) {
@@ -540,6 +551,11 @@ export default class BrowserTreeController {
   getRoot() {
     const { rootId, nodes } = this.context.getState()
     return nodes[rootId]
+  }
+
+  getNodeSetAsRoot() {
+    const { nodeSetAsRoot } = this.context.getState()
+    return nodeSetAsRoot
   }
 
   getSelectedObject() {
