@@ -109,8 +109,8 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
                     kindDisplayName = exportableKind.toString();
                 }
                 warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Value exceeds " +
-                        "the maximum size supported by Excel: %d.", rowNumber, idForWarningsOrErrors, kindDisplayName,
-                        Short.MAX_VALUE));
+                        "the maximum size supported by Excel: %d.", rowNumber + 1, idForWarningsOrErrors,
+                        kindDisplayName, Short.MAX_VALUE));
                 cell.setCellStyle(errorCellStyle);
             }
         }
