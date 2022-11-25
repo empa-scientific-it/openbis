@@ -331,6 +331,10 @@ export default class BrowserTreeController {
     }
   }
 
+  async setNodeAsRoot(nodeId) {
+    return nodeId
+  }
+
   async selectObject(nodeObject) {
     const state = this.context.getState()
 

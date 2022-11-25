@@ -162,6 +162,11 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
+  async setNodeAsRoot(nodeId) {
+    await this.fullTreeController.setNodeAsRoot(nodeId)
+    await this.filteredTreeController.setNodeAsRoot(nodeId)
+  }
+
   async selectObject(nodeObject) {
     const { autoShowSelectedObject } = this.context.getState()
     await this.fullTreeController.selectObject(nodeObject)

@@ -10,6 +10,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import Collapse from '@material-ui/core/Collapse'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
+import BrowserNodeSetAsRoot from '@src/js/components/common/browser2/BrowserNodeSetAsRoot.jsx'
 import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
 import BrowserNodeCollapseAll from '@src/js/components/common/browser2/BrowserNodeCollapseAll.jsx'
 import messages from '@src/js/common/messages.js'
@@ -45,9 +46,6 @@ const styles = theme => ({
     visibility: 'hidden',
     display: 'flex'
   },
-  option: {
-    paddingLeft: '16px'
-  },
   selected: {
     backgroundColor: theme.palette.background.primary
   }
@@ -62,6 +60,7 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleLoadMore = this.handleLoadMore.bind(this)
     this.handleSortingChange = this.handleSortingChange.bind(this)
     this.handleCollapseAll = this.handleCollapseAll.bind(this)
+    this.handleSetAsRoot = this.handleSetAsRoot.bind(this)
     this.references = {
       node: React.createRef(),
       loadMore: React.createRef()
@@ -98,6 +97,11 @@ class BrowserNodeClass extends React.PureComponent {
   handleCollapseAll(nodeId) {
     const { controller } = this.props
     controller.collapseAllNodes(nodeId)
+  }
+
+  handleSetAsRoot(nodeId) {
+    const { controller } = this.props
+    controller.setNodeAsRoot(nodeId)
   }
 
   componentDidMount() {
@@ -212,18 +216,9 @@ class BrowserNodeClass extends React.PureComponent {
 
     return (
       <div className={classes.options}>
-        <div className={classes.option}>
-          <BrowserNodeSortings
-            node={node}
-            onChange={this.handleSortingChange}
-          />
-        </div>
-        <div className={classes.option}>
-          <BrowserNodeCollapseAll
-            node={node}
-            onClick={this.handleCollapseAll}
-          />
-        </div>
+        <BrowserNodeSetAsRoot node={node} onClick={this.handleSetAsRoot} />
+        <BrowserNodeSortings node={node} onChange={this.handleSortingChange} />
+        <BrowserNodeCollapseAll node={node} onClick={this.handleCollapseAll} />
       </div>
     )
   }

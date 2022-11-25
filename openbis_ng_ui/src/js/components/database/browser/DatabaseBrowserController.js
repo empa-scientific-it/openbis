@@ -453,7 +453,8 @@ export default class DatabaseBrowserController extends BrowserController {
         type: objectType.SPACE,
         id: space.getCode()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      rootable: true
     }))
 
     if (_.isEmpty(nodes)) {
@@ -498,7 +499,8 @@ export default class DatabaseBrowserController extends BrowserController {
         type: objectType.PROJECT,
         id: project.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      rootable: true
     }))
 
     if (_.isEmpty(nodes)) {
@@ -543,7 +545,8 @@ export default class DatabaseBrowserController extends BrowserController {
         type: objectType.COLLECTION,
         id: experiment.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      rootable: true
     }))
 
     if (_.isEmpty(nodes)) {
@@ -606,7 +609,8 @@ export default class DatabaseBrowserController extends BrowserController {
         type: objectType.OBJECT,
         id: sample.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      rootable: true
     }))
 
     if (_.isEmpty(nodes)) {
@@ -661,7 +665,8 @@ export default class DatabaseBrowserController extends BrowserController {
         type: objectType.DATA_SET,
         id: dataSet.getPermId().getPermId()
       },
-      canHaveChildren: true
+      canHaveChildren: true,
+      rootable: true
     }))
 
     if (_.isEmpty(nodes)) {

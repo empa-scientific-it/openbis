@@ -12,7 +12,10 @@ import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({
+const styles = theme => ({
+  container: {
+    paddingLeft: theme.spacing(1)
+  },
   button: {
     padding: '4px',
     margin: '-4px'
@@ -60,6 +63,7 @@ class BrowserNodeSortings extends React.PureComponent {
 
     return (
       <div
+        className={classes.container}
         onClick={event => {
           event.preventDefault()
           event.stopPropagation()
