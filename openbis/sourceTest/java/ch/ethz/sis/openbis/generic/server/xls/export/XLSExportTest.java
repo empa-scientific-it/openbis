@@ -86,9 +86,9 @@ public class XLSExportTest
             );
 
     private static final List<String> EXPERIMENT_IMPORT_WARNINGS = List.of(
-            "Line: 5 Kind: /TEST/TEST/TEST ID: 'COLLECTION' - "
+            "Line: 6 Kind: /TEST/TEST/TEST ID: 'COLLECTION' - "
                     + "Value exceeds the maximum size supported by Excel: 32767.",
-            "Line: 4 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
+            "Line: 5 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
                     + "Value exceeds the maximum size supported by Excel: 32767.");
 
     private Mockery mockery;
