@@ -3,6 +3,7 @@ import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
+import BrowserRoot from '@src/js/components/common/browser2/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser2/BrowserNodeAutoShowSelected.jsx'
 import logger from '@src/js/common/logger.js'
@@ -97,7 +98,12 @@ class Browser extends React.PureComponent {
     return (
       <div className={classes.browser}>
         {this.renderFilter()}
-        {this.renderNodeSetAsRoot()}
+        <BrowserRoot
+          rootNode={controller.getNodeSetAsRoot()}
+          rootClear={() => {
+            controller.setNodeAsRoot(null)
+          }}
+        />
         {fullTree && (
           <div
             className={util.classNames(
@@ -153,20 +159,6 @@ class Browser extends React.PureComponent {
           </div>
         }
       />
-    )
-  }
-
-  renderNodeSetAsRoot() {
-    const nodeSetAsRoot = this.controller.getNodeSetAsRoot()
-
-    if (!nodeSetAsRoot) {
-      return null
-    }
-
-    return (
-      <div onClick={() => this.controller.setNodeAsRoot(null)}>
-        Root: {nodeSetAsRoot.text}
-      </div>
     )
   }
 }

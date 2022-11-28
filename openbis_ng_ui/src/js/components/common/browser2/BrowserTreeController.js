@@ -341,8 +341,9 @@ export default class BrowserTreeController {
   async setNodeAsRoot(nodeId) {
     const { nodes } = this.context.getState()
     await this.context.setState({
-      nodeSetAsRoot: nodes[nodeId]
+      nodeSetAsRoot: nodeId ? nodes[nodeId] : null
     })
+    await this._saveSettings()
     await this.load()
   }
 
@@ -517,6 +518,10 @@ export default class BrowserTreeController {
 
     const settings = {}
 
+    if (_.isObject(loaded.nodeSetAsRoot)) {
+      settings.nodeSetAsRoot = loaded.nodeSetAsRoot
+    }
+
     if (_.isObject(loaded.expandedIds)) {
       settings.expandedIds = loaded.expandedIds
     }
@@ -532,9 +537,10 @@ export default class BrowserTreeController {
     const { onSettingsChange } = this.context.getProps()
 
     if (onSettingsChange) {
-      const { expandedIds, sortingIds } = this.context.getState()
+      const { nodeSetAsRoot, expandedIds, sortingIds } = this.context.getState()
 
       const settings = {
+        nodeSetAsRoot,
         expandedIds,
         sortingIds
       }
