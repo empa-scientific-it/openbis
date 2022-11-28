@@ -169,9 +169,9 @@ class TestCase(systemtest.testcase.TestCase):
         self._compareDataBases("Non internal Vocabularies", openbis_data_source, openbis_harvester, "openbis",
                                "select '{0}' || code as code, description, source_uri, is_chosen_from_list "
                                + "from controlled_vocabularies "
-                               + "where(not is_managed_internally or pers_id_registerer <> 1) and code like '{1}%' order by code")
+                               + "where (not is_managed_internally or pers_id_registerer <> 1) and code like '{1}%' order by code")
         self._compareDataBases("Internal property types", openbis_data_source, openbis_harvester, "openbis", 
-                               "select t.code as code,dt.code as data_type, v.code as vocabulary, "
+                               "select t.code as code, dt.code as data_type, v.code as vocabulary, "
                                + "mt.code as material, t.label, t.description, "
                                + "t.is_managed_internally, t.schema, t.transformation "
                                + "from property_types t join data_types dt on t.daty_id = dt.id "
@@ -253,12 +253,12 @@ class TestCase(systemtest.testcase.TestCase):
                                 + "where et.code like '{1}%' order by data_set_type, property_type")
         self._compareDataBases("Plugins", openbis_data_source, openbis_harvester, "openbis", 
                                "select '{0}' || name as name, description, script_type, plugin_type, entity_kind, is_available, "
-                               + "  length(script) as script_length, md5(script) as script_hash "
+                               + "length(script) as script_length, md5(script) as script_hash "
                                + "from scripts where name like '{1}%' order by name")
         # Space STORAGE will be ignored because it is empty
         self._compareDataBases("Spaces", openbis_data_source, openbis_harvester, "openbis", 
                                "select '{0}' || s.code as code, s.description, "
-                               + " ur.user_id as registrator, "
+                               + "ur.user_id as registrator, "
                                + "to_char(s.registration_timestamp, 'YYYY-MM-DD HH24:MI:SS') as registration_timestamp, "
                                + "s.frozen, s.frozen_for_proj, s.frozen_for_samp "
                                + "from spaces s join persons ur on s.pers_id_registerer = ur.id "
@@ -292,7 +292,8 @@ class TestCase(systemtest.testcase.TestCase):
                                + "join persons ur on m.pers_id_registerer = ur.id "
                                + "order by m.code, property")
         self._compareDataBases("Experiment properties", openbis_data_source, openbis_harvester, "openbis", 
-                               "select '/'||'{0}'||sp.code||'/'||p.code||'/'||e.code as experiment, '{0}' || t.code as type, "
+                               "select '/' || '{0}' || sp.code || '/' || p.code || '/' || e.code as experiment, "
+                               + "'{0}' || t.code as type, "
                                + "case when pt.is_managed_internally then pt.code else '{0}' || pt.code end as property, "
                                + "concat(ep.value, cvt.code, m.code) as value, "
                                + "ur.user_id as registrator, "
@@ -313,8 +314,10 @@ class TestCase(systemtest.testcase.TestCase):
                                + "where sp.code like '{1}%' "
                                + "order by experiment, property")
         self._compareDataBases("Number of samples per experiment", openbis_data_source, openbis_harvester, "openbis",
-                               "select '/'||'{0}'||sp.code||'/'||p.code||'/'||e.code as experiment, count(*) as number_of_samples "
-                               + "from experiments e join projects p on e.proj_id = p.id join spaces sp on p.space_id = sp.id "
+                               "select '/' || '{0}' || sp.code || '/' || p.code || '/' || e.code as experiment, "
+                               + "count(*) as number_of_samples "
+                               + "from experiments e join projects p on e.proj_id = p.id "
+                               + "join spaces sp on p.space_id = sp.id "
                                + "join samples s on s.expe_id = e.id "
                                + "where sp.code like '{1}%' "
                                + "group by experiment order by experiment")
