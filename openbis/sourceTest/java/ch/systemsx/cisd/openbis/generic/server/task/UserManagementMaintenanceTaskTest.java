@@ -438,7 +438,8 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
     }
 
     public static final String testExecuteHappyCaseConfig = "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},"
-            + "\"commonSamples\":{\"ALPHA/B\":\"B\"}," + getCommonExperiments("ALPHA/P/E", "E") + ","
+            + "\"commonSamples\":{\"ALPHA/B\":\"B\"}," + getCommonExperiments("ALPHA/P/E", "E")
+            + ",\"instanceAdmins\":[\"u3\"],"
             + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
             + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}";
 
@@ -481,11 +482,11 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "1970-01-01 01:00:01 [ADD-USER] a\n"
                 + "1970-01-01 01:00:02 [CONFIG-UPDATE-START] Last modified: " + lastModified + "\n"
                 + "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonSamples\":{\"ALPHA/B\":\"B\"},"
-                + getCommonExperiments("ALPHA/P/E", "E") + ",\"groups\": ["
+                + getCommonExperiments("ALPHA/P/E", "E") + ",\"instanceAdmins\":[\"u3\"],\"groups\": ["
                 + "{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
                 + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}\n"
                 + "1970-01-01 01:00:03 [CONFIG-UPDATE-END] \n"
-                + "1970-01-01 01:00:04 [ADD-AUTHORIZATION-GROUP] dummy group, known users: [u2]\n\n",
+                + "1970-01-01 01:00:04 [ADD-AUTHORIZATION-GROUP] dummy group, known users: [u2, u3]\n\n",
                 FileUtilities.loadToString(auditLogFile));
     }
 
