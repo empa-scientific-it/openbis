@@ -396,17 +396,32 @@ export default class BrowserTreeController {
       return
     }
 
-    const pathWithoutRoot = await this.doLoadNodePath({
+    const pathWithoutDefaultRoot = await this.doLoadNodePath({
       object: state.selectedObject
     })
 
-    if (!pathWithoutRoot || _.isEmpty(pathWithoutRoot)) {
+    if (!pathWithoutDefaultRoot || _.isEmpty(pathWithoutDefaultRoot)) {
+      return
+    }
+
+    let pathWithoutNodeSetAsRoot = [...pathWithoutDefaultRoot]
+
+    if (state.nodeSetAsRoot) {
+      const index = pathWithoutNodeSetAsRoot.findIndex(pathItem =>
+        _.isEqual(pathItem, state.nodeSetAsRoot.object)
+      )
+      if (index !== -1) {
+        pathWithoutNodeSetAsRoot = pathWithoutNodeSetAsRoot.slice(index + 1)
+      }
+    }
+
+    if (_.isEmpty(pathWithoutNodeSetAsRoot)) {
       return
     }
 
     const _this = this
     const newState = { ...state }
-    const path = [root.object, ...pathWithoutRoot]
+    const path = [root.object, ...pathWithoutNodeSetAsRoot]
 
     let currentObject = path.shift()
     let currentNode = root
