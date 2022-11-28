@@ -87,15 +87,15 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     public long addContainer(ImgContainerDTO container);
 
     @Select("insert into IMAGE_DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, "
-            + "CONT_ID, IS_MULTIDIMENSIONAL,                              "
-            + "IMAGE_LIBRARY_NAME, IMAGE_LIBRARY_READER_NAME)                     "
-            + "values(?{1.permId}, ?{1.fieldNumberOfColumns}, ?{1.fieldNumberOfRows}, "
+            + "CONT_ID, IS_MULTIDIMENSIONAL, "
+            + "IMAGE_LIBRARY_NAME, IMAGE_LIBRARY_READER_NAME) "
+            + "values (?{1.permId}, ?{1.fieldNumberOfColumns}, ?{1.fieldNumberOfRows}, "
             + "?{1.containerId}, ?{1.isMultidimensional}, "
             + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
     public long addImageDataset(ImgImageDatasetDTO dataset);
 
     @Select("insert into image_zoom_levels (physical_dataset_perm_id, is_original, container_dataset_id, path, width, height, color_depth, file_type)  "
-            + "values(?{1.physicalDatasetPermId}, ?{1.isOriginal}, ?{1.containerDatasetId}, ?{1.rootPath}, ?{1.width}, ?{1.height}, ?{colorDepth}, ?{1.fileType}) returning ID")
+            + "values (?{1.physicalDatasetPermId}, ?{1.isOriginal}, ?{1.containerDatasetId}, ?{1.rootPath}, ?{1.width}, ?{1.height}, ?{colorDepth}, ?{1.fileType}) returning ID")
     public long addImageZoomLevel(ImgImageZoomLevelDTO dataset);
 
     @Select("insert into image_zoom_level_transformations (zoom_level_id, channel_id, image_transformation_id) "
@@ -105,7 +105,7 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             String transformationCode);
 
     @Select("insert into ANALYSIS_DATA_SETS (PERM_ID, CONT_ID)                     "
-            + "values(?{1.permId}, ?{1.containerId}) returning ID")
+            + "values (?{1.permId}, ?{1.containerId}) returning ID")
     public long addAnalysisDataset(ImgAnalysisDatasetDTO dataset);
 
     @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IS_DEFAULT, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
@@ -136,7 +136,7 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
 
     @Update("update CHANNELS "
             + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength}, "
-            + "RED_CC = ?{1.redColorComponent}, GREEN_CC = ?{1.greenColorComponent}, BLUE_CC = ?{1.blueColorComponent}"
+            + "RED_CC = ?{1.redColorComponent}, GREEN_CC = ?{1.greenColorComponent}, BLUE_CC = ?{1.blueColorComponent} "
             + "where ID = ?{1.id}")
     public void updateChannel(ImgChannelDTO channel);
 }
