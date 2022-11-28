@@ -155,13 +155,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
         });
         $list.append($xslBatchUpdateOption);
 
-        var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'CSV Batch Register ' + ELNDictionary.Sample + 's (Deprecated)', 'id' : 'register-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('CSV Batch Register ' + ELNDictionary.Sample + 's (Deprecated)'));
+        var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'TSV Batch Register ' + ELNDictionary.Sample + 's (Deprecated)', 'id' : 'register-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('TSV Batch Register ' + ELNDictionary.Sample + 's (Deprecated)'));
 		$batchRegisterOption.click(function() {
 			_this.registerSamples(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($batchRegisterOption);
 		
-		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'CSV Batch Update ' + ELNDictionary.Sample + 's (Deprecated)', 'id' : 'update-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('CSV Batch Update ' + ELNDictionary.Sample + 's (Deprecated)'));
+		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'TSV Batch Update ' + ELNDictionary.Sample + 's (Deprecated)', 'id' : 'update-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('TSV Batch Update ' + ELNDictionary.Sample + 's (Deprecated)'));
 		$batchUpdateOption.click(function() {
 			_this.updateSamples(_this._sampleTableModel.experimentIdentifier);
 		});
