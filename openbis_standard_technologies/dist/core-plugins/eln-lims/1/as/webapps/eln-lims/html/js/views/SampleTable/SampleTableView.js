@@ -139,7 +139,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		
-        var label = "Batch Register " + ELNDictionary.Samples;
+        var label = "XLS Batch Register " + ELNDictionary.Samples;
         var id = 'xsl-register-' + ELNDictionary.Sample.toLowerCase() + '-btn';
         var $xslBatchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : label, 'id' : id}).append(label));
         $xslBatchRegisterOption.click(function() {
@@ -147,7 +147,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
         });
         $list.append($xslBatchRegisterOption);
 
-        var label = "Batch Update " + ELNDictionary.Samples;
+        var label = "XLS Batch Update " + ELNDictionary.Samples;
         var id = 'xsl-update-' + ELNDictionary.Sample.toLowerCase() + '-btn';
         var $xslBatchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : label, 'id' : id}).append(label));
         $xslBatchUpdateOption.click(function() {
