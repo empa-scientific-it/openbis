@@ -166,8 +166,25 @@ export default class BrowserController {
   }
 
   async setNodeAsRoot(node) {
+    let nodeSetAsRoot = null
+
+    if (node) {
+      const path = await this.doLoadNodePath({
+        object: node.object
+      })
+
+      nodeSetAsRoot = {
+        id: node.id,
+        object: node.object,
+        text: node.text,
+        path: path,
+        canHaveChildren: true,
+        children: []
+      }
+    }
+
     await this.context.setState({
-      nodeSetAsRoot: node,
+      nodeSetAsRoot,
       loaded: false
     })
     await this._saveSettings()

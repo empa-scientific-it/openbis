@@ -377,18 +377,18 @@ export default class BrowserTreeController {
   async showSelectedObject() {
     const state = this.context.getState()
 
-    if (!state.rootId || !state.selectedObject) {
+    if (!state.selectedObject) {
       return
     }
 
-    const root = state.nodes[state.rootId]
+    const root = this.getRoot()
 
     if (!root) {
       return
     }
 
     const pathWithoutRoot = await this.doLoadNodePath({
-      root: this.getRoot(),
+      root: root,
       object: state.selectedObject
     })
 
@@ -398,9 +398,9 @@ export default class BrowserTreeController {
 
     const _this = this
     const newState = { ...state }
-    const path = [root.object, ...pathWithoutRoot]
+    const path = [root, ...pathWithoutRoot]
 
-    let currentObject = path.shift()
+    let currentPathNode = path.shift()
     let currentNode = root
 
     const scrollTo = (ref, nodeId) => {
@@ -426,18 +426,18 @@ export default class BrowserTreeController {
       }
     }
 
-    while (currentObject && currentNode) {
-      let nextObject = path.shift()
+    while (currentPathNode && currentNode) {
+      let nextPathNode = path.shift()
       let nextNode = null
 
-      if (nextObject) {
+      if (nextPathNode) {
         await this._doExpandNode(newState, currentNode.id)
         currentNode = newState.nodes[currentNode.id]
         if (currentNode.children) {
           for (let i = 0; i < currentNode.children.length; i++) {
             const childId = currentNode.children[i]
             const child = newState.nodes[childId]
-            if (child && _.isEqual(child.object, nextObject)) {
+            if (child && _.isEqual(child.object, nextPathNode.object)) {
               nextNode = child
               break
             }
@@ -449,11 +449,11 @@ export default class BrowserTreeController {
         newState.nodes = { ...newState.nodes }
         newState.nodes[currentNode.id] = {
           ...newState.nodes[currentNode.id],
-          scrollTo: scrollTo(nextObject ? 'loadMore' : 'node', currentNode.id)
+          scrollTo: scrollTo(nextPathNode ? 'loadMore' : 'node', currentNode.id)
         }
       }
 
-      currentObject = nextObject
+      currentPathNode = nextPathNode
       currentNode = nextNode
     }
 

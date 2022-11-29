@@ -1,9 +1,11 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import AccountTreeIcon from '@material-ui/icons/AccountTreeOutlined'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
+import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -19,7 +21,8 @@ const styles = theme => ({
   text: {
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.fontSize
-  }
+  },
+  pathPart: {}
 })
 
 class BrowserRoot extends React.PureComponent {
@@ -60,13 +63,28 @@ class BrowserRoot extends React.PureComponent {
           <AccountTreeIcon fontSize='small' />
         </ListItemIcon>
         <ListItemText
-          primary={rootNode.text}
+          primary={this.renderPath()}
           classes={{
             primary: classes.text
           }}
         />
       </ListItem>
     )
+  }
+
+  renderPath() {
+    const { rootNode, classes } = this.props
+
+    if (_.isEmpty(rootNode.path)) {
+      return null
+    }
+
+    return rootNode.path.map((part, index) => (
+      <span key={index} className={classes.path}>
+        {part.text}
+        {index < rootNode.path.length - 1 ? <ChevronRightIcon /> : null}
+      </span>
+    ))
   }
 }
 

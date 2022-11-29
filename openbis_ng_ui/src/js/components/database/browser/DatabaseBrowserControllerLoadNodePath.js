@@ -10,7 +10,25 @@ export default class DatabaseBrowserConstsLoadNodePath {
     let path = []
 
     if (object.type === objectType.SPACE) {
-      path = [{ type: DatabaseBrowserConsts.TYPE_SPACES }, object]
+      const id = new openbis.SpacePermId(object.id)
+      const fetchOptions = new openbis.SpaceFetchOptions()
+
+      const spaces = await openbis.getSpaces([id], fetchOptions)
+      const space = spaces[id]
+
+      if (space) {
+        path = [
+          {
+            object: { type: DatabaseBrowserConsts.TYPE_SPACES },
+            text: DatabaseBrowserConsts.TEXT_SPACES
+          },
+          {
+            object,
+            text: object.id,
+            rootable: true
+          }
+        ]
+      }
     } else if (object.type === objectType.PROJECT) {
       const id = new openbis.ProjectPermId(object.id)
       const fetchOptions = new openbis.ProjectFetchOptions()
@@ -29,8 +47,15 @@ export default class DatabaseBrowserConstsLoadNodePath {
         if (spacePath) {
           path = [
             ...spacePath,
-            { type: DatabaseBrowserConsts.TYPE_PROJECTS },
-            object
+            {
+              object: { type: DatabaseBrowserConsts.TYPE_PROJECTS },
+              text: DatabaseBrowserConsts.TEXT_PROJECTS
+            },
+            {
+              object,
+              text: project.getCode(),
+              rootable: true
+            }
           ]
         }
       }
@@ -52,8 +77,15 @@ export default class DatabaseBrowserConstsLoadNodePath {
         if (projectPath) {
           path = [
             ...projectPath,
-            { type: DatabaseBrowserConsts.TYPE_COLLECTIONS },
-            object
+            {
+              object: { type: DatabaseBrowserConsts.TYPE_COLLECTIONS },
+              text: DatabaseBrowserConsts.TEXT_COLLECTIONS
+            },
+            {
+              object,
+              text: experiment.getCode(),
+              rootable: true
+            }
           ]
         }
       }
@@ -78,8 +110,15 @@ export default class DatabaseBrowserConstsLoadNodePath {
           if (experimentPath) {
             path = [
               ...experimentPath,
-              { type: DatabaseBrowserConsts.TYPE_OBJECTS },
-              object
+              {
+                object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
+                text: DatabaseBrowserConsts.TEXT_OBJECTS
+              },
+              {
+                object,
+                text: sample.getCode(),
+                rootable: true
+              }
             ]
           }
         } else if (sample.getProject()) {
@@ -92,8 +131,15 @@ export default class DatabaseBrowserConstsLoadNodePath {
           if (projectPath) {
             path = [
               ...projectPath,
-              { type: DatabaseBrowserConsts.TYPE_OBJECTS },
-              object
+              {
+                object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
+                text: DatabaseBrowserConsts.TEXT_OBJECTS
+              },
+              {
+                object,
+                text: sample.getCode(),
+                rootable: true
+              }
             ]
           }
         } else if (sample.getSpace()) {
@@ -106,12 +152,29 @@ export default class DatabaseBrowserConstsLoadNodePath {
           if (spacePath) {
             path = [
               ...spacePath,
-              { type: DatabaseBrowserConsts.TYPE_OBJECTS },
-              object
+              {
+                object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
+                text: DatabaseBrowserConsts.TEXT_OBJECTS
+              },
+              {
+                object,
+                text: sample.getCode(),
+                rootable: true
+              }
             ]
           }
         } else {
-          path = [{ type: DatabaseBrowserConsts.TYPE_OBJECTS }, object]
+          path = [
+            {
+              object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
+              text: DatabaseBrowserConsts.TEXT_OBJECTS
+            },
+            {
+              object,
+              text: sample.getCode(),
+              rootable: true
+            }
+          ]
         }
       }
     } else if (object.type === objectType.DATA_SET) {
@@ -134,8 +197,15 @@ export default class DatabaseBrowserConstsLoadNodePath {
           if (samplePath) {
             path = [
               ...samplePath,
-              { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
-              object
+              {
+                object: { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
+                text: DatabaseBrowserConsts.TEXT_DATA_SETS
+              },
+              {
+                object,
+                text: dataSet.getCode(),
+                rootable: true
+              }
             ]
           }
         } else if (dataSet.getExperiment()) {
@@ -148,8 +218,15 @@ export default class DatabaseBrowserConstsLoadNodePath {
           if (experimentPath) {
             path = [
               ...experimentPath,
-              { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
-              object
+              {
+                object: { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
+                text: DatabaseBrowserConsts.TEXT_DATA_SETS
+              },
+              {
+                object,
+                text: dataSet.getCode(),
+                rootable: true
+              }
             ]
           }
         }
@@ -160,7 +237,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
 
     if (root) {
       const index = pathFromRoot.findIndex(pathItem =>
-        _.isEqual(pathItem, root.object)
+        _.isEqual(pathItem.object, root.object)
       )
       if (index !== -1) {
         pathFromRoot = pathFromRoot.slice(index + 1)
