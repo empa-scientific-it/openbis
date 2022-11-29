@@ -319,7 +319,7 @@ export default class BrowserController {
         filteredTree: this.settings.filteredTree || {}
       }
 
-      onSettingsChange(settings)
+      await onSettingsChange(settings)
     }
   }
 }
