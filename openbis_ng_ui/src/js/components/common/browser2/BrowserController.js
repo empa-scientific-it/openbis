@@ -53,6 +53,7 @@ export default class BrowserController {
     context.initState({
       loaded: false,
       loading: false,
+      nodeSetAsRoot: null,
       filter: null,
       autoShowSelectedObject: true
     })
@@ -92,17 +93,18 @@ export default class BrowserController {
       })
     }
 
-    await this.fullTreeController.load()
+    const { nodeSetAsRoot, autoShowSelectedObject } = this.context.getState()
+
+    await this.fullTreeController.load(nodeSetAsRoot)
     await this.fullTreeController.expandNode(
       this.fullTreeController.getRoot().id
     )
 
-    const { autoShowSelectedObject } = this.context.getState()
     if (autoShowSelectedObject) {
       await this.fullTreeController.showSelectedObject()
     }
 
-    await this.filteredTreeController.load()
+    await this.filteredTreeController.load(nodeSetAsRoot)
 
     await this.context.setState({
       loaded: true,
@@ -138,7 +140,8 @@ export default class BrowserController {
       )
     } else {
       this.lastFilterTimeoutId = setTimeout(async () => {
-        await this.filteredTreeController.load()
+        const { nodeSetAsRoot } = this.context.getState()
+        await this.filteredTreeController.load(nodeSetAsRoot)
         await this.filteredTreeController.expandNode(
           this.filteredTreeController.getRoot().id
         )
@@ -163,8 +166,12 @@ export default class BrowserController {
   }
 
   async setNodeAsRoot(node) {
-    await this.fullTreeController.setNodeAsRoot(node)
-    await this.filteredTreeController.setNodeAsRoot(node)
+    await this.context.setState({
+      nodeSetAsRoot: node,
+      loaded: false
+    })
+    await this._saveSettings()
+    await this.load()
   }
 
   async selectObject(nodeObject) {
@@ -210,7 +217,8 @@ export default class BrowserController {
   }
 
   getNodeSetAsRoot() {
-    return this._getTreeController().getNodeSetAsRoot()
+    const { nodeSetAsRoot } = this.context.getState()
+    return nodeSetAsRoot
   }
 
   getSelectedObject() {
@@ -274,6 +282,10 @@ export default class BrowserController {
     if (_.isObject(loaded.common)) {
       const common = {}
 
+      if (_.isObject(loaded.common.nodeSetAsRoot)) {
+        common.nodeSetAsRoot = loaded.common.nodeSetAsRoot
+      }
+
       if (_.isBoolean(loaded.common.autoShowSelectedObject)) {
         common.autoShowSelectedObject = loaded.common.autoShowSelectedObject
       }
@@ -299,7 +311,10 @@ export default class BrowserController {
       const state = this.context.getState()
 
       const settings = {
-        common: { autoShowSelectedObject: state.autoShowSelectedObject },
+        common: {
+          nodeSetAsRoot: state.nodeSetAsRoot,
+          autoShowSelectedObject: state.autoShowSelectedObject
+        },
         fullTree: this.settings.fullTree || {},
         filteredTree: this.settings.filteredTree || {}
       }

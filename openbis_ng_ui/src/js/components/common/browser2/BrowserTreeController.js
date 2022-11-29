@@ -22,7 +22,6 @@ export default class BrowserTreeController {
       loaded: false,
       loading: false,
       rootId: null,
-      nodeSetAsRoot: null,
       nodes: {},
       selectedObject: null,
       expandedIds: {},
@@ -33,7 +32,7 @@ export default class BrowserTreeController {
     this.lastLoadPromise = {}
   }
 
-  async load() {
+  async load(rootNode) {
     await this.context.setState({
       loading: true
     })
@@ -50,7 +49,7 @@ export default class BrowserTreeController {
     const settings = await this._loadSettings()
     _.merge(newState, settings)
 
-    await this._doLoadRoot(newState)
+    await this._doLoadRoot(newState, rootNode)
     await this.context.setState(newState)
 
     await this.context.setState({
@@ -61,11 +60,11 @@ export default class BrowserTreeController {
     this._saveSettings()
   }
 
-  async _doLoadRoot(state) {
-    if (state.nodeSetAsRoot) {
-      state.nodes[state.nodeSetAsRoot.id] = state.nodeSetAsRoot
-      await this._doLoadNode(state, state.nodeSetAsRoot.id, 0, LOAD_LIMIT)
-      state.rootId = state.nodeSetAsRoot.id
+  async _doLoadRoot(state, rootNode) {
+    if (rootNode) {
+      state.nodes[rootNode.id] = rootNode
+      await this._doLoadNode(state, rootNode.id, 0, LOAD_LIMIT)
+      state.rootId = rootNode.id
     } else {
       state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
       await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
@@ -339,14 +338,6 @@ export default class BrowserTreeController {
     }
   }
 
-  async setNodeAsRoot(node) {
-    await this.context.setState({
-      nodeSetAsRoot: node
-    })
-    await this._saveSettings()
-    await this.load()
-  }
-
   async selectObject(nodeObject) {
     const state = this.context.getState()
 
@@ -396,32 +387,18 @@ export default class BrowserTreeController {
       return
     }
 
-    const pathWithoutDefaultRoot = await this.doLoadNodePath({
+    const pathWithoutRoot = await this.doLoadNodePath({
+      root: this.getRoot(),
       object: state.selectedObject
     })
 
-    if (!pathWithoutDefaultRoot || _.isEmpty(pathWithoutDefaultRoot)) {
-      return
-    }
-
-    let pathWithoutNodeSetAsRoot = [...pathWithoutDefaultRoot]
-
-    if (state.nodeSetAsRoot) {
-      const index = pathWithoutNodeSetAsRoot.findIndex(pathItem =>
-        _.isEqual(pathItem, state.nodeSetAsRoot.object)
-      )
-      if (index !== -1) {
-        pathWithoutNodeSetAsRoot = pathWithoutNodeSetAsRoot.slice(index + 1)
-      }
-    }
-
-    if (_.isEmpty(pathWithoutNodeSetAsRoot)) {
+    if (!pathWithoutRoot || _.isEmpty(pathWithoutRoot)) {
       return
     }
 
     const _this = this
     const newState = { ...state }
-    const path = [root.object, ...pathWithoutNodeSetAsRoot]
+    const path = [root.object, ...pathWithoutRoot]
 
     let currentObject = path.shift()
     let currentNode = root
@@ -533,10 +510,6 @@ export default class BrowserTreeController {
 
     const settings = {}
 
-    if (_.isObject(loaded.nodeSetAsRoot)) {
-      settings.nodeSetAsRoot = loaded.nodeSetAsRoot
-    }
-
     if (_.isObject(loaded.expandedIds)) {
       settings.expandedIds = loaded.expandedIds
     }
@@ -552,10 +525,9 @@ export default class BrowserTreeController {
     const { onSettingsChange } = this.context.getProps()
 
     if (onSettingsChange) {
-      const { nodeSetAsRoot, expandedIds, sortingIds } = this.context.getState()
+      const { expandedIds, sortingIds } = this.context.getState()
 
       const settings = {
-        nodeSetAsRoot,
         expandedIds,
         sortingIds
       }
@@ -572,11 +544,6 @@ export default class BrowserTreeController {
   getRoot() {
     const { rootId, nodes } = this.context.getState()
     return nodes[rootId]
-  }
-
-  getNodeSetAsRoot() {
-    const { nodeSetAsRoot } = this.context.getState()
-    return nodeSetAsRoot
   }
 
   getSelectedObject() {

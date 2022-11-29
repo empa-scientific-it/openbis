@@ -1,13 +1,16 @@
+import _ from 'lodash'
 import DatabaseBrowserConsts from '@src/js/components/database/browser/DatabaseBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
 export default class DatabaseBrowserConstsLoadNodePath {
   async doLoadNodePath(params) {
-    const { object } = params
+    const { root, object } = params
+
+    let path = []
 
     if (object.type === objectType.SPACE) {
-      return [{ type: DatabaseBrowserConsts.TYPE_SPACES }, object]
+      path = [{ type: DatabaseBrowserConsts.TYPE_SPACES }, object]
     } else if (object.type === objectType.PROJECT) {
       const id = new openbis.ProjectPermId(object.id)
       const fetchOptions = new openbis.ProjectFetchOptions()
@@ -24,7 +27,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
           }
         })
         if (spacePath) {
-          return [
+          path = [
             ...spacePath,
             { type: DatabaseBrowserConsts.TYPE_PROJECTS },
             object
@@ -47,7 +50,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
           }
         })
         if (projectPath) {
-          return [
+          path = [
             ...projectPath,
             { type: DatabaseBrowserConsts.TYPE_COLLECTIONS },
             object
@@ -73,7 +76,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
             }
           })
           if (experimentPath) {
-            return [
+            path = [
               ...experimentPath,
               { type: DatabaseBrowserConsts.TYPE_OBJECTS },
               object
@@ -87,7 +90,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
             }
           })
           if (projectPath) {
-            return [
+            path = [
               ...projectPath,
               { type: DatabaseBrowserConsts.TYPE_OBJECTS },
               object
@@ -101,14 +104,14 @@ export default class DatabaseBrowserConstsLoadNodePath {
             }
           })
           if (spacePath) {
-            return [
+            path = [
               ...spacePath,
               { type: DatabaseBrowserConsts.TYPE_OBJECTS },
               object
             ]
           }
         } else {
-          return [{ type: DatabaseBrowserConsts.TYPE_OBJECTS }, object]
+          path = [{ type: DatabaseBrowserConsts.TYPE_OBJECTS }, object]
         }
       }
     } else if (object.type === objectType.DATA_SET) {
@@ -129,7 +132,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
             }
           })
           if (samplePath) {
-            return [
+            path = [
               ...samplePath,
               { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
               object
@@ -143,7 +146,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
             }
           })
           if (experimentPath) {
-            return [
+            path = [
               ...experimentPath,
               { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
               object
@@ -153,6 +156,17 @@ export default class DatabaseBrowserConstsLoadNodePath {
       }
     }
 
-    return null
+    let pathFromRoot = [...path]
+
+    if (root) {
+      const index = pathFromRoot.findIndex(pathItem =>
+        _.isEqual(pathItem, root.object)
+      )
+      if (index !== -1) {
+        pathFromRoot = pathFromRoot.slice(index + 1)
+      }
+    }
+
+    return pathFromRoot
   }
 }
