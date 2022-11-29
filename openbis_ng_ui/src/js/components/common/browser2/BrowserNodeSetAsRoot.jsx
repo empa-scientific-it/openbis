@@ -27,7 +27,7 @@ class BrowserNodeSetAsRoot extends React.PureComponent {
     event.preventDefault()
     event.stopPropagation()
     const { node } = this.props
-    this.props.onClick(node.id)
+    this.props.onClick(node)
   }
 
   render() {

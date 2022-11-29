@@ -801,7 +801,8 @@ export default class DatabaseBrowserController extends BrowserController {
             id: space.code
           },
           children: { nodes: [], totalCount: 0 },
-          expanded: true
+          expanded: true,
+          rootable: true
         }
 
         spacesNode.children.nodes.push(spaceNode)
@@ -854,7 +855,8 @@ export default class DatabaseBrowserController extends BrowserController {
             id: project.permId
           },
           children: { nodes: [], totalCount: 0 },
-          expanded: true
+          expanded: true,
+          rootable: true
         }
 
         projectsNode.children.nodes.push(projectNode)
@@ -911,7 +913,8 @@ export default class DatabaseBrowserController extends BrowserController {
             id: experiment.permId
           },
           children: { nodes: [], totalCount: 0 },
-          expanded: true
+          expanded: true,
+          rootable: true
         }
 
         experimentsNode.children.nodes.push(experimentNode)
@@ -963,7 +966,8 @@ export default class DatabaseBrowserController extends BrowserController {
             id: sample.permId
           },
           children: { nodes: [], totalCount: 0 },
-          expanded: true
+          expanded: true,
+          rootable: true
         }
 
         samplesNode.children.nodes.push(sampleNode)
@@ -1005,7 +1009,8 @@ export default class DatabaseBrowserController extends BrowserController {
             id: dataSet.code
           },
           children: { nodes: [], totalCount: 0 },
-          expanded: true
+          expanded: true,
+          rootable: true
         }
 
         dataSetsNode.children.nodes.push(dataSetNode)
@@ -1015,15 +1020,7 @@ export default class DatabaseBrowserController extends BrowserController {
       return dataSetsNode
     }
 
-    const root = {
-      id: 'root',
-      object: {
-        id: 'root',
-        type: 'root'
-      },
-      children: { nodes: [], totalCount: 0 },
-      canHaveChildren: true
-    }
+    const { node } = params
 
     const entities = {
       spaces: {},
@@ -1036,59 +1033,138 @@ export default class DatabaseBrowserController extends BrowserController {
 
     const spaces = await this.searchSpacesFiltered(params)
     spaces.forEach(space => {
-      const addedSpace = addSpace(entities, space)
-      addedSpace.matching = true
+      addSpace(entities, space)
     })
 
     const projects = await this.searchProjectsFiltered(params)
     projects.forEach(project => {
-      const addedProject = addProject(entities, project)
-      addedProject.matching = true
+      addProject(entities, project)
     })
 
     const experiments = await this.searchExperimentsFiltered(params)
     experiments.forEach(experiment => {
-      const addedExperiment = addExperiment(entities, experiment)
-      addedExperiment.matching = true
+      addExperiment(entities, experiment)
     })
 
     const samples = await this.searchSamplesFiltered(params)
     samples.forEach(sample => {
-      const addedSample = addSample(entities, sample)
-      addedSample.matching = true
+      addSample(entities, sample)
     })
 
     const dataSets = await this.searchDataSetsFiltered(params)
     dataSets.forEach(dataSet => {
-      const addedDataSet = addDataSet(entities, dataSet)
-      addedDataSet.matching = true
+      addDataSet(entities, dataSet)
     })
 
-    if (!_.isEmpty(entities.spaces)) {
-      const spacesNode = createSpacesNode(Object.values(entities.spaces), root)
-      root.children.nodes.push(spacesNode)
-      root.children.totalCount++
-    }
+    if (node) {
+      const result = {
+        nodes: [],
+        totalCount: 0
+      }
 
-    if (!_.isEmpty(entities.sharedSamples)) {
-      const sharedSamplesNode = createSamplesNode(
-        Object.values(entities.sharedSamples),
-        root
-      )
-      root.children.nodes.push(sharedSamplesNode)
-      root.children.totalCount++
-    }
+      if (node.object.type === objectType.SPACE) {
+        const nodeEntity = entities.spaces[node.object.id] || {}
 
-    const result = {
-      nodes: [root],
-      totalCount: 1
-    }
+        if (!_.isEmpty(nodeEntity.projects)) {
+          const projectsNode = createProjectsNode(
+            Object.values(nodeEntity.projects),
+            node
+          )
+          result.nodes.push(projectsNode)
+          result.totalCount++
+        }
 
-    return result
+        if (!_.isEmpty(nodeEntity.samples)) {
+          const samplesNode = createSamplesNode(
+            Object.values(nodeEntity.samples),
+            node
+          )
+          result.nodes.push(samplesNode)
+          result.totalCount++
+        }
+      } else if (node.object.type === objectType.PROJECT) {
+        const nodeEntity = entities.projects[node.object.id] || {}
+
+        if (!_.isEmpty(nodeEntity.experiments)) {
+          const experimentsNode = createExperimentsNode(
+            Object.values(nodeEntity.experiments),
+            node
+          )
+          result.nodes.push(experimentsNode)
+          result.totalCount++
+        }
+        if (!_.isEmpty(nodeEntity.samples)) {
+          const samplesNode = createSamplesNode(
+            Object.values(nodeEntity.samples),
+            node
+          )
+          result.nodes.push(samplesNode)
+          result.totalCount++
+        }
+      } else if (node.object.type === objectType.COLLECTION) {
+        const nodeEntity = entities.experiments[node.object.id] || {}
+
+        if (!_.isEmpty(nodeEntity.samples)) {
+          const samplesNode = createSamplesNode(
+            Object.values(nodeEntity.samples),
+            node
+          )
+          result.nodes.push(samplesNode)
+          result.totalCount++
+        }
+        if (!_.isEmpty(nodeEntity.dataSets)) {
+          const dataSetsNode = createDataSetsNode(
+            Object.values(nodeEntity.dataSets),
+            node
+          )
+          result.nodes.push(dataSetsNode)
+          result.totalCount++
+        }
+      }
+
+      return result
+    } else {
+      const root = {
+        id: 'root',
+        object: {
+          id: 'root',
+          type: 'root'
+        },
+        children: { nodes: [], totalCount: 0 },
+        canHaveChildren: true
+      }
+
+      if (!_.isEmpty(entities.spaces)) {
+        const spacesNode = createSpacesNode(
+          Object.values(entities.spaces),
+          root
+        )
+        root.children.nodes.push(spacesNode)
+        root.children.totalCount++
+      }
+
+      if (!_.isEmpty(entities.sharedSamples)) {
+        const sharedSamplesNode = createSamplesNode(
+          Object.values(entities.sharedSamples),
+          root
+        )
+        root.children.nodes.push(sharedSamplesNode)
+        root.children.totalCount++
+      }
+
+      return {
+        nodes: [root],
+        totalCount: 1
+      }
+    }
   }
 
   async searchSpacesFiltered(params) {
-    const { filter, offset, limit } = params
+    const { node, filter, offset, limit } = params
+
+    if (node) {
+      return []
+    }
 
     const criteria = new openbis.SpaceSearchCriteria()
     criteria.withCode().thatContains(filter)
@@ -1103,10 +1179,19 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchProjectsFiltered(params) {
-    const { filter, offset, limit } = params
+    const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
     criteria.withCode().thatContains(filter)
+
+    if (node) {
+      if (node.object.type === objectType.SPACE) {
+        criteria.withSpace().withCode().thatEquals(node.object.id)
+      } else {
+        return []
+      }
+    }
+
     const fetchOptions = new openbis.ProjectFetchOptions()
     fetchOptions.withSpace()
     fetchOptions.sortBy().code().asc()
@@ -1119,10 +1204,21 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchExperimentsFiltered(params) {
-    const { filter, offset, limit } = params
+    const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
     criteria.withCode().thatContains(filter)
+
+    if (node) {
+      if (node.object.type === objectType.SPACE) {
+        criteria.withProject().withSpace().withCode().thatEquals(node.object.id)
+      } else if (node.object.type === objectType.PROJECT) {
+        criteria.withProject().withPermId().thatEquals(node.object.id)
+      } else {
+        return []
+      }
+    }
+
     const fetchOptions = new openbis.ExperimentFetchOptions()
     fetchOptions.withProject().withSpace()
     fetchOptions.sortBy().code().asc()
@@ -1135,10 +1231,43 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchSamplesFiltered(params) {
-    const { filter, offset, limit } = params
+    const { node, filter, offset, limit } = params
 
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withCode().thatContains(filter)
+
+    if (node) {
+      if (node.object.type === objectType.SPACE) {
+        const subcriteria = criteria.withSubcriteria()
+        subcriteria.withOrOperator()
+        subcriteria.withSpace().withCode().thatEquals(node.object.id)
+        subcriteria
+          .withProject()
+          .withSpace()
+          .withCode()
+          .thatEquals(node.object.id)
+        subcriteria
+          .withExperiment()
+          .withProject()
+          .withSpace()
+          .withCode()
+          .thatEquals(node.object.id)
+      } else if (node.object.type === objectType.PROJECT) {
+        const subcriteria = criteria.withSubcriteria()
+        subcriteria.withOrOperator()
+        subcriteria.withProject().withPermId().thatEquals(node.object.id)
+        subcriteria
+          .withExperiment()
+          .withProject()
+          .withPermId()
+          .thatEquals(node.object.id)
+      } else if (node.object.type === objectType.COLLECTION) {
+        criteria.withExperiment().withPermId().thatEquals(node.object.id)
+      } else {
+        return []
+      }
+    }
+
     const fetchOptions = new openbis.SampleFetchOptions()
     fetchOptions.withSpace()
     fetchOptions.withProject().withSpace()
@@ -1153,10 +1282,72 @@ export default class DatabaseBrowserController extends BrowserController {
   }
 
   async searchDataSetsFiltered(params) {
-    const { filter, offset, limit } = params
+    const { node, filter, offset, limit } = params
 
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withCode().thatContains(filter)
+
+    if (node) {
+      if (node.object.type === objectType.SPACE) {
+        const subcriteria = criteria.withSubcriteria()
+        subcriteria.withOrOperator()
+        subcriteria
+          .withExperiment()
+          .withProject()
+          .withSpace()
+          .withCode()
+          .thatEquals(node.object.id)
+        subcriteria
+          .withSample()
+          .withSpace()
+          .withCode()
+          .thatEquals(node.object.id)
+        subcriteria
+          .withSample()
+          .withProject()
+          .withSpace()
+          .withCode()
+          .thatEquals(node.object.id)
+        subcriteria
+          .withSample()
+          .withExperiment()
+          .withProject()
+          .withSpace()
+          .withCode()
+          .thatEquals(node.object.id)
+      } else if (node.object.type === objectType.PROJECT) {
+        const subcriteria = criteria.withSubcriteria()
+        subcriteria.withOrOperator()
+        subcriteria
+          .withExperiment()
+          .withProject()
+          .withPermId()
+          .thatEquals(node.object.id)
+        subcriteria
+          .withSample()
+          .withProject()
+          .withPermId()
+          .thatEquals(node.object.id)
+        subcriteria
+          .withSample()
+          .withExperiment()
+          .withProject()
+          .withPermId()
+          .thatEquals(node.object.id)
+      } else if (node.object.type === objectType.COLLECTION) {
+        const subcriteria = criteria.withSubcriteria()
+        subcriteria.withOrOperator()
+        subcriteria.withExperiment().withPermId().thatEquals(node.object.id)
+        subcriteria
+          .withSample()
+          .withExperiment()
+          .withPermId()
+          .thatEquals(node.object.id)
+      } else {
+        return []
+      }
+    }
+
     const fetchOptions = new openbis.DataSetFetchOptions()
     fetchOptions.withExperiment().withProject().withSpace()
     fetchOptions.withSample().withSpace()

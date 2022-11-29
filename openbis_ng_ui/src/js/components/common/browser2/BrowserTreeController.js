@@ -150,10 +150,11 @@ export default class BrowserTreeController {
       loadedNodes.nodes.forEach(loadedNode => {
         if (
           !loadedNode.id ||
-          (nodeId !== INTERNAL_ROOT_ID && !loadedNode.id.startsWith(nodeId))
+          (nodeId !== INTERNAL_ROOT_ID &&
+            (!loadedNode.id.startsWith(nodeId) || loadedNode.id === nodeId))
         ) {
           alert(
-            'ERROR: Child node id should start with parent node id. Parent id: ' +
+            'ERROR: Child node id should be prefixed with parent node id. Parent id: ' +
               nodeId +
               ', child id: ' +
               loadedNode.id
@@ -338,10 +339,9 @@ export default class BrowserTreeController {
     }
   }
 
-  async setNodeAsRoot(nodeId) {
-    const { nodes } = this.context.getState()
+  async setNodeAsRoot(node) {
     await this.context.setState({
-      nodeSetAsRoot: nodeId ? nodes[nodeId] : null
+      nodeSetAsRoot: node
     })
     await this._saveSettings()
     await this.load()
