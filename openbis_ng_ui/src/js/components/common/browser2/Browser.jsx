@@ -100,7 +100,10 @@ class Browser extends React.PureComponent {
         {this.renderFilter()}
         <BrowserRoot
           rootNode={controller.getNodeSetAsRoot()}
-          rootClear={() => {
+          onRootChange={node => {
+            controller.setNodeAsRoot(node)
+          }}
+          onRootClear={() => {
             controller.setNodeAsRoot(null)
           }}
         />
