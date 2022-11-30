@@ -64,6 +64,10 @@ public class Configuration {
         return getProperty(parameter);
     }
 
+    public <E extends Enum<E>> int getIntProperty(E parameter) {
+        return Integer.parseInt(getProperty(parameter));
+    }
+
     public <E extends Enum<E>, I> I getSharableInstance(E parameter)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         I sharable = (I) sharables.get(parameter);
