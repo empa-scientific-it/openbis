@@ -87,7 +87,7 @@ class Browser extends React.PureComponent {
     if (!controller.isLoaded()) {
       return (
         <div className={classes.browser}>
-          <FilterField filter={''} loading={true} />
+          <FilterField filter={controller.getFilter() || ''} loading={true} />
         </div>
       )
     }

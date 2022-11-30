@@ -95,16 +95,14 @@ export default class BrowserController {
 
     const { nodeSetAsRoot, autoShowSelectedObject } = this.context.getState()
 
-    await this.fullTreeController.load(nodeSetAsRoot)
-    await this.fullTreeController.expandNode(
-      this.fullTreeController.getRoot().id
+    await this._getTreeController().load(nodeSetAsRoot)
+    await this._getTreeController().expandNode(
+      this._getTreeController().getRoot().id
     )
 
     if (autoShowSelectedObject) {
-      await this.fullTreeController.showSelectedObject()
+      await this._getTreeController().showSelectedObject()
     }
-
-    await this.filteredTreeController.load(nodeSetAsRoot)
 
     await this.context.setState({
       loaded: true,
@@ -209,7 +207,7 @@ export default class BrowserController {
     })
 
     if (autoShowSelectedObject) {
-      await this.fullTreeController.showSelectedObject()
+      await this._getTreeController().showSelectedObject()
     }
 
     this._saveSettings()
