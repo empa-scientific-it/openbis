@@ -283,7 +283,7 @@ function DataGridController(
 			"method" : "export",
 			"file_name" : parameters.exportedFilePrefix,
 			"ids" : parameters.exportedIds,
-			"export_referred_master_data" : false,
+			"export_referred_master_data" : parameters.exportedReferredMasterData,
 			"export_properties" : parameters.exportedProperties,
 			"text_formatting" : parameters.exportedValues
 		}

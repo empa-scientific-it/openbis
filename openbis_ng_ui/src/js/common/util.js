@@ -10,6 +10,10 @@ function trim(str) {
     : null
 }
 
+function empty(str) {
+  return str === null || str === undefined
+}
+
 function filter(objects, value, fields) {
   if (value && value.trim().length > 0) {
     const theValue = value.trim().toUpperCase()
@@ -27,5 +31,6 @@ function filter(objects, value, fields) {
 export default {
   classNames,
   trim,
+  empty,
   filter
 }

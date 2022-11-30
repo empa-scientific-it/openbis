@@ -6,6 +6,7 @@ import FormFieldContainer from '@src/js/components/common/form/FormFieldContaine
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
 import compare from '@src/js/common/compare.js'
+import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -79,7 +80,7 @@ class SelectFormField extends React.PureComponent {
   renderView() {
     const { label, value, options, emptyOption } = this.props
 
-    if (value) {
+    if (!util.empty(value)) {
       const option = options.find(option => option.value === value)
       return <FormFieldView label={label} value={this.getOptionText(option)} />
     } else if (
@@ -138,7 +139,7 @@ class SelectFormField extends React.PureComponent {
             ) : null
           }
           name={name}
-          value={value || ''}
+          value={util.empty(value) ? '' : value}
           error={!!error}
           disabled={disabled}
           onChange={onChange}
@@ -147,7 +148,7 @@ class SelectFormField extends React.PureComponent {
           fullWidth={fullWidth}
           InputLabelProps={{
             shrink:
-              !!value ||
+              !util.empty(value) ||
               (this.getOptionSelectable(emptyOption) &&
                 !!this.getOptionText(emptyOption))
           }}
@@ -182,8 +183,8 @@ class SelectFormField extends React.PureComponent {
 
     return (
       <MenuItem
-        key={option.value || ''}
-        value={option.value || ''}
+        key={util.empty(option.value) ? '' : option.value}
+        value={util.empty(option.value) ? '' : option.value}
         classes={{ root: classes.option }}
       >
         {this.getOptionText(option)}

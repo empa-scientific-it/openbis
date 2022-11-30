@@ -401,7 +401,8 @@ class TypeSearch extends React.Component {
             rows={this.state.objectTypes}
             exportable={{
               fileFormat: GridExportOptions.XLS_FILE_FORMAT,
-              filePrefix: 'object-types'
+              filePrefix: 'object-types',
+              fileContent: GridExportOptions.TYPES_CONTENT
             }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.OBJECT_TYPE
@@ -430,7 +431,8 @@ class TypeSearch extends React.Component {
             rows={this.state.collectionTypes}
             exportable={{
               fileFormat: GridExportOptions.XLS_FILE_FORMAT,
-              filePrefix: 'collection-types'
+              filePrefix: 'collection-types',
+              fileContent: GridExportOptions.TYPES_CONTENT
             }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.COLLECTION_TYPE
@@ -457,7 +459,8 @@ class TypeSearch extends React.Component {
             rows={this.state.dataSetTypes}
             exportable={{
               fileFormat: GridExportOptions.XLS_FILE_FORMAT,
-              filePrefix: 'data-set-types'
+              filePrefix: 'data-set-types',
+              fileContent: GridExportOptions.TYPES_CONTENT
             }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.DATA_SET_TYPE

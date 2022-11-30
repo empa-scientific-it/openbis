@@ -111,6 +111,7 @@ const keys = {
   IMPORT_FAILED: 'IMPORT_FAILED',
   IMPORT_FILE: 'IMPORT_FILE',
   IMPORT_FILE_DESCRIPTION: 'IMPORT_FILE_DESCRIPTION',
+  INCLUDE_DEPENDENCIES: 'INCLUDE_DEPENDENCIES',
   INHERITED_FROM: 'INHERITED_FROM',
   INITIAL_VALUE: 'INITIAL_VALUE',
   INTERNAL: 'INTERNAL',
@@ -144,6 +145,7 @@ const keys = {
   NEW_USER: 'NEW_USER',
   NEW_VOCABULARY_TYPE: 'NEW_VOCABULARY_TYPE',
   NEXT_PAGE: 'NEXT_PAGE',
+  NO: 'NO',
   NO_FILE_CHOSEN: 'NO_FILE_CHOSEN',
   NO_RESULTS_FOUND: 'NO_RESULTS_FOUND',
   NOT_YET_VALID: 'NOT_YET_VALID',
@@ -271,7 +273,8 @@ const keys = {
   WARNING: 'WARNING',
   XML_SCHEMA: 'XML_SCHEMA',
   XSLT_SCRIPT: 'XSLT_SCRIPT',
-  YEAR_OR_YEARS: 'YEAR_OR_YEARS'
+  YEAR_OR_YEARS: 'YEAR_OR_YEARS',
+  YES: 'YES'
 }
 
 // prettier-ignore
@@ -387,6 +390,7 @@ const messages_en = {
   [keys.IMPORT_FAILED]: 'Import failed.',
   [keys.IMPORT_FILE]: 'XLS or ZIP File',
   [keys.IMPORT_FILE_DESCRIPTION]: 'Excel or zip file that contains the data to import. The import accepts both master data (i.e. entity types, property types and vocabulary types) as well as entities (i.e. spaces, projects, collections and objects).',
+  [keys.INCLUDE_DEPENDENCIES]: 'Include dependencies',
   [keys.INHERITED_FROM]: 'Inherited From',
   [keys.INITIAL_VALUE]: 'Initial Value',
   [keys.INTERNAL]: 'Internal',
@@ -420,6 +424,7 @@ const messages_en = {
   [keys.NEW_USER]: 'New User',
   [keys.NEW_VOCABULARY_TYPE]: 'New Vocabulary Type',
   [keys.NEXT_PAGE]: 'Next Page',
+  [keys.NO]: 'No',
   [keys.NO_FILE_CHOSEN]: 'No file chosen',
   [keys.NO_RESULTS_FOUND]: 'No results found',
   [keys.NOT_YET_VALID]: 'Not yet valid',
@@ -547,7 +552,8 @@ const messages_en = {
   [keys.WARNING]: 'Warning',
   [keys.XML_SCHEMA]: 'XML Schema',
   [keys.XSLT_SCRIPT]: 'XSLT Script',
-  [keys.YEAR_OR_YEARS]: '${0} year(s)'
+  [keys.YEAR_OR_YEARS]: '${0} year(s)',
+  [keys.YES]: 'Yes'
 }
 
 export default {

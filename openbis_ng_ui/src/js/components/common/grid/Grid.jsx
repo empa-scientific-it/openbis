@@ -242,6 +242,7 @@ class Grid extends React.PureComponent {
       <GridExports
         id={id}
         disabled={rows.length === 0}
+        exportable={exportable}
         exportOptions={exportOptions}
         multiselectable={multiselectable}
         multiselectedRows={multiselectedRows}

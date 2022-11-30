@@ -85,7 +85,8 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, {
 			fileFormat: 'XLS',
-			filePrefix: 'vocabularies'
+			filePrefix: 'vocabularies',
+			fileContent: 'VOCABULARIES'
 		}, 90);
 		dataGrid.setId("vocabulary-grid")
 		dataGrid.init(this._dataGridContainer);

@@ -16,6 +16,7 @@ const styles = theme => ({
     alignItems: 'center'
   },
   popup: {
+    minWidth: '200px',
     maxWidth: '300px'
   },
   field: {
@@ -81,6 +82,7 @@ class GridExports extends React.PureComponent {
 
     const {
       id,
+      exportable,
       exportOptions,
       disabled,
       multiselectable,
@@ -106,6 +108,21 @@ class GridExports extends React.PureComponent {
         value: GridExportOptions.SELECTED_ROWS
       })
     }
+
+    const isTSVExport =
+      exportable.fileFormat === GridExportOptions.TSV_FILE_FORMAT
+
+    const isXLSEntityExport =
+      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
+      exportable.fileContent === GridExportOptions.ENTITIES_CONTENT
+
+    const isXLSTypesExport =
+      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
+      exportable.fileContent === GridExportOptions.TYPES_CONTENT
+
+    const isXLSVocabulariesExport =
+      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
+      exportable.fileContent === GridExportOptions.VOCABULARIES_CONTENT
 
     return (
       <div className={classes.container}>
@@ -133,25 +150,27 @@ class GridExports extends React.PureComponent {
         >
           <Container square={true} className={classes.popup}>
             <div>
-              <div className={classes.field}>
-                <SelectField
-                  label={messages.get(messages.COLUMNS)}
-                  name='columns'
-                  options={[
-                    {
-                      label: messages.get(messages.ALL_COLUMNS),
-                      value: GridExportOptions.ALL_COLUMNS
-                    },
-                    {
-                      label: messages.get(messages.VISIBLE_COLUMNS),
-                      value: GridExportOptions.VISIBLE_COLUMNS
-                    }
-                  ]}
-                  value={exportOptions.columns}
-                  variant='standard'
-                  onChange={this.handleChange}
-                />
-              </div>
+              {(isTSVExport || isXLSEntityExport) && (
+                <div className={classes.field}>
+                  <SelectField
+                    label={messages.get(messages.COLUMNS)}
+                    name='columns'
+                    options={[
+                      {
+                        label: messages.get(messages.ALL_COLUMNS),
+                        value: GridExportOptions.ALL_COLUMNS
+                      },
+                      {
+                        label: messages.get(messages.VISIBLE_COLUMNS),
+                        value: GridExportOptions.VISIBLE_COLUMNS
+                      }
+                    ]}
+                    value={exportOptions.columns}
+                    variant='standard'
+                    onChange={this.handleChange}
+                  />
+                </div>
+              )}
               <div className={classes.field}>
                 <SelectField
                   label={messages.get(messages.ROWS)}
@@ -162,25 +181,27 @@ class GridExports extends React.PureComponent {
                   onChange={this.handleChange}
                 />
               </div>
-              <div className={classes.field}>
-                <SelectField
-                  label={messages.get(messages.VALUES)}
-                  name='values'
-                  options={[
-                    {
-                      label: messages.get(messages.PLAIN_TEXT),
-                      value: GridExportOptions.PLAIN_TEXT
-                    },
-                    {
-                      label: messages.get(messages.RICH_TEXT),
-                      value: GridExportOptions.RICH_TEXT
-                    }
-                  ]}
-                  value={exportOptions.values}
-                  variant='standard'
-                  onChange={this.handleChange}
-                />
-              </div>
+              {(isTSVExport || isXLSEntityExport) && (
+                <div className={classes.field}>
+                  <SelectField
+                    label={messages.get(messages.VALUES)}
+                    name='values'
+                    options={[
+                      {
+                        label: messages.get(messages.PLAIN_TEXT),
+                        value: GridExportOptions.PLAIN_TEXT
+                      },
+                      {
+                        label: messages.get(messages.RICH_TEXT),
+                        value: GridExportOptions.RICH_TEXT
+                      }
+                    ]}
+                    value={exportOptions.values}
+                    variant='standard'
+                    onChange={this.handleChange}
+                  />
+                </div>
+              )}
               {exportOptions.values === GridExportOptions.PLAIN_TEXT && (
                 <div className={classes.field}>
                   <Message type='warning'>
@@ -189,6 +210,27 @@ class GridExports extends React.PureComponent {
                 </div>
               )}
             </div>
+            {(isXLSTypesExport || isXLSVocabulariesExport) && (
+              <div className={classes.field}>
+                <SelectField
+                  label={messages.get(messages.INCLUDE_DEPENDENCIES)}
+                  name='includeDependencies'
+                  options={[
+                    {
+                      label: messages.get(messages.YES),
+                      value: true
+                    },
+                    {
+                      label: messages.get(messages.NO),
+                      value: false
+                    }
+                  ]}
+                  value={exportOptions.includeDependencies}
+                  variant='standard'
+                  onChange={this.handleChange}
+                />
+              </div>
+            )}
             <div className={classes.button}>
               <Button
                 id={id + '.trigger-exports-button-id'}

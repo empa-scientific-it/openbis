@@ -82,7 +82,8 @@ export default class GridController {
       exportOptions: {
         columns: GridExportOptions.VISIBLE_COLUMNS,
         rows: GridExportOptions.CURRENT_PAGE,
-        values: GridExportOptions.RICH_TEXT
+        values: GridExportOptions.RICH_TEXT,
+        includeDependencies: true
       }
     })
     this.context = context
@@ -1341,9 +1342,15 @@ export default class GridController {
 
       const { sessionToken, exportResult } = await props.exportXLS({
         exportedFilePrefix: exportable.filePrefix,
+        exportedFileContent: exportable.fileContent,
         exportedIds: exportedIds,
         exportedProperties: exportedProperties,
-        exportedValues: state.exportOptions.values
+        exportedValues: state.exportOptions.values,
+        exportedReferredMasterData:
+          (exportable.fileContent === GridExportOptions.TYPES_CONTENT ||
+            exportable.fileContent ===
+              GridExportOptions.VOCABULARIES_CONTENT) &&
+          state.exportOptions.includeDependencies
       })
 
       if (exportResult.status === 'OK') {

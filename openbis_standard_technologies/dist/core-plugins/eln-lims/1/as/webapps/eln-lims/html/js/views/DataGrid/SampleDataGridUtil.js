@@ -326,7 +326,8 @@ var SampleDataGridUtil = new function() {
 		
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, {
 			fileFormat: 'XLS',
-			filePrefix: 'objects'
+			filePrefix: 'objects',
+			fileContent: 'ENTITIES'
 		}, heightPercentage);
 		dataGridController.setId("sample-grid")
 		return dataGridController;

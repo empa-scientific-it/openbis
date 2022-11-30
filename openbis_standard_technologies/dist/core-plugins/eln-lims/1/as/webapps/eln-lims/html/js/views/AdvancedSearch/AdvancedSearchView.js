@@ -1278,7 +1278,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
 			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, {
 				fileFormat: 'XLS',
-				filePrefix: 'advanced-search'
+				filePrefix: 'advanced-search',
+				fileContent: 'ENTITIES',
 			}, 70, filterModes);
 			return dataGrid;
 	}
