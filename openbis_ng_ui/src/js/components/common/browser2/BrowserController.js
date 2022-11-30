@@ -120,7 +120,8 @@ export default class BrowserController {
 
   async _setFilter(newFilter, silentPeriod) {
     await this.context.setState({
-      filter: newFilter
+      filter: newFilter,
+      loading: true
     })
 
     if (this.lastFilterTimeoutId) {
@@ -129,20 +130,10 @@ export default class BrowserController {
     }
 
     if (util.trim(newFilter) === null) {
-      const { autoShowSelectedObject } = this.context.getState()
-      if (autoShowSelectedObject) {
-        await this.fullTreeController.showSelectedObject()
-      }
-      await this.filteredTreeController.collapseNode(
-        this.filteredTreeController.getRoot().id
-      )
+      await this.load()
     } else {
       this.lastFilterTimeoutId = setTimeout(async () => {
-        const { nodeSetAsRoot } = this.context.getState()
-        await this.filteredTreeController.load(nodeSetAsRoot)
-        await this.filteredTreeController.expandNode(
-          this.filteredTreeController.getRoot().id
-        )
+        await this.load()
       }, silentPeriod)
     }
   }
@@ -172,9 +163,7 @@ export default class BrowserController {
       })
 
       nodeSetAsRoot = {
-        id: node.id,
-        object: node.object,
-        text: node.text,
+        ...node,
         path: path,
         canHaveChildren: true,
         children: []
@@ -224,7 +213,11 @@ export default class BrowserController {
 
   isLoading() {
     const { loading } = this.context.getState()
-    return loading || this._getTreeController().isLoading()
+    return loading
+  }
+
+  isTreeLoading() {
+    return this._getTreeController().isLoading()
   }
 
   getRoot() {

@@ -19,10 +19,20 @@ export default class DatabaseBrowserConstsLoadNodePath {
       if (space) {
         path = [
           {
+            id: DatabaseBrowserConsts.nodeId(
+              DatabaseBrowserConsts.TYPE_ROOT,
+              DatabaseBrowserConsts.TYPE_SPACES
+            ),
             object: { type: DatabaseBrowserConsts.TYPE_SPACES },
             text: DatabaseBrowserConsts.TEXT_SPACES
           },
           {
+            id: DatabaseBrowserConsts.nodeId(
+              DatabaseBrowserConsts.TYPE_ROOT,
+              DatabaseBrowserConsts.TYPE_SPACES,
+              objectType.SPACE,
+              space.getCode()
+            ),
             object,
             text: object.id,
             rootable: true
@@ -44,14 +54,25 @@ export default class DatabaseBrowserConstsLoadNodePath {
             id: project.getSpace().getCode()
           }
         })
-        if (spacePath) {
+        if (!_.isEmpty(spacePath)) {
+          const spaceNode = spacePath[spacePath.length - 1]
           path = [
             ...spacePath,
             {
+              id: DatabaseBrowserConsts.nodeId(
+                spaceNode.id,
+                DatabaseBrowserConsts.TYPE_PROJECTS
+              ),
               object: { type: DatabaseBrowserConsts.TYPE_PROJECTS },
               text: DatabaseBrowserConsts.TEXT_PROJECTS
             },
             {
+              id: DatabaseBrowserConsts.nodeId(
+                spaceNode.id,
+                DatabaseBrowserConsts.TYPE_PROJECTS,
+                objectType.PROJECT,
+                project.getPermId()
+              ),
               object,
               text: project.getCode(),
               rootable: true
@@ -74,14 +95,25 @@ export default class DatabaseBrowserConstsLoadNodePath {
             id: experiment.getProject().getPermId().getPermId()
           }
         })
-        if (projectPath) {
+        if (!_.isEmpty(projectPath)) {
+          const projectNode = projectPath[projectPath.length - 1]
           path = [
             ...projectPath,
             {
+              id: DatabaseBrowserConsts.nodeId(
+                projectNode.id,
+                DatabaseBrowserConsts.TYPE_COLLECTIONS
+              ),
               object: { type: DatabaseBrowserConsts.TYPE_COLLECTIONS },
               text: DatabaseBrowserConsts.TEXT_COLLECTIONS
             },
             {
+              id: DatabaseBrowserConsts.nodeId(
+                projectNode.id,
+                DatabaseBrowserConsts.TYPE_COLLECTIONS,
+                objectType.COLLECTION,
+                experiment.getPermId()
+              ),
               object,
               text: experiment.getCode(),
               rootable: true
@@ -107,19 +139,8 @@ export default class DatabaseBrowserConstsLoadNodePath {
               id: sample.getExperiment().getPermId().getPermId()
             }
           })
-          if (experimentPath) {
-            path = [
-              ...experimentPath,
-              {
-                object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
-                text: DatabaseBrowserConsts.TEXT_OBJECTS
-              },
-              {
-                object,
-                text: sample.getCode(),
-                rootable: true
-              }
-            ]
+          if (!_.isEmpty(experimentPath)) {
+            path = [...experimentPath]
           }
         } else if (sample.getProject()) {
           const projectPath = await this.doLoadNodePath({
@@ -128,19 +149,8 @@ export default class DatabaseBrowserConstsLoadNodePath {
               id: sample.getProject().getPermId().getPermId()
             }
           })
-          if (projectPath) {
-            path = [
-              ...projectPath,
-              {
-                object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
-                text: DatabaseBrowserConsts.TEXT_OBJECTS
-              },
-              {
-                object,
-                text: sample.getCode(),
-                rootable: true
-              }
-            ]
+          if (!_.isEmpty(projectPath)) {
+            path = [...projectPath]
           }
         } else if (sample.getSpace()) {
           const spacePath = await this.doLoadNodePath({
@@ -149,27 +159,30 @@ export default class DatabaseBrowserConstsLoadNodePath {
               id: sample.getSpace().getCode()
             }
           })
-          if (spacePath) {
-            path = [
-              ...spacePath,
-              {
-                object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
-                text: DatabaseBrowserConsts.TEXT_OBJECTS
-              },
-              {
-                object,
-                text: sample.getCode(),
-                rootable: true
-              }
-            ]
+          if (!_.isEmpty(spacePath)) {
+            path = [...spacePath]
           }
-        } else {
+        }
+
+        if (!_.isEmpty(path)) {
+          const lastNode = path[path.length - 1]
           path = [
+            ...path,
             {
+              id: DatabaseBrowserConsts.nodeId(
+                lastNode.id,
+                DatabaseBrowserConsts.TYPE_OBJECTS
+              ),
               object: { type: DatabaseBrowserConsts.TYPE_OBJECTS },
               text: DatabaseBrowserConsts.TEXT_OBJECTS
             },
             {
+              id: DatabaseBrowserConsts.nodeId(
+                lastNode.id,
+                DatabaseBrowserConsts.TYPE_OBJECTS,
+                objectType.OBJECT,
+                sample.getPermId
+              ),
               object,
               text: sample.getCode(),
               rootable: true
@@ -194,19 +207,8 @@ export default class DatabaseBrowserConstsLoadNodePath {
               id: dataSet.getSample().getPermId().getPermId()
             }
           })
-          if (samplePath) {
-            path = [
-              ...samplePath,
-              {
-                object: { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
-                text: DatabaseBrowserConsts.TEXT_DATA_SETS
-              },
-              {
-                object,
-                text: dataSet.getCode(),
-                rootable: true
-              }
-            ]
+          if (!_.isEmpty(samplePath)) {
+            path = [...samplePath]
           }
         } else if (dataSet.getExperiment()) {
           const experimentPath = await this.doLoadNodePath({
@@ -215,20 +217,35 @@ export default class DatabaseBrowserConstsLoadNodePath {
               id: dataSet.getExperiment().getPermId().getPermId()
             }
           })
-          if (experimentPath) {
-            path = [
-              ...experimentPath,
-              {
-                object: { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
-                text: DatabaseBrowserConsts.TEXT_DATA_SETS
-              },
-              {
-                object,
-                text: dataSet.getCode(),
-                rootable: true
-              }
-            ]
+          if (!_.isEmpty(experimentPath)) {
+            path = [...experimentPath]
           }
+        }
+
+        if (!_.isEmpty(path)) {
+          const lastNode = path[path.length - 1]
+          path = [
+            ...path,
+            {
+              id: DatabaseBrowserConsts.nodeId(
+                lastNode.id,
+                DatabaseBrowserConsts.TYPE_DATA_SETS
+              ),
+              object: { type: DatabaseBrowserConsts.TYPE_DATA_SETS },
+              text: DatabaseBrowserConsts.TEXT_DATA_SETS
+            },
+            {
+              id: DatabaseBrowserConsts.nodeId(
+                lastNode.id,
+                DatabaseBrowserConsts.TYPE_DATA_SETS,
+                objectType.DATA_SET,
+                dataSet.getCode()
+              ),
+              object,
+              text: dataSet.getCode(),
+              rootable: true
+            }
+          ]
         }
       }
     }

@@ -1,3 +1,4 @@
+const TYPE_ROOT = 'root'
 const TYPE_SPACES = 'spaces'
 const TYPE_PROJECTS = 'projects'
 const TYPE_COLLECTIONS = 'collections'
@@ -41,7 +42,13 @@ const SORTINGS = {
   }
 }
 
+function nodeId(...parts) {
+  return parts.join('__')
+}
+
 export default {
+  nodeId,
+  TYPE_ROOT,
   TYPE_SPACES,
   TYPE_PROJECTS,
   TYPE_COLLECTIONS,

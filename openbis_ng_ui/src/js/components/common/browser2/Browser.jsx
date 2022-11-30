@@ -88,6 +88,7 @@ class Browser extends React.PureComponent {
       return (
         <div className={classes.browser}>
           <FilterField filter={controller.getFilter() || ''} loading={true} />
+          <BrowserRoot rootNode={controller.getNodeSetAsRoot()} />
         </div>
       )
     }
@@ -111,28 +112,26 @@ class Browser extends React.PureComponent {
           <div
             className={util.classNames(
               classes.nodes,
-              controller.isFullTreeVisible() ? classes.visible : classes.hidden
+              !controller.isLoading() && controller.isFullTreeVisible()
+                ? classes.visible
+                : classes.hidden
             )}
           >
-            <BrowserNode
-              controller={controller}
-              node={controller.getFullTree()}
-              level={-1}
-            />
+            <BrowserNode controller={controller} node={fullTree} level={-1} />
           </div>
         )}
         {filteredTree && (
           <div
             className={util.classNames(
               classes.nodes,
-              controller.isFilteredTreeVisible()
+              !controller.isLoading() && controller.isFilteredTreeVisible()
                 ? classes.visible
                 : classes.hidden
             )}
           >
             <BrowserNode
               controller={controller}
-              node={controller.getFilteredTree()}
+              node={filteredTree}
               level={-1}
             />
           </div>
@@ -150,7 +149,7 @@ class Browser extends React.PureComponent {
         filter={controller.getFilter() || ''}
         filterChange={controller.filterChange}
         filterClear={controller.filterClear}
-        loading={controller.isLoading()}
+        loading={controller.isLoading() || controller.isTreeLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
             <div className={classes.filterButton}>
