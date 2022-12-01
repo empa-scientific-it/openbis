@@ -33,11 +33,13 @@ class DatabaseBrowser extends React.Component {
         id={ids.DATABASE_BROWSER_ID}
         controller={this.controller}
         onSelectedChange={selectedObject => {
-          AppController.getInstance().objectOpen(
-            pages.DATABASE,
-            selectedObject.type,
-            selectedObject.id
-          )
+          if (selectedObject) {
+            AppController.getInstance().objectOpen(
+              pages.DATABASE,
+              selectedObject.type,
+              selectedObject.id
+            )
+          }
         }}
       />
     )

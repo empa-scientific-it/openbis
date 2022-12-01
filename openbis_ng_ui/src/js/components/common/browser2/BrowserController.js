@@ -53,6 +53,7 @@ export default class BrowserController {
     context.initState({
       loaded: false,
       loading: false,
+      nodeSetAsRoot: null,
       filter: null,
       autoShowSelectedObject: true
     })
@@ -92,17 +93,16 @@ export default class BrowserController {
       })
     }
 
-    await this.fullTreeController.load()
-    await this.fullTreeController.expandNode(
-      this.fullTreeController.getRoot().id
+    const { nodeSetAsRoot, autoShowSelectedObject } = this.context.getState()
+
+    await this._getTreeController().load(nodeSetAsRoot)
+    await this._getTreeController().expandNode(
+      this._getTreeController().getRoot().id
     )
 
-    const { autoShowSelectedObject } = this.context.getState()
     if (autoShowSelectedObject) {
-      await this.fullTreeController.showSelectedObject()
+      await this._getTreeController().showSelectedObject()
     }
-
-    await this.filteredTreeController.load()
 
     await this.context.setState({
       loaded: true,
@@ -120,7 +120,8 @@ export default class BrowserController {
 
   async _setFilter(newFilter, silentPeriod) {
     await this.context.setState({
-      filter: newFilter
+      filter: newFilter,
+      loading: true
     })
 
     if (this.lastFilterTimeoutId) {
@@ -129,19 +130,10 @@ export default class BrowserController {
     }
 
     if (util.trim(newFilter) === null) {
-      const { autoShowSelectedObject } = this.context.getState()
-      if (autoShowSelectedObject) {
-        await this.fullTreeController.showSelectedObject()
-      }
-      await this.filteredTreeController.collapseNode(
-        this.filteredTreeController.getRoot().id
-      )
+      await this.load()
     } else {
       this.lastFilterTimeoutId = setTimeout(async () => {
-        await this.filteredTreeController.load()
-        await this.filteredTreeController.expandNode(
-          this.filteredTreeController.getRoot().id
-        )
+        await this.load()
       }, silentPeriod)
     }
   }
@@ -162,6 +154,30 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
+  async setNodeAsRoot(node) {
+    let nodeSetAsRoot = null
+
+    if (node) {
+      const path = await this.doLoadNodePath({
+        object: node.object
+      })
+
+      nodeSetAsRoot = {
+        ...node,
+        path: path,
+        canHaveChildren: true,
+        children: []
+      }
+    }
+
+    await this.context.setState({
+      nodeSetAsRoot,
+      loaded: false
+    })
+    await this._saveSettings()
+    await this.load()
+  }
+
   async selectObject(nodeObject) {
     const { autoShowSelectedObject } = this.context.getState()
     await this.fullTreeController.selectObject(nodeObject)
@@ -180,7 +196,7 @@ export default class BrowserController {
     })
 
     if (autoShowSelectedObject) {
-      await this.fullTreeController.showSelectedObject()
+      await this._getTreeController().showSelectedObject()
     }
 
     this._saveSettings()
@@ -197,11 +213,20 @@ export default class BrowserController {
 
   isLoading() {
     const { loading } = this.context.getState()
-    return loading || this._getTreeController().isLoading()
+    return loading
+  }
+
+  isTreeLoading() {
+    return this._getTreeController().isLoading()
   }
 
   getRoot() {
     return this._getTreeController().getRoot()
+  }
+
+  getNodeSetAsRoot() {
+    const { nodeSetAsRoot } = this.context.getState()
+    return nodeSetAsRoot
   }
 
   getSelectedObject() {
@@ -265,6 +290,10 @@ export default class BrowserController {
     if (_.isObject(loaded.common)) {
       const common = {}
 
+      if (_.isObject(loaded.common.nodeSetAsRoot)) {
+        common.nodeSetAsRoot = loaded.common.nodeSetAsRoot
+      }
+
       if (_.isBoolean(loaded.common.autoShowSelectedObject)) {
         common.autoShowSelectedObject = loaded.common.autoShowSelectedObject
       }
@@ -290,12 +319,15 @@ export default class BrowserController {
       const state = this.context.getState()
 
       const settings = {
-        common: { autoShowSelectedObject: state.autoShowSelectedObject },
+        common: {
+          nodeSetAsRoot: state.nodeSetAsRoot,
+          autoShowSelectedObject: state.autoShowSelectedObject
+        },
         fullTree: this.settings.fullTree || {},
         filteredTree: this.settings.filteredTree || {}
       }
 
-      onSettingsChange(settings)
+      await onSettingsChange(settings)
     }
   }
 }
