@@ -110,10 +110,9 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       return result
     } else {
       const root = {
-        id: 'root',
+        id: DatabaseBrowserConsts.TYPE_ROOT,
         object: {
-          id: 'root',
-          type: 'root'
+          type: DatabaseBrowserConsts.TYPE_ROOT
         },
         children: { nodes: [], totalCount: 0 },
         canHaveChildren: true
@@ -448,7 +447,10 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
   createSpacesNode(spaces, parent) {
     const spacesNode = {
-      id: parent.id + '__' + DatabaseBrowserConsts.TYPE_SPACES,
+      id: DatabaseBrowserConsts.nodeId(
+        parent.id,
+        DatabaseBrowserConsts.TYPE_SPACES
+      ),
       text: DatabaseBrowserConsts.TEXT_SPACES,
       object: {
         type: DatabaseBrowserConsts.TYPE_SPACES
@@ -461,7 +463,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
     spaces.forEach(space => {
       const spaceNode = {
-        id: spacesNode.id + '__' + objectType.SPACE + '_' + space.code,
+        id: DatabaseBrowserConsts.nodeId(
+          spacesNode.id,
+          objectType.SPACE,
+          space.code
+        ),
         text: space.code,
         object: {
           type: objectType.SPACE,
@@ -501,7 +507,10 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
   createProjectsNode(projects, parent) {
     const projectsNode = {
-      id: parent.id + '__' + DatabaseBrowserConsts.TYPE_PROJECTS,
+      id: DatabaseBrowserConsts.nodeId(
+        parent.id,
+        DatabaseBrowserConsts.TYPE_PROJECTS
+      ),
       text: DatabaseBrowserConsts.TEXT_PROJECTS,
       object: {
         type: DatabaseBrowserConsts.TYPE_PROJECTS
@@ -514,7 +523,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
     projects.forEach(project => {
       const projectNode = {
-        id: projectsNode.id + '__' + objectType.PROJECT + '_' + project.permId,
+        id: DatabaseBrowserConsts.nodeId(
+          projectsNode.id,
+          objectType.PROJECT,
+          project.permId
+        ),
         text: project.code,
         object: {
           type: objectType.PROJECT,
@@ -554,7 +567,10 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
   createExperimentsNode(experiments, parent) {
     const experimentsNode = {
-      id: parent.id + '__' + DatabaseBrowserConsts.TYPE_COLLECTIONS,
+      id: DatabaseBrowserConsts.nodeId(
+        parent.id,
+        DatabaseBrowserConsts.TYPE_COLLECTIONS
+      ),
       text: DatabaseBrowserConsts.TEXT_COLLECTIONS,
       object: {
         type: DatabaseBrowserConsts.TYPE_COLLECTIONS
@@ -567,12 +583,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
     experiments.forEach(experiment => {
       const experimentNode = {
-        id:
-          experimentsNode.id +
-          '__' +
-          objectType.COLLECTION +
-          '_' +
-          experiment.permId,
+        id: DatabaseBrowserConsts.nodeId(
+          experimentsNode.id,
+          objectType.COLLECTION,
+          experiment.permId
+        ),
         text: experiment.code,
         object: {
           type: objectType.COLLECTION,
@@ -612,7 +627,10 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
   createSamplesNode(samples, parent) {
     const samplesNode = {
-      id: parent.id + '__' + DatabaseBrowserConsts.TYPE_OBJECTS,
+      id: DatabaseBrowserConsts.nodeId(
+        parent.id,
+        DatabaseBrowserConsts.TYPE_OBJECTS
+      ),
       text: DatabaseBrowserConsts.TEXT_OBJECTS,
       object: {
         type: DatabaseBrowserConsts.TYPE_OBJECTS
@@ -625,7 +643,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
     samples.forEach(sample => {
       const sampleNode = {
-        id: samplesNode.id + '__' + objectType.OBJECT + '_' + sample.permId,
+        id: DatabaseBrowserConsts.nodeId(
+          samplesNode.id,
+          objectType.OBJECT,
+          sample.permId
+        ),
         text: sample.code,
         object: {
           type: objectType.OBJECT,
@@ -655,7 +677,10 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
   createDataSetsNode(dataSets, parent) {
     const dataSetsNode = {
-      id: parent.id + '__' + DatabaseBrowserConsts.TYPE_DATA_SETS,
+      id: DatabaseBrowserConsts.nodeId(
+        parent.id,
+        DatabaseBrowserConsts.TYPE_DATA_SETS
+      ),
       text: DatabaseBrowserConsts.TEXT_DATA_SETS,
       object: {
         type: DatabaseBrowserConsts.TYPE_DATA_SETS
@@ -668,7 +693,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
 
     dataSets.forEach(dataSet => {
       const dataSetNode = {
-        id: dataSetsNode.id + '__' + objectType.DATA_SET + '_' + dataSet.code,
+        id: DatabaseBrowserConsts.nodeId(
+          dataSetsNode.id,
+          objectType.DATA_SET,
+          dataSet.code
+        ),
         text: dataSet.code,
         object: {
           type: objectType.DATA_SET,

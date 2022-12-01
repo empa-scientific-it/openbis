@@ -11,17 +11,16 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       return {
         nodes: [
           {
-            id: 'root',
+            id: DatabaseBrowserConsts.TYPE_ROOT,
             object: {
-              id: 'root',
-              type: 'root'
+              type: DatabaseBrowserConsts.TYPE_ROOT
             },
             canHaveChildren: true
           }
         ],
         totalCount: 1
       }
-    } else if (node.object.type === 'root') {
+    } else if (node.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
       const nodes = []
 
       await this.addSpacesNode(params, nodes)
@@ -120,7 +119,11 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(space => ({
-      id: node.id + '__' + objectType.SPACE + '_' + space.getCode(),
+      id: DatabaseBrowserConsts.nodeId(
+        node.id,
+        objectType.SPACE,
+        space.getCode()
+      ),
       text: space.getCode(),
       object: {
         type: objectType.SPACE,
@@ -161,12 +164,11 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(project => ({
-      id:
-        node.id +
-        '__' +
-        objectType.PROJECT +
-        '_' +
-        project.getPermId().getPermId(),
+      id: DatabaseBrowserConsts.nodeId(
+        node.id,
+        objectType.PROJECT,
+        project.getPermId().getPermId()
+      ),
       text: project.getCode(),
       object: {
         type: objectType.PROJECT,
@@ -207,12 +209,11 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(experiment => ({
-      id:
-        node.id +
-        '__' +
-        objectType.COLLECTION +
-        '_' +
-        experiment.getPermId().getPermId(),
+      id: DatabaseBrowserConsts.nodeId(
+        node.id,
+        objectType.COLLECTION,
+        experiment.getPermId().getPermId()
+      ),
       text: experiment.getCode(),
       object: {
         type: objectType.COLLECTION,
@@ -238,7 +239,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.parent.object.type === 'root') {
+    if (node.parent.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
       criteria.withoutSpace()
       criteria.withoutProject()
       criteria.withoutExperiment()
@@ -271,12 +272,11 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(sample => ({
-      id:
-        node.id +
-        '__' +
-        objectType.OBJECT +
-        '_' +
-        sample.getPermId().getPermId(),
+      id: DatabaseBrowserConsts.nodeId(
+        node.id,
+        objectType.OBJECT,
+        sample.getPermId().getPermId()
+      ),
       text: sample.getCode(),
       object: {
         type: objectType.OBJECT,
@@ -327,12 +327,11 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     const result = await openbis.searchDataSets(criteria, fetchOptions)
 
     const nodes = result.getObjects().map(dataSet => ({
-      id:
-        node.id +
-        '__' +
-        objectType.DATA_SET +
-        '_' +
-        dataSet.getPermId().getPermId(),
+      id: DatabaseBrowserConsts.nodeId(
+        node.id,
+        objectType.DATA_SET,
+        dataSet.getPermId().getPermId()
+      ),
       text: dataSet.getCode(),
       object: {
         type: objectType.DATA_SET,
@@ -355,7 +354,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
   async addSpacesNode(params, nodes) {
     const { node, sortingIds } = params
 
-    const spacesNodeId = node.id + '__' + DatabaseBrowserConsts.TYPE_SPACES
+    const spacesNodeId = DatabaseBrowserConsts.nodeId(
+      node.id,
+      DatabaseBrowserConsts.TYPE_SPACES
+    )
     const spacesNode = {
       id: spacesNodeId,
       text: DatabaseBrowserConsts.TEXT_SPACES,
@@ -380,7 +382,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
   async addProjectsNode(params, nodes) {
     const { node, sortingIds } = params
 
-    const projectsNodeId = node.id + '__' + DatabaseBrowserConsts.TYPE_PROJECTS
+    const projectsNodeId = DatabaseBrowserConsts.nodeId(
+      node.id,
+      DatabaseBrowserConsts.TYPE_PROJECTS
+    )
     const projectsNode = {
       id: projectsNodeId,
       text: DatabaseBrowserConsts.TEXT_PROJECTS,
@@ -408,8 +413,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
   async addExperimentsNode(params, nodes) {
     const { node, sortingIds } = params
 
-    const experimentsNodeId =
-      node.id + '__' + DatabaseBrowserConsts.TYPE_COLLECTIONS
+    const experimentsNodeId = DatabaseBrowserConsts.nodeId(
+      node.id,
+      DatabaseBrowserConsts.TYPE_COLLECTIONS
+    )
     const experimentsNode = {
       id: experimentsNodeId,
       text: DatabaseBrowserConsts.TEXT_COLLECTIONS,
@@ -445,8 +452,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     }
 
     if (node.object.type === objectType.OBJECT) {
-      const samplesNodeId =
-        node.id + '__' + DatabaseBrowserConsts.TYPE_OBJECT_CHILDREN
+      const samplesNodeId = DatabaseBrowserConsts.nodeId(
+        node.id,
+        DatabaseBrowserConsts.TYPE_OBJECT_CHILDREN
+      )
       samplesNode = {
         ...samplesNode,
         id: samplesNodeId,
@@ -457,7 +466,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
         sortingId: sortingIds[samplesNodeId] || 'code_asc'
       }
     } else {
-      const samplesNodeId = node.id + '__' + DatabaseBrowserConsts.TYPE_OBJECTS
+      const samplesNodeId = DatabaseBrowserConsts.nodeId(
+        node.id,
+        DatabaseBrowserConsts.TYPE_OBJECTS
+      )
       samplesNode = {
         ...samplesNode,
         id: samplesNodeId,
@@ -491,8 +503,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     }
 
     if (node.object.type === objectType.DATA_SET) {
-      const dataSetsNodeId =
-        node.id + '__' + DatabaseBrowserConsts.TYPE_DATA_SET_CHILDREN
+      const dataSetsNodeId = DatabaseBrowserConsts.nodeId(
+        node.id,
+        DatabaseBrowserConsts.TYPE_DATA_SET_CHILDREN
+      )
       dataSetsNode = {
         ...dataSetsNode,
         id: dataSetsNodeId,
@@ -503,8 +517,10 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
         sortingId: sortingIds[dataSetsNodeId] || 'code_asc'
       }
     } else {
-      const dataSetsNodeId =
-        node.id + '__' + DatabaseBrowserConsts.TYPE_DATA_SETS
+      const dataSetsNodeId = DatabaseBrowserConsts.nodeId(
+        node.id,
+        DatabaseBrowserConsts.TYPE_DATA_SETS
+      )
       dataSetsNode = {
         ...dataSetsNode,
         id: dataSetsNodeId,
