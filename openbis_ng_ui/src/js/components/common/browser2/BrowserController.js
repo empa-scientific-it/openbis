@@ -93,7 +93,18 @@ export default class BrowserController {
       })
     }
 
-    const { nodeSetAsRoot, autoShowSelectedObject } = this.context.getState()
+    let { nodeSetAsRoot, autoShowSelectedObject } = this.context.getState()
+
+    if (nodeSetAsRoot) {
+      const nodeSetAsRootPath = await this.doLoadNodePath({
+        object: nodeSetAsRoot.object
+      })
+      if (!_.isEmpty(nodeSetAsRootPath)) {
+        nodeSetAsRoot.path = nodeSetAsRootPath
+      } else {
+        nodeSetAsRoot = null
+      }
+    }
 
     await this._getTreeController().load(nodeSetAsRoot)
     await this._getTreeController().expandNode(
@@ -106,8 +117,11 @@ export default class BrowserController {
 
     await this.context.setState({
       loaded: true,
-      loading: false
+      loading: false,
+      nodeSetAsRoot
     })
+
+    this._saveSettings()
   }
 
   async filterChange(newFilter) {
