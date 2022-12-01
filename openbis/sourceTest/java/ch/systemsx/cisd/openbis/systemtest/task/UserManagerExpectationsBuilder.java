@@ -375,6 +375,10 @@ class UserManagerExpectationsBuilder
 
     private void assertUnknownUsers(String sessionToken)
     {
+        if (unknownUsers.isEmpty())
+        {
+            return;
+        }
         Map<String, Set<String>> usersByGroupId = getAllUsersOfGroups(sessionToken);
         assertEquals(usersByGroupId.isEmpty(), false);
         List<PersonPermId> personIds = unknownUsers.stream().map(p -> new PersonPermId(p.getUserId())).collect(Collectors.toList());
@@ -617,6 +621,12 @@ class UserManagerExpectationsBuilder
             return this;
         }
 
+        UserManagerAuthorizationExpectationsBuilder instanceAdmin(Principal... users)
+        {
+            addUsers(AuthorizationLevel.INSTANCE_ADMIN, users);
+            return this;
+        }
+        
         private void addUsers(AuthorizationLevel level, Principal... users)
         {
             Set<String> set = usersByLevel.get(level);

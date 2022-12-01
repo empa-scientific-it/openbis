@@ -133,7 +133,8 @@ public class UserManagerReport implements IChangedHandler
 
     void assignRoleTo(String userId, Role role, ISpaceId spaceId)
     {
-        log("ASSIGN-ROLE-TO-USER", "user: " + userId + ", role: SPACE_" + role + " for " + spaceId);
+        log("ASSIGN-ROLE-TO-USER", "user: " + userId + ", role: " 
+                + (spaceId == null ? "INSTANCE_" + role : "SPACE" + "_" + role + " for " + spaceId));
     }
 
     void assignRoleTo(AuthorizationGroupPermId groupId, Role role, Space space)

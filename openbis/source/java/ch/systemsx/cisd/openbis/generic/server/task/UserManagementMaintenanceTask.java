@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -154,22 +155,21 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         for (UserGroup group : config.getGroups())
         {
             addGroup(userManager, group);
-            if (group.getUsers() != null)
-            {
-                knownUsers.addAll(group.getUsers());
-            }
-            if (group.getPermanentUsers() != null)
-            {
-                knownUsers.addAll(group.getPermanentUsers());
-            }
-            if (config.getInstanceAdmins() != null)
-            {
-                knownUsers.addAll(config.getInstanceAdmins());
-            }
+            addAllTo(knownUsers, group.getUsers());
+            addAllTo(knownUsers, group.getPermanentUsers());
+            addAllTo(knownUsers, config.getInstanceAdmins());
         }
         userManager.manage(knownUsers);
         handleReport(report);
         operationLog.info("finished");
+    }
+
+    private static void addAllTo(Collection<String> set, Collection<String> setToBeAddedOrNull)
+    {
+        if (setToBeAddedOrNull != null)
+        {
+            set.addAll(setToBeAddedOrNull);
+        }
     }
 
     private void addGroup(UserManager userManager, UserGroup group)
@@ -270,6 +270,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
     {
         UserManager userManager = createUserManager(logger, report);
         userManager.setGlobalSpaces(config.getGlobalSpaces());
+        userManager.setInstanceAdmins(config.getInstanceAdmins());
         try
         {
             userManager.setCommon(config.getCommonSpaces(), config.getCommonSamples(), config.getCommonExperiments());

@@ -100,6 +100,45 @@ public class UserManagerTest extends AbstractTest
     }
 
     @Test
+    public void testCreateInstanceAdmin()
+    {
+        // Given
+        MockLogger logger = new MockLogger();
+        UserManager userManager = new UserManagerBuilder(v3api, logger, report()).instanceAdmins(U1.getUserId()).get();
+
+        // When
+        UserManagerReport report = manage(userManager);
+
+        // Then
+        assertEquals(report.getErrorReport(), "");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-USER] u1\n"
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u1, role: INSTANCE_ADMIN\n");
+        UserManagerExpectationsBuilder builder = createBuilder();
+        builder.space("").instanceAdmin(U1);
+        builder.assertExpectations();
+    }
+
+    @Test
+    public void testCreateInstanceAdmin2()
+    {
+        // Given
+        MockLogger logger = new MockLogger();
+        UserManager userManager = new UserManagerBuilder(v3api, logger, report()).instanceAdmins(U1.getUserId()).get();
+        manage(userManager);
+        
+        // When
+        UserManagerReport report = manage(userManager);
+        
+        // Then
+        assertEquals(report.getErrorReport(), "");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-USER] u1\n"
+                + "1970-01-01 01:00:01 [ASSIGN-ROLE-TO-USER] user: u1, role: INSTANCE_ADMIN\n");
+        UserManagerExpectationsBuilder builder = createBuilder();
+        builder.space("").instanceAdmin(U1);
+        builder.assertExpectations();
+    }
+    
+    @Test
     public void testCreateOneGroupWithAUserWhichAlreadyHasAHomeSpace()
     {
         // Given
@@ -110,10 +149,10 @@ public class UserManagerTest extends AbstractTest
         Map<Role, List<String>> commonSpaces = commonSpaces();
         UserManager userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
         userManager.addGroup(new UserGroupAsBuilder("G1").admins(U1.getUserId(), "blabla"), users(U1, U2));
-
+        
         // When
         UserManagerReport report = manage(userManager);
-
+        
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-AUTHORIZATION-GROUP] G1\n"
@@ -151,7 +190,7 @@ public class UserManagerTest extends AbstractTest
         builder.homeSpace(U2, "G1_U2");
         builder.assertExpectations();
     }
-
+    
     @Test
     public void testAddAndRemoveAUserWhichAlreadyHasAHomeSpace()
     {
@@ -2060,6 +2099,8 @@ public class UserManagerTest extends AbstractTest
 
         private List<String> globalSpaces = new ArrayList<>();
 
+        private List<String> instanceAdmins;
+
         private Map<Role, List<String>> commonSpacesByRole = new TreeMap<>();
 
         private Map<String, String> commonSamples = new TreeMap<>();
@@ -2093,6 +2134,7 @@ public class UserManagerTest extends AbstractTest
                 };
             UserManager userManager = new UserManager(authenticationService, service, shareIdsMappingFile, logger, report);
             userManager.setGlobalSpaces(globalSpaces);
+            userManager.setInstanceAdmins(instanceAdmins);
             userManager.setCommon(commonSpacesByRole, commonSamples, commonExperiments);
             userManager.setDeactivateUnknownUsers(deactivateUnknownUsers);
             return userManager;
@@ -2107,6 +2149,12 @@ public class UserManagerTest extends AbstractTest
         private UserManagerBuilder unknownUser(Principal user)
         {
             usersUnknownByAuthenticationService.add(user.getUserId());
+            return this;
+        }
+
+        private UserManagerBuilder instanceAdmins(String... instanceAdmins)
+        {
+            this.instanceAdmins = Arrays.asList(instanceAdmins);
             return this;
         }
 
