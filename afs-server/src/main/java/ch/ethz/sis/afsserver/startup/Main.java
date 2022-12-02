@@ -18,6 +18,7 @@ package ch.ethz.sis.afsserver.startup;
 
 import ch.ethz.sis.afs.manager.TransactionManager;
 import ch.ethz.sis.afs.startup.AtomicFileSystemParameter;
+import ch.ethz.sis.afsserver.http.APIResponse;
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.afsserver.http.netty.NettyHttpServer;
 import ch.ethz.sis.shared.json.JSONObjectMapper;
@@ -29,6 +30,7 @@ import ch.ethz.sis.shared.startup.Configuration;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -63,8 +65,8 @@ public class Main {
         NettyHttpServer nettyHttpServer = new NettyHttpServer();
         nettyHttpServer.start(port, maxContentLength, uri, new HttpServerHandler() {
             @Override
-            public byte[] process(InputStream requestBody) {
-                return new byte[0];
+            public APIResponse process(InputStream requestBody, Map<String, List<String>> parameters) {
+                return new APIResponse(true, APIResponse.CONTENT_TYPE_JSON, new byte[0]);
             }
         });
         Thread.currentThread().join();

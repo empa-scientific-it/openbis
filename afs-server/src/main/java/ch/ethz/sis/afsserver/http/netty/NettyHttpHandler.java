@@ -1,5 +1,6 @@
 package ch.ethz.sis.afsserver.http.netty;
 
+import ch.ethz.sis.afsserver.http.APIResponse;
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
@@ -11,11 +12,18 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
+
+import static io.netty.handler.codec.http.HttpMethod.*;
+
 public class NettyHttpHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LogManager.getLogger(NettyHttpServer.class);
     private static final byte[] NOT_FOUND = "404 NOT FOUND".getBytes();
     private static final ByteBuf NOT_FOUND_BUFFER = Unpooled.wrappedBuffer(NOT_FOUND);
+    private static final Set<HttpMethod> allowedMethods = Set.of(GET, POST, PUT, DELETE);
 
     private final String uri;
     private final HttpServerHandler httpServerHandler;
@@ -29,17 +37,20 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
-            if (request.uri().equals(uri) && (request.method() == HttpMethod.POST || request.method() == HttpMethod.GET)) {
+            QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri(), true);
+            if (queryStringDecoder.path().equals(uri) &&
+                    allowedMethods.contains(request.method())) {
                 FullHttpResponse response = null;
                 ByteBuf content = request.content();
                 try {
                     ByteBufInputStream inputStream = new ByteBufInputStream(content);
-                    byte[] output = httpServerHandler.process(inputStream);
+                    APIResponse apiResponse = httpServerHandler.process(inputStream, queryStringDecoder.parameters());
+                    HttpResponseStatus status = (apiResponse.isOk())?HttpResponseStatus.OK:HttpResponseStatus.BAD_REQUEST;
                     response = getHttpResponse(
-                            HttpResponseStatus.OK,
-                            "application/json",
-                            Unpooled.wrappedBuffer(output),
-                            output.length);
+                            status,
+                            apiResponse.getContentType(),
+                            Unpooled.wrappedBuffer(apiResponse.getBody()),
+                            apiResponse.getBody().length);
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                 } finally {
                     content.release();

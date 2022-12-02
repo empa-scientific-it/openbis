@@ -9,8 +9,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation 'junit:junit:4.10'
+    testRuntimeOnly 'junit:junit:4.10'
 
     annotationProcessor 'lombok:lombok:1.18.22'
     implementation project(':afs'),
@@ -24,7 +24,7 @@ test {
     useJUnitPlatform()
 }
 
-task AFSServerDevelopmentStart(type: JavaExec) {
+task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
     main = 'ch.ethz.sis.afsserver.startup.Main'
     classpath = sourceSets.main.runtimeClasspath
     jvmArgs(['--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
