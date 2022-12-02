@@ -116,22 +116,12 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
 
     private static final Set<String> twoPhaseTransactionAPIMethods = Reflect.getMethodNames(TwoPhaseTransactionAPI.class);
 
-    private boolean isValidNonInteractiveSession(List<INPUT> requests) {
-        for (Request request : requests) {
-            if (twoPhaseTransactionAPIMethods.contains(request.getMethod())) {
-                return false;
-            }
-        }
-        return true;
+    private boolean isValidNonInteractiveSession(INPUT request) {
+        return !twoPhaseTransactionAPIMethods.contains(request.getMethod());
     }
 
-    private boolean isValidInteractiveSessionFinished(List<INPUT> requests) {
-        for (Request request : requests) {
-            if (request.getMethod().equals("commit") || request.getMethod().equals("rollback")) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isValidInteractiveSessionFinished(INPUT request) {
+        return request.getMethod().equals("commit") || request.getMethod().equals("rollback");
     }
 
     private boolean sameSessionToken(List<INPUT> requests) {
@@ -147,8 +137,8 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         return true;
     }
 
-    public List<OUTPUT> processOperations(List<INPUT> requests, ResponseBuilder<OUTPUT> responseBuilder, PerformanceAuditor performanceAuditor) throws APIServerException {
-        logger.traceAccess(null, requests);
+    public OUTPUT processOperation(INPUT request, ResponseBuilder<OUTPUT> responseBuilder, PerformanceAuditor performanceAuditor) throws APIServerException {
+        logger.traceAccess(null, request);
 
         // Shutting down?
         if (shutdown) {
@@ -156,25 +146,20 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         }
 
         // Requests validation
-        boolean isSameSessionToken = sameSessionToken(requests);
-        if (!isSameSessionToken) {
-            throw new APIServerException(null, IncorrectParameters, APIExceptions.REQUESTS_WITH_DIFFERENT_SESSION_TOKEN.getCause(null));
-        }
-        // Session token is only set once since all requests should share the same
         // begin/rollback can only be called if the session token is present
-        String sessionToken = requests.get(0).getSessionToken();
+        String sessionToken = request.getSessionToken();
         boolean sessionTokenFound = sessionToken != null;
-        boolean isValidTransactionManagerMode = transactionManagerKey.equals(requests.get(0).getTransactionManagerKey());
-        boolean isValidInteractiveSession = interactiveSessionKey.equals(requests.get(0).getInteractiveSessionKey());
+        boolean isValidTransactionManagerMode = transactionManagerKey.equals(request.getTransactionManagerKey());
+        boolean isValidInteractiveSession = interactiveSessionKey.equals(request.getInteractiveSessionKey());
 
         boolean isValidInteractiveSessionFinished = false;
         if (isValidInteractiveSession) {
-            isValidInteractiveSessionFinished = isValidInteractiveSessionFinished(requests) || !sessionTokenFound;
+            isValidInteractiveSessionFinished = isValidInteractiveSessionFinished(request) || !sessionTokenFound;
         }
 
         boolean isValidNonInteractiveSession = false;
         if (!isValidInteractiveSession) {
-            isValidNonInteractiveSession = isValidNonInteractiveSession(requests);
+            isValidNonInteractiveSession = isValidNonInteractiveSession(request);
         }
 
         if (!isValidInteractiveSession && !isValidNonInteractiveSession) {
@@ -184,12 +169,10 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         // Process requests separately
         Worker<CONNECTION> worker = null;
         String currentRequestId = null;
-        List<OUTPUT> responses = null;
+        OUTPUT response = null;
         boolean errorFound = false;
 
         try {
-            responses = new ArrayList<>(requests.size());
-
             worker = checkOut(performanceAuditor,
                                 isValidTransactionManagerMode,
                                 isValidInteractiveSession,
@@ -198,17 +181,10 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
                                 sessionTokenFound,
                                 sessionToken);
 
-            transaction:
-            for (Request request : requests) {
-                OUTPUT response = dispatcher(worker, request, responseBuilder);
-                currentRequestId = request.getId();
-                responses.add(response);
-                currentRequestId = null;
-                errorFound = response.getError() != null;
-                if (errorFound) {
-                    break transaction;
-                }
-            }
+            response = dispatcher(worker, request, responseBuilder);
+            currentRequestId = request.getId();
+            currentRequestId = null;
+            errorFound = response.getError() != null;
         } catch (Exception exception) {
             errorFound = true;
             logger.catching(exception);
@@ -246,7 +222,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
                     worker);
         }
 
-        return logger.traceExit(responses);
+        return logger.traceExit(response);
     }
 
     private Worker<CONNECTION> checkOut(PerformanceAuditor performanceAuditor,

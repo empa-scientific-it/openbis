@@ -15,7 +15,6 @@ public enum APIExceptions implements ExceptionTemplateHolder {
     // APIServer
     UNKNOWN(                                    RuntimeException.class,                         List.of(UnknownError),                             10001, "Unknown error of type %s, please contact support, this error comes with message: %s"),
     SHUTTING_DOWN(                              RuntimeException.class,                         List.of(RecoverableSystemStateError),              10002, "Shutting down error"),
-    REQUESTS_WITH_DIFFERENT_SESSION_TOKEN(      IllegalArgumentException.class,                 List.of(ClientDeveloperCodingError),               10003, "Requests found with different sessionToken on the same batch"),
     NON_INTERACTIVE_WITH_TRANSACTION_CONTROL(   IllegalArgumentException.class,                 List.of(ClientDeveloperCodingError),               10004, "Non interactiveSession request list with incorrect transaction control requests"),
     WRONG_PARAMETER_LIST_LENGTH(                IllegalArgumentException.class,                 List.of(ClientDeveloperCodingError),               10005, "Wrong parameters list length for method"),
     MISSING_METHOD_PARAMETER(                   IllegalArgumentException.class,                 List.of(ClientDeveloperCodingError),               10006, "Missing parameter '%s' for method '%s'"),
