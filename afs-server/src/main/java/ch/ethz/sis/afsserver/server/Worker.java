@@ -1,8 +1,7 @@
-package ch.ethz.sis.afsserver.worker;
+package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afsserver.api.PublicAPI;
-
-import java.util.UUID;
+import ch.ethz.sis.afsserver.worker.PerformanceAuditor;
 
 public interface Worker<CONNECTION> extends PublicAPI {
     void createContext(PerformanceAuditor performanceAuditor);

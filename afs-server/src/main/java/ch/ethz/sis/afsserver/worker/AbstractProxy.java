@@ -2,12 +2,13 @@ package ch.ethz.sis.afsserver.worker;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsserver.server.Worker;
 import lombok.NonNull;
 
 import java.util.List;
 import java.util.UUID;
 
-public class AbstractProxy implements Worker<TransactionalFileSystem> {
+public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
 
     protected AbstractProxy nextProxy;
     protected WorkerContext workerContext;

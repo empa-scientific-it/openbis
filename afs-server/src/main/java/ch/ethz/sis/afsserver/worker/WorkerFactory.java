@@ -1,17 +1,14 @@
 package ch.ethz.sis.afsserver.worker;
 
+import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.worker.providers.AuthenticationInfoProvider;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.afsserver.worker.proxy.*;
+import ch.ethz.sis.shared.pool.AbstractFactory;
 import ch.ethz.sis.shared.startup.Configuration;
 
 public class WorkerFactory extends AbstractFactory<Configuration, Configuration, Worker> {
-
-    @Override
-    public void init(Configuration initParameter) throws Exception {
-        // We don't need a pool
-    }
 
     @Override
     public Worker create(Configuration configuration) throws Exception {

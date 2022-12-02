@@ -2,6 +2,7 @@ package ch.ethz.sis.afsserver.worker;
 
 import ch.ethz.sis.afs.manager.TransactionManager;
 import ch.ethz.sis.afs.startup.AtomicFileSystemParameter;
+import ch.ethz.sis.shared.pool.AbstractFactory;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.ethz.sis.afs.manager.TransactionConnection;
 
