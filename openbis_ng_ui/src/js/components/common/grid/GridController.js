@@ -1347,9 +1347,7 @@ export default class GridController {
         exportedProperties: exportedProperties,
         exportedValues: state.exportOptions.values,
         exportedReferredMasterData:
-          (exportable.fileContent === GridExportOptions.TYPES_CONTENT ||
-            exportable.fileContent ===
-              GridExportOptions.VOCABULARIES_CONTENT) &&
+          exportable.fileContent === GridExportOptions.TYPES_CONTENT &&
           state.exportOptions.includeDependencies
       })
 

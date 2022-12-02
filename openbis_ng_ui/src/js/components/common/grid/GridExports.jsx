@@ -120,10 +120,6 @@ class GridExports extends React.PureComponent {
       exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
       exportable.fileContent === GridExportOptions.TYPES_CONTENT
 
-    const isXLSVocabulariesExport =
-      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
-      exportable.fileContent === GridExportOptions.VOCABULARIES_CONTENT
-
     return (
       <div className={classes.container}>
         <Button
@@ -202,15 +198,16 @@ class GridExports extends React.PureComponent {
                   />
                 </div>
               )}
-              {exportOptions.values === GridExportOptions.PLAIN_TEXT && (
-                <div className={classes.field}>
-                  <Message type='warning'>
-                    {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
-                  </Message>
-                </div>
-              )}
+              {(isTSVExport || isXLSEntityExport) &&
+                exportOptions.values === GridExportOptions.PLAIN_TEXT && (
+                  <div className={classes.field}>
+                    <Message type='warning'>
+                      {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
+                    </Message>
+                  </div>
+                )}
             </div>
-            {(isXLSTypesExport || isXLSVocabulariesExport) && (
+            {isXLSTypesExport && (
               <div className={classes.field}>
                 <SelectField
                   label={messages.get(messages.INCLUDE_DEPENDENCIES)}
