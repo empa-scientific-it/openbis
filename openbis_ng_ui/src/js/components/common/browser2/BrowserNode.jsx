@@ -69,7 +69,9 @@ class BrowserNodeClass extends React.PureComponent {
 
   handleClick() {
     const { controller, node } = this.props
-    controller.selectObject(node.object)
+    if (node.selectable) {
+      controller.selectObject(node.object)
+    }
   }
 
   handleExpand(event) {
