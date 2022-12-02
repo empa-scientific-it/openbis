@@ -32,53 +32,60 @@ export default class BrowserTreeController {
     this.lastLoadPromise = {}
   }
 
-  async load() {
+  async load(rootNode) {
     await this.context.setState({
       loading: true
     })
 
     const state = this.context.getState()
+
     const newState = {
-      ...state,
+      loaded: true,
+      loading: false,
       rootId: null,
-      nodes: {}
+      nodes: {},
+      selectedObject: state.selectedObject,
+      expandedIds: {},
+      sortingIds: {}
     }
+
     this.lastTree = null
     this.lastLoadPromise = {}
 
     const settings = await this._loadSettings()
     _.merge(newState, settings)
 
-    await this._doLoadRoot(newState)
+    await this._doLoadRoot(newState, rootNode)
     await this.context.setState(newState)
-
-    await this.context.setState({
-      loaded: true,
-      loading: false
-    })
 
     this._saveSettings()
   }
 
-  async _doLoadRoot(state) {
-    state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
-    await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
-    const internalRoot = state.nodes[INTERNAL_ROOT_ID]
-    delete state.nodes[INTERNAL_ROOT_ID]
+  async _doLoadRoot(state, rootNode) {
+    if (rootNode) {
+      state.nodes[rootNode.id] = rootNode
+      await this._doLoadNode(state, rootNode.id, 0, LOAD_LIMIT)
+      state.rootId = rootNode.id
+    } else {
+      state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
+      await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
+      const internalRoot = state.nodes[INTERNAL_ROOT_ID]
+      delete state.nodes[INTERNAL_ROOT_ID]
 
-    if (
-      internalRoot.children.length === 0 ||
-      internalRoot.children.length > 1
-    ) {
-      throw new Error(
-        'Found ' +
-          internalRoot.children.length +
-          ' root candidates. Expected to find 1.'
-      )
+      if (
+        internalRoot.children.length === 0 ||
+        internalRoot.children.length > 1
+      ) {
+        throw new Error(
+          'Found ' +
+            internalRoot.children.length +
+            ' root candidates. Expected to find 1.'
+        )
+      }
+
+      const rootId = internalRoot.children[0]
+      state.rootId = rootId
     }
-
-    const rootId = internalRoot.children[0]
-    state.rootId = rootId
   }
 
   async _doLoadNode(state, nodeId, offset, limit) {
@@ -144,10 +151,11 @@ export default class BrowserTreeController {
       loadedNodes.nodes.forEach(loadedNode => {
         if (
           !loadedNode.id ||
-          (nodeId !== INTERNAL_ROOT_ID && !loadedNode.id.startsWith(nodeId))
+          (nodeId !== INTERNAL_ROOT_ID &&
+            (!loadedNode.id.startsWith(nodeId) || loadedNode.id === nodeId))
         ) {
           alert(
-            'ERROR: Child node id should start with parent node id. Parent id: ' +
+            'ERROR: Child node id should be prefixed with parent node id. Parent id: ' +
               nodeId +
               ', child id: ' +
               loadedNode.id
@@ -371,17 +379,18 @@ export default class BrowserTreeController {
   async showSelectedObject() {
     const state = this.context.getState()
 
-    if (!state.rootId || !state.selectedObject) {
+    if (!state.selectedObject) {
       return
     }
 
-    const root = state.nodes[state.rootId]
+    const root = this.getRoot()
 
     if (!root) {
       return
     }
 
     const pathWithoutRoot = await this.doLoadNodePath({
+      root: root,
       object: state.selectedObject
     })
 
@@ -391,9 +400,9 @@ export default class BrowserTreeController {
 
     const _this = this
     const newState = { ...state }
-    const path = [root.object, ...pathWithoutRoot]
+    const path = [root, ...pathWithoutRoot]
 
-    let currentObject = path.shift()
+    let currentPathNode = path.shift()
     let currentNode = root
 
     const scrollTo = (ref, nodeId) => {
@@ -419,18 +428,18 @@ export default class BrowserTreeController {
       }
     }
 
-    while (currentObject && currentNode) {
-      let nextObject = path.shift()
+    while (currentPathNode && currentNode) {
+      let nextPathNode = path.shift()
       let nextNode = null
 
-      if (nextObject) {
+      if (nextPathNode) {
         await this._doExpandNode(newState, currentNode.id)
         currentNode = newState.nodes[currentNode.id]
         if (currentNode.children) {
           for (let i = 0; i < currentNode.children.length; i++) {
             const childId = currentNode.children[i]
             const child = newState.nodes[childId]
-            if (child && _.isEqual(child.object, nextObject)) {
+            if (child && _.isEqual(child.object, nextPathNode.object)) {
               nextNode = child
               break
             }
@@ -442,11 +451,11 @@ export default class BrowserTreeController {
         newState.nodes = { ...newState.nodes }
         newState.nodes[currentNode.id] = {
           ...newState.nodes[currentNode.id],
-          scrollTo: scrollTo(nextObject ? 'loadMore' : 'node', currentNode.id)
+          scrollTo: scrollTo(nextPathNode ? 'loadMore' : 'node', currentNode.id)
         }
       }
 
-      currentObject = nextObject
+      currentPathNode = nextPathNode
       currentNode = nextNode
     }
 

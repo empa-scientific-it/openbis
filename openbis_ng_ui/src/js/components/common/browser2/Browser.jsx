@@ -3,6 +3,7 @@ import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
+import BrowserRoot from '@src/js/components/common/browser2/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser2/BrowserNodeAutoShowSelected.jsx'
 import logger from '@src/js/common/logger.js'
@@ -86,7 +87,8 @@ class Browser extends React.PureComponent {
     if (!controller.isLoaded()) {
       return (
         <div className={classes.browser}>
-          <FilterField filter={''} loading={true} />
+          <FilterField filter={controller.getFilter() || ''} loading={true} />
+          <BrowserRoot rootNode={controller.getNodeSetAsRoot()} />
         </div>
       )
     }
@@ -97,32 +99,39 @@ class Browser extends React.PureComponent {
     return (
       <div className={classes.browser}>
         {this.renderFilter()}
+        <BrowserRoot
+          rootNode={controller.getNodeSetAsRoot()}
+          onRootChange={node => {
+            controller.setNodeAsRoot(node)
+          }}
+          onRootClear={() => {
+            controller.setNodeAsRoot(null)
+          }}
+        />
         {fullTree && (
           <div
             className={util.classNames(
               classes.nodes,
-              controller.isFullTreeVisible() ? classes.visible : classes.hidden
+              !controller.isLoading() && controller.isFullTreeVisible()
+                ? classes.visible
+                : classes.hidden
             )}
           >
-            <BrowserNode
-              controller={controller}
-              node={controller.getFullTree()}
-              level={-1}
-            />
+            <BrowserNode controller={controller} node={fullTree} level={-1} />
           </div>
         )}
         {filteredTree && (
           <div
             className={util.classNames(
               classes.nodes,
-              controller.isFilteredTreeVisible()
+              !controller.isLoading() && controller.isFilteredTreeVisible()
                 ? classes.visible
                 : classes.hidden
             )}
           >
             <BrowserNode
               controller={controller}
-              node={controller.getFilteredTree()}
+              node={filteredTree}
               level={-1}
             />
           </div>
@@ -140,7 +149,7 @@ class Browser extends React.PureComponent {
         filter={controller.getFilter() || ''}
         filterChange={controller.filterChange}
         filterClear={controller.filterClear}
-        loading={controller.isLoading()}
+        loading={controller.isLoading() || controller.isTreeLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
             <div className={classes.filterButton}>

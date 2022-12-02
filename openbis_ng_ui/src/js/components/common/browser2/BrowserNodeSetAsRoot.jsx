@@ -3,7 +3,7 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import IconButton from '@material-ui/core/IconButton'
-import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
+import AccountTreeIcon from '@material-ui/icons/AccountTreeOutlined'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -17,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-class BrowserNodeCollapseAll extends React.PureComponent {
+class BrowserNodeSetAsRoot extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -27,27 +27,27 @@ class BrowserNodeCollapseAll extends React.PureComponent {
     event.preventDefault()
     event.stopPropagation()
     const { node } = this.props
-    this.props.onClick(node.id)
+    this.props.onClick(node)
   }
 
   render() {
-    logger.log(logger.DEBUG, 'BrowserNodeCollapseAll.render')
+    logger.log(logger.DEBUG, 'BrowserNodeSetAsRoot.render')
 
     const { node, classes } = this.props
 
-    if (!node || !node.canHaveChildren) {
+    if (!node || !node.rootable) {
       return null
     }
 
     return (
       <div className={classes.container}>
-        <Tooltip title={messages.get(messages.COLLAPSE_ALL)}>
+        <Tooltip title={messages.get(messages.SET_AS_ROOT)}>
           <IconButton
             size='small'
             onClick={this.handleClick}
             classes={{ root: classes.button }}
           >
-            <UnfoldLessIcon fontSize='small' />
+            <AccountTreeIcon fontSize='small' />
           </IconButton>
         </Tooltip>
       </div>
@@ -55,4 +55,4 @@ class BrowserNodeCollapseAll extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(BrowserNodeCollapseAll)
+export default withStyles(styles)(BrowserNodeSetAsRoot)
