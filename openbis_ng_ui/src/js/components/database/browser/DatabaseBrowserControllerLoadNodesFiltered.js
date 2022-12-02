@@ -2,6 +2,7 @@ import _ from 'lodash'
 import DatabaseBrowserConsts from '@src/js/components/database/browser/DatabaseBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
+import compare from '@src/js/common/compare.js'
 
 export default class DatabaseBrowserConstsLoadNodesFiltered {
   async doLoadFilteredNodes(params) {
@@ -461,6 +462,8 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       expanded: true
     }
 
+    spaces.sort((s1, s2) => compare(s1.code, s2.code))
+
     spaces.forEach(space => {
       const spaceNode = {
         id: DatabaseBrowserConsts.nodeId(
@@ -520,6 +523,8 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       selectable: false,
       expanded: true
     }
+
+    projects.sort((p1, p2) => compare(p1.code, p2.code))
 
     projects.forEach(project => {
       const projectNode = {
@@ -581,6 +586,8 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       expanded: true
     }
 
+    experiments.sort((e1, e2) => compare(e1.code, e2.code))
+
     experiments.forEach(experiment => {
       const experimentNode = {
         id: DatabaseBrowserConsts.nodeId(
@@ -641,6 +648,8 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       expanded: true
     }
 
+    samples.sort((s1, s2) => compare(s1.code, s2.code))
+
     samples.forEach(sample => {
       const sampleNode = {
         id: DatabaseBrowserConsts.nodeId(
@@ -690,6 +699,8 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       selectable: false,
       expanded: true
     }
+
+    dataSets.sort((d1, d2) => compare(d1.code, d2.code))
 
     dataSets.forEach(dataSet => {
       const dataSetNode = {
