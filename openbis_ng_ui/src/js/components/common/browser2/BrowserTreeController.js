@@ -38,11 +38,17 @@ export default class BrowserTreeController {
     })
 
     const state = this.context.getState()
+
     const newState = {
-      ...state,
+      loaded: true,
+      loading: false,
       rootId: null,
-      nodes: {}
+      nodes: {},
+      selectedObject: state.selectedObject,
+      expandedIds: {},
+      sortingIds: {}
     }
+
     this.lastTree = null
     this.lastLoadPromise = {}
 
@@ -51,11 +57,6 @@ export default class BrowserTreeController {
 
     await this._doLoadRoot(newState, rootNode)
     await this.context.setState(newState)
-
-    await this.context.setState({
-      loaded: true,
-      loading: false
-    })
 
     this._saveSettings()
   }
