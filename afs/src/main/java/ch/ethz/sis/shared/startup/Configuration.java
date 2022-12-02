@@ -64,7 +64,7 @@ public class Configuration {
         return getProperty(parameter);
     }
 
-    public <E extends Enum<E>> int getIntProperty(E parameter) {
+    public <E extends Enum<E>> int getIntegerProperty(E parameter) {
         return Integer.parseInt(getProperty(parameter));
     }
 

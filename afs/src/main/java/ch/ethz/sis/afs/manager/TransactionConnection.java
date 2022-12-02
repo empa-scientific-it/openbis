@@ -19,7 +19,7 @@ package ch.ethz.sis.afs.manager;
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.dto.Transaction;
 import ch.ethz.sis.afs.exception.AFSExceptions;
-import ch.ethz.sis.shared.io.File;
+import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.json.JSONObjectMapper;
 import ch.ethz.sis.afs.dto.Lock;

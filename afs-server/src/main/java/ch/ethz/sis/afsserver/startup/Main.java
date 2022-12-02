@@ -56,8 +56,8 @@ public class Main {
         transactionManager.reCommitTransactionsAfterCrash();
 
         //Initializing Http Server
-        int port = configuration.getIntProperty(AtomicFileSystemServerParameter.port);
-        int maxContentLength = configuration.getIntProperty(AtomicFileSystemServerParameter.maxContentLength);
+        int port = configuration.getIntegerProperty(AtomicFileSystemServerParameter.port);
+        int maxContentLength = configuration.getIntegerProperty(AtomicFileSystemServerParameter.maxContentLength);
         String uri = configuration.getStringProperty(AtomicFileSystemServerParameter.uri);
 
         NettyHttpServer nettyHttpServer = new NettyHttpServer();

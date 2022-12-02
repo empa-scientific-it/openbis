@@ -44,10 +44,10 @@ public enum AFSExceptions implements ExceptionTemplateHolder {
     DeadlockDetected(               RuntimeException.class,         List.of(UserUsageError),            10018,"Deadlock detected, %s is already waiting for %s from %s"),
     TransactionReuse(               RuntimeException.class,         List.of(CoreDeveloperCodingError),  10019,"Transaction with uuid: %s and state: %s was going to be reused");
 
-    private FileSystemRuntimeExceptionTemplate template;
+    private RuntimeExceptionTemplate template;
 
     AFSExceptions(Class clazz, List<ExceptionType> types, int code, String messageTemplate) {
-        this.template = new FileSystemRuntimeExceptionTemplate(5, clazz, types, code, messageTemplate);
+        this.template = new RuntimeExceptionTemplate(5, clazz, types, code, messageTemplate);
     }
 
     public RuntimeException getInstance(Object... args) {

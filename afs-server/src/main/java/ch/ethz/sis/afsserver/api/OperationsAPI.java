@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.afsserver.api;
 
-import java.io.File;
+import ch.ethz.sis.afs.api.dto.File;
 import java.util.List;
 
 import lombok.NonNull;
@@ -25,26 +25,26 @@ public interface OperationsAPI
 {
 
     @NonNull
-    List<File> list(@NonNull String sourceOwner, @NonNull String source, boolean recursively)
+    List<File> list(@NonNull String sourceOwner, @NonNull String source, @NonNull Boolean recursively)
             throws Exception;
 
     @NonNull
-    byte[] read(@NonNull String sourceOwner, @NonNull String source, @NonNull long offset,
-            @NonNull int limit) throws Exception;
+    byte[] read(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset,
+            @NonNull Integer limit) throws Exception;
 
     @NonNull
-    boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull long offset,
+    Boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset,
             @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
 
     @NonNull
-    boolean delete(@NonNull String sourceOwner, @NonNull String source) throws Exception;
+    Boolean delete(@NonNull String sourceOwner, @NonNull String source) throws Exception;
 
     @NonNull
-    boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
+    Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
             @NonNull String target) throws Exception;
 
     @NonNull
-    boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
+    Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
             @NonNull String target) throws Exception;
 
 }

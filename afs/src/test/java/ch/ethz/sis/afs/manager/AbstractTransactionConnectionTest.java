@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.afs.manager;
 
-import ch.ethz.sis.shared.io.File;
+import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.json.JSONObjectMapper;
 import ch.ethz.sis.afs.AFSEnvironment;

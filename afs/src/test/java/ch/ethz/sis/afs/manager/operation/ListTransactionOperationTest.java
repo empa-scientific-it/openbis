@@ -16,8 +16,7 @@
 
 package ch.ethz.sis.afs.manager.operation;
 
-import ch.ethz.sis.shared.exception.ThrowableReason;
-import ch.ethz.sis.shared.io.File;
+import ch.ethz.sis.afs.api.dto.File;
 import org.junit.Test;
 
 import java.nio.file.NoSuchFileException;

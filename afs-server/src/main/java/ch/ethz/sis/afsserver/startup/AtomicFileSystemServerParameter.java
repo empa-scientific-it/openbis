@@ -18,6 +18,9 @@ package ch.ethz.sis.afsserver.startup;
 
 public enum AtomicFileSystemServerParameter {
     port,
-    maxContentLength,
-    uri
+    maxContentLength, // This is a low level package size used by the netty layer, helps to avoid DOS attacks discarding packages
+    uri,
+    maxReadSizeInBytes, // This is the chunk size used by the API, sizes between 1 and 6 megabytes are typical, anything bigger is unlikely to provide performance benefits because we are limited by the http package sizes
+    authenticationInfoProviderClass,
+    authorizationInfoProviderClass
 }

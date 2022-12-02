@@ -18,7 +18,7 @@ package ch.ethz.sis.afs.manager.operation;
 
 import ch.ethz.sis.afs.dto.Transaction;
 import ch.ethz.sis.afs.dto.operation.Operation;
-import ch.ethz.sis.shared.io.File;
+import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.shared.io.IOUtils;
 import lombok.NonNull;
 

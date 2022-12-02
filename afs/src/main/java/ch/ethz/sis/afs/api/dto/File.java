@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.shared.io;
+package ch.ethz.sis.afs.api.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
