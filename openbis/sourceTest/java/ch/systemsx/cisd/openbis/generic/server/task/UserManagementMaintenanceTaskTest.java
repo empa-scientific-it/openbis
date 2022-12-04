@@ -508,7 +508,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
         task.execute();
         // 3. second run (changed config)
         task.withUserManagerReport(new UserManagerReport(new MockTimeProvider(0, 1000)));
-        FileUtilities.writeToFile(configFile, "{\"groups\": [{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"permanentUsers\": [\"u2\"]}]}");
+        FileUtilities.writeToFile(configFile, "{\"groups\": [{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"]}]}");
         String lastModified2 = new SimpleDateFormat(UserManagerReport.DATE_FORMAT).format(new Date(configFile.lastModified()));
 
         // When
@@ -549,9 +549,9 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "1970-01-01 01:00:02 [ADD-AUTHORIZATION-GROUP] dummy group, known users: []\n\n"
                 + "1970-01-01 01:00:00 [ADD-AUTHORIZATION-GROUP] dummy group, known users: []\n\n"
                 + "1970-01-01 01:00:00 [CONFIG-UPDATE-START] Last modified: " + lastModified2 + "\n"
-                + "{\"groups\": [{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"permanentUsers\": [\"u2\"]}]}\n"
+                + "{\"groups\": [{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"]}]}\n"
                 + "1970-01-01 01:00:01 [CONFIG-UPDATE-END] \n"
-                + "1970-01-01 01:00:02 [ADD-AUTHORIZATION-GROUP] dummy group, known users: [u2]\n\n",
+                + "1970-01-01 01:00:02 [ADD-AUTHORIZATION-GROUP] dummy group, known users: []\n\n",
                 FileUtilities.loadToString(auditLogFile));
     }
 
