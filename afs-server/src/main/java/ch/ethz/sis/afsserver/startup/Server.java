@@ -71,7 +71,7 @@ public final class Server<CONNECTION, API> {
         apiServer = new APIServer(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
 
         // 2.5 Creating JSON RPC Service
-        logger.info("Creating JSONRPC2 service");
+        logger.info("Creating API Server proxy");
         jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
         apiServerProxy = new ApiServerProxy(apiServer, jsonObjectMapper);
 
