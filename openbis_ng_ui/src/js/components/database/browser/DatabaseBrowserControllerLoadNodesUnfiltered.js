@@ -9,7 +9,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
   async doLoadUnfilteredNodes(params) {
     const { node } = params
 
-    if (!node) {
+    if (node.internalRoot) {
       return {
         nodes: [
           {

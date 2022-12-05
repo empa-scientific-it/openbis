@@ -64,174 +64,115 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       return this.tooManyResultsFound(node)
     }
 
-    if (node) {
-      const result = {
-        nodes: [],
-        loadMore: {
-          offset: 0,
-          limit: TOTAL_LOAD_LIMIT,
-          loadedCount: loadedCount,
-          totalCount: totalCount,
-          append: false
-        }
+    const result = {
+      nodes: [],
+      loadMore: {
+        offset: 0,
+        limit: TOTAL_LOAD_LIMIT,
+        loadedCount: loadedCount,
+        totalCount: totalCount,
+        append: false
       }
+    }
 
-      if (node.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
-        if (!_.isEmpty(entities.spaces)) {
-          const spacesNode = this.createSpacesNode(
-            Object.values(entities.spaces),
-            node
-          )
-          result.nodes.push(spacesNode)
-        }
-
-        if (!_.isEmpty(entities.sharedSamples)) {
-          const sharedSamplesNode = this.createSamplesNode(
-            Object.values(entities.sharedSamples),
-            node
-          )
-          result.nodes.push(sharedSamplesNode)
-        }
-      } else if (node.object.type === objectType.SPACE) {
-        const nodeEntity = entities.spaces[node.object.id] || {}
-
-        if (!_.isEmpty(nodeEntity.projects)) {
-          const projectsNode = this.createProjectsNode(
-            Object.values(nodeEntity.projects),
-            node
-          )
-          result.nodes.push(projectsNode)
-        }
-
-        if (!_.isEmpty(nodeEntity.samples)) {
-          const samplesNode = this.createSamplesNode(
-            Object.values(nodeEntity.samples),
-            node
-          )
-          result.nodes.push(samplesNode)
-        }
-      } else if (node.object.type === objectType.PROJECT) {
-        const nodeEntity = entities.projects[node.object.id] || {}
-
-        if (!_.isEmpty(nodeEntity.experiments)) {
-          const experimentsNode = this.createExperimentsNode(
-            Object.values(nodeEntity.experiments),
-            node
-          )
-          result.nodes.push(experimentsNode)
-        }
-        if (!_.isEmpty(nodeEntity.samples)) {
-          const samplesNode = this.createSamplesNode(
-            Object.values(nodeEntity.samples),
-            node
-          )
-          result.nodes.push(samplesNode)
-        }
-      } else if (node.object.type === objectType.COLLECTION) {
-        const nodeEntity = entities.experiments[node.object.id] || {}
-
-        if (!_.isEmpty(nodeEntity.samples)) {
-          const samplesNode = this.createSamplesNode(
-            Object.values(nodeEntity.samples),
-            node
-          )
-          result.nodes.push(samplesNode)
-        }
-        if (!_.isEmpty(nodeEntity.dataSets)) {
-          const dataSetsNode = this.createDataSetsNode(
-            Object.values(nodeEntity.dataSets),
-            node
-          )
-          result.nodes.push(dataSetsNode)
-        }
-      }
-
-      return result
-    } else {
+    if (node.internalRoot) {
       const root = {
         id: DatabaseBrowserConsts.TYPE_ROOT,
         object: {
           type: DatabaseBrowserConsts.TYPE_ROOT
         },
-        children: {
-          nodes: [],
-          loadMore: {
-            offset: 0,
-            limit: TOTAL_LOAD_LIMIT,
-            loadedCount: loadedCount,
-            totalCount: totalCount,
-            append: false
-          }
-        },
         canHaveChildren: true
       }
-
+      root.children = this.doLoadFilteredNodes({
+        ...params,
+        node: root
+      })
+      result.nodes.push(root)
+    } else if (node.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
       if (!_.isEmpty(entities.spaces)) {
         const spacesNode = this.createSpacesNode(
           Object.values(entities.spaces),
-          root
+          node
         )
-        root.children.nodes.push(spacesNode)
+        result.nodes.push(spacesNode)
       }
 
       if (!_.isEmpty(entities.sharedSamples)) {
         const sharedSamplesNode = this.createSamplesNode(
           Object.values(entities.sharedSamples),
-          root
+          node
         )
-        root.children.nodes.push(sharedSamplesNode)
+        result.nodes.push(sharedSamplesNode)
+      }
+    } else if (node.object.type === objectType.SPACE) {
+      const nodeEntity = entities.spaces[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.projects)) {
+        const projectsNode = this.createProjectsNode(
+          Object.values(nodeEntity.projects),
+          node
+        )
+        result.nodes.push(projectsNode)
       }
 
-      return {
-        nodes: [root]
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+    } else if (node.object.type === objectType.PROJECT) {
+      const nodeEntity = entities.projects[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.experiments)) {
+        const experimentsNode = this.createExperimentsNode(
+          Object.values(nodeEntity.experiments),
+          node
+        )
+        result.nodes.push(experimentsNode)
+      }
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+    } else if (node.object.type === objectType.COLLECTION) {
+      const nodeEntity = entities.experiments[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+      if (!_.isEmpty(nodeEntity.dataSets)) {
+        const dataSetsNode = this.createDataSetsNode(
+          Object.values(nodeEntity.dataSets),
+          node
+        )
+        result.nodes.push(dataSetsNode)
       }
     }
+
+    return result
   }
 
   tooManyResultsFound(node) {
-    if (node) {
-      return {
-        nodes: [
-          {
-            id: DatabaseBrowserConsts.nodeId(
-              node.id,
-              DatabaseBrowserConsts.TYPE_WARNING
-            ),
-            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND),
-            object: {
-              type: DatabaseBrowserConsts.TYPE_WARNING
-            },
-            selectable: false
-          }
-        ]
-      }
-    } else {
-      return {
-        nodes: [
-          {
-            id: DatabaseBrowserConsts.TYPE_ROOT,
-            object: {
-              type: DatabaseBrowserConsts.TYPE_ROOT
-            },
-            children: {
-              nodes: [
-                {
-                  id: DatabaseBrowserConsts.nodeId(
-                    DatabaseBrowserConsts.TYPE_ROOT,
-                    DatabaseBrowserConsts.TYPE_WARNING
-                  ),
-                  text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND),
-                  object: {
-                    type: DatabaseBrowserConsts.TYPE_WARNING
-                  },
-                  selectable: false
-                }
-              ]
-            },
-            canHaveChildren: true
-          }
-        ]
-      }
+    return {
+      nodes: [
+        {
+          id: DatabaseBrowserConsts.nodeId(
+            node.id,
+            DatabaseBrowserConsts.TYPE_WARNING
+          ),
+          text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND),
+          selectable: false
+        }
+      ]
     }
   }
 

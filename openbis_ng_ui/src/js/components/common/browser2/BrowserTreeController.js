@@ -2,6 +2,7 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 
 const INTERNAL_ROOT_ID = 'internal_root_id'
+const INTERNAL_ROOT_TYPE = 'internal_root_type'
 
 export default class BrowserTreeController {
   async doLoadNodePath() {
@@ -66,7 +67,13 @@ export default class BrowserTreeController {
       await this._doLoadNode(state, rootNode.id, 0)
       state.rootId = rootNode.id
     } else {
-      state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
+      state.nodes[INTERNAL_ROOT_ID] = {
+        id: INTERNAL_ROOT_ID,
+        object: {
+          type: INTERNAL_ROOT_TYPE
+        },
+        internalRoot: true
+      }
       await this._doLoadNode(state, INTERNAL_ROOT_ID, 0)
       const internalRoot = state.nodes[INTERNAL_ROOT_ID]
       delete state.nodes[INTERNAL_ROOT_ID]
@@ -99,7 +106,7 @@ export default class BrowserTreeController {
     }
 
     const loadPromise = this.doLoadNodes({
-      node: node.id === INTERNAL_ROOT_ID ? null : node,
+      node: node,
       offset: offset,
       limit: limit,
       sortingIds: state.sortingIds
