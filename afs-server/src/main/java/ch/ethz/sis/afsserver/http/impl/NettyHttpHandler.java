@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.http.netty;
+package ch.ethz.sis.afsserver.http.impl;
 
 import ch.ethz.sis.afsserver.http.HttpResponse;
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
@@ -42,7 +42,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter {
                 try {
                     byte[] contentAsArray = (content.hasArray())?content.array():null;
                     HttpResponse apiResponse = httpServerHandler.process(request.method(), queryStringDecoder.parameters(), contentAsArray);
-                    HttpResponseStatus status = (apiResponse.getError() == null)?HttpResponseStatus.OK:HttpResponseStatus.BAD_REQUEST;
+                    HttpResponseStatus status = (!apiResponse.isError())?HttpResponseStatus.OK:HttpResponseStatus.BAD_REQUEST;
                     response = getHttpResponse(
                             status,
                             apiResponse.getContentType(),

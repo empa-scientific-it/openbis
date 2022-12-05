@@ -1,10 +1,10 @@
-package ch.ethz.sis.afsserver.startup;
+package ch.ethz.sis.afsserver.server.impl;
 
 import ch.ethz.sis.afsserver.exception.HTTPExceptions;
 import ch.ethz.sis.afsserver.http.*;
 import ch.ethz.sis.afsserver.server.*;
-import ch.ethz.sis.afsserver.worker.Event;
-import ch.ethz.sis.afsserver.worker.PerformanceAuditor;
+import ch.ethz.sis.afsserver.server.performance.Event;
+import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.json.JSONObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
@@ -15,21 +15,21 @@ import java.util.*;
 /*
  * This class is supposed to be called by a TCP or HTTP transport class
  */
-public class ApiServerProxy<CONNECTION, API> implements HttpServerHandler {
+public class ApiServerAdaptor<CONNECTION, API> implements HttpServerHandler {
 
-    private static final Logger logger = LogManager.getLogger(ApiServerProxy.class);
+    private static final Logger logger = LogManager.getLogger(ApiServerAdaptor.class);
 
     private final APIServer<CONNECTION, Request, Response, API> server;
     private final JSONObjectMapper jsonObjectMapper;
-    private final HttpResponseBuilder apiResponseBuilder;
+    private final ApiResponseBuilder apiResponseBuilder;
 
 
-    public ApiServerProxy(
+    public ApiServerAdaptor(
             APIServer<CONNECTION, Request, Response, API> server,
             JSONObjectMapper jsonObjectMapper) {
         this.server = server;
         this.jsonObjectMapper = jsonObjectMapper;
-        this.apiResponseBuilder = new HttpResponseBuilder();
+        this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
     public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> uriParameters, byte[] requestBody) {
@@ -71,8 +71,8 @@ public class ApiServerProxy<CONNECTION, API> implements HttpServerHandler {
                 }
             }
 
-            HttpRequest httpRequest = new HttpRequest("1", method, methodParameters, sessionToken, interactiveSessionKey, transactionManagerKey);
-            Response response = server.processOperation(httpRequest, apiResponseBuilder, performanceAuditor);
+            ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken, interactiveSessionKey, transactionManagerKey);
+            Response response = server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
             HttpResponse httpResponse = getHTTPResponse(response);
             performanceAuditor.audit(Event.WriteResponse);
             logger.traceExit(performanceAuditor);
@@ -102,6 +102,7 @@ public class ApiServerProxy<CONNECTION, API> implements HttpServerHandler {
     }
 
     private HttpResponse getHTTPResponse(Response response) throws Exception {
+        boolean error = response.getError() != null;
         String contentType = null;
         byte[] body = null;
         if (response.getResult() instanceof byte[]) {
@@ -111,7 +112,7 @@ public class ApiServerProxy<CONNECTION, API> implements HttpServerHandler {
             contentType = HttpResponse.CONTENT_TYPE_JSON;
             body = jsonObjectMapper.writeValue(response);
         }
-        return new HttpResponse(response.getId(), response.getResult(), response.getError(), contentType, body);
+        return new HttpResponse(error, contentType, body);
     }
 
 }

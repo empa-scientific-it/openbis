@@ -61,12 +61,6 @@ public class JacksonObjectMapper implements JSONObjectMapper
     }
 
     @Override
-    public <T> T readValue(final InputStream src, final TypeReference<T> typeRef) throws Exception
-    {
-        return objectMapper.readValue(src, typeRef);
-    }
-
-    @Override
     public byte[] writeValue(final Object value) throws Exception
     {
         return objectMapper.writeValueAsBytes(value);

@@ -17,12 +17,12 @@
 package ch.ethz.sis.afsserver;
 
 import ch.ethz.sis.afsserver.api.PublicAPI;
-import ch.ethz.sis.afsserver.http.netty.NettyHttpServer;
+import ch.ethz.sis.afsserver.http.impl.NettyHttpServer;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.worker.ConnectionFactory;
 import ch.ethz.sis.afsserver.worker.WorkerFactory;
-import ch.ethz.sis.afsserver.worker.providers.dummy.DummyAuthenticationInfoProvider;
-import ch.ethz.sis.afsserver.worker.providers.dummy.DummyAuthorizationInfoProvider;
+import ch.ethz.sis.afsserver.worker.providers.impl.DummyAuthenticationInfoProvider;
+import ch.ethz.sis.afsserver.worker.providers.impl.DummyAuthorizationInfoProvider;
 import ch.ethz.sis.shared.json.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.log.log4j2.Log4J2LogFactory;
 import ch.ethz.sis.shared.startup.Configuration;

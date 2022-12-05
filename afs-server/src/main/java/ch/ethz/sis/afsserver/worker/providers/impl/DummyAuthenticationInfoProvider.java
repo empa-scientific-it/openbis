@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.worker.providers.dummy;
+package ch.ethz.sis.afsserver.worker.providers.impl;
 
 import ch.ethz.sis.afsserver.worker.providers.AuthenticationInfoProvider;
 import ch.ethz.sis.shared.startup.Configuration;

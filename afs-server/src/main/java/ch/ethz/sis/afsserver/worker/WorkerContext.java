@@ -1,6 +1,7 @@
 package ch.ethz.sis.afsserver.worker;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
+import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

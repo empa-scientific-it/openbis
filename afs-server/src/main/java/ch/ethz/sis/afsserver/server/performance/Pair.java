@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.worker;
+package ch.ethz.sis.afsserver.server.performance;
 
 public class Pair<KEY,VALUE> {
     private final KEY key;

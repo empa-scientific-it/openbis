@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.http.netty;
+package ch.ethz.sis.afsserver.http.impl;
 
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.shared.log.LogManager;

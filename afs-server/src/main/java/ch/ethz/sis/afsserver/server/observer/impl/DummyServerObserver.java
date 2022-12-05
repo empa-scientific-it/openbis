@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.startup;
+package ch.ethz.sis.afsserver.server.observer.impl;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsserver.server.APIServer;

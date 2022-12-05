@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.afsserver.startup;
 
+import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.shared.startup.Configuration;
 
 import java.io.File;

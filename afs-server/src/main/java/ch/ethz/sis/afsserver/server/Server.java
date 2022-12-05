@@ -1,10 +1,10 @@
-package ch.ethz.sis.afsserver.startup;
+package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afsserver.http.HttpServer;
-import ch.ethz.sis.afsserver.server.APIServer;
-import ch.ethz.sis.afsserver.server.Worker;
+import ch.ethz.sis.afsserver.server.impl.ApiServerAdaptor;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.shared.json.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
@@ -22,7 +22,7 @@ public final class Server<CONNECTION, API> {
     private Pool<Configuration, Worker<CONNECTION>> workersPool;
     private APIServer apiServer;
     private JacksonObjectMapper jsonObjectMapper;
-    private ApiServerProxy<CONNECTION, API> apiServerProxy;
+    private ApiServerAdaptor<CONNECTION, API> apiServerAdaptor;
     private HttpServer httpServer;
     private boolean shutdown;
     private ServerObserver<CONNECTION> observer;
@@ -71,9 +71,9 @@ public final class Server<CONNECTION, API> {
         apiServer = new APIServer(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
 
         // 2.5 Creating JSON RPC Service
-        logger.info("Creating API Server proxy");
+        logger.info("Creating API Server adaptor");
         jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
-        apiServerProxy = new ApiServerProxy(apiServer, jsonObjectMapper);
+        apiServerAdaptor = new ApiServerAdaptor(apiServer, jsonObjectMapper);
 
         // 2.6 Creating HTTP Service
         int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
@@ -81,7 +81,7 @@ public final class Server<CONNECTION, API> {
         logger.info("Starting HTTP Service on port " + httpServerPort + " with maxContentLength " + maxContentLength);
         httpServer = configuration.getSharableInstance(AtomicFileSystemServerParameter.httpServerClass);
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
-        httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerProxy);
+        httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdaptor);
 
         // 2.7 Init observer
         observer.init(apiServer, configuration);

@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.worker.providers.dummy;
+package ch.ethz.sis.afsserver.worker.providers.impl;
 
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.shared.io.FilePermission;

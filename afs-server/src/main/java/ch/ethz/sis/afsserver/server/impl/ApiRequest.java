@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.http;
+package ch.ethz.sis.afsserver.server.impl;
 
 import ch.ethz.sis.afsserver.server.Request;
 import lombok.AccessLevel;
@@ -11,7 +11,7 @@ import java.util.Map;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class HttpRequest implements Request {
+public class ApiRequest implements Request {
     private final String id;
     private final String method;
     private final Map<String, Object> params;

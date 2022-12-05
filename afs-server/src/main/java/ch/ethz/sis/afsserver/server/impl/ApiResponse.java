@@ -1,4 +1,4 @@
-package ch.ethz.sis.afsserver.http;
+package ch.ethz.sis.afsserver.server.impl;
 
 import ch.ethz.sis.afsserver.server.Response;
 import lombok.AccessLevel;
