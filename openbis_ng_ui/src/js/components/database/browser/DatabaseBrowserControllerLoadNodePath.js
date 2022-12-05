@@ -184,8 +184,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
                 sample.getPermId
               ),
               object,
-              text: sample.getCode(),
-              rootable: true
+              text: sample.getCode()
             }
           ]
         }
@@ -242,8 +241,7 @@ export default class DatabaseBrowserConstsLoadNodePath {
                 dataSet.getCode()
               ),
               object,
-              text: dataSet.getCode(),
-              rootable: true
+              text: dataSet.getCode()
             }
           ]
         }

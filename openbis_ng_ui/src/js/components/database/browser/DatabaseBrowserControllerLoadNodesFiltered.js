@@ -663,8 +663,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           id: sample.permId
         },
         children: { nodes: [], totalCount: 0 },
-        expanded: true,
-        rootable: true
+        expanded: true
       }
 
       samplesNode.children.nodes.push(sampleNode)
@@ -715,8 +714,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           id: dataSet.code
         },
         children: { nodes: [], totalCount: 0 },
-        expanded: true,
-        rootable: true
+        expanded: true
       }
 
       dataSetsNode.children.nodes.push(dataSetNode)

@@ -282,8 +282,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
         type: objectType.OBJECT,
         id: sample.getPermId().getPermId()
       },
-      canHaveChildren: true,
-      rootable: true
+      canHaveChildren: true
     }))
 
     if (_.isEmpty(nodes)) {
@@ -337,8 +336,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
         type: objectType.DATA_SET,
         id: dataSet.getPermId().getPermId()
       },
-      canHaveChildren: true,
-      rootable: true
+      canHaveChildren: true
     }))
 
     if (_.isEmpty(nodes)) {
