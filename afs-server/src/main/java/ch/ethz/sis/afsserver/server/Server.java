@@ -1,7 +1,7 @@
 package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afsserver.http.HttpServer;
-import ch.ethz.sis.afsserver.server.impl.ApiServerAdaptor;
+import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -22,7 +22,7 @@ public final class Server<CONNECTION, API> {
     private Pool<Configuration, Worker<CONNECTION>> workersPool;
     private APIServer apiServer;
     private JacksonObjectMapper jsonObjectMapper;
-    private ApiServerAdaptor<CONNECTION, API> apiServerAdaptor;
+    private ApiServerAdapter<CONNECTION, API> apiServerAdapter;
     private HttpServer httpServer;
     private boolean shutdown;
     private ServerObserver<CONNECTION> observer;
@@ -73,7 +73,7 @@ public final class Server<CONNECTION, API> {
         // 2.5 Creating JSON RPC Service
         logger.info("Creating API Server adaptor");
         jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
-        apiServerAdaptor = new ApiServerAdaptor(apiServer, jsonObjectMapper);
+        apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
 
         // 2.6 Creating HTTP Service
         int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
@@ -81,7 +81,7 @@ public final class Server<CONNECTION, API> {
         logger.info("Starting HTTP Service on port " + httpServerPort + " with maxContentLength " + maxContentLength);
         httpServer = configuration.getSharableInstance(AtomicFileSystemServerParameter.httpServerClass);
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
-        httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdaptor);
+        httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
         // 2.7 Init observer
         observer.init(apiServer, configuration);

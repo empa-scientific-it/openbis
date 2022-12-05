@@ -15,16 +15,16 @@ import java.util.*;
 /*
  * This class is supposed to be called by a TCP or HTTP transport class
  */
-public class ApiServerAdaptor<CONNECTION, API> implements HttpServerHandler {
+public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
 
-    private static final Logger logger = LogManager.getLogger(ApiServerAdaptor.class);
+    private static final Logger logger = LogManager.getLogger(ApiServerAdapter.class);
 
     private final APIServer<CONNECTION, Request, Response, API> server;
     private final JSONObjectMapper jsonObjectMapper;
     private final ApiResponseBuilder apiResponseBuilder;
 
 
-    public ApiServerAdaptor(
+    public ApiServerAdapter(
             APIServer<CONNECTION, Request, Response, API> server,
             JSONObjectMapper jsonObjectMapper) {
         this.server = server;
