@@ -3,6 +3,8 @@ import DatabaseBrowserConsts from '@src/js/components/database/browser/DatabaseB
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
+const LOAD_LIMIT = 50
+
 export default class DatabaseBrowserConstsLoadNodesUnfiltered {
   async doLoadUnfilteredNodes(params) {
     const { node } = params
@@ -96,7 +98,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
   }
 
   async searchSpaces(params) {
-    const { node, offset, limit } = params
+    const { node, offset } = params
 
     const criteria = new openbis.SpaceSearchCriteria()
     const fetchOptions = new openbis.SpaceFetchOptions()
@@ -107,7 +109,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       }
     }
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(LOAD_LIMIT)
 
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
@@ -131,13 +133,18 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     } else {
       return {
         nodes: nodes,
-        totalCount: result.getTotalCount()
+        loadMore: {
+          offset: offset + nodes.length,
+          loadedCount: offset + nodes.length,
+          totalCount: result.getTotalCount(),
+          append: offset > 0
+        }
       }
     }
   }
 
   async searchProjects(params) {
-    const { node, offset, limit } = params
+    const { node, offset } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
     if (node.parent.object.type === objectType.SPACE) {
@@ -152,7 +159,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       }
     }
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(LOAD_LIMIT)
 
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
@@ -176,13 +183,18 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     } else {
       return {
         nodes: nodes,
-        totalCount: result.getTotalCount()
+        loadMore: {
+          offset: offset + nodes.length,
+          loadedCount: offset + nodes.length,
+          totalCount: result.getTotalCount(),
+          append: offset > 0
+        }
       }
     }
   }
 
   async searchExperiments(params) {
-    const { node, offset, limit } = params
+    const { node, offset } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
     if (node.parent.object.type === objectType.PROJECT) {
@@ -197,7 +209,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       }
     }
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(LOAD_LIMIT)
 
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
@@ -221,13 +233,18 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     } else {
       return {
         nodes: nodes,
-        totalCount: result.getTotalCount()
+        loadMore: {
+          offset: offset + nodes.length,
+          loadedCount: offset + nodes.length,
+          totalCount: result.getTotalCount(),
+          append: offset > 0
+        }
       }
     }
   }
 
   async searchSamples(params) {
-    const { node, offset, limit } = params
+    const { node, offset } = params
 
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
@@ -260,7 +277,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       }
     }
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(LOAD_LIMIT)
 
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
@@ -284,13 +301,18 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     } else {
       return {
         nodes: nodes,
-        totalCount: result.getTotalCount()
+        loadMore: {
+          offset: offset + nodes.length,
+          loadedCount: offset + nodes.length,
+          totalCount: result.getTotalCount(),
+          append: offset > 0
+        }
       }
     }
   }
 
   async searchDataSets(params) {
-    const { node, offset, limit } = params
+    const { node, offset } = params
 
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withAndOperator()
@@ -315,7 +337,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       }
     }
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(LOAD_LIMIT)
 
     const result = await openbis.searchDataSets(criteria, fetchOptions)
 
@@ -339,7 +361,12 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
     } else {
       return {
         nodes: nodes,
-        totalCount: result.getTotalCount()
+        loadMore: {
+          offset: offset + nodes.length,
+          loadedCount: offset + nodes.length,
+          totalCount: result.getTotalCount(),
+          append: offset > 0
+        }
       }
     }
   }

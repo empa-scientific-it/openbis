@@ -2,9 +2,11 @@ import _ from 'lodash'
 import DatabaseBrowserConsts from '@src/js/components/database/browser/DatabaseBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
+import messages from '@src/js/common/messages.js'
 import compare from '@src/js/common/compare.js'
 
-const RESULT_COUNT_LIMIT = 100
+const LOAD_LIMIT = 50
+const TOTAL_LOAD_LIMIT = 500
 
 export default class DatabaseBrowserConstsLoadNodesFiltered {
   async doLoadFilteredNodes(params) {
@@ -20,47 +22,77 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     }
 
     const spaces = await this.searchSpaces(params)
-    spaces.forEach(space => {
+    spaces.getObjects().forEach(space => {
       this.addSpace(entities, space)
     })
 
     const projects = await this.searchProjects(params)
-    projects.forEach(project => {
+    projects.getObjects().forEach(project => {
       this.addProject(entities, project)
     })
 
     const experiments = await this.searchExperiments(params)
-    experiments.forEach(experiment => {
+    experiments.getObjects().forEach(experiment => {
       this.addExperiment(entities, experiment)
     })
 
     const samples = await this.searchSamples(params)
-    samples.forEach(sample => {
+    samples.getObjects().forEach(sample => {
       this.addSample(entities, sample)
     })
 
     const dataSets = await this.searchDataSets(params)
-    dataSets.forEach(dataSet => {
+    dataSets.getObjects().forEach(dataSet => {
       this.addDataSet(entities, dataSet)
     })
 
-    const totalCount =
-      spaces.length +
-      projects.length +
-      experiments.length +
-      samples.length +
-      dataSets.length
+    const loadedCount =
+      spaces.getObjects().length +
+      projects.getObjects().length +
+      experiments.getObjects().length +
+      samples.getObjects().length +
+      dataSets.getObjects().length
 
-    if (totalCount > RESULT_COUNT_LIMIT) {
-      return this.tooManyResultsFound()
+    const totalCount =
+      spaces.getTotalCount() +
+      projects.getTotalCount() +
+      experiments.getTotalCount() +
+      samples.getTotalCount() +
+      dataSets.getTotalCount()
+
+    if (totalCount > TOTAL_LOAD_LIMIT) {
+      return this.tooManyResultsFound(node)
     }
 
     if (node) {
       const result = {
-        nodes: []
+        nodes: [],
+        loadMore: {
+          offset: 0,
+          limit: TOTAL_LOAD_LIMIT,
+          loadedCount: loadedCount,
+          totalCount: totalCount,
+          append: false
+        }
       }
 
-      if (node.object.type === objectType.SPACE) {
+      if (node.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
+        if (!_.isEmpty(entities.spaces)) {
+          const spacesNode = this.createSpacesNode(
+            Object.values(entities.spaces),
+            node
+          )
+          result.nodes.push(spacesNode)
+        }
+
+        if (!_.isEmpty(entities.sharedSamples)) {
+          const sharedSamplesNode = this.createSamplesNode(
+            Object.values(entities.sharedSamples),
+            node
+          )
+          result.nodes.push(sharedSamplesNode)
+        }
+      } else if (node.object.type === objectType.SPACE) {
         const nodeEntity = entities.spaces[node.object.id] || {}
 
         if (!_.isEmpty(nodeEntity.projects)) {
@@ -121,7 +153,16 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         object: {
           type: DatabaseBrowserConsts.TYPE_ROOT
         },
-        children: { nodes: [] },
+        children: {
+          nodes: [],
+          loadMore: {
+            offset: 0,
+            limit: TOTAL_LOAD_LIMIT,
+            loadedCount: loadedCount,
+            totalCount: totalCount,
+            append: false
+          }
+        },
         canHaveChildren: true
       }
 
@@ -147,43 +188,58 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     }
   }
 
-  tooManyResultsFound() {
-    return {
-      nodes: [
-        {
-          id: DatabaseBrowserConsts.TYPE_ROOT,
-          object: {
-            type: DatabaseBrowserConsts.TYPE_ROOT
-          },
-          children: {
-            nodes: [
-              {
-                id: DatabaseBrowserConsts.nodeId(
-                  DatabaseBrowserConsts.TYPE_ROOT,
-                  DatabaseBrowserConsts.TYPE_WARNING
-                ),
-                text:
-                  'Found over ' +
-                  RESULT_COUNT_LIMIT +
-                  ' results. Please use more specific filter.',
-                object: {
-                  type: DatabaseBrowserConsts.TYPE_WARNING
-                },
-                selectable: false
-              }
-            ]
-          },
-          canHaveChildren: true
-        }
-      ]
+  tooManyResultsFound(node) {
+    if (node) {
+      return {
+        nodes: [
+          {
+            id: DatabaseBrowserConsts.nodeId(
+              node.id,
+              DatabaseBrowserConsts.TYPE_WARNING
+            ),
+            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND),
+            object: {
+              type: DatabaseBrowserConsts.TYPE_WARNING
+            },
+            selectable: false
+          }
+        ]
+      }
+    } else {
+      return {
+        nodes: [
+          {
+            id: DatabaseBrowserConsts.TYPE_ROOT,
+            object: {
+              type: DatabaseBrowserConsts.TYPE_ROOT
+            },
+            children: {
+              nodes: [
+                {
+                  id: DatabaseBrowserConsts.nodeId(
+                    DatabaseBrowserConsts.TYPE_ROOT,
+                    DatabaseBrowserConsts.TYPE_WARNING
+                  ),
+                  text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND),
+                  object: {
+                    type: DatabaseBrowserConsts.TYPE_WARNING
+                  },
+                  selectable: false
+                }
+              ]
+            },
+            canHaveChildren: true
+          }
+        ]
+      }
     }
   }
 
   async searchSpaces(params) {
     const { node, filter, offset, limit } = params
 
-    if (node) {
-      return []
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
+      return new openbis.SearchResult([], 0)
     }
 
     const criteria = new openbis.SpaceSearchCriteria()
@@ -191,11 +247,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const fetchOptions = new openbis.SpaceFetchOptions()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchProjects(params) {
@@ -208,7 +264,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       if (node.object.type === objectType.SPACE) {
         criteria.withSpace().withCode().thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -216,11 +272,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchExperiments(params) {
@@ -229,13 +285,13 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.ExperimentSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         criteria.withProject().withSpace().withCode().thatEquals(node.object.id)
       } else if (node.object.type === objectType.PROJECT) {
         criteria.withProject().withPermId().thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -243,11 +299,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchSamples(params) {
@@ -256,7 +312,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -284,7 +340,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       } else if (node.object.type === objectType.COLLECTION) {
         criteria.withExperiment().withPermId().thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -294,11 +350,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withExperiment().withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchDataSets(params) {
@@ -307,7 +363,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -364,7 +420,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           .withPermId()
           .thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -375,11 +431,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withSample().withExperiment().withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchDataSets(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   addSpace(entities, space) {

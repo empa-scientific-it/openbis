@@ -270,8 +270,8 @@ class BrowserNodeClass extends React.PureComponent {
 
     if (
       node.children &&
-      node.totalCount &&
-      node.children.length < node.totalCount
+      node.loadMore &&
+      node.loadMore.totalCount > node.loadMore.loadedCount
     ) {
       return (
         <ListItem
@@ -295,7 +295,7 @@ class BrowserNodeClass extends React.PureComponent {
               <span>
                 {messages.get(
                   messages.LOAD_MORE,
-                  node.totalCount - node.children.length
+                  node.loadMore.totalCount - node.loadMore.loadedCount
                 )}
               </span>
             }

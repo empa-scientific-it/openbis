@@ -9,6 +9,7 @@ const CLASS_FULL_NAMES = [
   'as/dto/authorizationgroup/search/AuthorizationGroupSearchCriteria',
   'as/dto/authorizationgroup/update/AuthorizationGroupUpdate',
   'as/dto/authorizationgroup/update/UpdateAuthorizationGroupsOperation',
+  'as/dto/common/search/SearchResult',
   'as/dto/dataset/create/CreateDataSetTypesOperation',
   'as/dto/dataset/create/DataSetTypeCreation',
   'as/dto/dataset/delete/DataSetTypeDeletionOptions',
