@@ -1,9 +1,10 @@
 package ch.ethz.sis.afsserver.http;
 
-import java.io.InputStream;
+import io.netty.handler.codec.http.HttpMethod;
+
 import java.util.List;
 import java.util.Map;
 
 public interface HttpServerHandler {
-    public APIResponse process(InputStream requestBody, Map<String, List<String>> parameters);
+    public HttpResponse process(HttpMethod method, Map<String, List<String>> uriParameters, byte[] requestBody);
 }

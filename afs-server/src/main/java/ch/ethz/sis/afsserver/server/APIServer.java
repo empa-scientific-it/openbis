@@ -2,6 +2,8 @@ package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afs.api.TwoPhaseTransactionAPI;
 import ch.ethz.sis.afs.api.dto.ExceptionReason;
+import ch.ethz.sis.afsserver.exception.APIExceptions;
+import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.worker.PerformanceAuditor;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
@@ -44,11 +46,11 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
     private APIServerObserver<CONNECTION> observer;
 
     public APIServer(
-            Pool<Configuration, CONNECTION> connectionsPool,
-            Pool<Configuration, Worker<CONNECTION>> workersPool,
-            Class<API> apiClassDefinition,
-            String interactiveSessionKey,
-            String transactionManagerKey,
+            @NonNull Pool<Configuration, CONNECTION> connectionsPool,
+            @NonNull Pool<Configuration, Worker<CONNECTION>> workersPool,
+            @NonNull Class<API> apiClassDefinition,
+            @NonNull String interactiveSessionKey,
+            @NonNull String transactionManagerKey,
             int apiServerWorkerTimeout,
             @NonNull APIServerObserver observer) {
         this.shutdown = false;
@@ -58,12 +60,6 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         for (Method method : apiClassDefinition.getMethods()) {
             apiMethods.put(method.getName(), method);
             apiMethodParameters.put(method, method.getParameters());
-        }
-
-        List<Method> additionalMethods = observer.getAdditionalMethods();
-        for (Method additionalMethod:additionalMethods) {
-            apiMethods.put(additionalMethod.getName(), additionalMethod);
-            apiMethodParameters.put(additionalMethod, observer.getAPIParameters(additionalMethod));
         }
 
         this.apiServerWorkerTimeout = apiServerWorkerTimeout;
@@ -380,20 +376,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
             }
 
             observer.beforeAPICall(api, request.getMethod(), request.getParams());
-            Object result;
-            Object invokableObject;
-            Method invokableMethod;
-
-            if (observer.isAdditionalMethod(apiMethod)) {
-                invokableObject = observer.getInvokableObject(apiMethod);
-                invokableMethod = apiMethod;
-                requestParamsForApiMethod = concat(new Object[]{api}, requestParamsForApiMethod);
-            } else {
-                invokableObject = api;
-                invokableMethod = apiMethod;
-            }
-            result = invokableMethod.invoke(invokableObject, requestParamsForApiMethod);
-
+            Object result = apiMethod.invoke(api, requestParamsForApiMethod);
             observer.afterAPICall(api, request.getMethod(), request.getParams());
 
             return responseBuilder.build(request.getId(), result);

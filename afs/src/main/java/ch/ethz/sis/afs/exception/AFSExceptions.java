@@ -47,7 +47,7 @@ public enum AFSExceptions implements ExceptionTemplateHolder {
     private RuntimeExceptionTemplate template;
 
     AFSExceptions(Class clazz, List<ExceptionType> types, int code, String messageTemplate) {
-        this.template = new RuntimeExceptionTemplate(5, clazz, types, code, messageTemplate);
+        this.template = new RuntimeExceptionTemplate(1, clazz, types, code, messageTemplate);
     }
 
     public RuntimeException getInstance(Object... args) {

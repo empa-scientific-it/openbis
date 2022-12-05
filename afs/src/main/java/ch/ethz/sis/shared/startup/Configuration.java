@@ -90,4 +90,12 @@ public class Configuration {
         }
     }
 
+    public <E extends Enum<E>> Class<?> getInterfaceClass(E parameter) throws ClassNotFoundException {
+        String value = getProperty(parameter);
+        if (value != null) {
+            return Class.forName(value);
+        } else {
+            return null;
+        }
+    }
 }

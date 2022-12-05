@@ -1,19 +1,16 @@
 package ch.ethz.sis.afsserver.http.netty;
 
-import ch.ethz.sis.afsserver.http.APIResponse;
+import ch.ethz.sis.afsserver.http.HttpResponse;
 import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
-import java.net.URI;
-import java.util.HashSet;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
@@ -43,9 +40,9 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter {
                 FullHttpResponse response = null;
                 ByteBuf content = request.content();
                 try {
-                    ByteBufInputStream inputStream = new ByteBufInputStream(content);
-                    APIResponse apiResponse = httpServerHandler.process(inputStream, queryStringDecoder.parameters());
-                    HttpResponseStatus status = (apiResponse.isOk())?HttpResponseStatus.OK:HttpResponseStatus.BAD_REQUEST;
+                    byte[] contentAsArray = (content.hasArray())?content.array():null;
+                    HttpResponse apiResponse = httpServerHandler.process(request.method(), queryStringDecoder.parameters(), contentAsArray);
+                    HttpResponseStatus status = (apiResponse.getError() == null)?HttpResponseStatus.OK:HttpResponseStatus.BAD_REQUEST;
                     response = getHttpResponse(
                             status,
                             apiResponse.getContentType(),
