@@ -129,7 +129,8 @@ public class AuthenticationProxy extends AbstractProxy {
 
     private void validateSessionAvailable() throws Exception {
         if (workerContext.getSessionExists() == null) {
-            boolean doSessionExists = authenticationInfoProvider.isSessionValid(workerContext.getSessionToken());
+            String sessionToken = workerContext.getSessionToken();
+            boolean doSessionExists = authenticationInfoProvider.isSessionValid(sessionToken);
             workerContext.setSessionExists(doSessionExists);
         }
         if (!workerContext.getSessionExists()) {

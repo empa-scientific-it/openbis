@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
 repositories {
     ivy {
         ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"

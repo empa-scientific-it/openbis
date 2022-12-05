@@ -5,6 +5,7 @@ import ch.ethz.sis.afs.api.dto.ExceptionReason;
 import ch.ethz.sis.afsserver.exception.APIExceptions;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
+import ch.ethz.sis.shared.exception.ThrowableReason;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import ch.ethz.sis.shared.pool.Pool;

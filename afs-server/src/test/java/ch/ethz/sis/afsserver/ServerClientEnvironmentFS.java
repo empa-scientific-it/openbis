@@ -18,6 +18,10 @@ package ch.ethz.sis.afsserver;
 
 import ch.ethz.sis.afsserver.api.PublicAPI;
 import ch.ethz.sis.afsserver.http.impl.NettyHttpServer;
+import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
+import ch.ethz.sis.afsserver.server.observer.ServerObserver;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.worker.ConnectionFactory;
 import ch.ethz.sis.afsserver.worker.WorkerFactory;
@@ -30,8 +34,37 @@ import ch.ethz.sis.shared.startup.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AFSServerEnvironment {
-    public static Configuration getDefaultAFSConfig() {
+public class ServerClientEnvironmentFS {
+
+    private static ServerClientEnvironmentFS instance;
+
+    public static ServerClientEnvironmentFS getInstance() {
+        if (instance == null) {
+            synchronized (ServerClientEnvironmentFS.class) {
+                instance = new ServerClientEnvironmentFS();
+            }
+        }
+        return instance;
+    }
+
+    private ServerClientEnvironmentFS() {
+
+    }
+
+    public Server start() throws Exception {
+        DummyServerObserver observer = new DummyServerObserver();
+        return new Server(getDefaultServerConfiguration(), observer, observer);
+    }
+
+    public <E extends ServerObserver & APIServerObserver> Server start(Configuration configuration, E serverObserver) throws Exception {
+        return new Server(configuration, serverObserver, serverObserver);
+    }
+
+    public void stop(Server server, boolean gracefully) throws Exception {
+        server.shutdown(gracefully);
+    }
+
+    public static Configuration getDefaultServerConfiguration() {
         Map<Enum, String> configuration = new HashMap<>();
         configuration.put(AtomicFileSystemServerParameter.logFactoryClass,  Log4J2LogFactory.class.getName());
 //        configuration.put(AtomicFileSystemServerParameter.logConfigFile,  "objectfs-afs-config-log4j2.xml");

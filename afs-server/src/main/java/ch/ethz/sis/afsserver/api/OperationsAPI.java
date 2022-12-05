@@ -25,19 +25,19 @@ public interface OperationsAPI
 {
 
     @NonNull
-    List<File> list(@NonNull String sourceOwner, @NonNull String source, @NonNull Boolean recursively)
+    List<File> list(@NonNull String owner, @NonNull String source, @NonNull Boolean recursively)
             throws Exception;
 
     @NonNull
-    byte[] read(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset,
+    byte[] read(@NonNull String owner, @NonNull String source, @NonNull Long offset,
             @NonNull Integer limit) throws Exception;
 
     @NonNull
-    Boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset,
+    Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset,
             @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
 
     @NonNull
-    Boolean delete(@NonNull String sourceOwner, @NonNull String source) throws Exception;
+    Boolean delete(@NonNull String owner, @NonNull String source) throws Exception;
 
     @NonNull
     Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
