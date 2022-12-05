@@ -6,6 +6,7 @@ const TYPE_OBJECTS = 'objects'
 const TYPE_OBJECT_CHILDREN = 'objectChildren'
 const TYPE_DATA_SETS = 'dataSets'
 const TYPE_DATA_SET_CHILDREN = 'dataSetChildren'
+const TYPE_WARNING = 'warning'
 
 const TEXT_SPACES = 'Spaces'
 const TEXT_PROJECTS = 'Projects'
@@ -56,6 +57,7 @@ export default {
   TYPE_OBJECT_CHILDREN,
   TYPE_DATA_SETS,
   TYPE_DATA_SET_CHILDREN,
+  TYPE_WARNING,
   TEXT_SPACES,
   TEXT_PROJECTS,
   TEXT_COLLECTIONS,

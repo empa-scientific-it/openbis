@@ -4,6 +4,8 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import compare from '@src/js/common/compare.js'
 
+const RESULT_COUNT_LIMIT = 100
+
 export default class DatabaseBrowserConstsLoadNodesFiltered {
   async doLoadFilteredNodes(params) {
     const { node } = params
@@ -42,10 +44,20 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       this.addDataSet(entities, dataSet)
     })
 
+    const totalCount =
+      spaces.length +
+      projects.length +
+      experiments.length +
+      samples.length +
+      dataSets.length
+
+    if (totalCount > RESULT_COUNT_LIMIT) {
+      return this.tooManyResultsFound()
+    }
+
     if (node) {
       const result = {
-        nodes: [],
-        totalCount: 0
+        nodes: []
       }
 
       if (node.object.type === objectType.SPACE) {
@@ -57,7 +69,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node
           )
           result.nodes.push(projectsNode)
-          result.totalCount++
         }
 
         if (!_.isEmpty(nodeEntity.samples)) {
@@ -66,7 +77,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node
           )
           result.nodes.push(samplesNode)
-          result.totalCount++
         }
       } else if (node.object.type === objectType.PROJECT) {
         const nodeEntity = entities.projects[node.object.id] || {}
@@ -77,7 +87,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node
           )
           result.nodes.push(experimentsNode)
-          result.totalCount++
         }
         if (!_.isEmpty(nodeEntity.samples)) {
           const samplesNode = this.createSamplesNode(
@@ -85,7 +94,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node
           )
           result.nodes.push(samplesNode)
-          result.totalCount++
         }
       } else if (node.object.type === objectType.COLLECTION) {
         const nodeEntity = entities.experiments[node.object.id] || {}
@@ -96,7 +104,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node
           )
           result.nodes.push(samplesNode)
-          result.totalCount++
         }
         if (!_.isEmpty(nodeEntity.dataSets)) {
           const dataSetsNode = this.createDataSetsNode(
@@ -104,7 +111,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node
           )
           result.nodes.push(dataSetsNode)
-          result.totalCount++
         }
       }
 
@@ -115,7 +121,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         object: {
           type: DatabaseBrowserConsts.TYPE_ROOT
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         canHaveChildren: true
       }
 
@@ -125,7 +131,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           root
         )
         root.children.nodes.push(spacesNode)
-        root.children.totalCount++
       }
 
       if (!_.isEmpty(entities.sharedSamples)) {
@@ -134,13 +139,43 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           root
         )
         root.children.nodes.push(sharedSamplesNode)
-        root.children.totalCount++
       }
 
       return {
-        nodes: [root],
-        totalCount: 1
+        nodes: [root]
       }
+    }
+  }
+
+  tooManyResultsFound() {
+    return {
+      nodes: [
+        {
+          id: DatabaseBrowserConsts.TYPE_ROOT,
+          object: {
+            type: DatabaseBrowserConsts.TYPE_ROOT
+          },
+          children: {
+            nodes: [
+              {
+                id: DatabaseBrowserConsts.nodeId(
+                  DatabaseBrowserConsts.TYPE_ROOT,
+                  DatabaseBrowserConsts.TYPE_WARNING
+                ),
+                text:
+                  'Found over ' +
+                  RESULT_COUNT_LIMIT +
+                  ' results. Please use more specific filter.',
+                object: {
+                  type: DatabaseBrowserConsts.TYPE_WARNING
+                },
+                selectable: false
+              }
+            ]
+          },
+          canHaveChildren: true
+        }
+      ]
     }
   }
 
@@ -457,7 +492,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_SPACES
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -476,13 +511,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.SPACE,
           id: space.code
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       spacesNode.children.nodes.push(spaceNode)
-      spacesNode.children.totalCount++
 
       if (!_.isEmpty(space.projects)) {
         const projectsNode = this.createProjectsNode(
@@ -491,7 +525,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         spaceNode.canHaveChildren = true
         spaceNode.children.nodes.push(projectsNode)
-        spaceNode.children.totalCount++
       }
 
       if (!_.isEmpty(space.samples)) {
@@ -501,7 +534,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         spaceNode.canHaveChildren = true
         spaceNode.children.nodes.push(samplesNode)
-        spaceNode.children.totalCount++
       }
     })
 
@@ -519,7 +551,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_PROJECTS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -538,13 +570,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.PROJECT,
           id: project.permId
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       projectsNode.children.nodes.push(projectNode)
-      projectsNode.children.totalCount++
 
       if (!_.isEmpty(project.experiments)) {
         const experimentsNode = this.createExperimentsNode(
@@ -553,7 +584,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         projectNode.canHaveChildren = true
         projectNode.children.nodes.push(experimentsNode)
-        projectNode.children.totalCount++
       }
 
       if (!_.isEmpty(project.samples)) {
@@ -563,7 +593,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         projectNode.canHaveChildren = true
         projectNode.children.nodes.push(samplesNode)
-        projectNode.children.totalCount++
       }
     })
 
@@ -581,7 +610,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_COLLECTIONS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -600,13 +629,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.COLLECTION,
           id: experiment.permId
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       experimentsNode.children.nodes.push(experimentNode)
-      experimentsNode.children.totalCount++
 
       if (!_.isEmpty(experiment.samples)) {
         const samplesNode = this.createSamplesNode(
@@ -615,7 +643,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         experimentNode.canHaveChildren = true
         experimentNode.children.nodes.push(samplesNode)
-        experimentNode.children.totalCount++
       }
 
       if (!_.isEmpty(experiment.dataSets)) {
@@ -625,7 +652,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         experimentNode.canHaveChildren = true
         experimentNode.children.nodes.push(dataSetsNode)
-        experimentNode.children.totalCount++
       }
     })
 
@@ -643,7 +669,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_OBJECTS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -662,13 +688,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.OBJECT,
           id: sample.permId
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       samplesNode.children.nodes.push(sampleNode)
-      samplesNode.children.totalCount++
 
       if (!_.isEmpty(sample.dataSets)) {
         const dataSetsNode = this.createDataSetsNode(
@@ -677,7 +702,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         sampleNode.canHaveChildren = true
         sampleNode.children.nodes.push(dataSetsNode)
-        sampleNode.children.totalCount++
       }
     })
 
@@ -695,7 +719,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_DATA_SETS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -714,13 +738,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.DATA_SET,
           id: dataSet.code
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       dataSetsNode.children.nodes.push(dataSetNode)
-      dataSetsNode.children.totalCount++
     })
 
     return dataSetsNode

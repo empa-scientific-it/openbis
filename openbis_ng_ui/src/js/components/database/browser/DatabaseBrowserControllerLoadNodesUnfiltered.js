@@ -17,8 +17,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
             },
             canHaveChildren: true
           }
-        ],
-        totalCount: 1
+        ]
       }
     } else if (node.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
       const nodes = []
@@ -27,8 +26,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       await this.addSamplesNode(params, nodes)
 
       return {
-        nodes: nodes,
-        totalCount: nodes.length
+        nodes: nodes
       }
     } else if (node.object.type === objectType.SPACE) {
       const nodes = []
@@ -37,8 +35,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       await this.addSamplesNode(params, nodes)
 
       return {
-        nodes: nodes,
-        totalCount: nodes.length
+        nodes: nodes
       }
     } else if (node.object.type === objectType.PROJECT) {
       const nodes = []
@@ -47,8 +44,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       await this.addSamplesNode(params, nodes)
 
       return {
-        nodes: nodes,
-        totalCount: nodes.length
+        nodes: nodes
       }
     } else if (node.object.type === objectType.COLLECTION) {
       const nodes = []
@@ -57,8 +53,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       await this.addDataSetsNode(params, nodes)
 
       return {
-        nodes: nodes,
-        totalCount: nodes.length
+        nodes: nodes
       }
     } else if (node.object.type === objectType.OBJECT) {
       const nodes = []
@@ -67,8 +62,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       await this.addDataSetsNode(params, nodes)
 
       return {
-        nodes: nodes,
-        totalCount: nodes.length
+        nodes: nodes
       }
     } else if (node.object.type === objectType.DATA_SET) {
       const nodes = []
@@ -76,8 +70,7 @@ export default class DatabaseBrowserConstsLoadNodesUnfiltered {
       await this.addDataSetsNode(params, nodes)
 
       return {
-        nodes: nodes,
-        totalCount: nodes.length
+        nodes: nodes
       }
     } else if (node.object.type === DatabaseBrowserConsts.TYPE_SPACES) {
       return await this.searchSpaces(params)
