@@ -18,23 +18,14 @@ package ch.ethz.sis.afs.manager;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.dto.Transaction;
+import ch.ethz.sis.afs.dto.operation.*;
 import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.manager.operation.*;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.json.JSONObjectMapper;
 import ch.ethz.sis.afs.dto.Lock;
 import ch.ethz.sis.afs.dto.LockType;
-import ch.ethz.sis.afs.dto.operation.CopyOperation;
-import ch.ethz.sis.afs.dto.operation.DeleteOperation;
-import ch.ethz.sis.afs.dto.operation.MoveOperation;
-import ch.ethz.sis.afs.dto.operation.Operation;
-import ch.ethz.sis.afs.dto.operation.OperationName;
-import ch.ethz.sis.afs.dto.operation.WriteOperation;
-import ch.ethz.sis.afs.manager.operation.CopyOperationExecutor;
-import ch.ethz.sis.afs.manager.operation.DeleteOperationExecutor;
-import ch.ethz.sis.afs.manager.operation.MoveOperationExecutor;
-import ch.ethz.sis.afs.manager.operation.OperationExecutor;
-import ch.ethz.sis.afs.manager.operation.WriteOperationExecutor;
 
 import java.util.*;
 
@@ -42,9 +33,14 @@ import static ch.ethz.sis.shared.collection.List.safe;
 
 public class TransactionConnection implements TransactionalFileSystem {
 
+    private static final Map<OperationName, NonModifyingOperationExecutor> nonModifyingOperationExecutor;
+
     private static final Map<OperationName, OperationExecutor> operationExecutors;
 
     static {
+        nonModifyingOperationExecutor = Map.of(OperationName.Read, ReadOperationExecutor.getInstance(),
+                OperationName.List, ListOperationExecutor.getInstance());
+
         operationExecutors = Map.of(OperationName.Copy, CopyOperationExecutor.getInstance(),
                 OperationName.Delete, DeleteOperationExecutor.getInstance(),
                 OperationName.Move, MoveOperationExecutor.getInstance(),
@@ -216,27 +212,11 @@ public class TransactionConnection implements TransactionalFileSystem {
         source = getSafePath(OperationName.List, source);
         validateOperationAndPaths(OperationName.List, source, null);
         validateWritten(OperationName.List, source);
-        if (IOUtils.getFile(source).getDirectory()) {
-            List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
-            boolean locksObtained = lockManager.add(locks);
-            if (locksObtained) {
-                try {
-                    List<File> files = IOUtils.list(source, recursively);
-                    List<File> filesFromRoot = new ArrayList<>();
-                    for (File file : files) {
-                        filesFromRoot.add(file.toBuilder().path(OperationExecutor.getStoragePath(transaction, file.getPath())).build());
-                    }
-                    return filesFromRoot;
-                } finally {
-                    lockManager.remove(locks);
-                }
-            } else {
-                AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.List, source);
-            }
-        } else {
+        if (!IOUtils.getFile(source).getDirectory()) {
             AFSExceptions.throwInstance(AFSExceptions.PathNotDirectory, OperationName.List, source);
         }
-        return null; // Unreachable statement
+        ListOperation operation = new ListOperation(transaction.getUuid(), source, recursively);
+        return executeNonModifyingOperation(operation, source);
     }
 
     @Override
@@ -245,21 +225,27 @@ public class TransactionConnection implements TransactionalFileSystem {
         validateOperationAndPaths(OperationName.Read, source, null);
         validateWritten(OperationName.Read, source);
         if (IOUtils.getFile(source).getDirectory()) {
-            AFSExceptions.throwInstance(AFSExceptions.PathIsDirectory, OperationName.Read.name(), source);
+            AFSExceptions.throwInstance(AFSExceptions.PathIsDirectory, OperationName.Read, source);
         }
-        List<Lock<UUID, String>> locks = List.of(new Lock<>(transaction.getUuid(), source, LockType.Shared));
-        boolean locksObtained = lockManager.add(locks);
+        Operation operation = new ReadOperation(transaction.getUuid(), source, offset, limit);
+        return executeNonModifyingOperation(operation, source);
+    }
+
+    public <RESULT> RESULT executeNonModifyingOperation(Operation operation, String source) throws Exception {
+        boolean locksObtained = lockManager.add(operation.getLocks());
         if (locksObtained) {
             try {
-                byte[] result = IOUtils.read(source, offset, limit);
-                return result;
+                NonModifyingOperationExecutor<Operation> operationExecutor = nonModifyingOperationExecutor.get(operation.getName());
+                return operationExecutor.executeOperation(transaction, operation);
             } finally {
-                lockManager.remove(locks);
+                lockManager.remove(operation.getLocks());
             }
         } else {
-            AFSExceptions.throwInstance(AFSExceptions.PathBusy, OperationName.Read, source);
+            if (source != null) {
+                AFSExceptions.throwInstance(AFSExceptions.PathBusy, operation.getName(), source);
+            }
         }
-        return null; // Unreachable statement
+        throw AFSExceptions.Unknown.getInstance(IllegalStateException.class.getSimpleName(), "Statement should be unreachable.");
     }
 
     private final Set<String> written = new HashSet<>();
