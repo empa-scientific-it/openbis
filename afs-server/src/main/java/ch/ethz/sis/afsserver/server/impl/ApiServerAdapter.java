@@ -33,6 +33,31 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
+    public static HttpMethod getHttpMethod(String apiMethod) {
+        HttpMethod httpMethod = null;
+        switch (apiMethod){
+            case "delete":
+                httpMethod = HttpMethod.DELETE;
+                break;
+            case "write":
+                httpMethod = HttpMethod.PUT;
+                break;
+            case "list":
+            case "read":
+            case "isSessionValid":
+                httpMethod = HttpMethod.GET;
+                break;
+            default:
+                httpMethod = HttpMethod.POST;
+        }
+        return httpMethod;
+    }
+
+    public boolean isValidMethod(HttpMethod givenMethod, String apiMethod) {
+        HttpMethod correctMethod = getHttpMethod(apiMethod);
+        return correctMethod == givenMethod;
+    }
+
     public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> uriParameters, byte[] requestBody) {
         try {
             logger.traceAccess(null);
@@ -57,6 +82,9 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                     switch (entry.getKey()) {
                         case "method":
                             method = value;
+                            if (!isValidMethod(httpMethod, method)) {
+                                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                            }
                             break;
                         case "sessionToken":
                             sessionToken = value;

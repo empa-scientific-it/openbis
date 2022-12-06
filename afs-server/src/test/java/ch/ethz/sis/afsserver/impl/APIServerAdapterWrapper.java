@@ -46,31 +46,16 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper {
         return result;
     }
 
-    public <E> E process(String method, Map<String, Object> args) {
+    public <E> E process(String apiMethod, Map<String, Object> args) {
         try {
-            HttpMethod httpMethod = null;
-            switch (method){
-                case "delete":
-                    httpMethod = HttpMethod.DELETE;
-                    break;
-                case "write":
-                    httpMethod = HttpMethod.PUT;
-                    break;
-                case "list":
-                case "read":
-                case "isSessionValid":
-                    httpMethod = HttpMethod.GET;
-                    break;
-                default:
-                    httpMethod = HttpMethod.POST;
-            }
+            HttpMethod httpMethod = ApiServerAdapter.getHttpMethod(apiMethod);
 
             Map<String, List<String>> uriParameters = getURIParameters(args);
-            uriParameters.put("method", List.of(method));
+            uriParameters.put("method", List.of(apiMethod));
             uriParameters.put("sessionToken", List.of(UUID.randomUUID().toString()));
 
             byte[] requestBody = null;
-            if (method.equals("write")) {
+            if (apiMethod.equals("write")) {
                 requestBody = (byte[]) args.get("data");
             }
 
