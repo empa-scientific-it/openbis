@@ -5,6 +5,7 @@ import ch.ethz.sis.afsserver.http.*;
 import ch.ethz.sis.afsserver.server.*;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
+import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.json.JSONObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
@@ -43,7 +44,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
             String transactionManagerKey = null;
             Map<String, Object> methodParameters = new HashMap<>();
             for (Map.Entry<String, List<String>> entry:uriParameters.entrySet()) {
-                Object value = null;
+                String value = null;
                 if (entry.getValue() != null) {
                     if (entry.getValue().size() == 1) {
                         value = entry.getValue().get(0);
@@ -54,21 +55,40 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
 
                 switch (entry.getKey()) {
                     case "method":
-                        method = (String) value;
+                        method = value;
                         break;
                     case "sessionToken":
-                        sessionToken = (String) value;
+                        sessionToken = value;
                         break;
                     case "interactiveSessionKey":
-                        interactiveSessionKey = (String) value;
+                        interactiveSessionKey = value;
                         break;
                     case "transactionManagerKey":
-                        transactionManagerKey = (String) value;
+                        transactionManagerKey = value;
+                        break;
+                    case "transactionId":
+                        methodParameters.put(entry.getKey(), UUID.fromString(value));
+                        break;
+                    case "recursively":
+                        methodParameters.put(entry.getKey(), Boolean.valueOf(value));
+                        break;
+                    case "offset":
+                        methodParameters.put(entry.getKey(), Long.valueOf(value));
+                        break;
+                    case "limit":
+                        methodParameters.put(entry.getKey(), Integer.valueOf(value));
+                        break;
+                    case "md5Hash":
+                        methodParameters.put(entry.getKey(), IOUtils.decodeBase64(value));
                         break;
                     default:
                         methodParameters.put(entry.getKey(), value);
                         break;
                 }
+            }
+
+            if (method.equals("write")) {
+                methodParameters.put("data", requestBody);
             }
 
             ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken, interactiveSessionKey, transactionManagerKey);

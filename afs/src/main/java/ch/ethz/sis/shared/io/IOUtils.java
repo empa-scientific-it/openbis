@@ -47,10 +47,7 @@ import java.nio.file.attribute.UserPrincipal;
 import java.security.MessageDigest;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class IOUtils {
 
@@ -615,6 +612,14 @@ public class IOUtils {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public static String encodeBase64(byte[] input) {
+        return Base64.getEncoder().encodeToString(input);
+    }
+
+    public static byte[] decodeBase64(String input) {
+        return Base64.getDecoder().decode(input);
     }
 
     public static boolean exists(String source) {

@@ -15,8 +15,7 @@ import ch.ethz.sis.shared.startup.Configuration;
 
 public class ApiServerTest extends PublicApiTest {
 
-    @Override
-    public PublicAPI getPublicAPI() throws Exception {
+    protected APIServer getAPIServer() throws Exception {
         Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
 
         ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -35,6 +34,11 @@ public class ApiServerTest extends PublicApiTest {
         observer.init(configuration);
         APIServer apiServer = new APIServer(connectionsPool, workersPool, PublicAPI.class, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, observer);
         observer.init(apiServer, configuration);
-        return new PublicAPIAdapterWrapper(apiServer);
+        return apiServer;
+    }
+
+    @Override
+    public PublicAPI getPublicAPI() throws Exception {
+        return new APIServerWrapper(getAPIServer());
     }
 }

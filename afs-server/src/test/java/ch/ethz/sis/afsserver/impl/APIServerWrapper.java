@@ -13,15 +13,15 @@ import ch.ethz.sis.shared.log.Logger;
 import java.util.Map;
 import java.util.UUID;
 
-public class PublicAPIAdapterWrapper extends AbstractPublicAPIWrapper {
+public class APIServerWrapper extends AbstractPublicAPIWrapper {
 
-    private static final Logger logger = LogManager.getLogger(PublicAPIAdapterWrapper.class);
+    private static final Logger logger = LogManager.getLogger(APIServerWrapper.class);
 
     private APIServer apiServer;
     private final ApiResponseBuilder apiResponseBuilder;
 
-    public PublicAPIAdapterWrapper(APIServer apiServerAdapter) {
-        this.apiServer = apiServerAdapter;
+    public APIServerWrapper(APIServer apiServer) {
+        this.apiServer = apiServer;
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 

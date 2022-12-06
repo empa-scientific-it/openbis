@@ -20,6 +20,7 @@ import ch.ethz.sis.shared.json.JSONObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.InputStream;
 
@@ -49,6 +50,7 @@ public class JacksonObjectMapper implements JSONObjectMapper
     public JacksonObjectMapper()
     {
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // new module, NOT JSR310Module
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.enableDefaultTyping();
