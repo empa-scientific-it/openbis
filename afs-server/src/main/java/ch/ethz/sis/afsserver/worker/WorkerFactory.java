@@ -17,7 +17,7 @@ public class WorkerFactory extends AbstractFactory<Configuration, Configuration,
         AuditorProxy executorProxy = new AuditorProxy(new ExecutorProxy());
 
         // 4. Check that the user have rights to do the operation
-        AuthorizationInfoProvider authorizationInfoProvider = configuration.getSharableInstance(AtomicFileSystemServerParameter.authorizationInfoProviderClass);
+        AuthorizationInfoProvider authorizationInfoProvider = configuration.getInstance(AtomicFileSystemServerParameter.authorizationInfoProviderClass);
         authorizationInfoProvider.init(configuration);
         AuditorProxy authorizationProxy = new AuditorProxy(new AuthorizationProxy(executorProxy,
                 authorizationInfoProvider));
@@ -28,7 +28,7 @@ public class WorkerFactory extends AbstractFactory<Configuration, Configuration,
                 maxReadSizeInBytes));
 
         // 2. Authenticate user and check that have a valid session
-        AuthenticationInfoProvider authenticationInfoProvider = configuration.getSharableInstance(AtomicFileSystemServerParameter.authenticationInfoProviderClass);
+        AuthenticationInfoProvider authenticationInfoProvider = configuration.getInstance(AtomicFileSystemServerParameter.authenticationInfoProviderClass);
         authenticationInfoProvider.init(configuration);
         AuditorProxy authenticationProxy = new AuditorProxy(new AuthenticationProxy(correctnessProxy,
                 authenticationInfoProvider));

@@ -47,5 +47,10 @@ public enum AtomicFileSystemServerParameter {
     publicApiInterface,
     apiServerInteractiveSessionKey,
     apiServerTransactionManagerKey,
-    apiServerWorkerTimeout
+    apiServerWorkerTimeout,
+    //
+    // openBIS connection
+    //
+    openBISUrl,
+    openBISTimeout
 }
