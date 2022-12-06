@@ -2,7 +2,7 @@ import _ from 'lodash'
 import autoBind from 'auto-bind'
 
 const INTERNAL_ROOT_ID = 'internal_root_id'
-const LOAD_LIMIT = 50
+const INTERNAL_ROOT_TYPE = 'internal_root_type'
 
 export default class BrowserTreeController {
   async doLoadNodePath() {
@@ -64,11 +64,17 @@ export default class BrowserTreeController {
   async _doLoadRoot(state, rootNode) {
     if (rootNode) {
       state.nodes[rootNode.id] = rootNode
-      await this._doLoadNode(state, rootNode.id, 0, LOAD_LIMIT)
+      await this._doLoadNode(state, rootNode.id, 0)
       state.rootId = rootNode.id
     } else {
-      state.nodes[INTERNAL_ROOT_ID] = { id: INTERNAL_ROOT_ID }
-      await this._doLoadNode(state, INTERNAL_ROOT_ID, 0, LOAD_LIMIT)
+      state.nodes[INTERNAL_ROOT_ID] = {
+        id: INTERNAL_ROOT_ID,
+        object: {
+          type: INTERNAL_ROOT_TYPE
+        },
+        internalRoot: true
+      }
+      await this._doLoadNode(state, INTERNAL_ROOT_ID, 0)
       const internalRoot = state.nodes[INTERNAL_ROOT_ID]
       delete state.nodes[INTERNAL_ROOT_ID]
 
@@ -100,7 +106,7 @@ export default class BrowserTreeController {
     }
 
     const loadPromise = this.doLoadNodes({
-      node: node.id === INTERNAL_ROOT_ID ? null : node,
+      node: node,
       offset: offset,
       limit: limit,
       sortingIds: state.sortingIds
@@ -116,14 +122,7 @@ export default class BrowserTreeController {
       state.nodes = { ...state.nodes }
 
       const accumulator = { allLoadedNodesIds: [] }
-      this._doProcessLoadedNodes(
-        state,
-        nodeId,
-        offset,
-        limit,
-        loadedNodes,
-        accumulator
-      )
+      this._doProcessLoadedNodes(state, nodeId, loadedNodes, accumulator)
 
       const loadedNodesToExpand = Object.values(accumulator.allLoadedNodesIds)
         .map(id => state.nodes[id])
@@ -137,14 +136,7 @@ export default class BrowserTreeController {
     })
   }
 
-  _doProcessLoadedNodes(
-    state,
-    nodeId,
-    offset,
-    limit,
-    loadedNodes,
-    accumulator
-  ) {
+  _doProcessLoadedNodes(state, nodeId, loadedNodes, accumulator) {
     const loadedNodesIds = []
 
     if (!_.isEmpty(loadedNodes.nodes)) {
@@ -184,8 +176,6 @@ export default class BrowserTreeController {
           this._doProcessLoadedNodes(
             state,
             loadedNode.id,
-            0,
-            LOAD_LIMIT,
             loadedNode.children,
             accumulator
           )
@@ -195,15 +185,20 @@ export default class BrowserTreeController {
       })
     }
 
-    const node = state.nodes[nodeId]
-
-    state.nodes[nodeId] = {
-      ...node,
+    const node = (state.nodes[nodeId] = {
+      ...state.nodes[nodeId],
       loaded: true,
-      loadedCount: offset + limit,
-      totalCount: loadedNodes.totalCount,
-      children:
-        offset === 0 ? loadedNodesIds : node.children.concat(loadedNodesIds)
+      loadMore: loadedNodes.loadMore
+    })
+
+    if (node.loadMore) {
+      if (node.loadMore.append) {
+        node.children = node.children.concat(loadedNodesIds)
+      } else {
+        node.children = loadedNodesIds
+      }
+    } else {
+      node.children = loadedNodesIds
     }
 
     accumulator.allLoadedNodesIds.push(...loadedNodesIds)
@@ -213,10 +208,15 @@ export default class BrowserTreeController {
     const state = this.context.getState()
     const node = state.nodes[nodeId]
 
-    if (node) {
+    if (node && node.loadMore) {
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
-      await this._doLoadNode(newState, node.id, node.loadedCount, LOAD_LIMIT)
+      await this._doLoadNode(
+        newState,
+        node.id,
+        node.loadMore.offset,
+        node.loadMore.limit
+      )
       this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
     }
@@ -241,7 +241,7 @@ export default class BrowserTreeController {
 
     if (node) {
       if (!node.loaded) {
-        await this._doLoadNode(state, nodeId, 0, LOAD_LIMIT)
+        await this._doLoadNode(state, nodeId, 0)
       }
 
       const newNode = {
@@ -477,7 +477,7 @@ export default class BrowserTreeController {
       }
       newState.sortingIds = { ...newState.sortingIds }
       newState.sortingIds[nodeId] = sortingId
-      await this._doLoadNode(newState, nodeId, 0, LOAD_LIMIT)
+      await this._doLoadNode(newState, nodeId, 0)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
 

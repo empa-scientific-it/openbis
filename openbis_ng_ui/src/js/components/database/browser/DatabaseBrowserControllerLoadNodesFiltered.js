@@ -2,7 +2,11 @@ import _ from 'lodash'
 import DatabaseBrowserConsts from '@src/js/components/database/browser/DatabaseBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
+import messages from '@src/js/common/messages.js'
 import compare from '@src/js/common/compare.js'
+
+const LOAD_LIMIT = 50
+const TOTAL_LOAD_LIMIT = 500
 
 export default class DatabaseBrowserConstsLoadNodesFiltered {
   async doLoadFilteredNodes(params) {
@@ -18,137 +22,168 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     }
 
     const spaces = await this.searchSpaces(params)
-    spaces.forEach(space => {
+    spaces.getObjects().forEach(space => {
       this.addSpace(entities, space)
     })
 
     const projects = await this.searchProjects(params)
-    projects.forEach(project => {
+    projects.getObjects().forEach(project => {
       this.addProject(entities, project)
     })
 
     const experiments = await this.searchExperiments(params)
-    experiments.forEach(experiment => {
+    experiments.getObjects().forEach(experiment => {
       this.addExperiment(entities, experiment)
     })
 
     const samples = await this.searchSamples(params)
-    samples.forEach(sample => {
+    samples.getObjects().forEach(sample => {
       this.addSample(entities, sample)
     })
 
     const dataSets = await this.searchDataSets(params)
-    dataSets.forEach(dataSet => {
+    dataSets.getObjects().forEach(dataSet => {
       this.addDataSet(entities, dataSet)
     })
 
-    if (node) {
-      const result = {
-        nodes: [],
-        totalCount: 0
+    const loadedCount =
+      spaces.getObjects().length +
+      projects.getObjects().length +
+      experiments.getObjects().length +
+      samples.getObjects().length +
+      dataSets.getObjects().length
+
+    const totalCount =
+      spaces.getTotalCount() +
+      projects.getTotalCount() +
+      experiments.getTotalCount() +
+      samples.getTotalCount() +
+      dataSets.getTotalCount()
+
+    if (totalCount > TOTAL_LOAD_LIMIT) {
+      return this.tooManyResultsFound(node)
+    }
+
+    const result = {
+      nodes: [],
+      loadMore: {
+        offset: 0,
+        limit: TOTAL_LOAD_LIMIT,
+        loadedCount: loadedCount,
+        totalCount: totalCount,
+        append: false
       }
+    }
 
-      if (node.object.type === objectType.SPACE) {
-        const nodeEntity = entities.spaces[node.object.id] || {}
-
-        if (!_.isEmpty(nodeEntity.projects)) {
-          const projectsNode = this.createProjectsNode(
-            Object.values(nodeEntity.projects),
-            node
-          )
-          result.nodes.push(projectsNode)
-          result.totalCount++
-        }
-
-        if (!_.isEmpty(nodeEntity.samples)) {
-          const samplesNode = this.createSamplesNode(
-            Object.values(nodeEntity.samples),
-            node
-          )
-          result.nodes.push(samplesNode)
-          result.totalCount++
-        }
-      } else if (node.object.type === objectType.PROJECT) {
-        const nodeEntity = entities.projects[node.object.id] || {}
-
-        if (!_.isEmpty(nodeEntity.experiments)) {
-          const experimentsNode = this.createExperimentsNode(
-            Object.values(nodeEntity.experiments),
-            node
-          )
-          result.nodes.push(experimentsNode)
-          result.totalCount++
-        }
-        if (!_.isEmpty(nodeEntity.samples)) {
-          const samplesNode = this.createSamplesNode(
-            Object.values(nodeEntity.samples),
-            node
-          )
-          result.nodes.push(samplesNode)
-          result.totalCount++
-        }
-      } else if (node.object.type === objectType.COLLECTION) {
-        const nodeEntity = entities.experiments[node.object.id] || {}
-
-        if (!_.isEmpty(nodeEntity.samples)) {
-          const samplesNode = this.createSamplesNode(
-            Object.values(nodeEntity.samples),
-            node
-          )
-          result.nodes.push(samplesNode)
-          result.totalCount++
-        }
-        if (!_.isEmpty(nodeEntity.dataSets)) {
-          const dataSetsNode = this.createDataSetsNode(
-            Object.values(nodeEntity.dataSets),
-            node
-          )
-          result.nodes.push(dataSetsNode)
-          result.totalCount++
-        }
-      }
-
-      return result
-    } else {
+    if (node.internalRoot) {
       const root = {
         id: DatabaseBrowserConsts.TYPE_ROOT,
         object: {
           type: DatabaseBrowserConsts.TYPE_ROOT
         },
-        children: { nodes: [], totalCount: 0 },
         canHaveChildren: true
       }
-
+      root.children = this.doLoadFilteredNodes({
+        ...params,
+        node: root
+      })
+      result.nodes.push(root)
+    } else if (node.object.type === DatabaseBrowserConsts.TYPE_ROOT) {
       if (!_.isEmpty(entities.spaces)) {
         const spacesNode = this.createSpacesNode(
           Object.values(entities.spaces),
-          root
+          node
         )
-        root.children.nodes.push(spacesNode)
-        root.children.totalCount++
+        result.nodes.push(spacesNode)
       }
 
       if (!_.isEmpty(entities.sharedSamples)) {
         const sharedSamplesNode = this.createSamplesNode(
           Object.values(entities.sharedSamples),
-          root
+          node
         )
-        root.children.nodes.push(sharedSamplesNode)
-        root.children.totalCount++
+        result.nodes.push(sharedSamplesNode)
+      }
+    } else if (node.object.type === objectType.SPACE) {
+      const nodeEntity = entities.spaces[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.projects)) {
+        const projectsNode = this.createProjectsNode(
+          Object.values(nodeEntity.projects),
+          node
+        )
+        result.nodes.push(projectsNode)
       }
 
-      return {
-        nodes: [root],
-        totalCount: 1
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
       }
+    } else if (node.object.type === objectType.PROJECT) {
+      const nodeEntity = entities.projects[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.experiments)) {
+        const experimentsNode = this.createExperimentsNode(
+          Object.values(nodeEntity.experiments),
+          node
+        )
+        result.nodes.push(experimentsNode)
+      }
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+    } else if (node.object.type === objectType.COLLECTION) {
+      const nodeEntity = entities.experiments[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+      if (!_.isEmpty(nodeEntity.dataSets)) {
+        const dataSetsNode = this.createDataSetsNode(
+          Object.values(nodeEntity.dataSets),
+          node
+        )
+        result.nodes.push(dataSetsNode)
+      }
+    }
+
+    return result
+  }
+
+  tooManyResultsFound(node) {
+    return {
+      nodes: [
+        {
+          id: DatabaseBrowserConsts.nodeId(
+            node.id,
+            DatabaseBrowserConsts.TYPE_WARNING
+          ),
+          message: {
+            type: 'warning',
+            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
+          },
+          selectable: false
+        }
+      ]
     }
   }
 
   async searchSpaces(params) {
     const { node, filter, offset, limit } = params
 
-    if (node) {
-      return []
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
+      return new openbis.SearchResult([], 0)
     }
 
     const criteria = new openbis.SpaceSearchCriteria()
@@ -156,11 +191,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const fetchOptions = new openbis.SpaceFetchOptions()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchProjects(params) {
@@ -173,7 +208,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       if (node.object.type === objectType.SPACE) {
         criteria.withSpace().withCode().thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -181,11 +216,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchExperiments(params) {
@@ -194,13 +229,13 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.ExperimentSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         criteria.withProject().withSpace().withCode().thatEquals(node.object.id)
       } else if (node.object.type === objectType.PROJECT) {
         criteria.withProject().withPermId().thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -208,11 +243,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchSamples(params) {
@@ -221,7 +256,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -249,7 +284,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
       } else if (node.object.type === objectType.COLLECTION) {
         criteria.withExperiment().withPermId().thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -259,11 +294,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withExperiment().withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   async searchDataSets(params) {
@@ -272,7 +307,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -329,7 +364,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           .withPermId()
           .thatEquals(node.object.id)
       } else {
-        return []
+        return new openbis.SearchResult([], 0)
       }
     }
 
@@ -340,11 +375,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     fetchOptions.withSample().withExperiment().withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit)
+    fetchOptions.count(limit || LOAD_LIMIT)
 
     const result = await openbis.searchDataSets(criteria, fetchOptions)
 
-    return result.getObjects()
+    return result
   }
 
   addSpace(entities, space) {
@@ -457,7 +492,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_SPACES
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -476,13 +511,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.SPACE,
           id: space.code
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       spacesNode.children.nodes.push(spaceNode)
-      spacesNode.children.totalCount++
 
       if (!_.isEmpty(space.projects)) {
         const projectsNode = this.createProjectsNode(
@@ -491,7 +525,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         spaceNode.canHaveChildren = true
         spaceNode.children.nodes.push(projectsNode)
-        spaceNode.children.totalCount++
       }
 
       if (!_.isEmpty(space.samples)) {
@@ -501,7 +534,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         spaceNode.canHaveChildren = true
         spaceNode.children.nodes.push(samplesNode)
-        spaceNode.children.totalCount++
       }
     })
 
@@ -519,7 +551,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_PROJECTS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -538,13 +570,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.PROJECT,
           id: project.permId
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       projectsNode.children.nodes.push(projectNode)
-      projectsNode.children.totalCount++
 
       if (!_.isEmpty(project.experiments)) {
         const experimentsNode = this.createExperimentsNode(
@@ -553,7 +584,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         projectNode.canHaveChildren = true
         projectNode.children.nodes.push(experimentsNode)
-        projectNode.children.totalCount++
       }
 
       if (!_.isEmpty(project.samples)) {
@@ -563,7 +593,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         projectNode.canHaveChildren = true
         projectNode.children.nodes.push(samplesNode)
-        projectNode.children.totalCount++
       }
     })
 
@@ -581,7 +610,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_COLLECTIONS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -600,13 +629,12 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.COLLECTION,
           id: experiment.permId
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true,
         rootable: true
       }
 
       experimentsNode.children.nodes.push(experimentNode)
-      experimentsNode.children.totalCount++
 
       if (!_.isEmpty(experiment.samples)) {
         const samplesNode = this.createSamplesNode(
@@ -615,7 +643,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         experimentNode.canHaveChildren = true
         experimentNode.children.nodes.push(samplesNode)
-        experimentNode.children.totalCount++
       }
 
       if (!_.isEmpty(experiment.dataSets)) {
@@ -625,7 +652,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         experimentNode.canHaveChildren = true
         experimentNode.children.nodes.push(dataSetsNode)
-        experimentNode.children.totalCount++
       }
     })
 
@@ -643,7 +669,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_OBJECTS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -662,12 +688,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.OBJECT,
           id: sample.permId
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true
       }
 
       samplesNode.children.nodes.push(sampleNode)
-      samplesNode.children.totalCount++
 
       if (!_.isEmpty(sample.dataSets)) {
         const dataSetsNode = this.createDataSetsNode(
@@ -676,7 +701,6 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         )
         sampleNode.canHaveChildren = true
         sampleNode.children.nodes.push(dataSetsNode)
-        sampleNode.children.totalCount++
       }
     })
 
@@ -694,7 +718,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
         type: DatabaseBrowserConsts.TYPE_DATA_SETS
       },
       canHaveChildren: true,
-      children: { nodes: [], totalCount: 0 },
+      children: { nodes: [] },
       selectable: false,
       expanded: true
     }
@@ -713,12 +737,11 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
           type: objectType.DATA_SET,
           id: dataSet.code
         },
-        children: { nodes: [], totalCount: 0 },
+        children: { nodes: [] },
         expanded: true
       }
 
       dataSetsNode.children.nodes.push(dataSetNode)
-      dataSetsNode.children.totalCount++
     })
 
     return dataSetsNode

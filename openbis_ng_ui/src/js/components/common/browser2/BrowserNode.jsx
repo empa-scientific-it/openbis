@@ -13,6 +13,7 @@ import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import BrowserNodeSetAsRoot from '@src/js/components/common/browser2/BrowserNodeSetAsRoot.jsx'
 import BrowserNodeSortings from '@src/js/components/common/browser2/BrowserNodeSortings.jsx'
 import BrowserNodeCollapseAll from '@src/js/components/common/browser2/BrowserNodeCollapseAll.jsx'
+import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
@@ -199,13 +200,21 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderText(node) {
-    logger.log(logger.DEBUG, 'BrowserNode.renderText "' + node.text + '"')
+    logger.log(logger.DEBUG, 'BrowserNode.renderText')
 
     const { classes } = this.props
 
+    let text = null
+
+    if (node.message) {
+      text = <Message type={node.message.type}>{node.message.text}</Message>
+    } else {
+      text = node.text
+    }
+
     return (
       <ListItemText
-        primary={node.text}
+        primary={text}
         classes={{
           primary: classes.text
         }}
@@ -270,8 +279,8 @@ class BrowserNodeClass extends React.PureComponent {
 
     if (
       node.children &&
-      node.totalCount &&
-      node.children.length < node.totalCount
+      node.loadMore &&
+      node.loadMore.totalCount > node.loadMore.loadedCount
     ) {
       return (
         <ListItem
@@ -295,7 +304,7 @@ class BrowserNodeClass extends React.PureComponent {
               <span>
                 {messages.get(
                   messages.LOAD_MORE,
-                  node.totalCount - node.children.length
+                  node.loadMore.totalCount - node.loadMore.loadedCount
                 )}
               </span>
             }
