@@ -204,7 +204,7 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
     const criteria = new openbis.ProjectSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node) {
+    if (node && node.object.type !== DatabaseBrowserConsts.TYPE_ROOT) {
       if (node.object.type === objectType.SPACE) {
         criteria.withSpace().withCode().thatEquals(node.object.id)
       } else {
