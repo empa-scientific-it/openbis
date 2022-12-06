@@ -53,37 +53,42 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                     }
                 }
 
-                switch (entry.getKey()) {
-                    case "method":
-                        method = value;
-                        break;
-                    case "sessionToken":
-                        sessionToken = value;
-                        break;
-                    case "interactiveSessionKey":
-                        interactiveSessionKey = value;
-                        break;
-                    case "transactionManagerKey":
-                        transactionManagerKey = value;
-                        break;
-                    case "transactionId":
-                        methodParameters.put(entry.getKey(), UUID.fromString(value));
-                        break;
-                    case "recursively":
-                        methodParameters.put(entry.getKey(), Boolean.valueOf(value));
-                        break;
-                    case "offset":
-                        methodParameters.put(entry.getKey(), Long.valueOf(value));
-                        break;
-                    case "limit":
-                        methodParameters.put(entry.getKey(), Integer.valueOf(value));
-                        break;
-                    case "md5Hash":
-                        methodParameters.put(entry.getKey(), IOUtils.decodeBase64(value));
-                        break;
-                    default:
-                        methodParameters.put(entry.getKey(), value);
-                        break;
+                try {
+                    switch (entry.getKey()) {
+                        case "method":
+                            method = value;
+                            break;
+                        case "sessionToken":
+                            sessionToken = value;
+                            break;
+                        case "interactiveSessionKey":
+                            interactiveSessionKey = value;
+                            break;
+                        case "transactionManagerKey":
+                            transactionManagerKey = value;
+                            break;
+                        case "transactionId":
+                            methodParameters.put(entry.getKey(), UUID.fromString(value));
+                            break;
+                        case "recursively":
+                            methodParameters.put(entry.getKey(), Boolean.valueOf(value));
+                            break;
+                        case "offset":
+                            methodParameters.put(entry.getKey(), Long.valueOf(value));
+                            break;
+                        case "limit":
+                            methodParameters.put(entry.getKey(), Integer.valueOf(value));
+                            break;
+                        case "md5Hash":
+                            methodParameters.put(entry.getKey(), IOUtils.decodeBase64(value));
+                            break;
+                        default:
+                            methodParameters.put(entry.getKey(), value);
+                            break;
+                    }
+                } catch (Exception e) {
+                    logger.catching(e);
+                    return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(), e.getMessage())));
                 }
             }
 
