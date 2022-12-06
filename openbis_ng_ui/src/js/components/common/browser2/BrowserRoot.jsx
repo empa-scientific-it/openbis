@@ -141,15 +141,20 @@ class BrowserRoot extends React.PureComponent {
     const { rootNode } = this.props
 
     const pathNode = rootNode.path[index]
+    const pathNodeText = pathNode.message ? (
+      <Message type={pathNode.message.type}>{pathNode.message.text}</Message>
+    ) : (
+      <Message>{pathNode.text}</Message>
+    )
 
     if (pathNode.rootable) {
       return (
         <div onClick={event => this.handleClick(event, pathNode)}>
-          <Message>{pathNode.text}</Message>
+          {pathNodeText}
         </div>
       )
     } else {
-      return <Message>{pathNode.text}</Message>
+      return pathNodeText
     }
   }
 

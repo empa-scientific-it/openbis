@@ -169,7 +169,10 @@ export default class DatabaseBrowserConstsLoadNodesFiltered {
             node.id,
             DatabaseBrowserConsts.TYPE_WARNING
           ),
-          text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND),
+          message: {
+            type: 'warning',
+            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
+          },
           selectable: false
         }
       ]
