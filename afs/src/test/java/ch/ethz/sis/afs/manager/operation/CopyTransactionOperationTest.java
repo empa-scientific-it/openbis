@@ -41,6 +41,7 @@ public class CopyTransactionOperationTest extends AbstractTransactionOperationTe
         String realPathA = OperationExecutor.getRealPath(getTransaction(), FILE_A_PATH);
         String realPathC = OperationExecutor.getRealPath(getTransaction(), FILE_C_PATH);
         File before = IOUtils.getFile(realPathA);
+        Thread.sleep(5);
         copy(FILE_A_PATH, FILE_C_PATH);
         File after = IOUtils.getFile(realPathA);
         assertEquals(1, getTransaction().getOperations().size());
@@ -59,6 +60,7 @@ public class CopyTransactionOperationTest extends AbstractTransactionOperationTe
         String realPathA = OperationExecutor.getRealPath(getTransaction(), DIR_A_PATH);
         String realPathC = OperationExecutor.getRealPath(getTransaction(), DIR_C_PATH);
         File before = IOUtils.getFile(realPathA);
+        Thread.sleep(5);
         copy(DIR_A_PATH, DIR_C_PATH);
         File after = IOUtils.getFile(realPathA);
         assertEquals(1, getTransaction().getOperations().size());

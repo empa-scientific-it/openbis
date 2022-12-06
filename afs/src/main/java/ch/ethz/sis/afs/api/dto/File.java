@@ -19,6 +19,7 @@ package ch.ethz.sis.afs.api.dto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.time.OffsetDateTime;
@@ -33,5 +34,7 @@ public class File {
     private Long size; // Size in bytes
     private OffsetDateTime lastModifiedTime;
     private OffsetDateTime creationTime;
+
+    @EqualsAndHashCode.Exclude
     private OffsetDateTime lastAccessTime;
 }
