@@ -43,6 +43,10 @@ function AdvancedEntitySearchDropdown(isMultiple,
 	this.onChange = function(onChangeCallbackGiven) {
 		onChangeCallback = onChangeCallbackGiven
 	}
+	
+    this.clearSelection = function() {
+        $select.val(null).trigger("change");
+    }
 
 	this.setGetSelectsSamplesCriteria = function(newGetSelectsSamplesCriteria) {
 	    getSelectsSamplesCriteria = newGetSelectsSamplesCriteria;

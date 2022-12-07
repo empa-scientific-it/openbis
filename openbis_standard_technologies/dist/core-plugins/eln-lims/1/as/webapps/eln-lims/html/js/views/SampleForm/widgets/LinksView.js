@@ -442,18 +442,17 @@ function LinksView(linksController, linksModel) {
         $gridContainer.append($searchDropdownContainer);
 
         var typeId = sampleTypeCode.toLowerCase()
-        var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() { }, "Add", null, "add-object-" + typeId);
-        $addObjectsBtn.css({"margin-top" : "5px"});
-        $gridContainer.append($addObjectsBtn);
 
         // Search Dropdown
 		var searchDropdown = new AdvancedEntitySearchDropdown(true, true, "Code or Name of the Object", false, true, false, false, false);
-		$addObjectsBtn.click(function() {
-		    var selected = searchDropdown.getSelected();
-		    for(var sIdx = 0; sIdx < selected.length; sIdx++) {
+        searchDropdown.onChange(function(selected){
+            for(var sIdx = 0; sIdx < selected.length; sIdx++) {
                 linksController.addSample({ identifier : selected[sIdx].identifier.identifier });
             }
-            $container.empty().hide();
+            if (selected.length > 0 ) {
+                console.log(selected.length);
+                searchDropdown.clearSelection();
+            }
         });
 		searchDropdown.setGetSelectsSamplesCriteria(function() {
                 var advancedSampleSearchCriteria = {
