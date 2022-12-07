@@ -16,16 +16,19 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,8 +55,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.InternalPropertyTypeAuthorization;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
@@ -71,6 +72,18 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
 
     @Autowired
     private IMapPropertyAssignmentByIdExecutor mapPropertyAssignmentByIdExecutor;
+
+    @Autowired
+    private ISearchSampleExecutor searchSampleExecutor;
+
+    @Autowired
+    private ISearchExperimentExecutor searchExperimentExecutor;
+
+    @Autowired
+    private ISearchDataSetExecutor searchDataSetExecutor;
+
+    @Autowired
+    private ISearchMaterialExecutor searchMaterialExecutor;
 
     protected abstract EntityKind getEntityKind();
 
@@ -237,7 +250,32 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
     {
         for (EntityTypePropertyTypePE entityTypePropertyType : etpts)
         {
-            if (forceRemovingAssignments || entityTypePropertyType.getPropertyValues().isEmpty())
+            EntityTypePE entityTypePE = entityTypePropertyType.getEntityType();
+            List<Long> found = null;
+            if (entityTypePE instanceof SampleTypePE) {
+                SampleSearchCriteria criteria = new SampleSearchCriteria();
+                criteria.withType().withCode().thatEquals(entityTypePE.getCode());
+                criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
+                found = searchSampleExecutor.search(context, criteria);
+            } else if (entityTypePE instanceof ExperimentTypePE) {
+                ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+                criteria.withType().withCode().thatEquals(entityTypePE.getCode());
+                criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
+                found = searchExperimentExecutor.search(context, criteria);
+            } else if (entityTypePE instanceof DataSetTypePE) {
+                DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+                criteria.withType().withCode().thatEquals(entityTypePE.getCode());
+                criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
+                found = searchDataSetExecutor.search(context, criteria);
+            } else if (entityTypePE instanceof MaterialTypePE) {
+                MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+                criteria.withType().withCode().thatEquals(entityTypePE.getCode());
+                criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
+                found = searchMaterialExecutor.search(context, criteria);
+            } else {
+                throw new IllegalStateException("This should never happen! entityTypePE=" + entityTypePE.getClass());
+            }
+            if (forceRemovingAssignments || found.isEmpty())
             {
                 new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(context.getSession(), entityTypePropertyType.getPropertyType(),
                         entityTypePropertyType);
@@ -248,7 +286,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                 throw new UserFailureException("Can not remove property type "
                         + entityTypePropertyType.getPropertyType().getCode() + " from type "
                         + entityTypePropertyType.getEntityType().getCode() + " because "
-                        + entityTypePropertyType.getPropertyValues().size() + " entites using this property. "
+                        + found.size() + " entites using this property. "
                         + "To force removal call getPropertyAssignments().setForceRemovingAssignments(true) "
                         + "on the entity update object.");
             }
