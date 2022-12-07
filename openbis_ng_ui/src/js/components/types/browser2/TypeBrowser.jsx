@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import BrowserWithSettings from '@src/js/components/common/browser2/BrowserWithSettings.jsx'
+import BrowserButtons from '@src/js/components/common/browser2/BrowserButtons.jsx'
 import TypeBrowserController from '@src/js/components/types/browser2/TypeBrowserController.js'
 import AppController from '@src/js/components/AppController.js'
 import pages from '@src/js/common/consts/pages.js'
@@ -10,6 +12,7 @@ import logger from '@src/js/common/logger.js'
 class TypeBrowser extends React.Component {
   constructor(props) {
     super(props)
+    autoBind(this)
     this.controller = this.props.controller || new TypeBrowserController()
   }
 
@@ -28,10 +31,12 @@ class TypeBrowser extends React.Component {
 
   render() {
     logger.log(logger.DEBUG, 'TypeBrowser.render')
+
     return (
       <BrowserWithSettings
         id={ids.TYPE_BROWSER_ID}
         controller={this.controller}
+        renderFooter={this.renderFooter}
         onSelectedChange={selectedObject => {
           if (selectedObject) {
             AppController.getInstance().objectOpen(
@@ -41,6 +46,17 @@ class TypeBrowser extends React.Component {
             )
           }
         }}
+      />
+    )
+  }
+
+  renderFooter() {
+    return (
+      <BrowserButtons
+        addEnabled={this.controller.canAddNode()}
+        removeEnabled={this.controller.canRemoveNode()}
+        onAdd={this.controller.onAddNode}
+        onRemove={this.controller.onRemoveNode}
       />
     )
   }

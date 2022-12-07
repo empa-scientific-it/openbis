@@ -20,6 +20,8 @@ const styles = theme => ({
     flexDirection: 'column',
     borderRight: `1px solid ${theme.palette.border.primary}`
   },
+  header: {},
+  footer: {},
   filterButtons: {
     marginLeft: '-12px',
     marginRight: '16px',
@@ -82,7 +84,7 @@ class Browser extends React.PureComponent {
 
   renderBrowser() {
     const { controller } = this
-    const { classes } = this.props
+    const { renderHeader, renderFooter, classes } = this.props
 
     if (!controller.isLoaded()) {
       return (
@@ -98,6 +100,7 @@ class Browser extends React.PureComponent {
 
     return (
       <div className={classes.browser}>
+        {renderHeader && <div className={classes.header}>{renderHeader()}</div>}
         {this.renderFilter()}
         <BrowserRoot
           rootNode={controller.getNodeSetAsRoot()}
@@ -136,6 +139,7 @@ class Browser extends React.PureComponent {
             />
           </div>
         )}
+        {renderFooter && <div className={classes.footer}>{renderFooter()}</div>}
       </div>
     )
   }
