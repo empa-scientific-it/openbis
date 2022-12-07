@@ -7,7 +7,6 @@ import BrowserRoot from '@src/js/components/common/browser2/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser2/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser2/BrowserNodeAutoShowSelected.jsx'
 import logger from '@src/js/common/logger.js'
-import util from '@src/js/common/util.js'
 
 const styles = theme => ({
   resizable: {
@@ -111,34 +110,34 @@ class Browser extends React.PureComponent {
             controller.setNodeAsRoot(null)
           }}
         />
-        {fullTree && (
-          <div
-            className={util.classNames(
-              classes.nodes,
-              !controller.isLoading() && controller.isFullTreeVisible()
-                ? classes.visible
-                : classes.hidden
-            )}
-          >
-            <BrowserNode controller={controller} node={fullTree} level={-1} />
-          </div>
-        )}
-        {filteredTree && (
-          <div
-            className={util.classNames(
-              classes.nodes,
-              !controller.isLoading() && controller.isFilteredTreeVisible()
-                ? classes.visible
-                : classes.hidden
-            )}
-          >
-            <BrowserNode
-              controller={controller}
-              node={filteredTree}
-              level={-1}
-            />
-          </div>
-        )}
+        <div className={classes.nodes}>
+          {fullTree && (
+            <div
+              className={
+                !controller.isLoading() && controller.isFullTreeVisible()
+                  ? classes.visible
+                  : classes.hidden
+              }
+            >
+              <BrowserNode controller={controller} node={fullTree} level={-1} />
+            </div>
+          )}
+          {filteredTree && (
+            <div
+              className={
+                !controller.isLoading() && controller.isFilteredTreeVisible()
+                  ? classes.visible
+                  : classes.hidden
+              }
+            >
+              <BrowserNode
+                controller={controller}
+                node={filteredTree}
+                level={-1}
+              />
+            </div>
+          )}
+        </div>
         {renderFooter && <div className={classes.footer}>{renderFooter()}</div>}
       </div>
     )
