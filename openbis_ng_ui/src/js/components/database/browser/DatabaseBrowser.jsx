@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import BrowserWithSettings from '@src/js/components/common/browser2/BrowserWithSettings.jsx'
+import BrowserWithOpenbis from '@src/js/components/common/browser2/BrowserWithOpenbis.jsx'
 import DatabaseBrowserController from '@src/js/components/database/browser/DatabaseBrowserController.js'
 import AppController from '@src/js/components/AppController.js'
 import pages from '@src/js/common/consts/pages.js'
@@ -29,7 +29,7 @@ class DatabaseBrowser extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'DatabaseBrowser.render')
     return (
-      <BrowserWithSettings
+      <BrowserWithOpenbis
         id={ids.DATABASE_BROWSER_ID}
         controller={this.controller}
         onSelectedChange={selectedObject => {

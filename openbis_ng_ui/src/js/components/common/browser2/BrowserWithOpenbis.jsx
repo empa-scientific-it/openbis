@@ -5,7 +5,7 @@ import openbis from '@src/js/services/openbis.js'
 import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
-export default class BrowserWithSettings extends React.PureComponent {
+export default class BrowserWithOpenbis extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -16,7 +16,7 @@ export default class BrowserWithSettings extends React.PureComponent {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'BrowserWithSettings.render')
+    logger.log(logger.DEBUG, 'BrowserWithOpenbis.render')
     return (
       <Browser
         {...this.props}
