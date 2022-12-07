@@ -17,15 +17,21 @@ class TypeBrowser extends React.Component {
   }
 
   componentDidMount() {
-    this.componentDidUpdate(null)
+    this.componentDidUpdate({})
   }
 
   componentDidUpdate(prevProps) {
-    const prevSelectedObject = prevProps ? prevProps.selectedObject : null
-    const selectedObject = this.props.selectedObject
-
-    if (!_.isEqual(prevSelectedObject, selectedObject)) {
+    if (!_.isEqual(this.props.selectedObject, prevProps.selectedObject)) {
       this.controller.selectObject(this.props.selectedObject)
+    }
+
+    if (
+      !_.isEqual(
+        this.props.lastObjectModifications,
+        prevProps.lastObjectModifications
+      )
+    ) {
+      this.controller.reload(this.props.lastObjectModifications)
     }
   }
 
@@ -55,13 +61,15 @@ class TypeBrowser extends React.Component {
       <BrowserButtons
         addEnabled={this.controller.canAddNode()}
         removeEnabled={this.controller.canRemoveNode()}
-        onAdd={this.controller.onAddNode}
-        onRemove={this.controller.onRemoveNode}
+        onAdd={this.controller.addNode}
+        onRemove={this.controller.removeNode}
       />
     )
   }
 }
 
 export default AppController.getInstance().withState(() => ({
-  selectedObject: AppController.getInstance().getSelectedObject(pages.TYPES)
+  selectedObject: AppController.getInstance().getSelectedObject(pages.TYPES),
+  lastObjectModifications:
+    AppController.getInstance().getLastObjectModifications()
 }))(TypeBrowser)

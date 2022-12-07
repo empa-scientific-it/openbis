@@ -4,6 +4,7 @@ import TypeBrowserControllerLoadNodesFiltered from '@src/js/components/types/bro
 import TypeBrowserControllerLoadNodesUnfiltered from '@src/js/components/types/browser2/TypeBrowserControllerLoadNodesUnfiltered.js'
 import TypeBrowserControllerAddNode from '@src/js/components/types/browser2/TypeBrowserControllerAddNode.js'
 import TypeBrowserControllerRemoveNode from '@src/js/components/types/browser2/TypeBrowserControllerRemoveNode.js'
+import TypeBrowserControllerReload from '@src/js/components/types/browser2/TypeBrowserControllerReload.js'
 
 export default class TypeBrowserController extends BrowserController {
   async doLoadNodePath(params) {
@@ -24,13 +25,17 @@ export default class TypeBrowserController extends BrowserController {
     }
   }
 
+  async reload(objectModifications) {
+    new TypeBrowserControllerReload(this).reload(objectModifications)
+  }
+
   canAddNode() {
     return new TypeBrowserControllerAddNode().canAddNode(
       this.getSelectedObject()
     )
   }
 
-  onAddNode() {
+  addNode() {
     new TypeBrowserControllerAddNode().doAddNode(this.getSelectedObject())
   }
 
@@ -40,7 +45,7 @@ export default class TypeBrowserController extends BrowserController {
     )
   }
 
-  onRemoveNode() {
+  removeNode() {
     new TypeBrowserControllerRemoveNode().doRemoveNode(this.getSelectedObject())
   }
 }
