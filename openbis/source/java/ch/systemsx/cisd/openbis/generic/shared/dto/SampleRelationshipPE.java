@@ -106,7 +106,7 @@ public class SampleRelationshipPE implements Serializable
     }
 
     @NotNull(message = ValidationMessages.PARENT_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PARENT_SAMPLE_COLUMN)
     public SamplePE getParentSample()
     {
@@ -151,7 +151,7 @@ public class SampleRelationshipPE implements Serializable
     }
 
     @NotNull(message = ValidationMessages.CHILD_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CHILD_SAMPLE_COLUMN)
     public SamplePE getChildSample()
     {
