@@ -45,7 +45,7 @@ export default class TypeBrowserConstsLoadNodePath {
       const types = await openbis.getSampleTypes([id], fetchOptions)
       const type = types[object.id]
 
-      return this.createTypePath(
+      return this.createNodePath(
         object,
         type,
         objectType.OBJECT_TYPE,
@@ -58,7 +58,7 @@ export default class TypeBrowserConstsLoadNodePath {
       const types = await openbis.getExperimentTypes([id], fetchOptions)
       const type = types[object.id]
 
-      return this.createTypePath(
+      return this.createNodePath(
         object,
         type,
         objectType.COLLECTION_TYPE,
@@ -71,7 +71,7 @@ export default class TypeBrowserConstsLoadNodePath {
       const types = await openbis.getDataSetTypes([id], fetchOptions)
       const type = types[object.id]
 
-      return this.createTypePath(
+      return this.createNodePath(
         object,
         type,
         objectType.DATA_SET_TYPE,
@@ -84,7 +84,7 @@ export default class TypeBrowserConstsLoadNodePath {
       const types = await openbis.getMaterialTypes([id], fetchOptions)
       const type = types[object.id]
 
-      return this.createTypePath(
+      return this.createNodePath(
         object,
         type,
         objectType.MATERIAL_TYPE,
@@ -97,7 +97,7 @@ export default class TypeBrowserConstsLoadNodePath {
       const types = await openbis.getVocabularies([id], fetchOptions)
       const type = types[object.id]
 
-      return this.createTypePath(
+      return this.createNodePath(
         object,
         type,
         objectType.VOCABULARY_TYPE,
@@ -121,7 +121,7 @@ export default class TypeBrowserConstsLoadNodePath {
     ]
   }
 
-  createTypePath(object, type, folderObjectType, folderText) {
+  createNodePath(object, type, folderObjectType, folderText) {
     if (type) {
       const folderPath = this.createFolderPath(folderObjectType, folderText)
       return [
