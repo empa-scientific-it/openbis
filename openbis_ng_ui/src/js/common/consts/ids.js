@@ -30,6 +30,7 @@ const PERSONAL_ACCESS_TOKEN_GRID_ID = 'personal_access_token_grid'
 // browsers
 const DATABASE_BROWSER_ID = 'database_browser'
 const TYPE_BROWSER_ID = 'type_browser'
+const USER_BROWSER_ID = 'user_browser'
 
 export default {
   // app
@@ -65,5 +66,6 @@ export default {
 
   // browsers
   DATABASE_BROWSER_ID,
-  TYPE_BROWSER_ID
+  TYPE_BROWSER_ID,
+  USER_BROWSER_ID
 }
