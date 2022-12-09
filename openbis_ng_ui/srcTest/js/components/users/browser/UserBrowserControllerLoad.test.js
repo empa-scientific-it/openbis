@@ -23,16 +23,19 @@ async function testLoad() {
 
   await common.controller.load()
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Groups',
-      expanded: false,
-      selected: false
-    }
-  ])
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Groups',
+        expanded: false,
+        selected: false
+      }
+    ]
+  })
 }

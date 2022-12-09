@@ -1,4 +1,5 @@
 import UserBrowserControllerTest from '@srcTest/js/components/users/browser/UserBrowserControllerTest.js'
+import objectType from '@src/js/common/consts/objectType.js'
 import openbis from '@srcTest/js/services/openbis.js'
 import fixture from '@srcTest/js/common/fixture.js'
 
@@ -24,96 +25,107 @@ async function testSelectNode() {
   ])
 
   await common.controller.load()
+  await common.controller.changeAutoShowSelectedObject()
 
-  common.controller.nodeSelect('users/' + fixture.TEST_USER_DTO.userId)
+  await common.controller.selectObject({
+    type: objectType.USER,
+    id: fixture.TEST_USER_DTO.userId
+  })
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: false,
-      children: [
-        {
-          text: fixture.ANOTHER_USER_DTO.userId,
-          expanded: false,
-          selected: false
-        },
-        {
-          text: fixture.TEST_USER_DTO.userId,
-          expanded: false,
-          selected: true
-        }
-      ]
-    },
-    {
-      text: 'Groups',
-      expanded: false,
-      selected: false,
-      children: [
-        {
-          text: fixture.ALL_USERS_GROUP_DTO.code,
-          expanded: false,
-          selected: false
-        },
-        {
-          text: fixture.ANOTHER_USER_GROUP_DTO.code,
-          expanded: false,
-          selected: false
-        },
-        {
-          text: fixture.TEST_USER_GROUP_DTO.code,
-          expanded: false,
-          selected: false
-        }
-      ]
-    }
-  ])
-  common.expectOpenUserAction(fixture.TEST_USER_DTO.userId)
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: false,
+        children: [
+          {
+            text: fixture.ANOTHER_USER_DTO.userId,
+            expanded: false,
+            selected: false
+          },
+          {
+            text: fixture.TEST_USER_DTO.userId,
+            expanded: false,
+            selected: true
+          }
+        ]
+      },
+      {
+        text: 'Groups',
+        expanded: false,
+        selected: false,
+        children: [
+          {
+            text: fixture.ALL_USERS_GROUP_DTO.code,
+            expanded: false,
+            selected: false
+          },
+          {
+            text: fixture.ANOTHER_USER_GROUP_DTO.code,
+            expanded: false,
+            selected: false
+          },
+          {
+            text: fixture.TEST_USER_GROUP_DTO.code,
+            expanded: false,
+            selected: false
+          }
+        ]
+      }
+    ]
+  })
 
-  common.controller.nodeSelect('groups/' + fixture.ANOTHER_USER_GROUP_DTO.code)
+  await common.controller.selectObject({
+    type: objectType.USER_GROUP,
+    id: fixture.ANOTHER_USER_GROUP_DTO.code
+  })
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: false,
-      children: [
-        {
-          text: fixture.ANOTHER_USER_DTO.userId,
-          expanded: false,
-          selected: false
-        },
-        {
-          text: fixture.TEST_USER_DTO.userId,
-          expanded: false,
-          selected: false
-        }
-      ]
-    },
-    {
-      text: 'Groups',
-      expanded: false,
-      selected: false,
-      children: [
-        {
-          text: fixture.ALL_USERS_GROUP_DTO.code,
-          expanded: false,
-          selected: false
-        },
-        {
-          text: fixture.ANOTHER_USER_GROUP_DTO.code,
-          expanded: false,
-          selected: true
-        },
-        {
-          text: fixture.TEST_USER_GROUP_DTO.code,
-          expanded: false,
-          selected: false
-        }
-      ]
-    }
-  ])
-  common.expectOpenGroupAction(fixture.ANOTHER_USER_GROUP_DTO.code)
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: false,
+        children: [
+          {
+            text: fixture.ANOTHER_USER_DTO.userId,
+            expanded: false,
+            selected: false
+          },
+          {
+            text: fixture.TEST_USER_DTO.userId,
+            expanded: false,
+            selected: false
+          }
+        ]
+      },
+      {
+        text: 'Groups',
+        expanded: false,
+        selected: false,
+        children: [
+          {
+            text: fixture.ALL_USERS_GROUP_DTO.code,
+            expanded: false,
+            selected: false
+          },
+          {
+            text: fixture.ANOTHER_USER_GROUP_DTO.code,
+            expanded: false,
+            selected: true
+          },
+          {
+            text: fixture.TEST_USER_GROUP_DTO.code,
+            expanded: false,
+            selected: false
+          }
+        ]
+      }
+    ]
+  })
 }
 
 async function testSelectAnotherNode() {
@@ -121,37 +133,46 @@ async function testSelectAnotherNode() {
   openbis.mockSearchGroups([])
 
   await common.controller.load()
-  common.controller.nodeSelect('users/' + fixture.TEST_USER_DTO.userId)
-  common.controller.nodeSelect('users/' + fixture.ANOTHER_USER_DTO.userId)
+  await common.controller.changeAutoShowSelectedObject()
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: false,
-      children: [
-        {
-          text: fixture.ANOTHER_USER_DTO.userId,
-          expanded: false,
-          selected: true
-        },
-        {
-          text: fixture.TEST_USER_DTO.userId,
-          expanded: false,
-          selected: false
-        }
-      ]
-    },
-    {
-      text: 'Groups',
-      expanded: false,
-      selected: false,
-      children: []
-    }
-  ])
+  await common.controller.selectObject({
+    type: objectType.USER,
+    id: fixture.TEST_USER_DTO.userId
+  })
 
-  common.expectOpenUserAction(fixture.TEST_USER_DTO.userId)
-  common.expectOpenUserAction(fixture.ANOTHER_USER_DTO.userId)
+  await common.controller.selectObject({
+    type: objectType.USER,
+    id: fixture.ANOTHER_USER_DTO.userId
+  })
+
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: false,
+        children: [
+          {
+            text: fixture.ANOTHER_USER_DTO.userId,
+            expanded: false,
+            selected: true
+          },
+          {
+            text: fixture.TEST_USER_DTO.userId,
+            expanded: false,
+            selected: false
+          }
+        ]
+      },
+      {
+        text: 'Groups',
+        expanded: false,
+        selected: false,
+        children: []
+      }
+    ]
+  })
 }
 
 async function testSelectVirtualNode() {
@@ -159,20 +180,26 @@ async function testSelectVirtualNode() {
   openbis.mockSearchGroups([])
 
   await common.controller.load()
-  common.controller.nodeSelect('users')
+  await common.controller.changeAutoShowSelectedObject()
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: true
-    },
-    {
-      text: 'Groups',
-      expanded: false,
-      selected: false
-    }
-  ])
+  await common.controller.selectObject({
+    type: objectType.OVERVIEW,
+    id: objectType.USER
+  })
 
-  common.expectOpenUsersOverviewAction()
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: true
+      },
+      {
+        text: 'Groups',
+        expanded: false,
+        selected: false
+      }
+    ]
+  })
 }

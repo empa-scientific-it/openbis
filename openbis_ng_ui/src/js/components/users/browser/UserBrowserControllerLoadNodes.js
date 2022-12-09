@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import UserBrowserConsts from '@src/js/components/users/browser2/UserBrowserConsts.js'
+import UserBrowserConsts from '@src/js/components/users/browser/UserBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
