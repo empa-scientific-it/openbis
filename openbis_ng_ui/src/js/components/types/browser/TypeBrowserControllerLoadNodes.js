@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import TypeBrowserConsts from '@src/js/components/types/browser2/TypeBrowserConsts.js'
+import TypeBrowserConsts from '@src/js/components/types/browser/TypeBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
@@ -111,7 +111,7 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
   }
 
   async searchObjectTypes(params) {
-    const { filter, offset, limit } = params
+    const { filter, offset } = params
 
     const criteria = new openbis.SampleTypeSearchCriteria()
     if (filter) {
@@ -120,16 +120,13 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
     const fetchOptions = new openbis.SampleTypeFetchOptions()
 
     const result = await openbis.searchSampleTypes(criteria, fetchOptions)
-    result.criteria = {
-      filter,
-      offset,
-      limit
-    }
+    result.filter = filter
+    result.offset = offset
     return result
   }
 
   async searchCollectionTypes(params) {
-    const { filter, offset, limit } = params
+    const { filter, offset } = params
 
     const criteria = new openbis.ExperimentTypeSearchCriteria()
     if (filter) {
@@ -138,16 +135,13 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
     const fetchOptions = new openbis.ExperimentTypeFetchOptions()
 
     const result = await openbis.searchExperimentTypes(criteria, fetchOptions)
-    result.criteria = {
-      filter,
-      offset,
-      limit
-    }
+    result.filter = filter
+    result.offset = offset
     return result
   }
 
   async searchDataSetTypes(params) {
-    const { filter, offset, limit } = params
+    const { filter, offset } = params
 
     const criteria = new openbis.DataSetTypeSearchCriteria()
     if (filter) {
@@ -156,16 +150,13 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
     const fetchOptions = new openbis.DataSetTypeFetchOptions()
 
     const result = await openbis.searchDataSetTypes(criteria, fetchOptions)
-    result.criteria = {
-      filter,
-      offset,
-      limit
-    }
+    result.filter = filter
+    result.offset = offset
     return result
   }
 
   async searchMaterialTypes(params) {
-    const { filter, offset, limit } = params
+    const { filter, offset } = params
 
     const criteria = new openbis.MaterialTypeSearchCriteria()
     if (filter) {
@@ -174,16 +165,13 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
     const fetchOptions = new openbis.MaterialTypeFetchOptions()
 
     const result = await openbis.searchMaterialTypes(criteria, fetchOptions)
-    result.criteria = {
-      filter,
-      offset,
-      limit
-    }
+    result.filter = filter
+    result.offset = offset
     return result
   }
 
   async searchVocabularyTypes(params) {
-    const { filter, offset, limit } = params
+    const { filter, offset } = params
 
     const criteria = new openbis.VocabularySearchCriteria()
     if (filter) {
@@ -192,11 +180,8 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
     const fetchOptions = new openbis.VocabularyFetchOptions()
 
     const result = await openbis.searchVocabularies(criteria, fetchOptions)
-    result.criteria = {
-      filter,
-      offset,
-      limit
-    }
+    result.filter = filter
+    result.offset = offset
     return result
   }
 
@@ -264,7 +249,7 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
       },
       canHaveChildren: !!result,
       selectable: true,
-      expanded: true
+      expanded: result && result.filter
     }
 
     if (result) {
@@ -279,11 +264,9 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
   }
 
   createNodes(parent, result, objectType) {
-    const { offset } = result.criteria
-
     let objects = result.getObjects()
     objects.sort((o1, o2) => compare(o1.code, o2.code))
-    objects = objects.slice(offset, offset + LOAD_LIMIT)
+    objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
 
     let nodes = objects.map(type => ({
       id: TypeBrowserConsts.nodeId(parent.id, objectType, type.getCode()),
@@ -300,8 +283,8 @@ export default class TypeBrowserConstsLoadNodesUnfiltered {
       return {
         nodes: nodes,
         loadMore: {
-          offset: offset + nodes.length,
-          loadedCount: offset + nodes.length,
+          offset: result.offset + nodes.length,
+          loadedCount: result.offset + nodes.length,
           totalCount: result.getTotalCount(),
           append: true
         }

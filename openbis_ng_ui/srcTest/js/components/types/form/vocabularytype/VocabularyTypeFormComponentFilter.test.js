@@ -40,7 +40,7 @@ async function testFilter() {
   form.getGrid().getColumns()[1].getFilter().change('some')
   await form.update()
 
-  form.expectJSON(
+  form.expectJSONWaiting(
     {
       grid: {
         columns: [
@@ -65,7 +65,7 @@ async function testFilter() {
   form.getGrid().getColumns()[1].getFilter().change('1')
   await form.update()
 
-  form.expectJSON(
+  form.expectJSONWaiting(
     {
       grid: {
         columns: [

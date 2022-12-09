@@ -31,9 +31,9 @@ export default class TypeBrowserControllerRemoveNode {
       const options = new openbis.SynchronousOperationExecutionOptions()
       options.setExecuteInOrder(true)
       await openbis.executeOperations(operations, options)
-      AppController.getInstance().objectDelete(pages.TYPES, type, id)
+      await AppController.getInstance().objectDelete(pages.TYPES, type, id)
     } catch (error) {
-      AppController.getInstance().errorChange(error)
+      await AppController.getInstance().errorChange(error)
     }
   }
 

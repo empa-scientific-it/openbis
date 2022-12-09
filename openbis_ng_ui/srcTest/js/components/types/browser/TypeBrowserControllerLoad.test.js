@@ -14,36 +14,39 @@ describe(TypeBrowserControllerTest.SUITE, () => {
 async function testLoad() {
   await common.controller.load()
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Object Types',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Collection Types',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Data Set Types',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Material Types',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Vocabulary Types',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Property Types',
-      expanded: false,
-      selected: false
-    }
-  ])
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Object Types',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Collection Types',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Data Set Types',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Material Types',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Vocabulary Types',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Property Types',
+        expanded: false,
+        selected: false
+      }
+    ]
+  })
 }

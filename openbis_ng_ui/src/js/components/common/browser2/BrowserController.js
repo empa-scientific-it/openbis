@@ -125,11 +125,11 @@ export default class BrowserController {
   }
 
   async filterChange(newFilter) {
-    this._setFilter(newFilter, 500)
+    await this._setFilter(newFilter, 500)
   }
 
   async filterClear() {
-    this._setFilter(null, 0)
+    await this._setFilter(null, 0)
   }
 
   async _setFilter(newFilter, silentPeriod) {
@@ -146,9 +146,16 @@ export default class BrowserController {
     if (util.trim(newFilter) === null) {
       await this.load()
     } else {
-      this.lastFilterTimeoutId = setTimeout(async () => {
-        await this.load()
-      }, silentPeriod)
+      return new Promise((resolve, reject) => {
+        this.lastFilterTimeoutId = setTimeout(async () => {
+          try {
+            await this.load()
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        }, silentPeriod)
+      })
     }
   }
 
@@ -250,6 +257,10 @@ export default class BrowserController {
   isAutoShowSelectedObject() {
     const { autoShowSelectedObject } = this.context.getState()
     return autoShowSelectedObject
+  }
+
+  getTree() {
+    return this._getTreeController().getTree()
   }
 
   getFullTree() {

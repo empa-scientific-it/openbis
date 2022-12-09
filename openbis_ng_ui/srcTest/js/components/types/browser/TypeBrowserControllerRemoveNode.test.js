@@ -19,21 +19,15 @@ async function testRemoveNode() {
   openbis.deleteSampleTypes.mockReturnValue(Promise.resolve())
 
   await common.controller.load()
+  await common.controller.changeAutoShowSelectedObject()
 
-  expect(common.controller.isRemoveNodeDialogOpen()).toBe(false)
   expect(openbis.deleteSampleTypes).toHaveBeenCalledTimes(0)
 
-  common.controller.nodeSelect(
-    'objectTypes/' + fixture.TEST_SAMPLE_TYPE_DTO.code
-  )
-  common.controller.nodeRemove()
-
-  expect(common.controller.isRemoveNodeDialogOpen()).toBe(true)
-  expect(openbis.deleteSampleTypes).toHaveBeenCalledTimes(0)
-
-  await common.controller.nodeRemoveConfirm()
-
-  expect(common.controller.isRemoveNodeDialogOpen()).toBe(false)
+  await common.controller.selectObject({
+    type: objectType.OBJECT_TYPE,
+    id: fixture.TEST_SAMPLE_TYPE_DTO.code
+  })
+  await common.controller.removeNode()
 
   const createDeleteTypeOperation = typeCode => {
     const id = new openbis.EntityTypePermId(typeCode)

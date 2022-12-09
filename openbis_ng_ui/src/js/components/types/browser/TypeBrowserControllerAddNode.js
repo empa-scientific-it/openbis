@@ -19,11 +19,11 @@ export default class TypeBrowserControllerAddNode {
     )
   }
 
-  doAddNode(selectedObject) {
+  async doAddNode(selectedObject) {
     if (!this.canAddNode(selectedObject)) {
       return
     }
-    AppController.getInstance().objectNew(
+    await AppController.getInstance().objectNew(
       pages.TYPES,
       NEW_OBJECT_TYPES[selectedObject.id]
     )

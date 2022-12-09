@@ -1,4 +1,4 @@
-import TypeBrowserConsts from '@src/js/components/types/browser2/TypeBrowserConsts.js'
+import TypeBrowserConsts from '@src/js/components/types/browser/TypeBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
