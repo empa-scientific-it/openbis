@@ -64,6 +64,8 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
 
     private final File recoveryStateDir;
 
+    private final File recoveryMarkerDir;
+
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
@@ -95,6 +97,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             File dssInternalTempDir, File dssRegistrationLogDir, File dssRecoveryStateDir,
+            File dssRecoveryMarkerDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -102,7 +105,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
             IDataSetStorageRecoveryManager storageRecoveryManager)
     {
         this(dssCode, shareId, storeRootDir, dssInternalTempDir, dssRegistrationLogDir,
-                dssRecoveryStateDir, openBisService, mailClient, dataSetValidator,
+                dssRecoveryStateDir, dssRecoveryMarkerDir, openBisService, mailClient, dataSetValidator,
                 dataSourceQueryService, dynamicTransactionQueryFactory,
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
@@ -113,6 +116,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             File dssInternalTempDir, File dssRegistrationLogDir, File dssRecoveryStateDir,
+            File dssRecoveryMarkerDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -146,16 +150,14 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
         this.validationScriptsOrNull = validationScriptsOrNull;
 
         this.recoveryStateDir = new File(dssRecoveryStateDir, threadParameters.getThreadName());
-        File recoveryMarkerFilesDirectory =
-                new File(getRecoveryMarkerDir(storeRootDir, shareId,
-                        threadParameters.getThreadProperties()), threadParameters.getThreadName());
+        this.recoveryMarkerDir = new File(dssRecoveryMarkerDir, threadParameters.getThreadName());
 
         this.recoveryStateDir.mkdirs();
-        recoveryMarkerFilesDirectory.mkdirs();
+        this.recoveryMarkerDir.mkdirs();
 
         this.storageRecoveryManager = storageRecoveryManager;
         this.storageRecoveryManager.setDropboxRecoveryStateDir(this.recoveryStateDir);
-        this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
+        this.storageRecoveryManager.setRecoveryMarkerFilesDir(this.recoveryMarkerDir);
         this.storageRecoveryManager
                 .setMaximumRertyCount(threadParameters.getMaximumRecoveryCount());
         this.storageRecoveryManager

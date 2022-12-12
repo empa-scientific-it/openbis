@@ -95,6 +95,8 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     private final File dssRecoveryStateDir;
 
+    private final File dssRecoveryMarkerDir;
+
     private final String dssCode;
 
     private final IMailClient mailClient;
@@ -146,6 +148,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         this.dssRegistrationLogDir =
                 DssPropertyParametersUtil.getDssRegistrationLogDir(dssProperties);
         this.dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(dssProperties);
+        this.dssRecoveryMarkerDir = DssPropertyParametersUtil.getDssRecoveryMarkerDir(dssProperties);
         this.dssCode = DssPropertyParametersUtil.getDataStoreCode(dssProperties);
     }
 
@@ -365,6 +368,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, localShareId, storeRoot,
                         dssInternalTempDir, dssRegistrationLogDir, dssRecoveryStateDir,
+                        dssRecoveryMarkerDir,
                         getOpenBisService(), mailClient, dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), shouldNotifySuccessfulRegistration(),
                         threadParameters, new DataSetStorageRecoveryManager());

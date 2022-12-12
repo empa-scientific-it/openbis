@@ -59,6 +59,8 @@ public class DssPropertyParametersUtil
 
     private static final String RECOVERY_STATE_KEY = "recovery-state";
 
+    private static final String RECOVERY_MARKER_DIR_KEY = "recovery-marker-dir";
+
     private static final String DSS_TMP_KEY = "dss-tmp";
 
     /** Prefix of system properties which may override service.properties. */
@@ -100,6 +102,11 @@ public class DssPropertyParametersUtil
      */
     public static final String DSS_RECOVERY_STATE_DIR_PATH = "dss-recovery-state-dir";
 
+    /**
+     * Directory for recovery marker files.
+     */
+    public static final String DSS_RECOVERY_MARKER_DIR_PATH = "dss-recovery-marker-dir";
+
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
@@ -127,6 +134,8 @@ public class DssPropertyParametersUtil
     private static File dssTmp;
 
     private static File recoveryState;
+
+    private static File recoveryMarkerDir;
 
     private static File logRegistrations;
 
@@ -275,6 +284,15 @@ public class DssPropertyParametersUtil
         return getDssRecoveryStateDir(FileOperations.getInstance(), properties);
     }
 
+    public static File getDssRecoveryMarkerDir(final Properties properties)
+    {
+        if (recoveryMarkerDir == null)
+        {
+            createAndTestSpecialDirectories(FileOperations.getInstance(), properties);
+        }
+        return recoveryMarkerDir;
+    }
+
     @Private
     static File getDssRecoveryStateDir(IFileOperations fileOperations, final Properties properties)
     {
@@ -375,12 +393,16 @@ public class DssPropertyParametersUtil
         recoveryState = getDir(fileOperations, properties, RECOVERY_STATE_KEY, "a directory for storing recovery state for the dss",
                 DSS_RECOVERY_STATE_DIR_PATH);
         Path recoveryStatePath = recoveryState.toPath();
+        recoveryMarkerDir = getDir(fileOperations, properties, RECOVERY_MARKER_DIR_KEY, "a directory for storing recovery marker for the dss",
+                DSS_RECOVERY_MARKER_DIR_PATH);
+        Path recoveryMarkerPath = recoveryMarkerDir.toPath();
         logRegistrations = getDir(fileOperations, properties, LOG_REGISTRATIONS_KEY, "a directory for storing registration logs",
                 DSS_REGISTRATION_LOG_DIR_PATH);
         Path logRegistrationsPath = logRegistrations.toPath();
 
         FileStore dssTmpStore = getVolumeInfo(dssTmpPath, DSS_TMP_KEY);
         FileStore recoveryStateStore = getVolumeInfo(recoveryStatePath, RECOVERY_STATE_KEY);
+        FileStore recoveryMarkerStore = getVolumeInfo(recoveryMarkerPath, RECOVERY_MARKER_DIR_KEY);
         FileStore logRegistrationsState = getVolumeInfo(logRegistrationsPath, LOG_REGISTRATIONS_KEY);
 
         // Volume info obtained

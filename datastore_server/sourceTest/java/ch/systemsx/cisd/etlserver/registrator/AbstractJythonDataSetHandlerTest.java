@@ -261,7 +261,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, recoveryStateDir,
-                        openBisService, mailClient, dataSetValidator, dataSourceQueryService,
+                        workingDirectory, openBisService, mailClient, dataSetValidator, dataSourceQueryService,
                         myFactory, true, threadParameters, storageRecoveryManager);
         return globalState;
     }

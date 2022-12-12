@@ -527,7 +527,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, workingDirectory,
-                        openBisService, mailClient, dataSetValidator, null,
+                        workingDirectory, openBisService, mailClient, dataSetValidator, null,
                         new DynamicTransactionQueryFactory(), true, threadParameters,
                         new DataSetStorageRecoveryManager());
         return globalState;

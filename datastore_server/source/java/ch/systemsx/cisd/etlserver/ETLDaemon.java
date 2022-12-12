@@ -377,6 +377,8 @@ public final class ETLDaemon
 
         private final File dssRecoveryStateDir;
 
+        private final File dssRecoveryMarkerDir;
+
         private final String dssCode;
 
         private final String shareId;
@@ -391,6 +393,7 @@ public final class ETLDaemon
             dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
             dssRegistrationLogDir = DssPropertyParametersUtil.getDssRegistrationLogDir(properties);
             dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(properties);
+            dssRecoveryMarkerDir = DssPropertyParametersUtil.getDssRecoveryMarkerDir(properties);
             dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
             shareId = getShareId(threadParameters, storeRootDir);
         }
@@ -412,7 +415,8 @@ public final class ETLDaemon
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
                         initializationData.dssRegistrationLogDir,
-                        initializationData.dssRecoveryStateDir, openBISService, mailClient,
+                        initializationData.dssRecoveryStateDir,
+                        initializationData.dssRecoveryMarkerDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, new DataSetStorageRecoveryManager());
@@ -454,7 +458,8 @@ public final class ETLDaemon
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
                         initializationData.dssRegistrationLogDir,
-                        initializationData.dssRecoveryStateDir, openBISService, mailClient,
+                        initializationData.dssRecoveryStateDir, 
+                        initializationData.dssRecoveryMarkerDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, useIsFinishedMarkerFile, deleteUnidentified,

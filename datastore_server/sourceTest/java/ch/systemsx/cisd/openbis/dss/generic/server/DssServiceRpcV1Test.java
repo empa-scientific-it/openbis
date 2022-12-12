@@ -776,7 +776,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
                         + "-thread");
         return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", storeDir,
-                rpcIncomingDir, workingDirectory, workingDirectory, openBisService, null, null,
+                rpcIncomingDir, workingDirectory, workingDirectory, workingDirectory,
+                openBisService, null, null,
                 null, null, true, params, new DataSetStorageRecoveryManager());
     }
 }
