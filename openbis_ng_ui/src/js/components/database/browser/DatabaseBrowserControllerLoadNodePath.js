@@ -3,7 +3,7 @@ import DatabaseBrowserConsts from '@src/js/components/database/browser/DatabaseB
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
-export default class DatabaseBrowserConstsLoadNodePath {
+export default class DatabaseBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { root, object } = params
 

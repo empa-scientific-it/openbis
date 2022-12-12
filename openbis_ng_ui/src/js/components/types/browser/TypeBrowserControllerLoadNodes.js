@@ -8,7 +8,7 @@ import compare from '@src/js/common/compare.js'
 const LOAD_LIMIT = 100
 const TOTAL_LOAD_LIMIT = 500
 
-export default class TypeBrowserConstsLoadNodesUnfiltered {
+export default class TypeBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
 

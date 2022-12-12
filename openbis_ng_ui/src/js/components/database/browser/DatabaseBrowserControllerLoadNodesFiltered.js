@@ -8,7 +8,7 @@ import compare from '@src/js/common/compare.js'
 const LOAD_LIMIT = 50
 const TOTAL_LOAD_LIMIT = 500
 
-export default class DatabaseBrowserConstsLoadNodesFiltered {
+export default class DatabaseBrowserControllerLoadNodesFiltered {
   async doLoadFilteredNodes(params) {
     const { node } = params
 

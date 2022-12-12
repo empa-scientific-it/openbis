@@ -2,7 +2,7 @@ import TypeBrowserConsts from '@src/js/components/types/browser/TypeBrowserConst
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
-export default class TypeBrowserConstsLoadNodePath {
+export default class TypeBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { object } = params
 

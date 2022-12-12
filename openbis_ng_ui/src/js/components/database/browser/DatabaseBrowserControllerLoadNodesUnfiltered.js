@@ -5,7 +5,7 @@ import objectType from '@src/js/common/consts/objectType.js'
 
 const LOAD_LIMIT = 50
 
-export default class DatabaseBrowserConstsLoadNodesUnfiltered {
+export default class DatabaseBrowserControllerLoadNodesUnfiltered {
   async doLoadUnfilteredNodes(params) {
     const { node } = params
 

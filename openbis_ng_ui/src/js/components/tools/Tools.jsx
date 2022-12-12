@@ -5,7 +5,7 @@ import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import Content from '@src/js/components/common/content/Content.jsx'
 import ContentTab from '@src/js/components/common/content/ContentTab.jsx'
-import ToolBrowser from '@src/js/components/tools/browser/ToolBrowser.jsx'
+import ToolBrowser from '@src/js/components/tools/browser2/ToolBrowser.jsx'
 import ToolSearch from '@src/js/components/tools/search/ToolSearch.jsx'
 import PluginForm from '@src/js/components/tools/form/plugin/PluginForm.jsx'
 import QueryForm from '@src/js/components/tools/form/query/QueryForm.jsx'
@@ -88,7 +88,9 @@ class Tools extends React.PureComponent {
         ),
         [objectType.QUERY]: messages.get(messages.QUERIES),
         [objectType.HISTORY]: messages.get(messages.HISTORY),
-        [objectType.ACTIVE_USERS_REPORT]: messages.get(messages.ACTIVE_USERS_REPORT),
+        [objectType.ACTIVE_USERS_REPORT]: messages.get(
+          messages.ACTIVE_USERS_REPORT
+        ),
         [objectType.PERSONAL_ACCESS_TOKEN]: messages.get(
           messages.PERSONAL_ACCESS_TOKENS
         )
@@ -109,7 +111,9 @@ class Tools extends React.PureComponent {
         [objectType.HISTORY]: messages.get(messages.HISTORY) + ': ',
         [objectType.IMPORT]: messages.get(messages.IMPORT) + ': ',
         [objectType.SEARCH]: messages.get(messages.SEARCH) + ': ',
-        [objectType.ACTIVE_USERS_REPORT]: messages.get(messages.ACTIVE_USERS_REPORT)
+        [objectType.ACTIVE_USERS_REPORT]: messages.get(
+          messages.ACTIVE_USERS_REPORT
+        )
       }
 
       let suffix = object.id
@@ -125,7 +129,7 @@ class Tools extends React.PureComponent {
           suffix = messages.get(messages.ALL)
         }
       } else if (object.type === objectType.ACTIVE_USERS_REPORT) {
-        suffix = ""
+        suffix = ''
       }
 
       label = prefixes[object.type] + suffix

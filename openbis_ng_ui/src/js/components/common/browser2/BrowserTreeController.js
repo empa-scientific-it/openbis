@@ -240,7 +240,7 @@ export default class BrowserTreeController {
     const node = state.nodes[nodeId]
 
     if (node) {
-      if (!node.loaded) {
+      if (!node.loaded && node.canHaveChildren) {
         await this._doLoadNode(state, nodeId, 0)
       }
 
