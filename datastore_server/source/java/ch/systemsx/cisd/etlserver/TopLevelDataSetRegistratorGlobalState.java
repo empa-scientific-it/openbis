@@ -323,8 +323,6 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
 
     public static final String PRE_COMMIT_DIR = "pre-commit-dir";
 
-    public static final String RECOVERY_MARKER_DIR = "recovery-marker-dir";
-
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
@@ -339,13 +337,6 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
     private static File getPreCommitDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_COMMIT_DIR, "pre-commit");
-    }
-
-    private static File getRecoveryMarkerDir(File storeRoot, String shareId,
-            Properties threadProperties)
-    {
-        return getShareLocalDir(storeRoot, shareId, threadProperties, RECOVERY_MARKER_DIR,
-                "recovery-marker");
     }
 
     /**

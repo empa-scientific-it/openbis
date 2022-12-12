@@ -197,7 +197,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         stagingDirectory = new File(workingDirectory, "staging");
         prestagingDirectory = new File(workingDirectory, "pre-staging");
         precommitDirectory = new File(workingDirectory, "pre-commit");
-        recoveryMarkerDirectory = new File(workingDirectory, "recovery-marker");
+        recoveryMarkerDirectory = workingDirectory;
         share = new File(workingDirectory, Constants.DEFAULT_SHARE_ID);
         share.mkdirs();
 
@@ -359,8 +359,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 prestagingDirectory.getPath());
         threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.PRE_COMMIT_DIR,
                 precommitDirectory.getPath());
-        threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.RECOVERY_MARKER_DIR,
-                recoveryMarkerDirectory.getPath());
 
         threadProperties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "0");
         threadProperties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0");
