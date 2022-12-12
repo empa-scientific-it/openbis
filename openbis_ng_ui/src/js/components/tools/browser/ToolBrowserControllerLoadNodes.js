@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
-import ToolBrowserConsts from '@src/js/components/tools/browser2/ToolBrowserConsts.js'
+import ToolBrowserConsts from '@src/js/components/tools/browser/ToolBrowserConsts.js'
 import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'

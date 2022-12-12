@@ -116,9 +116,25 @@ const mockSearchVocabularies = vocabularies => {
 }
 
 const mockSearchPlugins = plugins => {
-  const searchResult = new dto.SearchResult()
-  searchResult.setObjects(plugins)
-  searchPlugins.mockReturnValue(Promise.resolve(searchResult))
+  searchPlugins.mockImplementation(criteria => {
+    const pluginTypeCriteria = criteria.criteria.find(
+      c => c.fieldName === 'script type' && c.fieldValue
+    )
+
+    let filteredPlugins = null
+
+    if (pluginTypeCriteria) {
+      filteredPlugins = plugins.filter(
+        plugin => plugin.pluginType === pluginTypeCriteria.fieldValue
+      )
+    } else {
+      filteredPlugins = plugins
+    }
+
+    const searchResult = new dto.SearchResult()
+    searchResult.setObjects(filteredPlugins)
+    return Promise.resolve(searchResult)
+  })
 }
 
 const mockSearchQueries = queries => {

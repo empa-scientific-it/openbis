@@ -1,4 +1,4 @@
-import ToolBrowserConsts from '@src/js/components/tools/browser2/ToolBrowserConsts.js'
+import ToolBrowserConsts from '@src/js/components/tools/browser/ToolBrowserConsts.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 

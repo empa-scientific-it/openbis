@@ -23,7 +23,7 @@ export default class TypeBrowserControllerAddNode {
       return
     }
     await AppController.getInstance().objectNew(
-      pages.TYPES,
+      pages.TOOLS,
       NEW_OBJECT_TYPES[selectedObject.id]
     )
   }

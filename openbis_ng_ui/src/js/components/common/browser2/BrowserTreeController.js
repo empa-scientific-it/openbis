@@ -139,7 +139,7 @@ export default class BrowserTreeController {
   _doProcessLoadedNodes(state, nodeId, loadedNodes, accumulator) {
     const loadedNodesIds = []
 
-    if (!_.isEmpty(loadedNodes.nodes)) {
+    if (!_.isEmpty(loadedNodes) && !_.isEmpty(loadedNodes.nodes)) {
       loadedNodes.nodes.forEach(loadedNode => {
         if (
           !loadedNode.id ||
@@ -188,7 +188,7 @@ export default class BrowserTreeController {
     const node = (state.nodes[nodeId] = {
       ...state.nodes[nodeId],
       loaded: true,
-      loadMore: loadedNodes.loadMore
+      loadMore: loadedNodes ? loadedNodes.loadMore : null
     })
 
     if (node.loadMore) {
