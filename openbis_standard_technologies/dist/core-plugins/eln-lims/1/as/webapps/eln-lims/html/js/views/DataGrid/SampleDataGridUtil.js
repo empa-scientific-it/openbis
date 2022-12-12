@@ -62,6 +62,47 @@ var SampleDataGridUtil = new function() {
 			}
 		});
 
+        if(profile.mainMenu.showBarcodes) {
+            columnsFirst.push({
+                label : 'Default Barcode',
+                property : 'permId',
+                filterable: true,
+                sortable : true,
+                render : function(data, grid) {
+                    var paginationInfo = null;
+                    if(isDynamic) {
+                        var indexFound = null;
+                        for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+                            if(grid.lastReceivedData.objects[idx].permId === data.permId) {
+                                indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+                                break;
+                            }
+                        }
+
+                        if(indexFound !== null) {
+                            paginationInfo = {
+                                    pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
+                                    pagOptions : grid.lastUsedOptions,
+                                    currentIndex : indexFound,
+                                    totalCount : grid.lastReceivedData.totalCount
+                            }
+                        }
+                    }
+                    var codeId = data.permId.toLowerCase() + "-column-id";
+                    return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.permId, "Sample", data.permId, paginationInfo, codeId);
+                },
+                filter : function(data, filter) {
+                    return data.permId.toLowerCase().indexOf(filter) !== -1;
+                },
+                sort : function(data1, data2, asc) {
+                    var value1 = data1.permId;
+                    var value2 = data2.permId;
+                    var sortDirection = (asc)? 1 : -1;
+                    return sortDirection * naturalSort(value1, value2);
+                }
+            });
+        }
+
 		columnsFirst.push({
 			label : 'Identifier',
 			property : 'identifier',
@@ -514,6 +555,8 @@ var SampleDataGridUtil = new function() {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SPACE", value : search, operator: "thatContains" };
                         } else if(field === "experiment") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_IDENTIFIER", value : search, operator: "thatContains" };
+                        } else if (field === "permId") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PERM_ID", value : search, operator: "thatContains" };
                         } else if (field === "code") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
                         } else if (field === "identifier") {
@@ -582,6 +625,10 @@ var SampleDataGridUtil = new function() {
                         direction: optionsSorting.sortDirection
                     }
                     switch(optionsSorting.columnName) {
+                        case "permId":
+                            sorting.type = "Attribute";
+                            sorting.name = "permId";
+                            break;
                         case "code":
                             sorting.type = "Attribute";
                             sorting.name = "code";
