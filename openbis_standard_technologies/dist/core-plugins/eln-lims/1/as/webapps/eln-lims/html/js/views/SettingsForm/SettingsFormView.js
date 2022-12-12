@@ -115,7 +115,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$container.append($form);
 
 			Util.unblockUI();
-
+            _this._settingsFormModel.finishedLoading = true;
 		}).bind(this, $container), 20);
 
 	}

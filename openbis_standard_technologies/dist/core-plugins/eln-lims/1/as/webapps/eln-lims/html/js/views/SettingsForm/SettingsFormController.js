@@ -74,9 +74,20 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	    }
 
 	    var _this = this;
+	    var reloadApplication = null;
+	        reloadApplication = function() {
+	        if(_this._mainController.currentView &&
+	            _this._mainController.currentView._settingsFormModel &&
+	            _this._mainController.currentView._settingsFormModel.finishedLoading ) {
+                Util.reloadApplication("Application will be reloaded to apply the new settings.");
+	        } else {
+                setTimeout(reloadApplication, 100);
+	        }
+	    }
 	    var onSave = function() {
 	        _this._settingsManager.validateAndsave(_this._settingsFormModel.settingsSample, settings, (function() {
-                Util.reloadApplication("Application will be reloaded to apply the new settings.");
+                _this._mainController.changeView("showSettingsPage", _this._settingsFormModel.settingsSample.identifier);
+                setTimeout(reloadApplication, 1000);
             }));
 	    }
 

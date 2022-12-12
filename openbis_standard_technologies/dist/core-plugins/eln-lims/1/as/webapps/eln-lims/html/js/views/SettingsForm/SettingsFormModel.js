@@ -18,4 +18,5 @@ function SettingsFormModel(settingsSample, mode) {
 	this.settingsSample = settingsSample;
 	this.mode = mode;
 	this.customWidgetSettings = [];
+	this.finishedLoading = false;
 }
