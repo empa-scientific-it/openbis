@@ -429,7 +429,7 @@ def isFileAuthUser(tr, parameters, tableBuilder):
 		try:
 			result = subprocess.check_output([path, 'show', userId]) #Checks if the user is available on the file
 			resultLines = result.split("\n")
-			isFileAuthUser = (len(resultLines) == 3) and (resultLines[1].startswith(userId))
+			isFileAuthUser = (len(resultLines) == 3) and str(resultLines[1]).startswith(str(userId)) #String conversions to handle unicode
 		except:
 			pass
 		return isFileAuthUser
