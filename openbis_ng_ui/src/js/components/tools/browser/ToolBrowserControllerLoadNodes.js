@@ -4,7 +4,6 @@ import ServerInformation from '@src/js/components/common/dto/ServerInformation.j
 import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
-import messages from '@src/js/common/messages.js'
 import compare from '@src/js/common/compare.js'
 
 const LOAD_LIMIT = 100
@@ -33,7 +32,7 @@ export default class ToolBrowserControllerLoadNodes {
           queries.totalCount
 
         if (totalCount > TOTAL_LOAD_LIMIT) {
-          return this.tooManyResultsFound(node)
+          return ToolBrowserConsts.tooManyResultsFound(node.id)
         }
       }
 
@@ -76,21 +75,6 @@ export default class ToolBrowserControllerLoadNodes {
       }
     } else {
       return null
-    }
-  }
-
-  tooManyResultsFound(node) {
-    return {
-      nodes: [
-        {
-          id: ToolBrowserConsts.nodeId(node.id, ToolBrowserConsts.TYPE_WARNING),
-          message: {
-            type: 'warning',
-            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
-          },
-          selectable: false
-        }
-      ]
     }
   }
 

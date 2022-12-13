@@ -23,48 +23,37 @@ export default class ToolBrowserControllerLoadNodePath {
           ToolBrowserConsts.personalAccessTokensNode(folderNode.id)
         return [folderNode, personalAccessTokensNode]
       }
-    } else if (
-      object.type === objectType.DYNAMIC_PROPERTY_PLUGIN ||
-      object.type === objectType.ENTITY_VALIDATION_PLUGIN
-    ) {
-      const id = new openbis.PluginPermId(object.id)
-      const fetchOptions = new openbis.PluginFetchOptions()
-
-      const plugins = await openbis.getPlugins([id], fetchOptions)
-      const plugin = plugins[object.id]
-
+    } else if (object.type === objectType.DYNAMIC_PROPERTY_PLUGIN) {
+      const plugin = await this.searchPlugin(object.id)
       if (plugin) {
-        if (plugin.getPluginType() === openbis.PluginType.DYNAMIC_PROPERTY) {
-          return this.createNodePath(
-            object,
-            plugin,
-            objectType.DYNAMIC_PROPERTY_PLUGIN,
-            ToolBrowserConsts.TEXT_DYNAMIC_PROPERTY_PLUGINS
-          )
-        } else if (
-          plugin.getPluginType() === openbis.PluginType.ENTITY_VALIDATION
-        ) {
-          return this.createNodePath(
-            object,
-            plugin,
-            objectType.ENTITY_VALIDATION_PLUGIN,
-            ToolBrowserConsts.TEXT_ENTITY_VALIDATION_PLUGINS
-          )
-        }
+        const folderNode = ToolBrowserConsts.dynamicPropertyPluginsFolderNode(
+          rootNode.id
+        )
+        const pluginNode = ToolBrowserConsts.dynamicPropertyPluginNode(
+          folderNode.id,
+          plugin.name
+        )
+        return [folderNode, pluginNode]
+      }
+    } else if (object.type === objectType.ENTITY_VALIDATION_PLUGIN) {
+      const plugin = await this.searchPlugin(object.id)
+      if (plugin) {
+        const folderNode = ToolBrowserConsts.entityValidationPluginsFolderNode(
+          rootNode.id
+        )
+        const pluginNode = ToolBrowserConsts.entityValidationPluginNode(
+          folderNode.id,
+          plugin.name
+        )
+        return [folderNode, pluginNode]
       }
     } else if (object.type === objectType.QUERY) {
-      const id = new openbis.QueryName(object.id)
-      const fetchOptions = new openbis.QueryFetchOptions()
-
-      const queries = await openbis.getQueries([id], fetchOptions)
-      const query = queries[object.id]
-
-      return this.createNodePath(
-        object,
-        query,
-        objectType.QUERY,
-        ToolBrowserConsts.TEXT_QUERIES
-      )
+      const query = await this.searchQuery(object.id)
+      if (query) {
+        const folderNode = ToolBrowserConsts.queriesFolderNode(rootNode.id)
+        const queryNode = ToolBrowserConsts.queryNode(folderNode.id, query.name)
+        return [folderNode, queryNode]
+      }
     } else if (object.type === objectType.HISTORY) {
       const folderNode = ToolBrowserConsts.historyFolderNode(rootNode.id)
       const deletionNode = ToolBrowserConsts.historyDeletionNode(folderNode.id)
@@ -85,42 +74,22 @@ export default class ToolBrowserControllerLoadNodePath {
         folderNode.id
       )
       return [folderNode, activeUsersReportNode]
-    } else {
-      return null
     }
+
+    return null
   }
 
-  createFolderPath(folderObjectType, folderText) {
-    return [
-      {
-        id: ToolBrowserConsts.nodeId(
-          ToolBrowserConsts.TYPE_ROOT,
-          folderObjectType
-        ),
-        object: { type: objectType.OVERVIEW, id: folderObjectType },
-        text: folderText
-      }
-    ]
+  async searchPlugin(pluginId) {
+    const id = new openbis.PluginPermId(pluginId)
+    const fetchOptions = new openbis.PluginFetchOptions()
+    const plugins = await openbis.getPlugins([id], fetchOptions)
+    return plugins[pluginId]
   }
 
-  createNodePath(object, loadedObject, folderObjectType, folderText) {
-    if (loadedObject) {
-      const folderPath = this.createFolderPath(folderObjectType, folderText)
-      return [
-        ...folderPath,
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            folderObjectType,
-            folderObjectType,
-            object.id
-          ),
-          object,
-          text: object.id
-        }
-      ]
-    } else {
-      return null
-    }
+  async searchQuery(queryName) {
+    const id = new openbis.QueryName(queryName)
+    const fetchOptions = new openbis.QueryFetchOptions()
+    const queries = await openbis.getQueries([id], fetchOptions)
+    return queries[queryName]
   }
 }

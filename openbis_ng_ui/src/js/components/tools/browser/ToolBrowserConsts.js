@@ -4,7 +4,6 @@ import messages from '@src/js/common/messages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
 const TYPE_ROOT = 'root'
-const TYPE_WARNING = 'warning'
 
 function nodeId(...parts) {
   return parts.join('__')
@@ -20,6 +19,22 @@ function rootNode() {
   }
 }
 
+function tooManyResultsFound(parentId) {
+  const TYPE_WARNING = 'warning'
+  return {
+    nodes: [
+      {
+        id: nodeId(parentId, TYPE_WARNING),
+        message: {
+          type: TYPE_WARNING,
+          text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
+        },
+        selectable: false
+      }
+    ]
+  }
+}
+
 function dynamicPropertyPluginsFolderNode(parentId) {
   return {
     id: nodeId(parentId, objectType.DYNAMIC_PROPERTY_PLUGIN),
@@ -29,6 +44,17 @@ function dynamicPropertyPluginsFolderNode(parentId) {
       id: objectType.DYNAMIC_PROPERTY_PLUGIN
     },
     canHaveChildren: true
+  }
+}
+
+function dynamicPropertyPluginNode(parentId, pluginName) {
+  return {
+    id: nodeId(parentId, pluginName),
+    text: pluginName,
+    object: {
+      type: objectType.DYNAMIC_PROPERTY_PLUGIN,
+      id: pluginName
+    }
   }
 }
 
@@ -44,6 +70,17 @@ function entityValidationPluginsFolderNode(parentId) {
   }
 }
 
+function entityValidationPluginNode(parentId, pluginName) {
+  return {
+    id: nodeId(parentId, pluginName),
+    text: pluginName,
+    object: {
+      type: objectType.ENTITY_VALIDATION_PLUGIN,
+      id: pluginName
+    }
+  }
+}
+
 function queriesFolderNode(parentId) {
   return {
     id: nodeId(parentId, objectType.QUERY),
@@ -53,6 +90,17 @@ function queriesFolderNode(parentId) {
       id: objectType.QUERY
     },
     canHaveChildren: true
+  }
+}
+
+function queryNode(parentId, queryName) {
+  return {
+    id: nodeId(parentId, queryName),
+    text: queryName,
+    object: {
+      type: objectType.QUERY,
+      id: queryName
+    }
   }
 }
 
@@ -168,9 +216,13 @@ function personalAccessTokensNode(parentId) {
 export default {
   nodeId,
   rootNode,
+  tooManyResultsFound,
   dynamicPropertyPluginsFolderNode,
+  dynamicPropertyPluginNode,
   entityValidationPluginsFolderNode,
+  entityValidationPluginNode,
   queriesFolderNode,
+  queryNode,
   historyFolderNode,
   historyDeletionNode,
   historyFreezingNode,
@@ -180,6 +232,5 @@ export default {
   activeUsersReportNode,
   accessFolderNode,
   personalAccessTokensNode,
-  TYPE_ROOT,
-  TYPE_WARNING
+  TYPE_ROOT
 }
