@@ -47,7 +47,7 @@ async function testOpenClose() {
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 
@@ -67,7 +67,7 @@ async function testOpenClose() {
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 
@@ -88,7 +88,7 @@ async function testOpenClose() {
       { level: 1, text: testQuery.name },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 
@@ -108,7 +108,7 @@ async function testOpenClose() {
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 
@@ -126,7 +126,7 @@ async function testOpenClose() {
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 
@@ -143,7 +143,7 @@ async function testOpenClose() {
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 }

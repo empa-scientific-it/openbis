@@ -28,7 +28,7 @@ async function testLoad() {
       { level: 0, text: 'Queries' },
       { level: 0, text: 'History' },
       { level: 0, text: 'Import' },
-      { level: 0, text: 'Active Users Report' }
+      { level: 0, text: 'Report' }
     ]
   })
 }
