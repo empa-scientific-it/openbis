@@ -32,7 +32,7 @@ export default class ToolBrowserControllerLoadNodePath {
         )
         const pluginNode = ToolBrowserCommon.dynamicPropertyPluginNode(
           folderNode.id,
-          plugin.name
+          object.id
         )
         return [folderNode, pluginNode]
       }
@@ -44,7 +44,7 @@ export default class ToolBrowserControllerLoadNodePath {
         )
         const pluginNode = ToolBrowserCommon.entityValidationPluginNode(
           folderNode.id,
-          plugin.name
+          object.id
         )
         return [folderNode, pluginNode]
       }
@@ -52,7 +52,7 @@ export default class ToolBrowserControllerLoadNodePath {
       const query = await this.searchQuery(object.id)
       if (query) {
         const folderNode = ToolBrowserCommon.queriesFolderNode(rootNode.id)
-        const queryNode = ToolBrowserCommon.queryNode(folderNode.id, query.name)
+        const queryNode = ToolBrowserCommon.queryNode(folderNode.id, object.id)
         return [folderNode, queryNode]
       }
     } else if (object.type === objectType.HISTORY) {

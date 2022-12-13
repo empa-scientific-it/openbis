@@ -1,8 +1,8 @@
 import _ from 'lodash'
-import UserBrowserConsts from '@src/js/components/users/browser/UserBrowserConsts.js'
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
+import UserBrowserCommon from '@src/js/components/users/browser/UserBrowserCommon.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
-import messages from '@src/js/common/messages.js'
 import compare from '@src/js/common/compare.js'
 
 const LOAD_LIMIT = 100
@@ -12,19 +12,13 @@ export default class UserBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
 
+    const rootNode = BrowserCommon.rootNode()
+
     if (node.internalRoot) {
       return {
-        nodes: [
-          {
-            id: UserBrowserConsts.TYPE_ROOT,
-            object: {
-              type: UserBrowserConsts.TYPE_ROOT
-            },
-            canHaveChildren: true
-          }
-        ]
+        nodes: [rootNode]
       }
-    } else if (node.object.type === UserBrowserConsts.TYPE_ROOT) {
+    } else if (node.object.type === rootNode.object.type) {
       const [users, groups] = await Promise.all([
         this.searchUsers(params),
         this.searchGroups(params)
@@ -34,7 +28,7 @@ export default class UserBrowserControllerLoadNodes {
         const totalCount = users.totalCount + groups.totalCount
 
         if (totalCount > TOTAL_LOAD_LIMIT) {
-          return this.tooManyResultsFound(node)
+          return BrowserCommon.tooManyResultsFound(node.id)
         }
       }
 
@@ -45,6 +39,9 @@ export default class UserBrowserControllerLoadNodes {
 
       if (params.filter) {
         nodes = nodes.filter(node => !_.isEmpty(node.children))
+        nodes.forEach(node => {
+          node.expanded = true
+        })
       }
 
       return {
@@ -68,21 +65,6 @@ export default class UserBrowserControllerLoadNodes {
       }
     } else {
       return null
-    }
-  }
-
-  tooManyResultsFound(node) {
-    return {
-      nodes: [
-        {
-          id: UserBrowserConsts.nodeId(node.id, UserBrowserConsts.TYPE_WARNING),
-          message: {
-            type: 'warning',
-            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
-          },
-          selectable: false
-        }
-      ]
     }
   }
 
@@ -134,41 +116,27 @@ export default class UserBrowserControllerLoadNodes {
   }
 
   createUsersNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.USER,
-      UserBrowserConsts.TEXT_USERS
-    )
-  }
-
-  createGroupsNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.USER_GROUP,
-      UserBrowserConsts.TEXT_GROUPS
-    )
-  }
-
-  createFolderNode(parent, result, folderObjectType, folderText) {
-    const folderNode = {
-      id: UserBrowserConsts.nodeId(parent.id, folderObjectType),
-      text: folderText,
-      object: {
-        type: objectType.OVERVIEW,
-        id: folderObjectType
-      },
-      canHaveChildren: !!result,
-      selectable: true,
-      expanded: result && result.filter
-    }
+    const folderNode = UserBrowserCommon.usersFolderNode(parent.id)
 
     if (result) {
       folderNode.children = this.createNodes(
         folderNode,
         result,
-        folderObjectType
+        objectType.USER
+      )
+    }
+
+    return folderNode
+  }
+
+  createGroupsNode(parent, result) {
+    const folderNode = UserBrowserCommon.groupsFolderNode(parent.id)
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.USER_GROUP
       )
     }
 
@@ -181,7 +149,7 @@ export default class UserBrowserControllerLoadNodes {
     objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
 
     let nodes = objects.map(object => ({
-      id: UserBrowserConsts.nodeId(parent.id, objectType, object.id),
+      id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
         type: objectType,

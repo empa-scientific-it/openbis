@@ -53,6 +53,9 @@ export default class ToolBrowserControllerLoadNodes {
 
       if (params.filter) {
         nodes = nodes.filter(node => !_.isEmpty(node.children))
+        nodes.forEach(node => {
+          node.expanded = true
+        })
       }
 
       return {
@@ -252,7 +255,7 @@ export default class ToolBrowserControllerLoadNodes {
     objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
 
     let nodes = objects.map(object => ({
-      id: BrowserCommon.nodeId(parent.id, objectType, object.id),
+      id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
         type: objectType,
