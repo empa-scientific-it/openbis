@@ -6,14 +6,6 @@ import objectType from '@src/js/common/consts/objectType.js'
 const TYPE_ROOT = 'root'
 const TYPE_WARNING = 'warning'
 
-const TEXT_DYNAMIC_PROPERTY_PLUGINS = messages.get(
-  messages.DYNAMIC_PROPERTY_PLUGINS
-)
-const TEXT_ENTITY_VALIDATION_PLUGINS = messages.get(
-  messages.ENTITY_VALIDATION_PLUGINS
-)
-const TEXT_QUERIES = messages.get(messages.QUERIES)
-
 function nodeId(...parts) {
   return parts.join('__')
 }
@@ -23,6 +15,42 @@ function rootNode() {
     id: TYPE_ROOT,
     object: {
       type: TYPE_ROOT
+    },
+    canHaveChildren: true
+  }
+}
+
+function dynamicPropertyPluginsFolderNode(parentId) {
+  return {
+    id: nodeId(parentId, objectType.DYNAMIC_PROPERTY_PLUGIN),
+    text: messages.get(messages.DYNAMIC_PROPERTY_PLUGINS),
+    object: {
+      type: objectType.OVERVIEW,
+      id: objectType.DYNAMIC_PROPERTY_PLUGIN
+    },
+    canHaveChildren: true
+  }
+}
+
+function entityValidationPluginsFolderNode(parentId) {
+  return {
+    id: nodeId(parentId, objectType.ENTITY_VALIDATION_PLUGIN),
+    text: messages.get(messages.ENTITY_VALIDATION_PLUGINS),
+    object: {
+      type: objectType.OVERVIEW,
+      id: objectType.ENTITY_VALIDATION_PLUGIN
+    },
+    canHaveChildren: true
+  }
+}
+
+function queriesFolderNode(parentId) {
+  return {
+    id: nodeId(parentId, objectType.QUERY),
+    text: messages.get(messages.QUERIES),
+    object: {
+      type: objectType.OVERVIEW,
+      id: objectType.QUERY
     },
     canHaveChildren: true
   }
@@ -140,6 +168,9 @@ function personalAccessTokensNode(parentId) {
 export default {
   nodeId,
   rootNode,
+  dynamicPropertyPluginsFolderNode,
+  entityValidationPluginsFolderNode,
+  queriesFolderNode,
   historyFolderNode,
   historyDeletionNode,
   historyFreezingNode,
@@ -150,8 +181,5 @@ export default {
   accessFolderNode,
   personalAccessTokensNode,
   TYPE_ROOT,
-  TYPE_WARNING,
-  TEXT_DYNAMIC_PROPERTY_PLUGINS,
-  TEXT_ENTITY_VALIDATION_PLUGINS,
-  TEXT_QUERIES
+  TYPE_WARNING
 }

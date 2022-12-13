@@ -10,20 +10,13 @@ export default class ToolBrowserControllerLoadNodePath {
 
     if (object.type === objectType.OVERVIEW) {
       if (object.id === objectType.DYNAMIC_PROPERTY_PLUGIN) {
-        return this.createFolderPath(
-          objectType.DYNAMIC_PROPERTY_PLUGIN,
-          ToolBrowserConsts.TEXT_DYNAMIC_PROPERTY_PLUGINS
-        )
+        return [ToolBrowserConsts.dynamicPropertyPluginsFolderNode(rootNode.id)]
       } else if (object.id === objectType.ENTITY_VALIDATION_PLUGIN) {
-        return this.createFolderPath(
-          objectType.ENTITY_VALIDATION_PLUGIN,
-          ToolBrowserConsts.TEXT_ENTITY_VALIDATION_PLUGINS
-        )
+        return [
+          ToolBrowserConsts.entityValidationPluginsFolderNode(rootNode.id)
+        ]
       } else if (object.id === objectType.QUERY) {
-        return this.createFolderPath(
-          objectType.QUERY,
-          ToolBrowserConsts.TEXT_QUERIES
-        )
+        return [ToolBrowserConsts.queriesFolderNode(rootNode.id)]
       } else if (object.id === objectType.PERSONAL_ACCESS_TOKEN) {
         const folderNode = ToolBrowserConsts.accessFolderNode(rootNode.id)
         const personalAccessTokensNode =

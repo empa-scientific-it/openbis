@@ -151,30 +151,49 @@ export default class ToolBrowserControllerLoadNodes {
   }
 
   createDynamicPropertyPluginsNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.DYNAMIC_PROPERTY_PLUGIN,
-      ToolBrowserConsts.TEXT_DYNAMIC_PROPERTY_PLUGINS
+    const folderNode = ToolBrowserConsts.dynamicPropertyPluginsFolderNode(
+      parent.id
     )
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.DYNAMIC_PROPERTY_PLUGIN
+      )
+    }
+
+    return folderNode
   }
 
   createEntityValidationPluginsNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.ENTITY_VALIDATION_PLUGIN,
-      ToolBrowserConsts.TEXT_ENTITY_VALIDATION_PLUGINS
+    const folderNode = ToolBrowserConsts.entityValidationPluginsFolderNode(
+      parent.id
     )
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.ENTITY_VALIDATION_PLUGIN
+      )
+    }
+
+    return folderNode
   }
 
   createQueriesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.QUERY,
-      ToolBrowserConsts.TEXT_QUERIES
-    )
+    const folderNode = ToolBrowserConsts.queriesFolderNode(parent.id)
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.QUERY
+      )
+    }
+
+    return folderNode
   }
 
   createHistoryNode(parent, params) {
@@ -235,30 +254,6 @@ export default class ToolBrowserControllerLoadNodes {
     const folderNode = ToolBrowserConsts.reportFolderNode(parent.id)
     folderNode.children = {
       nodes: [ToolBrowserConsts.activeUsersReportNode(folderNode.id)]
-    }
-
-    return folderNode
-  }
-
-  createFolderNode(parent, result, folderObjectType, folderText) {
-    const folderNode = {
-      id: ToolBrowserConsts.nodeId(parent.id, folderObjectType),
-      text: folderText,
-      object: {
-        type: objectType.OVERVIEW,
-        id: folderObjectType
-      },
-      canHaveChildren: !!result,
-      selectable: true,
-      expanded: result && result.filter
-    }
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        folderObjectType
-      )
     }
 
     return folderNode
