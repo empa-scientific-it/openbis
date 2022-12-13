@@ -6,6 +6,8 @@ export default class ToolBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { object } = params
 
+    const rootNode = ToolBrowserConsts.rootNode()
+
     if (object.type === objectType.OVERVIEW) {
       if (object.id === objectType.DYNAMIC_PROPERTY_PLUGIN) {
         return this.createFolderPath(
@@ -23,28 +25,10 @@ export default class ToolBrowserControllerLoadNodePath {
           ToolBrowserConsts.TEXT_QUERIES
         )
       } else if (object.id === objectType.PERSONAL_ACCESS_TOKEN) {
-        return [
-          {
-            id: ToolBrowserConsts.nodeId(
-              ToolBrowserConsts.TYPE_ROOT,
-              ToolBrowserConsts.TYPE_ACCESS
-            ),
-            object: {
-              type: ToolBrowserConsts.TYPE_ACCESS,
-              id: ToolBrowserConsts.TYPE_ACCESS
-            },
-            text: ToolBrowserConsts.TEXT_ACCESS
-          },
-          {
-            id: ToolBrowserConsts.nodeId(
-              ToolBrowserConsts.TYPE_ROOT,
-              ToolBrowserConsts.TYPE_ACCESS,
-              object.id
-            ),
-            object,
-            text: object.id
-          }
-        ]
+        const folderNode = ToolBrowserConsts.accessFolderNode(rootNode.id)
+        const personalAccessTokensNode =
+          ToolBrowserConsts.personalAccessTokensNode(folderNode.id)
+        return [folderNode, personalAccessTokensNode]
       }
     } else if (
       object.type === objectType.DYNAMIC_PROPERTY_PLUGIN ||
@@ -89,74 +73,25 @@ export default class ToolBrowserControllerLoadNodePath {
         ToolBrowserConsts.TEXT_QUERIES
       )
     } else if (object.type === objectType.HISTORY) {
-      return [
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_HISTORY
-          ),
-          object: {
-            type: ToolBrowserConsts.TYPE_HISTORY,
-            id: ToolBrowserConsts.TYPE_HISTORY
-          },
-          text: ToolBrowserConsts.TEXT_HISTORY
-        },
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_HISTORY,
-            object.id
-          ),
-          object,
-          text: object.id
-        }
-      ]
+      const folderNode = ToolBrowserConsts.historyFolderNode(rootNode.id)
+      const deletionNode = ToolBrowserConsts.historyDeletionNode(folderNode.id)
+      const freezingNode = ToolBrowserConsts.historyFreezingNode(folderNode.id)
+
+      if (object.id === deletionNode.object.id) {
+        return [folderNode, deletionNode]
+      } else if (object.id === freezingNode.object.id) {
+        return [folderNode, freezingNode]
+      }
     } else if (object.type === objectType.IMPORT) {
-      return [
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_IMPORT
-          ),
-          object: {
-            type: ToolBrowserConsts.TYPE_IMPORT,
-            id: ToolBrowserConsts.TYPE_IMPORT
-          },
-          text: ToolBrowserConsts.TEXT_IMPORT
-        },
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_IMPORT,
-            object.id
-          ),
-          object,
-          text: object.id
-        }
-      ]
+      const folderNode = ToolBrowserConsts.importFolderNode(rootNode.id)
+      const importAllNode = ToolBrowserConsts.importAllNode(folderNode.id)
+      return [folderNode, importAllNode]
     } else if (object.type === objectType.ACTIVE_USERS_REPORT) {
-      return [
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_REPORT
-          ),
-          object: {
-            type: ToolBrowserConsts.TYPE_REPORT,
-            id: ToolBrowserConsts.TYPE_REPORT
-          },
-          text: ToolBrowserConsts.TEXT_REPORT
-        },
-        {
-          id: ToolBrowserConsts.nodeId(
-            ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_REPORT,
-            object.id
-          ),
-          object,
-          text: object.id
-        }
-      ]
+      const folderNode = ToolBrowserConsts.reportFolderNode(rootNode.id)
+      const activeUsersReportNode = ToolBrowserConsts.activeUsersReportNode(
+        folderNode.id
+      )
+      return [folderNode, activeUsersReportNode]
     } else {
       return null
     }

@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import ToolBrowserConsts from '@src/js/components/tools/browser/ToolBrowserConsts.js'
 import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import AppController from '@src/js/components/AppController.js'
@@ -17,15 +16,7 @@ export default class ToolBrowserControllerLoadNodes {
 
     if (node.internalRoot) {
       return {
-        nodes: [
-          {
-            id: ToolBrowserConsts.TYPE_ROOT,
-            object: {
-              type: ToolBrowserConsts.TYPE_ROOT
-            },
-            canHaveChildren: true
-          }
-        ]
+        nodes: [ToolBrowserConsts.rootNode()]
       }
     } else if (node.object.type === ToolBrowserConsts.TYPE_ROOT) {
       const [dynamicPropertyPlugins, entityValidationPlugins, queries] =
@@ -191,43 +182,12 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const folderNode = {
-      id: ToolBrowserConsts.nodeId(parent.id, ToolBrowserConsts.TYPE_HISTORY),
-      text: ToolBrowserConsts.TEXT_HISTORY,
-      object: {
-        type: ToolBrowserConsts.TYPE_HISTORY,
-        id: ToolBrowserConsts.TYPE_HISTORY
-      },
-      canHaveChildren: true,
-      selectable: false,
-      children: {
-        nodes: [
-          {
-            id: ToolBrowserConsts.nodeId(
-              parent.id,
-              ToolBrowserConsts.TYPE_HISTORY,
-              openbis.EventType.DELETION
-            ),
-            text: messages.get(messages.DELETION),
-            object: {
-              type: objectType.HISTORY,
-              id: openbis.EventType.DELETION
-            }
-          },
-          {
-            id: ToolBrowserConsts.nodeId(
-              parent.id,
-              ToolBrowserConsts.TYPE_HISTORY,
-              openbis.EventType.FREEZING
-            ),
-            text: messages.get(messages.FREEZING),
-            object: {
-              type: objectType.HISTORY,
-              id: openbis.EventType.FREEZING
-            }
-          }
-        ]
-      }
+    const folderNode = ToolBrowserConsts.historyFolderNode(parent.id)
+    folderNode.children = {
+      nodes: [
+        ToolBrowserConsts.historyDeletionNode(folderNode.id),
+        ToolBrowserConsts.historyFreezingNode(folderNode.id)
+      ]
     }
 
     return folderNode
@@ -238,31 +198,9 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const folderNode = {
-      id: ToolBrowserConsts.nodeId(parent.id, ToolBrowserConsts.TYPE_IMPORT),
-      text: ToolBrowserConsts.TEXT_IMPORT,
-      object: {
-        type: ToolBrowserConsts.TYPE_IMPORT,
-        id: ToolBrowserConsts.TYPE_IMPORT
-      },
-      canHaveChildren: true,
-      selectable: false,
-      children: {
-        nodes: [
-          {
-            id: ToolBrowserConsts.nodeId(
-              parent.id,
-              ToolBrowserConsts.TYPE_IMPORT,
-              ImportType.ALL
-            ),
-            text: messages.get(messages.ALL),
-            object: {
-              type: objectType.IMPORT,
-              id: ImportType.ALL
-            }
-          }
-        ]
-      }
+    const folderNode = ToolBrowserConsts.importFolderNode(parent.id)
+    folderNode.children = {
+      nodes: [ToolBrowserConsts.importAllNode(folderNode.id)]
     }
 
     return folderNode
@@ -279,33 +217,10 @@ export default class ToolBrowserControllerLoadNodes {
       )
 
     if (personalAccessTokensEnabled === 'true') {
-      const folderNode = {
-        id: ToolBrowserConsts.nodeId(parent.id, ToolBrowserConsts.TYPE_ACCESS),
-        text: ToolBrowserConsts.TEXT_ACCESS,
-        object: {
-          type: ToolBrowserConsts.TYPE_ACCESS,
-          id: ToolBrowserConsts.TYPE_ACCESS
-        },
-        canHaveChildren: true,
-        selectable: false,
-        children: {
-          nodes: [
-            {
-              id: ToolBrowserConsts.nodeId(
-                parent.id,
-                ToolBrowserConsts.TYPE_ACCESS,
-                objectType.PERSONAL_ACCESS_TOKEN
-              ),
-              text: messages.get(messages.PERSONAL_ACCESS_TOKENS),
-              object: {
-                type: objectType.OVERVIEW,
-                id: objectType.PERSONAL_ACCESS_TOKEN
-              }
-            }
-          ]
-        }
+      const folderNode = ToolBrowserConsts.accessFolderNode(parent.id)
+      folderNode.children = {
+        nodes: [ToolBrowserConsts.personalAccessTokensNode(folderNode.id)]
       }
-
       return folderNode
     } else {
       return null
@@ -317,31 +232,9 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const folderNode = {
-      id: ToolBrowserConsts.nodeId(parent.id, ToolBrowserConsts.TYPE_REPORT),
-      text: ToolBrowserConsts.TEXT_REPORT,
-      object: {
-        type: ToolBrowserConsts.TYPE_REPORT,
-        id: ToolBrowserConsts.TYPE_REPORT
-      },
-      canHaveChildren: true,
-      selectable: false,
-      children: {
-        nodes: [
-          {
-            id: ToolBrowserConsts.nodeId(
-              parent.id,
-              ToolBrowserConsts.TYPE_REPORT,
-              objectType.ACTIVE_USERS_REPORT
-            ),
-            text: messages.get(messages.ACTIVE_USERS_REPORT),
-            object: {
-              type: objectType.ACTIVE_USERS_REPORT,
-              id: objectType.ACTIVE_USERS_REPORT
-            }
-          }
-        ]
-      }
+    const folderNode = ToolBrowserConsts.reportFolderNode(parent.id)
+    folderNode.children = {
+      nodes: [ToolBrowserConsts.activeUsersReportNode(folderNode.id)]
     }
 
     return folderNode
