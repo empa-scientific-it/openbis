@@ -1,4 +1,4 @@
-import UserBrowserConsts from '@src/js/components/users/browser/UserBrowserConsts.js'
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import UserBrowserControllerTest from '@srcTest/js/components/users/browser/UserBrowserControllerTest.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import openbis from '@srcTest/js/services/openbis.js'
@@ -21,7 +21,7 @@ async function testExpandAndCollapseNode() {
 
   await common.controller.load()
   await common.controller.expandNode(
-    UserBrowserConsts.nodeId(UserBrowserConsts.TYPE_ROOT, objectType.USER_GROUP)
+    BrowserCommon.nodeId(BrowserCommon.rootNode().id, objectType.USER_GROUP)
   )
 
   expect(common.controller.getTree()).toMatchObject({
@@ -41,7 +41,7 @@ async function testExpandAndCollapseNode() {
   })
 
   await common.controller.collapseNode(
-    UserBrowserConsts.nodeId(UserBrowserConsts.TYPE_ROOT, objectType.USER_GROUP)
+    BrowserCommon.nodeId(BrowserCommon.rootNode().id, objectType.USER_GROUP)
   )
 
   expect(common.controller.getTree()).toMatchObject({
