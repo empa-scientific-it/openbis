@@ -1,5 +1,6 @@
 import _ from 'lodash'
-import ToolBrowserConsts from '@src/js/components/tools/browser/ToolBrowserConsts.js'
+import BrowserCommon from '@src/js/components/common/browser2/BrowserCommon.js'
+import ToolBrowserCommon from '@src/js/components/tools/browser/ToolBrowserCommon.js'
 import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
@@ -13,11 +14,13 @@ export default class ToolBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
 
+    const rootNode = BrowserCommon.rootNode()
+
     if (node.internalRoot) {
       return {
-        nodes: [ToolBrowserConsts.rootNode()]
+        nodes: [rootNode]
       }
-    } else if (node.object.type === ToolBrowserConsts.TYPE_ROOT) {
+    } else if (node.object.type === rootNode.object.type) {
       const [dynamicPropertyPlugins, entityValidationPlugins, queries] =
         await Promise.all([
           this.searchDynamicPropertyPlugins(params),
@@ -32,7 +35,7 @@ export default class ToolBrowserControllerLoadNodes {
           queries.totalCount
 
         if (totalCount > TOTAL_LOAD_LIMIT) {
-          return ToolBrowserConsts.tooManyResultsFound(node.id)
+          return BrowserCommon.tooManyResultsFound(node.id)
         }
       }
 
@@ -135,7 +138,7 @@ export default class ToolBrowserControllerLoadNodes {
   }
 
   createDynamicPropertyPluginsNode(parent, result) {
-    const folderNode = ToolBrowserConsts.dynamicPropertyPluginsFolderNode(
+    const folderNode = ToolBrowserCommon.dynamicPropertyPluginsFolderNode(
       parent.id
     )
 
@@ -151,7 +154,7 @@ export default class ToolBrowserControllerLoadNodes {
   }
 
   createEntityValidationPluginsNode(parent, result) {
-    const folderNode = ToolBrowserConsts.entityValidationPluginsFolderNode(
+    const folderNode = ToolBrowserCommon.entityValidationPluginsFolderNode(
       parent.id
     )
 
@@ -167,7 +170,7 @@ export default class ToolBrowserControllerLoadNodes {
   }
 
   createQueriesNode(parent, result) {
-    const folderNode = ToolBrowserConsts.queriesFolderNode(parent.id)
+    const folderNode = ToolBrowserCommon.queriesFolderNode(parent.id)
 
     if (result) {
       folderNode.children = this.createNodes(
@@ -185,11 +188,11 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const folderNode = ToolBrowserConsts.historyFolderNode(parent.id)
+    const folderNode = ToolBrowserCommon.historyFolderNode(parent.id)
     folderNode.children = {
       nodes: [
-        ToolBrowserConsts.historyDeletionNode(folderNode.id),
-        ToolBrowserConsts.historyFreezingNode(folderNode.id)
+        ToolBrowserCommon.historyDeletionNode(folderNode.id),
+        ToolBrowserCommon.historyFreezingNode(folderNode.id)
       ]
     }
 
@@ -201,9 +204,9 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const folderNode = ToolBrowserConsts.importFolderNode(parent.id)
+    const folderNode = ToolBrowserCommon.importFolderNode(parent.id)
     folderNode.children = {
-      nodes: [ToolBrowserConsts.importAllNode(folderNode.id)]
+      nodes: [ToolBrowserCommon.importAllNode(folderNode.id)]
     }
 
     return folderNode
@@ -220,9 +223,9 @@ export default class ToolBrowserControllerLoadNodes {
       )
 
     if (personalAccessTokensEnabled === 'true') {
-      const folderNode = ToolBrowserConsts.accessFolderNode(parent.id)
+      const folderNode = ToolBrowserCommon.accessFolderNode(parent.id)
       folderNode.children = {
-        nodes: [ToolBrowserConsts.personalAccessTokensNode(folderNode.id)]
+        nodes: [ToolBrowserCommon.personalAccessTokensNode(folderNode.id)]
       }
       return folderNode
     } else {
@@ -235,9 +238,9 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const folderNode = ToolBrowserConsts.reportFolderNode(parent.id)
+    const folderNode = ToolBrowserCommon.reportFolderNode(parent.id)
     folderNode.children = {
-      nodes: [ToolBrowserConsts.activeUsersReportNode(folderNode.id)]
+      nodes: [ToolBrowserCommon.activeUsersReportNode(folderNode.id)]
     }
 
     return folderNode
@@ -249,7 +252,7 @@ export default class ToolBrowserControllerLoadNodes {
     objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
 
     let nodes = objects.map(object => ({
-      id: ToolBrowserConsts.nodeId(parent.id, objectType, object.id),
+      id: BrowserCommon.nodeId(parent.id, objectType, object.id),
       text: object.text,
       object: {
         type: objectType,

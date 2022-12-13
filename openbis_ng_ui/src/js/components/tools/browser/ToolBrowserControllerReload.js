@@ -2,7 +2,7 @@ import BrowserControllerReload from '@src/js/components/common/browser2/BrowserC
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 
-export default class TypeBrowserControllerReload extends BrowserControllerReload {
+export default class ToolBrowserControllerReload extends BrowserControllerReload {
   constructor(controller) {
     super(controller)
   }

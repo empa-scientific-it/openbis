@@ -2,7 +2,7 @@ import UserBrowserConsts from '@src/js/components/users/browser/UserBrowserConst
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
-export default class TypeBrowserControllerLoadNodePath {
+export default class UserBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { object } = params
 

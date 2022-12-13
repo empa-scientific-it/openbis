@@ -6,7 +6,7 @@ import messages from '@src/js/common/messages.js'
 
 const REMOVABLE_OBJECT_TYPES = [objectType.USER, objectType.USER_GROUP]
 
-export default class TypeBrowserControllerRemoveNode {
+export default class UserBrowserControllerRemoveNode {
   canRemoveNode(selectedObject) {
     return (
       selectedObject && REMOVABLE_OBJECT_TYPES.includes(selectedObject.type)

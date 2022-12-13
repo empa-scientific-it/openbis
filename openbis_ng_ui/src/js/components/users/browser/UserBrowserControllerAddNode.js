@@ -7,7 +7,7 @@ const NEW_OBJECT_TYPES = {
   [objectType.USER_GROUP]: objectType.NEW_USER_GROUP
 }
 
-export default class TypeBrowserControllerAddNode {
+export default class UserBrowserControllerAddNode {
   canAddNode(selectedObject) {
     return (
       selectedObject &&

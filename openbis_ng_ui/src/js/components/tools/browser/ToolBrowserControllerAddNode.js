@@ -9,7 +9,7 @@ const NEW_OBJECT_TYPES = {
   [objectType.QUERY]: objectType.NEW_QUERY
 }
 
-export default class TypeBrowserControllerAddNode {
+export default class ToolBrowserControllerAddNode {
   canAddNode(selectedObject) {
     return (
       selectedObject &&

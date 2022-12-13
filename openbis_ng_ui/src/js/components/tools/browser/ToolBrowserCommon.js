@@ -1,43 +1,12 @@
+import BrowserCommon from '@src/js/components/common/browser2/BrowserCommon.js'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
-const TYPE_ROOT = 'root'
-
-function nodeId(...parts) {
-  return parts.join('__')
-}
-
-function rootNode() {
-  return {
-    id: TYPE_ROOT,
-    object: {
-      type: TYPE_ROOT
-    },
-    canHaveChildren: true
-  }
-}
-
-function tooManyResultsFound(parentId) {
-  const TYPE_WARNING = 'warning'
-  return {
-    nodes: [
-      {
-        id: nodeId(parentId, TYPE_WARNING),
-        message: {
-          type: TYPE_WARNING,
-          text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
-        },
-        selectable: false
-      }
-    ]
-  }
-}
-
 function dynamicPropertyPluginsFolderNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.DYNAMIC_PROPERTY_PLUGIN),
+    id: BrowserCommon.nodeId(parentId, objectType.DYNAMIC_PROPERTY_PLUGIN),
     text: messages.get(messages.DYNAMIC_PROPERTY_PLUGINS),
     object: {
       type: objectType.OVERVIEW,
@@ -49,7 +18,7 @@ function dynamicPropertyPluginsFolderNode(parentId) {
 
 function dynamicPropertyPluginNode(parentId, pluginName) {
   return {
-    id: nodeId(parentId, pluginName),
+    id: BrowserCommon.nodeId(parentId, pluginName),
     text: pluginName,
     object: {
       type: objectType.DYNAMIC_PROPERTY_PLUGIN,
@@ -60,7 +29,7 @@ function dynamicPropertyPluginNode(parentId, pluginName) {
 
 function entityValidationPluginsFolderNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.ENTITY_VALIDATION_PLUGIN),
+    id: BrowserCommon.nodeId(parentId, objectType.ENTITY_VALIDATION_PLUGIN),
     text: messages.get(messages.ENTITY_VALIDATION_PLUGINS),
     object: {
       type: objectType.OVERVIEW,
@@ -72,7 +41,7 @@ function entityValidationPluginsFolderNode(parentId) {
 
 function entityValidationPluginNode(parentId, pluginName) {
   return {
-    id: nodeId(parentId, pluginName),
+    id: BrowserCommon.nodeId(parentId, pluginName),
     text: pluginName,
     object: {
       type: objectType.ENTITY_VALIDATION_PLUGIN,
@@ -83,7 +52,7 @@ function entityValidationPluginNode(parentId, pluginName) {
 
 function queriesFolderNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.QUERY),
+    id: BrowserCommon.nodeId(parentId, objectType.QUERY),
     text: messages.get(messages.QUERIES),
     object: {
       type: objectType.OVERVIEW,
@@ -95,7 +64,7 @@ function queriesFolderNode(parentId) {
 
 function queryNode(parentId, queryName) {
   return {
-    id: nodeId(parentId, queryName),
+    id: BrowserCommon.nodeId(parentId, queryName),
     text: queryName,
     object: {
       type: objectType.QUERY,
@@ -106,7 +75,7 @@ function queryNode(parentId, queryName) {
 
 function historyFolderNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.HISTORY),
+    id: BrowserCommon.nodeId(parentId, objectType.HISTORY),
     text: messages.get(messages.HISTORY),
     object: {
       type: objectType.HISTORY,
@@ -119,7 +88,7 @@ function historyFolderNode(parentId) {
 
 function historyDeletionNode(parentId) {
   return {
-    id: nodeId(parentId, openbis.EventType.DELETION),
+    id: BrowserCommon.nodeId(parentId, openbis.EventType.DELETION),
     text: messages.get(messages.DELETION),
     object: {
       type: objectType.HISTORY,
@@ -130,7 +99,7 @@ function historyDeletionNode(parentId) {
 
 function historyFreezingNode(parentId) {
   return {
-    id: nodeId(parentId, openbis.EventType.FREEZING),
+    id: BrowserCommon.nodeId(parentId, openbis.EventType.FREEZING),
     text: messages.get(messages.FREEZING),
     object: {
       type: objectType.HISTORY,
@@ -141,7 +110,7 @@ function historyFreezingNode(parentId) {
 
 function importFolderNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.IMPORT),
+    id: BrowserCommon.nodeId(parentId, objectType.IMPORT),
     text: messages.get(messages.IMPORT),
     object: {
       type: objectType.IMPORT,
@@ -154,7 +123,7 @@ function importFolderNode(parentId) {
 
 function importAllNode(parentId) {
   return {
-    id: nodeId(parentId, ImportType.ALL),
+    id: BrowserCommon.nodeId(parentId, ImportType.ALL),
     text: messages.get(messages.ALL),
     object: {
       type: objectType.IMPORT,
@@ -166,7 +135,7 @@ function importAllNode(parentId) {
 function reportFolderNode(parentId) {
   const TYPE_REPORT = 'report'
   return {
-    id: nodeId(parentId, TYPE_REPORT),
+    id: BrowserCommon.nodeId(parentId, TYPE_REPORT),
     text: messages.get(messages.REPORT),
     object: {
       type: TYPE_REPORT,
@@ -179,7 +148,7 @@ function reportFolderNode(parentId) {
 
 function activeUsersReportNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.ACTIVE_USERS_REPORT),
+    id: BrowserCommon.nodeId(parentId, objectType.ACTIVE_USERS_REPORT),
     text: messages.get(messages.ACTIVE_USERS_REPORT),
     object: {
       type: objectType.ACTIVE_USERS_REPORT,
@@ -191,7 +160,7 @@ function activeUsersReportNode(parentId) {
 function accessFolderNode(parentId) {
   const TYPE_ACCESS = 'access'
   return {
-    id: nodeId(parentId, TYPE_ACCESS),
+    id: BrowserCommon.nodeId(parentId, TYPE_ACCESS),
     text: messages.get(messages.ACCESS),
     object: {
       type: TYPE_ACCESS,
@@ -204,7 +173,7 @@ function accessFolderNode(parentId) {
 
 function personalAccessTokensNode(parentId) {
   return {
-    id: nodeId(parentId, objectType.PERSONAL_ACCESS_TOKEN),
+    id: BrowserCommon.nodeId(parentId, objectType.PERSONAL_ACCESS_TOKEN),
     text: messages.get(messages.PERSONAL_ACCESS_TOKENS),
     object: {
       type: objectType.OVERVIEW,
@@ -214,9 +183,6 @@ function personalAccessTokensNode(parentId) {
 }
 
 export default {
-  nodeId,
-  rootNode,
-  tooManyResultsFound,
   dynamicPropertyPluginsFolderNode,
   dynamicPropertyPluginNode,
   entityValidationPluginsFolderNode,
@@ -231,6 +197,5 @@ export default {
   reportFolderNode,
   activeUsersReportNode,
   accessFolderNode,
-  personalAccessTokensNode,
-  TYPE_ROOT
+  personalAccessTokensNode
 }

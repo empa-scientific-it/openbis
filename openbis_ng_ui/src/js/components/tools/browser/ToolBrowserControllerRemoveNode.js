@@ -9,7 +9,7 @@ const REMOVABLE_OBJECT_TYPES = [
   objectType.QUERY
 ]
 
-export default class TypeBrowserControllerRemoveNode {
+export default class ToolBrowserControllerRemoveNode {
   canRemoveNode(selectedObject) {
     return (
       selectedObject && REMOVABLE_OBJECT_TYPES.includes(selectedObject.type)

@@ -5,7 +5,7 @@ import ToolBrowserControllerAddNode from '@src/js/components/tools/browser/ToolB
 import ToolBrowserControllerRemoveNode from '@src/js/components/tools/browser/ToolBrowserControllerRemoveNode.js'
 import ToolBrowserControllerReload from '@src/js/components/tools/browser/ToolBrowserControllerReload.js'
 
-export default class TypeBrowserController extends BrowserController {
+export default class ToolBrowserController extends BrowserController {
   async doLoadNodePath(params) {
     return await new ToolBrowserControllerLoadNodePath().doLoadNodePath(params)
   }
