@@ -1,4 +1,4 @@
-import BrowserController from '@src/js/components/common/browser2/BrowserController.js'
+import BrowserController from '@src/js/components/common/browser/BrowserController.js'
 import UserBrowserControllerLoadNodePath from '@src/js/components/users/browser/UserBrowserControllerLoadNodePath.js'
 import UserBrowserControllerLoadNodes from '@src/js/components/users/browser/UserBrowserControllerLoadNodes.js'
 import UserBrowserControllerAddNode from '@src/js/components/users/browser/UserBrowserControllerAddNode.js'

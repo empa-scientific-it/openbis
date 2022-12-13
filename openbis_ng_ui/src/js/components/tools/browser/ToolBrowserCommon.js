@@ -1,4 +1,4 @@
-import BrowserCommon from '@src/js/components/common/browser2/BrowserCommon.js'
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import BrowserWithOpenbis from '@src/js/components/common/browser2/BrowserWithOpenbis.jsx'
+import BrowserWithOpenbis from '@src/js/components/common/browser/BrowserWithOpenbis.jsx'
 import DatabaseBrowserController from '@src/js/components/database/browser/DatabaseBrowserController.js'
 import AppController from '@src/js/components/AppController.js'
 import pages from '@src/js/common/consts/pages.js'

@@ -1,9 +1,7 @@
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
-import BrowserNode2 from '@src/js/components/common/browser2/BrowserNode.jsx'
-import BrowserButtons from '@src/js/components/common/browser/BrowserButtons.jsx'
-import BrowserButtons2 from '@src/js/components/common/browser2/BrowserButtonsAddRemove.jsx'
-import BrowserNodeAutoShowSelected from '@src/js/components/common/browser2/BrowserNodeAutoShowSelected.jsx'
+import BrowserButtons from '@src/js/components/common/browser/BrowserButtonsAddRemove.jsx'
+import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/BrowserNodeAutoShowSelected.jsx'
 import BaseWrapper from '@srcTest/js/components/common/wrapper/BaseWrapper.js'
 import FilterFieldWrapper from '@srcTest/js/components/common/form/wrapper/FilterFieldWrapper.js'
 import BrowserNodeWrapper from './BrowserNodeWrapper.js'
@@ -29,9 +27,8 @@ export default class BrowserWrapper extends BaseWrapper {
   _getNodes(wrapper, nodes) {
     wrapper.children().forEach(childWrapper => {
       let node = null
+
       if (childWrapper.is(this.unwrapComponent(BrowserNode))) {
-        node = new BrowserNodeWrapper(childWrapper)
-      } else if (childWrapper.is(this.unwrapComponent(BrowserNode2))) {
         node = new BrowserNodeWrapper(childWrapper)
       }
 
@@ -53,10 +50,6 @@ export default class BrowserWrapper extends BaseWrapper {
     const buttons = this.findComponent(BrowserButtons)
     if (buttons.exists()) {
       return new BrowserButtonsWrapper(buttons)
-    }
-    const buttons2 = this.findComponent(BrowserButtons2)
-    if (buttons2.exists()) {
-      return new BrowserButtonsWrapper(buttons2)
     }
     return null
   }

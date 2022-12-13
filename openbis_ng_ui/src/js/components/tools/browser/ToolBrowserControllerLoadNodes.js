@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import BrowserCommon from '@src/js/components/common/browser2/BrowserCommon.js'
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import ToolBrowserCommon from '@src/js/components/tools/browser/ToolBrowserCommon.js'
 import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import AppController from '@src/js/components/AppController.js'

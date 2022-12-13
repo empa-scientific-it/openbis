@@ -1,13 +1,11 @@
-import _ from 'lodash'
 import React from 'react'
 import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
-import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
-import BrowserNodes from '@src/js/components/common/browser/BrowserNodes.jsx'
-import BrowserButtons from '@src/js/components/common/browser/BrowserButtons.jsx'
-import BrowserDialogRemoveNode from '@src/js/components/common/browser/BrowserDialogRemoveNode.jsx'
-import AppController from '@src/js/components/AppController.js'
+import FilterField from '@src/js/components/common/form/FilterField.jsx'
+import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
+import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
+import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/BrowserNodeAutoShowSelected.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -15,58 +13,55 @@ const styles = theme => ({
     zIndex: 100,
     position: 'relative'
   },
-  paper: {
+  browser: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     borderRight: `1px solid ${theme.palette.border.primary}`
   },
+  header: {},
+  footer: {},
+  filterButtons: {
+    marginLeft: '-12px',
+    marginRight: '16px',
+    display: 'flex'
+  },
+  filterButton: {
+    marginLeft: '16px'
+  },
   nodes: {
     height: '100%',
     overflow: 'auto'
+  },
+  visible: {
+    display: 'block'
+  },
+  hidden: {
+    display: 'none'
   }
 })
 
 class Browser extends React.PureComponent {
   constructor(props) {
     super(props)
-
     this.state = {}
-
     this.controller = props.controller
     this.controller.init(new ComponentContext(this))
   }
 
-  componentDidMount() {
-    this.controller.load()
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.selectedObject !== prevProps.selectedObject) {
-      this.controller.objectSelect(this.props.selectedObject)
-    }
-    if (
-      this.props.lastObjectModifications !== prevProps.lastObjectModifications
-    ) {
-      this.controller.refresh(this.props.lastObjectModifications)
-    }
+  async componentDidMount() {
+    await this.controller.load()
   }
 
   render() {
     logger.log(logger.DEBUG, 'Browser.render')
-
-    const { controller } = this
-
-    if (!controller.getLoaded()) {
-      return null
-    }
 
     const { classes } = this.props
 
     return (
       <Resizable
         defaultSize={{
-          width: 300,
+          width: '25%',
           height: '100%'
         }}
         enable={{
@@ -81,43 +76,96 @@ class Browser extends React.PureComponent {
         }}
         className={classes.resizable}
       >
-        <div className={classes.paper}>
-          <FilterField
-            filter={controller.getFilter()}
-            filterChange={controller.filterChange}
-            filterClear={controller.filterClear}
-          />
-          <div className={classes.nodes}>
-            <BrowserNodes
-              controller={controller}
-              nodes={controller.getNodes()}
-              level={0}
-            />
-          </div>
-          <BrowserButtons
-            controller={controller}
-            addEnabled={controller.isAddNodeEnabled()}
-            removeEnabled={controller.isRemoveNodeEnabled()}
-          />
-          <BrowserDialogRemoveNode
-            open={controller.isRemoveNodeDialogOpen()}
-            node={controller.getSelectedNode()}
-            onConfirm={controller.nodeRemoveConfirm}
-            onCancel={controller.nodeRemoveCancel}
-          />
-        </div>
+        {this.renderBrowser()}
       </Resizable>
+    )
+  }
+
+  renderBrowser() {
+    const { controller } = this
+    const { renderHeader, renderFooter, classes } = this.props
+
+    if (!controller.isLoaded()) {
+      return (
+        <div className={classes.browser}>
+          <FilterField filter={controller.getFilter() || ''} loading={true} />
+          <BrowserRoot rootNode={controller.getNodeSetAsRoot()} />
+        </div>
+      )
+    }
+
+    const fullTree = controller.getFullTree()
+    const filteredTree = controller.getFilteredTree()
+
+    return (
+      <div className={classes.browser}>
+        {renderHeader && <div className={classes.header}>{renderHeader()}</div>}
+        {this.renderFilter()}
+        <BrowserRoot
+          rootNode={controller.getNodeSetAsRoot()}
+          onRootChange={node => {
+            controller.setNodeAsRoot(node)
+          }}
+          onRootClear={() => {
+            controller.setNodeAsRoot(null)
+          }}
+        />
+        <div className={classes.nodes}>
+          {fullTree && (
+            <div
+              className={
+                !controller.isLoading() && controller.isFullTreeVisible()
+                  ? classes.visible
+                  : classes.hidden
+              }
+            >
+              <BrowserNode controller={controller} node={fullTree} level={-1} />
+            </div>
+          )}
+          {filteredTree && (
+            <div
+              className={
+                !controller.isLoading() && controller.isFilteredTreeVisible()
+                  ? classes.visible
+                  : classes.hidden
+              }
+            >
+              <BrowserNode
+                controller={controller}
+                node={filteredTree}
+                level={-1}
+              />
+            </div>
+          )}
+        </div>
+        {renderFooter && <div className={classes.footer}>{renderFooter()}</div>}
+      </div>
+    )
+  }
+
+  renderFilter() {
+    const { controller } = this
+    const { classes } = this.props
+
+    return (
+      <FilterField
+        filter={controller.getFilter() || ''}
+        filterChange={controller.filterChange}
+        filterClear={controller.filterClear}
+        loading={controller.isLoading() || controller.isTreeLoading()}
+        endAdornments={
+          <div className={classes.filterButtons}>
+            <div className={classes.filterButton}>
+              <BrowserNodeAutoShowSelected
+                value={controller.isAutoShowSelectedObject()}
+                onClick={controller.changeAutoShowSelectedObject}
+              />
+            </div>
+          </div>
+        }
+      />
     )
   }
 }
 
-export default _.flow(
-  withStyles(styles),
-  AppController.getInstance().withState(ownProps => ({
-    selectedObject: AppController.getInstance().getSelectedObject(
-      ownProps.controller.getPage()
-    ),
-    lastObjectModifications:
-      AppController.getInstance().getLastObjectModifications()
-  }))
-)(Browser)
+export default withStyles(styles)(Browser)

@@ -1,4 +1,4 @@
-import BrowserControllerReload from '@src/js/components/common/browser2/BrowserControllerReload.js'
+import BrowserControllerReload from '@src/js/components/common/browser/BrowserControllerReload.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 

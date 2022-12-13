@@ -1,4 +1,4 @@
-import BrowserCommon from '@src/js/components/common/browser2/BrowserCommon.js'
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import ToolBrowserCommon from '@src/js/components/tools/browser/ToolBrowserCommon.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
