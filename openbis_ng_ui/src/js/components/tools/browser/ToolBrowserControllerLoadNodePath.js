@@ -139,13 +139,22 @@ export default class ToolBrowserControllerLoadNodePath {
         {
           id: ToolBrowserConsts.nodeId(
             ToolBrowserConsts.TYPE_ROOT,
-            ToolBrowserConsts.TYPE_ACTIVE_USERS_REPORT
+            ToolBrowserConsts.TYPE_REPORT
           ),
           object: {
-            type: objectType.ACTIVE_USERS_REPORT,
-            id: objectType.ACTIVE_USERS_REPORT
+            type: ToolBrowserConsts.TYPE_REPORT,
+            id: ToolBrowserConsts.TYPE_REPORT
           },
-          text: ToolBrowserConsts.TEXT_ACTIVE_USERS_REPORT
+          text: ToolBrowserConsts.TEXT_REPORT
+        },
+        {
+          id: ToolBrowserConsts.nodeId(
+            ToolBrowserConsts.TYPE_ROOT,
+            ToolBrowserConsts.TYPE_REPORT,
+            object.id
+          ),
+          object,
+          text: object.id
         }
       ]
     } else {

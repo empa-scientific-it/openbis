@@ -317,19 +317,34 @@ export default class ToolBrowserControllerLoadNodes {
       return null
     }
 
-    const node = {
-      id: ToolBrowserConsts.nodeId(
-        parent.id,
-        ToolBrowserConsts.TYPE_ACTIVE_USERS_REPORT
-      ),
-      text: ToolBrowserConsts.TEXT_ACTIVE_USERS_REPORT,
+    const folderNode = {
+      id: ToolBrowserConsts.nodeId(parent.id, ToolBrowserConsts.TYPE_REPORT),
+      text: ToolBrowserConsts.TEXT_REPORT,
       object: {
-        type: objectType.ACTIVE_USERS_REPORT,
-        id: objectType.ACTIVE_USERS_REPORT
+        type: ToolBrowserConsts.TYPE_REPORT,
+        id: ToolBrowserConsts.TYPE_REPORT
+      },
+      canHaveChildren: true,
+      selectable: false,
+      children: {
+        nodes: [
+          {
+            id: ToolBrowserConsts.nodeId(
+              parent.id,
+              ToolBrowserConsts.TYPE_REPORT,
+              objectType.ACTIVE_USERS_REPORT
+            ),
+            text: messages.get(messages.ACTIVE_USERS_REPORT),
+            object: {
+              type: objectType.ACTIVE_USERS_REPORT,
+              id: objectType.ACTIVE_USERS_REPORT
+            }
+          }
+        ]
       }
     }
 
-    return node
+    return folderNode
   }
 
   createFolderNode(parent, result, folderObjectType, folderText) {
