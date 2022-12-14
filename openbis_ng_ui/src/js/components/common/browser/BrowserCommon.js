@@ -1,11 +1,12 @@
 import messages from '@src/js/common/messages.js'
 
+const TYPE_ROOT = 'root'
+
 function nodeId(...parts) {
   return parts.join('__')
 }
 
 function rootNode() {
-  const TYPE_ROOT = 'root'
   return {
     id: TYPE_ROOT,
     object: {
@@ -32,6 +33,7 @@ function tooManyResultsFound(parentId) {
 }
 
 export default {
+  TYPE_ROOT,
   nodeId,
   rootNode,
   tooManyResultsFound

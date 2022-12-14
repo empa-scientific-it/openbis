@@ -184,10 +184,18 @@ export default class BrowserController {
       })
 
       nodeSetAsRoot = {
-        ...node,
+        id: node.id,
+        object: node.object,
+        text: node.text,
+        message: node.message,
         path: path,
-        canHaveChildren: true,
-        children: []
+        parent: node.parent
+          ? {
+              id: node.parent.id,
+              object: node.parent.object
+            }
+          : null,
+        canHaveChildren: true
       }
     }
 
