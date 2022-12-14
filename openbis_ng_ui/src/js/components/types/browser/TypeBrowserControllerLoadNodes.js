@@ -1,8 +1,8 @@
 import _ from 'lodash'
-import TypeBrowserConsts from '@src/js/components/types/browser/TypeBrowserConsts.js'
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
+import TypeBrowserCommon from '@src/js/components/types/browser/TypeBrowserCommon.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
-import messages from '@src/js/common/messages.js'
 import compare from '@src/js/common/compare.js'
 
 const LOAD_LIMIT = 100
@@ -12,19 +12,13 @@ export default class TypeBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
 
+    const rootNode = BrowserCommon.rootNode()
+
     if (node.internalRoot) {
       return {
-        nodes: [
-          {
-            id: TypeBrowserConsts.TYPE_ROOT,
-            object: {
-              type: TypeBrowserConsts.TYPE_ROOT
-            },
-            canHaveChildren: true
-          }
-        ]
+        nodes: [rootNode]
       }
-    } else if (node.object.type === TypeBrowserConsts.TYPE_ROOT) {
+    } else if (node.object.type === rootNode.object.type) {
       const [
         objectTypes,
         collectionTypes,
@@ -41,14 +35,14 @@ export default class TypeBrowserControllerLoadNodes {
 
       if (params.filter) {
         const totalCount =
-          objectTypes.getTotalCount() +
-          collectionTypes.getTotalCount() +
-          dataSetTypes.getTotalCount() +
-          materialTypes.getTotalCount() +
-          vocabularyTypes.getTotalCount()
+          objectTypes.totalCount +
+          collectionTypes.totalCount +
+          dataSetTypes.totalCount +
+          materialTypes.totalCount +
+          vocabularyTypes.totalCount
 
         if (totalCount > TOTAL_LOAD_LIMIT) {
-          return this.tooManyResultsFound(node)
+          return BrowserCommon.tooManyResultsFound(node.id)
         }
       }
 
@@ -63,6 +57,9 @@ export default class TypeBrowserControllerLoadNodes {
 
       if (params.filter) {
         nodes = nodes.filter(node => !_.isEmpty(node.children))
+        nodes.forEach(node => {
+          node.expanded = true
+        })
       }
 
       return {
@@ -95,21 +92,6 @@ export default class TypeBrowserControllerLoadNodes {
     }
   }
 
-  tooManyResultsFound(node) {
-    return {
-      nodes: [
-        {
-          id: TypeBrowserConsts.nodeId(node.id, TypeBrowserConsts.TYPE_WARNING),
-          message: {
-            type: 'warning',
-            text: messages.get(messages.TOO_MANY_FILTERED_RESULTS_FOUND)
-          },
-          selectable: false
-        }
-      ]
-    }
-  }
-
   async searchObjectTypes(params) {
     const { filter, offset } = params
 
@@ -120,9 +102,16 @@ export default class TypeBrowserControllerLoadNodes {
     const fetchOptions = new openbis.SampleTypeFetchOptions()
 
     const result = await openbis.searchSampleTypes(criteria, fetchOptions)
-    result.filter = filter
-    result.offset = offset
-    return result
+
+    return {
+      objects: result.getObjects().map(o => ({
+        id: o.getCode(),
+        text: o.getCode()
+      })),
+      totalCount: result.getTotalCount(),
+      filter,
+      offset
+    }
   }
 
   async searchCollectionTypes(params) {
@@ -135,9 +124,16 @@ export default class TypeBrowserControllerLoadNodes {
     const fetchOptions = new openbis.ExperimentTypeFetchOptions()
 
     const result = await openbis.searchExperimentTypes(criteria, fetchOptions)
-    result.filter = filter
-    result.offset = offset
-    return result
+
+    return {
+      objects: result.getObjects().map(o => ({
+        id: o.getCode(),
+        text: o.getCode()
+      })),
+      totalCount: result.getTotalCount(),
+      filter,
+      offset
+    }
   }
 
   async searchDataSetTypes(params) {
@@ -150,9 +146,16 @@ export default class TypeBrowserControllerLoadNodes {
     const fetchOptions = new openbis.DataSetTypeFetchOptions()
 
     const result = await openbis.searchDataSetTypes(criteria, fetchOptions)
-    result.filter = filter
-    result.offset = offset
-    return result
+
+    return {
+      objects: result.getObjects().map(o => ({
+        id: o.getCode(),
+        text: o.getCode()
+      })),
+      totalCount: result.getTotalCount(),
+      filter,
+      offset
+    }
   }
 
   async searchMaterialTypes(params) {
@@ -165,9 +168,16 @@ export default class TypeBrowserControllerLoadNodes {
     const fetchOptions = new openbis.MaterialTypeFetchOptions()
 
     const result = await openbis.searchMaterialTypes(criteria, fetchOptions)
-    result.filter = filter
-    result.offset = offset
-    return result
+
+    return {
+      objects: result.getObjects().map(o => ({
+        id: o.getCode(),
+        text: o.getCode()
+      })),
+      totalCount: result.getTotalCount(),
+      filter,
+      offset
+    }
   }
 
   async searchVocabularyTypes(params) {
@@ -180,100 +190,103 @@ export default class TypeBrowserControllerLoadNodes {
     const fetchOptions = new openbis.VocabularyFetchOptions()
 
     const result = await openbis.searchVocabularies(criteria, fetchOptions)
-    result.filter = filter
-    result.offset = offset
-    return result
+
+    return {
+      objects: result.getObjects().map(o => ({
+        id: o.getCode(),
+        text: o.getCode()
+      })),
+      totalCount: result.getTotalCount(),
+      filter,
+      offset
+    }
   }
 
   createObjectTypesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.OBJECT_TYPE,
-      TypeBrowserConsts.TEXT_OBJECT_TYPES
-    )
-  }
-
-  createCollectionTypesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.COLLECTION_TYPE,
-      TypeBrowserConsts.TEXT_COLLECTION_TYPES
-    )
-  }
-
-  createDataSetTypesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.DATA_SET_TYPE,
-      TypeBrowserConsts.TEXT_DATA_SET_TYPES
-    )
-  }
-
-  createMaterialTypesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.MATERIAL_TYPE,
-      TypeBrowserConsts.TEXT_MATERIAL_TYPES
-    )
-  }
-
-  createVocabularyTypesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.VOCABULARY_TYPE,
-      TypeBrowserConsts.TEXT_VOCABULARY_TYPES
-    )
-  }
-
-  createPropertyTypesNode(parent, result) {
-    return this.createFolderNode(
-      parent,
-      result,
-      objectType.PROPERTY_TYPE,
-      TypeBrowserConsts.TEXT_PROPERTY_TYPES
-    )
-  }
-
-  createFolderNode(parent, result, folderObjectType, folderText) {
-    const folderNode = {
-      id: TypeBrowserConsts.nodeId(parent.id, folderObjectType),
-      text: folderText,
-      object: {
-        type: objectType.OVERVIEW,
-        id: folderObjectType
-      },
-      canHaveChildren: !!result,
-      selectable: true,
-      expanded: result && result.filter
-    }
+    const folderNode = TypeBrowserCommon.objectTypesFolderNode(parent.id)
 
     if (result) {
       folderNode.children = this.createNodes(
         folderNode,
         result,
-        folderObjectType
+        objectType.OBJECT_TYPE
       )
     }
 
     return folderNode
   }
 
+  createCollectionTypesNode(parent, result) {
+    const folderNode = TypeBrowserCommon.collectionTypesFolderNode(parent.id)
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.COLLECTION_TYPE
+      )
+    }
+
+    return folderNode
+  }
+
+  createDataSetTypesNode(parent, result) {
+    const folderNode = TypeBrowserCommon.dataSetTypesFolderNode(parent.id)
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.DATA_SET_TYPE
+      )
+    }
+
+    return folderNode
+  }
+
+  createMaterialTypesNode(parent, result) {
+    const folderNode = TypeBrowserCommon.materialTypesFolderNode(parent.id)
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.MATERIAL_TYPE
+      )
+    }
+
+    return folderNode
+  }
+
+  createVocabularyTypesNode(parent, result) {
+    const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode(parent.id)
+
+    if (result) {
+      folderNode.children = this.createNodes(
+        folderNode,
+        result,
+        objectType.VOCABULARY_TYPE
+      )
+    }
+
+    return folderNode
+  }
+
+  createPropertyTypesNode(parent) {
+    return TypeBrowserCommon.propertyTypesFolderNode(parent.id)
+  }
+
   createNodes(parent, result, objectType) {
-    let objects = result.getObjects()
-    objects.sort((o1, o2) => compare(o1.code, o2.code))
+    let objects = result.objects
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
     objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
 
-    let nodes = objects.map(type => ({
-      id: TypeBrowserConsts.nodeId(parent.id, objectType, type.getCode()),
-      text: type.getCode(),
+    let nodes = objects.map(object => ({
+      id: BrowserCommon.nodeId(parent.id, object.id),
+      text: object.text,
       object: {
         type: objectType,
-        id: type.getCode()
+        id: object.id
       }
     }))
 
@@ -285,7 +298,7 @@ export default class TypeBrowserControllerLoadNodes {
         loadMore: {
           offset: result.offset + nodes.length,
           loadedCount: result.offset + nodes.length,
-          totalCount: result.getTotalCount(),
+          totalCount: result.totalCount,
           append: true
         }
       }
