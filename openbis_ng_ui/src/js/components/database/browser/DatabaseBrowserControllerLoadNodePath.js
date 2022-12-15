@@ -68,6 +68,8 @@ export default class DatabaseBrowserControllerLoadNodePath {
     } else if (object.type === objectType.OBJECT) {
       const sample = await this.searchSample(object.id)
       if (sample) {
+        let sharedSample = false
+
         if (sample.getExperiment()) {
           const experimentPath = await this.doLoadNodePath({
             object: {
@@ -98,10 +100,12 @@ export default class DatabaseBrowserControllerLoadNodePath {
           if (!_.isEmpty(spacePath)) {
             path = [...spacePath]
           }
+        } else {
+          sharedSample = true
         }
 
-        if (!_.isEmpty(path)) {
-          const lastNode = path[path.length - 1]
+        if (sharedSample || !_.isEmpty(path)) {
+          const lastNode = sharedSample ? rootNode : path[path.length - 1]
           const samplesFolderNode =
             DatabaseBrowserCommon.objectsFolderNode(lastNode)
           const sampleNode = DatabaseBrowserCommon.objectNode(
