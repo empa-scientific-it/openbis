@@ -93,7 +93,7 @@ export default class BrowserController {
       })
     }
 
-    let { nodeSetAsRoot, autoShowSelectedObject } = this.context.getState()
+    let { nodeSetAsRoot } = this.context.getState()
 
     if (nodeSetAsRoot) {
       const nodeSetAsRootPath = await this.doLoadNodePath({
@@ -111,9 +111,7 @@ export default class BrowserController {
       this._getTreeController().getRoot().id
     )
 
-    if (autoShowSelectedObject) {
-      await this._getTreeController().showSelectedObject()
-    }
+    await this.showSelectedObject()
 
     await this.context.setState({
       loaded: true,
@@ -208,12 +206,9 @@ export default class BrowserController {
   }
 
   async selectObject(nodeObject) {
-    const { autoShowSelectedObject } = this.context.getState()
     await this.fullTreeController.selectObject(nodeObject)
     await this.filteredTreeController.selectObject(nodeObject)
-    if (autoShowSelectedObject) {
-      await this._getTreeController().showSelectedObject()
-    }
+    await this.showSelectedObject()
   }
 
   async changeAutoShowSelectedObject() {
@@ -224,11 +219,18 @@ export default class BrowserController {
       autoShowSelectedObject
     })
 
-    if (autoShowSelectedObject) {
-      await this._getTreeController().showSelectedObject()
-    }
+    await this.showSelectedObject()
 
     this._saveSettings()
+  }
+
+  async showSelectedObject() {
+    const { autoShowSelectedObject } = this.context.getState()
+    if (autoShowSelectedObject) {
+      await this._getTreeController().showSelectedObject(
+        this.isFullTreeVisible()
+      )
+    }
   }
 
   async changeSorting(nodeId, sortingId) {

@@ -376,7 +376,7 @@ export default class BrowserTreeController {
     state.selectedObject = nodeObject
   }
 
-  async showSelectedObject() {
+  async showSelectedObject(showLoadMore) {
     const state = this.context.getState()
 
     if (state.loading) {
@@ -454,6 +454,9 @@ export default class BrowserTreeController {
       }
 
       if (!nextNode) {
+        if (!_.isEqual(currentNode.object, selectedObject) && !showLoadMore) {
+          return
+        }
         newState.nodes = { ...newState.nodes }
         newState.nodes[currentNode.id] = {
           ...newState.nodes[currentNode.id],
