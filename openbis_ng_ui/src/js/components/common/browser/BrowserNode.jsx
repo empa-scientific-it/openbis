@@ -111,23 +111,36 @@ class BrowserNodeClass extends React.PureComponent {
     this.componentDidUpdate(null)
   }
 
-  componentDidUpdate(prevProps) {
-    const prevScrollTo = prevProps ? prevProps.node.scrollTo : null
-    const scrollTo = this.props.node.scrollTo
+  componentDidUpdate() {
+    const {
+      node: { object, scrollTo }
+    } = this.props
 
-    if (scrollTo && scrollTo !== prevScrollTo) {
-      const element = this.references[scrollTo.ref].current
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          element.classList.add(this.props.classes.selected)
-          setTimeout(() => {
-            element.classList.remove(this.props.classes.selected)
-          }, 1500)
-        }, 500)
-      }
-      scrollTo.clear()
+    if (!scrollTo) {
+      return
     }
+
+    let element = null
+
+    if (_.isEqual(object, scrollTo.object)) {
+      element = this.references.node.current
+    } else {
+      element = this.references.loadMore.current
+    }
+
+    if (element && element !== this.scrollToElement) {
+      this.scrollToElement = element
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.classList.add(this.props.classes.selected)
+        setTimeout(() => {
+          element.classList.remove(this.props.classes.selected)
+          this.scrollToElement = null
+        }, 1500)
+      }, 500)
+    }
+
+    scrollTo.clear()
   }
 
   render() {

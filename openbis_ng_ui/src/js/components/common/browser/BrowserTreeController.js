@@ -379,7 +379,7 @@ export default class BrowserTreeController {
   async showSelectedObject() {
     const state = this.context.getState()
 
-    if (!state.selectedObject) {
+    if (state.loading) {
       return
     }
 
@@ -389,9 +389,15 @@ export default class BrowserTreeController {
       return
     }
 
+    const selectedObject = state.selectedObject
+
+    if (!selectedObject) {
+      return
+    }
+
     const pathWithoutRoot = await this.doLoadNodePath({
       root: root,
-      object: state.selectedObject
+      object: selectedObject
     })
 
     if (!pathWithoutRoot || _.isEmpty(pathWithoutRoot)) {
@@ -405,11 +411,11 @@ export default class BrowserTreeController {
     let currentPathNode = path.shift()
     let currentNode = root
 
-    const scrollTo = (ref, nodeId) => {
+    const scrollTo = (nodeId, object) => {
       const scrollToId = _.uniqueId()
       return {
         id: scrollToId,
-        ref: ref,
+        object: object,
         clear: () => {
           _this.context.setState(state => {
             const node = state.nodes[nodeId]
@@ -451,7 +457,7 @@ export default class BrowserTreeController {
         newState.nodes = { ...newState.nodes }
         newState.nodes[currentNode.id] = {
           ...newState.nodes[currentNode.id],
-          scrollTo: scrollTo(nextPathNode ? 'loadMore' : 'node', currentNode.id)
+          scrollTo: scrollTo(currentNode.id, selectedObject)
         }
       }
 
