@@ -36,12 +36,13 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
+import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class PreStagingCleanUpMaintenanceTaskTest extends AbstractFileSystemTestCase
+public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCase
 {
     private ITimeProvider timeProvider;
 
@@ -53,7 +54,13 @@ public class PreStagingCleanUpMaintenanceTaskTest extends AbstractFileSystemTest
 
     private BufferedAppender logRecorder;
 
-    public PreStagingCleanUpMaintenanceTaskTest()
+    private ThreadParameters[] threadParameters;
+
+    private Properties thread1Properties;
+
+    private Properties thread2Properties;
+
+    public DataSetRegistrationCleanUpTaskTest()
     {
         super(false);
     }
@@ -70,6 +77,17 @@ public class PreStagingCleanUpMaintenanceTaskTest extends AbstractFileSystemTest
         share1 = createShareWithPreStagingStuff(timeProvider, 1, 2);
         System.err.println(share1.getAbsolutePath());
         share2 = createShareWithPreStagingStuff(timeProvider, 2, 1);
+        thread1Properties = new Properties();
+        File incoming1 = new File(storeRoot, "1/in");
+        incoming1.mkdirs();
+        thread1Properties.setProperty(ThreadParameters.INCOMING_DIR, incoming1.getAbsolutePath());
+        thread2Properties = new Properties();
+        File incoming2 = new File(storeRoot, "2/in");
+        incoming2.mkdirs();
+        thread2Properties.setProperty(ThreadParameters.INCOMING_DIR, incoming2.getAbsolutePath());
+        threadParameters = new ThreadParameters[] {
+                new ThreadParameters(thread1Properties, "t1"),
+                new ThreadParameters(thread2Properties, "t2") };
     }
 
     private File createShareWithPreStagingStuff(ITimeProvider timeProvider, int shareId, int numberOfFiles)
@@ -81,25 +99,30 @@ public class PreStagingCleanUpMaintenanceTaskTest extends AbstractFileSystemTest
         for (int i = 0; i < numberOfFiles; i++)
         {
             String filename = filenameGenerator.generateFilename();
-            FileUtilities.writeToFile(new File(preStagingDir, filename), filename);
+            File file = new File(preStagingDir, filename);
+            FileUtilities.writeToFile(file, filename);
+            file.setLastModified(50000);
         }
         return share;
     }
 
     @Test
-    public void test()
+    public void testPreStaging()
     {
         // Given
-        PreStagingCleanUpMaintenanceTask task = new PreStagingCleanUpMaintenanceTask(storeRoot, timeProvider);
+        DataSetRegistrationCleanUpTask task = new DataSetRegistrationCleanUpTask(threadParameters,
+                storeRoot, timeProvider);
         Properties properties = new Properties();
-        properties.setProperty(PreStagingCleanUpMaintenanceTask.MINIMUM_AGE_IN_DAYS, "70");
+        properties.setProperty(DataSetRegistrationCleanUpTask.MINIMUM_AGE_IN_DAYS, "70");
         task.setUp("cleanup", properties);
 
         // When
         task.execute();
 
         // Then
-        assertEquals("Stale folder deleted: " + storeRoot.getAbsolutePath()
+        assertEquals("pre-staging directory " + storeRoot.getAbsolutePath() + "/1/pre-staging has 1 files\n"
+                + "1970-01-01_01-00-00-000_test_test (last modified: 1970-01-01 01:00:50)\n"
+                + "Stale folder deleted: " + storeRoot.getAbsolutePath()
                 + "/1/pre-staging/1970-01-01_01-00-00-000_test_test", logRecorder.getLogContent());
         assertEquals("[1970-02-04_14-21-01-597_test_test]", getStuffFromPreStaging(share1).toString());
         assertEquals("[1970-03-11_03-42-03-194_test_test]", getStuffFromPreStaging(share2).toString());

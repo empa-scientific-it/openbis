@@ -35,7 +35,7 @@ import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.ethz.sis.openbis.generic.server.dss.plugins.PreStagingCleanUpMaintenanceTask;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.DataSetRegistrationCleanUpTask;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.SessionWorkspaceCleanUpMaintenanceTask;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -476,7 +476,7 @@ public final class ETLDaemon
         return registrator;
     }
 
-    private static String getShareId(final ThreadParameters threadParams, final File storeRoot)
+    public static String getShareId(final ThreadParameters threadParams, final File storeRoot)
     {
         File incomingDirectory = threadParams.getIncomingDataDirectory();
         Integer incomingShareIdOrNull = threadParams.getIncomingShareId();
@@ -709,9 +709,9 @@ public final class ETLDaemon
         injectPostRegistrationMaintenanceTaskIfNecessary(maintenancePlugins);
         injectMaintenanceTask(maintenancePlugins, DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.class,
                 300, "injected-delete-datasets-already-deleted-from-application-server-task");
-        injectMaintenanceTask(maintenancePlugins, PreStagingCleanUpMaintenanceTask.class,
-                PreStagingCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
-                PreStagingCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
+        injectMaintenanceTask(maintenancePlugins, DataSetRegistrationCleanUpTask.class,
+                DataSetRegistrationCleanUpTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
+                DataSetRegistrationCleanUpTask.DEFAULT_MAINTENANCE_TASK_NAME);
         injectMaintenanceTask(maintenancePlugins, SessionWorkspaceCleanUpMaintenanceTask.class,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
