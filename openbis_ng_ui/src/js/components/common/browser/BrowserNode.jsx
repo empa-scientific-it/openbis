@@ -1,19 +1,32 @@
 import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import Collapse from '@material-ui/core/Collapse'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+import Collapse from '@material-ui/core/Collapse'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import BrowserNodes from '@src/js/components/common/browser/BrowserNodes.jsx'
+import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
+import BrowserNodeSetAsRoot from '@src/js/components/common/browser/BrowserNodeSetAsRoot.jsx'
+import BrowserNodeSortings from '@src/js/components/common/browser/BrowserNodeSortings.jsx'
+import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
+import Message from '@src/js/components/common/form/Message.jsx'
+import messages from '@src/js/common/messages.js'
+import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
+
+const PADDING_PER_LEVEL = 24
 
 const styles = theme => ({
   item: {
     paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1)
+    paddingBottom: theme.spacing(1),
+    '&:hover $options': {
+      visibility: 'visible'
+    }
   },
   icon: {
     margin: '-2px 4px -2px 8px',
@@ -22,64 +35,144 @@ const styles = theme => ({
   text: {
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.fontSize
+  },
+  listContainer: {
+    flex: '1 1 100%'
+  },
+  list: {
+    paddingTop: '0',
+    paddingBottom: '0'
+  },
+  options: {
+    visibility: 'hidden',
+    display: 'flex'
+  },
+  selected: {
+    backgroundColor: theme.palette.background.primary
   }
 })
 
-class BrowserNode extends React.PureComponent {
+class BrowserNodeClass extends React.PureComponent {
   constructor(props) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
     this.handleExpand = this.handleExpand.bind(this)
     this.handleCollapse = this.handleCollapse.bind(this)
+    this.handleLoadMore = this.handleLoadMore.bind(this)
+    this.handleSortingChange = this.handleSortingChange.bind(this)
+    this.handleCollapseAll = this.handleCollapseAll.bind(this)
+    this.handleSetAsRoot = this.handleSetAsRoot.bind(this)
+    this.references = {
+      node: React.createRef(),
+      loadMore: React.createRef()
+    }
   }
 
   handleClick() {
     const { controller, node } = this.props
-    controller.nodeSelect(node.id)
+    if (node.selectable) {
+      controller.selectObject(node.object)
+    }
   }
 
   handleExpand(event) {
     const { controller, node } = this.props
     event.stopPropagation()
-    controller.nodeExpand(node.id)
+    controller.expandNode(node.id)
   }
 
   handleCollapse(event) {
     const { controller, node } = this.props
     event.stopPropagation()
-    controller.nodeCollapse(node.id)
+    controller.collapseNode(node.id)
+  }
+
+  handleLoadMore() {
+    const { controller, node } = this.props
+    controller.loadMoreNodes(node.id)
+  }
+
+  handleSortingChange(nodeId, sortingId) {
+    const { controller } = this.props
+    controller.changeSorting(nodeId, sortingId)
+  }
+
+  handleCollapseAll(nodeId) {
+    const { controller } = this.props
+    controller.collapseAllNodes(nodeId)
+  }
+
+  handleSetAsRoot(nodeId) {
+    const { controller } = this.props
+    controller.setNodeAsRoot(nodeId)
+  }
+
+  componentDidMount() {
+    this.componentDidUpdate(null)
+  }
+
+  componentDidUpdate() {
+    const {
+      node: { object, scrollTo }
+    } = this.props
+
+    if (!scrollTo) {
+      return
+    }
+
+    let element = null
+
+    if (_.isEqual(object, scrollTo.object)) {
+      element = this.references.node.current
+    } else {
+      element = this.references.loadMore.current
+    }
+
+    if (element && element !== this.scrollToElement) {
+      this.scrollToElement = element
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.classList.add(this.props.classes.selected)
+        setTimeout(() => {
+          element.classList.remove(this.props.classes.selected)
+          this.scrollToElement = null
+        }, 1500)
+      }, 500)
+    }
+
+    scrollTo.clear()
   }
 
   render() {
     logger.log(logger.DEBUG, 'BrowserNode.render')
 
-    const { controller, node, level, classes } = this.props
+    const { node, level, classes } = this.props
 
-    return (
-      <div>
-        <ListItem
-          button
-          selected={node.selected}
-          onClick={this.handleClick}
-          style={{ paddingLeft: level * 24 + 'px' }}
-          classes={{
-            root: classes.item
-          }}
-        >
-          {this.renderIcon(node)}
-          {this.renderText(node)}
-        </ListItem>
-        {node.children && node.children.length > 0 && (
+    if (level === -1) {
+      return node.expanded ? this.renderChildren() : null
+    } else {
+      return (
+        <React.Fragment>
+          <ListItem
+            ref={this.references['node']}
+            button
+            selected={node.selected}
+            onClick={this.handleClick}
+            style={{ paddingLeft: level * PADDING_PER_LEVEL + 'px' }}
+            classes={{
+              root: classes.item
+            }}
+          >
+            {this.renderIcon(node)}
+            {this.renderText(node)}
+            {this.renderOptions(node)}
+          </ListItem>
           <Collapse in={node.expanded} mountOnEnter={true} unmountOnExit={true}>
-            <BrowserNodes
-              controller={controller}
-              nodes={node.children}
-              level={level + 1}
-            />
+            {this.renderChildren()}
           </Collapse>
-        )}
-      </div>
-    )
+        </React.Fragment>
+      )
+    }
   }
 
   renderIcon(node) {
@@ -87,9 +180,12 @@ class BrowserNode extends React.PureComponent {
 
     const { classes } = this.props
 
-    if (node.children && node.children.length > 0) {
+    if (node.canHaveChildren) {
       let icon = null
-      if (node.expanded) {
+
+      if (node.loading) {
+        icon = <CircularProgress size={20} />
+      } else if (node.expanded) {
         icon = <ExpandMoreIcon onClick={this.handleCollapse} />
       } else {
         icon = <ChevronRightIcon onClick={this.handleExpand} />
@@ -117,19 +213,156 @@ class BrowserNode extends React.PureComponent {
   }
 
   renderText(node) {
-    logger.log(logger.DEBUG, 'BrowserNode.renderText "' + node.text + '"')
+    logger.log(logger.DEBUG, 'BrowserNode.renderText')
 
     const { classes } = this.props
 
+    let text = null
+
+    if (node.message) {
+      text = <Message type={node.message.type}>{node.message.text}</Message>
+    } else {
+      text = node.text
+    }
+
     return (
       <ListItemText
-        primary={node.text}
+        primary={text}
         classes={{
           primary: classes.text
         }}
       />
     )
   }
+
+  renderOptions(node) {
+    const { classes } = this.props
+
+    return (
+      <div className={classes.options}>
+        <BrowserNodeSetAsRoot node={node} onClick={this.handleSetAsRoot} />
+        <BrowserNodeSortings node={node} onChange={this.handleSortingChange} />
+        <BrowserNodeCollapseAll node={node} onClick={this.handleCollapseAll} />
+      </div>
+    )
+  }
+
+  renderChildren() {
+    const { node, level, classes } = this.props
+
+    if (!node.canHaveChildren || !node.loaded) {
+      return null
+    }
+
+    return (
+      <List
+        className={util.classNames(
+          classes.list,
+          level === 0 ? classes.listContainer : null
+        )}
+      >
+        {this.renderNonEmptyChildren()}
+        {this.renderShowMoreChildren()}
+        {this.renderEmptyChildren()}
+      </List>
+    )
+  }
+
+  renderNonEmptyChildren() {
+    const { controller, node, level } = this.props
+
+    if (!_.isEmpty(node.children)) {
+      return node.children.map(child => {
+        return (
+          <BrowserNode
+            key={child.id}
+            controller={controller}
+            node={child}
+            level={level + 1}
+          />
+        )
+      })
+    } else {
+      return null
+    }
+  }
+
+  renderShowMoreChildren() {
+    const { node, level, classes } = this.props
+
+    if (
+      node.children &&
+      node.loadMore &&
+      node.loadMore.totalCount > node.loadMore.loadedCount
+    ) {
+      return (
+        <ListItem
+          ref={this.references['loadMore']}
+          button
+          onClick={this.handleLoadMore}
+          style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
+          classes={{
+            root: classes.item
+          }}
+        >
+          <ListItemIcon
+            classes={{
+              root: classes.icon
+            }}
+          >
+            {node.loading ? <CircularProgress size={20} /> : <span></span>}
+          </ListItemIcon>
+          <ListItemText
+            primary={
+              <span>
+                {messages.get(
+                  messages.LOAD_MORE,
+                  node.loadMore.totalCount - node.loadMore.loadedCount
+                )}
+              </span>
+            }
+            classes={{
+              primary: classes.text
+            }}
+          />
+        </ListItem>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderEmptyChildren() {
+    const { node, level, classes } = this.props
+
+    if (!node.children || node.children.length === 0) {
+      return (
+        <ListItem
+          button
+          style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
+          classes={{
+            root: classes.item
+          }}
+        >
+          <ListItemIcon
+            classes={{
+              root: classes.icon
+            }}
+          >
+            <span></span>
+          </ListItemIcon>
+          <ListItemText
+            primary={messages.get(messages.LOADED_EMPTY)}
+            classes={{
+              primary: classes.text
+            }}
+          />
+        </ListItem>
+      )
+    } else {
+      return null
+    }
+  }
 }
 
-export default _.flow(withStyles(styles))(BrowserNode)
+export default _.flow(withStyles(styles))(BrowserNodeClass)

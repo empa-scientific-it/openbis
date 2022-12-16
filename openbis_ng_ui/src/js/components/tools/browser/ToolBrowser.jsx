@@ -1,18 +1,78 @@
+import _ from 'lodash'
 import React from 'react'
-import Browser from '@src/js/components/common/browser/Browser.jsx'
+import autoBind from 'auto-bind'
+import BrowserWithOpenbis from '@src/js/components/common/browser/BrowserWithOpenbis.jsx'
+import BrowserButtonsAddRemove from '@src/js/components/common/browser/BrowserButtonsAddRemove.jsx'
 import ToolBrowserController from '@src/js/components/tools/browser/ToolBrowserController.js'
+import AppController from '@src/js/components/AppController.js'
+import pages from '@src/js/common/consts/pages.js'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
-class ToolBrowser extends React.Component {
+export class ToolBrowser extends React.Component {
   constructor(props) {
     super(props)
+    autoBind(this)
     this.controller = this.props.controller || new ToolBrowserController()
+  }
+
+  componentDidMount() {
+    this.componentDidUpdate({})
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(this.props.selectedObject, prevProps.selectedObject)) {
+      this.controller.selectObject(this.props.selectedObject)
+    }
+
+    if (
+      !_.isEqual(
+        this.props.lastObjectModifications,
+        prevProps.lastObjectModifications
+      )
+    ) {
+      this.controller.reload(this.props.lastObjectModifications)
+    }
   }
 
   render() {
     logger.log(logger.DEBUG, 'ToolBrowser.render')
-    return <Browser controller={this.controller} />
+
+    return (
+      <BrowserWithOpenbis
+        id={ids.TOOL_BROWSER_ID}
+        controller={this.controller}
+        renderFooter={this.renderFooter}
+        onSelectedChange={selectedObject => {
+          if (selectedObject) {
+            AppController.getInstance().objectOpen(
+              pages.TOOLS,
+              selectedObject.type,
+              selectedObject.id
+            )
+          }
+        }}
+      />
+    )
+  }
+
+  renderFooter() {
+    return (
+      <div>
+        <BrowserButtonsAddRemove
+          selectedObject={this.controller.getSelectedObject()}
+          addEnabled={this.controller.canAddNode()}
+          removeEnabled={this.controller.canRemoveNode()}
+          onAdd={this.controller.addNode}
+          onRemove={this.controller.removeNode}
+        />
+      </div>
+    )
   }
 }
 
-export default ToolBrowser
+export default AppController.getInstance().withState(() => ({
+  selectedObject: AppController.getInstance().getSelectedObject(pages.TOOLS),
+  lastObjectModifications:
+    AppController.getInstance().getLastObjectModifications()
+}))(ToolBrowser)

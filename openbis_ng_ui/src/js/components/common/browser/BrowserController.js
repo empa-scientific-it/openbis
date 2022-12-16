@@ -1,260 +1,292 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import AppController from '@src/js/components/AppController.js'
+import ComponentContextNamespaced from '@src/js/components/common/ComponentContextNamespaced.js'
+import BrowserTreeController from '@src/js/components/common/browser/BrowserTreeController.js'
+import util from '@src/js/common/util.js'
 
 export default class BrowserController {
-  doGetPage() {
+  async doLoadNodePath() {
     throw 'Method not implemented'
   }
 
-  doLoadNodes() {
-    throw 'Method not implemented'
-  }
-
-  doNodeAdd() {
-    throw 'Method not implemented'
-  }
-
-  doNodeRemove() {
-    throw 'Method not implemented'
-  }
-
-  doGetObservedModifications() {
+  async doLoadNodes() {
     throw 'Method not implemented'
   }
 
   constructor() {
     autoBind(this)
-    this.loadedNodes = []
-    this.lastObjectModifications = {}
+
+    const controller = this
+
+    class FullTreeController extends BrowserTreeController {
+      async doLoadNodePath(params) {
+        return controller.doLoadNodePath(params)
+      }
+      async doLoadNodes(params) {
+        return await controller.doLoadNodes({
+          ...params,
+          filter: null
+        })
+      }
+    }
+
+    class FilteredTreeController extends BrowserTreeController {
+      async doLoadNodePath(params) {
+        return controller.doLoadNodePath(params)
+      }
+      async doLoadNodes(params) {
+        const { filter } = controller.context.getState()
+        return await controller.doLoadNodes({
+          ...params,
+          filter: util.trim(filter)
+        })
+      }
+    }
+
+    this.settings = {}
+    this.fullTreeController = new FullTreeController()
+    this.filteredTreeController = new FilteredTreeController()
+    this.lastFilterTimeoutId = null
   }
 
-  init(context) {
+  async init(context) {
     context.initState({
       loaded: false,
-      filter: '',
-      nodes: [],
-      selectedId: null,
-      selectedObject: null,
-      removeNodeDialogOpen: false
+      loading: false,
+      nodeSetAsRoot: null,
+      filter: null,
+      autoShowSelectedObject: true
     })
+
+    this.fullTreeController.init(
+      new ComponentContextNamespaced(context, 'fullTree', originalProps => ({
+        loadSettings: () => {
+          return this.settings.fullTree
+        },
+        onSettingsChange: settings => {
+          this.settings.fullTree = settings
+          this._saveSettings()
+        },
+        onSelectedChange: originalProps.onSelectedChange
+      }))
+    )
+
+    this.filteredTreeController.init(
+      new ComponentContextNamespaced(context, 'filteredTree', () => ({}))
+    )
+
     this.context = context
   }
 
-  load() {
-    return this.doLoadNodes().then(loadedNodes => {
-      const { filter, nodes, selectedId, selectedObject } =
-        this.context.getState()
+  async load() {
+    await this.context.setState({
+      loading: true
+    })
 
-      let newNodes = this._createNodes(loadedNodes)
-      newNodes = this._filterNodes(newNodes, filter)
-      newNodes = this._setNodesExpanded(
-        newNodes,
-        this._getExpandedNodes(nodes),
-        true
-      )
-      newNodes = this._setNodesSelected(newNodes, selectedId, selectedObject)
-      this._sortNodes(newNodes)
+    this.settings = await this._loadSettings()
 
-      this.loadedNodes = loadedNodes
-
-      this.context.setState({
-        loaded: true,
-        nodes: newNodes
+    if (!_.isEmpty(this.settings)) {
+      this.context.setState(state => {
+        const newState = { ...state }
+        _.merge(newState, this.settings.common)
+        return newState
       })
-    })
-  }
-
-  refresh(fullObjectModifications) {
-    const observedModifications = this.doGetObservedModifications()
-
-    const getTimestamp = (modifications, type, operation) => {
-      return (
-        (modifications &&
-          modifications[type] &&
-          modifications[type][operation]) ||
-        0
-      )
     }
 
-    const newObjectModifications = {}
-    let refresh = false
+    let { nodeSetAsRoot } = this.context.getState()
 
-    Object.keys(observedModifications).forEach(observedType => {
-      const observedOperations = observedModifications[observedType]
-
-      newObjectModifications[observedType] = {}
-
-      observedOperations.forEach(observedOperation => {
-        const timestamp = getTimestamp(
-          this.lastObjectModifications,
-          observedType,
-          observedOperation
-        )
-        const newTimestamp = getTimestamp(
-          fullObjectModifications,
-          observedType,
-          observedOperation
-        )
-
-        newObjectModifications[observedType][observedOperation] = Math.max(
-          timestamp,
-          newTimestamp
-        )
-
-        if (newTimestamp > timestamp) {
-          refresh = true
-        }
+    if (nodeSetAsRoot) {
+      const nodeSetAsRootPath = await this.doLoadNodePath({
+        object: nodeSetAsRoot.object
       })
-    })
-
-    this.lastObjectModifications = newObjectModifications
-
-    if (refresh) {
-      this.load()
-    }
-  }
-
-  filterChange(newFilter) {
-    const { filter, nodes, selectedId, selectedObject } =
-      this.context.getState()
-
-    let initialNodes = null
-
-    if (newFilter.startsWith(filter)) {
-      initialNodes = nodes
-    } else {
-      initialNodes = this.loadedNodes
-    }
-
-    let newNodes = this._createNodes(initialNodes)
-    newNodes = this._filterNodes(newNodes, newFilter)
-    newNodes = this._setNodesExpanded(
-      newNodes,
-      this._getParentNodes(newNodes),
-      true
-    )
-    newNodes = this._setNodesSelected(newNodes, selectedId, selectedObject)
-    this._sortNodes(newNodes)
-
-    this.context.setState({
-      filter: newFilter,
-      nodes: newNodes
-    })
-  }
-
-  filterClear() {
-    this.filterChange('')
-  }
-
-  nodeExpand(nodeId) {
-    const { nodes } = this.context.getState()
-
-    const newNodes = this._setNodesExpanded(nodes, { [nodeId]: nodeId }, true)
-
-    this.context.setState({
-      nodes: newNodes
-    })
-  }
-
-  nodeCollapse(nodeId) {
-    const { nodes } = this.context.getState()
-
-    const newNodes = this._setNodesExpanded(nodes, { [nodeId]: nodeId }, false)
-
-    this.context.setState({
-      nodes: newNodes
-    })
-  }
-
-  nodeSelect(nodeId) {
-    const { nodes } = this.context.getState()
-
-    let nodeObject = null
-
-    this._visitNodes(nodes, node => {
-      if (node.id === nodeId) {
-        nodeObject = node.object
+      if (!_.isEmpty(nodeSetAsRootPath)) {
+        nodeSetAsRoot.path = nodeSetAsRootPath
+      } else {
+        nodeSetAsRoot = null
       }
+    }
+
+    await this._getTreeController().load(nodeSetAsRoot)
+    await this._getTreeController().expandNode(
+      this._getTreeController().getRoot().id
+    )
+
+    await this.showSelectedObject()
+
+    await this.context.setState({
+      loaded: true,
+      loading: false,
+      nodeSetAsRoot
     })
 
-    if (nodeObject) {
-      AppController.getInstance().objectOpen(
-        this.getPage(),
-        nodeObject.type,
-        nodeObject.id
+    this._saveSettings()
+  }
+
+  async filterChange(newFilter) {
+    await this._setFilter(newFilter, 500)
+  }
+
+  async filterClear() {
+    await this._setFilter(null, 0)
+  }
+
+  async _setFilter(newFilter, silentPeriod) {
+    await this.context.setState({
+      filter: newFilter,
+      loading: true
+    })
+
+    if (this.lastFilterTimeoutId) {
+      clearTimeout(this.lastFilterTimeoutId)
+      this.lastFilterTimeoutId = null
+    }
+
+    if (util.trim(newFilter) === null) {
+      await this.load()
+    } else {
+      return new Promise((resolve, reject) => {
+        this.lastFilterTimeoutId = setTimeout(async () => {
+          try {
+            await this.load()
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        }, silentPeriod)
+      })
+    }
+  }
+
+  async loadMoreNodes(nodeId) {
+    await this._getTreeController().loadMoreNodes(nodeId)
+  }
+
+  async expandNode(nodeId) {
+    await this._getTreeController().expandNode(nodeId)
+  }
+
+  async collapseNode(nodeId) {
+    await this._getTreeController().collapseNode(nodeId)
+  }
+
+  async collapseAllNodes(nodeId) {
+    await this._getTreeController().collapseAllNodes(nodeId)
+  }
+
+  async setNodeAsRoot(node) {
+    let nodeSetAsRoot = null
+
+    if (node) {
+      const path = await this.doLoadNodePath({
+        object: node.object
+      })
+
+      nodeSetAsRoot = {
+        id: node.id,
+        object: node.object,
+        text: node.text,
+        message: node.message,
+        path: path,
+        parent: node.parent
+          ? {
+              id: node.parent.id,
+              object: node.parent.object
+            }
+          : null,
+        canHaveChildren: true
+      }
+    }
+
+    await this.context.setState({
+      nodeSetAsRoot,
+      loaded: false
+    })
+    await this._saveSettings()
+    await this.load()
+  }
+
+  async selectObject(nodeObject) {
+    await this.fullTreeController.selectObject(nodeObject)
+    await this.filteredTreeController.selectObject(nodeObject)
+    await this.showSelectedObject()
+  }
+
+  async changeAutoShowSelectedObject() {
+    let { autoShowSelectedObject } = this.context.getState()
+
+    autoShowSelectedObject = !autoShowSelectedObject
+    await this.context.setState({
+      autoShowSelectedObject
+    })
+
+    await this.showSelectedObject()
+
+    this._saveSettings()
+  }
+
+  async showSelectedObject() {
+    const { autoShowSelectedObject } = this.context.getState()
+    if (autoShowSelectedObject) {
+      await this._getTreeController().showSelectedObject(
+        this.isFullTreeVisible()
       )
     }
-
-    const newNodes = this._setNodesSelected(nodes, nodeId, nodeObject)
-
-    this.context.setState({
-      nodes: newNodes,
-      selectedId: nodeId,
-      selectedObject: nodeObject
-    })
   }
 
-  nodeAdd() {
-    if (!this.isAddNodeEnabled()) {
-      return
-    }
-
-    const selectedNode = this.getSelectedNode()
-    this.doNodeAdd(selectedNode)
+  async changeSorting(nodeId, sortingId) {
+    await this._getTreeController().changeSorting(nodeId, sortingId)
   }
 
-  nodeRemove() {
-    if (!this.isRemoveNodeEnabled()) {
-      return
-    }
-
-    this.context.setState({
-      removeNodeDialogOpen: true
-    })
-  }
-
-  nodeRemoveConfirm() {
-    const { removeNodeDialogOpen } = this.context.getState()
-
-    if (!removeNodeDialogOpen) {
-      return Promise.resolve()
-    }
-
-    const selectedNode = this.getSelectedNode()
-
-    return this.doNodeRemove(selectedNode).then(() => {
-      return this.context.setState({
-        removeNodeDialogOpen: false
-      })
-    })
-  }
-
-  nodeRemoveCancel() {
-    this.context.setState({
-      removeNodeDialogOpen: false
-    })
-  }
-
-  objectSelect(object) {
-    const { nodes } = this.context.getState()
-
-    const newNodes = this._setNodesSelected(nodes, null, object)
-
-    this.context.setState({
-      nodes: newNodes,
-      selectedId: null,
-      selectedObject: object
-    })
-  }
-
-  getPage() {
-    return this.doGetPage()
-  }
-
-  getLoaded() {
+  isLoaded() {
     const { loaded } = this.context.getState()
     return loaded
+  }
+
+  isLoading() {
+    const { loading } = this.context.getState()
+    return loading
+  }
+
+  isTreeLoading() {
+    return this._getTreeController().isLoading()
+  }
+
+  getRoot() {
+    return this._getTreeController().getRoot()
+  }
+
+  getNodeSetAsRoot() {
+    const { nodeSetAsRoot } = this.context.getState()
+    return nodeSetAsRoot
+  }
+
+  getSelectedObject() {
+    return this._getTreeController().getSelectedObject()
+  }
+
+  isAutoShowSelectedObject() {
+    const { autoShowSelectedObject } = this.context.getState()
+    return autoShowSelectedObject
+  }
+
+  getTree() {
+    return this._getTreeController().getTree()
+  }
+
+  getFullTree() {
+    return this.fullTreeController.getTree()
+  }
+
+  isFullTreeVisible() {
+    return this._getTreeController() === this.fullTreeController
+  }
+
+  getFilteredTree() {
+    return this.filteredTreeController.getTree()
+  }
+
+  isFilteredTreeVisible() {
+    return this._getTreeController() === this.filteredTreeController
   }
 
   getFilter() {
@@ -262,214 +294,75 @@ export default class BrowserController {
     return filter
   }
 
-  getNodes() {
-    const { nodes } = this.context.getState()
-    return nodes
+  _getTreeController() {
+    const { filter } = this.context.getState()
+    if (util.trim(filter)) {
+      return this.filteredTreeController
+    } else {
+      return this.fullTreeController
+    }
   }
 
-  getSelectedNode() {
-    const { nodes, selectedId, selectedObject } = this.context.getState()
+  async _loadSettings() {
+    const props = this.context.getProps()
 
-    let selectedNode = null
-
-    this._visitNodes(nodes, node => {
-      if (
-        (selectedId && selectedId === node.id) ||
-        (selectedObject && _.isEqual(selectedObject, node.object))
-      ) {
-        selectedNode = node
-      }
-    })
-
-    return selectedNode
-  }
-
-  isAddNodeEnabled() {
-    const selectedNode = this.getSelectedNode()
-    return selectedNode && selectedNode.canAdd
-  }
-
-  isRemoveNodeEnabled() {
-    const selectedNode = this.getSelectedNode()
-    return selectedNode && selectedNode.canRemove
-  }
-
-  isRemoveNodeDialogOpen() {
-    const { removeNodeDialogOpen } = this.context.getState()
-    return removeNodeDialogOpen
-  }
-
-  _createNodes = nodes => {
-    if (!nodes) {
-      return []
+    if (!props.loadSettings) {
+      return {}
     }
 
-    const newNodes = []
+    const loaded = await props.loadSettings()
 
-    nodes.forEach(node => {
-      const newNode = {
-        ...node,
-        selected: false,
-        expanded: false,
-        children: this._createNodes(node.children)
-      }
-      newNodes.push(newNode)
-    })
-
-    return newNodes
-  }
-
-  _getExpandedNodes(nodes) {
-    return this._visitNodes(
-      nodes,
-      (node, result) => {
-        if (node.expanded) {
-          result[node.id] = node.id
-        }
-      },
-      {}
-    )
-  }
-
-  _getParentNodes(nodes) {
-    return this._visitNodes(
-      nodes,
-      (node, result) => {
-        if (node.children && node.children.length > 0) {
-          result[node.id] = node.id
-        }
-      },
-      {}
-    )
-  }
-
-  _setNodesExpanded(nodes, nodeIds, expanded) {
-    return this._modifyNodes(nodes, node => {
-      if (nodeIds[node.id]) {
-        return {
-          ...node,
-          expanded
-        }
-      } else {
-        return node
-      }
-    })
-  }
-
-  _setNodesSelected(nodes, selectedId, selectedObject) {
-    return this._modifyNodes(nodes, node => {
-      if (
-        (selectedId && selectedId === node.id) ||
-        (selectedObject && _.isEqual(selectedObject, node.object))
-      ) {
-        return {
-          ...node,
-          selected: true
-        }
-      } else if (node.selected) {
-        return {
-          ...node,
-          selected: false
-        }
-      } else {
-        return node
-      }
-    })
-  }
-
-  _sortNodes = (nodes, level = 0) => {
-    if (!nodes) {
-      return
-    }
-    if (level > 0) {
-      nodes.sort((n1, n2) => {
-        return n1.text.localeCompare(n2.text)
-      })
-    }
-    nodes.forEach(node => {
-      this._sortNodes(node.children, level + 1)
-    })
-  }
-
-  _visitNodes = (nodes, visitFn, results = []) => {
-    if (nodes) {
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i]
-
-        visitFn(node, results)
-
-        this._visitNodes(node.children, visitFn, results)
-      }
-    }
-    return results
-  }
-
-  _filterNodes = (nodes, filter, ascendantMatches = false) => {
-    if (!nodes || filter.trim().length === 0) {
-      return nodes
+    if (!loaded || !_.isObject(loaded)) {
+      return {}
     }
 
-    let newNodes = []
-
-    nodes.forEach(node => {
-      const nodeMatches =
-        node.canMatchFilter &&
-        node.text &&
-        node.text.toLowerCase().indexOf(filter.trim().toLowerCase()) !== -1
-
-      const newNode = {
-        ...node
-      }
-
-      newNode.children = this._filterNodes(
-        node.children,
-        filter,
-        ascendantMatches || nodeMatches
-      )
-
-      if (
-        ascendantMatches ||
-        nodeMatches ||
-        (newNode.children && newNode.children.length > 0)
-      ) {
-        newNodes.push(newNode)
-      }
-    })
-
-    return newNodes
-  }
-
-  _modifyNodes = (nodes, modifyFn) => {
-    if (!nodes) {
-      return nodes
+    const settings = {
+      common: {},
+      fullTree: {},
+      filteredTree: {}
     }
 
-    let newNodes = []
-    let modified = false
+    if (_.isObject(loaded.common)) {
+      const common = {}
 
-    nodes.forEach(node => {
-      let newNode = modifyFn(node)
-
-      const newChildren = this._modifyNodes(newNode.children, modifyFn)
-
-      if (newNode === node) {
-        if (newChildren !== node.children) {
-          newNode = {
-            ...node,
-            children: newChildren
-          }
-        }
-      } else {
-        newNode.children = newChildren
+      if (_.isObject(loaded.common.nodeSetAsRoot)) {
+        common.nodeSetAsRoot = loaded.common.nodeSetAsRoot
       }
 
-      newNodes.push(newNode)
-
-      if (newNode !== node) {
-        modified = true
+      if (_.isBoolean(loaded.common.autoShowSelectedObject)) {
+        common.autoShowSelectedObject = loaded.common.autoShowSelectedObject
       }
-    })
 
-    return modified ? newNodes : nodes
+      settings.common = common
+    }
+
+    if (_.isObject(loaded.fullTree)) {
+      settings.fullTree = loaded.fullTree
+    }
+
+    if (_.isObject(loaded.filteredTree)) {
+      settings.filteredTree = loaded.filteredTree
+    }
+
+    return settings
+  }
+
+  async _saveSettings() {
+    const { onSettingsChange } = this.context.getProps()
+
+    if (onSettingsChange) {
+      const state = this.context.getState()
+
+      const settings = {
+        common: {
+          nodeSetAsRoot: state.nodeSetAsRoot,
+          autoShowSelectedObject: state.autoShowSelectedObject
+        },
+        fullTree: this.settings.fullTree || {},
+        filteredTree: this.settings.filteredTree || {}
+      }
+
+      await onSettingsChange(settings)
+    }
   }
 }

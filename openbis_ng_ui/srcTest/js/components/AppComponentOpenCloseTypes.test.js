@@ -23,10 +23,15 @@ async function testOpenCloseTypes() {
 
   await common.login(app)
 
+  app.getTypes().getBrowser().clickAutoShowSelected()
+  await app.update()
+
   app.getTypes().getBrowser().getNodes()[0].getIcon().click()
   await app.update()
 
   app.getTypes().getBrowser().getNodes()[2].click()
+  await app.update()
+
   app.getTypes().getBrowser().getNodes()[1].click()
   await app.update()
 

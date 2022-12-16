@@ -16,6 +16,9 @@ describe(TypeBrowserComponentTest.SUITE, () => {
 async function testSelectEntityKind() {
   const browser = await common.mount()
 
+  browser.clickAutoShowSelected()
+  await browser.update()
+
   browser.expectJSON({
     nodes: [
       { level: 0, text: 'Object Types', selected: false },
@@ -60,6 +63,9 @@ async function testSelectEntityKind() {
 
 async function testSelectEntityType() {
   const browser = await common.mount()
+
+  browser.clickAutoShowSelected()
+  await browser.update()
 
   browser.getNodes()[0].getIcon().click()
   await browser.update()

@@ -1,4 +1,6 @@
+import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import UserBrowserControllerTest from '@srcTest/js/components/users/browser/UserBrowserControllerTest.js'
+import objectType from '@src/js/common/consts/objectType.js'
 import openbis from '@srcTest/js/services/openbis.js'
 import fixture from '@srcTest/js/common/fixture.js'
 
@@ -18,33 +20,43 @@ async function testExpandAndCollapseNode() {
   openbis.mockSearchGroups([fixture.TEST_USER_GROUP_DTO])
 
   await common.controller.load()
-  common.controller.nodeExpand('groups')
+  await common.controller.expandNode(
+    BrowserCommon.nodeId(BrowserCommon.rootNode().id, objectType.USER_GROUP)
+  )
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Groups',
-      expanded: true,
-      selected: false
-    }
-  ])
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Groups',
+        expanded: true,
+        selected: false
+      }
+    ]
+  })
 
-  common.controller.nodeCollapse('groups')
+  await common.controller.collapseNode(
+    BrowserCommon.nodeId(BrowserCommon.rootNode().id, objectType.USER_GROUP)
+  )
 
-  expect(common.controller.getNodes()).toMatchObject([
-    {
-      text: 'Users',
-      expanded: false,
-      selected: false
-    },
-    {
-      text: 'Groups',
-      expanded: false,
-      selected: false
-    }
-  ])
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        text: 'Users',
+        expanded: false,
+        selected: false
+      },
+      {
+        text: 'Groups',
+        expanded: false,
+        selected: false
+      }
+    ]
+  })
 }
