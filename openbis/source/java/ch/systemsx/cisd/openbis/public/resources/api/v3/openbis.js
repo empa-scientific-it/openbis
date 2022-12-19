@@ -290,7 +290,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
-    this.createFileUpload = function(file) {
+    this.uploadFileWorkspaceDSS = function(file) {
     			var thisFacade = this;
 
                 var getUUID = function() {
