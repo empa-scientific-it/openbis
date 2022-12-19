@@ -63,6 +63,7 @@ dependencies {
                        project(path: ':openbis_api', configuration: 'tests'),
                        project(path: ':openbis-common', configuration: 'tests'),
                        'fjelmer:classycle:1.4.2',
+                       'springframework:spring-test:5.0.17.RELEASE',
                        'testng:testng:6.8-CISD'
 
 	testImplementation (project(path: ':openbis', configuration: 'tests')) {
