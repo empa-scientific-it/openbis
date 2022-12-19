@@ -120,6 +120,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         // Then
         assertEquals("pre-staging directory " + storeRoot.getAbsolutePath() + "/1/pre-staging has 1 files\n"
                 + "1970-01-01_01-00-00-000_test_test (last modified: 1970-01-01 01:00:50)\n"
+                + "Deleting directory '" + storeRoot + "/1/pre-staging/1970-01-01_01-00-00-000_test_test'\n"
                 + "Stale folder deleted: " + storeRoot.getAbsolutePath()
                 + "/1/pre-staging/1970-01-01_01-00-00-000_test_test", logRecorder.getLogContent());
         assertEquals("[1970-02-04_14-21-01-597_test_test]",
@@ -155,6 +156,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         // Then
         assertEquals("staging directory " + storeRoot.getAbsolutePath() + "/1/staging has 1 files\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
+                + "Deleting directory '" + storeRoot + "/1/staging/19700101010000000-0'\n"
                 + "Stale folder deleted: " + storeRoot.getAbsolutePath()
                 + "/1/staging/19700101010000000-0", logRecorder.getLogContent());
         assertEquals("[19700204142101597-1]", getStuffFromDir(share1, defaultStagingDir).toString());
@@ -197,6 +199,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         // Then
         assertEquals("pre-commit directory " + storeRoot.getAbsolutePath() + "/1/pre-commit has 1 files\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
+                + "Deleting directory '" + storeRoot + "/1/pre-commit/19700101010000000-0'\n"
                 + "Stale folder deleted: " + storeRoot.getAbsolutePath()
                 + "/1/pre-commit/19700101010000000-0", logRecorder.getLogContent());
         assertEquals("[19700204142101597-1]", getStuffFromDir(share1, defaultPreCommitDir).toString());

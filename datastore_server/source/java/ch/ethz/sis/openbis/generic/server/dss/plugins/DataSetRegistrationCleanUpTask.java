@@ -29,6 +29,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -71,6 +72,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
 
     private MonitoredDirectories preCommitDirectories;
 
+    private Log4jSimpleLogger simpleLogger;
+
     public DataSetRegistrationCleanUpTask()
     {
     }
@@ -99,6 +102,7 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
             stagingDirectories.add(TopLevelDataSetRegistratorGlobalState.getStagingDir(root, shareId, tp));
             preCommitDirectories.add(TopLevelDataSetRegistratorGlobalState.getPreCommitDir(root, shareId, tp));
         }
+        simpleLogger = new Log4jSimpleLogger(operationLog);
     }
 
     @Override
@@ -124,7 +128,7 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
                 {
                     operationLog.info(file.getName() + " (last modified: "
                             + format.format(new Date(file.lastModified())) + ")");
-                    FileUtilities.deleteRecursively(file);
+                    FileUtilities.deleteRecursively(file, simpleLogger);
                     operationLog.info("Stale folder deleted: " + file.getAbsolutePath());
                 }
             }
