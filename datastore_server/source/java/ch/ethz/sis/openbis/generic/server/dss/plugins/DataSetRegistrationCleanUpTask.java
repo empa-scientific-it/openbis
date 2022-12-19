@@ -106,6 +106,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
     {
         long now = getTimeProvider().getTimeInMilliseconds();
         deleteOldFiles(preStagingDirectories, new PreStagingFileFilter(now, minimumAge));
+        deleteOldFiles(stagingDirectories, new AgeBasedFileFilter(now, minimumAge));
+        deleteOldFiles(preCommitDirectories, new AgeBasedFileFilter(now, minimumAge));
     }
 
     private void deleteOldFiles(MonitoredDirectories dirs, FileFilter filter)
@@ -204,13 +206,13 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         }
     }
 
-    private static final class PreStagingFileFilter implements FileFilter
+    private static class AgeBasedFileFilter implements FileFilter
     {
         private final long now;
 
         private final long minimumAge;
 
-        PreStagingFileFilter(long now, long minimumAge)
+        AgeBasedFileFilter(long now, long minimumAge)
         {
             this.now = now;
             this.minimumAge = minimumAge;
@@ -219,14 +221,33 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         @Override
         public boolean accept(File file)
         {
+            Date date = getDate(file);
+            return date != null ? date.getTime() + minimumAge < now : false;
+        }
+
+        protected Date getDate(File file)
+        {
+            return new Date(file.lastModified());
+        }
+    }
+
+    private static final class PreStagingFileFilter extends AgeBasedFileFilter
+    {
+        PreStagingFileFilter(long now, long minimumAge)
+        {
+            super(now, minimumAge);
+        }
+
+        @Override
+        protected Date getDate(File file)
+        {
             String dateStamp = file.getName().split("_")[0];
             try
             {
-                Date date = new SimpleDateFormat("yyyy-MM-dd").parse(dateStamp);
-                return date.getTime() + minimumAge < now;
+                return new SimpleDateFormat("yyyy-MM-dd").parse(dateStamp);
             } catch (ParseException e)
             {
-                return false;
+                return null;
             }
         }
     }
