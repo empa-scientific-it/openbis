@@ -11,7 +11,8 @@
             <package name="ch.systemsx.cisd.etlserver.*" />
             <package name="ch.systemsx.cisd.openbis.dss.*" />
             <package name="ch.systemsx.cisd.openbis.datastoreserver.*" />
-            <package name="ch.ethz.sis.openbis.*" />
+            <package name="ch.ethz.sis.openbis.generic.dss.*" />
+            <package name="ch.ethz.sis.openbis.generic.server.dss.*" />
         </packages>
     </test>
 </suite>
