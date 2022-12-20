@@ -21,6 +21,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -65,11 +66,23 @@ public class SessionCleanUpMaintenanceTask implements IMaintenanceTask
 
         for (Session session : sessionManager.getSessions())
         {
-            if (!sessionManager.isSessionActive(session.getSessionToken()))
+            try
             {
-                operationLog.info("Session '" + session.getSessionToken() + "' is no longer active. It will be removed.");
-                sessionManager.expireSession(session.getSessionToken());
-                count++;
+                if (!sessionManager.isSessionActive(session.getSessionToken()))
+                {
+                    operationLog.info(String.format("Session '%s' is no longer active. It will be removed.", session.getSessionToken()));
+                    sessionManager.expireSession(session.getSessionToken());
+                    count++;
+                }
+            } catch (InvalidSessionException e)
+            {
+                operationLog.info(String.format(
+                        "Releasing session '%s' failed with '%s' exception. It might sometimes happen.", session.getSessionToken(),
+                        InvalidSessionException.class.getSimpleName()), e);
+            } catch (Exception e)
+            {
+                operationLog.warn(String.format(
+                        "Releasing session '%s' failed with unexpected exception. It should not normally happen.", session.getSessionToken()), e);
             }
         }
 

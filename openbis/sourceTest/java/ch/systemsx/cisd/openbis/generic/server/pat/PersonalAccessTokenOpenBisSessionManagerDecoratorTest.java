@@ -99,15 +99,6 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
         testWithTimedOutSession(sessionToken);
-
-        assertInvalidSessionException(() ->
-        {
-            sessionManager.expireSession(sessionToken);
-        });
-        assertInvalidSessionException(() ->
-        {
-            sessionManager.closeSession(sessionToken);
-        });
     }
 
     @Test
@@ -226,9 +217,6 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
         testWithTimedOutSession(sessionToken);
-
-        sessionManager.expireSession(sessionToken);
-        sessionManager.closeSession(sessionToken);
     }
 
     private void testWithKnownSession(String sessionToken, Date validFrom, Date validTo)
@@ -299,6 +287,14 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         {
             // removes the invalid session
             sessionManager.getSession(sessionToken);
+        });
+        assertInvalidSessionException(() ->
+        {
+            sessionManager.expireSession(sessionToken);
+        });
+        assertInvalidSessionException(() ->
+        {
+            sessionManager.closeSession(sessionToken);
         });
 
         testWithUnknownSession(sessionToken);

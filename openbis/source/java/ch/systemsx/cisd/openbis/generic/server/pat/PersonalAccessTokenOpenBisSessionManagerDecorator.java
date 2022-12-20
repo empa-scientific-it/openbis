@@ -137,14 +137,23 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return;
         }
 
-        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
+        synchronized (sessions)
+        {
+            Session session = sessions.get(sessionToken);
 
-        if (patSession == null)
-        {
-            sessionManager.expireSession(sessionToken);
-        } else
-        {
-            closeSession(sessionToken);
+            if (session == null)
+            {
+                sessionManager.expireSession(sessionToken);
+            } else
+            {
+                PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
+
+                if (patSession == null || new Date().after(patSession.getValidToDate()))
+                {
+                    session.cleanup();
+                    sessions.remove(session.getSessionToken());
+                }
+            }
         }
     }
 
@@ -157,25 +166,21 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return;
         }
 
-        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
+        synchronized (sessions)
+        {
+            Session session = sessions.get(sessionToken);
 
-        if (patSession == null)
-        {
-            sessionManager.closeSession(sessionToken);
-        } else
-        {
-            synchronized (sessions)
+            if (session == null)
             {
-                Date now = new Date();
+                sessionManager.closeSession(sessionToken);
+            } else
+            {
+                PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
-                if (now.after(patSession.getValidToDate()))
+                if (patSession == null || new Date().after(patSession.getValidToDate()))
                 {
-                    Session session = sessions.get(patSession.getHash());
-                    if (session != null)
-                    {
-                        session.cleanup();
-                        sessions.remove(session.getSessionToken());
-                    }
+                    session.cleanup();
+                    sessions.remove(session.getSessionToken());
                 }
             }
         }
