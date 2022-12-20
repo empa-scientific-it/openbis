@@ -14,6 +14,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonalAccessToken;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -95,9 +96,13 @@ public class PersonalAccessTokenConverterFromEncapsulatedService extends Abstrac
         final SearchResult<SessionInformation>
                 result = service.searchSessionInformation(criteria, new SessionInformationFetchOptions());
 
-        if (result.getObjects().size() > 0)
+        for (SessionInformation sessionInformation : result.getObjects())
         {
-            return result.getObjects().get(0).getSessionToken();
+            SessionContextDTO sessionDTO = service.tryGetSession(sessionInformation.getSessionToken());
+            if (sessionDTO != null)
+            {
+                return sessionInformation.getSessionToken();
+            }
         }
 
         return null;

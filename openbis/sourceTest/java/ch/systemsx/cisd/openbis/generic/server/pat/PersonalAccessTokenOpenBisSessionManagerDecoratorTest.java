@@ -8,8 +8,10 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -62,7 +64,8 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         String sessionToken = sessionManager.tryToOpenSession(TEST_USER, PASSWORD);
         Session session = sessionManager.getSession(sessionToken);
         session.setSessionExpirationTime(DateUtils.MILLIS_PER_DAY);
-        testWithKnownSession(sessionToken);
+        testWithKnownSession(sessionToken, new Date(session.getSessionStart()),
+                new Date(session.getSessionStart() + session.getSessionExpirationTime()));
 
         sessionManager.expireSession(sessionToken);
         testWithUnknownSession(sessionToken);
@@ -85,7 +88,8 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         String sessionToken = sessionManager.tryToOpenSession(TEST_USER, PASSWORD);
         Session session = sessionManager.getSession(sessionToken);
         session.setSessionExpirationTime(SESSION_VALIDITY_PERIOD);
-        testWithKnownSession(sessionToken);
+        testWithKnownSession(sessionToken, new Date(session.getSessionStart()),
+                new Date(session.getSessionStart() + session.getSessionExpirationTime()));
 
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
@@ -104,14 +108,17 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     @Test
     public void testWithPersonalAccessTokenSession()
     {
-        String sessionToken = createPersonalAccessTokenSession(new Date(), new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY));
-        testWithKnownSession(sessionToken);
+        Date validFrom = new Date();
+        Date validTo = new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY);
+
+        String sessionToken = createPersonalAccessTokenSession(validFrom, validTo);
+        testWithKnownSession(sessionToken, validFrom, validTo);
 
         sessionManager.expireSession(sessionToken);
-        testWithKnownSession(sessionToken);
+        testWithKnownSession(sessionToken, validFrom, validTo);
 
         sessionManager.closeSession(sessionToken);
-        testWithKnownSession(sessionToken);
+        testWithKnownSession(sessionToken, validFrom, validTo);
     }
 
     @Test
@@ -122,35 +129,40 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         String sessionName = "test session " + UUID.randomUUID();
 
+        SessionInformation sessionInformation = searchPersonalAccessTokenSession(sessionName);
+        assertNull(sessionInformation);
+
         PersonalAccessTokenCreation patCreation1 = new PersonalAccessTokenCreation();
         patCreation1.setSessionName(sessionName);
         patCreation1.setValidFromDate(new Date());
         patCreation1.setValidToDate(new Date(System.currentTimeMillis() + SESSION_VALIDITY_PERIOD));
+
+        v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(patCreation1));
+
+        sessionInformation = searchPersonalAccessTokenSession(sessionName);
+        assertNotNull(sessionInformation);
+        testWithKnownSession(sessionInformation.getSessionToken(), patCreation1.getValidFromDate(), patCreation1.getValidToDate());
 
         PersonalAccessTokenCreation patCreation2 = new PersonalAccessTokenCreation();
         patCreation2.setSessionName(sessionName);
         patCreation2.setValidFromDate(patCreation1.getValidToDate());
         patCreation2.setValidToDate(new Date(patCreation1.getValidToDate().getTime() + SESSION_VALIDITY_PERIOD));
 
-        v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(patCreation1, patCreation2));
+        v3api.createPersonalAccessTokens(sessionToken, Arrays.asList(patCreation2));
 
-        SessionInformationSearchCriteria patSessionCriteria = new SessionInformationSearchCriteria();
-        patSessionCriteria.withPersonalAccessTokenSession().thatEquals(true);
-        patSessionCriteria.withPersonalAccessTokenSessionName().thatEquals(sessionName);
+        sessionInformation = searchPersonalAccessTokenSession(sessionName);
+        assertNotNull(sessionInformation);
+        testWithKnownSession(sessionInformation.getSessionToken(), patCreation1.getValidFromDate(), patCreation2.getValidToDate());
 
-        SearchResult<SessionInformation> patSessionResult =
-                v3api.searchSessionInformation(sessionToken, patSessionCriteria, new SessionInformationFetchOptions());
-        assertEquals(patSessionResult.getObjects().size(), 1);
-
-        String patSessionToken = patSessionResult.getObjects().get(0).getSessionToken();
-
-        testWithKnownSession(patSessionToken);
         Thread.sleep(SESSION_VALIDITY_PERIOD);
-        sessionManager.expireSession(patSessionToken);
-        sessionManager.closeSession(patSessionToken);
-        testWithKnownSession(patSessionToken);
+
+        sessionManager.expireSession(sessionInformation.getSessionToken());
+        sessionManager.closeSession(sessionInformation.getSessionToken());
+        testWithKnownSession(sessionInformation.getSessionToken(), patCreation1.getValidFromDate(), patCreation2.getValidToDate());
+
         Thread.sleep(SESSION_VALIDITY_PERIOD);
-        testWithTimedOutSession(patSessionToken);
+
+        testWithTimedOutSession(sessionInformation.getSessionToken());
     }
 
     @Test
@@ -158,8 +170,11 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
     {
         final long SESSION_VALIDITY_PERIOD = 2000;
 
-        String sessionToken = createPersonalAccessTokenSession(new Date(), new Date(System.currentTimeMillis() + SESSION_VALIDITY_PERIOD));
-        testWithKnownSession(sessionToken);
+        Date validFrom = new Date();
+        Date validTo = new Date(System.currentTimeMillis() + SESSION_VALIDITY_PERIOD);
+
+        String sessionToken = createPersonalAccessTokenSession(validFrom, validTo);
+        testWithKnownSession(sessionToken, validFrom, validTo);
 
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
@@ -169,7 +184,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         sessionManager.closeSession(sessionToken);
     }
 
-    private void testWithKnownSession(String sessionToken)
+    private void testWithKnownSession(String sessionToken, Date validFrom, Date validTo)
     {
         assertTrue(sessionManager.isSessionActive(sessionToken));
 
@@ -181,17 +196,19 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
 
         assertSame(tryGetSession, getSession);
 
-        Session getSessions = null;
+        assertEquals(tryGetSession.getSessionStart(), validFrom.getTime());
+        assertEquals(tryGetSession.getSessionExpirationTime(), validTo.getTime() - validFrom.getTime());
+
+        List<Session> getSessions = new ArrayList<>();
         for (Session session : sessionManager.getSessions())
         {
             if (sessionToken.equals(session.getSessionToken()))
             {
-                getSessions = session;
+                getSessions.add(session);
             }
         }
-        assertNotNull(getSessions);
-        assertEquals(getSessions.getSessionToken(), sessionToken);
-        assertSame(tryGetSession, getSessions);
+        assertEquals(getSessions.size(), 1);
+        assertSame(tryGetSession, getSessions.get(0));
     }
 
     private void testWithUnknownSession(String sessionToken)
@@ -220,17 +237,16 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         Session tryGetSession = sessionManager.tryGetSession(sessionToken);
         assertEquals(tryGetSession.getSessionToken(), sessionToken);
 
-        Session getSessions = null;
+        List<Session> getSessions = new ArrayList<>();
         for (Session session : sessionManager.getSessions())
         {
             if (sessionToken.equals(session.getSessionToken()))
             {
-                getSessions = session;
+                getSessions.add(session);
             }
         }
-        assertNotNull(getSessions);
-        assertEquals(getSessions.getSessionToken(), sessionToken);
-        assertSame(tryGetSession, getSessions);
+        assertEquals(getSessions.size(), 1);
+        assertSame(tryGetSession, getSessions.get(0));
 
         assertInvalidSessionException(() ->
         {
@@ -265,6 +281,25 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         } else
         {
             return null;
+        }
+    }
+
+    private SessionInformation searchPersonalAccessTokenSession(String sessionName)
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SessionInformationSearchCriteria patSessionCriteria = new SessionInformationSearchCriteria();
+        patSessionCriteria.withPersonalAccessTokenSession().thatEquals(true);
+        patSessionCriteria.withPersonalAccessTokenSessionName().thatEquals(sessionName);
+
+        SearchResult<SessionInformation> patSessionResult =
+                v3api.searchSessionInformation(sessionToken, patSessionCriteria, new SessionInformationFetchOptions());
+        if (patSessionResult.getObjects().isEmpty())
+        {
+            return null;
+        } else
+        {
+            return patSessionResult.getObjects().get(0);
         }
     }
 
