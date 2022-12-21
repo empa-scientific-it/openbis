@@ -93,7 +93,7 @@ public class OperationExecutionFSStore implements IOperationExecutionFSStore
     {
         File dir = getExecutionDirectory(code).getFile();
         File file = new File(dir, ERROR_FILE_NAME);
-        writeToFile(file, error, true);
+        writeToFile(file, error, false);
     }
 
     @Override

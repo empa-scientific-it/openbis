@@ -477,14 +477,13 @@ public class OperationExecutionStoreTest
                 }
             });
 
-        try
-        {
-            createStore().executionFailed(context, executionId, executionError);
-            fail();
-        } catch (Exception e)
-        {
-            AssertionUtil.assertStarts("Couldn't write operation execution details to file ", e.getMessage());
-        }
+        createStore().executionFailed(context, executionId, executionError);
+
+        assertEquals(executionPE.getState(), OperationExecutionState.FAILED);
+        assertEquals(executionPE.getSummaryError(), executionError.getMessage());
+        assertTrue(timestamp <= executionPE.getFinishDate().getTime());
+
+        mockery.assertIsSatisfied();
     }
 
     private OperationExecutionStore createStore()

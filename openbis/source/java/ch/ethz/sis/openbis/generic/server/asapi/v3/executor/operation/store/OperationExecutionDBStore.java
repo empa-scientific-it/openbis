@@ -109,7 +109,12 @@ public class OperationExecutionDBStore implements IOperationExecutionDBStore
         OperationExecutionPE executionPE = dao.findExecutionByCode(code);
         executionPE.setState(OperationExecutionState.FAILED);
         executionPE.setSummaryError(error);
-        executionPE.setFinishDate(new Date());
+        Date now = new Date();
+        if (executionPE.getStartDate() == null)
+        {
+            executionPE.setStartDate(now);
+        }
+        executionPE.setFinishDate(now);
     }
 
     @Override
