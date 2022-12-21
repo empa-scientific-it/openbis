@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -69,11 +70,16 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         String sessionToken = sessionManager.tryToOpenSession(TEST_USER, PASSWORD);
         Session session = sessionManager.getSession(sessionToken);
         session.setSessionExpirationTime(DateUtils.MILLIS_PER_DAY);
+        TestCleanUp cleanUp = new TestCleanUp();
+        session.addCleanupListener(cleanUp);
+
         testWithKnownSession(sessionToken, new Date(session.getSessionStart()),
                 new Date(session.getSessionStart() + session.getSessionExpirationTime()));
+        assertFalse(cleanUp.hasBeenCalled);
 
         sessionManager.expireSession(sessionToken);
         testWithUnknownSession(sessionToken);
+        assertTrue(cleanUp.hasBeenCalled);
 
         assertInvalidSessionException(() ->
         {
@@ -93,12 +99,17 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         String sessionToken = sessionManager.tryToOpenSession(TEST_USER, PASSWORD);
         Session session = sessionManager.getSession(sessionToken);
         session.setSessionExpirationTime(SESSION_VALIDITY_PERIOD);
+        TestCleanUp cleanUp = new TestCleanUp();
+        session.addCleanupListener(cleanUp);
+
         testWithKnownSession(sessionToken, new Date(session.getSessionStart()),
                 new Date(session.getSessionStart() + session.getSessionExpirationTime()));
+        assertFalse(cleanUp.hasBeenCalled);
 
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
         testWithTimedOutSession(sessionToken);
+        assertTrue(cleanUp.hasBeenCalled);
     }
 
     @Test
@@ -108,13 +119,20 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         Date validTo = new Date(System.currentTimeMillis() + DateUtils.MILLIS_PER_DAY);
 
         String sessionToken = createPersonalAccessTokenSession(validFrom, validTo);
+        Session session = sessionManager.getSession(sessionToken);
+        TestCleanUp cleanUp = new TestCleanUp();
+        session.addCleanupListener(cleanUp);
+
         testWithKnownSession(sessionToken, validFrom, validTo);
+        assertFalse(cleanUp.hasBeenCalled);
 
         sessionManager.expireSession(sessionToken);
         testWithKnownSession(sessionToken, validFrom, validTo);
+        assertFalse(cleanUp.hasBeenCalled);
 
         sessionManager.closeSession(sessionToken);
         testWithKnownSession(sessionToken, validFrom, validTo);
+        assertFalse(cleanUp.hasBeenCalled);
     }
 
     @Test
@@ -138,6 +156,10 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         assertEquals(sessionInformationList1.size(), 1);
         testWithKnownSession(sessionInformationList1.get(0).getSessionToken(), patCreation1.getValidFromDate(), patCreation1.getValidToDate());
 
+        Session session1 = sessionManager.getSession(sessionInformationList1.get(0).getSessionToken());
+        TestCleanUp cleanUp = new TestCleanUp();
+        session1.addCleanupListener(cleanUp);
+
         PersonalAccessTokenCreation patCreation2 = new PersonalAccessTokenCreation();
         patCreation2.setSessionName(sessionName);
         patCreation2.setValidFromDate(patCreation1.getValidToDate());
@@ -149,17 +171,20 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         assertEquals(sessionInformationList2.size(), 1);
         testWithKnownSession(sessionInformationList2.get(0).getSessionToken(), patCreation1.getValidFromDate(), patCreation2.getValidToDate());
 
-        assertEquals(sessionInformationList1.get(0).getSessionToken(), sessionInformationList2.get(0).getSessionToken());
+        Session session2 = sessionManager.getSession(sessionInformationList2.get(0).getSessionToken());
+        assertSame(session1, session2);
 
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
         sessionManager.expireSession(sessionInformationList2.get(0).getSessionToken());
         sessionManager.closeSession(sessionInformationList2.get(0).getSessionToken());
         testWithKnownSession(sessionInformationList2.get(0).getSessionToken(), patCreation1.getValidFromDate(), patCreation2.getValidToDate());
+        assertFalse(cleanUp.hasBeenCalled);
 
         Thread.sleep(SESSION_VALIDITY_PERIOD);
 
         testWithTimedOutSession(sessionInformationList2.get(0).getSessionToken());
+        assertTrue(cleanUp.hasBeenCalled);
     }
 
     @Test
@@ -318,9 +343,15 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         SearchResult<SessionInformation> patSessionResult =
                 v3api.searchSessionInformation(sessionToken, patSessionCriteria, new SessionInformationFetchOptions());
 
-        if (patSessionResult.getObjects().size() > 0)
+        List<SessionInformation> sessionInformationList = patSessionResult.getObjects();
+
+        if (sessionInformationList.size() > 1)
         {
-            return patSessionResult.getObjects().get(0).getSessionToken();
+            Assert.fail("Only one session expected");
+            return null;
+        } else if (sessionInformationList.size() == 1)
+        {
+            return sessionInformationList.get(0).getSessionToken();
         } else
         {
             return null;
@@ -353,5 +384,17 @@ public class PersonalAccessTokenOpenBisSessionManagerDecoratorTest extends Syste
         {
             // expected
         }
+    }
+
+    private static class TestCleanUp implements Session.ISessionCleaner
+    {
+
+        private boolean hasBeenCalled = false;
+
+        @Override public void cleanup()
+        {
+            hasBeenCalled = true;
+        }
+
     }
 }
