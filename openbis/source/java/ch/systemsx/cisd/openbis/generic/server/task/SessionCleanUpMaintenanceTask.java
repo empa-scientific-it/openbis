@@ -77,12 +77,13 @@ public class SessionCleanUpMaintenanceTask implements IMaintenanceTask
             } catch (InvalidSessionException e)
             {
                 operationLog.info(String.format(
-                        "Releasing session '%s' failed with '%s' exception. It might sometimes happen.", session.getSessionToken(),
-                        InvalidSessionException.class.getSimpleName()), e);
+                        "Releasing session '%s' failed with '%s' exception. It must have been released in the meanwhile by a different thread.",
+                        session.getSessionToken(),
+                        InvalidSessionException.class.getSimpleName()));
             } catch (Exception e)
             {
                 operationLog.warn(String.format(
-                        "Releasing session '%s' failed with unexpected exception. It should not normally happen.", session.getSessionToken()), e);
+                        "Releasing session '%s' failed with unexpected exception.", session.getSessionToken()), e);
             }
         }
 
