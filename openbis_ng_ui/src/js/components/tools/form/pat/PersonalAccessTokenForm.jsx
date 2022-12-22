@@ -8,6 +8,7 @@ import PersonalAccessTokenFormFacade from '@src/js/components/tools/form/pat/Per
 import PersonalAccessTokensGrid from '@src/js/components/tools/common/PersonalAccessTokensGrid.jsx'
 import PersonalAccessTokenFormParameters from '@src/js/components/tools/form/pat/PersonalAccessTokenFormParameters.jsx'
 import PersonalAccessTokenFormButtons from '@src/js/components/tools/form/pat/PersonalAccessTokenFormButtons.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 class PersonalAccessTokenForm extends React.PureComponent {
@@ -59,13 +60,13 @@ class PersonalAccessTokenForm extends React.PureComponent {
     return (
       <PageWithTwoPanels
         key={loadId}
+        id={ids.PERSONAL_ACCESS_TOKEN_FORM_ID}
         loading={loading}
         loaded={loaded}
         object={{}}
         renderMainPanel={() => this.renderMainPanel()}
         renderAdditionalPanel={() => this.renderAdditionalPanel()}
         renderButtons={() => this.renderButtons()}
-        additionalPanelWidth={550}
       />
     )
   }

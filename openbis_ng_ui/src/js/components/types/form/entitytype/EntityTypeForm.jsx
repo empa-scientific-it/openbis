@@ -8,6 +8,7 @@ import EntityTypeFormParameters from '@src/js/components/types/form/entitytype/E
 import EntityTypeFormPreview from '@src/js/components/types/form/entitytype/EntityTypeFormPreview.jsx'
 import EntityTypeFormDialogRemoveSection from '@src/js/components/types/form/entitytype/EntityTypeFormDialogRemoveSection.jsx'
 import EntityTypeFormDialogRemoveProperty from '@src/js/components/types/form/entitytype/EntityTypeFormDialogRemoveProperty.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 class EntityTypeForm extends React.PureComponent {
@@ -36,6 +37,7 @@ class EntityTypeForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.ENTITY_TYPE_FORM_ID}
         loading={loading}
         loaded={loaded}
         object={type}

@@ -13,6 +13,7 @@ import Link from '@src/js/components/common/form/Link.jsx'
 import Collapse from '@material-ui/core/Collapse'
 import SourceCodeField from '@src/js/components/common/form/SourceCodeField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -61,6 +62,7 @@ class ImportAllForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.IMPORT_ALL_FORM_ID}
         loading={loading}
         loaded={loaded}
         object={{}}

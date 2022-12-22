@@ -9,6 +9,7 @@ import QueryFormSql from '@src/js/components/tools/form/query/QueryFormSql.jsx'
 import QueryFormExecuteParameters from '@src/js/components/tools/form/query/QueryFormExecuteParameters.jsx'
 import QueryFormExecuteResults from '@src/js/components/tools/form/query/QueryFormExecuteResults.jsx'
 import QueryFormButtons from '@src/js/components/tools/form/query/QueryFormButtons.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 class QueryForm extends React.PureComponent {
@@ -38,6 +39,7 @@ class QueryForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.QUERY_FORM_ID}
         loading={loading}
         loaded={loaded}
         object={query}

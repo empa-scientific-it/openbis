@@ -9,6 +9,7 @@ import PluginFormEvaluateParameters from '@src/js/components/tools/form/plugin/P
 import PluginFormEvaluateResults from '@src/js/components/tools/form/plugin/PluginFormEvaluateResults.jsx'
 import PluginFormParameters from '@src/js/components/tools/form/plugin/PluginFormParameters.jsx'
 import PluginFormButtons from '@src/js/components/tools/form/plugin/PluginFormButtons.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import openbis from '@src/js/services/openbis.js'
 import logger from '@src/js/common/logger.js'
 
@@ -39,6 +40,7 @@ class PluginForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.PLUGIN_FORM_ID}
         loading={loading}
         loaded={loaded}
         object={plugin}

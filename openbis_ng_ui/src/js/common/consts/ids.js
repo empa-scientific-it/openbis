@@ -33,6 +33,16 @@ const TYPE_BROWSER_ID = 'type_browser'
 const USER_BROWSER_ID = 'user_browser'
 const TOOL_BROWSER_ID = 'tool_browser'
 
+// form
+const ENTITY_TYPE_FORM_ID = 'entity_type_form'
+const VOCABULARY_TYPE_FORM_ID = 'vocabulary_type_form'
+const USER_FORM_ID = 'user_form'
+const USER_GROUP_FORM_ID = 'user_group_form'
+const PLUGIN_FORM_ID = 'plugin_form'
+const QUERY_FORM_ID = 'query_form'
+const IMPORT_ALL_FORM_ID = 'import_all_form'
+const PERSONAL_ACCESS_TOKEN_FORM_ID = 'personal_access_token_form'
+
 export default {
   // app
   WEB_APP_ID,
@@ -69,5 +79,15 @@ export default {
   DATABASE_BROWSER_ID,
   TYPE_BROWSER_ID,
   USER_BROWSER_ID,
-  TOOL_BROWSER_ID
+  TOOL_BROWSER_ID,
+
+  // forms
+  ENTITY_TYPE_FORM_ID,
+  VOCABULARY_TYPE_FORM_ID,
+  USER_FORM_ID,
+  USER_GROUP_FORM_ID,
+  PLUGIN_FORM_ID,
+  QUERY_FORM_ID,
+  IMPORT_ALL_FORM_ID,
+  PERSONAL_ACCESS_TOKEN_FORM_ID
 }

@@ -13,6 +13,7 @@ import UserGroupFormParametersRole from '@src/js/components/users/form/usergroup
 import UserGroupFormGridUsers from '@src/js/components/users/form/usergroup/UserGroupFormGridUsers.jsx'
 import UserGroupFormGridRoles from '@src/js/components/users/form/usergroup/UserGroupFormGridRoles.jsx'
 import UserGroupFormButtons from '@src/js/components/users/form/usergroup/UserGroupFormButtons.jsx'
+import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -78,6 +79,7 @@ class UserGroupForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.USER_GROUP_FORM_ID}
         key={loadId}
         loading={loading}
         loaded={loaded}

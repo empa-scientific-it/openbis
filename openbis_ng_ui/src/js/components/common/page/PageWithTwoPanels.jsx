@@ -1,7 +1,7 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import { Resizable } from 're-resizable'
 import Container from '@src/js/components/common/form/Container.jsx'
+import ResizableWithOpenbis from '@src/js/components/common/resizable/ResizableWithOpenbis.jsx'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
@@ -62,11 +62,11 @@ class PageWithTwoPanels extends React.PureComponent {
 
   doRenderExisting() {
     const {
+      id,
       classes,
       renderMainPanel,
       renderAdditionalPanel,
-      renderButtons,
-      additionalPanelWidth
+      renderButtons
     } = this.props
 
     const mainPanel = renderMainPanel ? renderMainPanel() : <div></div>
@@ -82,24 +82,14 @@ class PageWithTwoPanels extends React.PureComponent {
         <div className={classes.content}>
           {<div className={classes.mainPanel}>{mainPanel}</div>}
           {
-            <Resizable
-              defaultSize={{
-                width: additionalPanelWidth ? additionalPanelWidth : 400,
-                height: '100%'
-              }}
-              enable={{
-                left: true,
-                top: false,
-                right: false,
-                bottom: false,
-                topRight: false,
-                bottomRight: false,
-                bottomLeft: false,
-                topLeft: false
+            <ResizableWithOpenbis
+              id={id + '_resizable'}
+              direction={{
+                left: true
               }}
             >
               <div className={classes.additionalPanel}>{additionalPanel}</div>
-            </Resizable>
+            </ResizableWithOpenbis>
           }
         </div>
         {<div className={classes.buttons}>{buttons}</div>}

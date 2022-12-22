@@ -85,6 +85,7 @@ class VocabularyTypeForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.VOCABULARY_TYPE_FORM_ID}
         key={loadId}
         loading={loading}
         loaded={loaded}
