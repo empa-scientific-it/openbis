@@ -8,6 +8,7 @@ import routes from '@src/js/common/consts/routes.js'
 import users from '@src/js/common/consts/users.js'
 import cookie from '@src/js/common/cookie.js'
 import url from '@src/js/common/url.js'
+import ids from '@src/js/common/consts/ids.js'
 
 const AppContext = React.createContext()
 
@@ -36,6 +37,7 @@ export class AppController {
       search: null,
       pages: [],
       error: null,
+      settings: {},
       lastObjectModifications: {}
     }
   }
@@ -57,23 +59,24 @@ export class AppController {
             const sessionInformation = await openbis.getSessionInformation()
 
             if (sessionInformation) {
+              const [settings, serverInformation] = await Promise.all([
+                this._loadSettings(),
+                openbis.getServerInformation()
+              ])
+
               await this.context.setState({
                 session: {
                   sessionToken: sessionToken,
                   userName: sessionInformation.userName
-                }
+                },
+                settings,
+                serverInformation
               })
               const routeObject = routes.parse(this.getRoute())
               await this.routeChanged(routeObject.path)
             } else {
               openbis.useSession(null)
             }
-
-            const serverInformation = await openbis.getServerInformation()
-
-            await this.context.setState({
-              serverInformation
-            })
           } catch (e) {
             openbis.useSession(null)
           }
@@ -95,17 +98,19 @@ export class AppController {
       const sessionToken = await openbis.login(username, password)
 
       if (sessionToken !== null) {
-        this.context.setState({
+        cookie.create(cookie.OPENBIS_COOKIE, sessionToken, 7)
+
+        const [settings, serverInformation] = await Promise.all([
+          this._loadSettings(),
+          openbis.getServerInformation()
+        ])
+
+        await this.context.setState({
           session: {
             sessionToken: sessionToken,
             userName: username
-          }
-        })
-        cookie.create(cookie.OPENBIS_COOKIE, sessionToken, 7)
-
-        const serverInformation = await openbis.getServerInformation()
-
-        await this.context.setState({
+          },
+          settings,
           serverInformation
         })
 
@@ -466,6 +471,58 @@ export class AppController {
         }
       })
     }
+  }
+
+  async getSetting(settingId) {
+    const { settings } = this.context.getState()
+    return settings[settingId]
+  }
+
+  async setSetting(settingId, settingObject) {
+    const { settings } = this.context.getState()
+
+    const newSettings = {
+      ...settings,
+      [settingId]: settingObject
+    }
+
+    this.context.setState({ settings: newSettings })
+
+    await this._saveSettings(settingId, settingObject)
+  }
+
+  async _loadSettings() {
+    const id = new openbis.Me()
+    const fo = new openbis.PersonFetchOptions()
+    fo.withWebAppSettings(ids.WEB_APP_ID).withAllSettings()
+
+    const map = await openbis.getPersons([id], fo)
+    const person = map[id]
+
+    const webAppSettings = person.webAppSettings[ids.WEB_APP_ID]
+    if (webAppSettings && webAppSettings.settings) {
+      const map = {}
+      Object.values(webAppSettings.settings).forEach(setting => {
+        if (setting.value !== null && setting.value !== undefined) {
+          map[setting.name] = JSON.parse(setting.value)
+        }
+      })
+      return map
+    } else {
+      return {}
+    }
+  }
+
+  async _saveSettings(settingId, settingObject) {
+    const settings = new openbis.WebAppSettingCreation()
+    settings.setName(settingId)
+    settings.setValue(JSON.stringify(settingObject))
+
+    const update = new openbis.PersonUpdate()
+    update.setUserId(new openbis.Me())
+    update.getWebAppSettings(ids.WEB_APP_ID).add(settings)
+
+    await openbis.updatePersons([update])
   }
 
   withState(additionalPropertiesFn) {

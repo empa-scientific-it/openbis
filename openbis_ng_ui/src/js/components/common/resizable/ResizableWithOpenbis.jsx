@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import { Resizable } from 're-resizable'
-import openbis from '@src/js/services/openbis.js'
+import AppController from '@src/js/components/AppController.js'
 import logger from '@src/js/common/logger.js'
 
 class ResizableClass extends React.PureComponent {
@@ -19,7 +19,7 @@ class ResizableClass extends React.PureComponent {
     const { id } = this.props
 
     if (id) {
-      const setting = await openbis.loadWebAppSetting(id)
+      const setting = await AppController.getInstance().getSetting(id)
 
       if (setting && _.isNumber(setting.width)) {
         this.setState({
@@ -39,7 +39,7 @@ class ResizableClass extends React.PureComponent {
     const { id } = this.props
 
     if (id) {
-      openbis.saveWebAppSetting(id, { width })
+      AppController.getInstance().setSetting(id, { width })
     }
   }
 

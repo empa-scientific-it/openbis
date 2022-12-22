@@ -44,7 +44,7 @@ export default class GridWithOpenbis extends React.PureComponent {
       return null
     }
 
-    return await openbis.loadWebAppSetting(settingsId)
+    return await AppController.getInstance().getSetting(settingsId)
   }
 
   async onSettingsChange(settings) {
@@ -54,7 +54,7 @@ export default class GridWithOpenbis extends React.PureComponent {
       return
     }
 
-    await openbis.saveWebAppSetting(settingsId, settings)
+    await AppController.getInstance().setSetting(settingsId, settings)
   }
 
   async exportXLS({

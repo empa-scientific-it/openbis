@@ -2,7 +2,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import ResizableWithOpenbis from '@src/js/components/common/resizable/ResizableWithOpenbis.jsx'
 import Browser from '@src/js/components/common/browser/Browser.jsx'
-import openbis from '@src/js/services/openbis.js'
+import AppController from '@src/js/components/AppController.js'
 import logger from '@src/js/common/logger.js'
 
 class BrowserWithOpenbis extends React.PureComponent {
@@ -37,11 +37,11 @@ class BrowserWithOpenbis extends React.PureComponent {
   }
 
   async loadSettings() {
-    return await openbis.loadWebAppSetting(this.props.id)
+    return await AppController.getInstance().getSetting(this.props.id)
   }
 
   async onSettingsChange(settings) {
-    await openbis.saveWebAppSetting(this.props.id, settings)
+    await AppController.getInstance().setSetting(this.props.id, settings)
   }
 }
 

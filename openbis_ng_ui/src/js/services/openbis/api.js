@@ -1,6 +1,5 @@
 import autoBind from 'auto-bind'
 import dto from '@src/js/services/openbis/dto.js'
-import ids from '@src/js/common/consts/ids.js'
 
 class Facade {
   constructor() {
@@ -282,40 +281,6 @@ class Facade {
 
   executeOperations(operations, options) {
     return this.promise(this.v3.executeOperations(operations, options))
-  }
-
-  async loadWebAppSetting(settingId) {
-    const id = new dto.Me()
-    const fo = new dto.PersonFetchOptions()
-    fo.withWebAppSettings(ids.WEB_APP_ID).withAllSettings()
-
-    return this.getPersons([id], fo).then(map => {
-      const person = map[id]
-      const webAppSettings = person.webAppSettings[ids.WEB_APP_ID]
-      if (webAppSettings && webAppSettings.settings) {
-        const setting = webAppSettings.settings[settingId]
-        if (setting) {
-          const settingObject = JSON.parse(setting.value)
-          if (settingObject) {
-            return settingObject
-          } else {
-            return null
-          }
-        }
-      }
-    })
-  }
-
-  async saveWebAppSetting(settingId, settingObject) {
-    const settings = new dto.WebAppSettingCreation()
-    settings.setName(settingId)
-    settings.setValue(JSON.stringify(settingObject))
-
-    const update = new dto.PersonUpdate()
-    update.setUserId(new dto.Me())
-    update.getWebAppSettings(ids.WEB_APP_ID).add(settings)
-
-    await this.updatePersons([update])
   }
 
   promise(dfd) {
