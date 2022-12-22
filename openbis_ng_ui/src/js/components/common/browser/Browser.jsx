@@ -1,5 +1,4 @@
 import React from 'react'
-import { Resizable } from 're-resizable'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
@@ -9,10 +8,6 @@ import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/Brows
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  resizable: {
-    zIndex: 100,
-    position: 'relative'
-  },
   browser: {
     height: '100%',
     display: 'flex',
@@ -56,32 +51,6 @@ class Browser extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Browser.render')
 
-    const { classes } = this.props
-
-    return (
-      <Resizable
-        defaultSize={{
-          width: '25%',
-          height: '100%'
-        }}
-        enable={{
-          right: true,
-          left: false,
-          top: false,
-          bottom: false,
-          topRight: false,
-          bottomRight: false,
-          bottomLeft: false,
-          topLeft: false
-        }}
-        className={classes.resizable}
-      >
-        {this.renderBrowser()}
-      </Resizable>
-    )
-  }
-
-  renderBrowser() {
     const { controller } = this
     const { renderHeader, renderFooter, classes } = this.props
 
