@@ -90,153 +90,158 @@ export default class GridController {
   }
 
   async load() {
-    const props = this.context.getProps()
+    try {
+      const props = this.context.getProps()
 
-    if ((props.rows && props.loadRows) || (!props.rows && !props.loadRows)) {
-      throw new Error(
-        'Incorrect grid configuration. Please set "rows" or "loadRows" property.'
-      )
-    }
-
-    if (
-      (props.columns && props.loadColumns) ||
-      (!props.columns && !props.loadColumns)
-    ) {
-      throw new Error(
-        'Incorrect grid configuration. Please set "columns" or "loadColumns" property.'
-      )
-    }
-
-    await this.context.setState(() => ({
-      loading: true
-    }))
-
-    const state = this.context.getState()
-    const newState = {
-      ...state,
-      heights: {},
-      loading: false,
-      loaded: true
-    }
-
-    let settings = null
-
-    if (!state.loaded) {
-      settings = await this._loadSettings()
-      _.merge(newState, settings)
-    }
-
-    let result = {}
-
-    if (props.rows) {
-      result.rows = props.rows
-      result.totalCount = props.rows.length
-      result.local = true
-    } else if (props.loadRows) {
-      const columns = {}
-
-      newState.allColumns.forEach(column => {
-        columns[column.name] = column
-      })
-
-      const loadedResult = await props.loadRows({
-        columns: columns,
-        filterMode: newState.filterMode,
-        filters: newState.filters,
-        globalFilter: newState.globalFilter,
-        page: newState.page,
-        pageSize: newState.pageSize,
-        sortings: newState.sortings
-      })
-      if (_.isArray(loadedResult)) {
-        result.rows = loadedResult
-        result.totalCount = loadedResult.length
-        result.local = true
-      } else {
-        result.rows = loadedResult.rows
-        result.totalCount = loadedResult.totalCount
-        result.local = false
+      if ((props.rows && props.loadRows) || (!props.rows && !props.loadRows)) {
+        throw new Error(
+          'Incorrect grid configuration. Please set "rows" or "loadRows" property.'
+        )
       }
-    }
 
-    newState.local = result.local
+      if (
+        (props.columns && props.loadColumns) ||
+        (!props.columns && !props.loadColumns)
+      ) {
+        throw new Error(
+          'Incorrect grid configuration. Please set "columns" or "loadColumns" property.'
+        )
+      }
 
-    if (result.local) {
-      const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
-        await this._loadColumns(
-          result.rows,
+      await this.context.setState(() => ({
+        loading: true
+      }))
+
+      const state = this.context.getState()
+      const newState = {
+        ...state,
+        heights: {},
+        loading: false,
+        loaded: true
+      }
+
+      let settings = null
+
+      if (!state.loaded) {
+        settings = await this._loadSettings()
+        _.merge(newState, settings)
+      }
+
+      let result = {}
+
+      if (props.rows) {
+        result.rows = props.rows
+        result.totalCount = props.rows.length
+        result.local = true
+      } else if (props.loadRows) {
+        const columns = {}
+
+        newState.allColumns.forEach(column => {
+          columns[column.name] = column
+        })
+
+        const loadedResult = await props.loadRows({
+          columns: columns,
+          filterMode: newState.filterMode,
+          filters: newState.filters,
+          globalFilter: newState.globalFilter,
+          page: newState.page,
+          pageSize: newState.pageSize,
+          sortings: newState.sortings
+        })
+
+        if (_.isArray(loadedResult)) {
+          result.rows = loadedResult
+          result.totalCount = loadedResult.length
+          result.local = true
+        } else {
+          result.rows = loadedResult.rows
+          result.totalCount = loadedResult.totalCount
+          result.local = false
+        }
+      }
+
+      newState.local = result.local
+
+      if (result.local) {
+        const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+          await this._loadColumns(
+            result.rows,
+            newState.columnsVisibility,
+            newState.columnsSorting
+          )
+
+        newState.allColumns = newAllColumns
+        newState.columnsVisibility = newColumnsVisibility
+        newState.columnsSorting = newColumnsSorting
+
+        newState.allRows = result.rows
+        newState.filteredRows = this._filterRows(
+          newState.allRows,
+          newState.allColumns,
           newState.columnsVisibility,
-          newState.columnsSorting
+          newState.filterMode,
+          newState.filters,
+          newState.globalFilter
+        )
+        newState.sortedRows = this._sortRows(
+          newState.filteredRows,
+          newState.allColumns,
+          newState.sortings
+        )
+        newState.totalCount = newState.filteredRows.length
+
+        const pageCount = Math.max(
+          Math.ceil(newState.totalCount / newState.pageSize),
+          1
         )
 
-      newState.allColumns = newAllColumns
-      newState.columnsVisibility = newColumnsVisibility
-      newState.columnsSorting = newColumnsSorting
-
-      newState.allRows = result.rows
-      newState.filteredRows = this._filterRows(
-        newState.allRows,
-        newState.allColumns,
-        newState.columnsVisibility,
-        newState.filterMode,
-        newState.filters,
-        newState.globalFilter
-      )
-      newState.sortedRows = this._sortRows(
-        newState.filteredRows,
-        newState.allColumns,
-        newState.sortings
-      )
-      newState.totalCount = newState.filteredRows.length
-
-      const pageCount = Math.max(
-        Math.ceil(newState.totalCount / newState.pageSize),
-        1
-      )
-
-      newState.page = Math.min(newState.page, pageCount - 1)
-      newState.rows = this._pageRows(
-        newState.sortedRows,
-        newState.page,
-        newState.pageSize
-      )
-    } else {
-      newState.allRows = result.rows
-      newState.filteredRows = result.rows
-      newState.sortedRows = result.rows
-      newState.rows = result.rows
-      newState.totalCount = result.totalCount
-
-      const pageCount = Math.max(
-        Math.ceil(result.totalCount / newState.pageSize),
-        1
-      )
-      newState.page = Math.min(newState.page, pageCount - 1)
-
-      const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
-        await this._loadColumns(
-          newState.rows,
-          newState.columnsVisibility,
-          newState.columnsSorting
+        newState.page = Math.min(newState.page, pageCount - 1)
+        newState.rows = this._pageRows(
+          newState.sortedRows,
+          newState.page,
+          newState.pageSize
         )
+      } else {
+        newState.allRows = result.rows
+        newState.filteredRows = result.rows
+        newState.sortedRows = result.rows
+        newState.rows = result.rows
+        newState.totalCount = result.totalCount
 
-      newState.allColumns = newAllColumns
-      newState.columnsVisibility = newColumnsVisibility
-      newState.columnsSorting = newColumnsSorting
-    }
+        const pageCount = Math.max(
+          Math.ceil(result.totalCount / newState.pageSize),
+          1
+        )
+        newState.page = Math.min(newState.page, pageCount - 1)
 
-    // do not update filters (this would override filter changes that a user could do while grid was loading)
-    delete newState.filters
-    delete newState.globalFilter
+        const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+          await this._loadColumns(
+            newState.rows,
+            newState.columnsVisibility,
+            newState.columnsSorting
+          )
 
-    await this.context.setState(newState)
+        newState.allColumns = newAllColumns
+        newState.columnsVisibility = newColumnsVisibility
+        newState.columnsSorting = newColumnsSorting
+      }
 
-    if (!state.loaded) {
-      this.selectRow(props.selectedRowId)
-      this.multiselectRows(props.multiselectedRowIds)
-    } else {
-      this.selectRow(newState.selectedRow ? newState.selectedRow.id : null)
-      this.multiselectRows(Object.keys(newState.multiselectedRows))
+      // do not update filters (this would override filter changes that a user could do while grid was loading)
+      delete newState.filters
+      delete newState.globalFilter
+
+      await this.context.setState(newState)
+
+      if (!state.loaded) {
+        this.selectRow(props.selectedRowId)
+        this.multiselectRows(props.multiselectedRowIds)
+      } else {
+        this.selectRow(newState.selectedRow ? newState.selectedRow.id : null)
+        this.multiselectRows(Object.keys(newState.multiselectedRows))
+      }
+    } catch (error) {
+      this._onError(error)
     }
   }
 
@@ -1583,5 +1588,13 @@ export default class GridController {
 
   _split(str) {
     return str.split(' ').filter(token => !this._isEmpty(token))
+  }
+
+  _onError(error) {
+    const { onError } = this.context.getProps()
+    if (onError) {
+      onError(error)
+    }
+    throw error
   }
 }

@@ -28,6 +28,7 @@ export default class GridWithOpenbis extends React.PureComponent {
         {...this.props}
         loadSettings={this.loadSettings}
         onSettingsChange={this.onSettingsChange}
+        onError={this.onError}
         exportXLS={this.exportXLS}
       />
     )
@@ -55,6 +56,10 @@ export default class GridWithOpenbis extends React.PureComponent {
     }
 
     await AppController.getInstance().setSetting(settingsId, settings)
+  }
+
+  async onError(error) {
+    await AppController.getInstance().errorChange(error)
   }
 
   async exportXLS({

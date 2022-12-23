@@ -10,7 +10,6 @@ import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import EntityType from '@src/js/components/common/dto/EntityType.js'
 import HistoryGridContentCell from '@src/js/components/tools/common/HistoryGridContentCell.jsx'
-import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -24,11 +23,7 @@ class HistoryGrid extends React.PureComponent {
   }
 
   async load(params) {
-    try {
-      return await this.loadHistory(this.props.eventType, params)
-    } catch (error) {
-      AppController.getInstance().errorChange(error)
-    }
+    return await this.loadHistory(this.props.eventType, params)
   }
 
   async loadHistory(eventType, { filters, page, pageSize, sortings }) {

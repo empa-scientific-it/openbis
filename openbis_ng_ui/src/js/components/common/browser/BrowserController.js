@@ -387,5 +387,6 @@ export default class BrowserController {
     if (onError) {
       onError(error)
     }
+    throw error
   }
 }

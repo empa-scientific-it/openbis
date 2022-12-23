@@ -488,7 +488,11 @@ export class AppController {
 
     await this.context.setState({ settings: newSettings })
 
-    await this._saveSettings(settingId, settingObject)
+    try {
+      await this._saveSettings(settingId, settingObject)
+    } catch (error) {
+      this.errorChange(error)
+    }
   }
 
   async _loadSettings() {
