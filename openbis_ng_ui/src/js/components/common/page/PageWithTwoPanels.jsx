@@ -87,6 +87,7 @@ class PageWithTwoPanels extends React.PureComponent {
               direction={{
                 left: true
               }}
+              width='35%'
             >
               <div className={classes.additionalPanel}>{additionalPanel}</div>
             </ResizableWithOpenbis>

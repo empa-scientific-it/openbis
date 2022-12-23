@@ -9,7 +9,7 @@ class ResizableClass extends React.PureComponent {
     super(props)
 
     this.state = {
-      width: '25%'
+      width: this.props.width || '25%'
     }
 
     this.handleResize = this.handleResize.bind(this)
