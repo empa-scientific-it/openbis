@@ -14,58 +14,62 @@ class DatabaseTab extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const { tab } = this.props
-    const { object } = tab
+    try {
+      const { tab } = this.props
+      const { object } = tab
 
-    let typeText = null
-    let idText = null
+      let typeText = null
+      let idText = null
 
-    if (object.type === objectType.SPACE) {
-      typeText = 'Space'
-      idText = object.id
-    } else if (object.type === objectType.PROJECT) {
-      typeText = 'Project'
-      const projects = await openbis.getProjects(
-        [new openbis.ProjectPermId(object.id)],
-        new openbis.ProjectFetchOptions()
-      )
+      if (object.type === objectType.SPACE) {
+        typeText = 'Space'
+        idText = object.id
+      } else if (object.type === objectType.PROJECT) {
+        typeText = 'Project'
+        const projects = await openbis.getProjects(
+          [new openbis.ProjectPermId(object.id)],
+          new openbis.ProjectFetchOptions()
+        )
 
-      if (projects[object.id]) {
-        idText = projects[object.id].getCode()
+        if (projects[object.id]) {
+          idText = projects[object.id].getCode()
+        }
+      } else if (object.type === objectType.COLLECTION) {
+        typeText = 'Collection'
+        const experiments = await openbis.getExperiments(
+          [new openbis.ExperimentPermId(object.id)],
+          new openbis.ExperimentFetchOptions()
+        )
+        if (experiments[object.id]) {
+          idText = experiments[object.id].getCode()
+        }
+      } else if (object.type === objectType.OBJECT) {
+        typeText = 'Object'
+        const samples = await openbis.getSamples(
+          [new openbis.SamplePermId(object.id)],
+          new openbis.SampleFetchOptions()
+        )
+        if (samples[object.id]) {
+          idText = samples[object.id].getCode()
+        }
+      } else if (object.type === objectType.DATA_SET) {
+        typeText = 'Data Set'
+        idText = object.id
       }
-    } else if (object.type === objectType.COLLECTION) {
-      typeText = 'Collection'
-      const experiments = await openbis.getExperiments(
-        [new openbis.ExperimentPermId(object.id)],
-        new openbis.ExperimentFetchOptions()
+
+      const tabWithLabel = {
+        ...tab,
+        label: (typeText || object.type) + ': ' + (idText || object.id)
+      }
+
+      AppController.getInstance().replaceOpenTab(
+        pages.DATABASE,
+        tabWithLabel.id,
+        tabWithLabel
       )
-      if (experiments[object.id]) {
-        idText = experiments[object.id].getCode()
-      }
-    } else if (object.type === objectType.OBJECT) {
-      typeText = 'Object'
-      const samples = await openbis.getSamples(
-        [new openbis.SamplePermId(object.id)],
-        new openbis.SampleFetchOptions()
-      )
-      if (samples[object.id]) {
-        idText = samples[object.id].getCode()
-      }
-    } else if (object.type === objectType.DATA_SET) {
-      typeText = 'Data Set'
-      idText = object.id
+    } catch (error) {
+      AppController.getInstance().errorChange(error)
     }
-
-    const tabWithLabel = {
-      ...tab,
-      label: (typeText || object.type) + ': ' + (idText || object.id)
-    }
-
-    AppController.getInstance().replaceOpenTab(
-      pages.DATABASE,
-      tabWithLabel.id,
-      tabWithLabel
-    )
   }
 
   render() {

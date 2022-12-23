@@ -3,6 +3,7 @@ import React from 'react'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import AutocompleterField from '@src/js/components/common/form/AutocompleterField.jsx'
+import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -73,6 +74,7 @@ class EntityAutocompleterField extends React.PureComponent {
           )
         }
       } catch (error) {
+        AppController.getInstance().errorChange(error)
         this.setState({
           loading: false
         })
