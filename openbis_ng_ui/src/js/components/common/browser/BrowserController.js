@@ -9,8 +9,24 @@ export default class BrowserController {
     throw 'Method not implemented'
   }
 
+  async _doLoadNodePath(params) {
+    try {
+      return await this.doLoadNodePath(params)
+    } catch (error) {
+      this._onError(error)
+    }
+  }
+
   async doLoadNodes() {
     throw 'Method not implemented'
+  }
+
+  async _doLoadNodes(params) {
+    try {
+      return await this.doLoadNodes(params)
+    } catch (error) {
+      this._onError(error)
+    }
   }
 
   constructor() {
@@ -20,10 +36,10 @@ export default class BrowserController {
 
     class FullTreeController extends BrowserTreeController {
       async doLoadNodePath(params) {
-        return controller.doLoadNodePath(params)
+        return controller._doLoadNodePath(params)
       }
       async doLoadNodes(params) {
-        return await controller.doLoadNodes({
+        return await controller._doLoadNodes({
           ...params,
           filter: null
         })
@@ -32,11 +48,11 @@ export default class BrowserController {
 
     class FilteredTreeController extends BrowserTreeController {
       async doLoadNodePath(params) {
-        return controller.doLoadNodePath(params)
+        return controller._doLoadNodePath(params)
       }
       async doLoadNodes(params) {
         const { filter } = controller.context.getState()
-        return await controller.doLoadNodes({
+        return await controller._doLoadNodes({
           ...params,
           filter: util.trim(filter)
         })
@@ -96,7 +112,7 @@ export default class BrowserController {
     let { nodeSetAsRoot } = this.context.getState()
 
     if (nodeSetAsRoot) {
-      const nodeSetAsRootPath = await this.doLoadNodePath({
+      const nodeSetAsRootPath = await this._doLoadNodePath({
         object: nodeSetAsRoot.object
       })
       if (!_.isEmpty(nodeSetAsRootPath)) {
@@ -177,7 +193,7 @@ export default class BrowserController {
     let nodeSetAsRoot = null
 
     if (node) {
-      const path = await this.doLoadNodePath({
+      const path = await this._doLoadNodePath({
         object: node.object
       })
 
@@ -363,6 +379,13 @@ export default class BrowserController {
       }
 
       await onSettingsChange(settings)
+    }
+  }
+
+  _onError(error) {
+    const { onError } = this.context.getProps()
+    if (onError) {
+      onError(error)
     }
   }
 }

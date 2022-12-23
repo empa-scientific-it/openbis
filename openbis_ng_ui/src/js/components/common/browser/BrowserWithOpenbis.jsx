@@ -31,6 +31,7 @@ class BrowserWithOpenbis extends React.PureComponent {
           {...this.props}
           loadSettings={this.loadSettings}
           onSettingsChange={this.onSettingsChange}
+          onError={this.onError}
         />
       </ResizableWithOpenbis>
     )
@@ -42,6 +43,10 @@ class BrowserWithOpenbis extends React.PureComponent {
 
   async onSettingsChange(settings) {
     await AppController.getInstance().setSetting(this.props.id, settings)
+  }
+
+  async onError(error) {
+    await AppController.getInstance().errorChange(error)
   }
 }
 
