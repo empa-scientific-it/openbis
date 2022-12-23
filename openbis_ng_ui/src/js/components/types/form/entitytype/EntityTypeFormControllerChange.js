@@ -243,27 +243,32 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
       ) {
         const { object, facade } = this.controller
 
-        facade.loadTypeUsages(object).then(typeUsages => {
-          this.context.setState(state => {
-            const index = state.properties.findIndex(
-              property => property.id === newProperty.id
-            )
-            if (index === -1) {
-              return {}
-            }
-            const newProperties = Array.from(state.properties)
-            newProperties[index] = {
-              ...newProperties[index],
-              initialValueForExistingEntities: {
-                ...newProperties[index].initialValueForExistingEntities,
-                visible: typeUsages > 0
+        facade
+          .loadTypeUsages(object)
+          .then(typeUsages => {
+            this.context.setState(state => {
+              const index = state.properties.findIndex(
+                property => property.id === newProperty.id
+              )
+              if (index === -1) {
+                return {}
               }
-            }
-            return {
-              properties: newProperties
-            }
+              const newProperties = Array.from(state.properties)
+              newProperties[index] = {
+                ...newProperties[index],
+                initialValueForExistingEntities: {
+                  ...newProperties[index].initialValueForExistingEntities,
+                  visible: typeUsages > 0
+                }
+              }
+              return {
+                properties: newProperties
+              }
+            })
           })
-        })
+          .catch(error => {
+            AppController.getInstance().errorChange(error)
+          })
       } else {
         _.assign(newProperty, {
           initialValueForExistingEntities: {
