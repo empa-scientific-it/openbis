@@ -18,7 +18,9 @@ const getMaterialTypes = jest.fn()
 const getPersons = jest.fn()
 const getPropertyTypes = jest.fn()
 const getSampleTypes = jest.fn()
+const getServerInformation = jest.fn()
 const getServerPublicInformation = jest.fn()
+const getSessionInformation = jest.fn()
 const getVocabularies = jest.fn()
 const getPlugins = jest.fn()
 const getQueries = jest.fn()
@@ -186,7 +188,9 @@ export default {
   getPersons,
   getPropertyTypes,
   getSampleTypes,
+  getServerInformation,
   getServerPublicInformation,
+  getSessionInformation,
   getVocabularies,
   getPlugins,
   getQueries,

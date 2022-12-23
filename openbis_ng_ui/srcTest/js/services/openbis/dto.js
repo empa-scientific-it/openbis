@@ -171,6 +171,8 @@ import VocabularyTermSearchCriteria from 'as/dto/vocabulary/search/VocabularyTer
 import VocabularyTermUpdate from 'as/dto/vocabulary/update/VocabularyTermUpdate'
 import VocabularyUpdate from 'as/dto/vocabulary/update/VocabularyUpdate'
 import WebAppSettingCreation from 'as/dto/webapp/create/WebAppSettingCreation'
+import WebAppSettings from 'as/dto/webapp/WebAppSettings'
+import WebAppSetting from 'as/dto/webapp/WebAppSetting'
 const dto = {
   AuthorizationGroup,
   AuthorizationGroupCreation,
@@ -344,7 +346,9 @@ const dto = {
   VocabularyTermSearchCriteria,
   VocabularyTermUpdate,
   VocabularyUpdate,
-  WebAppSettingCreation
+  WebAppSettingCreation,
+  WebAppSettings,
+  WebAppSetting
 }
 
 export default dto

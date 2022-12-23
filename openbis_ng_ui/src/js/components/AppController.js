@@ -473,7 +473,7 @@ export class AppController {
     }
   }
 
-  async getSetting(settingId) {
+  getSetting(settingId) {
     const { settings } = this.context.getState()
     return settings[settingId]
   }
@@ -486,7 +486,7 @@ export class AppController {
       [settingId]: settingObject
     }
 
-    this.context.setState({ settings: newSettings })
+    await this.context.setState({ settings: newSettings })
 
     await this._saveSettings(settingId, settingObject)
   }

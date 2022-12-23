@@ -1,4 +1,5 @@
 import openbis from '@srcTest/js/services/openbis.js'
+import ids from '@src/js/common/consts/ids.js'
 
 const TEST_USER = 'test-user'
 const TEST_PASSWORD = 'test-password'
@@ -7,10 +8,21 @@ const TEST_SESSION_TOKEN = 'test-session-token'
 const SYSTEM_USER_DTO = new openbis.Person()
 SYSTEM_USER_DTO.setUserId('system')
 
+const WEB_APP_SETTINGS_DTO = new openbis.WebAppSettings()
+WEB_APP_SETTINGS_DTO.setSettings({
+  'test-name': new openbis.WebAppSetting(
+    'test-name',
+    '{ "test-key" : "test-value" }'
+  )
+})
+
 const TEST_USER_DTO = new openbis.Person()
 TEST_USER_DTO.setUserId('test-user')
 TEST_USER_DTO.setFirstName('test-first-name')
 TEST_USER_DTO.setLastName('test-last-name')
+TEST_USER_DTO.setWebAppSettings({
+  [ids.WEB_APP_ID]: WEB_APP_SETTINGS_DTO
+})
 
 const ANOTHER_USER_DTO = new openbis.Person()
 ANOTHER_USER_DTO.setUserId('another-user')

@@ -17,12 +17,25 @@ beforeEach(() => {
 describe(SUITE, () => {
   test('login successful', async () => {
     openbis.login.mockReturnValue(fixture.TEST_SESSION_TOKEN)
+    openbis.getServerInformation.mockReturnValue({
+      test: 'abc'
+    })
+    openbis.getSessionInformation.mockReturnValue({
+      userName: fixture.TEST_USER_DTO.getUserId()
+    })
+    openbis.getPersons.mockReturnValue({
+      [new openbis.Me()]: fixture.TEST_USER_DTO
+    })
 
     await controller.login(fixture.TEST_USER, fixture.TEST_PASSWORD)
 
     expect(controller.getSession()).toEqual({
       sessionToken: fixture.TEST_SESSION_TOKEN,
       userName: fixture.TEST_USER
+    })
+    expect(controller.getServerInformation('test')).toEqual('abc')
+    expect(await controller.getSetting('test-name')).toEqual({
+      'test-key': 'test-value'
     })
     expect(controller.getCurrentPage()).toEqual(pages.TYPES)
   })
