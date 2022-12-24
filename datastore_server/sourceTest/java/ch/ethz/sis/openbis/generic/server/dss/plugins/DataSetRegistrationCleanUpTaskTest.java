@@ -18,15 +18,19 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Level;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -39,6 +43,10 @@ import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 
 /**
  * @author Franz-Josef Elmer
@@ -59,6 +67,14 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
 
     private Properties thread2Properties;
 
+    private Mockery context;
+
+    private IEncapsulatedOpenBISService service;
+
+    private DataSetRegistrationCleanUpTask task;
+
+    private DatabaseInstance databaseInstance;
+
     public DataSetRegistrationCleanUpTaskTest()
     {
         super(false);
@@ -68,22 +84,30 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
     public void setUp() throws IOException
     {
         super.setUp();
+        context = new Mockery();
+        service = context.mock(IEncapsulatedOpenBISService.class);
         LogInitializer.init();
         logRecorder = new BufferedAppender(Level.INFO);
+        databaseInstance = new DatabaseInstance();
+        databaseInstance.setUuid(UUID.randomUUID().toString().toUpperCase());
         storeRoot = new File(workingDirectory, "store");
         timeProvider = new MockTimeProvider(0, 34 * DateUtils.MILLIS_PER_DAY + 13 * DateUtils.MILLIS_PER_HOUR
                 + 21 * DateUtils.MILLIS_PER_MINUTE + 1597);
         thread1Properties = new Properties();
         File incoming1 = new File(storeRoot, "1/in");
         incoming1.mkdirs();
+        new File(incoming1.getParent(), databaseInstance.getUuid()).mkdirs();
         thread1Properties.setProperty(ThreadParameters.INCOMING_DIR, incoming1.getAbsolutePath());
         thread2Properties = new Properties();
         File incoming2 = new File(storeRoot, "2/in");
         incoming2.mkdirs();
+        new File(incoming2.getParent(), databaseInstance.getUuid()).mkdirs();
         thread2Properties.setProperty(ThreadParameters.INCOMING_DIR, incoming2.getAbsolutePath());
         threadParameters = new ThreadParameters[] {
                 new ThreadParameters(thread1Properties, "t1"),
                 new ThreadParameters(thread2Properties, "t2") };
+        task = new DataSetRegistrationCleanUpTask(threadParameters, storeRoot, timeProvider, service);
+        prepareGetHomeDatabaseInstance();
     }
 
     private File createShareWithPreStagingStuff(ITimeProvider timeProvider, int shareId, int numberOfFiles)
@@ -108,8 +132,6 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         // Given
         File share1 = createShareWithPreStagingStuff(timeProvider, 1, 2);
         File share2 = createShareWithPreStagingStuff(timeProvider, 2, 1);
-        DataSetRegistrationCleanUpTask task = new DataSetRegistrationCleanUpTask(threadParameters,
-                storeRoot, timeProvider);
         Properties properties = new Properties();
         properties.setProperty(DataSetRegistrationCleanUpTask.MINIMUM_AGE_IN_DAYS, "70");
         task.setUp("cleanup", properties);
@@ -144,8 +166,6 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         String defaultStagingDir = TopLevelDataSetRegistratorGlobalState.DEFAULT_STAGING_DIR;
         File share1 = createShareWithStuffInDir(defaultStagingDir, timeProvider, 1, 2);
         File share2 = createShareWithStuffInDir(defaultStagingDir, timeProvider, 2, 1);
-        DataSetRegistrationCleanUpTask task = new DataSetRegistrationCleanUpTask(threadParameters,
-                storeRoot, timeProvider);
         Properties properties = new Properties();
         properties.setProperty(DataSetRegistrationCleanUpTask.MINIMUM_AGE_IN_DAYS, "70");
         task.setUp("cleanup", properties);
@@ -187,8 +207,6 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         String defaultPreCommitDir = TopLevelDataSetRegistratorGlobalState.DEFAULT_PRE_COMMIT_DIR;
         File share1 = createShareWithStuffInDir(defaultPreCommitDir, timeProvider, 1, 2);
         File share2 = createShareWithStuffInDir(defaultPreCommitDir, timeProvider, 2, 1);
-        DataSetRegistrationCleanUpTask task = new DataSetRegistrationCleanUpTask(threadParameters,
-                storeRoot, timeProvider);
         Properties properties = new Properties();
         properties.setProperty(DataSetRegistrationCleanUpTask.MINIMUM_AGE_IN_DAYS, "70");
         task.setUp("cleanup", properties);
@@ -206,4 +224,94 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         assertEquals("[19700311034203194-0]", getStuffFromDir(share2, defaultPreCommitDir).toString());
     }
 
+    @Test
+    public void testCleanUpStore() throws IOException
+    {
+        // Given
+        File nas = new File(workingDirectory, "nas");
+        nas.mkdirs();
+        File share = new File(storeRoot, "3");
+        Files.createSymbolicLink(share.toPath(), nas.toPath().toAbsolutePath());
+        File instance = new File(share, databaseInstance.getUuid());
+        long time = timeProvider.getTimeInMilliseconds();
+        File dir1 = createFolder(instance, "12", time);
+        File dir2 = createFolder(instance, "13", time + 20 * DateUtils.MILLIS_PER_DAY);
+        File dir3 = createFolder(instance, "ca/42", time);
+        File dir4 = createFolder(instance, "ab/cd/ef", time);
+        File dir5 = createFolder(instance, "ab/cd/78/ds-11", time);
+        File dir6 = createFolder(instance, "ab/cd/78/ds-12", time + 20 * DateUtils.MILLIS_PER_DAY);
+        File dir7 = createFolder(instance, "ab/cd/78/ds-13", time);
+        createFile(instance, "ab/66/ab/ds-1/original/hello.txt", "hello");
+        createFile(instance, "ab/66/ab/ds-2/original/hi.txt", "hi");
+        createFolder(instance, "ab/66/ab/ds-1/original", time);
+        prepareListDataSetsByCode(Arrays.asList("ds-11", "ds-13"), createDataSets("ds-13"));
+        task.setUp("cleanup", new Properties());
+
+        // When
+        task.execute();
+
+        // Then
+        assertEquals("2 old empty data set folders found in share 3: [" + dir5 + ", " + dir7 + "]\n"
+                + "Deleting directory '" + dir5 + "'\n"
+                + "Stale data set folder deleted: " + dir5.getAbsolutePath()
+                + " (last modified: 1970-01-01 01:00:00)\n"
+                + "3 empty sharding folders found in share 3: [" + dir1 + ", " + dir4 + ", " + dir3 + "]",
+                logRecorder.getLogContent());
+//        assertEquals(false, dir1.exists());
+//        assertEquals(true, dir2.exists());
+//        assertEquals(false, dir3.exists());
+//        assertEquals(false, dir4.exists());
+        assertEquals(false, dir5.exists());
+        assertEquals(true, dir6.exists());
+        assertEquals(true, dir7.exists());
+    }
+
+    private File createFolder(File instance, String relPath, long lastModified)
+    {
+        File folder = new File(instance, relPath);
+        folder.mkdirs();
+        folder.setLastModified(lastModified);
+        return folder;
+    }
+
+    private void createFile(File nas, String relativePath, String content)
+    {
+        File file = new File(nas, relativePath);
+        file.getParentFile().mkdirs();
+        FileUtilities.writeToFile(file, content);
+    }
+
+    private List<AbstractExternalData> createDataSets(String... dataSetCodes)
+    {
+        List<AbstractExternalData> dataSets = new ArrayList<>();
+        for (String dataSetCode : dataSetCodes)
+        {
+            AbstractExternalData dataSet = new PhysicalDataSet();
+            dataSet.setCode(dataSetCode);
+            dataSets.add(dataSet);
+        }
+        return dataSets;
+    }
+
+    private void prepareGetHomeDatabaseInstance()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(service).getHomeDatabaseInstance();
+                    will(returnValue(databaseInstance));
+                }
+            });
+    }
+
+    private void prepareListDataSetsByCode(List<String> dataSetCodes, List<AbstractExternalData> dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(service).listDataSetsByCode(dataSetCodes);
+                    will(returnValue(dataSets));
+                }
+            });
+    }
 }
