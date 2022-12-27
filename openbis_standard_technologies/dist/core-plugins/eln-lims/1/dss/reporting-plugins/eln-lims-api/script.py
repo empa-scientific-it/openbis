@@ -15,6 +15,7 @@
 #
 
 # IDataSetRegistrationTransactionV2 Class
+from ch.ethz.sis.openbis.generic.server.dss.plugins import DataSetRegistrationCleanUpTask
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
@@ -543,7 +544,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 	#Move All Files using a tmp directory close to the datastore
 	threadProperties = getThreadProperties(tr);
-	tempDir =  threadProperties[u'incoming-dir'] + "/tmp_eln/" + str(time.time());
+	tempDir =  threadProperties[u'incoming-dir'] + "/" + DataSetRegistrationCleanUpTask.ELN_TEMP_DIR_FOR_REGISTRATION + "/" + str(time.time());
 	tempDirFile = File(tempDir);
 	tempDirFile.mkdirs();
 	

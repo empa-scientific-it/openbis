@@ -50,6 +50,8 @@ import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IngestionService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
@@ -61,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
  */
 public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
 {
+    public static final String ELN_TEMP_DIR_FOR_REGISTRATION = "tmp_eln";
 
     public static final String DEFAULT_MAINTENANCE_TASK_NAME = "data-set-registration-clean-up-task";
 
@@ -91,11 +94,13 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
 
     private MonitoredDirectories preCommitDirectories;
 
+    private MonitoredDirectories elnTmpDirectories;
     private Log4jSimpleLogger simpleLogger;
 
     private SimpleDateFormat dateFormat;
 
     private int minimumAgeInDays;
+
 
     public DataSetRegistrationCleanUpTask()
     {
@@ -118,6 +123,7 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         preStagingDirectories = new MonitoredDirectories("pre-staging");
         stagingDirectories = new MonitoredDirectories("staging");
         preCommitDirectories = new MonitoredDirectories("pre-commit");
+        elnTmpDirectories = new MonitoredDirectories("ELN temporary registration");
         File root = getStoreRoot();
         for (ThreadParameters parameters : getThreadParameters())
         {
@@ -126,6 +132,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
             preStagingDirectories.add(TopLevelDataSetRegistratorGlobalState.getPreStagingDir(root, shareId, tp));
             stagingDirectories.add(TopLevelDataSetRegistratorGlobalState.getStagingDir(root, shareId, tp));
             preCommitDirectories.add(TopLevelDataSetRegistratorGlobalState.getPreCommitDir(root, shareId, tp));
+            elnTmpDirectories.add(new File(root, shareId + "/" + IngestionService.AGGREGATION_SERVICE_SCRATCH_DIR_NAME
+                    + "/" + IngestionService.INCOMING_DIR + "/" + ELN_TEMP_DIR_FOR_REGISTRATION));
         }
         simpleLogger = new Log4jSimpleLogger(operationLog);
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -140,6 +148,7 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         FileFilter ageBasedFileFilter = new AgeBasedFileFilter(now, minimumAge);
         deleteOldFiles(stagingDirectories, ageBasedFileFilter);
         deleteOldFiles(preCommitDirectories, ageBasedFileFilter);
+        deleteOldFiles(elnTmpDirectories, ageBasedFileFilter);
         deleteEmptyFoldersInStore(ageBasedFileFilter);
     }
 

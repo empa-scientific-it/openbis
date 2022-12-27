@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IngestionService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -226,6 +227,33 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
                 + "/1/pre-commit/19700101010000000-0", logRecorder.getLogContent());
         assertEquals("[19700204142101597-1]", getStuffFromDir(share1, defaultPreCommitDir).toString());
         assertEquals("[19700311034203194-0]", getStuffFromDir(share2, defaultPreCommitDir).toString());
+    }
+
+    @Test
+    public void testElnTmp()
+    {
+        // Given
+        String elnTmpDir = IngestionService.AGGREGATION_SERVICE_SCRATCH_DIR_NAME + "/"
+                + IngestionService.INCOMING_DIR + "/"
+                + DataSetRegistrationCleanUpTask.ELN_TEMP_DIR_FOR_REGISTRATION;
+        File share1 = createShareWithStuffInDir(elnTmpDir, timeProvider, 1, 2);
+        File share2 = createShareWithStuffInDir(elnTmpDir, timeProvider, 2, 1);
+        Properties properties = new Properties();
+        properties.setProperty(DataSetRegistrationCleanUpTask.MINIMUM_AGE_IN_DAYS, "70");
+        task.setUp("cleanup", properties);
+
+        // When
+        task.execute();
+
+        // Then
+        assertEquals("ELN temporary registration directory " + storeRoot.getAbsolutePath()
+                + "/1/" + elnTmpDir + " has 1 files which are older than 70 days:\n"
+                + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
+                + "Deleting directory '" + storeRoot + "/1/" + elnTmpDir + "/19700101010000000-0'\n"
+                + "Stale folder deleted: " + storeRoot.getAbsolutePath()
+                + "/1/" + elnTmpDir + "/19700101010000000-0", logRecorder.getLogContent());
+        assertEquals("[19700204142101597-1]", getStuffFromDir(share1, elnTmpDir).toString());
+        assertEquals("[19700311034203194-0]", getStuffFromDir(share2, elnTmpDir).toString());
     }
 
     @Test
