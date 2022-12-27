@@ -95,6 +95,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
 
     private SimpleDateFormat dateFormat;
 
+    private int minimumAgeInDays;
+
     public DataSetRegistrationCleanUpTask()
     {
     }
@@ -111,7 +113,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
     @Override
     public void setUp(String pluginName, Properties properties)
     {
-        minimumAge = PropertyUtils.getInt(properties, MINIMUM_AGE_IN_DAYS, DEFAULT_MINIMUM_AGE_IN_DAYS) * DateUtils.MILLIS_PER_DAY;
+        minimumAgeInDays = PropertyUtils.getInt(properties, MINIMUM_AGE_IN_DAYS, DEFAULT_MINIMUM_AGE_IN_DAYS);
+        minimumAge = minimumAgeInDays * DateUtils.MILLIS_PER_DAY;
         preStagingDirectories = new MonitoredDirectories("pre-staging");
         stagingDirectories = new MonitoredDirectories("staging");
         preCommitDirectories = new MonitoredDirectories("pre-commit");
@@ -147,8 +150,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
             File[] files = dir.listFiles(filter);
             if (files != null && files.length > 0)
             {
-                operationLog.info(dirs.getName() + " directory " + dir.getAbsolutePath()
-                        + " has " + files.length + " files");
+                operationLog.info(dirs.getName() + " directory " + dir.getAbsolutePath() + " has "
+                        + files.length + " files which are older than " + minimumAgeInDays + " days:");
                 for (File file : files)
                 {
                     operationLog.info(file.getName() + " (last modified: "
@@ -168,6 +171,10 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         for (File share : shares)
         {
             Path shareCore = new File(share, instanceHome).toPath();
+            if (Files.isDirectory(shareCore) == false)
+            {
+                continue;
+            }
             int shareCorePathLevels = shareCore.getNameCount();
             EmptyFoldersGatherer gatherer = new EmptyFoldersGatherer(shareCorePathLevels, fileFilter);
             try (Stream<Path> paths = Files.walk(shareCore, SHARDING_LEVELS + 2))
@@ -191,7 +198,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         {
             return;
         }
-        operationLog.info(emptyDataSets.size() + " old empty data set folders found in share " + shareId + ": " + emptyDataSets);
+        operationLog.info(emptyDataSets.size() + " empty data set folders found in share " + shareId
+                + " which are older than " + minimumAgeInDays + " days: " + emptyDataSets);
         List<String> dataSetCodes = emptyDataSets.stream().map(path -> path.getFileName().toString())
                 .collect(Collectors.toList());
         List<AbstractExternalData> dataSets = getOpenBisService().listDataSetsByCode(dataSetCodes);
@@ -211,7 +219,8 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         {
             return;
         }
-        operationLog.info(emptyFolders.size() + " empty sharding folders found in share " + shareId + ": " + emptyFolders);
+        operationLog.info(emptyFolders.size() + " empty sharding folders found in share " + shareId
+                + " which are older than " + minimumAgeInDays + " days: " + emptyFolders);
         for (Path path : emptyFolders)
         {
             deleteFolder(path, "Empty sharding folder");

@@ -102,6 +102,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         File incoming2 = new File(storeRoot, "2/in");
         incoming2.mkdirs();
         new File(incoming2.getParent(), databaseInstance.getUuid()).mkdirs();
+        new File(storeRoot, "9").mkdirs();
         thread2Properties.setProperty(ThreadParameters.INCOMING_DIR, incoming2.getAbsolutePath());
         threadParameters = new ThreadParameters[] {
                 new ThreadParameters(thread1Properties, "t1"),
@@ -140,7 +141,8 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("pre-staging directory " + storeRoot.getAbsolutePath() + "/1/pre-staging has 1 files\n"
+        assertEquals("pre-staging directory " + storeRoot.getAbsolutePath()
+                + "/1/pre-staging has 1 files which are older than 70 days:\n"
                 + "1970-01-01_01-00-00-000_test_test (last modified: 1970-01-01 01:00:50)\n"
                 + "Deleting directory '" + storeRoot + "/1/pre-staging/1970-01-01_01-00-00-000_test_test'\n"
                 + "Stale folder deleted: " + storeRoot.getAbsolutePath()
@@ -174,7 +176,8 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("staging directory " + storeRoot.getAbsolutePath() + "/1/staging has 1 files\n"
+        assertEquals("staging directory " + storeRoot.getAbsolutePath()
+                + "/1/staging has 1 files which are older than 70 days:\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
                 + "Deleting directory '" + storeRoot + "/1/staging/19700101010000000-0'\n"
                 + "Stale folder deleted: " + storeRoot.getAbsolutePath()
@@ -215,7 +218,8 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("pre-commit directory " + storeRoot.getAbsolutePath() + "/1/pre-commit has 1 files\n"
+        assertEquals("pre-commit directory " + storeRoot.getAbsolutePath()
+                + "/1/pre-commit has 1 files which are older than 70 days:\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
                 + "Deleting directory '" + storeRoot + "/1/pre-commit/19700101010000000-0'\n"
                 + "Stale folder deleted: " + storeRoot.getAbsolutePath()
@@ -251,11 +255,13 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("2 old empty data set folders found in share 3: [" + dir5 + ", " + dir7 + "]\n"
+        assertEquals("2 empty data set folders found in share 3 which are older than 30 days: ["
+                + dir5 + ", " + dir7 + "]\n"
                 + "Deleting directory '" + dir5 + "'\n"
                 + "Stale data set folder deleted: " + dir5.getAbsolutePath()
                 + " (last modified: 1970-01-01T00:00:00Z)\n"
-                + "3 empty sharding folders found in share 3: [" + dir1 + ", " + dir4 + ", " + dir3 + "]\n"
+                + "3 empty sharding folders found in share 3 which are older than 30 days: ["
+                + dir1 + ", " + dir4 + ", " + dir3 + "]\n"
                 + "Deleting directory '" + dir1 + "'\n"
                 + "Empty sharding folder deleted: " + dir1.getAbsolutePath()
                 + " (last modified: 1970-01-01T00:00:00Z)\n"
