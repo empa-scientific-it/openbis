@@ -14,8 +14,7 @@ def test_get_datasets(space):
     o = space.openbis
     current_datasets = o.get_datasets(start_with=1, count=1)
     assert current_datasets is not None
-    # we cannot assert == 1, because search is delayed due to lucene search...
-    assert len(current_datasets) <= 1
+    assert len(current_datasets) == 1
 
 
 def test_create_delete_dataset(space):
@@ -78,7 +77,11 @@ def test_create_delete_dataset(space):
     )
 
     # delete datasets
-    dataset.delete("dataset creation test on " + timestamp)
+    dataset.delete("dataset creation test on " + timestamp, True)
+
+    # check that permanent deletion is working
+    deletions = o.get_deletions(0, 10)
+    assert len(deletions) == 0
 
     # get by permId should now throw an error
     with pytest.raises(Exception):

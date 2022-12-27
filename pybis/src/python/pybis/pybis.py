@@ -3078,8 +3078,19 @@ class Openbis:
         delete_options["reason"] = reason
 
         request = {"method": method, "params": [self.token, [objectId], delete_options]}
+        return self._post_request(self.as_v3, request)
+
+
+    def confirm_deletions(self, deletion_ids):
+        request = {
+            "method": "confirmDeletions",
+            "params": [
+                self.token,
+                deletion_ids,
+            ],
+        }
         self._post_request(self.as_v3, request)
-        return
+
 
     def get_deletions(self, start_with=None, count=None):
         search_criteria = {"@type": "as.dto.deletion.search.DeletionSearchCriteria"}
