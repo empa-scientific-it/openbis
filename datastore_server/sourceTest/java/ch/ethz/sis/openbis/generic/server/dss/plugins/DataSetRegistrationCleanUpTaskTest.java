@@ -254,13 +254,22 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         assertEquals("2 old empty data set folders found in share 3: [" + dir5 + ", " + dir7 + "]\n"
                 + "Deleting directory '" + dir5 + "'\n"
                 + "Stale data set folder deleted: " + dir5.getAbsolutePath()
-                + " (last modified: 1970-01-01 01:00:00)\n"
-                + "3 empty sharding folders found in share 3: [" + dir1 + ", " + dir4 + ", " + dir3 + "]",
+                + " (last modified: 1970-01-01T00:00:00Z)\n"
+                + "3 empty sharding folders found in share 3: [" + dir1 + ", " + dir4 + ", " + dir3 + "]\n"
+                + "Deleting directory '" + dir1 + "'\n"
+                + "Empty sharding folder deleted: " + dir1.getAbsolutePath()
+                + " (last modified: 1970-01-01T00:00:00Z)\n"
+                + "Deleting directory '" + dir4 + "'\n"
+                + "Empty sharding folder deleted: " + dir4.getAbsolutePath()
+                + " (last modified: 1970-01-01T00:00:00Z)\n"
+                + "Deleting directory '" + dir3 + "'\n"
+                + "Empty sharding folder deleted: " + dir3.getAbsolutePath()
+                + " (last modified: 1970-01-01T00:00:00Z)",
                 logRecorder.getLogContent());
-//        assertEquals(false, dir1.exists());
-//        assertEquals(true, dir2.exists());
-//        assertEquals(false, dir3.exists());
-//        assertEquals(false, dir4.exists());
+        assertEquals(false, dir1.exists());
+        assertEquals(true, dir2.exists());
+        assertEquals(false, dir3.exists());
+        assertEquals(false, dir4.exists());
         assertEquals(false, dir5.exists());
         assertEquals(true, dir6.exists());
         assertEquals(true, dir7.exists());

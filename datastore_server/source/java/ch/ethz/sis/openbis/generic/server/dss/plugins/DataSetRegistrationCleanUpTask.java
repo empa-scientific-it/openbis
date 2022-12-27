@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -199,17 +200,7 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
         {
             if (knownDataSets.contains(path.getFileName().toString()) == false)
             {
-                String postfix = "";
-                try
-                {
-                    postfix = " (last modified: "
-                            + dateFormat.format(new Date(Files.getLastModifiedTime(path).toMillis())) + ")";
-                } catch (IOException e)
-                {
-                    // can not show last modified date
-                }
-                FileUtilities.deleteRecursively(path.toFile(), simpleLogger);
-                operationLog.info("Stale data set folder deleted: " + path.toAbsolutePath() + postfix);
+                deleteFolder(path, "Stale data set folder");
             }
         }
     }
@@ -221,6 +212,28 @@ public class DataSetRegistrationCleanUpTask implements IMaintenanceTask
             return;
         }
         operationLog.info(emptyFolders.size() + " empty sharding folders found in share " + shareId + ": " + emptyFolders);
+        for (Path path : emptyFolders)
+        {
+            deleteFolder(path, "Empty sharding folder");
+        }
+    }
+
+    private void deleteFolder(Path path, String folderType)
+    {
+        String info = createLastModifiedInfo(path);
+        FileUtilities.deleteRecursively(path.toFile(), simpleLogger);
+        operationLog.info(folderType + " deleted: " + path.toAbsolutePath() + info);
+    }
+
+    private String createLastModifiedInfo(Path path)
+    {
+        try
+        {
+            return " (last modified: " + Files.getLastModifiedTime(path) + ")";
+        } catch (IOException e)
+        {
+            return "";
+        }
     }
 
     private ThreadParameters[] getThreadParameters()
