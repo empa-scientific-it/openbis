@@ -1,17 +1,25 @@
 import uuid
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
+from ch.systemsx.cisd.common.mail import EMailAddress
 from ch.systemsx.cisd.openbis.generic.client.web.client.exception import UserFailureException
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from java.io import File
 from java.nio.file import Files, Paths, StandardCopyOption
+from java.util import List
 from org.json import JSONObject
 from org.apache.commons.io import FileUtils
 
 INVALID_FORMAT_ERROR_MESSAGE = "Invalid format for the folder name, should follow the pattern <ENTITY_KIND>+<SPACE_CODE>+<PROJECT_CODE>+[<EXPERIMENT_CODE>|<SAMPLE_CODE>]+<OPTIONAL_DATASET_TYPE>+<OPTIONAL_NAME>";
+FAILED_TO_PARSE_ERROR_MESSAGE = "Failed to parse folder name";
 FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE = "Failed to parse sample";
 FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
 SAMPLE_MISSING_ERROR_MESSAGE = "Sample not found";
 EXPERIMENT_MISSING_ERROR_MESSAGE = "Experiment not found";
 NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice, it should just be in either folder name or metadata.json"
+EMAIL_SUBJECT = "ELN LIMS Dropbox Error";
 
 
 def process(transaction):
@@ -27,7 +35,6 @@ def process(transaction):
         name = None;
 
         # Parse entity Kind
-        print("---- datasetInfo=%s" % datasetInfo)
         if len(datasetInfo) >= 1:
             entityKind = datasetInfo[0];
         else:
@@ -52,7 +59,9 @@ def process(transaction):
                 if len(datasetInfo) >= 6:
                     name = datasetInfo[5];
                 if len(datasetInfo) > 6:
-                    raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
+                    reportSampleError(transaction, 
+                                      INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                      sampleSpace, projectCode, sampleCode)
             elif len(datasetInfo) >= 3 and not projectSamplesEnabled:
                 sampleSpace = datasetInfo[1];
                 sampleCode = datasetInfo[2];
@@ -80,7 +89,9 @@ def process(transaction):
                 if len(datasetInfo) >= 6:
                     name = datasetInfo[5];
                 if len(datasetInfo) > 6:
-                    raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
+                    reportExperimentError(transaction,
+                                          INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
+                                          experimentSpace, projectCode, experimentCode);
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
 
@@ -140,3 +151,37 @@ def process(transaction):
                     tmpDir.delete();
         else:
             transaction.moveFile(datasetItem.getAbsolutePath(), dataSet);
+
+
+def reportSampleError(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
+    v3 = ServiceProvider.getV3ApplicationService();
+    sampleIdentifier = SampleIdentifier(sampleSpace, projectCode, None, sampleCode);
+    fetchOptions = SampleFetchOptions();
+    fetchOptions.withRegistrator();
+    foundSample = v3.getSamples(transaction.getOpenBisServiceSessionToken(), List.of(sampleIdentifier), fetchOptions) \
+        .get(sampleIdentifier)
+    if foundSample is not None:
+        sendMail(transaction, foundSample.getRegistrator().getEmail(), EMAIL_SUBJECT, errorMessage);
+
+    # TODO: add mail report to lab contact person / lab instance admins
+
+    raise UserFailureException(errorMessage);
+
+
+def reportExperimentError(transaction, errorMessage, experimentSpace, projectCode, experimentCode):
+    v3 = ServiceProvider.getV3ApplicationService();
+    experimentIdentifier = ExperimentIdentifier(experimentSpace, projectCode, experimentCode);
+    fetchOptions = ExperimentFetchOptions();
+    fetchOptions.withRegistrator();
+    foundExperiment = v3.getExperiments(transaction.getOpenBisServiceSessionToken(), List.of(experimentIdentifier),
+                                        fetchOptions).get(experimentIdentifier)
+    if foundExperiment is not None:
+        sendMail(transaction, foundExperiment.getRegistrator().getEmail(), EMAIL_SUBJECT, errorMessage);
+
+    # TODO: add mail report to lab contact person / lab instance admins
+
+    raise UserFailureException(errorMessage);
+
+
+def sendMail(tr, emailAddress, subject, body):
+    tr.getGlobalState().getMailClient().sendEmailMessage(subject, body, None, None, EMailAddress(emailAddress));
