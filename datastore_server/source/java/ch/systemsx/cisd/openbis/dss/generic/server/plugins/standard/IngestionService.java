@@ -72,7 +72,9 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         implements IOmniscientEntityRegistrator<T>
 {
 
-    private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
+    public static final String INCOMING_DIR = "incoming";
+
+    public static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
 
     private static final String AGGREGATION_SERVICE_SHARE_ID = "share-id";
 
@@ -231,7 +233,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
      */
     protected File getMockIncomingDir()
     {
-        File incomingDir = new File(getServiceScratchDir(), "incoming");
+        File incomingDir = new File(getServiceScratchDir(), INCOMING_DIR);
         if (false == incomingDir.exists())
         {
             incomingDir.mkdirs();
