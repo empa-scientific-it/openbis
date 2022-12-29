@@ -1,4 +1,6 @@
+import re
 import uuid
+
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions import ExperimentFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
@@ -13,6 +15,7 @@ from org.json import JSONObject
 from org.apache.commons.io import FileUtils
 
 INVALID_FORMAT_ERROR_MESSAGE = "Invalid format for the folder name, should follow the pattern <ENTITY_KIND>+<SPACE_CODE>+<PROJECT_CODE>+[<EXPERIMENT_CODE>|<SAMPLE_CODE>]+<OPTIONAL_DATASET_TYPE>+<OPTIONAL_NAME>";
+ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE = "Direcrory or its content contain illegal characters: \"', ~, $, %\"";
 FAILED_TO_PARSE_ERROR_MESSAGE = "Failed to parse folder name";
 FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE = "Failed to parse sample";
 FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
@@ -46,11 +49,16 @@ def process(transaction):
 
         # Parse entity Kind Format
         if entityKind == "O":
-
             if len(datasetInfo) >= 4 and projectSamplesEnabled:
                 sampleSpace = datasetInfo[1];
                 projectCode = datasetInfo[2];
                 sampleCode = datasetInfo[3];
+
+                if hasFolderIllegalCharacters(incoming):
+                    reportSampleFolderNameAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                                                  + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                                  sampleSpace, projectCode, sampleCode);
+
                 sample = transaction.getSample("/" + sampleSpace + "/" + projectCode + "/" + sampleCode);
                 if sample is None:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
@@ -65,6 +73,12 @@ def process(transaction):
             elif len(datasetInfo) >= 3 and not projectSamplesEnabled:
                 sampleSpace = datasetInfo[1];
                 sampleCode = datasetInfo[2];
+
+                if hasFolderIllegalCharacters(incoming):
+                    reportSampleFolderNameAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                                                  + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                                  sampleSpace, None, sampleCode);
+
                 sample = transaction.getSample("/" + sampleSpace + "/" + sampleCode);
                 if sample is None:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
@@ -73,7 +87,9 @@ def process(transaction):
                 if len(datasetInfo) >= 5:
                     name = datasetInfo[4];
                 if len(datasetInfo) > 5:
-                    raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
+                    reportSampleError(transaction,
+                                      INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                      sampleSpace, None, sampleCode)
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
         if entityKind == "E":
@@ -81,6 +97,12 @@ def process(transaction):
                 experimentSpace = datasetInfo[1];
                 projectCode = datasetInfo[2];
                 experimentCode = datasetInfo[3];
+
+                if hasFolderIllegalCharacters(incoming):
+                    reportExperimentFolderNameAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                                                  + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
+                                                  experimentSpace, projectCode, experimentCode);
+
                 experiment = transaction.getExperiment("/" + experimentSpace + "/" + projectCode + "/" + experimentCode);
                 if experiment is None:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + EXPERIMENT_MISSING_ERROR_MESSAGE);
@@ -154,14 +176,9 @@ def process(transaction):
 
 
 def reportSampleError(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
-    v3 = ServiceProvider.getV3ApplicationService();
-    sampleIdentifier = SampleIdentifier(sampleSpace, projectCode, None, sampleCode);
-    fetchOptions = SampleFetchOptions();
-    fetchOptions.withRegistrator();
-    foundSample = v3.getSamples(transaction.getOpenBisServiceSessionToken(), List.of(sampleIdentifier), fetchOptions) \
-        .get(sampleIdentifier)
-    if foundSample is not None:
-        sendMail(transaction, foundSample.getRegistrator().getEmail(), EMAIL_SUBJECT, errorMessage);
+    emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
+    if emailAddress is not None:
+        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
 
     # TODO: add mail report to lab contact person / lab instance admins
 
@@ -169,19 +186,71 @@ def reportSampleError(transaction, errorMessage, sampleSpace, projectCode, sampl
 
 
 def reportExperimentError(transaction, errorMessage, experimentSpace, projectCode, experimentCode):
-    v3 = ServiceProvider.getV3ApplicationService();
-    experimentIdentifier = ExperimentIdentifier(experimentSpace, projectCode, experimentCode);
-    fetchOptions = ExperimentFetchOptions();
-    fetchOptions.withRegistrator();
-    foundExperiment = v3.getExperiments(transaction.getOpenBisServiceSessionToken(), List.of(experimentIdentifier),
-                                        fetchOptions).get(experimentIdentifier)
-    if foundExperiment is not None:
-        sendMail(transaction, foundExperiment.getRegistrator().getEmail(), EMAIL_SUBJECT, errorMessage);
+    emailAddress = getExperimentRegistratorsEmail(transaction, experimentSpace, projectCode, experimentCode)
+    if emailAddress is not None:
+        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
 
     # TODO: add mail report to lab contact person / lab instance admins
 
     raise UserFailureException(errorMessage);
 
 
+def reportSampleFolderNameAnomaly(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
+    emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
+    if emailAddress is not None:
+        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
+
+    # TODO: add mail report to lab contact person / lab instance admins
+
+    raise UserFailureException(errorMessage);
+
+
+def reportExperimentFolderNameAnomaly(transaction, errorMessage, sampleSpace, projectCode, experimentCode):
+    emailAddress = getExperimentRegistratorsEmail(transaction, sampleSpace, projectCode, experimentCode)
+    if emailAddress is not None:
+        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
+
+    # TODO: add mail report to lab contact person / lab instance admins
+
+    raise UserFailureException(errorMessage);
+
+
+def hasFolderIllegalCharacters(incoming):
+    if hasIllegalCharacters(incoming.getName()):
+        return True;
+
+    files = incoming.listFiles()
+    if files is not None:
+        for f in files:
+            if hasFolderIllegalCharacters(f):
+                return True;
+
+    return False;
+
+
+def hasIllegalCharacters(name):
+    return bool(re.search(r"['~$%]", name));
+
+
 def sendMail(tr, emailAddress, subject, body):
     tr.getGlobalState().getMailClient().sendEmailMessage(subject, body, None, None, EMailAddress(emailAddress));
+
+
+def getSampleRegistratorsEmail(transaction, spaceCode, projectCode, sampleCode):
+    v3 = ServiceProvider.getV3ApplicationService();
+    sampleIdentifier = SampleIdentifier(spaceCode, projectCode, None, sampleCode);
+    fetchOptions = SampleFetchOptions();
+    fetchOptions.withRegistrator();
+    foundSample = v3.getSamples(transaction.getOpenBisServiceSessionToken(), List.of(sampleIdentifier), fetchOptions)\
+        .get(sampleIdentifier)
+    return foundSample.getRegistrator().getEmail() if foundSample is not None else None
+
+
+def getExperimentRegistratorsEmail(transaction, spaceCode, projectCode, experimentCode):
+    v3 = ServiceProvider.getV3ApplicationService();
+    experimentIdentifier = ExperimentIdentifier(spaceCode, projectCode, experimentCode);
+    fetchOptions = ExperimentFetchOptions();
+    fetchOptions.withRegistrator();
+    foundExperiment = v3.getExperiments(transaction.getOpenBisServiceSessionToken(), List.of(experimentIdentifier),
+                                        fetchOptions).get(experimentIdentifier)
+    return foundExperiment.getRegistrator().getEmail() if foundExperiment is not None else None
