@@ -1,3 +1,7 @@
+## Changes with pybis-1.34.6
+
+- new option 'permanently' in the delete method in openbis_object.py 
+
 ## Changes with pybis-1.34.2
 
 - fix syslog error

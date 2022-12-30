@@ -139,18 +139,23 @@ class OpenBisObject:
     def is_marked_to_be_deleted(self):
         return self.__dict__.get("mark_to_be_deleted", False)
 
-    def delete(self, reason):
+    def delete(self, reason, permanently=False):
         """Delete this openbis entity.
         A reason is mandatory to delete any entity.
         """
         if not self.data:
             return
 
-        self.openbis.delete_openbis_entity(
+        deletion_id = self.openbis.delete_openbis_entity(
             entity=self._entity, objectId=self.data["permId"], reason=reason
         )
         if VERBOSE:
             print(f"{self._entity} {self.permId} successfully deleted.")
+
+        if permanently:
+            self.openbis.confirm_deletions([deletion_id])
+            if VERBOSE:
+                print(f"{self._entity} {self.permId} successfully deleted permanently.")
 
     def _get_single_item_method(self):
         single_item_method = None
