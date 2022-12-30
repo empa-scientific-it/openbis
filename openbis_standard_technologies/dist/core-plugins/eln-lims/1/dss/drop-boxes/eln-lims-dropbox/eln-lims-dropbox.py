@@ -19,6 +19,7 @@ ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE = "Directory or its content conta
 FAILED_TO_PARSE_ERROR_MESSAGE = "Failed to parse folder name";
 FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE = "Failed to parse sample";
 FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
+FOLDER_CONTAINS_NON_DELETABLE_FILES_ERROR_MESSAGE = "Folder contains non-deletable files";
 SAMPLE_MISSING_ERROR_MESSAGE = "Sample not found";
 EXPERIMENT_MISSING_ERROR_MESSAGE = "Experiment not found";
 NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice, it should just be in either folder name or metadata.json"
@@ -56,15 +57,7 @@ def process(transaction):
                 projectCode = datasetInfo[2];
                 sampleCode = datasetInfo[3];
 
-                if hasFolderIllegalFiles(incoming):
-                    reportSampleFolderAnomaly(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
-                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                              sampleSpace, projectCode, sampleCode);
-                if hasFolderIllegalCharacters(incoming):
-                    reportSampleFolderAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                              sampleSpace, projectCode, sampleCode);
-
+                emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
                 sample = transaction.getSample("/" + sampleSpace + "/" + projectCode + "/" + sampleCode);
                 if sample is None:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
@@ -73,23 +66,14 @@ def process(transaction):
                 if len(datasetInfo) >= 6:
                     name = datasetInfo[5];
                 if len(datasetInfo) > 6:
-                    reportSampleError(transaction, 
-                                      INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                      sampleSpace, projectCode, sampleCode)
+                    reportIssue(transaction,
+                                INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                emailAddress)
             elif len(datasetInfo) >= 3 and not projectSamplesEnabled:
                 sampleSpace = datasetInfo[1];
                 sampleCode = datasetInfo[2];
 
-                if hasFolderIllegalFiles(incoming):
-                    reportSampleFolderAnomaly(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
-                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                              sampleSpace, None, sampleCode);
-
-                if hasFolderIllegalCharacters(incoming):
-                    reportSampleFolderAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                              sampleSpace, None, sampleCode);
-
+                emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, None, sampleCode)
                 sample = transaction.getSample("/" + sampleSpace + "/" + sampleCode);
                 if sample is None:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
@@ -98,26 +82,29 @@ def process(transaction):
                 if len(datasetInfo) >= 5:
                     name = datasetInfo[4];
                 if len(datasetInfo) > 5:
-                    reportSampleError(transaction,
-                                      INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                      sampleSpace, None, sampleCode)
+                    reportIssue(transaction,
+                                INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                emailAddress)
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
+
+            if hasFolderIllegalFiles(incoming):
+                reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
+            if hasFolderIllegalCharacters(incoming):
+                reportIssue(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
+            if hasFolderReadOnlyFiles(incoming):
+                reportIssue(transaction, FOLDER_CONTAINS_NON_DELETABLE_FILES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
         if entityKind == "E":
             if len(datasetInfo) >= 4:
                 experimentSpace = datasetInfo[1];
                 projectCode = datasetInfo[2];
                 experimentCode = datasetInfo[3];
 
-                if hasFolderIllegalFiles(incoming):
-                    reportExperimentFolderAnomaly(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
-                                                  + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
-                                                  experimentSpace, projectCode, experimentCode);
-                if hasFolderIllegalCharacters(incoming):
-                    reportExperimentFolderAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                                  + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
-                                                  experimentSpace, projectCode, experimentCode);
-
+                emailAddress = getExperimentRegistratorsEmail(transaction, experimentSpace, projectCode,
+                                                              experimentCode);
                 experiment = transaction.getExperiment("/" + experimentSpace + "/" + projectCode + "/" + experimentCode);
                 if experiment is None:
                     raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + EXPERIMENT_MISSING_ERROR_MESSAGE);
@@ -126,11 +113,21 @@ def process(transaction):
                 if len(datasetInfo) >= 6:
                     name = datasetInfo[5];
                 if len(datasetInfo) > 6:
-                    reportExperimentError(transaction,
-                                          INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
-                                          experimentSpace, projectCode, experimentCode);
+                    reportIssue(transaction,
+                                INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
+                                emailAddress);
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
+
+            if hasFolderIllegalFiles(incoming):
+                reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
+            if hasFolderIllegalCharacters(incoming):
+                reportIssue(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
+            if hasFolderReadOnlyFiles(incoming):
+                reportIssue(transaction, FOLDER_CONTAINS_NON_DELETABLE_FILES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
 
         # Create dataset
         dataSet = None;
@@ -190,38 +187,7 @@ def process(transaction):
             transaction.moveFile(datasetItem.getAbsolutePath(), dataSet);
 
 
-def reportSampleError(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
-    emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
-    if emailAddress is not None:
-        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
-
-    # TODO: add mail report to lab contact person / lab instance admins
-
-    raise UserFailureException(errorMessage);
-
-
-def reportExperimentError(transaction, errorMessage, experimentSpace, projectCode, experimentCode):
-    emailAddress = getExperimentRegistratorsEmail(transaction, experimentSpace, projectCode, experimentCode)
-    if emailAddress is not None:
-        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
-
-    # TODO: add mail report to lab contact person / lab instance admins
-
-    raise UserFailureException(errorMessage);
-
-
-def reportSampleFolderAnomaly(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
-    emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
-    if emailAddress is not None:
-        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
-
-    # TODO: add mail report to lab contact person / lab instance admins
-
-    raise UserFailureException(errorMessage);
-
-
-def reportExperimentFolderAnomaly(transaction, errorMessage, sampleSpace, projectCode, experimentCode):
-    emailAddress = getExperimentRegistratorsEmail(transaction, sampleSpace, projectCode, experimentCode)
+def reportIssue(transaction, errorMessage, emailAddress):
     if emailAddress is not None:
         sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
 
@@ -231,7 +197,7 @@ def reportExperimentFolderAnomaly(transaction, errorMessage, sampleSpace, projec
 
 
 def hasFolderIllegalCharacters(incoming):
-    if isFileIllegal(incoming.getName()):
+    if bool(re.search(r"['~$%]", incoming.getName())):
         return True;
 
     files = incoming.listFiles()
@@ -241,31 +207,37 @@ def hasFolderIllegalCharacters(incoming):
                 return True;
 
     return False;
-
-
-def hasIllegalCharacters(name):
-    return bool(re.search(r"['~$%]", name));
 
 
 def hasFolderIllegalFiles(incoming):
-    if isFileIllegal(incoming.getName()):
+    if incoming.getName() in ILLEGAL_FILES:
         return True;
 
     files = incoming.listFiles()
     if files is not None:
         for f in files:
-            if hasFolderIllegalCharacters(f):
+            if hasFolderIllegalFiles(f):
                 return True;
 
     return False;
 
 
-def isFileIllegal(name):
-    return name in ILLEGAL_FILES;
+def hasFolderReadOnlyFiles(incoming):
+    if not incoming.renameTo(incoming):
+        return True;
+
+    files = incoming.listFiles()
+    if files is not None:
+        for f in files:
+            if hasFolderReadOnlyFiles(f):
+                return True;
+
+    return False;
 
 
-def sendMail(tr, emailAddress, subject, body):
-    tr.getGlobalState().getMailClient().sendEmailMessage(subject, body, None, None, EMailAddress(emailAddress));
+def sendMail(transaction, emailAddress, subject, body):
+    transaction.getGlobalState().getMailClient().sendEmailMessage(subject, body, None, None,
+                                                                  EMailAddress(emailAddress));
 
 
 def getSampleRegistratorsEmail(transaction, spaceCode, projectCode, sampleCode):
