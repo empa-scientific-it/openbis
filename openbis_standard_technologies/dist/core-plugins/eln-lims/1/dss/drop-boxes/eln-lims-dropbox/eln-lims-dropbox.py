@@ -15,7 +15,7 @@ from org.json import JSONObject
 from org.apache.commons.io import FileUtils
 
 INVALID_FORMAT_ERROR_MESSAGE = "Invalid format for the folder name, should follow the pattern <ENTITY_KIND>+<SPACE_CODE>+<PROJECT_CODE>+[<EXPERIMENT_CODE>|<SAMPLE_CODE>]+<OPTIONAL_DATASET_TYPE>+<OPTIONAL_NAME>";
-ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE = "Direcrory or its content contain illegal characters: \"', ~, $, %\"";
+ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE = "Directory or its content contain illegal characters: \"', ~, $, %\"";
 FAILED_TO_PARSE_ERROR_MESSAGE = "Failed to parse folder name";
 FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE = "Failed to parse sample";
 FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE = "Failed to parse experiment";
@@ -23,6 +23,8 @@ SAMPLE_MISSING_ERROR_MESSAGE = "Sample not found";
 EXPERIMENT_MISSING_ERROR_MESSAGE = "Experiment not found";
 NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice, it should just be in either folder name or metadata.json"
 EMAIL_SUBJECT = "ELN LIMS Dropbox Error";
+ILLEGAL_FILES = ["desktop.ini", "IconCache.db", "thumbs.db"];
+ILLEGAL_FILES_ERROR_MESSAGE = "Directory or contains illegal files: " + str(ILLEGAL_FILES);
 
 
 def process(transaction):
@@ -54,10 +56,14 @@ def process(transaction):
                 projectCode = datasetInfo[2];
                 sampleCode = datasetInfo[3];
 
+                if hasFolderIllegalFiles(incoming):
+                    reportSampleFolderAnomaly(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                              sampleSpace, projectCode, sampleCode);
                 if hasFolderIllegalCharacters(incoming):
-                    reportSampleFolderNameAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                                  + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                                  sampleSpace, projectCode, sampleCode);
+                    reportSampleFolderAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                              sampleSpace, projectCode, sampleCode);
 
                 sample = transaction.getSample("/" + sampleSpace + "/" + projectCode + "/" + sampleCode);
                 if sample is None:
@@ -74,10 +80,15 @@ def process(transaction):
                 sampleSpace = datasetInfo[1];
                 sampleCode = datasetInfo[2];
 
+                if hasFolderIllegalFiles(incoming):
+                    reportSampleFolderAnomaly(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                              sampleSpace, None, sampleCode);
+
                 if hasFolderIllegalCharacters(incoming):
-                    reportSampleFolderNameAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
-                                                  + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
-                                                  sampleSpace, None, sampleCode);
+                    reportSampleFolderAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                                              + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE,
+                                              sampleSpace, None, sampleCode);
 
                 sample = transaction.getSample("/" + sampleSpace + "/" + sampleCode);
                 if sample is None:
@@ -98,8 +109,12 @@ def process(transaction):
                 projectCode = datasetInfo[2];
                 experimentCode = datasetInfo[3];
 
+                if hasFolderIllegalFiles(incoming):
+                    reportExperimentFolderAnomaly(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+                                                  + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
+                                                  experimentSpace, projectCode, experimentCode);
                 if hasFolderIllegalCharacters(incoming):
-                    reportExperimentFolderNameAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
+                    reportExperimentFolderAnomaly(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
                                                   + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE,
                                                   experimentSpace, projectCode, experimentCode);
 
@@ -195,7 +210,7 @@ def reportExperimentError(transaction, errorMessage, experimentSpace, projectCod
     raise UserFailureException(errorMessage);
 
 
-def reportSampleFolderNameAnomaly(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
+def reportSampleFolderAnomaly(transaction, errorMessage, sampleSpace, projectCode, sampleCode):
     emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
     if emailAddress is not None:
         sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
@@ -205,7 +220,7 @@ def reportSampleFolderNameAnomaly(transaction, errorMessage, sampleSpace, projec
     raise UserFailureException(errorMessage);
 
 
-def reportExperimentFolderNameAnomaly(transaction, errorMessage, sampleSpace, projectCode, experimentCode):
+def reportExperimentFolderAnomaly(transaction, errorMessage, sampleSpace, projectCode, experimentCode):
     emailAddress = getExperimentRegistratorsEmail(transaction, sampleSpace, projectCode, experimentCode)
     if emailAddress is not None:
         sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
@@ -216,7 +231,7 @@ def reportExperimentFolderNameAnomaly(transaction, errorMessage, sampleSpace, pr
 
 
 def hasFolderIllegalCharacters(incoming):
-    if hasIllegalCharacters(incoming.getName()):
+    if isFileIllegal(incoming.getName()):
         return True;
 
     files = incoming.listFiles()
@@ -230,6 +245,23 @@ def hasFolderIllegalCharacters(incoming):
 
 def hasIllegalCharacters(name):
     return bool(re.search(r"['~$%]", name));
+
+
+def hasFolderIllegalFiles(incoming):
+    if isFileIllegal(incoming.getName()):
+        return True;
+
+    files = incoming.listFiles()
+    if files is not None:
+        for f in files:
+            if hasFolderIllegalCharacters(f):
+                return True;
+
+    return False;
+
+
+def isFileIllegal(name):
+    return name in ILLEGAL_FILES;
 
 
 def sendMail(tr, emailAddress, subject, body):
