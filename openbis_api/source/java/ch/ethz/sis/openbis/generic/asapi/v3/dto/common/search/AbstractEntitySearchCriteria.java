@@ -111,6 +111,16 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
         return with(new BooleanPropertySearchCriteria(propertyName));
     }
 
+    public SamplePropertySearchCriteria withSampleProperty(final String propertyName)
+    {
+        return with(new SamplePropertySearchCriteria(propertyName));
+    }
+
+    public VocabularyPropertySearchCriteria withVocabularyProperty(final String propertyName)
+    {
+        return with(new VocabularyPropertySearchCriteria(propertyName));
+    }
+
     /**
      * @deprecated This method does not cast any string to the actual type of the property being queried.
      * Instead it does string comparison, which is inconsistent with the rest of the query engine.
