@@ -25,7 +25,6 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^16.14.0",
     "react-simple-code-editor": "^0.13.1",
-    "reselect": "^4.1.7",
     "stream-browserify": "^3.0.0",
     "typeface-roboto": "^1.1.13"
   },
