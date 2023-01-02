@@ -1,4 +1,5 @@
 /* eslint-disable */
+const Webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
@@ -10,15 +11,14 @@ module.exports = {
   },
 
   mode: 'production',
+  devtool: 'source-map',
 
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader'
-        }
+        use: ['babel-loader']
       },
       {
         test: /\.(css)$/,
@@ -39,6 +39,10 @@ module.exports = {
       '@src': path.resolve(__dirname, 'src/'),
       '@srcTest': path.resolve(__dirname, 'srcTest/'),
       '@srcV3': path.resolve(__dirname, 'srcV3/')
+    },
+    fallback: {
+      stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer')
     }
   },
 
@@ -47,6 +51,9 @@ module.exports = {
       inject: 'body',
       filename: './index.html',
       template: './index.html'
+    }),
+    new Webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer']
     })
   ]
 }
