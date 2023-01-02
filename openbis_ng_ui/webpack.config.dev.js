@@ -13,14 +13,7 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     port: 8124,
-    inline: true,
-    contentBase: './src/js',
     https: false,
-    watchOptions: {
-      aggregateTimeout: 300,
-      poll: 1000
-    },
-    publicPath: '/ng-ui-path/',
     proxy: {
       '/openbis': {
         target: 'http://localhost:8888',
@@ -28,6 +21,12 @@ module.exports = {
         changeOrigin: true,
         secure: false
       }
+    },
+    devMiddleware: {
+      publicPath: '/ng-ui-path/'
+    },
+    static: {
+      directory: './src/js'
     }
   },
 
@@ -61,6 +60,10 @@ module.exports = {
       '@src': path.resolve(__dirname, 'src/'),
       '@srcTest': path.resolve(__dirname, 'srcTest/'),
       '@srcV3': path.resolve(__dirname, 'srcV3/')
+    },
+    fallback: {
+      stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer')
     }
   },
 
@@ -70,10 +73,11 @@ module.exports = {
       filename: './index.html',
       template: './index.html'
     }),
-    //    new Webpack.WatchIgnorePlugin(['/home/vagrant/openbis/openbis_ng_ui/react/node_modules/', '/home/vagrant/openbis/openbis_ng_ui/react/node/'])
-    new Webpack.WatchIgnorePlugin([
-      new RegExp('/node_modules/'),
-      new RegExp('/node/')
-    ])
+    new Webpack.WatchIgnorePlugin({
+      paths: [new RegExp('/node_modules/'), new RegExp('/node/')]
+    }),
+    new Webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer']
+    })
   ]
 }
