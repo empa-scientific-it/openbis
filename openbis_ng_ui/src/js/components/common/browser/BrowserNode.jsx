@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import { Draggable, Droppable } from 'react-beautiful-dnd'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -269,22 +270,52 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderNonEmptyChildren() {
-    const { controller, node, level } = this.props
+    const { node } = this.props
 
     if (!_.isEmpty(node.children)) {
-      return node.children.map(child => {
-        return (
-          <BrowserNode
-            key={child.id}
-            controller={controller}
-            node={child}
-            level={level + 1}
-          />
-        )
-      })
+      return (
+        <Droppable droppableId={node.id} type={node.id}>
+          {provided => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {node.children.map((child, index) =>
+                this.renderNonEmptyChild(child, index)
+              )}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      )
     } else {
       return null
     }
+  }
+
+  renderNonEmptyChild(child, index) {
+    const { node, level, controller } = this.props
+
+    return (
+      <Draggable
+        key={child.id}
+        draggableId={child.id}
+        type={node.id}
+        index={index}
+      >
+        {provided => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+          >
+            <BrowserNode
+              key={child.id}
+              controller={controller}
+              node={child}
+              level={level + 1}
+            />
+          </div>
+        )}
+      </Draggable>
+    )
   }
 
   renderShowMoreChildren() {
