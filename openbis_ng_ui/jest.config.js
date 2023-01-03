@@ -35,6 +35,6 @@ module.exports = {
     '^@srcTest/(.*)$': '<rootDir>/srcTest/$1',
     '^@srcV3/(.*)$': '<rootDir>/srcV3/$1'
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/(?!auto-bind)'],
+  transformIgnorePatterns: ['<rootDir>/node_modules/(?!(auto-bind|date-fns))'],
   slowTestThreshold: 30
 }
