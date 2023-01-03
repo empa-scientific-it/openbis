@@ -1011,3 +1011,11 @@ ul.multiselect-container.dropdown-menu {
   max-height: 120px;
   overflow-y: auto;
 }
+
+.fa-smile-o {
+  color: green;
+}
+
+.fa-frown-o {
+  color: red;
+}
