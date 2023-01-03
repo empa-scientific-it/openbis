@@ -5,6 +5,7 @@ import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/BrowserNodeAutoShowSelected.jsx'
+import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -20,9 +21,6 @@ const styles = theme => ({
     marginLeft: '-12px',
     marginRight: '16px',
     display: 'flex'
-  },
-  filterButton: {
-    marginLeft: '16px'
   },
   nodes: {
     height: '100%',
@@ -124,12 +122,17 @@ class Browser extends React.PureComponent {
         loading={controller.isLoading() || controller.isTreeLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
-            <div className={classes.filterButton}>
-              <BrowserNodeAutoShowSelected
-                value={controller.isAutoShowSelectedObject()}
-                onClick={controller.changeAutoShowSelectedObject}
-              />
-            </div>
+            <BrowserNodeAutoShowSelected
+              value={controller.isAutoShowSelectedObject()}
+              onClick={controller.changeAutoShowSelectedObject}
+            />
+            <BrowserNodeCollapseAll
+              node={
+                controller.getNodeSetAsRoot() ||
+                controller.getRoot() || { canHaveChildren: true }
+              }
+              onClick={controller.collapseAllNodes}
+            />
           </div>
         }
       />
