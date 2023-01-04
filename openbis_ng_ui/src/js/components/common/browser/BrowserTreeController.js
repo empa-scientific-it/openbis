@@ -3,6 +3,7 @@ import autoBind from 'auto-bind'
 
 const INTERNAL_ROOT_ID = 'internal_root_id'
 const INTERNAL_ROOT_TYPE = 'internal_root_type'
+const INTERNAL_CUSTOM_SORTING_ID = 'internal_custom_sorting_id'
 
 export default class BrowserTreeController {
   async doLoadNodePath() {
@@ -46,7 +47,8 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: state.selectedObject,
       expandedIds: {},
-      sortingIds: {}
+      sortingIds: {},
+      customSortings: {}
     }
 
     this.lastTree = null
@@ -105,16 +107,24 @@ export default class BrowserTreeController {
       delete this.lastLoadPromise[nodeId]
     }
 
+    const sortingIds = { ...state.sortingIds }
+
+    Object.entries(state.customSortings).forEach(([nodeId, customSorting]) => {
+      if (customSorting && customSorting.baseSortingId) {
+        sortingIds[nodeId] = customSorting.baseSortingId
+      }
+    })
+
     const loadPromise = this.doLoadNodes({
       node: node,
       offset: offset,
       limit: limit,
-      sortingIds: state.sortingIds
+      sortingIds: sortingIds
     })
 
     this.lastLoadPromise[nodeId] = loadPromise
 
-    return loadPromise.then(async loadedNodes => {
+    return loadPromise.then(async loadResult => {
       if (loadPromise !== this.lastLoadPromise[nodeId]) {
         return
       }
@@ -122,7 +132,7 @@ export default class BrowserTreeController {
       state.nodes = { ...state.nodes }
 
       const accumulator = { allLoadedNodesIds: [] }
-      this._doProcessLoadedNodes(state, nodeId, loadedNodes, accumulator)
+      this._doProcessLoadResult(state, nodeId, loadResult, accumulator)
 
       const loadedNodesToExpand = Object.values(accumulator.allLoadedNodesIds)
         .map(id => state.nodes[id])
@@ -136,11 +146,11 @@ export default class BrowserTreeController {
     })
   }
 
-  _doProcessLoadedNodes(state, nodeId, loadedNodes, accumulator) {
+  _doProcessLoadResult(state, nodeId, loadResult, accumulator) {
     const loadedNodesIds = []
 
-    if (!_.isEmpty(loadedNodes) && !_.isEmpty(loadedNodes.nodes)) {
-      loadedNodes.nodes.forEach(loadedNode => {
+    if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
+      loadResult.nodes.forEach(loadedNode => {
         if (
           !loadedNode.id ||
           (nodeId !== INTERNAL_ROOT_ID &&
@@ -173,7 +183,7 @@ export default class BrowserTreeController {
         }
 
         if (!_.isEmpty(loadedNode.children)) {
-          this._doProcessLoadedNodes(
+          this._doProcessLoadResult(
             state,
             loadedNode.id,
             loadedNode.children,
@@ -188,7 +198,7 @@ export default class BrowserTreeController {
     const node = (state.nodes[nodeId] = {
       ...state.nodes[nodeId],
       loaded: true,
-      loadMore: loadedNodes ? loadedNodes.loadMore : null
+      loadMore: loadResult ? loadResult.loadMore : null
     })
 
     if (node.loadMore) {
@@ -199,6 +209,13 @@ export default class BrowserTreeController {
       }
     } else {
       node.children = loadedNodesIds
+    }
+
+    if (state.sortingIds[nodeId] === INTERNAL_CUSTOM_SORTING_ID) {
+      node.children = this._doCustomSorting(
+        node.children,
+        state.customSortings[nodeId]
+      )
     }
 
     accumulator.allLoadedNodesIds.push(...loadedNodesIds)
@@ -494,6 +511,94 @@ export default class BrowserTreeController {
     }
   }
 
+  async changeCustomSorting(nodeId, oldIndex, newIndex) {
+    const state = this.context.getState()
+    const node = state.nodes[nodeId]
+
+    if (
+      node &&
+      node.children &&
+      oldIndex < node.children.length &&
+      newIndex < node.children.length
+    ) {
+      const childId = node.children[oldIndex]
+
+      if (childId) {
+        const customSorting = state.customSortings[nodeId]
+        const sortingId = state.sortingIds[nodeId]
+
+        let newCustomSorting = null
+        if (!customSorting || sortingId !== INTERNAL_CUSTOM_SORTING_ID) {
+          newCustomSorting = {
+            baseSortingId: sortingId,
+            indexes: {
+              [childId]: newIndex
+            }
+          }
+        } else {
+          newCustomSorting = {
+            ...customSorting,
+            indexes: {
+              ...customSorting.indexes,
+              [childId]: newIndex
+            }
+          }
+        }
+
+        const newNode = { ...node, children: [...node.children] }
+        newNode.sortingId = INTERNAL_CUSTOM_SORTING_ID
+        newNode.children = this._doCustomSorting(
+          newNode.children,
+          newCustomSorting
+        )
+
+        const newState = { ...state }
+        newState.customSortings = { ...newState.customSortings }
+        newState.sortingIds = { ...newState.sortingIds }
+        newState.nodes = { ...newState.nodes }
+
+        newState.customSortings[nodeId] = newCustomSorting
+        newState.sortingIds[nodeId] = INTERNAL_CUSTOM_SORTING_ID
+        newState.nodes[nodeId] = newNode
+
+        await this.context.setState(newState)
+
+        this._saveSettings()
+      }
+    }
+  }
+
+  _doCustomSorting(nodeIds, customSorting) {
+    if (_.isEmpty(customSorting) || _.isEmpty(customSorting.indexes)) {
+      return nodeIds
+    }
+
+    const sortedIds = []
+    const alreadySorted = {}
+
+    // insert nodes with custom indexes
+    nodeIds.forEach(nodeId => {
+      const index = customSorting.indexes[nodeId]
+      if (!_.isNil(index)) {
+        sortedIds[index] = nodeId
+        alreadySorted[nodeId] = true
+      }
+    })
+
+    // fill in gaps with remaining nodes
+    let index = 0
+    nodeIds.forEach(nodeId => {
+      if (!alreadySorted[nodeId]) {
+        while (!_.isNil(sortedIds[index])) {
+          index++
+        }
+        sortedIds[index] = nodeId
+      }
+    })
+
+    return sortedIds
+  }
+
   async _setNodeLoading(nodeId, loading) {
     await this.context.setState(state => ({
       nodes: {
@@ -529,6 +634,10 @@ export default class BrowserTreeController {
       settings.sortingIds = loaded.sortingIds
     }
 
+    if (_.isObject(loaded.customSortings)) {
+      settings.customSortings = loaded.customSortings
+    }
+
     return settings
   }
 
@@ -536,11 +645,13 @@ export default class BrowserTreeController {
     const { onSettingsChange } = this.context.getProps()
 
     if (onSettingsChange) {
-      const { expandedIds, sortingIds } = this.context.getState()
+      const { expandedIds, sortingIds, customSortings } =
+        this.context.getState()
 
       const settings = {
         expandedIds,
-        sortingIds
+        sortingIds,
+        customSortings
       }
 
       onSettingsChange(settings)

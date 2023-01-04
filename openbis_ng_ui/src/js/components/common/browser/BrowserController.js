@@ -253,6 +253,14 @@ export default class BrowserController {
     await this._getTreeController().changeSorting(nodeId, sortingId)
   }
 
+  async changeCustomSorting(nodeId, oldIndex, newIndex) {
+    await this._getTreeController().changeCustomSorting(
+      nodeId,
+      oldIndex,
+      newIndex
+    )
+  }
+
   isLoaded() {
     const { loaded } = this.context.getState()
     return loaded

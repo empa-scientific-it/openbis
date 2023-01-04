@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import { Draggable, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -63,6 +63,7 @@ class BrowserNodeClass extends React.PureComponent {
     this.handleSortingChange = this.handleSortingChange.bind(this)
     this.handleCollapseAll = this.handleCollapseAll.bind(this)
     this.handleSetAsRoot = this.handleSetAsRoot.bind(this)
+    this.handleDragEnd = this.handleDragEnd.bind(this)
     this.references = {
       node: React.createRef(),
       loadMore: React.createRef()
@@ -106,6 +107,15 @@ class BrowserNodeClass extends React.PureComponent {
   handleSetAsRoot(nodeId) {
     const { controller } = this.props
     controller.setNodeAsRoot(nodeId)
+  }
+
+  handleDragEnd(result) {
+    const { node, controller } = this.props
+    controller.changeCustomSorting(
+      node.id,
+      result.source.index,
+      result.destination.index
+    )
   }
 
   componentDidMount() {
@@ -274,16 +284,18 @@ class BrowserNodeClass extends React.PureComponent {
 
     if (!_.isEmpty(node.children)) {
       return (
-        <Droppable droppableId={node.id} type={node.id}>
-          {provided => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              {node.children.map((child, index) =>
-                this.renderNonEmptyChild(child, index)
-              )}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <DragDropContext onDragEnd={this.handleDragEnd}>
+          <Droppable droppableId={node.id} type={node.id}>
+            {provided => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {node.children.map((child, index) =>
+                  this.renderNonEmptyChild(child, index)
+                )}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )
     } else {
       return null
