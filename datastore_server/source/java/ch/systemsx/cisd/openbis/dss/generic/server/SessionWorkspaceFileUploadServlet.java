@@ -63,6 +63,8 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
     private static final String STATUS_PARAM = "status";
 
+    public static final String UPLOAD_ID_PARAM = "uploadID";
+
     private IDssServiceRpcGeneric service;
 
     @Override
@@ -94,6 +96,7 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
         resultMap.put(START_BYTE_PARAM, uploadRequest.getStartByte());
         resultMap.put(END_BYTE_PARAM, uploadRequest.getEndByte());
         resultMap.put(FILE_NAME_PARAM, uploadRequest.getFileName());
+        resultMap.put(UPLOAD_ID_PARAM, uploadRequest.getUploadId());
         resultMap.put(SIZE_PARAM, bytes);
         resultMap.put(STATUS_PARAM, "ok");
 
@@ -103,10 +106,10 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
         uploadResponse.writeJson(resultMap);
     }
 
-    private class SessionWorkspaceFileUploadRequest
+    private static class SessionWorkspaceFileUploadRequest
     {
 
-        private HttpServletRequest request;
+        private final HttpServletRequest request;
 
         public SessionWorkspaceFileUploadRequest(HttpServletRequest request)
         {
@@ -138,6 +141,11 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
         public String getFileName()
         {
             return HttpServletRequestUtils.getStringParameter(request, FILE_NAME_PARAM);
+        }
+
+        public String getUploadId()
+        {
+            return HttpServletRequestUtils.getStringParameter(request, UPLOAD_ID_PARAM);
         }
 
         public InputStream getFile() throws IOException
@@ -172,10 +180,10 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
     }
 
-    private class SessionWorkspaceFileUploadResponse
+    private static class SessionWorkspaceFileUploadResponse
     {
 
-        private HttpServletResponse response;
+        private final HttpServletResponse response;
 
         public SessionWorkspaceFileUploadResponse(HttpServletResponse response)
         {
