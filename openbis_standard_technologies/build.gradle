@@ -201,7 +201,7 @@ task untarGwt(type: Copy) {
 
 node {
 	download = true
-	version = '10.22.0'
+	version = '18.12.1'
 	workDir = file("${projectDir}/node/nodejs")
 	nodeModulesDir = file("${projectDir}")
 }

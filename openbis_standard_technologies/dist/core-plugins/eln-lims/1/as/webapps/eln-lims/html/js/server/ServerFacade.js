@@ -1134,6 +1134,12 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    this.getDropboxMonitorOverview = function(callback) {
+        var _this = this;
+        var dataStoreCode = profile.getDefaultDataStoreCode();
+        this.createReportFromAggregationService(dataStoreCode, {}, callback, "dropbox-monitor-api");
+    }
+
  	this.customELNApi = function(parameters, callbackFunction, service) {
 		var _this = this;
  		if(!service) {

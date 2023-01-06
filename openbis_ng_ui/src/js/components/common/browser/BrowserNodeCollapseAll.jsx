@@ -6,10 +6,11 @@ import IconButton from '@material-ui/core/IconButton'
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import id from 'date-fns/esm/locale/id/index.js'
 
 const styles = theme => ({
   container: {
-    paddingLeft: theme.spacing(1)
+    paddingLeft: theme.spacing(2)
   },
   button: {
     padding: '4px',
@@ -27,7 +28,9 @@ class BrowserNodeCollapseAll extends React.PureComponent {
     event.preventDefault()
     event.stopPropagation()
     const { node } = this.props
-    this.props.onClick(node.id)
+    if (node.id) {
+      this.props.onClick(node.id)
+    }
   }
 
   render() {

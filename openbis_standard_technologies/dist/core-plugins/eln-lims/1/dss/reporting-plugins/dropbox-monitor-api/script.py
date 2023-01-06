@@ -45,6 +45,15 @@ def assertAuthorization(tr):
     raise UserFailureException("User isn't authorized for using the Dropbox Monitor.")
 
 
+def listAllDropboxes():
+    dropboxes = []
+    for p in ETLDaemon.getThreadParameters():
+        dropboxName = p.getThreadName()
+        if re.match(r'\w', dropboxName):
+            dropboxes.append(dropboxName)
+    return dropboxes
+
+
 def getAllLogFiles(logDirectory, subFolder):
     files = os.listdir(os.path.join(logDirectory, subFolder))
     return [file for file in files if isLogFile(file)]
