@@ -343,7 +343,7 @@ const messages_en = {
   [keys.CONVERTED]: 'Converted',
   [keys.CRASH]: 'Something went wrong :(',
   [keys.CURRENT_PAGE]: 'Current Page',
-  [keys.CUSTOM_SORTING]: 'Custom sorting',
+  [keys.CUSTOM_SORTING]: 'Custom Sorting',
   [keys.DATABASE]: 'Database',
   [keys.DATA_SET_TYPES]: 'Data Set Types',
   [keys.DATA_SET_TYPE]: 'Data Set Type',

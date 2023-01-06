@@ -107,19 +107,26 @@ export default class BrowserTreeController {
       delete this.lastLoadPromise[nodeId]
     }
 
-    const sortingIds = { ...state.sortingIds }
+    const nodeForLoad = { ...node }
+    if (node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
+      const customSorting = state.customSortings[node.id]
+      if (customSorting) {
+        nodeForLoad.sortingId = customSorting.baseSortingId
+      }
+    }
 
+    const sortingIdsForLoad = { ...state.sortingIds }
     Object.entries(state.customSortings).forEach(([nodeId, customSorting]) => {
-      if (customSorting && customSorting.baseSortingId) {
-        sortingIds[nodeId] = customSorting.baseSortingId
+      if (customSorting) {
+        sortingIdsForLoad[nodeId] = customSorting.baseSortingId
       }
     })
 
     const loadPromise = this.doLoadNodes({
-      node: node,
+      node: nodeForLoad,
       offset: offset,
       limit: limit,
-      sortingIds: sortingIds
+      sortingIds: sortingIdsForLoad
     })
 
     this.lastLoadPromise[nodeId] = loadPromise
