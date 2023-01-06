@@ -536,12 +536,40 @@ export default class BrowserTreeController {
             }
           }
         } else {
+          const newIndexes = { ...customSorting.indexes }
+
+          /*
+          Example:
+          {a,b,c,d,e} {}
+          move a 0->1
+          {b,a,c,d,e} {a:1}
+          move c 2->1 (move back)
+          {b,c,a,d,e} {c:1, a:2}
+          move e 4->2 (move back) - increase custom indexes of elements in range [newIndex, oldIndex)
+          {b,c,e,a,d} {c:1, e:2, a:3}
+          move c 1->2 (move forward) - decrease custom indexes of elements in range (oldIndex, newIndex]
+          {b,e,c,a,d} {e:1, c:2, a:3}
+          */
+
+          if (newIndex > oldIndex) {
+            Object.entries(newIndexes).forEach(([entryId, entryIndex]) => {
+              if (entryIndex > oldIndex && entryIndex <= newIndex) {
+                newIndexes[entryId] = entryIndex - 1
+              }
+            })
+          } else if (newIndex < oldIndex) {
+            Object.entries(newIndexes).forEach(([entryId, entryIndex]) => {
+              if (entryIndex >= newIndex && entryIndex < oldIndex) {
+                newIndexes[entryId] = entryIndex + 1
+              }
+            })
+          }
+
+          newIndexes[childId] = newIndex
+
           newCustomSorting = {
             ...customSorting,
-            indexes: {
-              ...customSorting.indexes,
-              [childId]: newIndex
-            }
+            indexes: newIndexes
           }
         }
 
