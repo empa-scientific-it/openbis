@@ -782,7 +782,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     }
 
     @DataProvider
-    protected Object[][] withControlledVocabularyPropertyExamples()
+    protected Object[][] withControlledVocabularyAsStringPropertyExamples()
     {
         return new Object[][] {
                 { "WINTER", "== WINTER", true },
@@ -808,8 +808,9 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         };
     }
 
-    @Test(dataProvider = "withControlledVocabularyPropertyExamples")
-    public void testWithControlledVocabularyProperty(final String value, final String queryString, final boolean found)
+    @Test(dataProvider = "withControlledVocabularyAsStringPropertyExamples")
+    public void testWithControlledVocabularyAsStringProperty(final String value, final String queryString,
+            final boolean found)
     {
         // Given
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -845,6 +846,21 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         {
             assertEquals(entities.get(0).getPermId().toString(), entityPermId.getPermId());
         }
+    }
+
+    @DataProvider
+    protected Object[][] withControlledVocabularyPropertyExamples()
+    {
+        return new Object[][] {
+                { "WINTER", "== WINTER", true },
+                { "WINTER", "== SUMMER", false },
+        };
+    }
+
+    @Test(dataProvider = "withControlledVocabularyAsStringPropertyExamples")
+    public void testWithControlledVocabularyProperty(final String value, final String queryString, final boolean found)
+    {
+
     }
 
     @Test
