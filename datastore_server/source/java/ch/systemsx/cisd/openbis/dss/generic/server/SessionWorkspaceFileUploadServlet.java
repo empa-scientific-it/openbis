@@ -63,7 +63,10 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
     private static final String STATUS_PARAM = "status";
 
-    public static final String UPLOAD_ID_PARAM = "uploadID";
+    /** If present, the file being uploaded is just an empty folder, not a file upload. */
+    private static final String IS_EMPTY_FOLDER = "emptyFolder";
+
+    private static final String UPLOAD_ID_PARAM = "uploadID";
 
     private IDssServiceRpcGeneric service;
 
