@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 
-const INTERNAL_ROOT_ID = 'internal_root_id'
-const INTERNAL_ROOT_TYPE = 'internal_root_type'
-const INTERNAL_CUSTOM_SORTING_ID = 'internal_custom_sorting_id'
-
 export default class BrowserTreeController {
+  static INTERNAL_ROOT_ID = 'internal_root_id'
+  static INTERNAL_ROOT_TYPE = 'internal_root_type'
+  static INTERNAL_CUSTOM_SORTING_ID = 'internal_custom_sorting_id'
+
   async doLoadNodePath() {
     throw 'Method not implemented'
   }
@@ -69,16 +69,16 @@ export default class BrowserTreeController {
       await this._doLoadNode(state, rootNode.id, 0)
       state.rootId = rootNode.id
     } else {
-      state.nodes[INTERNAL_ROOT_ID] = {
-        id: INTERNAL_ROOT_ID,
+      state.nodes[BrowserTreeController.INTERNAL_ROOT_ID] = {
+        id: BrowserTreeController.INTERNAL_ROOT_ID,
         object: {
-          type: INTERNAL_ROOT_TYPE
+          type: BrowserTreeController.INTERNAL_ROOT_TYPE
         },
         internalRoot: true
       }
-      await this._doLoadNode(state, INTERNAL_ROOT_ID, 0)
-      const internalRoot = state.nodes[INTERNAL_ROOT_ID]
-      delete state.nodes[INTERNAL_ROOT_ID]
+      await this._doLoadNode(state, BrowserTreeController.INTERNAL_ROOT_ID, 0)
+      const internalRoot = state.nodes[BrowserTreeController.INTERNAL_ROOT_ID]
+      delete state.nodes[BrowserTreeController.INTERNAL_ROOT_ID]
 
       if (
         internalRoot.children.length === 0 ||
@@ -153,7 +153,7 @@ export default class BrowserTreeController {
       loadResult.nodes.forEach(loadedNode => {
         if (
           !loadedNode.id ||
-          (nodeId !== INTERNAL_ROOT_ID &&
+          (nodeId !== BrowserTreeController.INTERNAL_ROOT_ID &&
             (!loadedNode.id.startsWith(nodeId) || loadedNode.id === nodeId))
         ) {
           alert(
@@ -179,6 +179,7 @@ export default class BrowserTreeController {
               ? state.expandedIds[loadedNode.id]
               : !!loadedNode.expanded,
           sortingId: state.sortingIds[loadedNode.id] || loadedNode.sortingId,
+          customSorting: state.customSortings[loadedNode.id],
           children: []
         }
 
@@ -211,7 +212,10 @@ export default class BrowserTreeController {
       node.children = loadedNodesIds
     }
 
-    if (state.sortingIds[nodeId] === INTERNAL_CUSTOM_SORTING_ID) {
+    if (
+      state.sortingIds[nodeId] ===
+      BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID
+    ) {
       node.children = this._doCustomSorting(
         node.children,
         state.customSortings[nodeId]
@@ -528,7 +532,10 @@ export default class BrowserTreeController {
         const sortingId = state.sortingIds[nodeId]
 
         let newCustomSorting = null
-        if (!customSorting || sortingId !== INTERNAL_CUSTOM_SORTING_ID) {
+        if (
+          !customSorting ||
+          sortingId !== BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID
+        ) {
           newCustomSorting = {
             baseSortingId: sortingId,
             indexes: {
@@ -574,7 +581,8 @@ export default class BrowserTreeController {
         }
 
         const newNode = { ...node, children: [...node.children] }
-        newNode.sortingId = INTERNAL_CUSTOM_SORTING_ID
+        newNode.customSorting = newCustomSorting
+        newNode.sortingId = BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID
         newNode.children = this._doCustomSorting(
           newNode.children,
           newCustomSorting
@@ -586,7 +594,8 @@ export default class BrowserTreeController {
         newState.nodes = { ...newState.nodes }
 
         newState.customSortings[nodeId] = newCustomSorting
-        newState.sortingIds[nodeId] = INTERNAL_CUSTOM_SORTING_ID
+        newState.sortingIds[nodeId] =
+          BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID
         newState.nodes[nodeId] = newNode
 
         await this.context.setState(newState)

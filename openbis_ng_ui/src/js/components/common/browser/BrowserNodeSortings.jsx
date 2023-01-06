@@ -9,6 +9,7 @@ import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Popover from '@material-ui/core/Popover'
 import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
+import BrowserTreeController from '@src/js/components/common/browser/BrowserTreeController.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -102,13 +103,24 @@ class BrowserNodeSortings extends React.PureComponent {
   renderSortings() {
     const { node } = this.props
 
-    const options = Object.entries(node.sortings)
+    let options = Object.entries(node.sortings)
       .map(([id, sorting]) => ({
         value: id,
         label: sorting.label,
         index: sorting.index
       }))
       .sort(option => option.index)
+
+    if (node.customSorting) {
+      options = [
+        {
+          id: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
+          value: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
+          label: messages.get(messages.CUSTOM_SORTING)
+        },
+        ...options
+      ]
+    }
 
     return (
       <RadioGroupField
