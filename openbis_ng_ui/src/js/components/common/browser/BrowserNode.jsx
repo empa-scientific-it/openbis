@@ -297,6 +297,7 @@ class BrowserNodeClass extends React.PureComponent {
       <Draggable
         key={child.id}
         draggableId={child.id}
+        isDragDisabled={!child.draggable}
         type={node.id}
         index={index}
       >

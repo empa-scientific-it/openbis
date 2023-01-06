@@ -52,10 +52,28 @@ export default class BrowserController {
       }
       async doLoadNodes(params) {
         const { filter } = controller.context.getState()
-        return await controller._doLoadNodes({
+
+        const loadResult = await controller._doLoadNodes({
           ...params,
           filter: util.trim(filter)
         })
+
+        function prepareNodes(loadResult) {
+          if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
+            loadResult.nodes.forEach(node => {
+              node.sortings = {}
+              node.sortingId = null
+              node.draggable = false
+              if (!_.isEmpty(node.children)) {
+                prepareNodes(node.children)
+              }
+            })
+          }
+        }
+
+        prepareNodes(loadResult)
+
+        return loadResult
       }
     }
 

@@ -171,10 +171,12 @@ export default class BrowserTreeController {
           )
         }
 
+        const draggable = loadedNode.draggable !== false
         const selectable = loadedNode.selectable !== false
 
         state.nodes[loadedNode.id] = {
           ...loadedNode,
+          draggable: draggable,
           selectable: selectable,
           selected:
             selectable &&
