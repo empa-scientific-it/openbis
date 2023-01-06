@@ -1,5 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import { DragDropContext } from 'react-beautiful-dnd'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
@@ -40,10 +41,20 @@ class Browser extends React.PureComponent {
     this.state = {}
     this.controller = props.controller
     this.controller.init(new ComponentContext(this))
+    this.handleDragEnd = this.handleDragEnd.bind(this)
   }
 
   async componentDidMount() {
     await this.controller.load()
+  }
+
+  handleDragEnd(result) {
+    const { node, controller } = this.props
+    controller.changeCustomSorting(
+      result.destination.droppableId,
+      result.source.index,
+      result.destination.index
+    )
   }
 
   render() {
@@ -77,34 +88,40 @@ class Browser extends React.PureComponent {
             controller.setNodeAsRoot(null)
           }}
         />
-        <div className={classes.nodes}>
-          {fullTree && (
-            <div
-              className={
-                !controller.isLoading() && controller.isFullTreeVisible()
-                  ? classes.visible
-                  : classes.hidden
-              }
-            >
-              <BrowserNode controller={controller} node={fullTree} level={-1} />
-            </div>
-          )}
-          {filteredTree && (
-            <div
-              className={
-                !controller.isLoading() && controller.isFilteredTreeVisible()
-                  ? classes.visible
-                  : classes.hidden
-              }
-            >
-              <BrowserNode
-                controller={controller}
-                node={filteredTree}
-                level={-1}
-              />
-            </div>
-          )}
-        </div>
+        <DragDropContext onDragEnd={this.handleDragEnd}>
+          <div className={classes.nodes}>
+            {fullTree && (
+              <div
+                className={
+                  !controller.isLoading() && controller.isFullTreeVisible()
+                    ? classes.visible
+                    : classes.hidden
+                }
+              >
+                <BrowserNode
+                  controller={controller}
+                  node={fullTree}
+                  level={-1}
+                />
+              </div>
+            )}
+            {filteredTree && (
+              <div
+                className={
+                  !controller.isLoading() && controller.isFilteredTreeVisible()
+                    ? classes.visible
+                    : classes.hidden
+                }
+              >
+                <BrowserNode
+                  controller={controller}
+                  node={filteredTree}
+                  level={-1}
+                />
+              </div>
+            )}
+          </div>
+        </DragDropContext>
         {renderFooter && <div className={classes.footer}>{renderFooter()}</div>}
       </div>
     )
