@@ -20,6 +20,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 	this.repaint = function(views, loadFromTemplate) {
 		var $container = views.content;
+		mainController.profile.beforeViewPaint(ViewType.SAMPLE_FORM, this._sampleFormModel, $container);
 		var _this = this;
         var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
 
@@ -652,6 +653,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 
 		this._sampleFormModel.isFormLoaded = true;
+		mainController.profile.afterViewPaint(ViewType.SAMPLE_FORM, this._sampleFormModel, $container);
 	}
 
 	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i, loadFromTemplate) {
