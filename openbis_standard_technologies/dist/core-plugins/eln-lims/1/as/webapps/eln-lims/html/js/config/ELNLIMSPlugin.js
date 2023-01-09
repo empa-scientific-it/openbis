@@ -7,7 +7,8 @@ var ViewType = {
     PROJECT_FORM : 1,
     EXPERIMENT_FORM : 2,
     SAMPLE_FORM : 3,
-    DATASET_FORM : 4
+    DATASET_FORM : 4,
+    SAMPLE_TABLE : 5
 }
 
 $.extend(ELNLIMSPlugin.prototype, {
