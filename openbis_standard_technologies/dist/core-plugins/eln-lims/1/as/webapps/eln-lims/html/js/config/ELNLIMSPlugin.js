@@ -3,8 +3,11 @@ function ELNLIMSPlugin() {
 }
 
 var ViewType = {
-    SAMPLE_FORM : 0,
-    DATASET_FORM : 0
+    SPACE_FORM : 0,
+    PROJECT_FORM : 1,
+    EXPERIMENT_FORM : 2,
+    SAMPLE_FORM : 3,
+    DATASET_FORM : 4
 }
 
 $.extend(ELNLIMSPlugin.prototype, {

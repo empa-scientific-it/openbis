@@ -21,7 +21,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 	this.repaint = function(views) {
 		var _this = this;
 		var $container = views.content;
-		
+        mainController.profile.beforeViewPaint(ViewType.SPACE_FORM, this._spaceFormModel, $container);
 		var $form = $("<div>");
 		var $formColumn = $("<div>");
 			
@@ -141,6 +141,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		$container.append($form);
+        mainController.profile.afterViewPaint(ViewType.SPACE_FORM, this._spaceFormModel, $container);
 	}
 	
     this._createIdentificationInfoSection = function(hideShowOptionsModel) {
