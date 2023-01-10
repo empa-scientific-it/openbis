@@ -406,53 +406,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @Transient
-    /* Note: modifications of the returned collection will result in an exception. */
-    public List<SamplePE> getSamples()
-    {
-        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
-    }
-
-    private static List<SamplePE> getExperimentSamples(long experimentTechId) {
-        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
-        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
-        List<Long> techIdsAsLongs = new ArrayList<>();
-        for (TechId id : techIds) {
-            Long idId = id.getId();
-            techIdsAsLongs.add(idId);
-        }
-        return sampleDAO.listByIDs(techIdsAsLongs);
-    }
-
-    private List<SamplePE> getExperimentSamples()
-    {
-        return getExperimentSamples(id);
-    }
-
-    public void setSamples(List<SamplePE> samples)
-    {
-        List<SamplePE> currentSamples = getExperimentSamples();
-        for (SamplePE samplePE:currentSamples) {
-            samplePE.setExperimentInternal(null);
-        }
-        for (SamplePE sample : samples)
-        {
-            addSample(sample);
-        }
-    }
-
-    public void removeSample(SamplePE sample)
-    {
-        sample.setExperimentInternal(null);
-    }
-
-    public void addSample(SamplePE sample)
-    {
-        sample.setExperimentInternal(this);
-        sample.setProject(project);
-    }
-
-    @Transient
     public List<DataPE> getDataSets()
     {
         return new UnmodifiableListDecorator<DataPE>(getExperimentDataSets());
@@ -700,4 +653,58 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.metaprojectAssignments = metaprojectAssignments;
     }
 
+    /*
+     * Non hibernate related methods to keep API compatibility inside the business logic
+     */
+
+    private static List<SamplePE> getExperimentSamples(long experimentTechId) {
+        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
+        List<Long> techIdsAsLongs = new ArrayList<>();
+        for (TechId id : techIds) {
+            Long idId = id.getId();
+            techIdsAsLongs.add(idId);
+        }
+        return sampleDAO.listByIDs(techIdsAsLongs);
+    }
+
+    @Transient
+    /* Note: modifications of the returned collection will result in an exception. */
+    public List<SamplePE> getSamples()
+    {
+        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
+    }
+
+    @Transient
+    private List<SamplePE> getExperimentSamples()
+    {
+        return getExperimentSamples(id);
+    }
+
+    @Transient
+    public void setSamples(List<SamplePE> samples)
+    {
+        List<SamplePE> currentSamples = getExperimentSamples();
+        for (SamplePE samplePE:currentSamples) {
+            samplePE.setExperimentInternal(null);
+        }
+        for (SamplePE sample : samples)
+        {
+            addSample(sample);
+        }
+    }
+
+    @Transient
+    public void removeSample(SamplePE sample)
+    {
+        sample.setExperimentInternal(null);
+    }
+
+    @Transient
+    public void addSample(SamplePE sample)
+    {
+        sample.setExperimentInternal(this);
+        sample.setProject(project);
+    }
 }
