@@ -20,6 +20,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 
 	this.repaint = function(views) {
 		var $container = views.content;
+		mainController.profile.beforeViewPaint(ViewType.EXPERIMENT_FORM, this._experimentFormModel, $container);
 		var _this = this;
 	    var experimentTypeDefinitionsExtension = profile.experimentTypeDefinitionsExtension[_this._experimentFormModel.experiment.experimentTypeCode];
 
@@ -360,6 +361,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		$container.append($form);
 
+        mainController.profile.afterViewPaint(ViewType.EXPERIMENT_FORM, this._experimentFormModel, $container);
 		Util.unblockUI();
 	}
 

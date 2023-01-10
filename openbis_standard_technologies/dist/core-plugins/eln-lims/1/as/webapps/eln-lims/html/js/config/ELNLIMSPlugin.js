@@ -2,6 +2,15 @@ function ELNLIMSPlugin() {
 	this.init();
 }
 
+var ViewType = {
+    SPACE_FORM : 0,
+    PROJECT_FORM : 1,
+    EXPERIMENT_FORM : 2,
+    SAMPLE_FORM : 3,
+    DATASET_FORM : 4,
+    SAMPLE_TABLE : 5
+}
+
 $.extend(ELNLIMSPlugin.prototype, {
 	init: function() {
 	
@@ -51,5 +60,14 @@ $.extend(ELNLIMSPlugin.prototype, {
 	 */
 	getExtraUtilities : function() {
 	    return [];
-	}
+	},
+	/*
+	 * View events
+	 */
+	beforeViewPaint : function(viewType, model, $container) {
+
+	},
+	afterViewPaint : function(viewType, model, $container) {
+
+    }
 });
