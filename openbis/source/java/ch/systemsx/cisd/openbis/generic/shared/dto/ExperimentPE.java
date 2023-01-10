@@ -676,7 +676,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples(id));
     }
 
-    @Transient
     public void setSamples(List<SamplePE> samples)
     {
         List<SamplePE> currentSamples = getExperimentSamples(id);
@@ -700,5 +699,18 @@ public class ExperimentPE extends AttachmentHolderPE implements
     {
         sample.setExperimentInternal(this);
         sample.setProject(project);
+    }
+
+    @Transient
+    private List<SamplePE> getExperimentSamples()
+    {
+        return getExperimentSamples(id);
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentSamples(final List<SamplePE> samples)
+    {
+        setSamples(samples);
     }
 }
