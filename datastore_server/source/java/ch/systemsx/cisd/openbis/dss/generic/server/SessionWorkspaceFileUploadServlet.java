@@ -89,9 +89,13 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
         uploadRequest.validate();
 
+        final String uploadId = uploadRequest.getUploadId();
+        final String filePath = (uploadId != null)
+                ? uploadId + "/" + uploadRequest.getFileName()
+                : uploadRequest.getFileName();
         long bytes =
                 service.putFileSliceToSessionWorkspace(uploadRequest.getSessionId(),
-                        uploadRequest.getFileName(), uploadRequest.getStartByte(),
+                        filePath, uploadRequest.getStartByte(),
                         uploadRequest.getFile());
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -99,7 +103,6 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
         resultMap.put(START_BYTE_PARAM, uploadRequest.getStartByte());
         resultMap.put(END_BYTE_PARAM, uploadRequest.getEndByte());
         resultMap.put(FILE_NAME_PARAM, uploadRequest.getFileName());
-        resultMap.put(UPLOAD_ID_PARAM, uploadRequest.getUploadId());
         resultMap.put(SIZE_PARAM, bytes);
         resultMap.put(STATUS_PARAM, "ok");
 
