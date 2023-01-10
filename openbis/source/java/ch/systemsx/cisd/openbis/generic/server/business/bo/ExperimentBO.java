@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
@@ -488,7 +487,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 attachSamples(sampleCodes);
             } else
             {
-                String[] originalSampleCodes = Code.extractCodesToArray(SampleUtils.getExperimentSamples(experiment.getId()));
+                String[] originalSampleCodes = Code.extractCodesToArray(experiment.getSamples());
                 updateSamples(originalSampleCodes, sampleCodes);
             }
         }

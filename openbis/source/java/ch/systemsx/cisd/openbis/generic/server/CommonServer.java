@@ -36,7 +36,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -2618,7 +2617,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         ExperimentUpdateResult result = new ExperimentUpdateResult();
         ExperimentPE experiment = experimentBO.getExperiment();
         result.setVersion(experiment.getVersion());
-        result.setSamples(Code.extractCodes(SampleUtils.getExperimentSamples(experiment.getId())));
+        result.setSamples(Code.extractCodes(experiment.getSamples()));
         return result;
     }
 
