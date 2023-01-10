@@ -279,6 +279,10 @@ export default class BrowserController {
     )
   }
 
+  async clearCustomSorting(nodeId) {
+    await this._getTreeController().clearCustomSorting(nodeId)
+  }
+
   isLoaded() {
     const { loaded } = this.context.getState()
     return loaded

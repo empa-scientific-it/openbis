@@ -4,6 +4,7 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
 import Sort from '@material-ui/icons/Sort'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Popover from '@material-ui/core/Popover'
@@ -51,12 +52,23 @@ class BrowserNodeSortings extends React.PureComponent {
     }
   }
 
+  handleClearCustom() {
+    const { node, onClearCustom } = this.props
+    if (onClearCustom) {
+      onClearCustom(node.id)
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'BrowserNodeSortings.render')
 
     const { node, classes } = this.props
 
-    if (!node || !node.canHaveChildren || _.isEmpty(node.sortings)) {
+    if (
+      !node ||
+      !node.canHaveChildren ||
+      (_.isEmpty(node.sortings) && _.isEmpty(node.customSorting))
+    ) {
       return null
     }
 
@@ -103,20 +115,25 @@ class BrowserNodeSortings extends React.PureComponent {
   renderSortings() {
     const { node } = this.props
 
-    let options = Object.entries(node.sortings)
-      .map(([id, sorting]) => ({
-        value: id,
-        label: sorting.label,
-        index: sorting.index
-      }))
-      .sort(option => option.index)
+    let options = []
 
-    if (node.customSorting) {
+    if (!_.isEmpty(node.sortings)) {
+      const sortings = Object.entries(node.sortings)
+        .map(([id, sorting]) => ({
+          value: id,
+          label: sorting.label,
+          index: sorting.index
+        }))
+        .sort(sorting => sorting.index)
+      options = [...sortings]
+    }
+
+    if (!_.isEmpty(node.customSorting)) {
       options = [
         {
           id: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
           value: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
-          label: messages.get(messages.CUSTOM_SORTING)
+          label: this.renderCustomSorting()
         },
         ...options
       ]
@@ -129,6 +146,15 @@ class BrowserNodeSortings extends React.PureComponent {
         options={options}
         onChange={this.handleChange}
       />
+    )
+  }
+
+  renderCustomSorting() {
+    return (
+      <span>
+        {messages.get(messages.CUSTOM_SORTING)}
+        <CloseIcon fontSize='small' onClick={this.handleClearCustom} />
+      </span>
     )
   }
 }

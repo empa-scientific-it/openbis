@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import List from '@material-ui/core/List'
@@ -56,13 +57,7 @@ const styles = theme => ({
 class BrowserNodeClass extends React.PureComponent {
   constructor(props) {
     super(props)
-    this.handleClick = this.handleClick.bind(this)
-    this.handleExpand = this.handleExpand.bind(this)
-    this.handleCollapse = this.handleCollapse.bind(this)
-    this.handleLoadMore = this.handleLoadMore.bind(this)
-    this.handleSortingChange = this.handleSortingChange.bind(this)
-    this.handleCollapseAll = this.handleCollapseAll.bind(this)
-    this.handleSetAsRoot = this.handleSetAsRoot.bind(this)
+    autoBind(this)
     this.references = {
       node: React.createRef(),
       loadMore: React.createRef()
@@ -96,6 +91,11 @@ class BrowserNodeClass extends React.PureComponent {
   handleSortingChange(nodeId, sortingId) {
     const { controller } = this.props
     controller.changeSorting(nodeId, sortingId)
+  }
+
+  handleCustomSortingClear(nodeId) {
+    const { controller } = this.props
+    controller.clearCustomSorting(nodeId)
   }
 
   handleCollapseAll(nodeId) {
@@ -242,7 +242,11 @@ class BrowserNodeClass extends React.PureComponent {
     return (
       <div className={classes.options}>
         <BrowserNodeSetAsRoot node={node} onClick={this.handleSetAsRoot} />
-        <BrowserNodeSortings node={node} onChange={this.handleSortingChange} />
+        <BrowserNodeSortings
+          node={node}
+          onChange={this.handleSortingChange}
+          onClearCustom={this.handleCustomSortingClear}
+        />
         <BrowserNodeCollapseAll node={node} onClick={this.handleCollapseAll} />
       </div>
     )

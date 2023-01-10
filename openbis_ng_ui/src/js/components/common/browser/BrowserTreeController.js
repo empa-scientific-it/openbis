@@ -96,7 +96,7 @@ export default class BrowserTreeController {
     }
   }
 
-  async _doLoadNode(state, nodeId, offset, limit) {
+  async _doLoadNode(state, nodeId, offset, limit, append) {
     const node = state.nodes[nodeId]
 
     if (!node) {
@@ -139,7 +139,7 @@ export default class BrowserTreeController {
       state.nodes = { ...state.nodes }
 
       const accumulator = { allLoadedNodesIds: [] }
-      this._doProcessLoadResult(state, nodeId, loadResult, accumulator)
+      this._doProcessLoadResult(state, nodeId, loadResult, append, accumulator)
 
       const loadedNodesToExpand = Object.values(accumulator.allLoadedNodesIds)
         .map(id => state.nodes[id])
@@ -153,7 +153,7 @@ export default class BrowserTreeController {
     })
   }
 
-  _doProcessLoadResult(state, nodeId, loadResult, accumulator) {
+  _doProcessLoadResult(state, nodeId, loadResult, append, accumulator) {
     const loadedNodesIds = []
 
     if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
@@ -197,6 +197,7 @@ export default class BrowserTreeController {
             state,
             loadedNode.id,
             loadedNode.children,
+            false,
             accumulator
           )
         }
@@ -211,12 +212,8 @@ export default class BrowserTreeController {
       loadMore: loadResult ? loadResult.loadMore : null
     })
 
-    if (node.loadMore) {
-      if (node.loadMore.append) {
-        node.children = node.children.concat(loadedNodesIds)
-      } else {
-        node.children = loadedNodesIds
-      }
+    if (append) {
+      node.children = node.children.concat(loadedNodesIds)
     } else {
       node.children = loadedNodesIds
     }
@@ -245,7 +242,8 @@ export default class BrowserTreeController {
         newState,
         node.id,
         node.loadMore.offset,
-        node.loadMore.limit
+        node.loadMore.limit,
+        node.loadMore.append
       )
       this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
@@ -611,6 +609,33 @@ export default class BrowserTreeController {
 
         this._saveSettings()
       }
+    }
+  }
+
+  async clearCustomSorting(nodeId) {
+    const state = this.context.getState()
+    const node = state.nodes[nodeId]
+
+    if (node) {
+      await this._setNodeLoading(nodeId, true)
+
+      const newState = { ...state }
+      newState.customSortings = { ...newState.customSortings }
+      newState.nodes = { ...newState.nodes }
+
+      const newNode = { ...node }
+      newNode.customSorting = null
+      newNode.sortingId = null
+
+      delete newState.customSortings[nodeId]
+      delete newState.sortingIds[nodeId]
+      newState.nodes[nodeId] = newNode
+
+      await this._doLoadNode(newState, nodeId, 0)
+      await this.context.setState(newState)
+      await this._setNodeLoading(nodeId, false)
+
+      this._saveSettings()
     }
   }
 
