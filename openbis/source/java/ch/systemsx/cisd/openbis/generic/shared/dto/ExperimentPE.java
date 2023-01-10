@@ -41,6 +41,11 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -105,8 +110,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private DeletionPE deletion;
 
     private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
-
-    private List<SamplePE> samples = new ArrayList<SamplePE>();
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
 
@@ -409,23 +412,29 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
     }
 
-    @OptimisticLock(excluded = true)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    private List<SamplePE> getExperimentSamples()
-    {
-        return samples;
+    private static List<SamplePE> getExperimentSamples(long experimentTechId) {
+        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
+        List<Long> techIdsAsLongs = new ArrayList<>();
+        for (TechId id : techIds) {
+            Long idId = id.getId();
+            techIdsAsLongs.add(idId);
+        }
+        return sampleDAO.listByIDs(techIdsAsLongs);
     }
 
-    // Required by Hibernate.
-    @SuppressWarnings("unused")
-    private void setExperimentSamples(final List<SamplePE> samples)
+    private List<SamplePE> getExperimentSamples()
     {
-        this.samples = samples;
+        return getExperimentSamples(id);
     }
 
     public void setSamples(List<SamplePE> samples)
     {
-        getExperimentSamples().clear();
+        List<SamplePE> currentSamples = getExperimentSamples();
+        for (SamplePE samplePE:currentSamples) {
+            samplePE.setExperimentInternal(null);
+        }
         for (SamplePE sample : samples)
         {
             addSample(sample);
@@ -434,20 +443,13 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     public void removeSample(SamplePE sample)
     {
-        getExperimentSamples().remove(sample);
         sample.setExperimentInternal(null);
     }
 
     public void addSample(SamplePE sample)
     {
-        ExperimentPE experiment = sample.getExperiment();
-        if (experiment != null)
-        {
-            experiment.getExperimentSamples().remove(sample);
-        }
         sample.setExperimentInternal(this);
         sample.setProject(project);
-        getExperimentSamples().add(sample);
     }
 
     @Transient
