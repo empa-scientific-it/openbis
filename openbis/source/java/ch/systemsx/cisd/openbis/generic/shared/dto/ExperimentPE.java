@@ -41,6 +41,11 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -105,8 +110,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private DeletionPE deletion;
 
     private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
-
-    private List<SamplePE> samples = new ArrayList<SamplePE>();
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
 
@@ -403,54 +406,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @Transient
-    /* Note: modifications of the returned collection will result in an exception. */
-    public List<SamplePE> getSamples()
-    {
-        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
-    }
-
-    @OptimisticLock(excluded = true)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    private List<SamplePE> getExperimentSamples()
-    {
-        return samples;
-    }
-
-    // Required by Hibernate.
-    @SuppressWarnings("unused")
-    private void setExperimentSamples(final List<SamplePE> samples)
-    {
-        this.samples = samples;
-    }
-
-    public void setSamples(List<SamplePE> samples)
-    {
-        getExperimentSamples().clear();
-        for (SamplePE sample : samples)
-        {
-            addSample(sample);
-        }
-    }
-
-    public void removeSample(SamplePE sample)
-    {
-        getExperimentSamples().remove(sample);
-        sample.setExperimentInternal(null);
-    }
-
-    public void addSample(SamplePE sample)
-    {
-        ExperimentPE experiment = sample.getExperiment();
-        if (experiment != null)
-        {
-            experiment.getExperimentSamples().remove(sample);
-        }
-        sample.setExperimentInternal(this);
-        sample.setProject(project);
-        getExperimentSamples().add(sample);
-    }
-
-    @Transient
     public List<DataPE> getDataSets()
     {
         return new UnmodifiableListDecorator<DataPE>(getExperimentDataSets());
@@ -698,4 +653,64 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.metaprojectAssignments = metaprojectAssignments;
     }
 
+    /*
+     * Non hibernate related methods to keep API compatibility inside the business logic
+     */
+
+    private static List<SamplePE> getExperimentSamples(long experimentTechId) {
+        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
+        List<Long> techIdsAsLongs = new ArrayList<>();
+        for (TechId id : techIds) {
+            Long idId = id.getId();
+            techIdsAsLongs.add(idId);
+        }
+        return sampleDAO.listByIDs(techIdsAsLongs);
+    }
+
+    @Transient
+    /* Note: modifications of the returned collection will result in an exception. */
+    public List<SamplePE> getSamples()
+    {
+        return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples(id));
+    }
+
+    public void setSamples(List<SamplePE> samples)
+    {
+        List<SamplePE> currentSamples = getExperimentSamples(id);
+        for (SamplePE samplePE:currentSamples) {
+            samplePE.setExperimentInternal(null);
+        }
+        for (SamplePE sample : samples)
+        {
+            addSample(sample);
+        }
+    }
+
+    @Transient
+    public void removeSample(SamplePE sample)
+    {
+        sample.setExperimentInternal(null);
+    }
+
+    @Transient
+    public void addSample(SamplePE sample)
+    {
+        sample.setExperimentInternal(this);
+        sample.setProject(project);
+    }
+
+    @Transient
+    private List<SamplePE> getExperimentSamples()
+    {
+        return getExperimentSamples(id);
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentSamples(final List<SamplePE> samples)
+    {
+        setSamples(samples);
+    }
 }
