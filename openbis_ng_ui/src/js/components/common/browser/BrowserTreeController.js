@@ -623,12 +623,24 @@ export default class BrowserTreeController {
       newState.customSortings = { ...newState.customSortings }
       newState.nodes = { ...newState.nodes }
 
+      let newSortingId = null
+      let newSorting = null
+
+      if (!_.isEmpty(node.sortings)) {
+        Object.entries(node.sortings).forEach(([sortingId, sorting]) => {
+          if (newSorting === null || sorting.index < newSorting.index) {
+            newSortingId = sortingId
+            newSorting = sorting
+          }
+        })
+      }
+
       const newNode = { ...node }
       newNode.customSorting = null
-      newNode.sortingId = null
+      newNode.sortingId = newSortingId
 
       delete newState.customSortings[nodeId]
-      delete newState.sortingIds[nodeId]
+      newState.sortingIds[nodeId] = newSortingId
       newState.nodes[nodeId] = newNode
 
       await this._doLoadNode(newState, nodeId, 0)

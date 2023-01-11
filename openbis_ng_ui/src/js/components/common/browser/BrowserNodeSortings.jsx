@@ -21,6 +21,11 @@ const styles = theme => ({
   button: {
     padding: '4px',
     margin: '-4px'
+  },
+  clear: {
+    '& $button': {
+      marginLeft: '4px'
+    }
   }
 })
 
@@ -150,10 +155,16 @@ class BrowserNodeSortings extends React.PureComponent {
   }
 
   renderCustomSorting() {
+    const { classes } = this.props
     return (
-      <span>
-        {messages.get(messages.CUSTOM_SORTING)}
-        <CloseIcon fontSize='small' onClick={this.handleClearCustom} />
+      <span className={classes.clear}>
+        <span>{messages.get(messages.CUSTOM_SORTING)}</span>
+        <IconButton
+          onClick={this.handleClearCustom}
+          classes={{ root: classes.button }}
+        >
+          <CloseIcon fontSize='small' />
+        </IconButton>
       </span>
     )
   }
