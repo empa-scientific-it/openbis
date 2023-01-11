@@ -123,7 +123,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
           offset: offset + nodes.length,
           loadedCount: offset + nodes.length,
           totalCount: result.getTotalCount(),
-          append: offset > 0
+          append: true
         }
       }
     }
@@ -168,7 +168,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
           offset: offset + nodes.length,
           loadedCount: offset + nodes.length,
           totalCount: result.getTotalCount(),
-          append: offset > 0
+          append: true
         }
       }
     }
@@ -213,7 +213,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
           offset: offset + nodes.length,
           loadedCount: offset + nodes.length,
           totalCount: result.getTotalCount(),
-          append: offset > 0
+          append: true
         }
       }
     }
@@ -276,7 +276,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
           offset: offset + nodes.length,
           loadedCount: offset + nodes.length,
           totalCount: result.getTotalCount(),
-          append: offset > 0
+          append: true
         }
       }
     }
@@ -330,7 +330,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
           offset: offset + nodes.length,
           loadedCount: offset + nodes.length,
           totalCount: result.getTotalCount(),
-          append: offset > 0
+          append: true
         }
       }
     }
