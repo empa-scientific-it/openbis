@@ -59,6 +59,7 @@ class BrowserNodeSortings extends React.PureComponent {
 
   handleClearCustom() {
     const { node, onClearCustom } = this.props
+    this.handleClose()
     if (onClearCustom) {
       onClearCustom(node.id)
     }
@@ -135,12 +136,12 @@ class BrowserNodeSortings extends React.PureComponent {
 
     if (!_.isEmpty(node.customSorting)) {
       options = [
+        ...options,
         {
           id: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
           value: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
           label: this.renderCustomSorting()
-        },
-        ...options
+        }
       ]
     }
 
