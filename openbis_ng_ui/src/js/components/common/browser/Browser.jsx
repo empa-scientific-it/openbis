@@ -88,40 +88,42 @@ class Browser extends React.PureComponent {
             controller.setNodeAsRoot(null)
           }}
         />
-        <DragDropContext onDragEnd={this.handleDragEnd}>
-          <div className={classes.nodes}>
-            {fullTree && (
-              <div
-                className={
-                  !controller.isLoading() && controller.isFullTreeVisible()
-                    ? classes.visible
-                    : classes.hidden
-                }
-              >
+        <div className={classes.nodes}>
+          {fullTree && (
+            <div
+              className={
+                !controller.isLoading() && controller.isFullTreeVisible()
+                  ? classes.visible
+                  : classes.hidden
+              }
+            >
+              <DragDropContext onDragEnd={this.handleDragEnd}>
                 <BrowserNode
                   controller={controller}
                   node={fullTree}
                   level={-1}
                 />
-              </div>
-            )}
-            {filteredTree && (
-              <div
-                className={
-                  !controller.isLoading() && controller.isFilteredTreeVisible()
-                    ? classes.visible
-                    : classes.hidden
-                }
-              >
+              </DragDropContext>
+            </div>
+          )}
+          {filteredTree && (
+            <div
+              className={
+                !controller.isLoading() && controller.isFilteredTreeVisible()
+                  ? classes.visible
+                  : classes.hidden
+              }
+            >
+              <DragDropContext onDragEnd={this.handleDragEnd}>
                 <BrowserNode
                   controller={controller}
                   node={filteredTree}
                   level={-1}
                 />
-              </div>
-            )}
-          </div>
-        </DragDropContext>
+              </DragDropContext>
+            </div>
+          )}
+        </div>
         {renderFooter && <div className={classes.footer}>{renderFooter()}</div>}
       </div>
     )
