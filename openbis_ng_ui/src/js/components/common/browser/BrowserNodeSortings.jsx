@@ -160,12 +160,14 @@ class BrowserNodeSortings extends React.PureComponent {
     return (
       <span className={classes.clear}>
         <span>{messages.get(messages.CUSTOM_SORTING)}</span>
-        <IconButton
-          onClick={this.handleClearCustom}
-          classes={{ root: classes.button }}
-        >
-          <CloseIcon fontSize='small' />
-        </IconButton>
+        <Tooltip title={messages.get(messages.CLEAR_SORTING)}>
+          <IconButton
+            onClick={this.handleClearCustom}
+            classes={{ root: classes.button }}
+          >
+            <CloseIcon fontSize='small' />
+          </IconButton>
+        </Tooltip>
       </span>
     )
   }
