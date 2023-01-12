@@ -65,9 +65,9 @@ public class OpenBISAPI {
     {
         this.timeout = timeout;
         this.asURL = asURL;
-        asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, this.asURL, timeout);
+        asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, this.asURL + IApplicationServerApi.SERVICE_URL, timeout);
         this.dssURL = dssURL;
-        dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, this.dssURL, timeout);
+        dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, this.dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
     }
 
     public String getSessionToken()
@@ -78,6 +78,16 @@ public class OpenBISAPI {
     public void setSessionToken(final String sessionToken)
     {
         this.sessionToken = sessionToken;
+    }
+
+    public String login(String userId, String password) {
+        String sessionToken = asFacade.login(userId, password);
+        setSessionToken(sessionToken);
+        return sessionToken;
+    }
+
+    public void logout() {
+        asFacade.logout(sessionToken);
     }
 
     private List<File> contentOf(final File item)
@@ -135,8 +145,6 @@ public class OpenBISAPI {
         };
 
     }
-
-
 
     /**
      * Upload file or folder to the DSS SessionWorkspaceFileUploadServlet and return the ID to be used by createUploadedDataSet
@@ -230,7 +238,6 @@ public class OpenBISAPI {
 
     public DataSetPermId createUploadedDataSet(final UploadedDataSetCreation newDataSet)
     {
-        // TODO: add to the facade the possibility to create a dataset.
         return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
     }
 
