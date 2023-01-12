@@ -9,7 +9,7 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
         $header.append($("<h1>").append("Dropbox Monitor"));
         var refreshBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;", "id" : "refresh-btn"}).append("Refersh");
         refreshBtn.click(function() {
-            _this._dropboxMonitorController._loadOverview(views);
+            _this._dropboxMonitorController.loadOverview(views);
         });
         $header.append(refreshBtn);
 
@@ -24,7 +24,7 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
             label : 'Last Status',
             property : 'lastStatus',
             render: function(data) {
-                return _this._iconizeStatus(data.lastStatus);
+                return DropboxMonitorUtil.iconizeStatus(data.lastStatus);
             },
             sortable : true
         }, {
@@ -39,7 +39,7 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
             },
             sortable : true
         }, {
-            label : 'Last Succes',
+            label : 'Last Success',
             property : 'lastSucces',
             render: function(data) {
                 return _this._renderTime(data.lastSucces);
@@ -69,7 +69,11 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
             }
             callback(dataList);
         }
-        var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "DROPBOX_MONITOR_OVERVIEW", false, {
+        var rowClick = function(e) {
+            _this._dropboxMonitorController.showLogsModal(e.data.dropboxName);
+        }
+
+        var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "DROPBOX_MONITOR_OVERVIEW", false, {
             fileFormat: 'TSV',
             filePrefix: 'dropbox-monitor-overview'
         }, 90);
@@ -83,20 +87,6 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
         });
         $container.append($containerColumn);
         $containerColumn.append(dataGridContainer);
-    };
-
-    this._iconizeStatus = function(status) {
-        var icon;
-        if (status === "0") {
-          icon = $("<i></i>");
-          icon.addClass("fa fa-smile-o fa-lg one");
-        } else if (status === "1") {
-          icon = $("<i></i>");
-          icon.addClass("fa fa-frown-o fa-lg zero");
-        } else {
-          icon = "";
-        }
-        return icon;
     };
 
     this._renderTime = function(timeAsJsonString) {

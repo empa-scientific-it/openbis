@@ -1140,6 +1140,13 @@ function ServerFacade(openbisServer) {
         this.createReportFromAggregationService(dataStoreCode, {}, callback, "dropbox-monitor-api");
     }
 
+    this.getDropboxMonitorLogs = function(dropboxName, maxNumberOfLogs, callback) {
+        var _this = this;
+        var dataStoreCode = profile.getDefaultDataStoreCode();
+        var parameters = {"dropboxName": dropboxName, "logN": maxNumberOfLogs};
+        this.createReportFromAggregationService(dataStoreCode, parameters, callback, "dropbox-monitor-api");
+    }
+
  	this.customELNApi = function(parameters, callbackFunction, service) {
 		var _this = this;
  		if(!service) {
