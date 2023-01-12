@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
@@ -95,6 +96,9 @@ public class PutDataSetService implements IPutDataSetService
     private IDataSetValidator dataSetValidator;
 
     private DatabaseInstance homeDatabaseInstance;
+
+    private File sessionWorkspace = SessionWorkspaceUtil.getSessionWorkspace(
+            DssPropertyParametersUtil.loadServiceProperties());
 
     /**
      * The designated constructor.
@@ -286,16 +290,27 @@ public class PutDataSetService implements IPutDataSetService
         String dataSetType = newDataSet.tryDataSetType();
         ITopLevelDataSetRegistrator registrator = registratorMap.getRegistratorForType(dataSetType);
 
+        // TODO: here look in the session workspace.
         File sessionUploadDir = new File(getTemporaryIncomingRoot(dataSetType), sessionToken);
         File uploadIdDir = new File(sessionUploadDir, uploadId);
+        System.out.println("uploadIdDir = " + uploadIdDir);
+
         File multipleFilesUploadDir = new File(uploadIdDir, MULTIPLE_FILES_UPLOAD_DIR);
+        System.out.println("multipleFilesUploadDir = " + multipleFilesUploadDir);
+
+        File sessionWorkspaceUploadDir = new File(sessionWorkspace, sessionToken);
+        System.out.println("multipleFilesUploadDir = " + multipleFilesUploadDir);
 
         File[] uploadedFiles = null;
         File dataSet = null;
 
-        if (multipleFilesUploadDir.exists() && multipleFilesUploadDir.isDirectory())
+        if (multipleFilesUploadDir.isDirectory())
         {
             uploadedFiles = multipleFilesUploadDir.listFiles();
+        } else if (sessionWorkspaceUploadDir.isDirectory())
+        {
+            // TODO: use atomic move in this case.
+            uploadedFiles = sessionWorkspaceUploadDir.listFiles();
         }
 
         if (uploadedFiles == null || uploadedFiles.length == 0)
