@@ -42,9 +42,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -658,8 +656,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
      */
 
     private static List<SamplePE> getExperimentSamples(long experimentTechId) {
-        DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
-        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        ISampleDAO sampleDAO = CommonServiceProvider.getDAOFactory().getSampleDAO();
         List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
         List<Long> techIdsAsLongs = new ArrayList<>();
         for (TechId id : techIds) {
