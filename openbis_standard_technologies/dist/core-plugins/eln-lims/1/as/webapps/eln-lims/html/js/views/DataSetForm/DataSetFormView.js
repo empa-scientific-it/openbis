@@ -20,6 +20,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	
 	this.repaint = function(views) {
 		var $container = views.content;
+        mainController.profile.beforeViewPaint(ViewType.DATASET_FORM, this._dataSetFormModel, $container);
 		var _this = this;
 		var dataSetTypeDefinitionsExtension = profile.dataSetTypeDefinitionsExtension[_this._dataSetFormModel.dataSet.dataSetTypeCode];
 
@@ -377,6 +378,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.entity, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, true);
 			dataSetViewer.init();
 		}
+        mainController.profile.afterViewPaint(ViewType.DATASET_FORM, this._dataSetFormModel, $container);
 	}
 	
 	this._addArchivingButton = function(toolbarModel, toolbarConfig) {

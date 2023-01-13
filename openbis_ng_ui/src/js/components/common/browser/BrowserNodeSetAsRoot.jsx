@@ -9,7 +9,7 @@ import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
-    paddingLeft: theme.spacing(1)
+    paddingLeft: theme.spacing(2)
   },
   button: {
     padding: '4px',

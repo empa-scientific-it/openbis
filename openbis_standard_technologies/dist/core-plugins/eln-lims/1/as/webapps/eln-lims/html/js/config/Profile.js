@@ -214,6 +214,16 @@ $.extend(DefaultProfile.prototype, {
                 }
             next();
         }
+        this.beforeViewPaint = function(viewType, model, $container) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].beforeViewPaint(viewType, model, $container);
+			}
+		}
+        this.afterViewPaint = function(viewType, model, $container) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].afterViewPaint(viewType, model, $container);
+			}
+		}
 		this.getPluginUtilities = function() {
 		    var extraUtilities = [];
             for(var eIdx = 0; eIdx < this.plugins.length; eIdx++) {

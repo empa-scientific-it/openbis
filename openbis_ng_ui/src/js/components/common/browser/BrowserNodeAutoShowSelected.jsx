@@ -8,7 +8,10 @@ import LocationDisabled from '@material-ui/icons/LocationDisabled'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-const styles = () => ({
+const styles = theme => ({
+  container: {
+    paddingLeft: theme.spacing(2)
+  },
   button: {
     padding: '4px',
     margin: '-4px'
@@ -34,17 +37,19 @@ class BrowserNodeAutoShowSelected extends React.PureComponent {
 
     return (
       <Tooltip title={messages.get(messages.AUTO_SHOW_SELECTED)}>
-        <IconButton
-          size='small'
-          onClick={this.handleClick}
-          classes={{ root: classes.button }}
-        >
-          {value ? (
-            <MyLocation fontSize='small' />
-          ) : (
-            <LocationDisabled fontSize='small' />
-          )}
-        </IconButton>
+        <div className={classes.container}>
+          <IconButton
+            size='small'
+            onClick={this.handleClick}
+            classes={{ root: classes.button }}
+          >
+            {value ? (
+              <MyLocation fontSize='small' />
+            ) : (
+              <LocationDisabled fontSize='small' />
+            )}
+          </IconButton>
+        </div>
       </Tooltip>
     )
   }

@@ -9,6 +9,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -92,8 +93,8 @@ public abstract class ApplicationServerAPIExtensions {
                                                                               String applicationName,
                                                                               int personalAccessTokensMaxValidityPeriodInDays)
     {
-        final int SECONDS_PER_DAY = 24 * 60 * 60;
-        final int MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
+        final long SECONDS_PER_DAY = 24 * 60 * 60;
+        final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
 
         PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
         creation.setSessionName(applicationName);

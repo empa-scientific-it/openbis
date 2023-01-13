@@ -22,11 +22,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -143,17 +145,23 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             criteria.createAlias("projectInternal", "project");
             criteria.add(Restrictions.eq("project.space", spaceOrNull));
         }
-        if (onlyHavingSamples)
-        {
-            criteria.add(Restrictions.isNotEmpty("experimentSamples"));
-        }
         if (onlyHavingDataSets)
         {
             criteria.add(Restrictions.isNotEmpty("experimentDataSets"));
         }
 
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-        final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (onlyHavingSamples)
+        {
+            final DetachedCriteria criteria2 = DetachedCriteria.forClass(SamplePE.class);
+            criteria2.add(Restrictions.isNull("deletion"));
+            criteria2.add(Restrictions.in("experimentInternal", list));
+            criteria2.setProjection(Projections.distinct(Projections.property("experimentInternal")));
+            list = cast(getHibernateTemplate().findByCriteria(criteria2));
+        }
+
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d experiments have been found for projects '%s'%s.",

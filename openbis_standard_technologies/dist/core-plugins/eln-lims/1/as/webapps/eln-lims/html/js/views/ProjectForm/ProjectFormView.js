@@ -20,6 +20,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	
 	this.repaint = function(views) {
 		var $container = views.content;
+        mainController.profile.beforeViewPaint(ViewType.PROJECT_FORM, this._projectFormModel, $container);
 		var _this = this;
 		var projectIdentifier = IdentifierUtil.getProjectIdentifier(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code);
 		var $form = $("<div>");
@@ -185,6 +186,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 
 		$container.append($form);
+        mainController.profile.afterViewPaint(ViewType.PROJECT_FORM, this._projectFormModel, $container);
 	};
 	
 	this._createIdentificationInfoSection = function(hideShowOptionsModel) {
