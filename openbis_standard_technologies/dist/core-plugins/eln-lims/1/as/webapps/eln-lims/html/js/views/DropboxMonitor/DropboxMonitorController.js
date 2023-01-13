@@ -10,7 +10,7 @@ function DropboxMonitorController(mainController) {
     this.loadOverview = function(views) {
         var _this = this;
         _this._mainController.serverFacade.getDropboxMonitorOverview(function(result) {
-            _this._dropboxMonitorModel.dropboxes = result.result.rows;
+            _this._dropboxMonitorModel.dropboxes = result;
             _this._dropboxMonitorView.repaint(views);
         });
         
@@ -19,10 +19,5 @@ function DropboxMonitorController(mainController) {
     this.showLogsModal = function(dropboxName) {
         var _this = this;
         new DropboxLogsController(this._mainController, dropboxName).init();
-//        Util.blockUI();
-//        _this._mainController.serverFacade.getDropboxMonitorLogs(dropboxName, 10, function(result) {
-//            Util.unblockUI();
-//            callback(JSON.parse(result.result.rows[0][1].value));
-//        });
     }
 }

@@ -11,10 +11,10 @@ function DropboxLogsController(mainController, dropboxName) {
         var _this = this;
         var dropboxName = this._model.dropboxName;
         var maxNumberOfLogs = this._model.maxNumberOfLogs;
-        this._mainController.serverFacade.getDropboxMonitorLogs(dropboxName, maxNumberOfLogs, function(result) {
-            if (result.result.rows[0][1].value !== "null") {
+        this._mainController.serverFacade.getDropboxMonitorLogs(dropboxName, maxNumberOfLogs, function(rows) {
+            if (rows[0][1].value !== "null") {
                 _this._model.logFiles = [];
-                Object.entries(JSON.parse(result.result.rows[0][1].value)).forEach(function(entry) {
+                Object.entries(JSON.parse(rows[0][1].value)).forEach(function(entry) {
                     var status = entry[0];
                     var files = entry[1];
                     Object.entries(files).forEach(function(logFile) {

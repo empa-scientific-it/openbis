@@ -1135,16 +1135,42 @@ function ServerFacade(openbisServer) {
     }
 
     this.getDropboxMonitorOverview = function(callback) {
-        var _this = this;
-        var dataStoreCode = profile.getDefaultDataStoreCode();
-        this.createReportFromAggregationService(dataStoreCode, {}, callback, "dropbox-monitor-api");
+        this._dropboxApi({}, callback);
     }
 
     this.getDropboxMonitorLogs = function(dropboxName, maxNumberOfLogs, callback) {
+        var parameters = {"dropboxName": dropboxName, "logN": maxNumberOfLogs};
+        this._dropboxApi(parameters, callback);
+    }
+
+    this._dropboxApi = function(parameters, callback) {
         var _this = this;
         var dataStoreCode = profile.getDefaultDataStoreCode();
-        var parameters = {"dropboxName": dropboxName, "logN": maxNumberOfLogs};
-        this.createReportFromAggregationService(dataStoreCode, parameters, callback, "dropbox-monitor-api");
+        this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
+            if (data.error) {
+                Util.showError(data.error.message, Util.unblockUI);
+            } else if (data && data.result && data.result.columns && data.result.columns.length > 1) {
+                var rows = data.result.rows;
+                if (data.result.columns[1].title === "Error") {
+                    Util.showStacktraceAsError(rows[0][1].value);
+                } else {
+                    callback(rows);
+                }
+            } else {
+                Util.showError("Unknown Error.", Util.unblockUI);
+            }
+        }, "dropbox-monitor-api");
+    }
+
+    this.handleReportFromAggregationService = function(data, callback) {
+        if (data.error) {
+            Util.showError(data.error.message, Util.unblockUI);
+        } else if (data.result.columns[1].title === "Error") {
+            var stacktrace = data.result.rows[0][1].value;
+            Util.showStacktraceAsError(stacktrace);
+        } else {
+            callback(data);
+        }
     }
 
  	this.customELNApi = function(parameters, callbackFunction, service) {
