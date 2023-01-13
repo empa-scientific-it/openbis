@@ -201,12 +201,15 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IDelegatedActionWithResult<Boolean> wrappedAction;
 
+        private final TopLevelDataSetRegistratorGlobalState globalState;
+
         public PostRegistrationCleanUpAction(DataSetFile incoming,
-                IDelegatedActionWithResult<Boolean> wrappedAction)
+                IDelegatedActionWithResult<Boolean> wrappedAction, final TopLevelDataSetRegistratorGlobalState globalState)
         {
             super(true);
             this.incoming = incoming;
             this.wrappedAction = wrappedAction;
+            this.globalState = globalState;
         }
 
         @Override
@@ -412,7 +415,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
             // For cleanup we use the postRegistrationCleanUpAction wich clears the prestaging area.
             PostRegistrationCleanUpAction cleanupAction =
-                    new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction);
+                    new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction, getGlobalState());
             handle(dsf, null, null,
                     new NoOpDelegate(DataSetRegistrationPreStagingBehavior.USE_PRESTAGING),
                     cleanupAction);

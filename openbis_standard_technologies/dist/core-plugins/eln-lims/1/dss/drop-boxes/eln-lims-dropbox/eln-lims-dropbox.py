@@ -258,3 +258,14 @@ def getExperimentRegistratorsEmail(transaction, spaceCode, projectCode, experime
     foundExperiment = v3.getExperiments(transaction.getOpenBisServiceSessionToken(), List.of(experimentIdentifier),
                                         fetchOptions).get(experimentIdentifier)
     return foundExperiment.getRegistrator().getEmail() if foundExperiment is not None else None
+
+
+def getThreadProperties(transaction):
+    threadPropertyDict = {}
+    threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties()
+    for key in threadProperties:
+        try:
+            threadPropertyDict[key] = threadProperties.getProperty(key)
+        except:
+            pass
+    return threadPropertyDict
