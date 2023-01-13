@@ -1,6 +1,7 @@
 function DropboxLogsView(dropboxLogsController, dropboxLogsModel) {
     this._controller = dropboxLogsController;
     this._model = dropboxLogsModel;
+    this._lastSelectedLogFile = null;
 
     this.repaint = function() {
         var _this = this;
@@ -55,6 +56,7 @@ function DropboxLogsView(dropboxLogsController, dropboxLogsModel) {
     }
 
     this.createList = function($window, logFiles) {
+        var _this = this;
         var $container = $("<div>").addClass("container-fluid").css("padding", 0).appendTo($window);
         var $filesListTable = $("<table>").appendTo($("<div>").css({
             "overflow": "scroll",
@@ -72,7 +74,7 @@ function DropboxLogsView(dropboxLogsController, dropboxLogsModel) {
             "cursor": "text",
             "display": "inline-block"
         }).appendTo($container);
-        var $first = null;
+        var $toBeSelected = null;
         var $lastSelected = null;
         logFiles.forEach(function(e) {
             var $row = $("<tr>").appendTo($filesListTable);
@@ -84,6 +86,7 @@ function DropboxLogsView(dropboxLogsController, dropboxLogsModel) {
             $cell.append(" " + e.logFile);
             var $content = $("<pre>").css("height", "98%").text(e.content);
             $cell.click(function() {
+                _this._lastSelectedLogFile = e.logFile;
                 if ($lastSelected) {
                     $lastSelected.css("font-weight", "");
                 }
@@ -92,12 +95,12 @@ function DropboxLogsView(dropboxLogsController, dropboxLogsModel) {
                 $contentView.empty();
                 $contentView.append($content);
             });
-            if ($first == null) {
-                $first = $cell;
+            if (_this._lastSelectedLogFile === e.logFile || $toBeSelected == null) {
+                $toBeSelected = $cell;
             }
         });
-        if ($first) {
-            $first.click();
+        if ($toBeSelected) {
+            $toBeSelected.click();
         }
     };
 }
