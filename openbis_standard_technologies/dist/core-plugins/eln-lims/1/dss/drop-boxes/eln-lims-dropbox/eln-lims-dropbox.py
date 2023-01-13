@@ -187,12 +187,15 @@ def process(transaction):
             transaction.moveFile(datasetItem.getAbsolutePath(), dataSet);
 
 
+def getContactsEmailAddresses(transaction):
+    emailString = getThreadProperties(transaction)["mail.contact.addresses"]
+    return re.split("[,;]", emailString)
+
+
 def reportIssue(transaction, errorMessage, emailAddress):
-    if emailAddress is not None:
-        sendMail(transaction, emailAddress, EMAIL_SUBJECT, errorMessage);
-
-    # TODO: add mail report to lab contact person / lab instance admins
-
+    contacts = getContactsEmailAddresses(transaction);
+    allAddresses = [emailAddress] + contacts;
+    sendMail(transaction, map(lambda address: EMailAddress(address), allAddresses), EMAIL_SUBJECT, errorMessage);
     raise UserFailureException(errorMessage);
 
 
@@ -235,9 +238,8 @@ def hasFolderReadOnlyFiles(incoming):
     return False;
 
 
-def sendMail(transaction, emailAddress, subject, body):
-    transaction.getGlobalState().getMailClient().sendEmailMessage(subject, body, None, None,
-                                                                  EMailAddress(emailAddress));
+def sendMail(transaction, emailAddresses, subject, body):
+    transaction.getGlobalState().getMailClient().sendEmailMessage(subject, body, None, None, emailAddresses);
 
 
 def getSampleRegistratorsEmail(transaction, spaceCode, projectCode, sampleCode):
