@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+
+import javax.persistence.Transient;
 
 /**
  * Contains methods and constants which may be used by many tests.
@@ -345,7 +348,24 @@ public class CommonTestUtils
 
     public static final ExperimentPE createExperiment(final ExperimentIdentifier ei)
     {
-        final ExperimentPE exp = new ExperimentPE();
+        final ExperimentPE exp = new ExperimentPE() {
+            private List<SamplePE> samples = new ArrayList<>();
+            public void setSamples(List<SamplePE> samples) {
+                this.samples = samples;
+            }
+            public List<SamplePE> getSamples() {
+                return samples;
+            }
+            public void removeSample(SamplePE sample)
+            {
+                samples.remove(sample);
+            }
+            public void addSample(SamplePE sample)
+            {
+                samples.add(sample);
+            }
+        };
+
         final ExperimentTypePE expType = new ExperimentTypePE();
         expType.setCode("TEST-EXP-TYPE");
         exp.setId(42L);
