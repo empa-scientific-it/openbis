@@ -9,6 +9,9 @@ from DetailInfoBuilder import DetailInfoBuilder
 
 
 def process(tr, parameters, tableBuilder):
+    if parameters.get("checkAuthorization") == True:
+        checkAuthorization(tr, tableBuilder)
+        return
     assertAuthorization(tr)
     logDirectory = tr.getGlobalState().getDssRegistrationLogDir().getAbsolutePath()
     inProcessLogFiles = getAllLogFiles(logDirectory, "in-process")
@@ -34,15 +37,26 @@ def process(tr, parameters, tableBuilder):
         detailInfoBuilder.buildRow(detailInfoMap)
 
 
+def checkAuthorization(tr, tableBuilder):
+    tableBuilder.addHeader("isAuthorized")
+    row = tableBuilder.addRow()
+    row.setCell("isAuthorized", "true" if isAuthorized(tr) else "false")
+
+
 def assertAuthorization(tr):
+    if not isAuthorized(tr):
+        raise UserFailureException("User isn't authorized for using the Dropbox Monitor.")
+
+
+def isAuthorized(tr):
     authService = tr.getAuthorizationService()
     roleAssignements = authService.listRoleAssignments()
     for ra in roleAssignements:
         user = ra.getUser().getUserId()
         role = ra.getRoleSetCode()
         if user == userId and str(role).endswith("ADMIN"):
-            return
-    raise UserFailureException("User isn't authorized for using the Dropbox Monitor.")
+            return True
+    return False
 
 
 def listAllDropboxes():

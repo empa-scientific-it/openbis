@@ -291,8 +291,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             var advancedSearchLink = _this.getLinkForNode("Advanced Search", "ADVANCED_SEARCH", "showAdvancedSearchPage", null, null);
             treeModelUtils.push({ displayName: "Advanced Search", title : advancedSearchLink, entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
         }
-        var dropboxMonitorLink = _this.getLinkForNode("Dropbox Monitor", "DROPBOX_MONITOR", "showDropboxMonitorPage", null, null);
-        treeModelUtils.push({displayName: "Dropbox Monitor", title: dropboxMonitorLink, entityType: "DROPBOX_MONITOR", key: "DROPBOX_MONITOR", folder:false, lazy:false, view:"showDropboxMonitorPage", icon:"glyphicon glyphicon-info-sign"});
+
+        if (profile.dropboxMonitorUsageAuthorized) {
+            var dropboxMonitorLink = _this.getLinkForNode("Dropbox Monitor", "DROPBOX_MONITOR", "showDropboxMonitorPage", null, null);
+            treeModelUtils.push({displayName: "Dropbox Monitor", title: dropboxMonitorLink, entityType: "DROPBOX_MONITOR", key: "DROPBOX_MONITOR", folder:false, lazy:false, view:"showDropboxMonitorPage", icon:"glyphicon glyphicon-info-sign"});
+        }
 
         if(profile.mainMenu.showArchivingHelper && profile.showDatasetArchivingButton) {
             var archivingHelperLink = _this.getLinkForNode("Archiving Helper", "ARCHIVING_HELPER", "showArchivingHelperPage", null, null);
