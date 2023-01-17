@@ -809,6 +809,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return listSampleIdsByColumn("experimentInternal.id", longIds, "samples for given experiments");
     }
 
+    @Override
+    public List<TechId> listSampleIdsByProjectIds(final Collection<TechId> projects)
+    {
+        final List<Long> longIds = TechId.asLongs(projects);
+        return listSampleIdsByColumn("projectInternal.id", longIds, "samples for given projects");
+    }
+
     private List<TechId> listSampleIdsByColumn(String columnName, final List<Long> longIds, String message)
     {
         final List<Long> results =
