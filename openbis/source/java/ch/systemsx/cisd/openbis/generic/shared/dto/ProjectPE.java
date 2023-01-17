@@ -40,6 +40,9 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -93,8 +96,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     private boolean spaceFrozen;
 
     private List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
-
-    private List<SamplePE> samples = new ArrayList<>();
 
     private String code;
 
@@ -195,60 +196,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public void setSpaceFrozen(boolean spaceFrozen)
     {
         this.spaceFrozen = spaceFrozen;
-    }
-
-    @OptimisticLock(excluded = true)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectInternal")
-    private List<SamplePE> getSamplesInternal()
-    {
-        return samples;
-    }
-
-    // hibernate only
-    @SuppressWarnings("unused")
-    private void setSamplesInternal(List<SamplePE> samples)
-    {
-        if (SamplePE.projectSamplesEnabled)
-        {
-            this.samples = samples;
-        }
-    }
-
-    @Transient
-    /* Note: modifications of the returned collection will result in an exception. */
-    public List<SamplePE> getSamples()
-    {
-        return new UnmodifiableListDecorator<SamplePE>(getSamplesInternal());
-    }
-
-    public void setSamples(List<SamplePE> samples)
-    {
-        if (SamplePE.projectSamplesEnabled)
-        {
-            getSamplesInternal().clear();
-            for (SamplePE sample : samples)
-            {
-                addSample(sample);
-            }
-        }
-    }
-
-    @Private
-    void addSample(SamplePE sample)
-    {
-        removeSample(sample);
-        sample.setProjectInternal(this);
-        getSamplesInternal().add(sample);
-    }
-
-    @Private
-    void removeSample(SamplePE sample)
-    {
-        ProjectPE project = sample.getProject();
-        if (project != null)
-        {
-            project.getSamplesInternal().remove(sample);
-        }
     }
 
     @OptimisticLock(excluded = true)
@@ -514,6 +461,52 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public void setVersion(int version)
     {
         this.version = version;
+    }
+
+    /*
+     * Non hibernate related methods to keep API compatibility inside the business logic
+     */
+    private static List<SamplePE> getProjectSamples(long projectTechId) {
+        ISampleDAO sampleDAO = CommonServiceProvider.getDAOFactory().getSampleDAO();
+        List<TechId> techIds = sampleDAO.listSampleIdsByProjectIds(TechId.createList(projectTechId));
+        List<Long> techIdsAsLongs = new ArrayList<>();
+        for (TechId id : techIds) {
+            Long idId = id.getId();
+            techIdsAsLongs.add(idId);
+        }
+        return sampleDAO.listByIDs(techIdsAsLongs);
+    }
+
+    @Transient
+    /* Note: modifications of the returned collection will result in an exception. */
+    public List<SamplePE> getSamples()
+    {
+        return new UnmodifiableListDecorator<SamplePE>(getProjectSamples(id));
+    }
+
+    public void setSamples(List<SamplePE> samples)
+    {
+        if (SamplePE.projectSamplesEnabled) {
+            List<SamplePE> currentSamples = getProjectSamples(id);
+            for (SamplePE samplePE : currentSamples) {
+                removeSample(samplePE);
+            }
+            for (SamplePE sample : samples) {
+                addSample(sample);
+            }
+        }
+    }
+
+    @Transient
+    public void removeSample(SamplePE sample)
+    {
+        sample.setProjectInternal(null);
+    }
+
+    @Transient
+    public void addSample(SamplePE sample)
+    {
+        sample.setProjectInternal(this);
     }
 
 }
