@@ -96,17 +96,7 @@ export default class BrowserTreeController {
     }
   }
 
-  async _doLoadNode(state, nodeId, offset, limit, append) {
-    const node = state.nodes[nodeId]
-
-    if (!node) {
-      return
-    }
-
-    if (this.lastLoadPromise[nodeId]) {
-      delete this.lastLoadPromise[nodeId]
-    }
-
+  _getNodeForLoad(state, node) {
     const nodeForLoad = { ...node }
     if (node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
       const customSorting = state.customSortings[node.id]
@@ -114,43 +104,163 @@ export default class BrowserTreeController {
         nodeForLoad.sortingId = customSorting.baseSortingId
       }
     }
+    return nodeForLoad
+  }
 
+  _getSortingIdsForLoad(state) {
     const sortingIdsForLoad = { ...state.sortingIds }
     Object.entries(state.customSortings).forEach(([nodeId, customSorting]) => {
       if (customSorting) {
         sortingIdsForLoad[nodeId] = customSorting.baseSortingId
       }
     })
+    return sortingIdsForLoad
+  }
 
-    const loadPromise = this.doLoadNodes({
-      node: nodeForLoad,
-      offset: offset,
-      limit: limit,
-      sortingIds: sortingIdsForLoad
-    })
+  _getCustomSortedNodesForLoad(state, node, startIndex, endIndex) {
+    const customSortedNodes = []
 
-    this.lastLoadPromise[nodeId] = loadPromise
+    if (node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
+      const customSorting = state.customSortings[node.id]
 
-    return loadPromise.then(async loadResult => {
-      if (loadPromise !== this.lastLoadPromise[nodeId]) {
+      if (
+        !_.isNil(customSorting) &&
+        !_.isEmpty(customSorting.customSortedNodes)
+      ) {
+        Object.values(customSorting.customSortedNodes).forEach(
+          customSortedNode => {
+            if (
+              customSortedNode.index >= startIndex &&
+              customSortedNode.index < endIndex
+            ) {
+              customSortedNodes.push({
+                id: customSortedNode.id,
+                object: customSortedNode.object
+              })
+            }
+          }
+        )
+      }
+    }
+
+    return customSortedNodes
+  }
+
+  async _doLoadNode(state, nodeId, offset, limit, append) {
+    const node = state.nodes[nodeId]
+
+    if (!node) {
+      return
+    }
+
+    let loadResult = null
+
+    if (_.isNil(limit)) {
+      const nodeForLoad = this._getNodeForLoad(state, node)
+      const sortingIdsForLoad = this._getSortingIdsForLoad(state)
+
+      loadResult = await this._doLoadNodeWithChecks({
+        node: nodeForLoad,
+        offset,
+        limit,
+        sortingIds: sortingIdsForLoad
+      })
+
+      if (!loadResult.latest) {
+        return
+      }
+    } else {
+      const nodeForLoad = this._getNodeForLoad(state, node)
+      const sortingIdsForLoad = this._getSortingIdsForLoad(state)
+      const childrenInForLoad = this._getCustomSortedNodesForLoad(
+        state,
+        node,
+        offset,
+        offset + limit
+      )
+      const childrenNotInForLoad = this._getCustomSortedNodesForLoad(
+        state,
+        node,
+        0,
+        offset + limit
+      )
+
+      let loadCustomSortedNodesResult = null
+
+      if (!_.isEmpty(childrenInForLoad)) {
+        loadCustomSortedNodesResult = await this._doLoadNodeWithChecks({
+          node: nodeForLoad,
+          childrenIn: childrenInForLoad,
+          offset: 0,
+          limit: null,
+          sortingIds: sortingIdsForLoad
+        })
+
+        if (!loadCustomSortedNodesResult.latest) {
+          return
+        }
+      }
+
+      const loadNonCustomSortedNodesResult = await this._doLoadNodeWithChecks({
+        node: nodeForLoad,
+        childrenNotIn: childrenNotInForLoad,
+        offset,
+        limit:
+          limit -
+          (loadCustomSortedNodesResult !== null
+            ? loadCustomSortedNodesResult.nodes.length
+            : 0),
+        sortingIds: sortingIdsForLoad
+      })
+
+      if (!loadNonCustomSortedNodesResult.latest) {
         return
       }
 
-      state.nodes = { ...state.nodes }
-
-      const accumulator = { allLoadedNodesIds: [] }
-      this._doProcessLoadResult(state, nodeId, loadResult, append, accumulator)
-
-      const loadedNodesToExpand = Object.values(accumulator.allLoadedNodesIds)
-        .map(id => state.nodes[id])
-        .filter(node => node.expanded)
-
-      if (!_.isEmpty(loadedNodesToExpand)) {
-        await Promise.all(
-          loadedNodesToExpand.map(node => this._doExpandNode(state, node.id))
-        )
+      loadResult = {
+        nodes: [
+          ...loadNonCustomSortedNodesResult.nodes,
+          ...(loadCustomSortedNodesResult !== null
+            ? loadCustomSortedNodesResult.nodes
+            : [])
+        ],
+        loadMore: loadNonCustomSortedNodesResult.loadMore
       }
-    })
+    }
+
+    state.nodes = { ...state.nodes }
+
+    const accumulator = { allLoadedNodesIds: [] }
+    this._doProcessLoadResult(state, nodeId, loadResult, append, accumulator)
+
+    const loadedNodesToExpand = Object.values(accumulator.allLoadedNodesIds)
+      .map(id => state.nodes[id])
+      .filter(node => node.expanded)
+
+    if (!_.isEmpty(loadedNodesToExpand)) {
+      await Promise.all(
+        loadedNodesToExpand.map(node => this._doExpandNode(state, node.id))
+      )
+    }
+  }
+
+  async _doLoadNodeWithChecks(loadParams) {
+    const { node } = loadParams
+
+    if (this.lastLoadPromise[node.id]) {
+      delete this.lastLoadPromise[node.id]
+    }
+
+    const loadPromise = this.doLoadNodes(loadParams)
+    this.lastLoadPromise[node.id] = loadPromise
+    const loadResult = await loadPromise
+
+    // TODO check result structure if it is correct
+
+    return {
+      ...loadResult,
+      latest: loadPromise === this.lastLoadPromise[node.id]
+    }
   }
 
   _doProcessLoadResult(state, nodeId, loadResult, append, accumulator) {
@@ -269,7 +379,13 @@ export default class BrowserTreeController {
 
     if (node) {
       if (!node.loaded && node.canHaveChildren) {
-        await this._doLoadNode(state, nodeId, 0)
+        await this._doLoadNode(
+          state,
+          nodeId,
+          node.loadFirst ? node.loadFirst.offset : 0,
+          node.loadFirst ? node.loadFirst.limit : null,
+          node.loadFirst ? node.loadFirst.append : null
+        )
       }
 
       const newNode = {
@@ -533,8 +649,9 @@ export default class BrowserTreeController {
       newIndex < node.children.length
     ) {
       const childId = node.children[oldIndex]
+      const child = state.nodes[childId]
 
-      if (childId) {
+      if (childId && child) {
         const customSorting = state.customSortings[nodeId]
         const sortingId = state.sortingIds[nodeId]
 
@@ -545,12 +662,16 @@ export default class BrowserTreeController {
         ) {
           newCustomSorting = {
             baseSortingId: sortingId,
-            indexes: {
-              [childId]: newIndex
+            customSortedNodes: {
+              [childId]: {
+                id: childId,
+                object: child.object,
+                index: newIndex
+              }
             }
           }
         } else {
-          const newIndexes = { ...customSorting.indexes }
+          const newCustomSortedNodes = { ...customSorting.customSortedNodes }
 
           /*
           Example:
@@ -566,24 +687,34 @@ export default class BrowserTreeController {
           */
 
           if (newIndex > oldIndex) {
-            Object.entries(newIndexes).forEach(([entryId, entryIndex]) => {
-              if (entryIndex > oldIndex && entryIndex <= newIndex) {
-                newIndexes[entryId] = entryIndex - 1
+            Object.entries(newCustomSortedNodes).forEach(([entryId, entry]) => {
+              if (entry.index > oldIndex && entry.index <= newIndex) {
+                newCustomSortedNodes[entryId] = {
+                  ...entry,
+                  index: entry.index - 1
+                }
               }
             })
           } else if (newIndex < oldIndex) {
-            Object.entries(newIndexes).forEach(([entryId, entryIndex]) => {
-              if (entryIndex >= newIndex && entryIndex < oldIndex) {
-                newIndexes[entryId] = entryIndex + 1
+            Object.entries(newCustomSortedNodes).forEach(([entryId, entry]) => {
+              if (entry.index >= newIndex && entry.index < oldIndex) {
+                newCustomSortedNodes[entryId] = {
+                  ...entry,
+                  index: entry.index + 1
+                }
               }
             })
           }
 
-          newIndexes[childId] = newIndex
+          newCustomSortedNodes[childId] = {
+            id: childId,
+            object: child.object,
+            index: newIndex
+          }
 
           newCustomSorting = {
             ...customSorting,
-            indexes: newIndexes
+            customSortedNodes: newCustomSortedNodes
           }
         }
 
@@ -652,7 +783,10 @@ export default class BrowserTreeController {
   }
 
   _doCustomSorting(nodeIds, customSorting) {
-    if (_.isEmpty(customSorting) || _.isEmpty(customSorting.indexes)) {
+    if (
+      _.isEmpty(customSorting) ||
+      _.isEmpty(customSorting.customSortedNodes)
+    ) {
       return nodeIds
     }
 
@@ -661,9 +795,9 @@ export default class BrowserTreeController {
 
     // insert nodes with custom indexes
     nodeIds.forEach(nodeId => {
-      const index = customSorting.indexes[nodeId]
-      if (!_.isNil(index)) {
-        sortedIds[index] = nodeId
+      const customSortedNode = customSorting.customSortedNodes[nodeId]
+      if (!_.isNil(customSortedNode)) {
+        sortedIds[customSortedNode.index] = nodeId
         alreadySorted[nodeId] = true
       }
     })
