@@ -103,7 +103,7 @@ export default class UserBrowserControllerLoadNodes {
     if (!_.isEmpty(childrenNotIn)) {
       const childrenNotInMap = {}
       childrenNotIn.forEach(child => {
-        childrenNotInMap[child.id] = child
+        childrenNotInMap[child.object.id] = child
       })
       result.objects = result.objects.filter(object =>
         _.isNil(childrenNotInMap[object.getUserId()])
@@ -172,7 +172,7 @@ export default class UserBrowserControllerLoadNodes {
       return {
         nodes: nodes,
         loadMore: {
-          offset: result.offset + UserBrowserCommon.LOAD_LIMIT,
+          offset: result.offset + nodes.length,
           limit: UserBrowserCommon.LOAD_LIMIT,
           loadedCount: result.offset + nodes.length,
           totalCount: result.totalCount,

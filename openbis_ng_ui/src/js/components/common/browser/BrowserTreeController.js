@@ -175,8 +175,8 @@ export default class BrowserTreeController {
       const childrenInForLoad = this._getCustomSortedNodesForLoad(
         state,
         node,
-        offset,
-        offset + limit
+        node.children.length,
+        node.children.length + limit
       )
       const childrenNotInForLoad = this._getCustomSortedNodesForLoad(
         state,
