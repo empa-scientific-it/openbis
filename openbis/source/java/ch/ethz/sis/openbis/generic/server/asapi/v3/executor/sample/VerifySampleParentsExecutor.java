@@ -48,14 +48,19 @@ public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecu
     public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
         super.verify(context, batch);
-
         new CollectionBatchProcessor<SamplePE>(context, batch)
             {
                 @Override
                 public void process(SamplePE sample)
                 {
-                    SampleGenericBusinessRules.assertValidParents(sample);
-                    SampleGenericBusinessRules.assertValidChildren(sample);
+                    // DAO methods to fetch a list of sample parents or children are way faster than the PE
+                    // counterparts. These checks here save unnecessary and slow database trips on sample imports.
+                    if (getParents(context, sample).isEmpty() == false) {
+                        SampleGenericBusinessRules.assertValidParents(sample);
+                    }
+                    if (getChildren(context, sample).isEmpty() == false) {
+                        SampleGenericBusinessRules.assertValidChildren(sample);
+                    }
                 }
 
                 @Override
@@ -82,8 +87,21 @@ public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecu
     @Override
     protected Map<Long, Set<Long>> getRelatedIdsMap(IOperationContext context, Set<Long> entityIds)
     {
-        Long relationshipId = getRelationshipIdExecutor.get(context, RelationshipType.PARENT_CHILD);
+        Long relationshipId = getRelatedIdForParentChild(context);
         return daoFactory.getSampleDAO().mapSampleIdsByChildrenIds(entityIds, relationshipId);
     }
 
+    private Long getRelatedIdForParentChild(IOperationContext context)
+    {
+        return getRelationshipIdExecutor.get(context, RelationshipType.PARENT_CHILD);
+    }
+
+    private Set<TechId> getParents(IOperationContext context, SamplePE samplePE) {
+        Long relationshipId = getRelatedIdForParentChild(context);
+        return daoFactory.getSampleDAO().listSampleIdsByChildrenIds(TechId.createList(samplePE.getId()), new TechId(relationshipId));
+    }
+
+    private Set<TechId> getChildren(IOperationContext context, SamplePE samplePE) {
+        return daoFactory.getSampleDAO().listSampleIdsByParentIds(TechId.createList(samplePE.getId()));
+    }
 }
