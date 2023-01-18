@@ -93,41 +93,43 @@ public class OpenBISAPI {
         return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
     }
 
-
-    private Iterable<byte[]> streamFile(final File file, final int chunkSize) throws FileNotFoundException
+    public String uploadFileWorkspaceDSS(final Path fileOrFolder)
     {
-        final InputStream inputStream = new FileInputStream(file);
+        return uploadFileWorkspaceDSS(fileOrFolder.toFile(), null);
+    }
 
-        return new Iterable<byte[]>() {
-            @Override
-            public Iterator<byte[]> iterator() {
-                return new Iterator<>() {
-                    public boolean hasMore = true;
+    //
+    // Helper Methods to upload files to DSS Session Workspace
+    //
 
-                    public boolean hasNext() {
-                        return hasMore;
-                    }
+    /**
+     * Upload file or folder to the DSS SessionWorkspaceFileUploadServlet and return the ID to be used by createUploadedDataSet
+     * This method hides the complexities of uploading a folder with many files and does the uploads in chunks.
+     */
+    private String uploadFileWorkspaceDSS(final File fileOrFolder, final String parentsOrNull)
+    {
+        if (fileOrFolder.exists() == false)
+        {
+            throw new UserFailureException("Path doesn't exist: " + fileOrFolder);
+        }
+        String fileNameOrFolderName = "";
+        if (parentsOrNull != null)
+        {
+            fileNameOrFolderName = parentsOrNull + "/";
+        }
+        fileNameOrFolderName += fileOrFolder.getName();
 
-                    public byte[] next() {
-                        try {
-                            byte[] bytes = inputStream.readNBytes(chunkSize);
-                            if (bytes.length < chunkSize) {
-                                hasMore = false;
-                                inputStream.close();
-                            }
-                            return bytes;
-                        } catch (final IOException e) {
-                            try {
-                                inputStream.close();
-                            } catch (final IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
+        if (fileOrFolder.isDirectory())
+        {
+            uploadFileWorkspaceDSSEmptyDir(fileNameOrFolderName);
+            for (File file:fileOrFolder.listFiles())
+            {
+                uploadFileWorkspaceDSS(file, fileNameOrFolderName);
             }
-        };
+        } else {
+            uploadFileWorkspaceDSSFile(fileNameOrFolderName, fileOrFolder);
+        }
+        return fileNameOrFolderName;
     }
 
     private String uploadFileWorkspaceDSSEmptyDir(String pathToDir) {
@@ -184,36 +186,39 @@ public class OpenBISAPI {
         return pathToFile;
     }
 
-    /**
-     * Upload file or folder to the DSS SessionWorkspaceFileUploadServlet and return the ID to be used by createUploadedDataSet
-     * This method hides the complexities of uploading a folder with many files and does the uploads in chunks.
-     */
-    public String uploadFileWorkspaceDSS(final File fileOrFolder, final String... parents)
+    private Iterable<byte[]> streamFile(final File file, final int chunkSize) throws FileNotFoundException
     {
-        System.out.println("fileOrFolder: " + fileOrFolder);
+        final InputStream inputStream = new FileInputStream(file);
 
-        if (fileOrFolder.exists() == false)
-        {
-            throw new UserFailureException("Path doesn't exist: " + fileOrFolder);
-        }
-        String fileNameOrFolderName = "";
-        if (parents.length == 1)
-        {
-            fileNameOrFolderName = parents[0] + "/";
-        }
-        fileNameOrFolderName += fileOrFolder.getName();
+        return new Iterable<byte[]>() {
+            @Override
+            public Iterator<byte[]> iterator() {
+                return new Iterator<byte[]>() {
+                    public boolean hasMore = true;
 
-        if (fileOrFolder.isDirectory())
-        {
-            uploadFileWorkspaceDSSEmptyDir(fileNameOrFolderName);
-            for (File file:fileOrFolder.listFiles())
-            {
-                uploadFileWorkspaceDSS(file, fileNameOrFolderName);
+                    public boolean hasNext() {
+                        return hasMore;
+                    }
+
+                    public byte[] next() {
+                        try {
+                            byte[] bytes = inputStream.readNBytes(chunkSize);
+                            if (bytes.length < chunkSize) {
+                                hasMore = false;
+                                inputStream.close();
+                            }
+                            return bytes;
+                        } catch (final IOException e) {
+                            try {
+                                inputStream.close();
+                            } catch (final IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
             }
-        } else {
-            uploadFileWorkspaceDSSFile(fileNameOrFolderName, fileOrFolder);
-        }
-        return fileNameOrFolderName;
+        };
     }
-
 }
