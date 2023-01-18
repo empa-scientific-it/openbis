@@ -12,9 +12,6 @@ datamover \
 datastore_server \
 dbmigration \
 deep_sequencing_unit \
-eu_agronomics \
-eu_basynthec \
-eu_basysbio \
 image_readers \
 installation \
 integration-tests \
