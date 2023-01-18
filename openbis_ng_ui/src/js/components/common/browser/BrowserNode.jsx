@@ -326,11 +326,7 @@ class BrowserNodeClass extends React.PureComponent {
   renderShowMoreChildren() {
     const { node, level, classes } = this.props
 
-    if (
-      node.children &&
-      node.loadMore &&
-      node.loadMore.totalCount > node.loadMore.loadedCount
-    ) {
+    if (node.children && node.children.length < node.childrenTotalCount) {
       return (
         <ListItem
           ref={this.references['loadMore']}
@@ -353,7 +349,7 @@ class BrowserNodeClass extends React.PureComponent {
               <span>
                 {messages.get(
                   messages.LOAD_MORE,
-                  node.loadMore.totalCount - node.loadMore.loadedCount
+                  node.childrenTotalCount - node.children.length
                 )}
               </span>
             }

@@ -18,8 +18,8 @@ export default class UserBrowserControllerLoadNodes {
     } else if (node.object.type === rootNode.object.type) {
       if (params.filter) {
         const [users, groups] = await Promise.all([
-          this.searchUsers(params),
-          this.searchGroups(params)
+          this.searchUsers({ ...params, limit: UserBrowserCommon.LOAD_LIMIT }),
+          this.searchGroups({ ...params, limit: UserBrowserCommon.LOAD_LIMIT })
         ])
 
         const totalCount = users.totalCount + groups.totalCount
@@ -120,8 +120,7 @@ export default class UserBrowserControllerLoadNodes {
 
     return {
       objects: objects,
-      totalCount: result.totalCount,
-      offset
+      totalCount: result.totalCount
     }
   }
 
@@ -166,8 +165,7 @@ export default class UserBrowserControllerLoadNodes {
 
     return {
       objects: objects,
-      totalCount: result.totalCount,
-      offset
+      totalCount: result.totalCount
     }
   }
 
@@ -183,13 +181,7 @@ export default class UserBrowserControllerLoadNodes {
 
     return {
       nodes: nodes,
-      loadMore: {
-        offset: result.offset + nodes.length,
-        limit: UserBrowserCommon.LOAD_LIMIT,
-        loadedCount: result.offset + nodes.length,
-        totalCount: result.totalCount,
-        append: true
-      }
+      totalCount: result.totalCount
     }
   }
 }

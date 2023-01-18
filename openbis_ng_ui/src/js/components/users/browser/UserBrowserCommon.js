@@ -14,10 +14,7 @@ function groupsFolderNode(parentId) {
       id: objectType.USER_GROUP
     },
     canHaveChildren: true,
-    loadFirst: {
-      offset: 0,
-      limit: LOAD_LIMIT
-    }
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -41,10 +38,7 @@ function usersFolderNode(parentId) {
       id: objectType.USER
     },
     canHaveChildren: true,
-    loadFirst: {
-      offset: 0,
-      limit: LOAD_LIMIT
-    }
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 

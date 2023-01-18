@@ -66,7 +66,7 @@ export default class BrowserTreeController {
   async _doLoadRoot(state, rootNode) {
     if (rootNode) {
       state.nodes[rootNode.id] = rootNode
-      await this._doLoadNode(state, rootNode.id, 0)
+      await this._doLoadNode(state, rootNode.id, 0, rootNode.childrenLoadLimit)
       state.rootId = rootNode.id
     } else {
       state.nodes[BrowserTreeController.INTERNAL_ROOT_ID] = {
@@ -172,16 +172,6 @@ export default class BrowserTreeController {
 
     if (!node) {
       return
-    }
-
-    if (_.isNil(offset)) {
-      offset = node.loadFirst ? node.loadFirst.offset : 0
-    }
-    if (_.isNil(limit)) {
-      limit = node.loadFirst ? node.loadFirst.limit : null
-    }
-    if (_.isNil(append)) {
-      append = node.loadFirst ? node.loadFirst.append : null
     }
 
     let loadResult = null
@@ -306,21 +296,9 @@ export default class BrowserTreeController {
 
     return {
       nodes: sortedNodes,
-      loadMore: {
-        offset: offset + sortedNodes.length,
-        limit: limit,
-        loadedCount: offset + sortedNodes.length,
-        totalCount:
-          (loadNonCustomSortedNodesResult.loadMore
-            ? loadNonCustomSortedNodesResult.loadMore.totalCount
-            : 0) +
-          (loadCustomSortedNodesResult.loadMore
-            ? loadCustomSortedNodesResult.loadMore.totalCount
-            : 0),
-        append:
-          loadNonCustomSortedNodesResult.loadMore &&
-          loadNonCustomSortedNodesResult.loadMore.append
-      }
+      totalCount:
+        loadNonCustomSortedNodesResult.totalCount +
+        loadCustomSortedNodesResult.totalCount
     }
   }
 
@@ -397,9 +375,7 @@ export default class BrowserTreeController {
     }
 
     const node = (state.nodes[nodeId] = {
-      ...state.nodes[nodeId],
-      loaded: true,
-      loadMore: loadResult ? loadResult.loadMore : null
+      ...state.nodes[nodeId]
     })
 
     if (append) {
@@ -408,6 +384,9 @@ export default class BrowserTreeController {
       node.children = loadedNodesIds
     }
 
+    node.childrenTotalCount = loadResult.totalCount
+    node.loaded = true
+
     accumulator.allLoadedNodesIds.push(...loadedNodesIds)
   }
 
@@ -415,15 +394,15 @@ export default class BrowserTreeController {
     const state = this.context.getState()
     const node = state.nodes[nodeId]
 
-    if (node && node.loadMore) {
+    if (node && node.loaded && node.children.length < node.childrenTotalCount) {
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
       await this._doLoadNode(
         newState,
         node.id,
-        node.loadMore.offset,
-        node.loadMore.limit,
-        node.loadMore.append
+        node.children.length,
+        node.childrenLoadLimit,
+        true
       )
       this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
@@ -449,7 +428,7 @@ export default class BrowserTreeController {
 
     if (node) {
       if (!node.loaded && node.canHaveChildren) {
-        await this._doLoadNode(state, nodeId, 0)
+        await this._doLoadNode(state, nodeId, 0, node.childrenLoadLimit)
       }
 
       const newNode = {
@@ -694,7 +673,7 @@ export default class BrowserTreeController {
       }
       newState.sortingIds = { ...newState.sortingIds }
       newState.sortingIds[nodeId] = sortingId
-      await this._doLoadNode(newState, nodeId, 0)
+      await this._doLoadNode(newState, nodeId, 0, node.childrenLoadLimit)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
 
@@ -838,7 +817,7 @@ export default class BrowserTreeController {
       newState.sortingIds[nodeId] = newSortingId
       newState.nodes[nodeId] = newNode
 
-      await this._doLoadNode(newState, nodeId, 0)
+      await this._doLoadNode(newState, nodeId, 0, node.childrenLoadLimit)
       await this.context.setState(newState)
       await this._setNodeLoading(nodeId, false)
 
