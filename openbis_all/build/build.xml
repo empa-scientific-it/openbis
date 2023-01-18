@@ -33,19 +33,11 @@
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
-      <param name="project" value="eu_basysbio" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
       <param name="project" value="rtd_cina" />
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
       <param name="project" value="plasmid" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="eu_basynthec" />
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
@@ -117,16 +109,10 @@
       <param name="project" value="screening"/>
     </antcall>
     <antcall target="_clean">
-      <param name="project" value="eu_basysbio"/>
-    </antcall>
-    <antcall target="_clean">
       <param name="project" value="rtd_cina"/>
     </antcall>
     <antcall target="_clean">
       <param name="project" value="plasmid"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="eu_basynthec"/>
     </antcall>
     <antcall target="_clean">
       <param name="project" value="openbis_standard_technologies"/>
