@@ -1,7 +1,0 @@
-//
-// Prefix header for all source files of the 'BisMacTests' target in the 'BisMacTests' project
-//
-
-#ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
-#endif

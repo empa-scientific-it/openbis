@@ -1,6 +1,0 @@
-openBIS/Research/openBISData.sqlite
-targets/
-!build
-/.idea/
-*.iml
-*.eml
