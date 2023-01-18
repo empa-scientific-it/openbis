@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -197,6 +198,18 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     public long putFileToSessionWorkspace(String sessionToken, String filePath,
             InputStream inputStream) throws IOExceptionUnchecked;
+
+    /**
+     * Upload a file slice to the user's session workspace. If the file does not exist then it will created.
+     *
+     * @param sessionToken The session token.
+     * @param filePath The file path (including the sub-directory) to upload the slice to.
+     * @param isEmptyDirectory Creates the file as an empty directory if true,
+     *                         returns the File object without creating it if false.
+     * @return File object representing the given path
+     * @throws IOExceptionUnchecked Thrown if IOException occurs.
+     */
+    public File putDirToSessionWorkspace(String sessionToken, String filePath, boolean isEmptyDirectory) throws IOExceptionUnchecked;
 
     /**
      * Upload a file slice to the user's session workspace. If the file does not exist then it will created.
