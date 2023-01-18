@@ -173,12 +173,13 @@ public class OpenBISAPI {
                 httpRequest.param("startByte", Long.toString(start));
                 httpRequest.param("endByte", Long.toString(end));
                 httpRequest.param("size", Long.toString(file.length()));
-
+                httpRequest.content(new BytesContentProvider(chunk));
                 final ContentResponse response = httpRequest.send();
                 final int status = response.getStatus();
                 if (status != 200) {
                     throw new IOException(response.getContentAsString());
                 }
+                start += CHUNK_SIZE;
             }
         } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
