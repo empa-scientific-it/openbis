@@ -215,8 +215,8 @@ export default class BrowserTreeController {
         loadCustomSortedNodesResult = await this._doLoadNodeWithChecks({
           node: nodeForLoad,
           childrenIn: customSortedNodesForLoad,
-          offset: offsetsForLoad.customSortedNodesOffset,
-          limit,
+          offset: 0,
+          limit: null,
           sortingIds: sortingIdsForLoad
         })
 
