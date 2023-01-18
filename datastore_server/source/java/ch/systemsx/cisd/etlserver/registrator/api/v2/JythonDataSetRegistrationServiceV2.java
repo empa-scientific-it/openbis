@@ -53,7 +53,7 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonDataSetRegistrationServiceV2.class);
 
-    private static final String MAIL_CONTACT_ADDRESSES_KEY = "mail.contact.addresses";
+    private static final String MAIL_CONTACT_ADDRESSES_KEY = "mail.addresses.dropbox-errors";
 
     public JythonDataSetRegistrationServiceV2(
             AbstractProgrammableTopLevelDataSetHandler<T> registrator,

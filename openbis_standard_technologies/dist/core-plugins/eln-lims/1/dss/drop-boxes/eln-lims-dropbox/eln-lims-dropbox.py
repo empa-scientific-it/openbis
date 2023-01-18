@@ -26,7 +26,7 @@ NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE = "$NAME property specified twice,
 EMAIL_SUBJECT = "ELN LIMS Dropbox Error";
 ILLEGAL_FILES = ["desktop.ini", "IconCache.db", "thumbs.db"];
 ILLEGAL_FILES_ERROR_MESSAGE = "Directory or contains illegal files: " + str(ILLEGAL_FILES);
-
+HIDDEN_FILES_ERROR_MESSAGE = "Directory or contains hidden files: files starting with '.'";
 
 def process(transaction):
     incoming = transaction.getIncoming();
@@ -88,6 +88,9 @@ def process(transaction):
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 
+            if hasFolderHiddenFiles(incoming):
+                reportIssue(transaction, HIDDEN_FILES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
             if hasFolderIllegalFiles(incoming):
                 reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
                             + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
@@ -119,6 +122,9 @@ def process(transaction):
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
 
+            if hasFolderHiddenFiles(incoming):
+                reportIssue(transaction, HIDDEN_FILES_ERROR_MESSAGE + ":"
+                            + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
             if hasFolderIllegalFiles(incoming):
                 reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
                             + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
@@ -148,7 +154,6 @@ def process(transaction):
         # Move folder to dataset
         filesInFolder = incoming.listFiles();
 
-        # Discard folders started with a . (hidden files)
         itemsInFolder = 0;
         datasetItem = None;
         for item in filesInFolder:
@@ -163,10 +168,7 @@ def process(transaction):
                     if propertyValue is not None:
                         propertyValueString = str(propertyValue)
                         dataSet.setPropertyValue(propertyKey, propertyValueString)
-            elif (not fileName.startswith('.')) and (not fileName == "Thumbs.db"):
-                # Exclude files starting with .
-                # Exclude Mac .DS_Store
-                # Exclude Windows Thumbs.db
+            else:
                 itemsInFolder = itemsInFolder + 1;
                 datasetItem = item;
 
@@ -188,7 +190,7 @@ def process(transaction):
 
 
 def getContactsEmailAddresses(transaction):
-    emailString = getThreadProperties(transaction)["mail.contact.addresses"]
+    emailString = getThreadProperties(transaction)["mail.addresses.dropbox-errors"]
     return re.split("[,;]", emailString)
 
 
@@ -211,6 +213,18 @@ def hasFolderIllegalCharacters(incoming):
 
     return False;
 
+
+def hasFolderHiddenFiles(incoming):
+    if incoming.getName().startswith("."):
+        return True;
+
+    files = incoming.listFiles()
+    if files is not None:
+        for f in files:
+            if hasFolderHiddenFiles(f):
+                return True;
+
+    return False;
 
 def hasFolderIllegalFiles(incoming):
     if incoming.getName() in ILLEGAL_FILES:
