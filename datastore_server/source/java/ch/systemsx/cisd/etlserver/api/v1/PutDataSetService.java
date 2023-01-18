@@ -273,6 +273,11 @@ public class PutDataSetService implements IPutDataSetService
     public List<DataSetInformation> putDataSet(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
+        if (newDataSet == null)
+        {
+            throw new UserFailureException("New data set cannot be null");
+        }
+
         if (false == isInitialized)
         {
             doInitialization();
@@ -280,37 +285,59 @@ public class PutDataSetService implements IPutDataSetService
 
         validateSessionToken(sessionToken);
         validateUploadId(uploadId);
-        if (newDataSet == null)
-        {
-            throw new UserFailureException("New data set cannot be null");
-        }
 
         ServiceProvider.getOpenBISService().checkSession(sessionToken);
+
+        File sessionWorkspaceUploadDir = new File(new File(sessionWorkspace, sessionToken), uploadId);
+
+        List<DataSetInformation> result = null;
+        if (sessionWorkspaceUploadDir.exists())
+        {
+            result = putDataSetFromSessionWorkspaceFileUpload(sessionToken, newDataSet, uploadId);
+        } else {
+            result = putDataSetFromStoreShareFileUpload(sessionToken, newDataSet, uploadId);
+        }
+        return result;
+    }
+
+    private List<DataSetInformation> putDataSetFromSessionWorkspaceFileUpload(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
+            throws IOExceptionUnchecked, IllegalArgumentException {
+        String dataSetType = newDataSet.tryDataSetType();
+        ITopLevelDataSetRegistrator registrator = registratorMap.getRegistratorForType(dataSetType);
+
+        File tempIncomingDir = new File(new File(sessionWorkspace, sessionToken), uploadId);
+
+        File[] filesInIncomingDir = tempIncomingDir.listFiles();
+        if (filesInIncomingDir.length != 1) {
+            throw new UserFailureException("Unexpected state, incoming directory should contain just one file or folder but found: " + filesInIncomingDir.length);
+        }
+
+        if (registrator instanceof PutDataSetServerPluginHolder)
+        {
+            return new PutDataSetExecutor(this, ((PutDataSetServerPluginHolder) registrator).getPlugin(), sessionToken, newDataSet, tempIncomingDir,
+                    filesInIncomingDir[0]).executeWithoutWriting();
+        } else
+        {
+            return new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken, newDataSet, tempIncomingDir, filesInIncomingDir[0]).executeWithoutWriting();
+        }
+    }
+
+    private List<DataSetInformation> putDataSetFromStoreShareFileUpload(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
+            throws IOExceptionUnchecked, IllegalArgumentException {
 
         String dataSetType = newDataSet.tryDataSetType();
         ITopLevelDataSetRegistrator registrator = registratorMap.getRegistratorForType(dataSetType);
 
-        // TODO: here look in the session workspace.
         File sessionUploadDir = new File(getTemporaryIncomingRoot(dataSetType), sessionToken);
         File uploadIdDir = new File(sessionUploadDir, uploadId);
-        System.out.println("uploadIdDir = " + uploadIdDir);
-
         File multipleFilesUploadDir = new File(uploadIdDir, MULTIPLE_FILES_UPLOAD_DIR);
-        System.out.println("multipleFilesUploadDir = " + multipleFilesUploadDir);
-
-        File sessionWorkspaceUploadDir = new File(sessionWorkspace, sessionToken);
-        System.out.println("multipleFilesUploadDir = " + multipleFilesUploadDir);
 
         File[] uploadedFiles = null;
         File dataSet = null;
 
-        if (multipleFilesUploadDir.isDirectory())
+        if (multipleFilesUploadDir.exists() && multipleFilesUploadDir.isDirectory())
         {
             uploadedFiles = multipleFilesUploadDir.listFiles();
-        } else if (sessionWorkspaceUploadDir.isDirectory())
-        {
-            // TODO: use atomic move in this case.
-            uploadedFiles = sessionWorkspaceUploadDir.listFiles();
         }
 
         if (uploadedFiles == null || uploadedFiles.length == 0)

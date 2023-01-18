@@ -5,6 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.UploadedDataSetCreation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -95,7 +96,9 @@ public class OpenBISAPI {
 
     public String uploadFileWorkspaceDSS(final Path fileOrFolder)
     {
-        return uploadFileWorkspaceDSS(fileOrFolder.toFile(), null);
+        String uploadId = uploadFileWorkspaceDSSEmptyDir(UUID.randomUUID().toString());
+        uploadFileWorkspaceDSS(fileOrFolder.toFile(), uploadId);
+        return uploadId;
     }
 
     //
