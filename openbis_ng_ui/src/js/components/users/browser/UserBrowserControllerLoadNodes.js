@@ -74,11 +74,7 @@ export default class UserBrowserControllerLoadNodes {
         objects = await this.searchGroups(params)
       }
 
-      const nodes = this.createNodes(node, objects, node.object.id)
-
-      if (!_.isEmpty(nodes)) {
-        return nodes
-      }
+      return this.createNodes(node, objects, node.object.id)
     }
 
     return {
@@ -146,12 +142,31 @@ export default class UserBrowserControllerLoadNodes {
       fetchOptions
     )
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
+      objects: objects,
+      totalCount: result.totalCount,
       offset
     }
   }
@@ -166,18 +181,14 @@ export default class UserBrowserControllerLoadNodes {
       }
     }))
 
-    if (_.isEmpty(nodes)) {
-      return null
-    } else {
-      return {
-        nodes: nodes,
-        loadMore: {
-          offset: result.offset + nodes.length,
-          limit: UserBrowserCommon.LOAD_LIMIT,
-          loadedCount: result.offset + nodes.length,
-          totalCount: result.totalCount,
-          append: true
-        }
+    return {
+      nodes: nodes,
+      loadMore: {
+        offset: result.offset + nodes.length,
+        limit: UserBrowserCommon.LOAD_LIMIT,
+        loadedCount: result.offset + nodes.length,
+        totalCount: result.totalCount,
+        append: true
       }
     }
   }
