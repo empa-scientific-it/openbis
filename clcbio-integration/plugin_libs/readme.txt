@@ -1,1 +1,0 @@
-Place libraries used by you plugin in this folder

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/clcbio-server-sdk"/>
-	<classpathentry kind="lib" path="plugin_libs/dss_client.jar"/>
-	<classpathentry kind="lib" path="plugin_libs/openbis-query-api.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
