@@ -5,9 +5,6 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import compare from '@src/js/common/compare.js'
 
-const LOAD_LIMIT = 100
-const TOTAL_LOAD_LIMIT = 500
-
 export default class TypeBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
@@ -19,21 +16,36 @@ export default class TypeBrowserControllerLoadNodes {
         nodes: [rootNode]
       }
     } else if (node.object.type === rootNode.object.type) {
-      const [
-        objectTypes,
-        collectionTypes,
-        dataSetTypes,
-        materialTypes,
-        vocabularyTypes
-      ] = await Promise.all([
-        this.searchObjectTypes(params),
-        this.searchCollectionTypes(params),
-        this.searchDataSetTypes(params),
-        this.searchMaterialTypes(params),
-        this.searchVocabularyTypes(params)
-      ])
+      if (!_.isNil(params.filter)) {
+        const [
+          objectTypes,
+          collectionTypes,
+          dataSetTypes,
+          materialTypes,
+          vocabularyTypes
+        ] = await Promise.all([
+          this.searchObjectTypes({
+            ...params,
+            limit: TypeBrowserCommon.LOAD_LIMIT
+          }),
+          this.searchCollectionTypes({
+            ...params,
+            limit: TypeBrowserCommon.LOAD_LIMIT
+          }),
+          this.searchDataSetTypes({
+            ...params,
+            limit: TypeBrowserCommon.LOAD_LIMIT
+          }),
+          this.searchMaterialTypes({
+            ...params,
+            limit: TypeBrowserCommon.LOAD_LIMIT
+          }),
+          this.searchVocabularyTypes({
+            ...params,
+            limit: TypeBrowserCommon.LOAD_LIMIT
+          })
+        ])
 
-      if (params.filter) {
         const totalCount =
           objectTypes.totalCount +
           collectionTypes.totalCount +
@@ -41,29 +53,90 @@ export default class TypeBrowserControllerLoadNodes {
           materialTypes.totalCount +
           vocabularyTypes.totalCount
 
-        if (totalCount > TOTAL_LOAD_LIMIT) {
+        if (totalCount > TypeBrowserCommon.TOTAL_LOAD_LIMIT) {
           return BrowserCommon.tooManyResultsFound(node.id)
         }
-      }
 
-      let nodes = [
-        this.createObjectTypesNode(node, objectTypes),
-        this.createCollectionTypesNode(node, collectionTypes),
-        this.createDataSetTypesNode(node, dataSetTypes),
-        this.createMaterialTypesNode(node, materialTypes),
-        this.createVocabularyTypesNode(node, vocabularyTypes),
-        this.createPropertyTypesNode(node, null)
-      ]
+        const nodes = []
 
-      if (params.filter) {
-        nodes = nodes.filter(node => !_.isEmpty(node.children))
-        nodes.forEach(node => {
-          node.expanded = true
-        })
-      }
+        if (!_.isEmpty(objectTypes.objects)) {
+          const folderNode = TypeBrowserCommon.objectTypesFolderNode(node.id)
+          const typesNodes = this.createNodes(
+            folderNode,
+            objectTypes,
+            objectType.OBJECT_TYPE
+          )
+          folderNode.children = typesNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
 
-      return {
-        nodes: nodes
+        if (!_.isEmpty(collectionTypes.objects)) {
+          const folderNode = TypeBrowserCommon.collectionTypesFolderNode(
+            node.id
+          )
+          const typesNodes = this.createNodes(
+            folderNode,
+            collectionTypes,
+            objectType.COLLECTION_TYPE
+          )
+          folderNode.children = typesNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
+
+        if (!_.isEmpty(dataSetTypes.objects)) {
+          const folderNode = TypeBrowserCommon.dataSetTypesFolderNode(node.id)
+          const typesNodes = this.createNodes(
+            folderNode,
+            dataSetTypes,
+            objectType.DATA_SET_TYPE
+          )
+          folderNode.children = typesNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
+
+        if (!_.isEmpty(materialTypes.objects)) {
+          const folderNode = TypeBrowserCommon.materialTypesFolderNode(node.id)
+          const typesNodes = this.createNodes(
+            folderNode,
+            materialTypes,
+            objectType.MATERIAL_TYPE
+          )
+          folderNode.children = typesNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
+
+        if (!_.isEmpty(vocabularyTypes.objects)) {
+          const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode(
+            node.id
+          )
+          const typesNodes = this.createNodes(
+            folderNode,
+            vocabularyTypes,
+            objectType.VOCABULARY_TYPE
+          )
+          folderNode.children = typesNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
+
+        return {
+          nodes: nodes
+        }
+      } else {
+        return {
+          nodes: [
+            TypeBrowserCommon.objectTypesFolderNode(node.id),
+            TypeBrowserCommon.collectionTypesFolderNode(node.id),
+            TypeBrowserCommon.dataSetTypesFolderNode(node.id),
+            TypeBrowserCommon.materialTypesFolderNode(node.id),
+            TypeBrowserCommon.vocabularyTypesFolderNode(node.id),
+            TypeBrowserCommon.propertyTypesFolderNode(node.id)
+          ]
+        }
       }
     } else if (node.object.type === objectType.OVERVIEW) {
       let types = null
@@ -93,195 +166,217 @@ export default class TypeBrowserControllerLoadNodes {
   }
 
   async searchObjectTypes(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.SampleTypeSearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withCode().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withCodes().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.SampleTypeFetchOptions()
 
     const result = await openbis.searchSampleTypes(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
   }
 
   async searchCollectionTypes(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.ExperimentTypeSearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withCode().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withCodes().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.ExperimentTypeFetchOptions()
 
     const result = await openbis.searchExperimentTypes(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
   }
 
   async searchDataSetTypes(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.DataSetTypeSearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withCode().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withCodes().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.DataSetTypeFetchOptions()
 
     const result = await openbis.searchDataSetTypes(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
   }
 
   async searchMaterialTypes(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.MaterialTypeSearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withCode().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withCodes().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.MaterialTypeFetchOptions()
 
     const result = await openbis.searchMaterialTypes(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
   }
 
   async searchVocabularyTypes(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.VocabularySearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withCode().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withCodes().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.VocabularyFetchOptions()
 
     const result = await openbis.searchVocabularies(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
-  }
-
-  createObjectTypesNode(parent, result) {
-    const folderNode = TypeBrowserCommon.objectTypesFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.OBJECT_TYPE
-      )
-    }
-
-    return folderNode
-  }
-
-  createCollectionTypesNode(parent, result) {
-    const folderNode = TypeBrowserCommon.collectionTypesFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.COLLECTION_TYPE
-      )
-    }
-
-    return folderNode
-  }
-
-  createDataSetTypesNode(parent, result) {
-    const folderNode = TypeBrowserCommon.dataSetTypesFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.DATA_SET_TYPE
-      )
-    }
-
-    return folderNode
-  }
-
-  createMaterialTypesNode(parent, result) {
-    const folderNode = TypeBrowserCommon.materialTypesFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.MATERIAL_TYPE
-      )
-    }
-
-    return folderNode
-  }
-
-  createVocabularyTypesNode(parent, result) {
-    const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.VOCABULARY_TYPE
-      )
-    }
-
-    return folderNode
-  }
-
-  createPropertyTypesNode(parent) {
-    return TypeBrowserCommon.propertyTypesFolderNode(parent.id)
   }
 
   createNodes(parent, result, objectType) {
-    let objects = result.objects
-    objects.sort((o1, o2) => compare(o1.text, o2.text))
-    objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
-
-    let nodes = objects.map(object => ({
+    const nodes = result.objects.map(object => ({
       id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
@@ -290,18 +385,9 @@ export default class TypeBrowserControllerLoadNodes {
       }
     }))
 
-    if (_.isEmpty(nodes)) {
-      return null
-    } else {
-      return {
-        nodes: nodes,
-        loadMore: {
-          offset: result.offset + nodes.length,
-          loadedCount: result.offset + nodes.length,
-          totalCount: result.totalCount,
-          append: true
-        }
-      }
+    return {
+      nodes: nodes,
+      totalCount: result.totalCount
     }
   }
 }

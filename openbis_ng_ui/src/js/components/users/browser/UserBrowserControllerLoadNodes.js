@@ -16,7 +16,7 @@ export default class UserBrowserControllerLoadNodes {
         nodes: [rootNode]
       }
     } else if (node.object.type === rootNode.object.type) {
-      if (params.filter) {
+      if (!_.isNil(params.filter)) {
         const [users, groups] = await Promise.all([
           this.searchUsers({ ...params, limit: UserBrowserCommon.LOAD_LIMIT }),
           this.searchGroups({ ...params, limit: UserBrowserCommon.LOAD_LIMIT })
