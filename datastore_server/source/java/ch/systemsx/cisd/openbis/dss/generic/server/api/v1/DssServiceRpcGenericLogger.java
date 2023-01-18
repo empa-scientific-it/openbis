@@ -134,6 +134,12 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public File putDirToSessionWorkspace(String sessionToken, String filePath, boolean isEmptyDirectory) throws IOExceptionUnchecked {
+        logTracking(sessionToken, "putDirToSessionWorkspace", "FILE_PATH(%s) EMPTY_DIRECTORY(%s)", filePath, isEmptyDirectory);
+        return null;
+    }
+
+    @Override
     public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
             long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
     {

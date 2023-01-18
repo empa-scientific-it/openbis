@@ -307,8 +307,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     @Override
-    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
-            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+    public File putDirToSessionWorkspace(String sessionToken, String filePath, boolean isEmptyDirectory) throws IOExceptionUnchecked
     {
         getOpenBISService().checkSession(sessionToken);
         if (filePath.contains("../"))
@@ -323,7 +322,17 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         final File dir = new File(workspaceDir, subDir);
         dir.mkdirs();
         final File file = new File(dir, filename);
+        if (isEmptyDirectory) {
+            file.mkdirs();
+        }
+        return file;
+    }
 
+    @Override
+    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+    {
+        final File file = putDirToSessionWorkspace(sessionToken, filePath, false);
         return FileUtilities.writeToFile(file, slicePosition, sliceInputStream);
     }
 
