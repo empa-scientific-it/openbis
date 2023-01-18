@@ -14,7 +14,6 @@ evaluationDependsOn(':installation')
 evaluationDependsOn(':ui-test')
 evaluationDependsOn(':js-test')
 evaluationDependsOn(':image_readers')
-evaluationDependsOn(':openbis_oai_pmh')
 evaluationDependsOn(':big_data_link_server')
 
 apply from: '../gradle/javaproject.gradle'
