@@ -39,7 +39,6 @@ openbis-common \
 openbis_standard_technologies \
 openbis_api \
 plasmid \
-rtd_phosphonetx \
 rtd_yeastx \
 screening \
 ui-test\
