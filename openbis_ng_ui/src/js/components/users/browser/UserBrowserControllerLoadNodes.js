@@ -25,7 +25,9 @@ export default class UserBrowserControllerLoadNodes {
         const totalCount = users.totalCount + groups.totalCount
 
         if (totalCount > UserBrowserCommon.TOTAL_LOAD_LIMIT) {
-          return BrowserCommon.tooManyResultsFound(node.id)
+          return {
+            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+          }
         }
 
         const nodes = []

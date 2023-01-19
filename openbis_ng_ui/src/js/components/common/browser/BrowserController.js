@@ -156,6 +156,10 @@ export default class BrowserController {
     this._saveSettings()
   }
 
+  async loadNode(nodeId, offset, limit, append) {
+    await this._getTreeController().loadNode(nodeId, offset, limit, append)
+  }
+
   async filterChange(newFilter) {
     await this._setFilter(newFilter, 500)
   }

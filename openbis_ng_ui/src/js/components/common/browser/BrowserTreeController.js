@@ -74,6 +74,7 @@ export default class BrowserTreeController {
         object: {
           type: BrowserTreeController.INTERNAL_ROOT_TYPE
         },
+        canHaveChildren: true,
         internalRoot: true
       }
       await this._doLoadNode(state, BrowserTreeController.INTERNAL_ROOT_ID, 0)
@@ -167,10 +168,23 @@ export default class BrowserTreeController {
     return []
   }
 
+  async loadNode(nodeId, offset, limit, append) {
+    const state = this.context.getState()
+    const node = state.nodes[nodeId]
+
+    if (node) {
+      const newState = { ...state }
+      await this._setNodeLoading(nodeId, true)
+      await this._doLoadNode(newState, node.id, offset, limit, append)
+      this.context.setState(newState)
+      await this._setNodeLoading(nodeId, false)
+    }
+  }
+
   async _doLoadNode(state, nodeId, offset, limit, append) {
     const node = state.nodes[nodeId]
 
-    if (!node) {
+    if (!node || !node.canHaveChildren) {
       return
     }
 
@@ -860,15 +874,23 @@ export default class BrowserTreeController {
   }
 
   async _setNodeLoading(nodeId, loading) {
-    await this.context.setState(state => ({
-      nodes: {
-        ...state.nodes,
-        [nodeId]: {
-          ...state.nodes[nodeId],
-          loading: loading
+    const state = this.context.getState()
+
+    if (nodeId === state.rootId) {
+      await this.context.setState(() => ({
+        loading: loading
+      }))
+    } else {
+      await this.context.setState(state => ({
+        nodes: {
+          ...state.nodes,
+          [nodeId]: {
+            ...state.nodes[nodeId],
+            loading: loading
+          }
         }
-      }
-    }))
+      }))
+    }
   }
 
   async _loadSettings() {

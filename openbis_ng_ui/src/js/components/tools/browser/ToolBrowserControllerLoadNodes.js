@@ -41,7 +41,9 @@ export default class ToolBrowserControllerLoadNodes {
           queries.totalCount
 
         if (totalCount > ToolBrowserCommon.TOTAL_LOAD_LIMIT) {
-          return BrowserCommon.tooManyResultsFound(node.id)
+          return {
+            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+          }
         }
 
         const nodes = []

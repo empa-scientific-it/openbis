@@ -54,7 +54,9 @@ export default class TypeBrowserControllerLoadNodes {
           vocabularyTypes.totalCount
 
         if (totalCount > TypeBrowserCommon.TOTAL_LOAD_LIMIT) {
-          return BrowserCommon.tooManyResultsFound(node.id)
+          return {
+            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+          }
         }
 
         const nodes = []
