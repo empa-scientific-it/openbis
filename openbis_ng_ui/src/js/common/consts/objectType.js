@@ -28,6 +28,8 @@ const PERSONAL_ACCESS_TOKEN = 'personalAccessToken'
 const QUERY = 'query'
 const HISTORY = 'history'
 const IMPORT = 'import'
+const REPORT = 'report'
+const ACCESS = 'access'
 const ACTIVE_USERS_REPORT = 'activeUsersReport'
 
 const SEARCH = 'search'
@@ -63,6 +65,8 @@ export default {
   QUERY,
   HISTORY,
   IMPORT,
+  REPORT,
+  ACCESS,
   SEARCH,
   OVERVIEW,
   ACTIVE_USERS_REPORT

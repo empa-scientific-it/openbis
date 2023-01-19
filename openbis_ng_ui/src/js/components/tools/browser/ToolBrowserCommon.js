@@ -4,6 +4,9 @@ import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
+const TOTAL_LOAD_LIMIT = 500
+const LOAD_LIMIT = 2
+
 function dynamicPropertyPluginsFolderNode(parentId) {
   return {
     id: BrowserCommon.nodeId(parentId, objectType.DYNAMIC_PROPERTY_PLUGIN),
@@ -12,7 +15,8 @@ function dynamicPropertyPluginsFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.DYNAMIC_PROPERTY_PLUGIN
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -35,7 +39,8 @@ function entityValidationPluginsFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.ENTITY_VALIDATION_PLUGIN
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -58,7 +63,8 @@ function queriesFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.QUERY
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -133,13 +139,12 @@ function importAllNode(parentId) {
 }
 
 function reportFolderNode(parentId) {
-  const TYPE_REPORT = 'report'
   return {
-    id: BrowserCommon.nodeId(parentId, TYPE_REPORT),
+    id: BrowserCommon.nodeId(parentId, objectType.REPORT),
     text: messages.get(messages.REPORT),
     object: {
-      type: TYPE_REPORT,
-      id: TYPE_REPORT
+      type: objectType.REPORT,
+      id: objectType.REPORT
     },
     canHaveChildren: true,
     selectable: false
@@ -158,13 +163,12 @@ function activeUsersReportNode(parentId) {
 }
 
 function accessFolderNode(parentId) {
-  const TYPE_ACCESS = 'access'
   return {
-    id: BrowserCommon.nodeId(parentId, TYPE_ACCESS),
+    id: BrowserCommon.nodeId(parentId, objectType.ACCESS),
     text: messages.get(messages.ACCESS),
     object: {
-      type: TYPE_ACCESS,
-      id: TYPE_ACCESS
+      type: objectType.ACCESS,
+      id: objectType.ACCESS
     },
     canHaveChildren: true,
     selectable: false
@@ -183,6 +187,8 @@ function personalAccessTokensNode(parentId) {
 }
 
 export default {
+  TOTAL_LOAD_LIMIT,
+  LOAD_LIMIT,
   dynamicPropertyPluginsFolderNode,
   dynamicPropertyPluginNode,
   entityValidationPluginsFolderNode,

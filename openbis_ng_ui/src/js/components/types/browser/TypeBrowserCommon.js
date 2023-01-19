@@ -137,8 +137,8 @@ function propertyTypesFolderNode(parentId) {
 }
 
 export default {
-  LOAD_LIMIT,
   TOTAL_LOAD_LIMIT,
+  LOAD_LIMIT,
   objectTypesFolderNode,
   objectTypeNode,
   collectionTypesFolderNode,
