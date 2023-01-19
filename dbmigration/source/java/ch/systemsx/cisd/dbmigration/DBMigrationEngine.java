@@ -224,6 +224,7 @@ public final class DBMigrationEngine
             if (currentVersion == null) {
                 currentVersion = 0;
             }
+            operationLog.info("Application of release patches version: " + releasePatchesVersion);
             while (currentVersion < Integer.parseInt(releasePatchesVersion)) {
                 Script mainScript = scriptProvider.tryGetReleasePatchScripts(currentVersion + 1);
                 scriptExecutor.execute(mainScript, false, null);
