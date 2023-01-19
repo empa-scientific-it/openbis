@@ -48,10 +48,6 @@
       <param name="project" value="installation"/>
       <param name="pattern" value="*"/>
     </antcall>
-    <antcall target="_dist">
-      <param name="project" value="sanofi"/>
-      <param name="pattern" value="*"/>
-    </antcall>
     <antcall target="javadoc"/>
     <antcall target="clients-and-apis-dist"/>
   </target>
@@ -112,17 +108,11 @@
       <param name="project" value="rtd_cina"/>
     </antcall>
     <antcall target="_clean">
-      <param name="project" value="plasmid"/>
-    </antcall>
-    <antcall target="_clean">
       <param name="project" value="openbis_standard_technologies"/>
     </antcall>
     <antcall target="_clean">
       <param name="project" value="installation"/>
     </antcall>
-	<antcall target="_clean">
-	  <param name="project" value="sanofi"/>
-	</antcall>
   </target>
 
   <target name="_clean">
