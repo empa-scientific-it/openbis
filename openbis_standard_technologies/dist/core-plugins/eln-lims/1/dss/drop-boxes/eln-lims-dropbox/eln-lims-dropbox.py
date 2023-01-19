@@ -60,7 +60,9 @@ def process(transaction):
                 emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, projectCode, sampleCode)
                 sample = transaction.getSample("/" + sampleSpace + "/" + projectCode + "/" + sampleCode);
                 if sample is None:
-                    raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
+                    reportIssue(transaction,
+                                INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE,
+                                None);
                 if len(datasetInfo) >= 5:
                     datasetType = datasetInfo[4];
                 if len(datasetInfo) >= 6:
@@ -76,7 +78,9 @@ def process(transaction):
                 emailAddress = getSampleRegistratorsEmail(transaction, sampleSpace, None, sampleCode)
                 sample = transaction.getSample("/" + sampleSpace + "/" + sampleCode);
                 if sample is None:
-                    raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
+                    reportIssue(transaction,
+                                INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE,
+                                None);
                 if len(datasetInfo) >= 4:
                     datasetType = datasetInfo[3];
                 if len(datasetInfo) >= 5:
@@ -110,7 +114,9 @@ def process(transaction):
                                                               experimentCode);
                 experiment = transaction.getExperiment("/" + experimentSpace + "/" + projectCode + "/" + experimentCode);
                 if experiment is None:
-                    raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + EXPERIMENT_MISSING_ERROR_MESSAGE);
+                    reportIssue(transaction,
+                                INVALID_FORMAT_ERROR_MESSAGE + ":" + EXPERIMENT_MISSING_ERROR_MESSAGE,
+                                None);
                 if len(datasetInfo) >= 5:
                     datasetType = datasetInfo[4];
                 if len(datasetInfo) >= 6:
@@ -196,7 +202,7 @@ def getContactsEmailAddresses(transaction):
 
 def reportIssue(transaction, errorMessage, emailAddress):
     contacts = getContactsEmailAddresses(transaction);
-    allAddresses = [emailAddress] + contacts;
+    allAddresses = [emailAddress] + contacts if emailAddress is not None else contacts;
     sendMail(transaction, map(lambda address: EMailAddress(address), allAddresses), EMAIL_SUBJECT, errorMessage);
     raise UserFailureException(errorMessage);
 
