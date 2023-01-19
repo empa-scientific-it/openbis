@@ -41,7 +41,6 @@ openbis_api \
 plasmid \
 rtd_phosphonetx \
 rtd_yeastx \
-rtd_cina \
 screening \
 ui-test\
 "
