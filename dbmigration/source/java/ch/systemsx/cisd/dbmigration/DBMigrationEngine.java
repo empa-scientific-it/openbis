@@ -214,6 +214,10 @@ public final class DBMigrationEngine
 
     private void migrateReleasePatches(final String releasePatchesVersion)
     {
+        if (releasePatchesVersion == null) {
+            operationLog.info("Application of release patches Skipped");
+            return;
+        }
         operationLog.info("Application of release patches START");
         try {
             Integer currentVersion = readVersionFromFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH));
