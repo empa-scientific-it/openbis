@@ -12,5 +12,4 @@ BIN_DIR=`dirname "$0"`
 SCRIPT="$BIN_DIR/fetch-ci-artifacts.sh"
 
 "$SCRIPT" openbis
-"$SCRIPT" rtd_yeastx
 "$SCRIPT" -p server datastore_server

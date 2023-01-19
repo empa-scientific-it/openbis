@@ -1,2 +1,2 @@
 includeFlat 'commonbase', 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis',
-        'datastore_server', 'screening', 'rtd_yeastx', 'deep_sequencing_unit', 'openbis_standard_technologies'
+        'datastore_server', 'screening', 'deep_sequencing_unit', 'openbis_standard_technologies'
