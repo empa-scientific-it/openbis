@@ -15,11 +15,35 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+
 /**
- * For backwards compatibility after PreStagingCleanUpMaintenanceTask had been renamed to DataSetRegistrationCleanUpTask
+ * 
  * @author Franz-Josef Elmer
  */
-public class PreStagingCleanUpMaintenanceTask extends DataSetRegistrationCleanUpTask
+public class PreStagingCleanUpMaintenanceTask implements IMaintenanceTask
 {
+    private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            PreStagingCleanUpMaintenanceTask.class);
+
+    @Override
+    public void setUp(String pluginName, Properties properties)
+    {
+        notifyLog.error("This task has been deprecated in favour of"
+                + DataSetRegistrationCleanUpTask.class.getName()
+                + " that is already schedule automatically during startup.");
+    }
+
+    @Override
+    public void execute()
+    {
+        // Does nothing
+    }
 
 }
