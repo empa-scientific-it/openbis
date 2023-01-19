@@ -21,10 +21,6 @@
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
-      <param name="project" value="rtd_phosphonetx" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
       <param name="project" value="rtd_yeastx" />
       <param name="pattern" value="*"/>
     </antcall>
@@ -90,9 +86,6 @@
     </antcall>
     <antcall target="_clean">
       <param name="project" value="deep_sequencing_unit"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="rtd_phosphonetx"/>
     </antcall>
     <antcall target="_clean">
       <param name="project" value="rtd_yeastx"/>
