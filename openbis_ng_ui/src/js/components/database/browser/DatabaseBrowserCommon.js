@@ -2,6 +2,9 @@ import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 
+const TOTAL_LOAD_LIMIT = 500
+const LOAD_LIMIT = 5
+
 const TYPE_SPACES = 'spaces'
 const TYPE_PROJECTS = 'projects'
 const TYPE_COLLECTIONS = 'collections'
@@ -58,6 +61,7 @@ function spacesFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -84,6 +88,7 @@ function projectsFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -110,6 +115,7 @@ function collectionsFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -136,6 +142,7 @@ function objectsFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -149,6 +156,7 @@ function objectsChildrenFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -174,6 +182,7 @@ function dataSetsFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -187,6 +196,7 @@ function dataSetsChildrenFolderNode(parent) {
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -204,6 +214,8 @@ function dataSetNode(parent, dataSetCode) {
 }
 
 export default {
+  TOTAL_LOAD_LIMIT,
+  LOAD_LIMIT,
   TYPE_SPACES,
   TYPE_PROJECTS,
   TYPE_COLLECTIONS,
