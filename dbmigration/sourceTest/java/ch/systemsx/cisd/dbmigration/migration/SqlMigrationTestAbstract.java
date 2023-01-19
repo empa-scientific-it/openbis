@@ -80,7 +80,7 @@ public abstract class SqlMigrationTestAbstract
         }
     }
 
-    public void testMigration(final String newestVersionString, final String newestFullTextSearchVersionString)
+    public void testMigration(final String newestVersionString, final String newestFullTextSearchVersionString, final String newestPatchesVersionString)
     {
         new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH).delete();
 
@@ -96,18 +96,18 @@ public abstract class SqlMigrationTestAbstract
             // create first version of the migration database
             migrationContext = createMigrationDatabaseContext(true);
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
-                    firstVersion.getVersionString(), newestFullTextSearchVersionString);
+                    firstVersion.getVersionString(), newestFullTextSearchVersionString, newestPatchesVersionString);
 
             // migrate the migration database to the newest version
             migrationContext.setCreateFromScratch(false);
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
-                    newestVersion.getVersionString(), newestFullTextSearchVersionString);
+                    newestVersion.getVersionString(), newestFullTextSearchVersionString, newestPatchesVersionString);
             dumpDatabaseSchema(migrationContext, getMigratedDatabaseSchemaFile());
 
             // create the scratch database with the newest version
             scratchContext = createScratchDatabaseContext();
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(scratchContext,
-                    newestVersion.getVersionString(), newestFullTextSearchVersionString);
+                    newestVersion.getVersionString(), newestFullTextSearchVersionString, newestPatchesVersionString);
             dumpDatabaseSchema(scratchContext, getScratchDatabaseSchemaFile());
 
             // check migration and scratch databases are equal
