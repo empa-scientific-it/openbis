@@ -25,10 +25,6 @@
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
-      <param name="project" value="plasmid" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
       <param name="project" value="openbis_standard_technologies" />
       <param name="pattern" value="*server-standard*"/>
     </antcall>

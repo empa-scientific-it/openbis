@@ -38,7 +38,6 @@ openbis \
 openbis-common \
 openbis_standard_technologies \
 openbis_api \
-plasmid \
 screening \
 ui-test\
 "
