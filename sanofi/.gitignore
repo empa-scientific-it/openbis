@@ -1,6 +1,0 @@
-/targets
-*.class
-test-output
-/.idea/
-*.iml
-*.eml
