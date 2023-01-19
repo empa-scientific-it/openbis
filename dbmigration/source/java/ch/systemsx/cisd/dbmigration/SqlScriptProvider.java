@@ -219,6 +219,13 @@ public class SqlScriptProvider implements ISqlScriptProvider
                 };
     }
 
+    @Override
+    public Script tryGetReleasePatchScripts(final int version)
+    {
+        final String prefix = "release-patch/" + version;
+        return tryLoadScript("release-patch-" + version + SQL_FILE_TYPE, Integer.toString(version), prefix);
+    }
+
     private Script tryLoadScript(final String scriptName, final String scriptVersion)
     {
         return tryLoadScript(scriptName, scriptVersion, scriptVersion);

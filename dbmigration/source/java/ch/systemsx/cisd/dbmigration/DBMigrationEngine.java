@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import jnr.ffi.annotations.In;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -47,6 +48,8 @@ public final class DBMigrationEngine
     /** Path to the file which has the last version of applied full text search migration scripts. */
     public static final String FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH = "etc/full-text-search-document-version";
 
+    private static final String RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH = "etc/release-patches-document-version";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
     /**
@@ -56,7 +59,8 @@ public final class DBMigrationEngine
      */
     public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
             final DatabaseConfigurationContext context, final String databaseVersion,
-            final String fullTextSearchDocumentVersion)
+            final String fullTextSearchDocumentVersion,
+            final String releasePatchesVersion)
     {
         assert context != null : "Unspecified database configuration context.";
         assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
@@ -73,6 +77,7 @@ public final class DBMigrationEngine
         if (Integer.parseInt(databaseVersion) >= 180)
         {
             migrationEngine.migrateFullTextSearch(fullTextSearchDocumentVersion);
+            migrationEngine.migrateReleasePatches(releasePatchesVersion);
         }
 
         /*
@@ -205,6 +210,28 @@ public final class DBMigrationEngine
         {
             operationLog.info("Skipped application of full text search scripts.");
         }
+    }
+
+    private void migrateReleasePatches(final String releasePatchesVersion)
+    {
+        operationLog.info("Application of release patches START");
+        try {
+            Integer currentVersion = readVersionFromFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH));
+            if (currentVersion == null) {
+                currentVersion = 0;
+            }
+            while (currentVersion < Integer.parseInt(releasePatchesVersion)) {
+                Script mainScript = scriptProvider.tryGetReleasePatchScripts(currentVersion + 1);
+                scriptExecutor.execute(mainScript, false, null);
+                currentVersion++;
+                FileUtilities.writeToFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH), currentVersion);
+                operationLog.info("Application of release patches succeed for version: " + currentVersion);
+            }
+        } catch (Exception e) {
+            operationLog.info("Application of release patches failed, server will shutdown.");
+            System.exit(-1);
+        }
+        operationLog.info("Application of release patches END");
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

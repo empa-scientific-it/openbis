@@ -103,6 +103,10 @@
 			<bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
 				factory-method="getDatabaseFullTextSearchDocumentVersion" />
 		</constructor-arg>
+		<constructor-arg>
+			<bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
+				  factory-method="getReleasePatchesVersion" />
+		</constructor-arg>
 	</bean>
 
 	<bean id="dao-factory"

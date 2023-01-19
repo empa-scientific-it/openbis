@@ -115,4 +115,11 @@ public interface ISqlScriptProvider
      */
     Script[] tryGetFullTextSearchScripts(String version);
 
+    /**
+     * Returns a single patch script.
+     *
+     * @param version patch script script version.
+     * @return one script.
+     */
+    Script tryGetReleasePatchScripts(int version);
 }
