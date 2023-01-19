@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.springsource.ide.eclipse.gradle.launch">
-<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PGM_ARGS" value="-Dopenbis.development-build=true"/>
-<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PROJECT" value="gradle"/>
-<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKTEXT" value=":rtd_phosphonetx:prepareGWT&#10;"/>
-</launchConfiguration>
