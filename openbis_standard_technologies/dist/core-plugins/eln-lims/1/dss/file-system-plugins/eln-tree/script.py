@@ -309,7 +309,10 @@ def addSampleChildNodes(path, samplePermId, response, acceptor, context):
     addNodes("SAMPLE", entitiesByName, path, response, context)
 
 def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context):
-    for childNode in contentNode.getChildNodes():
+    childNodes = contentNode.getChildNodes()
+    if len(childNodes) == 1 and childNodes[0].getRelativePath() == 'original':
+        childNodes = childNodes[0].getChildNodes()
+    for childNode in childNodes:
         nodeName = childNode.getName()
         filePath = "%s/%s" % (path, nodeName)
         filePermId = "%s::%s" % (dataSetCode, childNode.getRelativePath())
