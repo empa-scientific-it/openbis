@@ -229,7 +229,7 @@ public final class DBMigrationEngine
                 Script mainScript = scriptProvider.tryGetReleasePatchScripts(currentVersion + 1);
                 scriptExecutor.execute(mainScript, false, null);
                 currentVersion++;
-                FileUtilities.writeToFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH), currentVersion);
+                FileUtilities.writeToFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH), Integer.toString(currentVersion));
                 operationLog.info("Application of release patches succeed for version: " + currentVersion);
             }
         } catch (Exception e) {
