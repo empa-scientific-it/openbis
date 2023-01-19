@@ -42,8 +42,6 @@ cd openbis_standard_technologies
 ./gradlew :generateJavadoc
 cd ../installation
 ./gradlew :build -x test
-cd ../plasmid
-./gradlew :build -x test
 
 cd ../..
 
@@ -64,6 +62,5 @@ cd -
 mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
 mv openbis/openbis_standard_technologies/targets/gradle/distributions/big_data_link_server*.zip .
 mv openbis/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
-mv openbis/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
 
 move_to_file_server

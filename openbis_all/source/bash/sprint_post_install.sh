@@ -6,16 +6,9 @@ export SERVER=`uname -n`
 
 export SPRINT=bs-openbis07.ethz.ch
 export DEMO=bs-openbis08.ethz.ch
-export YEASTX=obis.ethz.ch
-export PHOSPHONETX=openbis-phosphonetx.ethz.ch
 export LIVERX=openbis-liverx.ethz.ch
-export AGRONOMICS=bs-agronomics01.ethz.ch
 export DSU=bs-openbis04.ethz.ch
 export SCU=bs-openbis05.ethz.ch
-export BASYSBIO=bs-basysbio01.ethz.ch
-export BASYSBIO_TEST=openbis-test
-export CINA=bs-openbis01.ethz.ch
-export PLASMIDS=bs-openbis02.ethz.ch
 export LIMB=bs-openbis03.ethz.ch
 
 function create_individual_greeting_message {
@@ -64,15 +57,6 @@ function restore_config_files {
   fi  
 }
 
-function add_yeastx_plugin {
-	 echo installing yeastx...
-	 cd ~openbis/config
-	 unzip ~openbis/config/datastore_server_plugin*.zip
-	 mv -f ~openbis/config/lib/*.jar ~openbis/sprint/datastore_server/lib
-	 rmdir ~openbis/config/lib
-	 mv -f ~openbis/config/datastore_server_plugin*.zip ~openbis/old/
-}
-
 case "$SERVER" in
 
 	$SPRINT)
@@ -88,29 +72,10 @@ case "$SERVER" in
 	echo DEMO:$DEMO;
 	$BIN/sprint_post_install_demo.sh
 	;;
-	$YEASTX)
-	restore_config_files
-	create_individual_greeting_message
-	echo YEASTX:$YEASTX;
-	$BIN/sprint_post_install_yeastx.sh
-	;;
-	$PHOSPHONETX)
-	restore_config_files
-	create_individual_greeting_message
-	$BIN/sprint_post_install_phosphonetx.sh
-	echo PHOSPHONETX:$PHOSPHONETX;
-	;;
 	$LIVERX)
 	restore_config_files
 	create_individual_greeting_message
 	echo LIVERX:$LIVERX;
-	;;
-	$AGRONOMICS)
-	echo AGRONOMICS:$AGRONOMICS;
-	restore_config_files
-	create_individual_greeting_message
-	add_yeastx_plugin
-	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
 	echo DSU:$DSU;
@@ -123,31 +88,6 @@ case "$SERVER" in
 	echo SCU:$SCU;
 	restore_config_files
 	create_individual_greeting_message
-	;;
-	$BASYSBIO)
-	echo BASYSBIO:$BASYSBIO;
-	restore_config_files
-	create_individual_greeting_message
-	add_yeastx_plugin
-	$BIN/sprint_post_install_basysbio.sh
-	;;
-	$BASYSBIO_TEST)
-	echo BASYSBIO_TEST:$BASYSBIO_TEST;
-	restore_config_files
-	create_individual_greeting_message
-	add_yeastx_plugin
-	$BIN/sprint_post_install_basysbio.sh
-	;;
-	$CINA)
-	echo CINA:$CINA;
-	restore_config_files
-	create_individual_greeting_message
-	;;
-	$PLASMIDS)
-	echo PLASMIDS:$PLASMIDS;
-	restore_config_files
-	create_individual_greeting_message
-  $BIN/sprint_post_install_plasmids.sh
 	;;
 	$LIMB)
 	echo LIMB:$LIMB;
