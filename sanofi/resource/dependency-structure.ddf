@@ -1,7 +1,0 @@
-#show allResults
-
-{root} = ch.systemsx.cisd.sanofi
-
-######################################################################
-# Check dependencies to openbis
-
