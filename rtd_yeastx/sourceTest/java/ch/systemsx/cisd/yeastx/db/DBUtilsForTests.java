@@ -34,6 +34,6 @@ public class DBUtilsForTests
     {
         SpringEoDSQLExceptionTranslator.activate();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                MetabolDatabaseVersionHolder.DATABASE_VERSION, null);
+                MetabolDatabaseVersionHolder.DATABASE_VERSION, null, null);
     }
 }
