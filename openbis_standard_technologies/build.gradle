@@ -37,7 +37,6 @@ evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':openbis')
 evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':screening')
-evaluationDependsOn(':rtd_yeastx')
 evaluationDependsOn(':deep_sequencing_unit')
 evaluationDependsOn(':big_data_link_server')
 evaluationDependsOn(':openbis_ng_ui')
@@ -81,7 +80,6 @@ dependencies {
 	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 
 	datastore_server project(':deep_sequencing_unit'),
-					 project(':rtd_yeastx'),
 					 project(':screening'),
 					 'bioformats:bioformats:6.5.1',
 					 'imagej:ij:1.43u',
