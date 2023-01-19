@@ -68,7 +68,7 @@ public final class DatabaseCreationUtil
      * migrated from the specified version.
      */
     private static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion,
-            final String fullTextSearchDocumentVersion)
+            final String fullTextSearchDocumentVersion, final String releasePatchesVersion)
             throws Exception
     {
         final String databaseKind = "migration_dump";
@@ -78,12 +78,12 @@ public final class DatabaseCreationUtil
         new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH).delete();
         final ISqlScriptProvider scriptProvider =
                 DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                        databaseVersion, fullTextSearchDocumentVersion);
+                        databaseVersion, fullTextSearchDocumentVersion, releasePatchesVersion);
         context.setCreateFromScratch(false);
         context.setScriptFolder("source/sql");
         new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH).delete();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                DatabaseVersionHolder.getDatabaseVersion(), fullTextSearchDocumentVersion);
+                DatabaseVersionHolder.getDatabaseVersion(), fullTextSearchDocumentVersion, releasePatchesVersion);
         createDumpForJava(databaseKind,
                 scriptProvider.getDumpFolder(DatabaseVersionHolder.getDatabaseVersion()));
         scriptProvider.markAsDumpRestorable(DatabaseVersionHolder.getDatabaseVersion());
@@ -140,7 +140,8 @@ public final class DatabaseCreationUtil
             return; // never executed
         }
         createFilesFromADumpOfAMigratedDatabase(sourceDbVersion,
-                DatabaseVersionHolder.getDatabaseFullTextSearchDocumentVersion());
+                DatabaseVersionHolder.getDatabaseFullTextSearchDocumentVersion(),
+                DatabaseVersionHolder.getReleasePatchesVersion());
     }
 
     private static String getPreviousVersion(final String currentVersion)
