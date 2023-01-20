@@ -73,12 +73,12 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
     if (node.internalRoot) {
       const root = BrowserCommon.rootNode()
-      root.children = this.doLoadFilteredNodes({
+      root.children = await this.doLoadFilteredNodes({
         ...params,
         node: root
       })
       result.nodes.push(root)
-    } else if (node.object.type === BrowserCommon.TYPE_ROOT) {
+    } else if (node.root) {
       if (!_.isEmpty(entities.spaces)) {
         const spacesNode = this.createSpacesNode(
           Object.values(entities.spaces),
@@ -118,7 +118,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
   async searchSpaces(params) {
     const { node, filter, offset, limit } = params
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       return new openbis.SearchResult([], 0)
     }
 
@@ -140,7 +140,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.ProjectSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         criteria.withSpace().withCode().thatEquals(node.object.id)
       } else {
@@ -165,7 +165,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.ExperimentSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         criteria.withProject().withSpace().withCode().thatEquals(node.object.id)
       } else if (node.object.type === objectType.PROJECT) {
@@ -192,7 +192,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -243,7 +243,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()

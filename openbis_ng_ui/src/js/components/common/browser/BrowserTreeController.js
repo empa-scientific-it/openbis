@@ -354,7 +354,15 @@ export default class BrowserTreeController {
     this.lastLoadPromise[node.id] = loadPromise
     const loadResult = await loadPromise
 
-    // TODO check result structure if it is correct
+    const errors = []
+    this._doCheckLoadResult(node, loadResult, errors)
+
+    if (!_.isEmpty(errors)) {
+      const message =
+        'Browser errors:\n' +
+        errors.map((error, index) => index + 1 + ') ' + error).join('\n')
+      console.error(message)
+    }
 
     return {
       ...loadResult,
@@ -362,24 +370,109 @@ export default class BrowserTreeController {
     }
   }
 
+  _doCheckLoadResult(node, loadResult, errors) {
+    if (_.isNil(loadResult)) {
+      errors.push(`Load result cannot be null (parent id: ${node.id})`)
+    }
+    if (_.isNil(loadResult.nodes)) {
+      errors.push(`Load result nodes cannot be null (parent id: ${node.id})`)
+    }
+
+    loadResult.nodes.forEach(child => {
+      // id
+      if (_.isNil(child.id)) {
+        errors.push(`Node id is null (parent id: ${node.id})`)
+      }
+      if (
+        node.id !== BrowserTreeController.INTERNAL_ROOT_ID &&
+        (!child.id.startsWith(node.id) || child.id === node.id)
+      ) {
+        errors.push(
+          `Node id should be prefixed with parent id (parent id: ${node.id}, node id: ${child.id})`
+        )
+      }
+
+      // text, message
+      if (_.isNil(child.text) && _.isNil(child.message)) {
+        errors.push(`Node text and message is null (node id: ${child.id})`)
+      }
+
+      if (
+        !_.isNil(child.message) &&
+        (_.isNil(child.message.type) || _.isNil(child.message.text))
+      ) {
+        errors.push(
+          `Node message is incorrect (node id: ${
+            child.id
+          }, message: ${JSON.stringify(child.message)})`
+        )
+      }
+
+      // object
+      if (
+        _.isNil(child.object) ||
+        _.isNil(child.object.id) ||
+        _.isNil(child.object.type)
+      ) {
+        errors.push(
+          `Node object, object.id or object.type is null (node id: ${
+            child.id
+          }, object: ${JSON.stringify(child.object)})`
+        )
+      }
+
+      // flags
+      const flags = ['canHaveChildren', 'rootable', 'selectable', 'draggable']
+
+      flags.forEach(flag => {
+        if (!_.isNil(child[flag]) && !_.isBoolean(child[flag])) {
+          errors.push(
+            `Node '${flag}' value should be a boolean (node id: ${child.id}, field value: ${child[flag]})`
+          )
+        }
+      })
+
+      // childrenLoadLimit
+      if (
+        !_.isNil(child.childrenLoadLimit) &&
+        (!_.isNumber(child.childrenLoadLimit) || _.isNil(child.canHaveChildren))
+      ) {
+        errors.push(
+          `Node 'childrenLoadLimit' value is incorrect (node id: ${child.id}, childrenLoadLimit: ${child.childrenLoadLimit})`
+        )
+      }
+
+      // sortingId, sortings
+      if (!_.isNil(child.sortingId)) {
+        const sorting = _.isNil(child.sortings)
+          ? null
+          : child.sortings[child.sortingId]
+
+        if (
+          _.isNil(sorting) ||
+          _.isNil(sorting.label) ||
+          _.isNil(sorting.index) ||
+          !_.isNumber(sorting.index)
+        ) {
+          errors.push(
+            `Node sorting is incorrect (node id: ${child.id}, sortingId: ${
+              child.sortingId
+            }, sortings: ${JSON.stringify(child.sortings)}`
+          )
+        }
+      }
+
+      if (child.canHaveChildren && child.children) {
+        this._doCheckLoadResult(child, child.children, errors)
+      }
+    })
+  }
+
   _doProcessLoadResult(state, nodeId, loadResult, append, accumulator) {
     const loadedNodesIds = []
 
     if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
       loadResult.nodes.forEach(loadedNode => {
-        if (
-          !loadedNode.id ||
-          (nodeId !== BrowserTreeController.INTERNAL_ROOT_ID &&
-            (!loadedNode.id.startsWith(nodeId) || loadedNode.id === nodeId))
-        ) {
-          alert(
-            'ERROR: Child node id should be prefixed with parent node id. Parent id: ' +
-              nodeId +
-              ', child id: ' +
-              loadedNode.id
-          )
-        }
-
         const draggable = loadedNode.draggable !== false
         const selectable = loadedNode.selectable !== false
 

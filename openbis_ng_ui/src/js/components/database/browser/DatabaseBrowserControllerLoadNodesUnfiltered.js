@@ -274,7 +274,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.parent.object.type === BrowserCommon.TYPE_ROOT) {
+    if (node.parent.root) {
       criteria.withoutSpace()
       criteria.withoutProject()
       criteria.withoutExperiment()
