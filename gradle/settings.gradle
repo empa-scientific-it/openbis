@@ -1,5 +1,4 @@
 includeFlat 'commonbase', 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis',
-        'datastore_server', 'screening',
-        'openbis_standard_technologies', 'installation', 'image_readers', 'ui-test', 'js-test', 'datamover',
-        'big_data_link_server', 'openbis_ng_ui', 'microservice_server_template',
-        'openbis_statistics_server', 'openbis_benchmark'
+        'datastore_server', 'screening', 'openbis_standard_technologies', 'installation',
+        'image_readers', 'ui-test', 'js-test', 'datamover', 'big_data_link_server', 'openbis_ng_ui',
+        'microservice_server_template', 'openbis_statistics_server'
