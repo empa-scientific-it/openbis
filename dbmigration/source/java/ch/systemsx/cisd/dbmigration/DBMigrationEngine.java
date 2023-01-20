@@ -16,19 +16,12 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
-import jnr.ffi.annotations.In;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.db.Script;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -194,7 +187,7 @@ public final class DBMigrationEngine
     private void migrateFullTextSearch(final String fullTextSearchDocumentVersion)
     {
         final File file = new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH);
-        final Integer ftsDocumentVersionFromFile = readVersionFromFile(file);
+        final Integer ftsDocumentVersionFromFile = readVersionFromFileAsInteger(file);
         operationLog.info("Deciding application of full text search scripts, looking for current at:" + file.getAbsolutePath());
         operationLog.info("Deciding application of full text search scripts, current: " + ftsDocumentVersionFromFile + " available: " + fullTextSearchDocumentVersion);
         if (fullTextSearchDocumentVersion != null && (ftsDocumentVersionFromFile == null
@@ -220,17 +213,19 @@ public final class DBMigrationEngine
         }
         operationLog.info("Application of release patches START");
         try {
-            Integer currentVersion = readVersionFromFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH));
-            if (currentVersion == null) {
-                currentVersion = 0;
+            String versionOnFile = readVersionFromFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH));
+            if (versionOnFile == null) {
+                versionOnFile = "000";
             }
+
             operationLog.info("Application of release patches version: " + releasePatchesVersion);
-            while (currentVersion < Integer.parseInt(releasePatchesVersion)) {
-                Script mainScript = scriptProvider.tryGetReleasePatchScripts(currentVersion + 1);
+            while (Integer.parseInt(versionOnFile) < Integer.parseInt(releasePatchesVersion)) {
+                String nextVersion = increment(versionOnFile);
+                Script mainScript = scriptProvider.tryGetReleasePatchScripts(nextVersion);
                 scriptExecutor.execute(mainScript, false, null);
-                currentVersion++;
-                FileUtilities.writeToFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH), Integer.toString(currentVersion));
-                operationLog.info("Application of release patches succeed for version: " + currentVersion);
+                FileUtilities.writeToFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH), nextVersion);
+                operationLog.info("Application of release patches succeed for version: " + nextVersion);
+                versionOnFile = nextVersion;
             }
         } catch (Exception e) {
             operationLog.info("Application of release patches failed, server will shutdown.", e);
@@ -240,7 +235,12 @@ public final class DBMigrationEngine
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private Integer readVersionFromFile(final File file)
+    private Integer readVersionFromFileAsInteger(final File file)
+    {
+        return Integer.parseInt(readVersionFromFile(file));
+    }
+
+    private String readVersionFromFile(final File file)
     {
         if (file.exists() == false)
         {
@@ -249,7 +249,7 @@ public final class DBMigrationEngine
         }
         try
         {
-            return Integer.parseInt(FileUtilities.loadToString(file).trim());
+            return FileUtilities.loadToString(file).trim();
         } catch (final NumberFormatException e)
         {
             operationLog.error(String.format("Contents of the file '%s' cannot be parsed as integer",

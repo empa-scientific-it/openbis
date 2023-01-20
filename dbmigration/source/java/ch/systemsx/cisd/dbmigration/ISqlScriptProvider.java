@@ -121,5 +121,5 @@ public interface ISqlScriptProvider
      * @param version patch script script version.
      * @return one script.
      */
-    Script tryGetReleasePatchScripts(int version);
+    Script tryGetReleasePatchScripts(String version);
 }
