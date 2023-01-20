@@ -94,22 +94,74 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
         )
         result.nodes.push(sharedSamplesNode)
       }
+    } else if (node.object.type === objectType.SPACE) {
+      const nodeEntity = entities.spaces[node.object.id] || {}
 
-      if (loadedCount < totalCount) {
-        const loadMoreNode = BrowserCommon.loadMoreResults(
-          node.id,
-          totalCount - loadedCount
+      if (!_.isEmpty(nodeEntity.projects)) {
+        const projectsNode = this.createProjectsNode(
+          Object.values(nodeEntity.projects),
+          node
         )
-        loadMoreNode.onClick = () => {
-          this.controller.loadNode(
-            node.id,
-            0,
-            DatabaseBrowserCommon.TOTAL_LOAD_LIMIT,
-            false
-          )
-        }
-        result.nodes.push(loadMoreNode)
+        result.nodes.push(projectsNode)
       }
+
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+    } else if (node.object.type === objectType.PROJECT) {
+      const nodeEntity = entities.projects[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.experiments)) {
+        const experimentsNode = this.createExperimentsNode(
+          Object.values(nodeEntity.experiments),
+          node
+        )
+        result.nodes.push(experimentsNode)
+      }
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+    } else if (node.object.type === objectType.COLLECTION) {
+      const nodeEntity = entities.experiments[node.object.id] || {}
+
+      if (!_.isEmpty(nodeEntity.samples)) {
+        const samplesNode = this.createSamplesNode(
+          Object.values(nodeEntity.samples),
+          node
+        )
+        result.nodes.push(samplesNode)
+      }
+      if (!_.isEmpty(nodeEntity.dataSets)) {
+        const dataSetsNode = this.createDataSetsNode(
+          Object.values(nodeEntity.dataSets),
+          node
+        )
+        result.nodes.push(dataSetsNode)
+      }
+    }
+
+    if (loadedCount < totalCount) {
+      const loadMoreNode = BrowserCommon.loadMoreResults(
+        node.id,
+        totalCount - loadedCount
+      )
+      loadMoreNode.onClick = () => {
+        this.controller.loadNode(
+          node.id,
+          0,
+          DatabaseBrowserCommon.TOTAL_LOAD_LIMIT,
+          false
+        )
+      }
+      result.nodes.push(loadMoreNode)
     }
 
     return result
