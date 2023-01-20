@@ -233,7 +233,7 @@ public final class DBMigrationEngine
                 operationLog.info("Application of release patches succeed for version: " + currentVersion);
             }
         } catch (Exception e) {
-            operationLog.info("Application of release patches failed, server will shutdown.");
+            operationLog.info("Application of release patches failed, server will shutdown.", e);
             System.exit(-1);
         }
         operationLog.info("Application of release patches END");
