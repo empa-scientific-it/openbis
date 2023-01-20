@@ -204,6 +204,33 @@ export default class BrowserTreeController {
       if (!loadResult.latest) {
         return
       }
+
+      const customSorting = state.customSortings[node.id]
+
+      if (customSorting) {
+        const nodesMap = {}
+        loadResult.nodes.forEach(node => {
+          nodesMap[node.id] = node
+        })
+
+        let sortedIds = this._doCustomSorting(
+          _.union(node.children || [], Object.keys(nodesMap)),
+          customSorting
+        )
+
+        sortedIds = sortedIds.slice(offset)
+
+        const sortedNodes = []
+        sortedIds.forEach(sortedId => {
+          const sortedNode = nodesMap[sortedId]
+          sortedNodes.push(sortedNode)
+        })
+
+        loadResult = {
+          nodes: sortedNodes,
+          totalCount: loadResult.totalCount
+        }
+      }
     } else {
       const nodeForLoad = this._getNodeForLoad(state, node)
       const sortingIdsForLoad = this._getSortingIdsForLoad(state)
