@@ -39,10 +39,30 @@ export default class BrowserController {
         return controller._doLoadNodePath(params)
       }
       async doLoadNodes(params) {
-        return await controller._doLoadNodes({
+        const loadResult = await controller._doLoadNodes({
           ...params,
           filter: null
         })
+
+        function verifyNodes(loadResult) {
+          if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
+            const nodesWithChildren = loadResult.nodes.filter(
+              node => !_.isNil(node.children)
+            )
+            if (!_.isEmpty(nodesWithChildren)) {
+              console.error(
+                'Unfiltered tree nodes cannot be loaded together with their children. They must be loaded level by level, otherwise the custom sorting will not work properly. Incorrect nodes: ' +
+                  JSON.stringify(nodesWithChildren)
+              )
+              loadResult.nodes = []
+              loadResult.totalCount = 0
+            }
+          }
+        }
+
+        verifyNodes(loadResult)
+
+        return loadResult
       }
     }
 
@@ -58,20 +78,20 @@ export default class BrowserController {
           filter: util.trim(filter)
         })
 
-        function prepareNodes(loadResult) {
+        function modifyNodes(loadResult) {
           if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
             loadResult.nodes.forEach(node => {
               node.sortings = {}
               node.sortingId = null
               node.draggable = false
               if (!_.isEmpty(node.children)) {
-                prepareNodes(node.children)
+                modifyNodes(node.children)
               }
             })
           }
         }
 
-        prepareNodes(loadResult)
+        modifyNodes(loadResult)
 
         return loadResult
       }
