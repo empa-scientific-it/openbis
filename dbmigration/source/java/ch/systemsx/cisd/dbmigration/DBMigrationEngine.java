@@ -237,7 +237,12 @@ public final class DBMigrationEngine
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private Integer readVersionFromFileAsInteger(final File file)
     {
-        return Integer.parseInt(readVersionFromFile(file));
+        String versionFromFile = readVersionFromFile(file);
+        if (versionFromFile != null) {
+            return Integer.parseInt(versionFromFile);
+        } else {
+            return null;
+        }
     }
 
     private String readVersionFromFile(final File file)
