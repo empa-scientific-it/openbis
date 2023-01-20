@@ -18,7 +18,7 @@ The build will be found at ./build/distributions/big_data_link_server.zip
 
 Unzip the build and execute
 
-./bin/microservice_server_template
+./bin/microservice-server-template
 
 ## Main packages ##
 
