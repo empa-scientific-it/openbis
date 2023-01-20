@@ -31,7 +31,6 @@ common \
 datamover \
 datastore_server \
 dbmigration \
-deep_sequencing_unit \
 installation \
 js-test \
 openbis \
