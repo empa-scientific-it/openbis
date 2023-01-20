@@ -53,8 +53,8 @@ def isAuthorized(tr):
     roleAssignements = authService.listRoleAssignments()
     for ra in roleAssignements:
         user = ra.getUser().getUserId()
-        role = ra.getRoleSetCode()
-        if user == userId and str(role).endswith("ADMIN"):
+        role = str(ra.getRoleSetCode())
+        if user == userId and (role.endswith("USER") or role.endswith("ADMIN")):
             return True
     return False
 

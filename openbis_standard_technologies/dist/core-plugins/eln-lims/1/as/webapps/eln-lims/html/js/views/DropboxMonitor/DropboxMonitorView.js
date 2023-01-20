@@ -7,7 +7,7 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
         var $header = views.header;
         $header.empty();
         $header.append($("<h1>").append("Dropbox Monitor"));
-        var refreshBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;", "id" : "refresh-btn"}).append("Refersh");
+        var refreshBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;", "id" : "refresh-btn"}).append("Refresh");
         refreshBtn.click(function() {
             _this._dropboxMonitorController.loadOverview(views);
         });
@@ -73,10 +73,7 @@ function DropboxMonitorView(dropboxMonitorController, dropboxMonitorModel) {
             _this._dropboxMonitorController.showLogsModal(e.data.dropboxName);
         }
 
-        var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "DROPBOX_MONITOR_OVERVIEW", false, {
-            fileFormat: 'TSV',
-            filePrefix: 'dropbox-monitor-overview'
-        }, 90);
+        var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "DROPBOX_MONITOR_OVERVIEW", false, false, 90);
         dataGrid.setId("dropbox-monitor-overview-grid");
         var dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
         dataGrid.init(dataGridContainer);
