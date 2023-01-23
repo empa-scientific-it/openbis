@@ -229,7 +229,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.UploadedDataSetCreation;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fastdownload.FastDownloadSession;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fastdownload.FastDownloadSessionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
@@ -339,7 +347,7 @@ public class OpenBISAPI {
         return asFacade.createSampleTypes(sessionToken, newSampleTypes);
     }
 
-    public List<DataSetPermId> createDataSets(List<DataSetCreation> newDataSets) {
+    public List<DataSetPermId> createDataSetsAS(List<DataSetCreation> newDataSets) {
         return asFacade.createDataSets(sessionToken, newDataSets);
     }
 
@@ -907,9 +915,25 @@ public class OpenBISAPI {
     // DSS Facade methods
     //
 
+    public SearchResult<DataSetFile> searchFiles(DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions) {
+        return dssFacade.searchFiles(sessionToken, searchCriteria, fetchOptions);
+    }
+
+    public InputStream downloadFiles(List<? extends IDataSetFileId> fileIds, DataSetFileDownloadOptions downloadOptions) {
+        return dssFacade.downloadFiles(sessionToken, fileIds, downloadOptions);
+    }
+
+    public FastDownloadSession createFastDownloadSession(List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options) {
+        return dssFacade.createFastDownloadSession(sessionToken, fileIds, options);
+    }
+
     public DataSetPermId createUploadedDataSet(final UploadedDataSetCreation newDataSet)
     {
         return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
+    }
+
+    public List<DataSetPermId> createDataSetsDSS(List<FullDataSetCreation> newDataSets) {
+        return dssFacade.createDataSets(sessionToken, newDataSets);
     }
 
     //
