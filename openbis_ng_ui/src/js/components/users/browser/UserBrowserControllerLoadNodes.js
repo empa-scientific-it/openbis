@@ -5,9 +5,6 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import compare from '@src/js/common/compare.js'
 
-const LOAD_LIMIT = 100
-const TOTAL_LOAD_LIMIT = 500
-
 export default class UserBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
@@ -19,83 +16,125 @@ export default class UserBrowserControllerLoadNodes {
         nodes: [rootNode]
       }
     } else if (node.object.type === rootNode.object.type) {
-      const [users, groups] = await Promise.all([
-        this.searchUsers(params),
-        this.searchGroups(params)
-      ])
+      if (!_.isNil(params.filter)) {
+        const [users, groups] = await Promise.all([
+          this.searchUsers({ ...params, limit: UserBrowserCommon.LOAD_LIMIT }),
+          this.searchGroups({ ...params, limit: UserBrowserCommon.LOAD_LIMIT })
+        ])
 
-      if (params.filter) {
         const totalCount = users.totalCount + groups.totalCount
 
-        if (totalCount > TOTAL_LOAD_LIMIT) {
-          return BrowserCommon.tooManyResultsFound(node.id)
+        if (totalCount > UserBrowserCommon.TOTAL_LOAD_LIMIT) {
+          return {
+            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+          }
         }
-      }
 
-      let nodes = [
-        this.createUsersNode(node, users),
-        this.createGroupsNode(node, groups)
-      ]
+        const nodes = []
 
-      if (params.filter) {
-        nodes = nodes.filter(node => !_.isEmpty(node.children))
-        nodes.forEach(node => {
-          node.expanded = true
-        })
-      }
+        if (!_.isEmpty(users.objects)) {
+          const folderNode = UserBrowserCommon.usersFolderNode(node.id)
+          const usersNodes = this.createNodes(
+            folderNode,
+            users,
+            objectType.USER
+          )
+          folderNode.children = usersNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
 
-      return {
-        nodes: nodes
-      }
-    } else if (node.object.type === objectType.OVERVIEW) {
-      let types = null
+        if (!_.isEmpty(groups.objects)) {
+          const folderNode = UserBrowserCommon.groupsFolderNode(node.id)
+          const groupsNodes = this.createNodes(
+            folderNode,
+            groups,
+            objectType.USER_GROUP
+          )
+          folderNode.children = groupsNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
 
-      if (node.object.id === objectType.USER) {
-        types = await this.searchUsers(params)
-      } else if (node.object.id === objectType.USER_GROUP) {
-        types = await this.searchGroups(params)
-      }
-
-      if (types) {
-        return this.createNodes(node, types, node.object.id)
+        return {
+          nodes: nodes
+        }
       } else {
         return {
-          nodes: []
+          nodes: [
+            UserBrowserCommon.usersFolderNode(node.id),
+            UserBrowserCommon.groupsFolderNode(node.id)
+          ]
         }
       }
-    } else {
-      return null
+    } else if (node.object.type === objectType.OVERVIEW) {
+      let objects = null
+
+      if (node.object.id === objectType.USER) {
+        objects = await this.searchUsers(params)
+      } else if (node.object.id === objectType.USER_GROUP) {
+        objects = await this.searchGroups(params)
+      }
+
+      return this.createNodes(node, objects, node.object.id)
+    }
+
+    return {
+      nodes: []
     }
   }
 
   async searchUsers(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.PersonSearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withUserId().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withUserIds().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.PersonFetchOptions()
 
-    const result = await openbis.searchPersons(criteria, fetchOptions)
+    let result = await openbis.searchPersons(criteria, fetchOptions)
+
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getUserId()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getUserId(),
+      text: o.getUserId()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
 
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getUserId(),
-        text: o.getUserId()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
   }
 
   async searchGroups(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.AuthorizationGroupSearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withCode().thatContains(filter)
+    }
+    if (!_.isEmpty(childrenIn)) {
+      criteria.withCodes().thatIn(childrenIn.map(child => child.object.id))
     }
     const fetchOptions = new openbis.AuthorizationGroupFetchOptions()
 
@@ -104,51 +143,36 @@ export default class UserBrowserControllerLoadNodes {
       fetchOptions
     )
 
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getCode()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getCode(),
+      text: o.getCode()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getCode(),
-        text: o.getCode()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
-  }
-
-  createUsersNode(parent, result) {
-    const folderNode = UserBrowserCommon.usersFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.USER
-      )
-    }
-
-    return folderNode
-  }
-
-  createGroupsNode(parent, result) {
-    const folderNode = UserBrowserCommon.groupsFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.USER_GROUP
-      )
-    }
-
-    return folderNode
   }
 
   createNodes(parent, result, objectType) {
-    let objects = result.objects
-    objects.sort((o1, o2) => compare(o1.text, o2.text))
-    objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
-
-    let nodes = objects.map(object => ({
+    const nodes = result.objects.map(object => ({
       id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
@@ -157,18 +181,9 @@ export default class UserBrowserControllerLoadNodes {
       }
     }))
 
-    if (_.isEmpty(nodes)) {
-      return null
-    } else {
-      return {
-        nodes: nodes,
-        loadMore: {
-          offset: result.offset + nodes.length,
-          loadedCount: result.offset + nodes.length,
-          totalCount: result.totalCount,
-          append: true
-        }
-      }
+    return {
+      nodes: nodes,
+      totalCount: result.totalCount
     }
   }
 }

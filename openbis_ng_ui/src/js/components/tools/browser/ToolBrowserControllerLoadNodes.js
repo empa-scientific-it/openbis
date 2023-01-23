@@ -7,9 +7,6 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import compare from '@src/js/common/compare.js'
 
-const LOAD_LIMIT = 100
-const TOTAL_LOAD_LIMIT = 500
-
 export default class ToolBrowserControllerLoadNodes {
   async doLoadNodes(params) {
     const { node } = params
@@ -21,66 +18,138 @@ export default class ToolBrowserControllerLoadNodes {
         nodes: [rootNode]
       }
     } else if (node.object.type === rootNode.object.type) {
-      const [dynamicPropertyPlugins, entityValidationPlugins, queries] =
-        await Promise.all([
-          this.searchDynamicPropertyPlugins(params),
-          this.searchEntityValidationPlugins(params),
-          this.searchQueries(params)
-        ])
+      if (!_.isNil(params.filter)) {
+        const [dynamicPropertyPlugins, entityValidationPlugins, queries] =
+          await Promise.all([
+            this.searchDynamicPropertyPlugins({
+              ...params,
+              limit: ToolBrowserCommon.LOAD_LIMIT
+            }),
+            this.searchEntityValidationPlugins({
+              ...params,
+              limit: ToolBrowserCommon.LOAD_LIMIT
+            }),
+            this.searchQueries({
+              ...params,
+              limit: ToolBrowserCommon.LOAD_LIMIT
+            })
+          ])
 
-      if (params.filter) {
         const totalCount =
           dynamicPropertyPlugins.totalCount +
           entityValidationPlugins.totalCount +
           queries.totalCount
 
-        if (totalCount > TOTAL_LOAD_LIMIT) {
-          return BrowserCommon.tooManyResultsFound(node.id)
+        if (totalCount > ToolBrowserCommon.TOTAL_LOAD_LIMIT) {
+          return {
+            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+          }
         }
-      }
 
-      let nodes = [
-        this.createDynamicPropertyPluginsNode(node, dynamicPropertyPlugins),
-        this.createEntityValidationPluginsNode(node, entityValidationPlugins),
-        this.createQueriesNode(node, queries),
-        this.createHistoryNode(node, params),
-        this.createImportNode(node, params),
-        this.createAccessNode(node, params),
-        this.createActiveUsersReportNode(node, params)
-      ]
+        const nodes = []
 
-      nodes = nodes.filter(node => !!node)
+        if (!_.isEmpty(dynamicPropertyPlugins.objects)) {
+          const folderNode = ToolBrowserCommon.dynamicPropertyPluginsFolderNode(
+            node.id
+          )
+          const pluginsNodes = this.createNodes(
+            folderNode,
+            dynamicPropertyPlugins,
+            objectType.DYNAMIC_PROPERTY_PLUGIN
+          )
+          folderNode.children = pluginsNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
 
-      if (params.filter) {
-        nodes = nodes.filter(node => !_.isEmpty(node.children))
-        nodes.forEach(node => {
-          node.expanded = true
-        })
-      }
+        if (!_.isEmpty(entityValidationPlugins.objects)) {
+          const folderNode =
+            ToolBrowserCommon.entityValidationPluginsFolderNode(node.id)
+          const pluginsNodes = this.createNodes(
+            folderNode,
+            entityValidationPlugins,
+            objectType.ENTITY_VALIDATION_PLUGIN
+          )
+          folderNode.children = pluginsNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
 
-      return {
-        nodes: nodes
+        if (!_.isEmpty(queries.objects)) {
+          const folderNode = ToolBrowserCommon.queriesFolderNode(node.id)
+          const queriesNodes = this.createNodes(
+            folderNode,
+            queries,
+            objectType.QUERY
+          )
+          folderNode.children = queriesNodes
+          folderNode.expanded = true
+          nodes.push(folderNode)
+        }
+
+        return {
+          nodes: nodes
+        }
+      } else {
+        const nodes = []
+        nodes.push(ToolBrowserCommon.dynamicPropertyPluginsFolderNode(node.id))
+        nodes.push(ToolBrowserCommon.entityValidationPluginsFolderNode(node.id))
+        nodes.push(ToolBrowserCommon.queriesFolderNode(node.id))
+        nodes.push(ToolBrowserCommon.historyFolderNode(node.id))
+        nodes.push(ToolBrowserCommon.importFolderNode(node.id))
+
+        const personalAccessTokensEnabled =
+          AppController.getInstance().getServerInformation(
+            ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
+          )
+
+        if ('true'.equalsIgnoreCase(personalAccessTokensEnabled)) {
+          nodes.push(ToolBrowserCommon.accessFolderNode(node.id))
+        }
+
+        nodes.push(ToolBrowserCommon.reportFolderNode(node.id))
+
+        return {
+          nodes: nodes
+        }
       }
     } else if (node.object.type === objectType.OVERVIEW) {
-      let types = null
+      let objects = null
 
       if (node.object.id === objectType.DYNAMIC_PROPERTY_PLUGIN) {
-        types = await this.searchDynamicPropertyPlugins(params)
+        objects = await this.searchDynamicPropertyPlugins(params)
       } else if (node.object.id === objectType.ENTITY_VALIDATION_PLUGIN) {
-        types = await this.searchEntityValidationPlugins(params)
+        objects = await this.searchEntityValidationPlugins(params)
       } else if (node.object.id === objectType.QUERY) {
-        types = await this.searchQueries(params)
+        objects = await this.searchQueries(params)
       }
 
-      if (types) {
-        return this.createNodes(node, types, node.object.id)
-      } else {
-        return {
-          nodes: []
-        }
+      if (objects) {
+        return this.createNodes(node, objects, node.object.id)
       }
-    } else {
-      return null
+    } else if (node.object.type === objectType.HISTORY) {
+      return {
+        nodes: [
+          ToolBrowserCommon.historyDeletionNode(node.id),
+          ToolBrowserCommon.historyFreezingNode(node.id)
+        ]
+      }
+    } else if (node.object.type === objectType.IMPORT) {
+      return {
+        nodes: [ToolBrowserCommon.importAllNode(node.id)]
+      }
+    } else if (node.object.type === objectType.ACCESS) {
+      return {
+        nodes: [ToolBrowserCommon.personalAccessTokensNode(node.id)]
+      }
+    } else if (node.object.type === objectType.REPORT) {
+      return {
+        nodes: [ToolBrowserCommon.activeUsersReportNode(node.id)]
+      }
+    }
+
+    return {
+      nodes: []
     }
   }
 
@@ -96,165 +165,108 @@ export default class ToolBrowserControllerLoadNodes {
   }
 
   async searchPlugins(params, pluginType) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.PluginSearchCriteria()
     criteria.withPluginType().thatEquals(pluginType)
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withName().thatContains(filter)
     }
     const fetchOptions = new openbis.PluginFetchOptions()
 
     const result = await openbis.searchPlugins(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenIn)) {
+      const childrenInMap = {}
+      childrenIn.forEach(child => {
+        childrenInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(
+        object => !_.isNil(childrenInMap[object.getName()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getName()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getName(),
+      text: o.getName()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getName(),
-        text: o.getName()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
   }
 
   async searchQueries(params) {
-    const { filter, offset } = params
+    const { filter, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.QuerySearchCriteria()
-    if (filter) {
+    if (!_.isNil(filter)) {
       criteria.withName().thatContains(filter)
     }
     const fetchOptions = new openbis.QueryFetchOptions()
 
     const result = await openbis.searchQueries(criteria, fetchOptions)
 
+    if (!_.isEmpty(childrenIn)) {
+      const childrenInMap = {}
+      childrenIn.forEach(child => {
+        childrenInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(
+        object => !_.isNil(childrenInMap[object.getName()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    if (!_.isEmpty(childrenNotIn)) {
+      const childrenNotInMap = {}
+      childrenNotIn.forEach(child => {
+        childrenNotInMap[child.object.id] = child
+      })
+      result.objects = result.objects.filter(object =>
+        _.isNil(childrenNotInMap[object.getName()])
+      )
+      result.totalCount = result.objects.length
+    }
+
+    let objects = result.objects.map(o => ({
+      id: o.getName(),
+      text: o.getName()
+    }))
+
+    objects.sort((o1, o2) => compare(o1.text, o2.text))
+
+    if (!_.isNil(offset) && !_.isNil(limit)) {
+      objects = objects.slice(offset, offset + limit)
+    }
+
     return {
-      objects: result.getObjects().map(o => ({
-        id: o.getName(),
-        text: o.getName()
-      })),
-      totalCount: result.getTotalCount(),
-      filter,
-      offset
+      objects: objects,
+      totalCount: result.totalCount
     }
-  }
-
-  createDynamicPropertyPluginsNode(parent, result) {
-    const folderNode = ToolBrowserCommon.dynamicPropertyPluginsFolderNode(
-      parent.id
-    )
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.DYNAMIC_PROPERTY_PLUGIN
-      )
-    }
-
-    return folderNode
-  }
-
-  createEntityValidationPluginsNode(parent, result) {
-    const folderNode = ToolBrowserCommon.entityValidationPluginsFolderNode(
-      parent.id
-    )
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.ENTITY_VALIDATION_PLUGIN
-      )
-    }
-
-    return folderNode
-  }
-
-  createQueriesNode(parent, result) {
-    const folderNode = ToolBrowserCommon.queriesFolderNode(parent.id)
-
-    if (result) {
-      folderNode.children = this.createNodes(
-        folderNode,
-        result,
-        objectType.QUERY
-      )
-    }
-
-    return folderNode
-  }
-
-  createHistoryNode(parent, params) {
-    if (params.filter) {
-      return null
-    }
-
-    const folderNode = ToolBrowserCommon.historyFolderNode(parent.id)
-    folderNode.children = {
-      nodes: [
-        ToolBrowserCommon.historyDeletionNode(folderNode.id),
-        ToolBrowserCommon.historyFreezingNode(folderNode.id)
-      ]
-    }
-
-    return folderNode
-  }
-
-  createImportNode(parent, params) {
-    if (params.filter) {
-      return null
-    }
-
-    const folderNode = ToolBrowserCommon.importFolderNode(parent.id)
-    folderNode.children = {
-      nodes: [ToolBrowserCommon.importAllNode(folderNode.id)]
-    }
-
-    return folderNode
-  }
-
-  createAccessNode(parent, params) {
-    if (params.filter) {
-      return null
-    }
-
-    const personalAccessTokensEnabled =
-      AppController.getInstance().getServerInformation(
-        ServerInformation.PERSONAL_ACCESS_TOKENS_ENABLED
-      )
-
-    if (personalAccessTokensEnabled === 'true') {
-      const folderNode = ToolBrowserCommon.accessFolderNode(parent.id)
-      folderNode.children = {
-        nodes: [ToolBrowserCommon.personalAccessTokensNode(folderNode.id)]
-      }
-      return folderNode
-    } else {
-      return null
-    }
-  }
-
-  createActiveUsersReportNode(parent, params) {
-    if (params.filter) {
-      return null
-    }
-
-    const folderNode = ToolBrowserCommon.reportFolderNode(parent.id)
-    folderNode.children = {
-      nodes: [ToolBrowserCommon.activeUsersReportNode(folderNode.id)]
-    }
-
-    return folderNode
   }
 
   createNodes(parent, result, objectType) {
-    let objects = result.objects
-    objects.sort((o1, o2) => compare(o1.text, o2.text))
-    objects = objects.slice(result.offset, result.offset + LOAD_LIMIT)
-
-    let nodes = objects.map(object => ({
+    const nodes = result.objects.map(object => ({
       id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
@@ -263,18 +275,9 @@ export default class ToolBrowserControllerLoadNodes {
       }
     }))
 
-    if (_.isEmpty(nodes)) {
-      return null
-    } else {
-      return {
-        nodes: nodes,
-        loadMore: {
-          offset: result.offset + nodes.length,
-          loadedCount: result.offset + nodes.length,
-          totalCount: result.totalCount,
-          append: true
-        }
-      }
+    return {
+      nodes: nodes,
+      totalCount: result.totalCount
     }
   }
 }

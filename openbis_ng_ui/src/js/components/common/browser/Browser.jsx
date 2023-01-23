@@ -1,5 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import { DragDropContext } from 'react-beautiful-dnd'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
@@ -40,10 +41,20 @@ class Browser extends React.PureComponent {
     this.state = {}
     this.controller = props.controller
     this.controller.init(new ComponentContext(this))
+    this.handleDragEnd = this.handleDragEnd.bind(this)
   }
 
   async componentDidMount() {
     await this.controller.load()
+  }
+
+  handleDragEnd(result) {
+    const { node, controller } = this.props
+    controller.changeCustomSorting(
+      result.destination.droppableId,
+      result.source.index,
+      result.destination.index
+    )
   }
 
   render() {
@@ -86,7 +97,13 @@ class Browser extends React.PureComponent {
                   : classes.hidden
               }
             >
-              <BrowserNode controller={controller} node={fullTree} level={-1} />
+              <DragDropContext onDragEnd={this.handleDragEnd}>
+                <BrowserNode
+                  controller={controller}
+                  node={fullTree}
+                  level={-1}
+                />
+              </DragDropContext>
             </div>
           )}
           {filteredTree && (
@@ -97,11 +114,13 @@ class Browser extends React.PureComponent {
                   : classes.hidden
               }
             >
-              <BrowserNode
-                controller={controller}
-                node={filteredTree}
-                level={-1}
-              />
+              <DragDropContext onDragEnd={this.handleDragEnd}>
+                <BrowserNode
+                  controller={controller}
+                  node={filteredTree}
+                  level={-1}
+                />
+              </DragDropContext>
             </div>
           )}
         </div>

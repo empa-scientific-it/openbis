@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
+import { Draggable, Droppable } from 'react-beautiful-dnd'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -55,13 +57,7 @@ const styles = theme => ({
 class BrowserNodeClass extends React.PureComponent {
   constructor(props) {
     super(props)
-    this.handleClick = this.handleClick.bind(this)
-    this.handleExpand = this.handleExpand.bind(this)
-    this.handleCollapse = this.handleCollapse.bind(this)
-    this.handleLoadMore = this.handleLoadMore.bind(this)
-    this.handleSortingChange = this.handleSortingChange.bind(this)
-    this.handleCollapseAll = this.handleCollapseAll.bind(this)
-    this.handleSetAsRoot = this.handleSetAsRoot.bind(this)
+    autoBind(this)
     this.references = {
       node: React.createRef(),
       loadMore: React.createRef()
@@ -72,6 +68,8 @@ class BrowserNodeClass extends React.PureComponent {
     const { controller, node } = this.props
     if (node.selectable) {
       controller.selectObject(node.object)
+    } else if (node.onClick) {
+      node.onClick()
     }
   }
 
@@ -95,6 +93,11 @@ class BrowserNodeClass extends React.PureComponent {
   handleSortingChange(nodeId, sortingId) {
     const { controller } = this.props
     controller.changeSorting(nodeId, sortingId)
+  }
+
+  handleCustomSortingClear(nodeId) {
+    const { controller } = this.props
+    controller.clearCustomSorting(nodeId)
   }
 
   handleCollapseAll(nodeId) {
@@ -241,7 +244,11 @@ class BrowserNodeClass extends React.PureComponent {
     return (
       <div className={classes.options}>
         <BrowserNodeSetAsRoot node={node} onClick={this.handleSetAsRoot} />
-        <BrowserNodeSortings node={node} onChange={this.handleSortingChange} />
+        <BrowserNodeSortings
+          node={node}
+          onChange={this.handleSortingChange}
+          onClearCustom={this.handleCustomSortingClear}
+        />
         <BrowserNodeCollapseAll node={node} onClick={this.handleCollapseAll} />
       </div>
     )
@@ -269,32 +276,59 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderNonEmptyChildren() {
-    const { controller, node, level } = this.props
+    const { node } = this.props
 
     if (!_.isEmpty(node.children)) {
-      return node.children.map(child => {
-        return (
-          <BrowserNode
-            key={child.id}
-            controller={controller}
-            node={child}
-            level={level + 1}
-          />
-        )
-      })
+      return (
+        <Droppable droppableId={node.id} type={node.id}>
+          {provided => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {node.children.map((child, index) =>
+                this.renderNonEmptyChild(child, index)
+              )}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      )
     } else {
       return null
     }
   }
 
+  renderNonEmptyChild(child, index) {
+    const { node, level, controller } = this.props
+
+    return (
+      <Draggable
+        key={child.id}
+        draggableId={child.id}
+        isDragDisabled={!child.draggable}
+        type={node.id}
+        index={index}
+      >
+        {provided => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+          >
+            <BrowserNode
+              key={child.id}
+              controller={controller}
+              node={child}
+              level={level + 1}
+            />
+          </div>
+        )}
+      </Draggable>
+    )
+  }
+
   renderShowMoreChildren() {
     const { node, level, classes } = this.props
 
-    if (
-      node.children &&
-      node.loadMore &&
-      node.loadMore.totalCount > node.loadMore.loadedCount
-    ) {
+    if (node.children && node.children.length < node.childrenTotalCount) {
       return (
         <ListItem
           ref={this.references['loadMore']}
@@ -317,7 +351,7 @@ class BrowserNodeClass extends React.PureComponent {
               <span>
                 {messages.get(
                   messages.LOAD_MORE,
-                  node.loadMore.totalCount - node.loadMore.loadedCount
+                  node.childrenTotalCount - node.children.length
                 )}
               </span>
             }
