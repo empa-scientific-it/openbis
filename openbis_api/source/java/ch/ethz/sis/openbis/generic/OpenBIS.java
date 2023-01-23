@@ -275,6 +275,14 @@ public class OpenBIS {
 
     private final String dssURL;
 
+    public OpenBIS(final String url) {
+        this(url, DEFAULT_TIMEOUT_IN_MILLIS);
+    }
+
+    public OpenBIS(final String url, final int timeout) {
+        this(url + "/openbis/openbis", url + "/datastore_server", 30000);
+    }
+
     public OpenBIS(final String asURL, final String dssURL)
     {
         this(asURL, dssURL, DEFAULT_TIMEOUT_IN_MILLIS);
