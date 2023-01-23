@@ -275,6 +275,8 @@ public class OpenBIS {
 
     private final String dssURL;
 
+    private final int timeout;
+
     public OpenBIS(final String url) {
         this(url, DEFAULT_TIMEOUT_IN_MILLIS);
     }
@@ -290,10 +292,11 @@ public class OpenBIS {
 
     public OpenBIS(final String asURL, final String dssURL, final int timeout)
     {
+        this.asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
+        this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
         this.asURL = asURL;
-        asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, this.asURL + IApplicationServerApi.SERVICE_URL, timeout);
         this.dssURL = dssURL;
-        dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, this.dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
+        this.timeout = timeout;
     }
 
     //
