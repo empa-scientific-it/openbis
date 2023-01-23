@@ -5,7 +5,7 @@ import messages from '@src/js/common/messages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 
 const TOTAL_LOAD_LIMIT = 500
-const LOAD_LIMIT = 2
+const LOAD_LIMIT = 50
 
 function dynamicPropertyPluginsFolderNode(parentId) {
   return {

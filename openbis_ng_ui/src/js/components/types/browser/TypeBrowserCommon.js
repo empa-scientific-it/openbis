@@ -3,7 +3,7 @@ import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 
 const TOTAL_LOAD_LIMIT = 500
-const LOAD_LIMIT = 5
+const LOAD_LIMIT = 50
 
 function objectTypesFolderNode(parentId) {
   return {
