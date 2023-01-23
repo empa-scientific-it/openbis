@@ -111,10 +111,12 @@ export default class BrowserTreeController {
 
   _getNodeForLoad(state, node) {
     const nodeForLoad = { ...node }
-    if (this._isCustomSortedNode(node)) {
+    if (node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
       const customSorting = state.customSortings[node.id]
-      if (customSorting) {
+      if (!_.isNil(customSorting)) {
         nodeForLoad.sortingId = customSorting.baseSortingId
+      } else {
+        nodeForLoad.sortingId = null
       }
     }
     return nodeForLoad
@@ -122,62 +124,40 @@ export default class BrowserTreeController {
 
   _getSortingIdsForLoad(state) {
     const sortingIdsForLoad = { ...state.sortingIds }
-    Object.entries(state.customSortings).forEach(([nodeId, customSorting]) => {
-      if (customSorting) {
-        sortingIdsForLoad[nodeId] = customSorting.baseSortingId
+    Object.entries(sortingIdsForLoad).forEach(([nodeId, sortingId]) => {
+      if (sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
+        const customSorting = state.customSortings[nodeId]
+        if (!_.isNil(customSorting)) {
+          sortingIdsForLoad[nodeId] = customSorting.baseSortingId
+        } else {
+          sortingIdsForLoad[nodeId] = null
+        }
       }
     })
     return sortingIdsForLoad
   }
 
-  _getOffsetsForLoad(state, node, offset) {
-    const children = node.children || []
-    const customSortedNodes = this._getCustomSortedNodesForLoad(state, node)
-
-    let index = 0
-    let customSortedNodesOffset = 0
-    let nonCustomSortedNodesOffset = 0
-
-    while (
-      index < children.length &&
-      customSortedNodesOffset + nonCustomSortedNodesOffset < offset
-    ) {
-      const childId = children[index]
-      const customSortedNode = customSortedNodes[customSortedNodesOffset]
-
-      if (customSortedNode && customSortedNode.id === childId) {
-        customSortedNodesOffset++
-      } else {
-        nonCustomSortedNodesOffset++
-      }
-
-      index++
-    }
-
-    return {
-      customSortedNodesOffset,
-      nonCustomSortedNodesOffset
+  _getCustomSortingForLoad(state, node) {
+    if (node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
+      return state.customSortings[node.id]
+    } else {
+      return null
     }
   }
 
-  _getCustomSortedNodesForLoad(state, node) {
-    if (this._isCustomSortedNode(node)) {
+  _getNonCustomSortedOffsetForLoad(state, node, offset) {
+    if (node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID) {
       const customSorting = state.customSortings[node.id]
-
-      if (
-        !_.isNil(customSorting) &&
-        !_.isEmpty(customSorting.customSortedNodes)
-      ) {
-        return Object.values(customSorting.customSortedNodes)
-          .sort((c1, c2) => c1.index - c2.index)
-          .map(c => ({
-            id: c.id,
-            object: c.object
-          }))
+      if (!_.isNil(customSorting)) {
+        const children = node.children || []
+        const customSortedNodes = customSorting.customSortedNodes || {}
+        return children.slice(0, offset).filter(childId => {
+          return _.isNil(customSortedNodes[childId])
+        }).length
       }
     }
 
-    return []
+    return offset
   }
 
   async loadNode(nodeId, offset, limit, append) {
@@ -200,13 +180,14 @@ export default class BrowserTreeController {
       return
     }
 
+    const nodeForLoad = this._getNodeForLoad(state, node)
+    const customSortingForLoad = this._getCustomSortingForLoad(state, node)
+    const sortingIdsForLoad = this._getSortingIdsForLoad(state)
+
     let loadResult = null
 
     // case 1: load all nodes at once to be set as new children
     if (offset === 0 && _.isNil(limit) && append === false) {
-      const nodeForLoad = this._getNodeForLoad(state, node)
-      const sortingIdsForLoad = this._getSortingIdsForLoad(state)
-
       loadResult = await this._doLoadNodeWithChecks({
         node: nodeForLoad,
         offset,
@@ -218,32 +199,36 @@ export default class BrowserTreeController {
         return
       }
 
-      const sortedNodes = this._doCustomSortNodes(
-        loadResult.nodes,
-        0,
-        state.customSortings[node.id]
-      )
-
-      loadResult = {
-        nodes: sortedNodes,
-        totalCount: loadResult.totalCount
+      if (
+        !_.isNil(customSortingForLoad) &&
+        !_.isEmpty(customSortingForLoad.customSortedNodes)
+      ) {
+        loadResult.nodes = this._doCustomSortNodes(
+          loadResult.nodes,
+          0,
+          customSortingForLoad
+        )
       }
       // case 2: load a range of nodes to be appended to the existing children or set as the new children
     } else if (!_.isNil(offset) && !_.isNil(limit) && !_.isNil(append)) {
-      const nodeForLoad = this._getNodeForLoad(state, node)
-      const sortingIdsForLoad = this._getSortingIdsForLoad(state)
-      const offsetsForLoad = this._getOffsetsForLoad(state, node, offset)
-      const customSortedNodesForLoad = this._getCustomSortedNodesForLoad(
-        state,
-        node
-      )
-
-      let loadCustomSortedNodesResult = { nodes: [], totalCount: 0 }
-
-      if (!_.isEmpty(customSortedNodesForLoad)) {
-        loadCustomSortedNodesResult = await this._doLoadNodeWithChecks({
+      if (
+        _.isNil(customSortingForLoad) ||
+        _.isEmpty(customSortingForLoad.customSortedNodes)
+      ) {
+        loadResult = await this._doLoadNodeWithChecks({
           node: nodeForLoad,
-          childrenIn: customSortedNodesForLoad,
+          offset,
+          limit,
+          sortingIds: sortingIdsForLoad
+        })
+
+        if (!loadResult.latest) {
+          return
+        }
+      } else {
+        const loadCustomSortedNodesResult = await this._doLoadNodeWithChecks({
+          node: nodeForLoad,
+          childrenIn: Object.values(customSortingForLoad.customSortedNodes),
           offset: 0,
           limit: null,
           sortingIds: sortingIdsForLoad
@@ -252,34 +237,41 @@ export default class BrowserTreeController {
         if (!loadCustomSortedNodesResult.latest) {
           return
         }
-      }
 
-      const loadNonCustomSortedNodesResult = await this._doLoadNodeWithChecks({
-        node: nodeForLoad,
-        childrenNotIn: customSortedNodesForLoad,
-        offset: offsetsForLoad.nonCustomSortedNodesOffset,
-        limit,
-        sortingIds: sortingIdsForLoad
-      })
+        const nonCustomSortedOffsetForLoad =
+          this._getNonCustomSortedOffsetForLoad(state, node, offset)
 
-      if (!loadNonCustomSortedNodesResult.latest) {
-        return
-      }
+        const loadNonCustomSortedNodesResult = await this._doLoadNodeWithChecks(
+          {
+            node: nodeForLoad,
+            childrenNotIn: Object.values(
+              customSortingForLoad.customSortedNodes
+            ),
+            offset: nonCustomSortedOffsetForLoad,
+            limit,
+            sortingIds: sortingIdsForLoad
+          }
+        )
 
-      const sortedNodes = this._doCustomSortNodes(
-        [
-          ...loadNonCustomSortedNodesResult.nodes,
-          ...loadCustomSortedNodesResult.nodes
-        ],
-        offset,
-        this._isCustomSortedNode(node) ? state.customSortings[node.id] : null
-      )
+        if (!loadNonCustomSortedNodesResult.latest) {
+          return
+        }
 
-      loadResult = {
-        nodes: sortedNodes.slice(offset, offset + limit),
-        totalCount:
-          loadNonCustomSortedNodesResult.totalCount +
-          loadCustomSortedNodesResult.totalCount
+        const sortedNodes = this._doCustomSortNodes(
+          [
+            ...loadNonCustomSortedNodesResult.nodes,
+            ...loadCustomSortedNodesResult.nodes
+          ],
+          offset,
+          customSortingForLoad
+        )
+
+        loadResult = {
+          nodes: sortedNodes.slice(offset, offset + limit),
+          totalCount:
+            loadNonCustomSortedNodesResult.totalCount +
+            loadCustomSortedNodesResult.totalCount
+        }
       }
     } else {
       console.error(
@@ -927,10 +919,6 @@ export default class BrowserTreeController {
     }
   }
 
-  _isCustomSortedNode(node) {
-    return node.sortingId === BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID
-  }
-
   _doCustomSortNodes(nodes, nodesOffset, customSorting) {
     const nodesMap = {}
     nodes.forEach(node => {
@@ -959,17 +947,6 @@ export default class BrowserTreeController {
   }
 
   _doCustomSortIds(nodeIds, nodesOffset, customSorting) {
-    if (
-      _.isEmpty(customSorting) ||
-      _.isEmpty(customSorting.customSortedNodes)
-    ) {
-      const sortedIds = []
-      nodeIds.forEach((nodeId, index) => {
-        sortedIds[nodesOffset + index] = nodeId
-      })
-      return sortedIds
-    }
-
     const sortedIds = []
     const alreadySorted = {}
 
