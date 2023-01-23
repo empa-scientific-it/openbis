@@ -259,7 +259,7 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
-public class OpenBISAPI {
+public class OpenBIS {
 
     private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000; //30 seconds
 
@@ -275,12 +275,12 @@ public class OpenBISAPI {
 
     private final String dssURL;
 
-    public OpenBISAPI(final String asURL, final String dssURL)
+    public OpenBIS(final String asURL, final String dssURL)
     {
         this(asURL, dssURL, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBISAPI(final String asURL, final String dssURL, final int timeout)
+    public OpenBIS(final String asURL, final String dssURL, final int timeout)
     {
         this.asURL = asURL;
         asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, this.asURL + IApplicationServerApi.SERVICE_URL, timeout);
