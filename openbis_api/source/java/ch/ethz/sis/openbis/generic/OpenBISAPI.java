@@ -184,6 +184,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticA
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AggregationServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ProcessingServiceExecutionOptions;
@@ -248,10 +249,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -957,8 +955,94 @@ public class OpenBISAPI {
         return uploadId;
     }
 
+    /**
+     * This utility method returns a well managed personal access token, creating one if no one is found and renews it if is close to expiration.
+     * Requires are real session token since it uses other methods.
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public PersonalAccessTokenPermId getManagedPersonalAccessToken(String sessionName)
+    {
+        final int SECONDS_PER_DAY = 24 * 60 * 60;
+
+        // Obtain servers renewal information
+        Map<String, String> information = asFacade.getServerInformation(sessionToken);
+        int personalAccessTokensRenewalPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
+        int personalAccessTokensRenewalPeriodInDays = personalAccessTokensRenewalPeriodInSeconds / SECONDS_PER_DAY;
+        int personalAccessTokensMaxValidityPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
+        int personalAccessTokensMaxValidityPeriodInDays = personalAccessTokensMaxValidityPeriodInSeconds / SECONDS_PER_DAY;
+
+        // Obtain user id
+        SessionInformation sessionInformation = asFacade.getSessionInformation(sessionToken);
+
+        // Search for PAT for this user and application
+        // NOTE: Standard users only get their PAT but admins get all, filtering with the user solves this corner case
+        PersonalAccessTokenSearchCriteria personalAccessTokenSearchCriteria = new PersonalAccessTokenSearchCriteria();
+        personalAccessTokenSearchCriteria.withSessionName().thatEquals(sessionName);
+        personalAccessTokenSearchCriteria.withOwner().withUserId().thatEquals(sessionInformation.getPerson().getUserId());
+
+        SearchResult<PersonalAccessToken> personalAccessTokenSearchResult = asFacade.searchPersonalAccessTokens(sessionToken, personalAccessTokenSearchCriteria, new PersonalAccessTokenFetchOptions());
+        PersonalAccessToken bestTokenFound = null;
+        PersonalAccessTokenPermId bestTokenFoundPermId = null;
+
+        // Obtain longer lasting application token
+        for (PersonalAccessToken personalAccessToken : personalAccessTokenSearchResult.getObjects())
+        {
+            if (personalAccessToken.getValidToDate().after(new Date()))
+            {
+                if (bestTokenFound == null)
+                {
+                    bestTokenFound = personalAccessToken;
+                } else if (personalAccessToken.getValidToDate().after(bestTokenFound.getValidToDate()))
+                {
+                    bestTokenFound = personalAccessToken;
+                }
+            }
+        }
+
+        // If best token doesn't exist, create
+        if (bestTokenFound == null)
+        {
+            bestTokenFoundPermId = createManagedPersonalAccessToken(sessionName, personalAccessTokensMaxValidityPeriodInDays);
+        }
+
+        // If best token is going to expire in less than the warning period, renew
+        Calendar renewalDate = Calendar.getInstance();
+        renewalDate.add(Calendar.DAY_OF_MONTH, personalAccessTokensRenewalPeriodInDays);
+        if (bestTokenFound != null && bestTokenFound.getValidToDate().before(renewalDate.getTime()))
+        {
+            bestTokenFoundPermId = createManagedPersonalAccessToken(sessionName, personalAccessTokensMaxValidityPeriodInDays);
+        }
+
+        // If we have not created or renewed, return current
+        if (bestTokenFoundPermId == null)
+        {
+            bestTokenFoundPermId = bestTokenFound.getPermId();
+        }
+
+        return bestTokenFoundPermId;
+    }
+
     //
-    // Helper Methods to upload files to DSS Session Workspace
+    // Internal Helper methods to create personal access tokens
+    //
+
+    private PersonalAccessTokenPermId createManagedPersonalAccessToken(String applicationName,
+                                                                       int personalAccessTokensMaxValidityPeriodInDays)
+    {
+        final long SECONDS_PER_DAY = 24 * 60 * 60;
+        final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
+
+        PersonalAccessTokenCreation creation = new PersonalAccessTokenCreation();
+        creation.setSessionName(applicationName);
+        creation.setValidFromDate(new Date(System.currentTimeMillis() - MILLIS_PER_DAY));
+        creation.setValidToDate(new Date(System.currentTimeMillis() + MILLIS_PER_DAY * personalAccessTokensMaxValidityPeriodInDays));
+        List<PersonalAccessTokenPermId> personalAccessTokens = asFacade.createPersonalAccessTokens(sessionToken, List.of(creation));
+        return personalAccessTokens.get(0);
+    }
+
+    //
+    // Internal Helper Methods to upload files to DSS Session Workspace
     //
 
     /**
