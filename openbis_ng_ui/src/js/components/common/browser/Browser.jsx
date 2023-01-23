@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { DragDropContext } from 'react-beautiful-dnd'
@@ -49,12 +50,14 @@ class Browser extends React.PureComponent {
   }
 
   handleDragEnd(result) {
-    const { node, controller } = this.props
-    controller.changeCustomSorting(
-      result.destination.droppableId,
-      result.source.index,
-      result.destination.index
-    )
+    const { controller } = this.props
+    if (!_.isNil(result.source) && !_.isNil(result.destination)) {
+      controller.changeCustomSorting(
+        result.destination.droppableId,
+        result.source.index,
+        result.destination.index
+      )
+    }
   }
 
   render() {
