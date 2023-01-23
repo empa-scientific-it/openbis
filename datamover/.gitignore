@@ -1,9 +1,0 @@
-/targets
-/temp-testng-customsuite.xml
-/test-output
-/.error
-/bin
-/build/
-/.idea/
-*.iml
-*.eml
