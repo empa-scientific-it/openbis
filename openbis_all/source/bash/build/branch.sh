@@ -28,7 +28,6 @@ GRADLE_PROJECTS="\
 authentication \
 commonbase \
 common \
-datamover \
 datastore_server \
 dbmigration \
 installation \
