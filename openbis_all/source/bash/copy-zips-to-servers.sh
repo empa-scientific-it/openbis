@@ -20,7 +20,6 @@ for i in $ZIPS; do
          echo $SCU; scp -p $i $SCU:~openbis
          echo $LIMB; scp -p $i $LIMB:~openbis
          echo $CHIPDB; scp -p $i $CHIPDB:~openbis
-
 done
 
 echo -e "\nCopying to $DSU...\n"
