@@ -110,6 +110,9 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected BufferedAppender logAppender;
 
+    // This path may change if openbis project is included as submodule
+    protected String springServletPath = "../openbis/resource/server/spring-servlet.xml";
+
     static
     {
         createWorkingDirectory();
@@ -182,8 +185,7 @@ public abstract class SystemTestCase extends AssertJUnit
                 protected WebApplicationContext findWebApplicationContext()
                 {
                     XmlBeanFactory f =
-                            new XmlBeanFactory(new FileSystemResource(
-                                    "../openbis/resource/server/spring-servlet.xml"));
+                            new XmlBeanFactory(new FileSystemResource(springServletPath));
                     applicationContext = new GenericWebApplicationContext(f);
                     applicationContext.setParent(new ClassPathXmlApplicationContext(
                             getApplicationContextLocation()));
