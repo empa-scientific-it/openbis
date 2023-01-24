@@ -33,6 +33,7 @@ jar {
     duplicatesStrategy 'include'
     from('targets/dist') {
         include 'BUILD*INFO'
-    }    
+    }
+	from sourceSets.main.output + sourceSets.test.output
 }
 
