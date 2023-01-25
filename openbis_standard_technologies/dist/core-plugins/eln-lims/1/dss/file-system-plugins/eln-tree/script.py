@@ -297,14 +297,17 @@ def addSampleChildNodes(path, samplePermId, response, acceptor, context):
     listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
 
     fetchOptions = SampleFetchOptions()
+    fetchOptions.withExperiment()
     fetchOptions.withChildren().withType()
     fetchOptions.withChildren().withSpace()
     fetchOptions.withChildren().withProperties()
+    fetchOptions.withChildren().withExperiment()
     sampleId = SamplePermId(samplePermId)
     sample = context.getApi().getSamples(context.getSessionToken(), [sampleId], fetchOptions)[sampleId]
+    experiment = sample.getExperiment()
     entitiesByName = {}
     for child in sample.getChildren():
-        if acceptor.acceptSample(child):
+        if acceptor.acceptSample(child) and child.getExperiment() == experiment:
             gatherEntity(entitiesByName, child)
     addNodes("SAMPLE", entitiesByName, path, response, context)
 
