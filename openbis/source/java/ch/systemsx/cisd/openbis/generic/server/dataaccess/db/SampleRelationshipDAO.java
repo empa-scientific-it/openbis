@@ -15,7 +15,7 @@ import java.util.List;
 
 public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelationshipPE> implements ISampleRelationshipDAO {
 
-    private IRelationshipTypeDAO relationshipTypeDAO;
+    private final IRelationshipTypeDAO relationshipTypeDAO;
 
     protected SampleRelationshipDAO(SessionFactory sessionFactory, IRelationshipTypeDAO relationshipTypeDAO, EntityHistoryCreator historyCreator) {
         super(sessionFactory, SampleRelationshipPE.class, historyCreator);

@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -106,7 +107,7 @@ public class SampleRelationshipPE implements IIdHolder, Serializable {
     }
 
     @NotNull(message = ValidationMessages.PARENT_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = ColumnNames.PARENT_SAMPLE_COLUMN)
     public SamplePE getParentSample()
     {
@@ -151,7 +152,7 @@ public class SampleRelationshipPE implements IIdHolder, Serializable {
     }
 
     @NotNull(message = ValidationMessages.CHILD_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = ColumnNames.CHILD_SAMPLE_COLUMN)
     public SamplePE getChildSample()
     {
