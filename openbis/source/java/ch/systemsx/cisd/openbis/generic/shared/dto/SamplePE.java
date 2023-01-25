@@ -201,6 +201,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     public void setParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
     {
+        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().delete(getSampleParentRelationships());
         getSampleParentRelationships().clear();
         for (final SampleRelationshipPE sampleRelationship : parentRelationships)
         {
@@ -211,7 +212,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             }
             addParentRelationship(sampleRelationship);
         }
-        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().delete(getSampleParentRelationships());
     }
 
     public void addParentRelationship(final SampleRelationshipPE relationship)
