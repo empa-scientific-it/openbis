@@ -1,11 +1,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-
 import java.util.Collection;
 import java.util.List;
 
 public interface ISampleRelationshipDAO {
+
+    public void persist(Collection<SampleRelationshipPE> sampleRelationships);
 
     public void delete(Collection<SampleRelationshipPE> relationships);
 

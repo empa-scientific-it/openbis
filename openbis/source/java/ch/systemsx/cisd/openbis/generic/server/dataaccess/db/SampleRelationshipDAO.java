@@ -1,9 +1,10 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ISampleRelationshipDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
@@ -14,10 +15,20 @@ import java.util.List;
 
 public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelationshipPE> implements ISampleRelationshipDAO {
 
-    private static final Long PARENT_CHILDREN = 1L;
+    private IRelationshipTypeDAO relationshipTypeDAO;
 
-    protected SampleRelationshipDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator) {
+    protected SampleRelationshipDAO(SessionFactory sessionFactory, IRelationshipTypeDAO relationshipTypeDAO, EntityHistoryCreator historyCreator) {
         super(sessionFactory, SampleRelationshipPE.class, historyCreator);
+        this.relationshipTypeDAO = relationshipTypeDAO;
+    }
+
+    public void persist(Collection<SampleRelationshipPE> sampleRelationships) {
+        RelationshipTypePE relationshipType = relationshipTypeDAO.tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        for (SampleRelationshipPE sampleRelationship : sampleRelationships)
+        {
+            sampleRelationship.setRelationship(relationshipType);
+            currentSession().persist(sampleRelationship);
+        }
     }
 
     public void delete(Collection<SampleRelationshipPE> sampleRelationships) {
@@ -25,15 +36,17 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
     }
 
     public List<SampleRelationshipPE> listSampleParents(List<Long> childrenTechIds) {
+        RelationshipTypePE relationshipType = relationshipTypeDAO.tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
         final DetachedCriteria criteria = DetachedCriteria.forClass(SampleRelationshipPE.class);
-        criteria.add(Restrictions.eq("relationship.id", PARENT_CHILDREN));
+        criteria.add(Restrictions.eq("relationship.id", relationshipType.getId()));
         criteria.add(Restrictions.in("childSample.id", childrenTechIds));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
 
     public List<SampleRelationshipPE> listSampleChildren(List<Long> parentTechIds) {
+        RelationshipTypePE relationshipType = relationshipTypeDAO.tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
         final DetachedCriteria criteria = DetachedCriteria.forClass(SampleRelationshipPE.class);
-        criteria.add(Restrictions.eq("relationship.id", PARENT_CHILDREN));
+        criteria.add(Restrictions.eq("relationship.id", relationshipType.getId()));
         criteria.add(Restrictions.in("parentSample.id", parentTechIds));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
