@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
+import org.testng.util.Strings;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -53,7 +54,7 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonDataSetRegistrationServiceV2.class);
 
-    private static final String MAIL_CONTACT_ADDRESSES_KEY = "mail.addresses.dropbox-errors";
+    public static final String MAIL_CONTACT_ADDRESSES_KEY = "mail.addresses.dropbox-errors";
 
     public JythonDataSetRegistrationServiceV2(
             AbstractProgrammableTopLevelDataSetHandler<T> registrator,
@@ -105,7 +106,8 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
             final TopLevelDataSetRegistratorGlobalState globalState = getRegistratorContext().getGlobalState();
 
             globalState.getMailClient().sendEmailMessage("Dataset Registration Error",
-                    String.format("IO Exception processing incoming folder %s: \n%s", file.getPath(), e.getMessage()),
+                    String.format("IO Exception processing incoming folder %s: \n%s", file.getAbsolutePath(),
+                            e.getMessage()),
                     null, null, getEmailAddresses());
 
             throw e;
@@ -195,8 +197,8 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
     {
         final TopLevelDataSetRegistratorGlobalState globalState = getRegistratorContext().getGlobalState();
         final String registratorsEmail = getRegistratorsEmail();
-        final Stream<String> registratorsEmailStream = registratorsEmail != null ? Stream.of(registratorsEmail)
-                : Stream.empty();
+        final Stream<String> registratorsEmailStream = Strings.isNullOrEmpty(registratorsEmail) ? Stream.empty()
+                : Stream.of(registratorsEmail);
         final Stream<String> contactAddressEmailStream = Arrays.stream(
                 globalState.getThreadParameters().getThreadProperties().getProperty(MAIL_CONTACT_ADDRESSES_KEY)
                         .split("[,;]"));

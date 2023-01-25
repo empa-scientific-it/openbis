@@ -18,13 +18,16 @@ package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
 import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
+import static ch.systemsx.cisd.etlserver.registrator.api.v2.JythonDataSetRegistrationServiceV2.MAIL_CONTACT_ADDRESSES_KEY;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -45,6 +48,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
@@ -426,15 +430,19 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         if (file.canRead() == false)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
-                    "No reading rights for data set file '" + file.getAbsolutePath() + "'."));
+            final String message = "No reading rights for data set file '" + file.getAbsolutePath() + "'.";
+            getGlobalState().getMailClient().sendEmailMessage("Dataset Registration Error",
+                    message, null, null, getEmailAddresses());
+            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(message));
         }
         if (file.isDirectory())
         {
             if (file.canWrite() == false)
             {
-                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
-                        "No writing rights for data set folder '" + file.getAbsolutePath() + "'."));
+                final String message = "No writing rights for data set folder '" + file.getAbsolutePath() + "'.";
+                getGlobalState().getMailClient().sendEmailMessage("Dataset Registration Error",
+                        message, null, null, getEmailAddresses());
+                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(message));
             }
             File[] files = file.listFiles();
             for (File child : files)
@@ -442,6 +450,14 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 checkAccessRightsRecursively(child);
             }
         }
+    }
+
+    private EMailAddress[] getEmailAddresses()
+    {
+        final Stream<String> contactAddressEmailStream = Arrays.stream(
+                getGlobalState().getThreadParameters().getThreadProperties().getProperty(MAIL_CONTACT_ADDRESSES_KEY)
+                        .split("[,;]"));
+        return contactAddressEmailStream.map(EMailAddress::new).toArray(EMailAddress[]::new);
     }
 
     /**
