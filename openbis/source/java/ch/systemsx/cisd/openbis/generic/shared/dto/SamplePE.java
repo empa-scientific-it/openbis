@@ -44,6 +44,9 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.relationship.IGetRelationshipIdExecutor;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -136,19 +139,17 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();
 
-    @OptimisticLock(excluded = true)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
-    @Fetch(FetchMode.SUBSELECT)
+    @Transient
     private Set<SampleRelationshipPE> getSampleChildRelationships()
     {
+        if (childRelationships == null) {
+            if (id == null) {
+                childRelationships = new HashSet<>();
+            } else {
+                childRelationships = new HashSet<>(CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().listSampleChildren(TechId.createList(id)));
+            }
+        }
         return childRelationships;
-    }
-
-    // Required by Hibernate.
-    @SuppressWarnings("unused")
-    private void setSampleChildRelationships(final Set<SampleRelationshipPE> childRelationships)
-    {
-        this.childRelationships = childRelationships;
     }
 
     @Transient
@@ -170,22 +171,21 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void addChildRelationship(final SampleRelationshipPE relationship)
     {
         relationship.setParentSample(this);
+        relationship.setRelationship(CommonServiceProvider.getDAOFactory().getRelationshipTypeDAO().tryFindRelationshipTypeByCode(IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD.name()));
         getSampleChildRelationships().add(relationship);
     }
 
-    @OptimisticLock(excluded = true)
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childSample", orphanRemoval = true)
-    @Fetch(FetchMode.SUBSELECT)
+    @Transient
     private Set<SampleRelationshipPE> getSampleParentRelationships()
     {
+        if (parentRelationships == null) {
+            if (id == null) {
+                parentRelationships = new HashSet<>();
+            } else {
+                parentRelationships = new HashSet<>(CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().listSampleParents(TechId.createList(id)));
+            }
+        }
         return parentRelationships;
-    }
-
-    // Required by Hibernate.
-    @SuppressWarnings("unused")
-    private void setSampleParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
-    {
-        this.parentRelationships = parentRelationships;
     }
 
     @Transient
@@ -205,6 +205,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     public void setParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
     {
+        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().delete(getSampleParentRelationships());
         getSampleParentRelationships().clear();
         for (final SampleRelationshipPE sampleRelationship : parentRelationships)
         {
@@ -220,11 +221,13 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void addParentRelationship(final SampleRelationshipPE relationship)
     {
         relationship.setChildSample(this);
+        relationship.setRelationship(CommonServiceProvider.getDAOFactory().getRelationshipTypeDAO().tryFindRelationshipTypeByCode(IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD.name()));
         getSampleParentRelationships().add(relationship);
     }
 
     public void removeParentRelationship(final SampleRelationshipPE relationship)
     {
+        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().delete(List.of(relationship));
         getSampleParentRelationships().remove(relationship);
         relationship.getParentSample().getSampleChildRelationships().remove(relationship);
         relationship.setChildSample(null);

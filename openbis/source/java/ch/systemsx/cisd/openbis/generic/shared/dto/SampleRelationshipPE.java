@@ -34,6 +34,7 @@ import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Type;
@@ -55,8 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
         ColumnNames.RELATIONSHIP_COLUMN }))
 @TypeDefs({ @TypeDef(name = "transactiontimestamp", typeClass = DbTimestampType.class),
     @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
-public class SampleRelationshipPE implements Serializable
-{
+public class SampleRelationshipPE implements IIdHolder, Serializable {
     private static final long serialVersionUID = IServer.VERSION;
 
     protected transient Long id;
