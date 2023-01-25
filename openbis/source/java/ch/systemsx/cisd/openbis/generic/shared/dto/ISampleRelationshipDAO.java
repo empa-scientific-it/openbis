@@ -9,7 +9,7 @@ public interface ISampleRelationshipDAO {
 
     public void delete(Collection<SampleRelationshipPE> relationships);
 
-    public List<SampleRelationshipPE> listSampleParents(List<TechId> childrenTechIds);
+    public List<SampleRelationshipPE> listSampleParents(List<Long> childrenTechIds);
 
-    public List<SampleRelationshipPE> listSampleChildren(List<TechId> parentTechIds);
+    public List<SampleRelationshipPE> listSampleChildren(List<Long> parentTechIds);
 }

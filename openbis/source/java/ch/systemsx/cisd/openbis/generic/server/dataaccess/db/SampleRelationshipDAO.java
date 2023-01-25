@@ -13,6 +13,9 @@ import java.util.Collection;
 import java.util.List;
 
 public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelationshipPE> implements ISampleRelationshipDAO {
+
+    private static final Long PARENT_CHILDREN = 1L;
+
     protected SampleRelationshipDAO(SessionFactory sessionFactory, EntityHistoryCreator historyCreator) {
         super(sessionFactory, SampleRelationshipPE.class, historyCreator);
     }
@@ -21,17 +24,17 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
         getHibernateTemplate().deleteAll(sampleRelationships);
     }
 
-    public List<SampleRelationshipPE> listSampleParents(List<TechId> childrenTechIds) {
+    public List<SampleRelationshipPE> listSampleParents(List<Long> childrenTechIds) {
         final DetachedCriteria criteria = DetachedCriteria.forClass(SampleRelationshipPE.class);
-        criteria.add(Restrictions.eq(ColumnNames.RELATIONSHIP_COLUMN, 1));
-        criteria.add(Restrictions.in(ColumnNames.CHILD_SAMPLE_COLUMN, childrenTechIds));
+        criteria.add(Restrictions.eq("relationship.id", PARENT_CHILDREN));
+        criteria.add(Restrictions.in("childSample.id", childrenTechIds));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
 
-    public List<SampleRelationshipPE> listSampleChildren(List<TechId> parentTechIds) {
+    public List<SampleRelationshipPE> listSampleChildren(List<Long> parentTechIds) {
         final DetachedCriteria criteria = DetachedCriteria.forClass(SampleRelationshipPE.class);
-        criteria.add(Restrictions.eq(ColumnNames.RELATIONSHIP_COLUMN, 1));
-        criteria.add(Restrictions.in(ColumnNames.PARENT_SAMPLE_COLUMN, parentTechIds));
+        criteria.add(Restrictions.eq("relationship.id", PARENT_CHILDREN));
+        criteria.add(Restrictions.in("parentSample.id", parentTechIds));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
 }
