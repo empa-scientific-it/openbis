@@ -46,7 +46,7 @@ import javax.validation.constraints.Pattern;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.relationship.IGetRelationshipIdExecutor;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -65,9 +65,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -170,7 +167,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void addChildRelationship(final SampleRelationshipPE relationship)
     {
         relationship.setParentSample(this);
-        RelationshipTypePE relationshipTypePE = CommonServiceProvider.getDAOFactory().getRelationshipTypeDAO().tryFindRelationshipTypeByCode("$" + IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD.name());
+        RelationshipTypePE relationshipTypePE = CommonServiceProvider.getDAOFactory().getRelationshipTypeDAO().tryFindRelationshipTypeByCode(CodeConverter.tryToBusinessLayer(IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD.name(), true));
         relationship.setRelationship(relationshipTypePE);
         CommonServiceProvider.getDAOFactory().getSessionFactory().getCurrentSession().persist(relationship);
         getSampleChildRelationships().add(relationship);
@@ -222,7 +219,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void addParentRelationship(final SampleRelationshipPE relationship)
     {
         relationship.setChildSample(this);
-        RelationshipTypePE relationshipTypePE = CommonServiceProvider.getDAOFactory().getRelationshipTypeDAO().tryFindRelationshipTypeByCode("$" + IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD.name());
+        RelationshipTypePE relationshipTypePE = CommonServiceProvider.getDAOFactory().getRelationshipTypeDAO().tryFindRelationshipTypeByCode(CodeConverter.tryToBusinessLayer(IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD.name(), true));
         relationship.setRelationship(relationshipTypePE);
         CommonServiceProvider.getDAOFactory().getSessionFactory().getCurrentSession().persist(relationship);
         getSampleParentRelationships().add(relationship);
