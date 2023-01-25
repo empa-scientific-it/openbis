@@ -179,7 +179,7 @@ def process(transaction):
                 datasetItem = item;
 
         if itemsInFolder > 1:
-            tmpPath = incoming.getAbsolutePath() + "/" + str(uuid.uuid4());
+            tmpPath = incoming.getAbsolutePath() + "/default";
             tmpDir = File(tmpPath);
             tmpDir.mkdir();
 
