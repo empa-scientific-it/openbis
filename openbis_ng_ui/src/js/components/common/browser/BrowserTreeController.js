@@ -26,7 +26,9 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: null,
       expandedIds: {},
-      sortingIds: {}
+      undoCollapseAllIds: {},
+      sortingIds: {},
+      customSortings: {}
     })
     this.context = context
     this.lastTree = null
@@ -48,6 +50,7 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: state.selectedObject,
       expandedIds: {},
+      undoCollapseAllIds: {},
       sortingIds: {},
       customSortings: {}
     }
@@ -543,6 +546,13 @@ export default class BrowserTreeController {
       } else {
         delete state.expandedIds[nodeId]
       }
+
+      state.undoCollapseAllIds = { ...state.undoCollapseAllIds }
+      Object.keys(state.undoCollapseAllIds).forEach(undoNodeId => {
+        if (nodeId.startsWith(undoNodeId)) {
+          delete state.undoCollapseAllIds[undoNodeId]
+        }
+      })
     }
   }
 
@@ -588,6 +598,19 @@ export default class BrowserTreeController {
         this._doCollapseNode(newState, node.id, false)
       }
 
+      const collapsedIds = _.difference(
+        Object.keys(state.expandedIds),
+        Object.keys(newState.expandedIds)
+      )
+
+      if (!_.isEmpty(collapsedIds)) {
+        const newUndoCollapseAllIds = {
+          ...newState.undoCollapseAllIds,
+          [nodeId]: collapsedIds
+        }
+        newState.undoCollapseAllIds = newUndoCollapseAllIds
+      }
+
       await this.context.setState(newState)
       this._saveSettings()
     }
@@ -623,6 +646,30 @@ export default class BrowserTreeController {
         })
       }
     }
+  }
+
+  async undoCollapseAllNodes(nodeId) {
+    const state = this.context.getState()
+    const collapsedIds = state.undoCollapseAllIds[nodeId]
+
+    if (!_.isEmpty(collapsedIds)) {
+      const newState = { ...state }
+
+      collapsedIds.forEach(collapsedId => {
+        this._doExpandNode(newState, collapsedId)
+      })
+
+      newState.undoCollapseAllIds = { ...newState.undoCollapseAllIds }
+      delete newState.undoCollapseAllIds[nodeId]
+
+      this.context.setState(newState)
+    }
+  }
+
+  canUndoCollapseAllNodes(nodeId) {
+    const state = this.context.getState()
+    const collapsedIds = state.undoCollapseAllIds[nodeId]
+    return !_.isEmpty(collapsedIds)
   }
 
   async selectObject(nodeObject) {

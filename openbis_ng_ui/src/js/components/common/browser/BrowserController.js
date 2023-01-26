@@ -231,6 +231,14 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
+  async undoCollapseAllNodes(nodeId) {
+    await this._getTreeController().undoCollapseAllNodes(nodeId)
+  }
+
+  canUndoCollapseAllNodes(nodeId) {
+    return this._getTreeController().canUndoCollapseAllNodes(nodeId)
+  }
+
   async setNodeAsRoot(node) {
     let nodeSetAsRoot = null
 

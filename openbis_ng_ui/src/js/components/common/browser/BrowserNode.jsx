@@ -105,6 +105,11 @@ class BrowserNodeClass extends React.PureComponent {
     controller.collapseAllNodes(nodeId)
   }
 
+  handleUndoCollapseAll(nodeId) {
+    const { controller } = this.props
+    controller.undoCollapseAllNodes(nodeId)
+  }
+
   handleSetAsRoot(nodeId) {
     const { controller } = this.props
     controller.setNodeAsRoot(nodeId)
@@ -239,7 +244,7 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderOptions(node) {
-    const { classes } = this.props
+    const { controller, classes } = this.props
 
     return (
       <div className={classes.options}>
@@ -249,7 +254,12 @@ class BrowserNodeClass extends React.PureComponent {
           onChange={this.handleSortingChange}
           onClearCustom={this.handleCustomSortingClear}
         />
-        <BrowserNodeCollapseAll node={node} onClick={this.handleCollapseAll} />
+        <BrowserNodeCollapseAll
+          node={node}
+          canUndo={controller.canUndoCollapseAllNodes(node.id)}
+          onCollapseAll={this.handleCollapseAll}
+          onUndoCollapseAll={this.handleUndoCollapseAll}
+        />
       </div>
     )
   }

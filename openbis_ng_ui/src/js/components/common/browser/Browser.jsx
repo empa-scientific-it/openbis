@@ -136,6 +136,9 @@ class Browser extends React.PureComponent {
     const { controller } = this
     const { classes } = this.props
 
+    const node = controller.getNodeSetAsRoot() ||
+      controller.getRoot() || { canHaveChildren: true }
+
     return (
       <FilterField
         filter={controller.getFilter() || ''}
@@ -149,11 +152,10 @@ class Browser extends React.PureComponent {
               onClick={controller.changeAutoShowSelectedObject}
             />
             <BrowserNodeCollapseAll
-              node={
-                controller.getNodeSetAsRoot() ||
-                controller.getRoot() || { canHaveChildren: true }
-              }
-              onClick={controller.collapseAllNodes}
+              node={node}
+              canUndo={controller.canUndoCollapseAllNodes(node.id)}
+              onCollapseAll={controller.collapseAllNodes}
+              onUndoCollapseAll={controller.undoCollapseAllNodes}
             />
           </div>
         }
