@@ -1,1 +1,0 @@
-ERROR: No datasets could be processed, because there is an error in the mapping file index.tsv: There should be a '#' character followed by an email address in the first line of the file. The email is needed to send messages about errors.
