@@ -27,7 +27,8 @@ export default class BrowserTreeController {
       selectedObject: null,
       expandedIds: {},
       expandAllIds: {},
-      sortingIds: {}
+      sortingIds: {},
+      customSortings: {}
     })
     this.context = context
     this.lastTree = null
@@ -545,6 +546,13 @@ export default class BrowserTreeController {
       } else {
         delete state.expandedIds[nodeId]
       }
+
+      state.expandAllIds = { ...state.expandAllIds }
+      Object.keys(state.expandAllIds).forEach(expandAllNodeId => {
+        if (nodeId.startsWith(expandAllNodeId)) {
+          delete state.expandAllIds[expandAllNodeId]
+        }
+      })
     }
   }
 
