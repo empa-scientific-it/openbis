@@ -26,7 +26,7 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: null,
       expandedIds: {},
-      expandAllIds: {},
+      undoCollapseAllIds: {},
       sortingIds: {},
       customSortings: {}
     })
@@ -50,7 +50,7 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: state.selectedObject,
       expandedIds: {},
-      expandAllIds: {},
+      undoCollapseAllIds: {},
       sortingIds: {},
       customSortings: {}
     }
@@ -547,10 +547,10 @@ export default class BrowserTreeController {
         delete state.expandedIds[nodeId]
       }
 
-      state.expandAllIds = { ...state.expandAllIds }
-      Object.keys(state.expandAllIds).forEach(expandAllNodeId => {
-        if (nodeId.startsWith(expandAllNodeId)) {
-          delete state.expandAllIds[expandAllNodeId]
+      state.undoCollapseAllIds = { ...state.undoCollapseAllIds }
+      Object.keys(state.undoCollapseAllIds).forEach(undoNodeId => {
+        if (nodeId.startsWith(undoNodeId)) {
+          delete state.undoCollapseAllIds[undoNodeId]
         }
       })
     }
@@ -598,17 +598,17 @@ export default class BrowserTreeController {
         this._doCollapseNode(newState, node.id, false)
       }
 
-      const idsToExpandAll = _.difference(
+      const collapsedIds = _.difference(
         Object.keys(state.expandedIds),
         Object.keys(newState.expandedIds)
       )
 
-      if (!_.isEmpty(idsToExpandAll)) {
-        const newExpandAllIds = {
-          ...newState.expandAllIds,
-          [nodeId]: idsToExpandAll
+      if (!_.isEmpty(collapsedIds)) {
+        const newUndoCollapseAllIds = {
+          ...newState.undoCollapseAllIds,
+          [nodeId]: collapsedIds
         }
-        newState.expandAllIds = newExpandAllIds
+        newState.undoCollapseAllIds = newUndoCollapseAllIds
       }
 
       await this.context.setState(newState)
@@ -648,27 +648,28 @@ export default class BrowserTreeController {
     }
   }
 
-  async expandAllNodes(nodeId) {
+  async undoCollapseAllNodes(nodeId) {
     const state = this.context.getState()
-    const idsToExpand = state.expandAllIds[nodeId]
+    const collapsedIds = state.undoCollapseAllIds[nodeId]
 
-    if (!_.isEmpty(idsToExpand)) {
+    if (!_.isEmpty(collapsedIds)) {
       const newState = { ...state }
-      newState.expandAllIds = { ...state.expandAllIds }
 
-      idsToExpand.forEach(idToExpand => {
-        this._doExpandNode(newState, idToExpand)
+      collapsedIds.forEach(collapsedId => {
+        this._doExpandNode(newState, collapsedId)
       })
-      delete newState.expandAllIds[nodeId]
+
+      newState.undoCollapseAllIds = { ...newState.undoCollapseAllIds }
+      delete newState.undoCollapseAllIds[nodeId]
 
       this.context.setState(newState)
     }
   }
 
-  isExpandAllNodesAvailable(nodeId) {
+  canUndoCollapseAllNodes(nodeId) {
     const state = this.context.getState()
-    const idsToExpand = state.expandAllIds[nodeId]
-    return !_.isEmpty(idsToExpand)
+    const collapsedIds = state.undoCollapseAllIds[nodeId]
+    return !_.isEmpty(collapsedIds)
   }
 
   async selectObject(nodeObject) {

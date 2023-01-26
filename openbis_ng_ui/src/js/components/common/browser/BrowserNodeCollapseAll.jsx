@@ -18,7 +18,7 @@ const styles = theme => ({
   }
 })
 
-class BrowserNodeCollapseExpandAll extends React.PureComponent {
+class BrowserNodeCollapseAll extends React.PureComponent {
   constructor(props) {
     super(props)
     autoBind(this)
@@ -27,10 +27,10 @@ class BrowserNodeCollapseExpandAll extends React.PureComponent {
   handleClick(event) {
     event.preventDefault()
     event.stopPropagation()
-    const { node, expand } = this.props
+    const { node, canUndo } = this.props
     if (node.id) {
-      if (expand) {
-        this.props.onExpandAll(node.id)
+      if (canUndo) {
+        this.props.onUndoCollapseAll(node.id)
       } else {
         this.props.onCollapseAll(node.id)
       }
@@ -40,7 +40,7 @@ class BrowserNodeCollapseExpandAll extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'BrowserNodeCollapseAll.render')
 
-    const { node, expand, classes } = this.props
+    const { node, canUndo, classes } = this.props
 
     if (!node || !node.canHaveChildren) {
       return null
@@ -50,7 +50,7 @@ class BrowserNodeCollapseExpandAll extends React.PureComponent {
       <div className={classes.container}>
         <Tooltip
           title={messages.get(
-            expand ? messages.EXPAND_ALL : messages.COLLAPSE_ALL
+            canUndo ? messages.UNDO_COLLAPSE_ALL : messages.COLLAPSE_ALL
           )}
         >
           <IconButton
@@ -58,7 +58,7 @@ class BrowserNodeCollapseExpandAll extends React.PureComponent {
             onClick={this.handleClick}
             classes={{ root: classes.button }}
           >
-            {expand ? (
+            {canUndo ? (
               <UnfoldMoreIcon fontSize='small' />
             ) : (
               <UnfoldLessIcon fontSize='small' />
@@ -70,4 +70,4 @@ class BrowserNodeCollapseExpandAll extends React.PureComponent {
   }
 }
 
-export default withStyles(styles)(BrowserNodeCollapseExpandAll)
+export default withStyles(styles)(BrowserNodeCollapseAll)

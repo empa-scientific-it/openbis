@@ -7,7 +7,7 @@ import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/BrowserNodeAutoShowSelected.jsx'
-import BrowserNodeCollapseExpandAll from '@src/js/components/common/browser/BrowserNodeCollapseExpandAll.jsx'
+import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -151,11 +151,11 @@ class Browser extends React.PureComponent {
               value={controller.isAutoShowSelectedObject()}
               onClick={controller.changeAutoShowSelectedObject}
             />
-            <BrowserNodeCollapseExpandAll
+            <BrowserNodeCollapseAll
               node={node}
-              expand={controller.isExpandAllNodesAvailable(node.id)}
+              canUndo={controller.canUndoCollapseAllNodes(node.id)}
               onCollapseAll={controller.collapseAllNodes}
-              onExpandAll={controller.expandAllNodes}
+              onUndoCollapseAll={controller.undoCollapseAllNodes}
             />
           </div>
         }

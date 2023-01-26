@@ -231,12 +231,12 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
-  async expandAllNodes(nodeId) {
-    await this._getTreeController().expandAllNodes(nodeId)
+  async undoCollapseAllNodes(nodeId) {
+    await this._getTreeController().undoCollapseAllNodes(nodeId)
   }
 
-  isExpandAllNodesAvailable(nodeId) {
-    return this._getTreeController().isExpandAllNodesAvailable(nodeId)
+  canUndoCollapseAllNodes(nodeId) {
+    return this._getTreeController().canUndoCollapseAllNodes(nodeId)
   }
 
   async setNodeAsRoot(node) {
