@@ -7,7 +7,7 @@ import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/BrowserNodeAutoShowSelected.jsx'
-import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
+import BrowserNodeCollapseExpandAll from '@src/js/components/common/browser/BrowserNodeCollapseExpandAll.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -136,6 +136,9 @@ class Browser extends React.PureComponent {
     const { controller } = this
     const { classes } = this.props
 
+    const node = controller.getNodeSetAsRoot() ||
+      controller.getRoot() || { canHaveChildren: true }
+
     return (
       <FilterField
         filter={controller.getFilter() || ''}
@@ -148,12 +151,11 @@ class Browser extends React.PureComponent {
               value={controller.isAutoShowSelectedObject()}
               onClick={controller.changeAutoShowSelectedObject}
             />
-            <BrowserNodeCollapseAll
-              node={
-                controller.getNodeSetAsRoot() ||
-                controller.getRoot() || { canHaveChildren: true }
-              }
-              onClick={controller.collapseAllNodes}
+            <BrowserNodeCollapseExpandAll
+              node={node}
+              expand={controller.isExpandAllNodesAvailable(node.id)}
+              onCollapseAll={controller.collapseAllNodes}
+              onExpandAll={controller.expandAllNodes}
             />
           </div>
         }

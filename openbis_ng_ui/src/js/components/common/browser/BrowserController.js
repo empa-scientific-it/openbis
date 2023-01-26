@@ -231,6 +231,14 @@ export default class BrowserController {
     await this._getTreeController().collapseAllNodes(nodeId)
   }
 
+  async expandAllNodes(nodeId) {
+    await this._getTreeController().expandAllNodes(nodeId)
+  }
+
+  isExpandAllNodesAvailable(nodeId) {
+    return this._getTreeController().isExpandAllNodesAvailable(nodeId)
+  }
+
   async setNodeAsRoot(node) {
     let nodeSetAsRoot = null
 

@@ -14,7 +14,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
 import BrowserNodeSetAsRoot from '@src/js/components/common/browser/BrowserNodeSetAsRoot.jsx'
 import BrowserNodeSortings from '@src/js/components/common/browser/BrowserNodeSortings.jsx'
-import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
+import BrowserNodeCollapseExpandAll from '@src/js/components/common/browser/BrowserNodeCollapseExpandAll.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
 import util from '@src/js/common/util.js'
@@ -103,6 +103,11 @@ class BrowserNodeClass extends React.PureComponent {
   handleCollapseAll(nodeId) {
     const { controller } = this.props
     controller.collapseAllNodes(nodeId)
+  }
+
+  handleExpandAll(nodeId) {
+    const { controller } = this.props
+    controller.expandAllNodes(nodeId)
   }
 
   handleSetAsRoot(nodeId) {
@@ -239,7 +244,7 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderOptions(node) {
-    const { classes } = this.props
+    const { controller, classes } = this.props
 
     return (
       <div className={classes.options}>
@@ -249,7 +254,12 @@ class BrowserNodeClass extends React.PureComponent {
           onChange={this.handleSortingChange}
           onClearCustom={this.handleCustomSortingClear}
         />
-        <BrowserNodeCollapseAll node={node} onClick={this.handleCollapseAll} />
+        <BrowserNodeCollapseExpandAll
+          node={node}
+          expand={controller.isExpandAllNodesAvailable(node.id)}
+          onCollapseAll={this.handleCollapseAll}
+          onExpandAll={this.handleExpandAll}
+        />
       </div>
     )
   }

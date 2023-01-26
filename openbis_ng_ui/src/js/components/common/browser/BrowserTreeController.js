@@ -26,6 +26,7 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: null,
       expandedIds: {},
+      expandAllIds: {},
       sortingIds: {}
     })
     this.context = context
@@ -48,6 +49,7 @@ export default class BrowserTreeController {
       nodes: {},
       selectedObject: state.selectedObject,
       expandedIds: {},
+      expandAllIds: {},
       sortingIds: {},
       customSortings: {}
     }
@@ -588,6 +590,19 @@ export default class BrowserTreeController {
         this._doCollapseNode(newState, node.id, false)
       }
 
+      const idsToExpandAll = _.difference(
+        Object.keys(state.expandedIds),
+        Object.keys(newState.expandedIds)
+      )
+
+      if (!_.isEmpty(idsToExpandAll)) {
+        const newExpandAllIds = {
+          ...newState.expandAllIds,
+          [nodeId]: idsToExpandAll
+        }
+        newState.expandAllIds = newExpandAllIds
+      }
+
       await this.context.setState(newState)
       this._saveSettings()
     }
@@ -623,6 +638,29 @@ export default class BrowserTreeController {
         })
       }
     }
+  }
+
+  async expandAllNodes(nodeId) {
+    const state = this.context.getState()
+    const idsToExpand = state.expandAllIds[nodeId]
+
+    if (!_.isEmpty(idsToExpand)) {
+      const newState = { ...state }
+      newState.expandAllIds = { ...state.expandAllIds }
+
+      idsToExpand.forEach(idToExpand => {
+        this._doExpandNode(newState, idToExpand)
+      })
+      delete newState.expandAllIds[nodeId]
+
+      this.context.setState(newState)
+    }
+  }
+
+  isExpandAllNodesAvailable(nodeId) {
+    const state = this.context.getState()
+    const idsToExpand = state.expandAllIds[nodeId]
+    return !_.isEmpty(idsToExpand)
   }
 
   async selectObject(nodeObject) {
