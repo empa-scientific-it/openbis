@@ -57,8 +57,9 @@ class BrowserNodeSortings extends React.PureComponent {
     }
   }
 
-  handleClearCustom() {
+  handleClearCustom(event) {
     const { node, onClearCustom } = this.props
+    event.stopPropagation()
     this.handleClose()
     if (onClearCustom) {
       onClearCustom(node.id)
