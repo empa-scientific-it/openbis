@@ -36,17 +36,17 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
     }
 
     public List<SampleRelationshipPE> listSampleParents(List<Long> childrenTechIds) {
-        RelationshipTypePE relationshipType = relationshipTypeDAO.tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        Long typeId = relationshipTypeDAO.getRelationshipTypeId(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
         final DetachedCriteria criteria = DetachedCriteria.forClass(SampleRelationshipPE.class);
-        criteria.add(Restrictions.eq("relationship.id", relationshipType.getId()));
+        criteria.add(Restrictions.eq("relationship.id", typeId));
         criteria.add(Restrictions.in("childSample.id", childrenTechIds));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
 
     public List<SampleRelationshipPE> listSampleChildren(List<Long> parentTechIds) {
-        RelationshipTypePE relationshipType = relationshipTypeDAO.tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        Long typeId = relationshipTypeDAO.getRelationshipTypeId(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
         final DetachedCriteria criteria = DetachedCriteria.forClass(SampleRelationshipPE.class);
-        criteria.add(Restrictions.eq("relationship.id", relationshipType.getId()));
+        criteria.add(Restrictions.eq("relationship.id", typeId));
         criteria.add(Restrictions.in("parentSample.id", parentTechIds));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
