@@ -97,7 +97,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         experimentDAO = new ExperimentDAO(persistencyResources, historyCreator);
         projectDAO = new ProjectDAO(sessionFactory, historyCreator);
         sampleDAO = new SampleDAO(persistencyResources, historyCreator);
-        sampleRelationshipDAO = new SampleRelationshipDAO(sessionFactory, relationshipTypeDAO, historyCreator);
+        sampleRelationshipDAO = new SampleRelationshipDAO(sessionFactory, historyCreator);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, historyCreator);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, historyCreator);
         queryDAO = new QueryDAO(sessionFactory, historyCreator);
