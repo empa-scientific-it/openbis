@@ -43,7 +43,7 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
     private RelationshipTypePE getParentChildRelationship()
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(RelationshipTypePE.class);
-        criteria.add(Restrictions.eq("simpleCode", BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP));
+        criteria.add(Restrictions.eq("simpleCode", BasicConstant.PARENT_CHILD_DB_RELATIONSHIP));
         List<RelationshipTypePE> cast = cast(getHibernateTemplate().findByCriteria(criteria));
         return cast.get(0);
     }
