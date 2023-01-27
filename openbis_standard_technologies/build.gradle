@@ -320,12 +320,14 @@ war {
 }
 
 def downloadCorePlugin(url, pluginname) {
-  def file = project(':openbis').file("../openbis_standard_technologies/targets/downloads/${pluginname}.zip")
-  if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
-    file.getParentFile().mkdirs()
-    ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])
-    ext.executeFunction('unzip', ['-uqo', file.getAbsolutePath(), '-d', '../openbis_standard_technologies/targets/downloads/'])
-  }
+	if (!project.getGradle().startParameter.isOffline()) {
+		def file = project(':openbis').file("../openbis_standard_technologies/targets/downloads/${pluginname}.zip")
+		if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
+			file.getParentFile().mkdirs()
+			ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])
+			ext.executeFunction('unzip', ['-uqo', file.getAbsolutePath(), '-d', '../openbis_standard_technologies/targets/downloads/'])
+		}
+	}
 }
 
 import org.paleozogt.gradle.zip.SymZip;
