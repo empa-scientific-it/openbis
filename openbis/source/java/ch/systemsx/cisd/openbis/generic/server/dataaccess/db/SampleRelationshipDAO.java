@@ -8,6 +8,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +59,7 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
         for (SampleRelationshipPE sampleRelationship : sampleRelationships)
         {
             sampleRelationship.setRelationship(relationshipType);
-            persist(sampleRelationship);
+            getHibernateTemplate().persist(sampleRelationship);
         }
     }
 
