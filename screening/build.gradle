@@ -4,7 +4,7 @@ evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
-evaluationDependsOn(':openbis')
+evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':datastore_server')
 
 apply from: '../build/javaproject.gradle'
@@ -19,7 +19,7 @@ dependencies {
             'imagej:ij:1.43u',
             'bioformats:bioformats:6.5.1'
 
-    devRuntime project(path: ':openbis', configuration: 'devRuntime')
+    devRuntime project(path: ':server-application-server', configuration: 'devRuntime')
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
             project(path: ':common', configuration: 'tests'),
@@ -32,7 +32,7 @@ dependencies {
             'testng:testng:6.8-CISD',
             'springframework:spring-test:5.0.17.RELEASE',
             'startnet:apgdiff:2.3'
-    testImplementation(project(path: ':openbis', configuration: 'tests')) {
+    testImplementation(project(path: ':server-application-server', configuration: 'tests')) {
         exclude group: 'google', module: 'gwt-user'
     }
 }
@@ -72,8 +72,8 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 task executeScreeningOpenBisDev(type: JavaExec) {
     main = 'org.eclipse.jetty.runner.Runner'
     classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
-    jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../openbis/etc/log.xml',
-             '-Djavax.net.ssl.trustStore=../openbis/dist/server/openBIS.keystore',
+    jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../server-application-server/etc/log.xml',
+             '-Djavax.net.ssl.trustStore=../server-application-server/dist/server/openBIS.keystore',
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
              '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
     args(['--classes', '../commonbase/targets/gradle/classes/main',
@@ -82,7 +82,7 @@ task executeScreeningOpenBisDev(type: JavaExec) {
           '--classes', '../dbmigration/targets/gradle/classes/main',
           '--classes', '../openbis-common/targets/gradle/classes/main',
           '--classes', '../openbis_api/targets/gradle/classes/main',
-          '--classes', '../openbis/targets/gradle/classes/main',
+          '--classes', '../server-application-server/targets/gradle/classes/main',
           '--classes', 'targets/gradle/classes/main', '--lib', 'targets/www/lib/', '--port', '8888', 'targets/www'])
 }
 

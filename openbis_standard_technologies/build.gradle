@@ -34,7 +34,7 @@ evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
-evaluationDependsOn(':openbis')
+evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':screening')
 evaluationDependsOn(':big_data_link_server')
@@ -91,7 +91,7 @@ dependencies {
             project(path: ':common', configuration: 'archives'),
             project(path: ':openbis_api', configuration: 'archives'),
             project(path: ':openbis-common', configuration: 'archives'),
-            project(path: ':openbis', configuration: 'archives'),
+            project(path: ':server-application-server', configuration: 'archives'),
             project(path: ':datastore_server', configuration: 'archives'),
             project(path: ':screening', configuration: 'archives'),
             'sis:sis-base:18.09.0:sources',
@@ -110,7 +110,7 @@ dependencies {
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'springframework:spring-test:5.0.17.RELEASE'
-    testImplementation(project(path: ':openbis', configuration: 'tests')) {
+    testImplementation(project(path: ':server-application-server', configuration: 'tests')) {
         exclude group: 'google', module: 'gwt-user'
     }
 
@@ -208,18 +208,18 @@ task bundleOpenbisStaticResources(type: Exec) {
 
 task copyOpenbisStaticResources(type: Copy) {
     dependsOn 'bundleOpenbisStaticResources'
-    from "${project(':openbis').projectDir}/source/java/ch/systemsx/cisd/openbis/public"
+    from "${project(':server-application-server').projectDir}/source/java/ch/systemsx/cisd/openbis/public"
     into gwtModuleBuildDir
 }
 
 ext.classpathEntries = files(
-        project(':openbis').file('source/java/applicationContext.xml'),
-        project(':openbis').file('source/java/dbConfigurationContext.xml'),
-        project(':openbis').file('source/java/ehcache.xml'),
-        project(':openbis').file('source/java/genericApplicationContext.xml'),
-        project(':openbis').file('source/java/hibernateContext.xml'),
-        project(':openbis').file('source/java/schema-for-xslt20.xsd'),
-        project(':openbis').file('source/java/XMLSchema.xsd'),
+        project(':server-application-server').file('source/java/applicationContext.xml'),
+        project(':server-application-server').file('source/java/dbConfigurationContext.xml'),
+        project(':server-application-server').file('source/java/ehcache.xml'),
+        project(':server-application-server').file('source/java/genericApplicationContext.xml'),
+        project(':server-application-server').file('source/java/hibernateContext.xml'),
+        project(':server-application-server').file('source/java/schema-for-xslt20.xsd'),
+        project(':server-application-server').file('source/java/XMLSchema.xsd'),
         project(':screening').file('source/java/screening-applicationContext.xml'),
         project(':screening').file('source/java/screening-dssApplicationContext.xml'),
         project(':screening').file('source/java/screening-plugin-applicationContext.xml'),
@@ -228,23 +228,23 @@ ext.classpathEntries = files(
 )
 
 ext.zipEntries = files(
-        project(':openbis').file('dist/server/autosymlink.sh'),
-        project(':openbis').file('dist/server/check.sh'),
-        project(':openbis').file('dist/server/configure.sh'),
-        project(':openbis').file('dist/server/export-master-data.py'),
-        project(':openbis').file('dist/server/export-master-data.sh'),
-        project(':openbis').file('dist/server/install.sh'),
-        project(':openbis').file('dist/server/openBIS.keystore'),
-        project(':openbis').file('dist/server/openbis.conf'),
-        project(':openbis').file('dist/server/passwd.sh'),
-        project(':openbis').file('dist/server/register-master-data.sh'),
-        project(':openbis').file('dist/server/setup-env'),
-        project(':openbis').file('dist/server/shutdown.sh'),
-        project(':openbis').file('dist/server/startup.sh'),
-        project(':openbis').file('dist/server/status.sh'),
-        project(':openbis').file('dist/server/version.sh'),
-        project(':openbis').file('dist/server/watchdog.sh'),
-        project(':openbis').fileTree(dir: 'dist/server').matching {
+        project(':server-application-server').file('dist/server/autosymlink.sh'),
+        project(':server-application-server').file('dist/server/check.sh'),
+        project(':server-application-server').file('dist/server/configure.sh'),
+        project(':server-application-server').file('dist/server/export-master-data.py'),
+        project(':server-application-server').file('dist/server/export-master-data.sh'),
+        project(':server-application-server').file('dist/server/install.sh'),
+        project(':server-application-server').file('dist/server/openBIS.keystore'),
+        project(':server-application-server').file('dist/server/openbis.conf'),
+        project(':server-application-server').file('dist/server/passwd.sh'),
+        project(':server-application-server').file('dist/server/register-master-data.sh'),
+        project(':server-application-server').file('dist/server/setup-env'),
+        project(':server-application-server').file('dist/server/shutdown.sh'),
+        project(':server-application-server').file('dist/server/startup.sh'),
+        project(':server-application-server').file('dist/server/status.sh'),
+        project(':server-application-server').file('dist/server/version.sh'),
+        project(':server-application-server').file('dist/server/watchdog.sh'),
+        project(':server-application-server').fileTree(dir: 'dist/server').matching {
             include 'base/**'
         },
         file('dist/server/service.properties'),
@@ -284,7 +284,7 @@ war {
     webXml = file('resource/server/web.xml')
     webInf {
         from "${project.buildDir}/gwt/WEB-INF",
-                project(':openbis').file('resource/server/bis-common.xml'),
+                project(':server-application-server').file('resource/server/bis-common.xml'),
                 file('resource/server/spring-servlet.xml'),
                 file('resource/server/jetty-web.xml'),
                 project(':common').file('resource/server/web-common.xml')
@@ -311,7 +311,7 @@ war {
         exclude "sql/imaging/postgresql/_ERD"
     }
 
-    from('../openbis/source') {
+    from('../server-application-server/source') {
         into("WEB-INF/classes")
         include "sql/**/*.sql"
         exclude "sql/generic/_ERD"
@@ -321,7 +321,7 @@ war {
 
 def downloadCorePlugin(url, pluginname) {
     if (!project.getGradle().startParameter.isOffline()) {
-        def file = project(':openbis').file("../openbis_standard_technologies/targets/downloads/${pluginname}.zip")
+        def file = project(':server-application-server').file("../openbis_standard_technologies/targets/downloads/${pluginname}.zip")
         if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
             file.getParentFile().mkdirs()
             ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])

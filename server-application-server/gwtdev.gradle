@@ -14,15 +14,11 @@ if (System.getProperty("openbis.development-build") != null) {
                 'fasterxml:jackson-annotations:2.9.10',
                 project(':common'),
                 project(path: ':common', configuration: 'archives'),
-                project(':commonbase'),
-                project(path: ':commonbase', configuration: 'archives'),
                 project(path: ':openbis_api'),
                 project(path: ':openbis_api', configuration: 'archives'),
                 project(path: ':openbis-common'),
                 project(path: ':openbis-common', configuration: 'archives'),
-                project(path: ':server-application-server'),
-                project(path: ':server-application-server', configuration: 'archives'),
-                project(path: ':screening', configuration: 'archives')
+                project(path: ':server-application-server', configuration: 'archives')
     }
 }
 
@@ -39,13 +35,10 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         into '../lib'
         exclude 'cisd-cifex*'
         exclude 'common-*'
-        exclude 'commonbase-*'
         exclude 'authentication-*'
         exclude 'dbmigration-*'
         exclude 'openbis-common-*'
         exclude 'openbis_api-*'
-        exclude 'openbis-*'
-        exclude 'datastore_server-*'
     }
 
     from('source/java/service.properties') {
@@ -53,7 +46,7 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
     }
 }
 
-task compileGWTToTemp(type: JavaExec, dependsOn: prepareGWT) {
+task compileGWTToTempJDK8(type: JavaExec, dependsOn: prepareGWT) {
     // inputs.source
     sourceSets.main.java.srcDirs
     inputs.dir sourceSets.main.output.resourcesDir
@@ -70,20 +63,33 @@ task compileGWTToTemp(type: JavaExec, dependsOn: prepareGWT) {
                 project(":openbis").sourceSets.main.compileClasspath,
                 project(":common").sourceSets.main.java.srcDirs,
                 project(":openbis_api").sourceSets.main.java.srcDirs,
-                project(":screening").sourceSets.main.java.srcDirs,
-                project(":screening").sourceSets.main.output.resourcesDir,
                 configurations.gwt
         ]
     }
     args = ['-war',
             'targets/www/gwt-temp',
-            "ch.systemsx.cisd.openbis.plugin.screening.OpenBISSafari",
+            "ch.systemsx.cisd.openbis.OpenBISSafari",
             '-draftCompile',
             '-style', 'PRETTY',
             '-logLevel', 'INFO']
 }
 
-task compileGWT(type: Copy, dependsOn: compileGWTToTemp) {
-    from "targets/www/gwt-temp/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS"
-    into "targets/www/openbis-test-screening"
+task compileGWT(type: Copy, dependsOn: compileGWTToTempJDK8) {
+    from "targets/www/gwt-temp/ch.systemsx.cisd.openbis.OpenBIS"
+    into "targets/www/openbis-test"
+}
+
+task untarGwt(type: Copy, dependsOn: prepareGWT) {
+    from tarTree(resources.gzip("../openbis_standard_technologies/resource/gwt.tar.gz"))
+    into "${project.projectDir.absolutePath}/targets/www/gwt-temp"
+}
+
+task compileGWTToTempJDK11(type: Copy, dependsOn: untarGwt) {
+    from "${project.projectDir.absolutePath}/source/java/ch/systemsx/cisd/openbis/public"
+    into "${project.projectDir.absolutePath}/targets/www/gwt-temp/ch.systemsx.cisd.openbis.OpenBIS"
+}
+
+task openBISDevelopementEnvironmentASPrepare(type: Copy, dependsOn: compileGWTToTempJDK11) {
+    from "targets/www/gwt-temp/ch.systemsx.cisd.openbis.OpenBIS"
+    into "targets/www/openbis-test"
 }
