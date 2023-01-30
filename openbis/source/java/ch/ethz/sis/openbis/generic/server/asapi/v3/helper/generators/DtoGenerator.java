@@ -73,12 +73,15 @@ public class DtoGenerator
         return className;
     }
 
-    private DTOField create(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, String fetchOptionsFieldName)
+    private DTOField create(String fieldName, Class<?> fieldClass, String description,
+            Class<?> fetchOptions, String fetchOptionsFieldName)
     {
-        return new DTOField(fieldName, fieldClass, description, fetchOptions, fetchOptionsFieldName, false);
+        return new DTOField(fieldName, fieldClass, description, fetchOptions, fetchOptionsFieldName,
+                false);
     }
 
-    private DTOField createPlural(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions)
+    private DTOField createPlural(String fieldName, String className, String fullClassName,
+            String description, Class<?> fetchOptions)
     {
         return new DTOField(fieldName, className, fullClassName, description, fetchOptions, true);
     }
@@ -108,7 +111,8 @@ public class DtoGenerator
 
         boolean deprecated;
 
-        private DTOField(String fieldName, Class<?> fieldClass, String description, Class<?> fetchOptions, String fetchOptionsFieldName,
+        private DTOField(String fieldName, Class<?> fieldClass, String description,
+                Class<?> fetchOptions, String fetchOptionsFieldName,
                 boolean plural)
         {
             this.fieldName = fieldName;
@@ -123,7 +127,8 @@ public class DtoGenerator
             this.plural = plural;
         }
 
-        private DTOField(String fieldName, String className, String fullClassName, String description, Class<?> fetchOptions, boolean plural)
+        private DTOField(String fieldName, String className, String fullClassName,
+                String description, Class<?> fetchOptions, boolean plural)
         {
             this.fieldName = fieldName;
             this.definitionClassName = className;
@@ -150,7 +155,8 @@ public class DtoGenerator
                 return getCapitalizedName();
             } else
             {
-                return fetchOptionsFieldName.substring(0, 1).toUpperCase() + fetchOptionsFieldName.substring(1);
+                return fetchOptionsFieldName.substring(0, 1)
+                        .toUpperCase() + fetchOptionsFieldName.substring(1);
             }
         }
 
@@ -213,7 +219,8 @@ public class DtoGenerator
     }
 
     /**
-     * This method is intended for cases when field name is illegal identifier in java (e.g. keyword)
+     * This method is intended for cases when field name is illegal identifier in java (e.g.
+     * keyword)
      */
     public void addSimpleField(Class<?> c, String name, String persistentFieldName)
     {
@@ -222,24 +229,28 @@ public class DtoGenerator
         fields.add(dtoField);
     }
 
-    public DTOField addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass)
+    public DTOField addFetchedField(Class<?> c, String name, String description,
+            Class<?> fetchOptionsClass)
     {
         DTOField field = create(name, c, description, fetchOptionsClass, null);
         fields.add(field);
         return field;
     }
 
-    public DTOField addFetchedField(Class<?> c, String name, String description, Class<?> fetchOptionsClass, String fetchOptionsFieldName)
+    public DTOField addFetchedField(Class<?> c, String name, String description,
+            Class<?> fetchOptionsClass, String fetchOptionsFieldName)
     {
         DTOField field = create(name, c, description, fetchOptionsClass, fetchOptionsFieldName);
         fields.add(field);
         return field;
     }
 
-    public DTOField addPluralFetchedField(String definitionClassName, String importClassName, String name, String description,
+    public DTOField addPluralFetchedField(String definitionClassName, String importClassName,
+            String name, String description,
             Class<?> fetchOptionsClass)
     {
-        DTOField field = createPlural(name, definitionClassName, importClassName, description, fetchOptionsClass);
+        DTOField field = createPlural(name, definitionClassName, importClassName, description,
+                fetchOptionsClass);
         fields.add(field);
         return field;
     }
@@ -301,13 +312,15 @@ public class DtoGenerator
     public void generateDTO() throws FileNotFoundException
     {
         generateDTO(
-                "../openbis_api/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll("\\.", "/") + "/" + className
+                "../openbis_api/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
+                        "\\.", "/") + "/" + className
                         + ".java");
     }
 
     public void generateDTOJS() throws FileNotFoundException
     {
-        generateDTOJS("../js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className + ".js");
+        generateDTOJS(
+                "../test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className + ".js");
     }
 
     private void generateDTO(String file) throws FileNotFoundException
@@ -366,14 +379,17 @@ public class DtoGenerator
 
     public void generateFetchOptions() throws FileNotFoundException
     {
-        generateFetchOptions("../openbis_api/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll("\\.", "/")
-                + "/fetchoptions/" + className + "FetchOptions.java");
+        generateFetchOptions(
+                "../openbis_api/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
+                        "\\.", "/")
+                        + "/fetchoptions/" + className + "FetchOptions.java");
     }
 
     public void generateFetchOptionsJS() throws FileNotFoundException
     {
-        generateFetchOptionsJS("../js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
-                + "FetchOptions.js");
+        generateFetchOptionsJS(
+                "../test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
+                        + "FetchOptions.js");
     }
 
     private void generateFetchOptions(String file) throws FileNotFoundException
@@ -407,7 +423,8 @@ public class DtoGenerator
         printPackage(subPackage + ".fetchoptions");
         printImportsForFetchOptions();
 
-        printClassHeader(fetchOptionsClass.getSimpleName(), subPackage + ".fetchoptions", "FetchOptions<" + className + ">", null);
+        printClassHeader(fetchOptionsClass.getSimpleName(), subPackage + ".fetchoptions",
+                "FetchOptions<" + className + ">", null);
         startBlock();
 
         printFetchOptionsFields();
@@ -561,7 +578,8 @@ public class DtoGenerator
 
         if (field.interfaceClass != null)
         {
-            interfaceMethod = BeanUtils.findMethodWithMinimalParameters(field.interfaceClass, "set" + field.getCapitalizedName());
+            interfaceMethod = BeanUtils.findMethodWithMinimalParameters(field.interfaceClass,
+                    "set" + field.getCapitalizedName());
         }
 
         if (interfaceMethod != null)
@@ -580,7 +598,8 @@ public class DtoGenerator
 
         if (field.interfaceClass != null)
         {
-            interfaceMethod = BeanUtils.findMethodWithMinimalParameters(field.interfaceClass, "get" + field.getCapitalizedName());
+            interfaceMethod = BeanUtils.findMethodWithMinimalParameters(field.interfaceClass,
+                    "get" + field.getCapitalizedName());
         }
 
         if (interfaceMethod != null)
@@ -603,7 +622,8 @@ public class DtoGenerator
             print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
         }
         startBlock();
-        print("if (getFetchOptions() != null && getFetchOptions().has%s())", field.getFetchOptionsFieldName());
+        print("if (getFetchOptions() != null && getFetchOptions().has%s())",
+                field.getFetchOptionsFieldName());
         startBlock();
         print("return %s;", field.getPersistentName());
         endBlock();
@@ -611,10 +631,12 @@ public class DtoGenerator
         startBlock();
         if (field.plural)
         {
-            print("throw new NotFetchedException(\"%s have not been fetched.\");", field.description);
+            print("throw new NotFetchedException(\"%s have not been fetched.\");",
+                    field.description);
         } else
         {
-            print("throw new NotFetchedException(\"%s has not been fetched.\");", field.description);
+            print("throw new NotFetchedException(\"%s has not been fetched.\");",
+                    field.description);
         }
         endBlock();
         endBlock();
@@ -625,7 +647,8 @@ public class DtoGenerator
     {
         print("this.get%s = function()", field.getCapitalizedName());
         startBlock();
-        print("if (getFetchOptions() != null && this.getFetchOptions().has%s())", field.getFetchOptionsFieldName());
+        print("if (getFetchOptions() != null && this.getFetchOptions().has%s())",
+                field.getFetchOptionsFieldName());
         startBlock();
         print("return %s;", field.getPersistentName());
         endBlock();
@@ -691,7 +714,8 @@ public class DtoGenerator
 
         printMethodJavaDoc();
         printDeprecated(field.deprecated);
-        print("public %s with%sUsing(%s fetchOptions)", field.fetchOptions.getSimpleName(), field.getCapitalizedName(),
+        print("public %s with%sUsing(%s fetchOptions)", field.fetchOptions.getSimpleName(),
+                field.getCapitalizedName(),
                 field.fetchOptions.getSimpleName());
         startBlock();
         print("return %s = fetchOptions;", field.getPersistentName());
@@ -727,7 +751,8 @@ public class DtoGenerator
         print("");
     }
 
-    private void printClassHeader(String className, String jsonPackage, String extendsClass, Collection<String> implementedInterfaces)
+    private void printClassHeader(String className, String jsonPackage, String extendsClass,
+            Collection<String> implementedInterfaces)
     {
         print("/*");
         print(" * Class automatically generated with %s", this.getClass().getSimpleName());
@@ -751,7 +776,8 @@ public class DtoGenerator
                 interfaces.append(i);
             }
         }
-        print("public class %s%s implements Serializable%s", className, extendsStr, interfaces.toString());
+        print("public class %s%s implements Serializable%s", className, extendsStr,
+                interfaces.toString());
     }
 
     private void printMethodJavaDoc()
@@ -878,7 +904,8 @@ public class DtoGenerator
         imports.add(Serializable.class.getName());
         imports.add(FetchOptions.class.getName());
         imports.add("ch.ethz.sis.openbis.generic.asapi.v3.dto." + subPackage + "." + className);
-        imports.add("ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder");
+        imports.add(
+                "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder");
 
         for (DTOField field : fields)
         {

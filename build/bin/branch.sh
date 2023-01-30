@@ -31,7 +31,7 @@ common \
 datastore_server \
 dbmigration \
 installation \
-js-test \
+test-api-openbis-javascript \
 openbis \
 openbis-common \
 openbis_standard_technologies \

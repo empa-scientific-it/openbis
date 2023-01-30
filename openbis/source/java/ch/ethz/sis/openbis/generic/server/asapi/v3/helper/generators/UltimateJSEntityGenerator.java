@@ -18,11 +18,12 @@ public class UltimateJSEntityGenerator
 {
     private static final String API_PROJECT_ROOT_FOLDER = "/Users/fedoreno/projects/work/openbis";
 
-    private static final String API_PROJECT_SOURCE_FOLDER = API_PROJECT_ROOT_FOLDER + "/openbis_api/source/java/";
+    private static final String API_PROJECT_SOURCE_FOLDER =
+            API_PROJECT_ROOT_FOLDER + "/openbis_api/source/java/";
 
     @SuppressWarnings("unused")
     private static final String JSTEST_PROJECT_SOURCE_FOLDER = API_PROJECT_ROOT_FOLDER
-            + "/js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/";
+            + "/test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/";
 
     private static final String[] CLASSES_TO_CONVERT = new String[] {
             // "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment",
@@ -53,7 +54,8 @@ public class UltimateJSEntityGenerator
     {
         for (String classToConvert : CLASSES_TO_CONVERT)
         {
-            String javaClass = readFileAsString(API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java");
+            String javaClass = readFileAsString(
+                    API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java");
             String jsClass = translateFromJavaToJS(javaClass);
             // whriteStringAsFile(JSTEST_PROJECT_SOURCE_FOLDER + getSimpleName(classToConvert) + ".js", jsClass);
             System.out.println(jsClass);
@@ -106,7 +108,8 @@ public class UltimateJSEntityGenerator
         Writer out = null;
         try
         {
-            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8"));
+            out = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8"));
             out.write(string);
         } finally
         {
@@ -120,7 +123,8 @@ public class UltimateJSEntityGenerator
     private static final String readFileAsString(String filePath) throws IOException
     {
         StringBuffer fileData = new StringBuffer();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF8"));
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF8"));
         char[] buf = new char[1024];
         int numRead = 0;
         while ((numRead = reader.read(buf)) != -1)

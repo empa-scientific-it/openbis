@@ -1,0 +1,12 @@
+<suite name="All" verbose="2">
+    <test name="Main" annotations="JDK">
+        <groups>
+            <run>
+                <exclude name="test-api-openbis-javascript"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="ch.systemsx.cisd.openbis.jstest.suite.common.JsTestElnSelenium"/>
+        </classes>
+    </test>
+</suite>

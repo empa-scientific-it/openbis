@@ -10,7 +10,7 @@ evaluationDependsOn(':screening')
 evaluationDependsOn(':openbis_standard_technologies')
 evaluationDependsOn(':installation')
 evaluationDependsOn(':ui-test')
-evaluationDependsOn(':js-test')
+evaluationDependsOn(':test-api-openbis-javascript')
 evaluationDependsOn(':image_readers')
 evaluationDependsOn(':big_data_link_server')
 
