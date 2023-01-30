@@ -1,5 +1,7 @@
 import os
 import re
+from sets import Set
+
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.etlserver import ETLDaemon
 from SimpleInfoObject import SimpleInfoObject
@@ -52,10 +54,17 @@ def isAuthorized(tr):
     authService = tr.getAuthorizationService()
     roleAssignements = authService.listRoleAssignments()
     for ra in roleAssignements:
-        user = ra.getUser().getUserId()
-        role = str(ra.getRoleSetCode())
-        if user == userId and (role.endswith("USER") or role.endswith("ADMIN")):
-            return True
+        if ra.getUser() is not None:
+            user = ra.getUser().getUserId()
+            role = str(ra.getRoleSetCode())
+            if user == userId and (role.endswith("USER") or role.endswith("ADMIN")):
+                return True
+    groups = Set([g.getCode() for g in authService.listAuthorizationGroupsForUser(userId)])
+    for ra in roleAssignements:
+        if ra.getAuthorizationGroup() is not None and ra.getAuthorizationGroup().getCode() in groups:
+            role = str(ra.getRoleSetCode())
+            if role.endswith("USER") or role.endswith("ADMIN"):
+                return True
     return False
 
 
