@@ -36,7 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.Scan
  */
 public class CorePluginScannerTest extends AbstractFileSystemTestCase
 {
-    private final String CORE_PLUGINS_DIR = "../openbis/resource/test-data/core-plugins";
+    private final String CORE_PLUGINS_DIR =
+            "../server-application-server/resource/test-data/core-plugins";
 
     @Test
     public void testWithRealFolderScannerTypeAS() throws IOException

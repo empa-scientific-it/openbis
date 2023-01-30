@@ -88,10 +88,12 @@ public abstract class SystemTestCase extends AssertJUnit
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
 
-    private static final String POST_REGISTRATION_COMPLETE_MARKER = "markSuccessfulPostRegistration";
+    private static final String POST_REGISTRATION_COMPLETE_MARKER =
+            "markSuccessfulPostRegistration";
 
-    public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION = new RegexCondition(
-            ".*Post registration of (\\d*). of \\1 data sets: (.*)");
+    public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION =
+            new RegexCondition(
+                    ".*Post registration of (\\d*). of \\1 data sets: (.*)");
 
     // this message appears if the dropbox has successfully completed the registration, even if no
     // datasets have been imported
@@ -111,7 +113,8 @@ public abstract class SystemTestCase extends AssertJUnit
     protected BufferedAppender logAppender;
 
     // This path may change if openbis project is included as submodule
-    protected String springServletPath = "../openbis/resource/server/spring-servlet.xml";
+    protected String springServletPath =
+            "../server-application-server/resource/server/spring-servlet.xml";
 
     static
     {
@@ -174,25 +177,26 @@ public abstract class SystemTestCase extends AssertJUnit
         setUpDatabaseProperties();
         Server server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
-        ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        ServerConnector connector =
+                new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         connector.setPort(TestInstanceHostUtils.getOpenBISPort());
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
-            {
-                private static final long serialVersionUID = 1L;
+        {
+            private static final long serialVersionUID = 1L;
 
-                @Override
-                protected WebApplicationContext findWebApplicationContext()
-                {
-                    XmlBeanFactory f =
-                            new XmlBeanFactory(new FileSystemResource(springServletPath));
-                    applicationContext = new GenericWebApplicationContext(f);
-                    applicationContext.setParent(new ClassPathXmlApplicationContext(
-                            getApplicationContextLocation()));
-                    applicationContext.refresh();
-                    return applicationContext;
-                }
-            };
+            @Override
+            protected WebApplicationContext findWebApplicationContext()
+            {
+                XmlBeanFactory f =
+                        new XmlBeanFactory(new FileSystemResource(springServletPath));
+                applicationContext = new GenericWebApplicationContext(f);
+                applicationContext.setParent(new ClassPathXmlApplicationContext(
+                        getApplicationContextLocation()));
+                applicationContext.refresh();
+                return applicationContext;
+            }
+        };
         ServletContextHandler sch =
                 new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
         sch.addServlet(new ServletHolder(dispatcherServlet), "/*");
@@ -206,7 +210,7 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH,
+                        + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH,
                 getRegistrationLogDir()
                         .getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default", "test");
@@ -219,7 +223,8 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(SERVER_URL_KEY, TestInstanceHostUtils.getOpenBISUrl());
         System.setProperty("port", Integer.toString(TestInstanceHostUtils.getDSSPort()));
         System.setProperty(DOWNLOAD_URL_KEY, TestInstanceHostUtils.getDSSUrl());
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "archiver.destination", archive.getAbsolutePath());
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "archiver.destination",
+                archive.getAbsolutePath());
 
         QueueingPathRemoverService.start(rootDir, ETLDaemon.shredderQueueFile);
         DataStoreServer.main(new String[0]);
@@ -267,53 +272,57 @@ public abstract class SystemTestCase extends AssertJUnit
         return new File(workingDirectory, "log-registrations");
     }
 
-    protected void waitUntilDataSetPostRegistrationCompleted(final String dataSetCode) throws Exception
+    protected void waitUntilDataSetPostRegistrationCompleted(final String dataSetCode)
+            throws Exception
     {
         waitUntilDataSetImported(new ILogMonitoringStopCondition()
+        {
+            @Override
+            public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
             {
-                @Override
-                public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
-                {
-                    String logMessage = logEntry.getLogMessage();
-                    return logMessage.contains(POST_REGISTRATION_COMPLETE_MARKER) && logMessage.contains(dataSetCode);
-                }
+                String logMessage = logEntry.getLogMessage();
+                return logMessage.contains(
+                        POST_REGISTRATION_COMPLETE_MARKER) && logMessage.contains(dataSetCode);
+            }
 
-                @Override
-                public String toString()
-                {
-                    return "Log message contains '" + POST_REGISTRATION_COMPLETE_MARKER
-                            + "' and '" + dataSetCode + "'";
-                }
-            });
+            @Override
+            public String toString()
+            {
+                return "Log message contains '" + POST_REGISTRATION_COMPLETE_MARKER
+                        + "' and '" + dataSetCode + "'";
+            }
+        });
     }
 
     protected void waitUntilDataSetImported() throws Exception
     {
         waitUntilDataSetImported(new ILogMonitoringStopCondition()
+        {
+            @Override
+            public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
             {
-                @Override
-                public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
-                {
-                    String logMessage = logEntry.getLogMessage();
-                    return logMessage.contains(DATA_SET_IMPORTED_LOG_MARKER)
-                            || logMessage.contains(REGISTRATION_FINISHED_LOG_MARKER);
-                }
+                String logMessage = logEntry.getLogMessage();
+                return logMessage.contains(DATA_SET_IMPORTED_LOG_MARKER)
+                        || logMessage.contains(REGISTRATION_FINISHED_LOG_MARKER);
+            }
 
-                @Override
-                public String toString()
-                {
-                    return "Log message contains '" + DATA_SET_IMPORTED_LOG_MARKER
-                            + "' or '" + REGISTRATION_FINISHED_LOG_MARKER + "'";
-                }
-            });
+            @Override
+            public String toString()
+            {
+                return "Log message contains '" + DATA_SET_IMPORTED_LOG_MARKER
+                        + "' or '" + REGISTRATION_FINISHED_LOG_MARKER + "'";
+            }
+        });
     }
 
-    protected void waitUntilDataSetImported(ILogMonitoringStopCondition stopCondition) throws Exception
+    protected void waitUntilDataSetImported(ILogMonitoringStopCondition stopCondition)
+            throws Exception
     {
         waitUntil(stopCondition, dataSetImportWaitDurationInSeconds());
     }
 
-    protected void waitUntil(ILogMonitoringStopCondition stopCondition, int maxWaitDurationInSeconds) throws Exception
+    protected void waitUntil(ILogMonitoringStopCondition stopCondition,
+            int maxWaitDurationInSeconds) throws Exception
     {
         int lineIndex = 0;
         for (int loops = 0; loops < maxWaitDurationInSeconds; loops++)
@@ -337,13 +346,15 @@ public abstract class SystemTestCase extends AssertJUnit
     {
         return getLogEntries(0);
     }
-    
+
     protected List<ParsedLogEntry> getLogEntries(int lineIndex)
     {
         List<ParsedLogEntry> result = new ArrayList<ParsedLogEntry>();
         String[] logLines = getLogAppender().getLogContent().split("\n");
-        Pattern pattern = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}),\\d{3} ([^ ]*) \\[([^\\]]*)\\] (.*)$");
-        SimpleDateFormat dateFormat = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
+        Pattern pattern = Pattern.compile(
+                "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}),\\d{3} ([^ ]*) \\[([^\\]]*)\\] (.*)$");
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
         ParsedLogEntry logEntry = null;
         for (int i = lineIndex; i < logLines.length; i++)
         {

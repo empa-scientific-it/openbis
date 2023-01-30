@@ -18,10 +18,12 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class VersionInfoHandler
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ExcelParser.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ExcelParser.class);
 
     // Only used for development
-    private static final String DEVELOPMENT_DEFAULT_PATH = "../openbis/targets/xls-import-version-info-dev.json";
+    private static final String DEVELOPMENT_DEFAULT_PATH =
+            "../server-application-server/targets/xls-import-version-info-dev.json";
 
     public static Map<String, Integer> loadVersions(ImportOptions options, String xlsName)
     {
@@ -32,7 +34,8 @@ public class VersionInfoHandler
         return loadVersionFile().getOrDefault("VERSION-" + xlsName, new HashMap<>());
     }
 
-    public static void writeVersions(ImportOptions options, String xlsName, Map<String, Integer> versions)
+    public static void writeVersions(ImportOptions options, String xlsName,
+            Map<String, Integer> versions)
     {
         if (options.getIgnoreVersioning())
         {
@@ -83,8 +86,10 @@ public class VersionInfoHandler
         } else
         {
             ExposablePropertyPlaceholderConfigurer config =
-                    (ExposablePropertyPlaceholderConfigurer) context.getBean(ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
-            return config.getResolvedProps().getProperty("xls-import.version-data-file", "../../../xls-import-version-info.json");
+                    (ExposablePropertyPlaceholderConfigurer) context.getBean(
+                            ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
+            return config.getResolvedProps().getProperty("xls-import.version-data-file",
+                    "../../../xls-import-version-info.json");
         }
     }
 }

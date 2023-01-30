@@ -167,8 +167,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test_clean");
-        System.setProperty("script-folder", "../openbis/source");
-        System.setProperty(DataSetTypeWithoutExperimentChecker.PROPERTY_KEY, "  NO-EXP-.* ,   NE.*  ");
+        System.setProperty("script-folder", "../server-application-server/source");
+        System.setProperty(DataSetTypeWithoutExperimentChecker.PROPERTY_KEY,
+                "  NO-EXP-.* ,   NE.*  ");
     }
 
     private void setContext() throws Exception
@@ -205,11 +206,14 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         List<DataPE> allDataSets = daoFactory.getDataDAO().listAllEntities();
         DeletionType deletionType = DeletionType.TRASH;
-        commonServer.deleteDataSets(systemSessionToken, Code.extractCodes(allDataSets), "test", deletionType, false);
+        commonServer.deleteDataSets(systemSessionToken, Code.extractCodes(allDataSets), "test",
+                deletionType, false);
         List<SamplePE> allSamples = daoFactory.getSampleDAO().listAllEntities();
-        commonServer.deleteSamples(systemSessionToken, TechId.createList(allSamples), "test", deletionType);
+        commonServer.deleteSamples(systemSessionToken, TechId.createList(allSamples), "test",
+                deletionType);
         List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listAllEntities();
-        commonServer.deleteExperiments(systemSessionToken, TechId.createList(allExperiments), "test", deletionType);
+        commonServer.deleteExperiments(systemSessionToken, TechId.createList(allExperiments),
+                "test", deletionType);
     }
 
     @AfterSuite(groups = "system-cleandb")
@@ -222,8 +226,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
-        entityGraphManager = new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(),
-                systemSessionToken);
+        entityGraphManager =
+                new EntityGraphManager(etlService, commonServer, daoFactory.getSessionFactory(),
+                        systemSessionToken);
     }
 
     @Autowired
@@ -397,12 +402,14 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new InSampleMatcher(refresh(sample));
     }
 
-    protected Matcher<AbstractExternalData> hasParents(AbstractExternalData first, AbstractExternalData... rest)
+    protected Matcher<AbstractExternalData> hasParents(AbstractExternalData first,
+            AbstractExternalData... rest)
     {
         return new ExternalDataHasParentsMatcher(refresh(first), refresh(rest));
     }
 
-    protected Matcher<AbstractExternalData> hasChildren(AbstractExternalData first, AbstractExternalData... rest)
+    protected Matcher<AbstractExternalData> hasChildren(AbstractExternalData first,
+            AbstractExternalData... rest)
     {
         return new ExternalDataHasChildrenMatcher(refresh(first), refresh(rest));
     }
@@ -442,7 +449,8 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new ExternalDataHasContainerMatcher(refresh(container));
     }
 
-    protected Matcher<AbstractExternalData> hasComponents(AbstractExternalData first, AbstractExternalData... rest)
+    protected Matcher<AbstractExternalData> hasComponents(AbstractExternalData first,
+            AbstractExternalData... rest)
     {
         return new ExternalDataHasComponentsMatcher(refresh(first), refresh(rest));
     }
@@ -515,9 +523,11 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return parseAndCreateGraph(graphDefinition, true);
     }
 
-    protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition, boolean startNewTransaction)
+    protected EntityGraphGenerator parseAndCreateGraph(String graphDefinition,
+            boolean startNewTransaction)
     {
-        EntityGraphGenerator graphGenerator = entityGraphManager.parseAndCreateGraph(graphDefinition);
+        EntityGraphGenerator graphGenerator =
+                entityGraphManager.parseAndCreateGraph(graphDefinition);
         if (startNewTransaction)
         {
             TestTransaction.end();
@@ -653,15 +663,18 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         List<Sample> samples = new ArrayList<Sample>();
         for (String permId : samplePermIds)
         {
-            SampleIdentifier sampleIdentifier = etlService.tryGetSampleIdentifier(systemSessionToken, permId);
+            SampleIdentifier sampleIdentifier =
+                    etlService.tryGetSampleIdentifier(systemSessionToken, permId);
             if (sampleIdentifier == null)
             {
                 throw new IllegalArgumentException("Unknown sample with perm id: " + permId);
             }
-            Sample sample = etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+            Sample sample =
+                    etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
             if (sample == null)
             {
-                throw new IllegalArgumentException("Unknown sample with identifier: " + sampleIdentifier);
+                throw new IllegalArgumentException(
+                        "Unknown sample with identifier: " + sampleIdentifier);
             }
             samples.add(sample);
         }

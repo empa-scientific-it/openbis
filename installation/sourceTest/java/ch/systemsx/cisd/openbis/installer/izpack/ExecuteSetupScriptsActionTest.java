@@ -54,9 +54,12 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         dssServicePropertiesFile =
                 new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         jettySSLIniFile = new File(workingDirectory, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
-        FileUtils.copyFile(new File("../openbis_standard_technologies/dist/etc/service.properties/"),
+        FileUtils.copyFile(
+                new File("../openbis_standard_technologies/dist/etc/service.properties/"),
                 dssServicePropertiesFile);
-        FileUtils.copyFile(new File("../openbis/dist/server/base/start.d/ssl.ini"), jettySSLIniFile);
+        FileUtils.copyFile(
+                new File("../server-application-server/dist/server/base/start.d/ssl.ini"),
+                jettySSLIniFile);
 
         keystoreFileAS = new File(workingDirectory, Utils.AS_PATH + Utils.KEYSTORE_PATH);
         keystoreFileDSS = new File(workingDirectory, Utils.DSS_PATH + Utils.KEYSTORE_PATH);

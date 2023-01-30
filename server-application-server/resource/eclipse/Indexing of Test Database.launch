@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/openbis/source/java/ch/systemsx/cisd/openbis/generic/server/dataaccess/db/IndexCreationUtil.java"/>
+<listEntry value="/server-application-server/source/java/ch/systemsx/cisd/openbis/generic/server/dataaccess/db/IndexCreationUtil.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>

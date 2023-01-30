@@ -33,18 +33,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 
 /**
  * Tests for {@link IScreeningQuery}.
- * 
+ *
  * @author Tomasz Pylak
  */
 @Test(groups =
-{ "db", "screening" })
+        { "db", "screening" })
 public class ScreeningDAOTest extends AbstractScreeningDAOTest
 {
 
     static
     {
-        System.setProperty("script-folder", "../openbis/sourceTest");
-        System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
+        System.setProperty("script-folder", "../server-application-server/sourceTest");
+        System.setProperty("mass-upload-folder",
+                "../server-application-server/sourceTest/sql/postgresql");
 
     }
 
@@ -147,11 +148,11 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     public void testGetPlateLocationsForManyMaterials()
     {
         String[] materialTypeCodes = new String[]
-        { ScreeningConstants.GENE_PLUGIN_TYPE_CODE };
+                { ScreeningConstants.GENE_PLUGIN_TYPE_CODE };
         // it just tests if the sql is correct
 
         long[] ids =
-        { 1, 2 };
+                { 1, 2 };
 
         // one experiment
         List<WellContentQueryResult> locations =
@@ -178,7 +179,7 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     {
         List<BasicWellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateLocationsForExperiment(new long[]
-                { 1, 2 }, "GENE"));
+                        { 1, 2 }, "GENE"));
         AssertJUnit.assertEquals(0, locations.size());
 
         List<ExperimentReferenceQueryResult> experiments = query.getExperimentsWithMaterial(1);

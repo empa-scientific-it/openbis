@@ -37,9 +37,10 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
- * Test cases which have access to the public API services of a running, fully-fledged openBIS server. The tests do not see the server internals and
- * thus they must employ black-box testing strategies.
- * 
+ * Test cases which have access to the public API services of a running, fully-fledged openBIS
+ * server. The tests do not see the server internals and thus they must employ black-box testing
+ * strategies.
+ *
  * @author Kaloyan Enimanev
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
@@ -55,33 +56,34 @@ public class RemoteApiTestCase extends AbstractTransactionalTestNGSpringContextT
         TestInitializer.init();
         server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
-        ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        ServerConnector connector =
+                new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         connector.setPort(TestInstanceHostUtils.getOpenBISPort());
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
-            {
-                private static final long serialVersionUID = 1L;
+        {
+            private static final long serialVersionUID = 1L;
 
-                @Override
-                protected WebApplicationContext findWebApplicationContext()
+            @Override
+            protected WebApplicationContext findWebApplicationContext()
+            {
+                XmlBeanFactory f =
+                        new XmlBeanFactory(new FileSystemResource(
+                                "../server-application-server/resource/server/spring-servlet.xml"));
+                GenericWebApplicationContext wac = new GenericWebApplicationContext(f);
+                try
                 {
-                    XmlBeanFactory f =
-                            new XmlBeanFactory(new FileSystemResource(
-                                    "../openbis/resource/server/spring-servlet.xml"));
-                    GenericWebApplicationContext wac = new GenericWebApplicationContext(f);
-                    try
-                    {
-                        springTestContextPrepareTestInstance();
-                    } catch (Exception ex)
-                    {
-                        throw new RuntimeException("Cannot initialize test instance:"
-                                + ex.getMessage(), ex);
-                    }
-                    wac.setParent(applicationContext);
-                    wac.refresh();
-                    return wac;
+                    springTestContextPrepareTestInstance();
+                } catch (Exception ex)
+                {
+                    throw new RuntimeException("Cannot initialize test instance:"
+                            + ex.getMessage(), ex);
                 }
-            };
+                wac.setParent(applicationContext);
+                wac.refresh();
+                return wac;
+            }
+        };
         ServletContextHandler sch =
                 new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
         sch.addServlet(new ServletHolder(dispatcherServlet), "/*");

@@ -35,9 +35,9 @@ public class TestInitializer
 
     private static boolean createDBFromScratch = true;
 
-    private static String scriptFolderForTestDB = "../openbis/sourceTest";
+    private static String scriptFolderForTestDB = "../server-application-server/sourceTest";
 
-    private static String scriptFolderForEmptyDB = "../openbis/source";
+    private static String scriptFolderForEmptyDB = "../server-application-server/source";
 
     public static void init()
     {
@@ -68,7 +68,8 @@ public class TestInitializer
     {
         LogInitializer.init();
 
-        System.setProperty("database.create-from-scratch", String.valueOf(getCreateDBFromScratch()));
+        System.setProperty("database.create-from-scratch",
+                String.valueOf(getCreateDBFromScratch()));
         System.setProperty("database.kind", getDBKind());
         System.setProperty("script-folder", scriptFolder);
 

@@ -5,8 +5,8 @@
 */targets
 */.gradle
 datastore_server/source/core-plugins
-openbis/source/core-plugins
-openbis/sourceTest/hot-deployment
+server-application-server/source/core-plugins
+server-application-server/sourceTest/hot-deployment
 */bin/*
 **/.DS_Store
 *$py.class

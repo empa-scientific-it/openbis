@@ -36,44 +36,44 @@ public class StartApplicationServer
     public static String go() throws Exception
     {
         Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+
+                /*
+                 * com.google.gwt.dev.DevMode.main(new String[] { "-startupUrl", "ch.systemsx.cisd.openbis.OpenBIS/index.html",
+                 * "ch.systemsx.cisd.openbis.OpenBIS", "-war", "../server-application-server/targets/www", "-logLevel", "INFO" });
+                 */
+                Server server = new Server(10000);
+
+                WebAppContext context = new WebAppContext();
+
+                if (new File("targets/gradle/openbis-war/openbis.war").exists() == false)
                 {
-
-                    /*
-                     * com.google.gwt.dev.DevMode.main(new String[] { "-startupUrl", "ch.systemsx.cisd.openbis.OpenBIS/index.html",
-                     * "ch.systemsx.cisd.openbis.OpenBIS", "-war", "../openbis/targets/www", "-logLevel", "INFO" });
-                     */
-                    Server server = new Server(10000);
-
-                    WebAppContext context = new WebAppContext();
-
-                    if (new File("targets/gradle/openbis-war/openbis.war").exists() == false)
-                    {
-                        context.setDescriptor("targets/www/WEB-INF/web.xml");
-                        context.setResourceBase("targets/www");
-                    } else
-                    {
-                        context.setWar("targets/gradle/openbis-war/openbis.war");
-                    }
-
-                    context.setContextPath("/");
-                    context.setParentLoaderPriority(true);
-                    context.addAliasCheck(new AllowSymLinkAliasChecker());
-
-                    server.setHandler(context);
-                    try
-                    {
-                        server.start();
-                        server.join();
-                    } catch (Exception ex)
-                    {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                    }
+                    context.setDescriptor("targets/www/WEB-INF/web.xml");
+                    context.setResourceBase("targets/www");
+                } else
+                {
+                    context.setWar("targets/gradle/openbis-war/openbis.war");
                 }
-            };
+
+                context.setContextPath("/");
+                context.setParentLoaderPriority(true);
+                context.addAliasCheck(new AllowSymLinkAliasChecker());
+
+                server.setHandler(context);
+                try
+                {
+                    server.start();
+                    server.join();
+                } catch (Exception ex)
+                {
+                    // TODO Auto-generated catch block
+                    ex.printStackTrace();
+                }
+            }
+        };
 
         PrintStream originalOut = System.out;
 
