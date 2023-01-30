@@ -23,15 +23,19 @@ import ch.ethz.sis.shared.startup.Configuration;
 import java.io.File;
 import java.util.List;
 
-public class Main {
+public class Main
+{
 
-    public static List getParameterClasses() {
+    public static List getParameterClasses()
+    {
         return List.of(AtomicFileSystemServerParameter.class);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
-        Configuration configuration = new Configuration(getParameterClasses(), "../afs-server/src/main/resources/afs-server-config.properties");
+        Configuration configuration = new Configuration(getParameterClasses(),
+                "../server-data-store/src/main/resources/afs-server-config.properties");
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
         Server server = new Server(configuration, dummyServerObserver, dummyServerObserver);
         Thread.currentThread().join();
