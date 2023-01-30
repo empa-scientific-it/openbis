@@ -108,7 +108,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fAction = function(facade) {
 				var criteria = new c.AggregationServiceSearchCriteria();
-				var id = new c.DssServicePermId("test-api-openbis-javascript", new c.DataStorePermId("DSS1"));
+				var id = new c.DssServicePermId("js-test", new c.DataStorePermId("DSS1"));
 				criteria.withId().thatEquals(id);
 				var fetchOptions = new c.AggregationServiceFetchOptions();
 				return facade.searchAggregationServices(criteria, fetchOptions);
@@ -118,9 +118,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(result.getTotalCount(), 1, "Number of results");
 				c.assertEqual(result.getObjects().length, 1, "Number of results");
 				var objects = result.getObjects();
-				c.assertEqual(objects[0].getPermId().toString(), "DSS1:test-api-openbis-javascript", "Perm id");
-				c.assertEqual(objects[0].getName(), "test-api-openbis-javascript", "Name");
-				c.assertEqual(objects[0].getLabel(), "test-api-openbis-javascript", "Label");
+				c.assertEqual(objects[0].getPermId().toString(), "DSS1:js-test", "Perm id");
+				c.assertEqual(objects[0].getName(), "js-test", "Name");
+				c.assertEqual(objects[0].getLabel(), "js-test", "Label");
 			}
 
 			testAction(c, fAction, fCheck);
@@ -130,7 +130,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, openbis);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId("test-api-openbis-javascript", new c.DataStorePermId("DSS1"));
+				var id = new c.DssServicePermId("js-test", new c.DataStorePermId("DSS1"));
 				var options = new c.AggregationServiceExecutionOptions();
 				options.withParameter("method", "test");
 				options.withParameter("answer", 42).withParameter("pi", 3.1415926);
@@ -149,7 +149,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, openbis);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId("test-api-openbis-javascript", new c.DataStorePermId(null));
+				var id = new c.DssServicePermId("js-test", new c.DataStorePermId(null));
 				var options = new c.AggregationServiceExecutionOptions();
 				return facade.executeAggregationService(id, options);
 			}
@@ -161,7 +161,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, openbis);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId("test-api-openbis-javascript", null);
+				var id = new c.DssServicePermId("js-test", null);
 				var options = new c.AggregationServiceExecutionOptions();
 				return facade.executeAggregationService(id, options);
 			}

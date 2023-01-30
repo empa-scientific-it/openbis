@@ -2,7 +2,7 @@
     <test name="Main" annotations="JDK">
         <groups>
             <run>
-                <exclude name="test-api-openbis-javascript"/>
+                <exclude name="js-test"/>
             </run>
         </groups>
         <classes>

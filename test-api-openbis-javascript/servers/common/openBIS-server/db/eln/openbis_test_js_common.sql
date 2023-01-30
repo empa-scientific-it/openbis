@@ -4479,7 +4479,7 @@ COPY public.data_store_services (id, key, label, kind, data_store_id, reporting_
 257	feature-lists-aggregation-service	Features Lists	QUERIES	1	AGGREGATION_TABLE_MODEL
 258	path-info-db-consistency-check	Path Info DB consistency check	PROCESSING	1	\N
 259	test-processing-service	Test Jython Processing	PROCESSING	1	\N
-260	test-api-openbis-javascript	test-api-openbis-javascript	QUERIES	1	AGGREGATION_TABLE_MODEL
+260	js-test	js-test	QUERIES	1	AGGREGATION_TABLE_MODEL
 261	test-aggregation-service	Test Aggregation Service	QUERIES	1	AGGREGATION_TABLE_MODEL
 262	test-reporting-service	Test Jython Reporting	QUERIES	1	TABLE_MODEL
 263	default-plate-image-analysis	Image Analysis Results	QUERIES	1	TABLE_MODEL

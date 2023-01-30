@@ -114,13 +114,13 @@ public class JsTestCommonSelenium extends SeleniumTest
         logout();
     }
 
-    @Test(groups = { "test-api-openbis-javascript" })
+    @Test(groups = { "js-test" })
     public void runOpenbisJsTests()
     {
         runTests("runOpenbisJsTests", new OpenbisJsWebappLocation());
     }
 
-    @Test(groups = { "test-api-openbis-javascript" })
+    @Test(groups = { "js-test" })
     public void runOpenbisV3JsTests()
     {
         runTests("runOpenbisV3JsTests", new OpenbisV3JsWebappLocation());

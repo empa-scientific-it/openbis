@@ -555,7 +555,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				"dataType" : "json",
 				"data" : JSON.stringify({
 					"method" : "createReportFromAggregationService",
-					"params" : [ facade._private.sessionToken, "test-api-openbis-javascript", params ],
+					"params" : [ facade._private.sessionToken, "js-test", params ],
 					"id" : "1",
 					"jsonrpc" : "2.0"
 				})
