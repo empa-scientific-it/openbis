@@ -1,27 +1,27 @@
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 dependencies {
     api project(':common'),
-        'imagej:ij:1.43u',
-        'bioformats:bioformats:6.5.1',
-        'slf4j:slf4j:1.6.2',
-        'slf4j:slf4j-log4j12:1.6.2'
-        
+            'imagej:ij:1.43u',
+            'bioformats:bioformats:6.5.1',
+            'slf4j:slf4j:1.6.2',
+            'slf4j:slf4j-log4j12:1.6.2'
+
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD'
+            project(path: ':common', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD'
 }
 
-def jarConfiguration(parameters){
+def jarConfiguration(parameters) {
     return {
         destinationDir = project.distsDirectory.getAsFile().get()
         baseName = parameters.get('baseName')
         def libraryName = parameters.get('libraryName')
-        
+
         from('targets/dist') {
             include 'BUILD*INFO'
         }
@@ -36,36 +36,36 @@ def jarConfiguration(parameters){
         from("resource/manifest/${libraryName}")
         manifest {
             attributes("Version": project.versionNumber,
-                   "Build-Number": "${project.versionNumber} (r${project.revisionNumber},${project.cleanFlag})")
+                    "Build-Number": "${project.versionNumber} (r${project.revisionNumber},${project.cleanFlag})")
         }
     }
 }
 
 task jarImageIO(type: Jar) {
     configure jarConfiguration([
-        'baseName' : 'cisd-image_readers',
-        'libraryName' : 'imageio'  
+            'baseName'   : 'cisd-image_readers',
+            'libraryName': 'imageio'
     ])
 }
 
 task jarBioformats(type: Jar) {
     configure jarConfiguration([
-        'baseName' : 'cisd-image_readers-bioformats',
-        'libraryName' : 'bioformats'
+            'baseName'   : 'cisd-image_readers-bioformats',
+            'libraryName': 'bioformats'
     ])
 }
 
 task jarImageJ(type: Jar) {
     configure jarConfiguration([
-        baseName : 'cisd-image_readers-imagej',
-        libraryName : 'ij'
+            baseName   : 'cisd-image_readers-imagej',
+            libraryName: 'ij'
     ])
 }
 
 jar {
     destinationDir = project.distsDirectory.getAsFile().get()
 }
-jar.dependsOn([ jarImageIO, jarBioformats, jarImageJ ])
+jar.dependsOn([jarImageIO, jarBioformats, jarImageJ])
 
 sourcesJar {
     destinationDir = project.distsDirectory.getAsFile().get()

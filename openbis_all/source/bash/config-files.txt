@@ -1,6 +1,0 @@
-openBIS-server/jetty/webapps/openbis/welcomePageSimple.html
-openBIS-server/jetty/webapps/openbis/welcomePage.html
-openBIS-server/jetty/webapps/openbis/docs
-openBIS-server/jetty/etc
-datastore_server/etc 
-datastore_server/ext-lib

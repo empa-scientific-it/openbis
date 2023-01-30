@@ -9,7 +9,7 @@ evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':screening')
 evaluationDependsOn(':openbis_standard_technologies')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 // Replace BUILD INFO files for AS and DSS because their revision number is usually to low.
 def buildInfo = file("${project.projectDir}/targets/dist/BUILD-${project.name}.INFO").text
@@ -17,33 +17,33 @@ file("../datastore_server/targets/dist/BUILD-datastore_server.INFO").write(build
 file("../openbis_standard_technologies/targets/dist/BUILD-openbis_standard_technologies.INFO").write(buildInfo)
 
 buildscript {
-    apply from: '../gradle/repository.gradle'
-    
+    apply from: '../build/repository.gradle'
+
     repositories repositoryConfig
-    
+
     dependencies {
-        classpath 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22', 
-            'apache:commons-io:2.6',
-            'apache:commons-lang:2.4'
+        classpath 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22',
+                'apache:commons-io:2.6',
+                'apache:commons-lang:2.4'
     }
 }
 
 dependencies {
     api project(':common')
-    
+
     api 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22'
-    
+
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD'
-    
+            project(path: ':common', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD'
+
     archives 'apache:commons-io:2.6',
             'apache:log4j:1.2.15',
             'sis:sis-base:18.09.0',
             'postgresql:postgresql:42.5.0',
             'gradle:core:7.4'
-            
+
 }
 
 archivesBaseName = 'openBIS-installation-standard-technologies'
@@ -61,13 +61,13 @@ task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_techn
     into installerDistDir
     from zipTree(project(':openbis_standard_technologies').zipBdlServer.archivePath)
     into installerDistDir
-    from ("${installerDistDir}/../BUILD-installation.INFO") {
+    from("${installerDistDir}/../BUILD-installation.INFO") {
         into 'bin'
     }
-    from ("${buildDir}/classes/java/main/InstallerVariableAccess.class") {
+    from("${buildDir}/classes/java/main/InstallerVariableAccess.class") {
         into 'bin'
     }
-    from (zipTree(project(':openbis_standard_technologies').zip.archivePath)) {
+    from(zipTree(project(':openbis_standard_technologies').zip.archivePath)) {
         into "openBIS-server"
     }
 }
@@ -124,8 +124,8 @@ def fixJarFile = { String jarFilePath ->
             zout.close();
         }
     }
-    
- 
+
+
 }
 
 task(listVersions) {
@@ -173,18 +173,18 @@ task createInstallerJar(type: Jar, dependsOn: [compileInstaller, jar]) {
 }
 
 task createInstallerZip(type: Tar, dependsOn: createInstallerJar) {
-    compression = Compression.GZIP 
+    compression = Compression.GZIP
     extension = 'tar.gz'
-	baseName 'openBIS-installation-standard-technologies'
-	from createInstallerJar.archivePath
-	from ('resource/tarball') {
-		include 'console.properties'
-		include 'extract.sh'
-		include 'jul.config'
-		include 'run-console.sh'
-		include 'run-ui.sh'
-	}
-	into "openBIS-installation-standard-technologies-${version}"
+    baseName 'openBIS-installation-standard-technologies'
+    from createInstallerJar.archivePath
+    from('resource/tarball') {
+        include 'console.properties'
+        include 'extract.sh'
+        include 'jul.config'
+        include 'run-console.sh'
+        include 'run-ui.sh'
+    }
+    into "openBIS-installation-standard-technologies-${version}"
 }
 
 build.dependsOn createInstallerZip

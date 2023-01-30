@@ -1,17 +1,17 @@
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 dependencies {
-	api project(':common'),
-			'sis:sis-file-transfer:19.03.1',
-			'fasterxml:jackson-core:2.9.10',
-			'fasterxml:jackson-annotations:2.9.10'
+    api project(':common'),
+            'sis:sis-file-transfer:19.03.1',
+            'fasterxml:jackson-core:2.9.10',
+            'fasterxml:jackson-annotations:2.9.10'
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD',
-                       'reflections:reflections:0.9.10'
+            project(path: ':common', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD',
+            'reflections:reflections:0.9.10'
 }

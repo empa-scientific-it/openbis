@@ -14,4 +14,4 @@ evaluationDependsOn(':js-test')
 evaluationDependsOn(':image_readers')
 evaluationDependsOn(':big_data_link_server')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'

@@ -7,7 +7,7 @@ evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':openbis')
 evaluationDependsOn(':datastore_server')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 configurations.create('devRuntime')
 
@@ -20,19 +20,19 @@ dependencies {
             'bioformats:bioformats:6.5.1'
 
     devRuntime project(path: ':openbis', configuration: 'devRuntime')
-    
+
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       project(path: ':dbmigration', configuration: 'tests'),
-                       project(path: ':authentication', configuration: 'tests'),
-                       project(path: ':openbis_api', configuration: 'tests'),
-                       project(path: ':openbis-common', configuration: 'tests'),
-                       project(path: ':datastore_server', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD',
-                       'springframework:spring-test:5.0.17.RELEASE',
-                       'startnet:apgdiff:2.3'
-    testImplementation (project(path: ':openbis', configuration: 'tests')) {
+            project(path: ':common', configuration: 'tests'),
+            project(path: ':dbmigration', configuration: 'tests'),
+            project(path: ':authentication', configuration: 'tests'),
+            project(path: ':openbis_api', configuration: 'tests'),
+            project(path: ':openbis-common', configuration: 'tests'),
+            project(path: ':datastore_server', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD',
+            'springframework:spring-test:5.0.17.RELEASE',
+            'startnet:apgdiff:2.3'
+    testImplementation(project(path: ':openbis', configuration: 'tests')) {
         exclude group: 'google', module: 'gwt-user'
     }
 }
@@ -52,11 +52,11 @@ sourceSets {
 
 jar {
     duplicatesStrategy 'include'
-    from('../screening/source/sql'){ 
-        into('/sql') 
-        include '**/*.sql' 
+    from('../screening/source/sql') {
+        into('/sql')
+        include '**/*.sql'
     }
-    from('../screening/source/java'){
+    from('../screening/source/java') {
         include 'screening-dssApplicationContext.xml'
     }
 }

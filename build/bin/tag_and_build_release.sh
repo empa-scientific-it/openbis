@@ -44,9 +44,9 @@ function setup {
   state_start Setup
   
   if [ $SUBVER -eq 0 ]; then
-    echo "$BIN_DIR/build/branch.sh $VER.x"
+    echo "$BIN_DIR/branch.sh $VER.x"
     if [ $EXECUTE_COMMANDS ]; then
-      ./$BIN_DIR/build/branch.sh $VER.x
+      ./$BIN_DIR/branch.sh $VER.x
     fi
   fi
   
@@ -56,9 +56,9 @@ function setup {
 function tag {
   state_start "Tagging $VER.x to $FULL_VER..."
   
-  echo "$BIN_DIR/build/tag.sh $VER.x $FULL_VER"
+  echo "$BIN_DIR/tag.sh $VER.x $FULL_VER"
   if [ $EXECUTE_COMMANDS ]; then
-    "$BIN_DIR/build/tag.sh" $VER.x $FULL_VER
+    "$BIN_DIR/tag.sh" $VER.x $FULL_VER
   fi
   
   state_end
@@ -67,9 +67,9 @@ function tag {
 function build {
   state_start "Building openBIS $FULL_VER"
   
-  echo "$BIN_DIR/build/build.sh $VER.x $FULL_VER"
+  echo "$BIN_DIR/build.sh $VER.x $FULL_VER"
   if [ $EXECUTE_COMMANDS ]; then
-    "$BIN_DIR/build/build.sh" $VER.x $FULL_VER
+    "$BIN_DIR/build.sh" $VER.x $FULL_VER
   fi
   
   state_end

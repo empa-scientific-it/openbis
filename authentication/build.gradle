@@ -1,13 +1,13 @@
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 dependencies {
     api project(':common')
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD'
+            project(path: ':common', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD'
 } 

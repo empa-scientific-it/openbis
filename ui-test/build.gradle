@@ -8,9 +8,9 @@ evaluationDependsOn(':openbis')
 evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':openbis_standard_technologies')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
-sourceSets { 
+sourceSets {
     main {
         java {
             srcDirs = ['sourceTest/java']
@@ -32,29 +32,29 @@ configurations.create('externalDss')
 
 dependencies {
     api project(path: ':datastore_server'),
-        project(path: ':screening'),
-        project(path: ':openbis_standard_technologies'),
-        'testng:testng:6.8-CISD',
-        'selenium:selenium-java:3.141.59'
-			
-	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
+            project(path: ':screening'),
+            project(path: ':openbis_standard_technologies'),
+            'testng:testng:6.8-CISD',
+            'selenium:selenium-java:3.141.59'
 
-	testRuntimeSecond 'google:gwt-user:2.4'
-	
-	externalDss project(':datastore_server')
+    testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
+
+    testRuntimeSecond 'google:gwt-user:2.4'
+
+    externalDss project(':datastore_server')
 }
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
 task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
-	from project(':openbis_standard_technologies').war
-	into 'targets/gradle/openbis-war'
-	rename {filename -> 'openbis.war'}
+    from project(':openbis_standard_technologies').war
+    into 'targets/gradle/openbis-war'
+    rename { filename -> 'openbis.war' }
 }
 
 import org.gradle.internal.os.OperatingSystem
 
-task makeGeckodriverExecutable(type:Exec) {
+task makeGeckodriverExecutable(type: Exec) {
 
     commandLine 'chmod', '+x', 'etc/gecko-driver/linux/geckodriver'
     commandLine 'chmod', '+x', 'etc/gecko-driver/mac/geckodriver'
@@ -62,10 +62,10 @@ task makeGeckodriverExecutable(type:Exec) {
 
 test {
     useTestNG()
-    options.suites('source/java/tests.xml')    
+    options.suites('source/java/tests.xml')
 
     jvmArgs '-Xmx2048m', '-Duser.timezone=Europe/Zurich'
-    
+
     testLogging.showStandardStreams = true
     ignoreFailures = true
     systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath

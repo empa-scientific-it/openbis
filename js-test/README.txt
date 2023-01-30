@@ -1,6 +1,6 @@
 For development and bug fixing the tests have to run in a Web browser. 
 
-Start up everything by executing inside the gradle/ directory:
+Start up everything by executing inside the build/ directory:
 
 ./gradlew -Ddev=yes js-test:clean js-test:test
 

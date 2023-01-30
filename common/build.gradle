@@ -1,36 +1,36 @@
 evaluationDependsOn(':commonbase')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 dependencies {
-	api	project(':commonbase'),
-			'springframework:spring-webmvc:5.0.1.RELEASE',
-			'springframework:spring-aop:5.0.1.RELEASE',
-			'javax:servlet-api:3.1.0',
-			'cisd:cisd-args4j:9.11.2',
-			'python:jython:2.5.2',
-			'python:jython27:2.7.2',
-			'apache:log4j:1.2.15',
-			'javax:mail:1.4.3',
-			'apache:poi:3.17',
-			'twmacinta:fast-md5:2.6.1',
-			'google:gwt-servlet:2.4',
-			'testng:testng:6.8-CISD',
-			'marathon:marathon-spring-util:1.2.5',
-			'lemnik:eodsql:2.2-CISD',
-			'unimi:fastutil:5.1.5',
-			'sis:sis-base:18.09.0',
-			'rinn:restrictions:1.0.2',
-			'apache:commons-compress:1.8',
-			'apache:httpclient:4.3.6',
-			'eclipse:jetty-client:9.4.44.v20210927',
-			'apache:commons-csv:1.2'
+    api project(':commonbase'),
+            'springframework:spring-webmvc:5.0.1.RELEASE',
+            'springframework:spring-aop:5.0.1.RELEASE',
+            'javax:servlet-api:3.1.0',
+            'cisd:cisd-args4j:9.11.2',
+            'python:jython:2.5.2',
+            'python:jython27:2.7.2',
+            'apache:log4j:1.2.15',
+            'javax:mail:1.4.3',
+            'apache:poi:3.17',
+            'twmacinta:fast-md5:2.6.1',
+            'google:gwt-servlet:2.4',
+            'testng:testng:6.8-CISD',
+            'marathon:marathon-spring-util:1.2.5',
+            'lemnik:eodsql:2.2-CISD',
+            'unimi:fastutil:5.1.5',
+            'sis:sis-base:18.09.0',
+            'rinn:restrictions:1.0.2',
+            'apache:commons-compress:1.8',
+            'apache:httpclient:4.3.6',
+            'eclipse:jetty-client:9.4.44.v20210927',
+            'apache:commons-csv:1.2'
 
-	testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD'
+    testImplementation project(path: ':commonbase', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD'
 }
- 
+
 test {
     if (System.getProperty("openbis.proxyHost") != null) {
         systemProperty "openbis.proxyHost", System.getProperty("openbis.proxyHost")
@@ -41,13 +41,13 @@ test {
 }
 
 testJar {
-	from "source/java/genericCommonContext.xml"
+    from "source/java/genericCommonContext.xml"
 }
 
 sourceSets {
-	main {
-		resources {
-			srcDirs = ['source/java']
-		}
-	}
+    main {
+        resources {
+            srcDirs = ['source/java']
+        }
+    }
 }

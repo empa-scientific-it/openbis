@@ -5,139 +5,139 @@ evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
 configurations.create('testRuntimeFirst')
 configurations.create('devRuntime')
 
 dependencies {
-	api project(':common'),
-			project(':openbis_api'),
-			project(':openbis-common'),
-			project(':authentication'),
-			project(':dbmigration'),
-			'sencha:gxt:2.2.5',
+    api project(':common'),
+            project(':openbis_api'),
+            project(':openbis-common'),
+            project(':authentication'),
+            project(':dbmigration'),
+            'sencha:gxt:2.2.5',
             'jboss:javassist:3.28.0.GA',
-			'hibernate:hibernate-core:5.2.14.Final',
-			'fasterxml:classmate:1.3.0',
-			'eclipse:jetty-deploy:9.4.44.v20210927',
-			'google:gwt-debug-panel:1.0',
-			'javax:servlet-api:3.1.0',
-			'google:gwt-user:2.4',
-			'reveregroup:gwt-image-loader:1.1.4',
-			'springframework:spring-orm:5.0.17.RELEASE',
-			'cisd:cisd-hotdeploy:13.01.0',
-			'apache:poi-ooxml:3.17',
-			'hibernate:hibernate-validator:4.3.2.Final',
-			'unimi:fastutil:5.1.5',
-			'apache:commons-collections4:4.1',
-			'springframework:spring-context-support:5.0.17.RELEASE',
-			'ehcache:ehcache:2.10.0',
-			'jline:jline:0.9.94'
+            'hibernate:hibernate-core:5.2.14.Final',
+            'fasterxml:classmate:1.3.0',
+            'eclipse:jetty-deploy:9.4.44.v20210927',
+            'google:gwt-debug-panel:1.0',
+            'javax:servlet-api:3.1.0',
+            'google:gwt-user:2.4',
+            'reveregroup:gwt-image-loader:1.1.4',
+            'springframework:spring-orm:5.0.17.RELEASE',
+            'cisd:cisd-hotdeploy:13.01.0',
+            'apache:poi-ooxml:3.17',
+            'hibernate:hibernate-validator:4.3.2.Final',
+            'unimi:fastutil:5.1.5',
+            'apache:commons-collections4:4.1',
+            'springframework:spring-context-support:5.0.17.RELEASE',
+            'ehcache:ehcache:2.10.0',
+            'jline:jline:0.9.94'
 
 
-	runtimeOnly 'slf4j:slf4j-log4j12:1.6.2',
-			'apache:commons-fileupload:1.3.3'
+    runtimeOnly 'slf4j:slf4j-log4j12:1.6.2',
+            'apache:commons-fileupload:1.3.3'
 
-	devRuntime 'eclipse:jetty-runner:9.4.44.v20210927'
+    devRuntime 'eclipse:jetty-runner:9.4.44.v20210927'
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       project(path: ':dbmigration', configuration: 'tests'),
-                       project(path: ':authentication', configuration: 'tests'),
-                       project(path: ':openbis_api', configuration: 'tests'),
-                       project(path: ':openbis-common', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD',
-                       'springframework:spring-test:5.0.17.RELEASE',
-                       'apache:commons-fileupload:1.3.3',
-                       'startnet:apgdiff:2.3'
+            project(path: ':common', configuration: 'tests'),
+            project(path: ':dbmigration', configuration: 'tests'),
+            project(path: ':authentication', configuration: 'tests'),
+            project(path: ':openbis_api', configuration: 'tests'),
+            project(path: ':openbis-common', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD',
+            'springframework:spring-test:5.0.17.RELEASE',
+            'apache:commons-fileupload:1.3.3',
+            'startnet:apgdiff:2.3'
 
-	testRuntimeFirst 'javax:servlet-api:3.1.0'
+    testRuntimeFirst 'javax:servlet-api:3.1.0'
 
 }
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + sourceSets.test.runtimeClasspath
 
 configurations {
-	testRuntime.exclude group: 'google', module: 'gwt-servlet'
+    testRuntime.exclude group: 'google', module: 'gwt-servlet'
 }
 
 sourceSets {
-	main {
-		resources {
-			srcDirs = ['source/java']
-		}
-	}
-	test {
-		resources {
-			srcDirs = ['sourceTest/java']
-		}
-	}
+    main {
+        resources {
+            srcDirs = ['source/java']
+        }
+    }
+    test {
+        resources {
+            srcDirs = ['sourceTest/java']
+        }
+    }
 }
 
 task cleanDbSuite(type: Test) {
-	useTestNG()
-	systemProperty "ant.project.name", project.name
-	maxHeapSize = "4096m"
+    useTestNG()
+    systemProperty "ant.project.name", project.name
+    maxHeapSize = "4096m"
     jvmArgs '-Duser.timezone=Europe/Zurich'
-	testLogging.showStandardStreams = true
-	ignoreFailures = true
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
 
-	options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
-	reports.html.destination = file("${project.buildDir}/reports/tests-cleandb")
+    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+    reports.html.destination = file("${project.buildDir}/reports/tests-cleandb")
 }
 
 task cleanDbSuiteProjectSamplesEnabled(type: Test) {
-	useTestNG()
-	systemProperty "ant.project.name", project.name
-	maxHeapSize = "4096m"
+    useTestNG()
+    systemProperty "ant.project.name", project.name
+    maxHeapSize = "4096m"
     jvmArgs '-Duser.timezone=Europe/Zurich'
-	testLogging.showStandardStreams = true
-	ignoreFailures = true
-	systemProperty "project-samples-enabled", 'true'
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+    systemProperty "project-samples-enabled", 'true'
 
-	options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization_project_samples.xml')
-	reports.html.destination = file("${project.buildDir}/reports/tests-cleandb-project-samples")
+    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization_project_samples.xml')
+    reports.html.destination = file("${project.buildDir}/reports/tests-cleandb-project-samples")
 }
 
 task testProjectSamplesEnabled(type: Test) {
-	useTestNG()
-	systemProperty "ant.project.name", project.name
-	maxHeapSize = "4096m"
+    useTestNG()
+    systemProperty "ant.project.name", project.name
+    maxHeapSize = "4096m"
     jvmArgs '-Duser.timezone=Europe/Zurich'
-	testLogging.showStandardStreams = true
-	ignoreFailures = true
-	systemProperty "project-samples-enabled", 'true'
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+    systemProperty "project-samples-enabled", 'true'
 
-	options.suites('sourceTest/java/tests_project_samples.xml')
-	reports.html.destination = file("${project.buildDir}/reports/tests-project-samples")
+    options.suites('sourceTest/java/tests_project_samples.xml')
+    reports.html.destination = file("${project.buildDir}/reports/tests-project-samples")
 }
 
 
 // This task is here to make WebAppsPropertiesTest to work. It requires some data files
 // to be present on the same directory than the class file itself.
 task copyTestData(type: Copy, dependsOn: testClasses) {
-	from "${project.projectDir}/sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/basic"
-	into "${project.buildDir}/classes/test/ch/systemsx/cisd/openbis/generic/shared/basic"
-	include "*.properties"
+    from "${project.projectDir}/sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/basic"
+    into "${project.buildDir}/classes/test/ch/systemsx/cisd/openbis/generic/shared/basic"
+    include "*.properties"
 }
 
 task openBISDevelopementEnvironmentASStart(type: JavaExec) {
-	main = 'org.eclipse.jetty.runner.Runner'
-	classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
-	jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
-			 '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
-			 '-Dorg.mortbay.util.FileResource.checkAliases=false',
-			 '--add-opens=java.base/java.util=ALL-UNNAMED', '--add-opens=java.base/java.lang=ALL-UNNAMED',
-			 '-Xmx2048M', '-ea'])
-	args(['--classes', '../commonbase/targets/gradle/classes/java/main',
-		  '--classes', '../common/targets/gradle/classes/java/main',
-		  '--classes', '../authentication/targets/gradle/classes/java/main',
-		  '--classes', '../dbmigration/targets/gradle/classes/java/main',
-		  '--classes', '../openbis-common/targets/gradle/classes/java/main',
-		  '--classes', '../openbis_api/targets/gradle/classes/java/main',
-		  '--classes', 'targets/gradle/classes/java/main', '--lib', 'targets/www/lib/', '--port', '8888', 'targets/www'])
+    main = 'org.eclipse.jetty.runner.Runner'
+    classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
+    jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
+             '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
+             '-Dorg.mortbay.util.FileResource.checkAliases=false',
+             '--add-opens=java.base/java.util=ALL-UNNAMED', '--add-opens=java.base/java.lang=ALL-UNNAMED',
+             '-Xmx2048M', '-ea'])
+    args(['--classes', '../commonbase/targets/gradle/classes/java/main',
+          '--classes', '../common/targets/gradle/classes/java/main',
+          '--classes', '../authentication/targets/gradle/classes/java/main',
+          '--classes', '../dbmigration/targets/gradle/classes/java/main',
+          '--classes', '../openbis-common/targets/gradle/classes/java/main',
+          '--classes', '../openbis_api/targets/gradle/classes/java/main',
+          '--classes', 'targets/gradle/classes/java/main', '--lib', 'targets/www/lib/', '--port', '8888', 'targets/www'])
 }
 
 testProjectSamplesEnabled.dependsOn(copyTestData)

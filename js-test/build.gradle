@@ -10,9 +10,9 @@ evaluationDependsOn(':ui-test')
 evaluationDependsOn(':screening')
 
 
-apply from: '../gradle/javaproject.gradle'
+apply from: '../build/javaproject.gradle'
 
-sourceSets { 
+sourceSets {
     main {
         java {
             srcDirs = ['sourceTest/java']
@@ -34,28 +34,28 @@ configurations.create('externalDss')
 
 dependencies {
     api project(path: ':screening'),
-        project(path: ':openbis_standard_technologies'),
-        project(path: ':ui-test', configuration: 'tests'),
-        'reflections:reflections:0.9.10',
-        'fasterxml:jackson-core:2.9.10',
-        'fasterxml:jackson-annotations:2.9.10',
-        'fasterxml:jackson-databind:2.9.10.8',
-        'testng:testng:6.8-CISD',
-        'selenium:selenium-java:3.141.59'
+            project(path: ':openbis_standard_technologies'),
+            project(path: ':ui-test', configuration: 'tests'),
+            'reflections:reflections:0.9.10',
+            'fasterxml:jackson-core:2.9.10',
+            'fasterxml:jackson-annotations:2.9.10',
+            'fasterxml:jackson-databind:2.9.10.8',
+            'testng:testng:6.8-CISD',
+            'selenium:selenium-java:3.141.59'
 
-	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
-	
-	testRuntimeSecond 'google:gwt-user:2.4'
+    testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
 
-	externalDss project(':screening')
-} 
+    testRuntimeSecond 'google:gwt-user:2.4'
+
+    externalDss project(':screening')
+}
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
 task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
-	from project(':openbis_standard_technologies').war
-	into 'targets/gradle/openbis-war'
-	rename {filename -> 'openbis.war'}
+    from project(':openbis_standard_technologies').war
+    into 'targets/gradle/openbis-war'
+    rename { filename -> 'openbis.war' }
 }
 
 task deleteXlsImportVersionInfoJson(type: Delete) {
@@ -86,8 +86,8 @@ test {
     options.suites(testSuitePath)
 
     jvmArgs '-Xmx2048m', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog', '-Duser.timezone=Europe/Zurich',
-        '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n'
-    
+            '-Xdebug', '-Xrunjdwp:transport=dt_socket,address=20010,server=y,suspend=n'
+
     testLogging.showStandardStreams = true
     ignoreFailures = false
     systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
@@ -96,7 +96,7 @@ test {
     systemProperty 'ui-test.start-page', 'http://localhost:20000/openbis'
     systemProperty 'org.mortbay.util.FileResource.checkAliases', 'false'
     systemProperty 'org.eclipse.jetty.util.log.class', 'org.eclipse.jetty.util.log.StrErrLog'
-    
+
     workingDir = 'servers/common/openBIS-server'
 
     if (OperatingSystem.current().isLinux()) {

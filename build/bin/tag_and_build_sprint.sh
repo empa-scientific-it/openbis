@@ -37,7 +37,7 @@ then
 	usage
 fi
 
-"$BIN_DIR/build/tag.sh" master S${1}.${HOT_FIX_NUMBER}
+"$BIN_DIR/tag.sh" master S${1}.${HOT_FIX_NUMBER}
 if [ $? -ne 0 ];then exit 1; fi	
 
-"$BIN_DIR/build/build.sh" master S${1}.${HOT_FIX_NUMBER}
+"$BIN_DIR/build.sh" master S${1}.${HOT_FIX_NUMBER}
