@@ -37,7 +37,7 @@ openbis-common \
 openbis_standard_technologies \
 openbis_api \
 screening \
-ui-test\
+test-ui-core\
 "
 
 for project in $GRADLE_PROJECTS; do

@@ -6,7 +6,7 @@ evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':openbis')
 evaluationDependsOn(':datastore_server')
-evaluationDependsOn(':ui-test')
+evaluationDependsOn(':test-ui-core')
 evaluationDependsOn(':screening')
 
 
@@ -35,7 +35,7 @@ configurations.create('externalDss')
 dependencies {
     api project(path: ':screening'),
             project(path: ':openbis_standard_technologies'),
-            project(path: ':ui-test', configuration: 'tests'),
+            project(path: ':test-ui-core', configuration: 'tests'),
             'reflections:reflections:0.9.10',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-annotations:2.9.10',

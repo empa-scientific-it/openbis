@@ -35,7 +35,7 @@ Note: using "$PATH" in this file does not work. This is why I pasted my whole PA
 Creating copy of application war
 ================================
 
-Run target "create-webapp" from ui-test build file. This needs to done also when client code is updated.
+Run target "create-webapp" from test-ui-core build file. This needs to done also when client code is updated.
 
 (On CI server, this target is executed before every test run)
 
