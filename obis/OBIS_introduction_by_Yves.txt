@@ -50,5 +50,5 @@ https://sissource.ethz.ch/sis/iber_edms
 
 Obis and pybis integration tests:
 
-https://sissource.ethz.ch/sispub/openbis/blob/master/integration-tests/test_obis.py
-https://sissource.ethz.ch/sispub/openbis/blob/master/integration-tests/test_pybis.py
+https://sissource.ethz.ch/sispub/openbis/blob/master/test-app-openbis-installer/test_obis.py
+https://sissource.ethz.ch/sispub/openbis/blob/master/test-app-openbis-installer/test_pybis.py
