@@ -69,7 +69,7 @@ task createOpenbisJar(type: Jar) {
     }
 }
 createOpenbisJar.dependsOn(':commonbase:jar', ':common:jar', ':openbis-common:jar',
-        ':openbis_api:jar', ':datastore_server:jar', ':screening:jar', ':openbis:jar')
+        ':openbis_api:jar', ':datastore_server:jar', ':screening:jar', ':server-application-server:jar')
 
 task createDssClientJar(type: Jar) {
     archiveName = dssGuiClientJarName

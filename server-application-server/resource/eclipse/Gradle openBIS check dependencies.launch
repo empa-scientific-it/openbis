@@ -3,5 +3,5 @@
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
 <stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PGM_ARGS" value="-Dopenbis.development-build=true --info"/>
 <stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PROJECT" value="gradle"/>
-<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKTEXT" value=":openbis:checkDependencies&#10;"/>
+<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKTEXT" value=":server-application-server:checkDependencies&#10;"/>
 </launchConfiguration>

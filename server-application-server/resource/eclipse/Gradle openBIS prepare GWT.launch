@@ -2,5 +2,5 @@
 <launchConfiguration type="org.springsource.ide.eclipse.gradle.launch">
 <stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PGM_ARGS" value="-Dopenbis.development-build=true"/>
 <stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PROJECT" value="gradle"/>
-<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKTEXT" value=":openbis:prepareGWT&#10;"/>
+<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKTEXT" value=":server-application-server:prepareGWT&#10;"/>
 </launchConfiguration>
