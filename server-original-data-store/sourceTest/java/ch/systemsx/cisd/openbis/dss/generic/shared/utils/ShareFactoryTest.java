@@ -31,8 +31,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share.ShufflePriority;
  */
 public class ShareFactoryTest extends AssertJUnit
 {
-    private final static File DATA_DIRECTORY = new File("../datastore_server/resource/test-data/"
-            + ShareFactoryTest.class.getSimpleName());
+    private final static File DATA_DIRECTORY =
+            new File("../server-original-data-store/resource/test-data/"
+                    + ShareFactoryTest.class.getSimpleName());
 
     @Test
     public void testSharePropertiesOverridesSpeedFile()

@@ -53,15 +53,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * Tests for {@link PluginTaskInfoProvider} class.
- * 
+ *
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-{ PluginTaskInfoProvider.class, PluginTaskFactory.class })
+        { PluginTaskInfoProvider.class, PluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
-    private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
-            + PluginTaskParametersTest.class.getSimpleName());
+    private static final File STORE_ROOT =
+            new File("../server-original-data-store/resource/test-data/"
+                    + PluginTaskParametersTest.class.getSimpleName());
 
     private Mockery context;
 
@@ -80,12 +81,12 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(beanFactory).getBean("hierarchical-content-provider");
-                    will(returnValue(contentProvider));
-                }
-            });
+                allowing(beanFactory).getBean("hierarchical-content-provider");
+                will(returnValue(contentProvider));
+            }
+        });
 
     }
 
@@ -118,12 +119,12 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         final RecordingMatcher<SectionProperties[]> sectionPropertiesMatcher =
                 new RecordingMatcher<SectionProperties[]>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(servletPropertiesManager).addServletsProperties(with(pluginLabel2 + ", "),
-                            with(sectionPropertiesMatcher));
-                }
-            });
+                one(servletPropertiesManager).addServletsProperties(with(pluginLabel2 + ", "),
+                        with(sectionPropertiesMatcher));
+            }
+        });
 
         PluginTaskProvider<IReportingPluginTask> factories = createReportingPluginsFactories(props);
 
@@ -135,13 +136,13 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 
         SectionProperties[] sectionProperties = sectionPropertiesMatcher.recordedObject();
         Arrays.sort(sectionProperties, new Comparator<SectionProperties>()
+        {
+            @Override
+            public int compare(SectionProperties sp1, SectionProperties sp2)
             {
-                @Override
-                public int compare(SectionProperties sp1, SectionProperties sp2)
-                {
-                    return sp1.getKey().compareTo(sp2.getKey());
-                }
-            });
+                return sp1.getKey().compareTo(sp2.getKey());
+            }
+        });
         assertEquals("s1", sectionProperties[0].getKey());
         assertEquals("{a=alpha}", sectionProperties[0].getProperties().toString());
         assertEquals("s2", sectionProperties[1].getKey());
@@ -213,13 +214,13 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         setPluginProperty(props, plugin1, PluginTaskFactory.SERVLET_PROPERTY_NAME + ".a",
                 "alpha");
         context.checking(new Expectations()
+        {
             {
-                {
-                    Properties properties = new Properties();
-                    properties.setProperty("a", "alpha");
-                    one(servletPropertiesManager).addServletProperties("pluginLabel1", properties);
-                }
-            });
+                Properties properties = new Properties();
+                properties.setProperty("a", "alpha");
+                one(servletPropertiesManager).addServletProperties("pluginLabel1", properties);
+            }
+        });
 
         PluginTaskProvider<IProcessingPluginTask> factories =
                 createProcessingPluginsFactories(props);
@@ -254,7 +255,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         setPluginProperty(props, pluginId, PluginTaskFactory.CLASS_PROPERTY_NAME,
                 pluginClass.getName());
         String[] pluginParams = new String[]
-        { "param1 = X", "param2 = Y" };
+                { "param1 = X", "param2 = Y" };
         File paramsFile = createPluginPropertiesFile(pluginParams);
         setPluginProperty(props, pluginId,
                 PluginTaskFactory.PARAMS_FILE_PATH_PROPERTY_NAME, paramsFile.getPath());

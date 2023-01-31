@@ -111,7 +111,8 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         store = new File(workingDirectory, "store");
         store.mkdirs();
         scriptFolder =
-                new File("../datastore_server/resource/test-data/" + getClass().getSimpleName());
+                new File(
+                        "../server-original-data-store/resource/test-data/" + getClass().getSimpleName());
     }
 
     @AfterMethod
@@ -126,38 +127,38 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         final RecordingMatcher<SearchCriteria> searchCriteriaRecorder =
                 new RecordingMatcher<SearchCriteria>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(searchService).searchForDataSets(with(searchCriteriaRecorder));
-                    will(returnValue(Arrays.asList(new DataSetImmutable(new DataSetBuilder()
-                            .code("ds1")
-                            .experiment(
-                                    new ExperimentBuilder().identifier("/A/B/ABC").getExperiment())
-                            .getDataSet(), null))));
+                one(searchService).searchForDataSets(with(searchCriteriaRecorder));
+                will(returnValue(Arrays.asList(new DataSetImmutable(new DataSetBuilder()
+                        .code("ds1")
+                        .experiment(
+                                new ExperimentBuilder().identifier("/A/B/ABC").getExperiment())
+                        .getDataSet(), null))));
 
-                    one(contentProvider).asContent("ds1");
-                    will(returnValue(content));
+                one(contentProvider).asContent("ds1");
+                will(returnValue(content));
 
-                    one(content).getRootNode();
-                    will(returnValue(rootNode));
+                one(content).getRootNode();
+                will(returnValue(rootNode));
 
-                    one(rootNode).isDirectory();
-                    will(returnValue(false));
+                one(rootNode).isDirectory();
+                will(returnValue(false));
 
-                    one(content).close();
+                one(content).close();
 
-                    one(queryService).select("protein-db",
-                            "select count(*) as count from proteins where data_set = ?{1}", "ds1");
-                    will(returnValue(dbDataSet));
+                one(queryService).select("protein-db",
+                        "select count(*) as count from proteins where data_set = ?{1}", "ds1");
+                will(returnValue(dbDataSet));
 
-                    one(dbDataSet).size();
-                    will(returnValue(1));
+                one(dbDataSet).size();
+                will(returnValue(1));
 
-                    one(dbDataSet).get(0);
-                    will(returnValue(new ParametersBuilder().parameter("count", 42L)
-                            .getParameters()));
-                }
-            });
+                one(dbDataSet).get(0);
+                will(returnValue(new ParametersBuilder().parameter("count", 42L)
+                        .getParameters()));
+            }
+        });
         Map<String, Object> parameters =
                 new ParametersBuilder().parameter("experiment-code", "ABC").getParameters();
 
@@ -165,8 +166,8 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         TableModel tableModel = plugin.createAggregationReport(parameters, processingContext);
 
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
-                + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,ABC,EQUALS]},[]]]}]",
+                        + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
+                        + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,ABC,EQUALS]},[]]]}]",
                 searchCriteriaRecorder.recordedObject().toString());
         assertEquals("[Experiment, Data Set Code, Number of Files, Number of Proteins]", tableModel
                 .getHeader().toString());
@@ -181,12 +182,12 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         final RecordingMatcher<SearchCriteria> searchCriteriaRecorder =
                 new RecordingMatcher<SearchCriteria>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(searchService).searchForDataSets(with(searchCriteriaRecorder));
-                    will(throwException(new IllegalArgumentException("Invalid")));
-                }
-            });
+                one(searchService).searchForDataSets(with(searchCriteriaRecorder));
+                will(throwException(new IllegalArgumentException("Invalid")));
+            }
+        });
         Map<String, Object> parameters = new ParametersBuilder().getParameters();
 
         IReportingPluginTask plugin = createPlugin("script.py");
@@ -206,8 +207,8 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         }
 
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
-                + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,<null>,EQUALS]},[]]]}]",
+                        + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
+                        + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,<null>,EQUALS]},[]]]}]",
                 searchCriteriaRecorder.recordedObject().toString());
         context.assertIsSatisfied();
     }
@@ -216,34 +217,34 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
     {
         return new JythonAggregationService(new Properties(), store, new PluginScriptRunnerFactory(
                 new File(scriptFolder, scriptFile).getPath())
+        {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected ISearchService createUnfilteredSearchService()
             {
-                private static final long serialVersionUID = 1L;
+                return searchService;
+            }
 
-                @Override
-                protected ISearchService createUnfilteredSearchService()
-                {
-                    return searchService;
-                }
+            @Override
+            protected ISearchService createUserSearchService(DataSetProcessingContext dscontext)
+            {
+                return searchService;
+            }
 
-                @Override
-                protected ISearchService createUserSearchService(DataSetProcessingContext dscontext)
-                {
-                    return searchService;
-                }
+            @Override
+            protected IDataSourceQueryService createDataSourceQueryService()
+            {
+                return queryService;
+            }
 
-                @Override
-                protected IDataSourceQueryService createDataSourceQueryService()
-                {
-                    return queryService;
-                }
+            @Override
+            protected IAuthorizationService createAuthorizationService()
+            {
+                return authorizationService;
+            }
 
-                @Override
-                protected IAuthorizationService createAuthorizationService()
-                {
-                    return authorizationService;
-                }
-
-            });
+        });
     }
 
 }

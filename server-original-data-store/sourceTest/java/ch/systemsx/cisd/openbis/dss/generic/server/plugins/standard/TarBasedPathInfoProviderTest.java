@@ -38,17 +38,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
 {
-    private static final File TEST_DATA_FOLDER = new File("../datastore_server/resource/test-data/"
-            + TarBasedPathInfoProviderTest.class.getSimpleName());
+    private static final File TEST_DATA_FOLDER =
+            new File("../server-original-data-store/resource/test-data/"
+                    + TarBasedPathInfoProviderTest.class.getSimpleName());
 
-    private static final SimpleComparator<DataSetPathInfo, String> COMPARATOR = new SimpleComparator<DataSetPathInfo, String>()
-        {
-            @Override
-            public String evaluate(DataSetPathInfo item)
+    private static final SimpleComparator<DataSetPathInfo, String> COMPARATOR =
+            new SimpleComparator<DataSetPathInfo, String>()
             {
-                return item.getRelativePath();
-            }
-        };
+                @Override
+                public String evaluate(DataSetPathInfo item)
+                {
+                    return item.getRelativePath();
+                }
+            };
 
     private ISimpleLogger logger;
 
@@ -103,9 +105,11 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
 
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", children.get(0));
         assertPathInfo("data/sub/some.txt[some.txt, 38, 2f7b8cfb]", children.get(1));
-        AssertionUtil.assertContains("INFO: Reading statistics for input stream: 15.86 KB in 1626 chunks took < 1sec.",
+        AssertionUtil.assertContains(
+                "INFO: Reading statistics for input stream: 15.86 KB in 1626 chunks took < 1sec.",
                 logger.toString());
-        AssertionUtil.assertContains("INFO: Writing statistics for output stream: 15.86 KB in 1626 chunks took < 1sec.",
+        AssertionUtil.assertContains(
+                "INFO: Writing statistics for output stream: 15.86 KB in 1626 chunks took < 1sec.",
                 logger.toString());
         assertEquals(2, children.size());
     }
@@ -124,31 +128,33 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
     @Test
     public void testListMatchingPathInfos2()
     {
-        List<DataSetPathInfo> pathInfos = pathInfoProvider.listMatchingPathInfos("data/sub/", ".*hello.*");
+        List<DataSetPathInfo> pathInfos =
+                pathInfoProvider.listMatchingPathInfos("data/sub/", ".*hello.*");
         Collections.sort(pathInfos, COMPARATOR);
 
         assertPathInfo("data/sub/hello.txt[hello.txt, 10, 3d4448e7]", pathInfos.get(0));
         assertEquals(1, pathInfos.size());
     }
-    
+
     @Test
     public void testHdf5FileAsFile()
     {
         DataSetPathInfo pathInfo = pathInfoProvider.tryGetPathInfoByRelativePath("data.h5ar");
-        
+
         assertEquals(false, pathInfo.isDirectory());
         assertPathInfo("data.h5ar[data.h5ar, 16184, 83bcffb0]", pathInfo);
     }
-    
+
     @Test
     public void testHdf5FileAsFolder()
     {
         List<H5FolderFlags> flags = Arrays.asList(new H5FolderFlags("", false, true));
-        TarBasedPathInfoProvider provider = new TarBasedPathInfoProvider(tarFile, flags, 10, logger);
-        
+        TarBasedPathInfoProvider provider =
+                new TarBasedPathInfoProvider(tarFile, flags, 10, logger);
+
         DataSetPathInfo parent = provider.tryGetPathInfoByRelativePath("data.h5ar/data");
         List<DataSetPathInfo> children = provider.listChildrenPathInfos(parent);
-        
+
         Collections.sort(children, COMPARATOR);
         assertPathInfo("data.h5ar/data/hello.txt[hello.txt, 11, d4a1185]", children.get(0));
         assertPathInfo("data.h5ar/data/sub[sub, 0, 0]", children.get(1));
@@ -159,7 +165,8 @@ public class TarBasedPathInfoProviderTest extends AbstractFileSystemTestCase
     {
         assertNotNull("Unspecified path info", pathInfo);
         StringBuilder builder = new StringBuilder();
-        builder.append(pathInfo.getRelativePath()).append('[').append(pathInfo.getFileName()).append(", ");
+        builder.append(pathInfo.getRelativePath()).append('[').append(pathInfo.getFileName())
+                .append(", ");
         builder.append(pathInfo.getSizeInBytes());
         Integer checksum = pathInfo.getChecksumCRC32();
         if (checksum != null)

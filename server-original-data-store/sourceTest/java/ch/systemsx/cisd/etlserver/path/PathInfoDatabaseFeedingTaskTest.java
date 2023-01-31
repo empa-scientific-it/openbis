@@ -48,8 +48,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Friend(toClasses = PathInfoDatabaseFeedingTask.class)
 public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 {
-    private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
-            + PathInfoDatabaseFeedingTaskTest.class.getSimpleName());
+    private static final File STORE_ROOT =
+            new File("../server-original-data-store/resource/test-data/"
+                    + PathInfoDatabaseFeedingTaskTest.class.getSimpleName());
 
     private static final String DATA_SET_CODE = "ds1";
 
@@ -77,22 +78,22 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         service = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(shareIdManager).lock(with(any(String.class)));
-                    allowing(shareIdManager).getShareId(with(any(String.class)));
-                    will(returnValue("1"));
-                    allowing(shareIdManager).releaseLocks();
-                }
-            });
+                allowing(shareIdManager).lock(with(any(String.class)));
+                allowing(shareIdManager).getShareId(with(any(String.class)));
+                will(returnValue("1"));
+                allowing(shareIdManager).releaseLocks();
+            }
+        });
         directoryProvider = new DataSetDirectoryProvider(STORE_ROOT, shareIdManager);
         dao = context.mock(IPathsInfoDAO.class);
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(dao).tryGetDataSetId(with(any(String.class)));
-                }
-            });
+                allowing(dao).tryGetDataSetId(with(any(String.class)));
+            }
+        });
         mockPathsInfoDAO = new MockPathsInfoDAO();
         task = createTask(mockPathsInfoDAO, 0, 0, 0);
         dataSetFolder = new File(workingDirectory, "ds1");
@@ -121,13 +122,13 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1.setRegistrationTimestamp(new Date(78000));
         ds1.setStorageConfirmed(true);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1)));
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, "SHA1", 12, 3, 0).execute();
@@ -151,13 +152,13 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1.setRegistrationTimestamp(new Date(78000));
         ds1.setStorageConfirmed(true);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1)));
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
@@ -186,13 +187,13 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1.setStorageConfirmed(true);
         ds1.setH5Folders(true);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1)));
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, "SHA1", 12, 3, 0).execute();
@@ -239,13 +240,13 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1.setStorageConfirmed(true);
         ds1.setH5arFolders(true);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1)));
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
@@ -291,13 +292,13 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1.setRegistrationTimestamp(new Date(78000));
         ds1.setStorageConfirmed(true);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1)));
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
@@ -328,16 +329,16 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         ds1Confirmed.setStorageConfirmed(true);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1NonConfirmed)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1NonConfirmed)));
 
-                    one(service).listOldestPhysicalDataSets(12);
-                    will(returnValue(Arrays.asList(ds1Confirmed)));
+                one(service).listOldestPhysicalDataSets(12);
+                will(returnValue(Arrays.asList(ds1Confirmed)));
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
@@ -363,21 +364,21 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final SimpleDataSetInformationDTO ds6 = dataSet(6000);
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(2);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(2);
+                will(returnValue(Arrays.asList(ds1, ds2)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
-                    will(returnValue(Arrays.asList(ds3, ds4)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(new Date(2000), 2);
+                will(returnValue(Arrays.asList(ds3, ds4)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(4000), 2);
-                    will(returnValue(Arrays.asList(ds5, ds6)));
-                    inSequence(chunkReadingSequence);
-                }
-            });
+                one(service).listOldestPhysicalDataSets(new Date(4000), 2);
+                will(returnValue(Arrays.asList(ds5, ds6)));
+                inSequence(chunkReadingSequence);
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 3, 0).execute();
@@ -432,18 +433,18 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final SimpleDataSetInformationDTO ds4 = dataSet(4000);
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(2);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(2);
+                will(returnValue(Arrays.asList(ds1, ds2)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
-                    will(returnValue(Arrays.asList(ds3, ds4)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(new Date(2000), 2);
+                will(returnValue(Arrays.asList(ds3, ds4)));
+                inSequence(chunkReadingSequence);
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 0, 1500).execute();
@@ -484,17 +485,17 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final SimpleDataSetInformationDTO ds3 = dataSet("ds3", 3000, "3");
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(2);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(2);
+                will(returnValue(Arrays.asList(ds1, ds2)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
-                    will(returnValue(Arrays.asList(ds3)));
-                    inSequence(chunkReadingSequence);
-                }
-            });
+                one(service).listOldestPhysicalDataSets(new Date(2000), 2);
+                will(returnValue(Arrays.asList(ds3)));
+                inSequence(chunkReadingSequence);
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 0, 0).execute();
@@ -531,26 +532,26 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(2);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(2);
+                will(returnValue(Arrays.asList(ds1, ds2)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(4);
-                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(4);
+                will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(1000), 2);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(new Date(1000), 2);
+                will(returnValue(Arrays.asList(ds1, ds2)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(1000), 4);
-                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(new Date(1000), 4);
+                will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                inSequence(chunkReadingSequence);
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 0, 0).execute();
@@ -585,22 +586,22 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listOldestPhysicalDataSets(2);
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(2);
+                will(returnValue(Arrays.asList(ds1, ds2)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(4);
-                    will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(4);
+                will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
+                inSequence(chunkReadingSequence);
 
-                    one(service).listOldestPhysicalDataSets(new Date(2000), 2);
-                    will(returnValue(Arrays.asList()));
-                    inSequence(chunkReadingSequence);
+                one(service).listOldestPhysicalDataSets(new Date(2000), 2);
+                will(returnValue(Arrays.asList()));
+                inSequence(chunkReadingSequence);
 
-                }
-            });
+            }
+        });
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 0, 0).execute();
@@ -636,14 +637,15 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final PhysicalDataSet dataSet =
                 new DataSetBuilder().code(DATA_SET_CODE).location("2").getDataSet();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    will(returnValue(dataSet));
+                one(service).tryGetDataSet(DATA_SET_CODE);
+                will(returnValue(dataSet));
 
-                    one(service).updatePhysicalDataSetsSize(Collections.singletonMap(DATA_SET_CODE, 3L));
-                }
-            });
+                one(service).updatePhysicalDataSetsSize(
+                        Collections.singletonMap(DATA_SET_CODE, 3L));
+            }
+        });
 
         task.createExecutor(DATA_SET_CODE, false).execute();
 
@@ -660,12 +662,12 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final PhysicalDataSet dataSet =
                 new DataSetBuilder().code(DATA_SET_CODE).location("2").getDataSet();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    will(returnValue(dataSet));
-                }
-            });
+                one(service).tryGetDataSet(DATA_SET_CODE);
+                will(returnValue(dataSet));
+            }
+        });
 
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE, false);
         mockPathsInfoDAO.addException(1L, new RuntimeException("Oops!"));
@@ -689,14 +691,14 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     public void testNonExistingDataSetFolder()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    PhysicalDataSet dataSet =
-                            new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
-                    will(returnValue(dataSet));
-                }
-            });
+                one(service).tryGetDataSet(DATA_SET_CODE);
+                PhysicalDataSet dataSet =
+                        new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+                will(returnValue(dataSet));
+            }
+        });
 
         task.createExecutor(DATA_SET_CODE, false).execute();
 
@@ -707,15 +709,15 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     public void testAlreadyExistingDataSetInDatabase()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    PhysicalDataSet dataSet =
-                            new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
-                    will(returnValue(dataSet));
+                one(service).tryGetDataSet(DATA_SET_CODE);
+                PhysicalDataSet dataSet =
+                        new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
+                will(returnValue(dataSet));
 
-                }
-            });
+            }
+        });
 
         mockPathsInfoDAO.setDataSetId(42);
         task.createExecutor(DATA_SET_CODE, false).execute();
@@ -753,7 +755,8 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             int chunkSize, int maxNumberOfChunks, long timeLimite)
     {
         return new PathInfoDatabaseFeedingTask(service, directoryProvider, pathsInfoDAO,
-                new MockTimeProvider(0, 1000), true, checksumType, chunkSize, maxNumberOfChunks, timeLimite);
+                new MockTimeProvider(0, 1000), true, checksumType, chunkSize, maxNumberOfChunks,
+                timeLimite);
     }
 
 }

@@ -163,7 +163,7 @@ public class ImageUtilTest extends AssertJUnit
     @BeforeMethod
     public void setUp() throws Exception
     {
-        dir = new File("../datastore_server/resource/test-data/ImageUtilTest");
+        dir = new File("../server-original-data-store/resource/test-data/ImageUtilTest");
         ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.IMAGEIO_LIBRARY,
                 ImageReaderConstants.BIOFORMATS_LIBRARY, ImageReaderConstants.IMAGEJ_LIBRARY);
 
@@ -287,18 +287,18 @@ public class ImageUtilTest extends AssertJUnit
         try
         {
             ImageUtil.tryToFigureOutFileTypeOf(new ByteBufferRandomAccessFile(1)
+            {
+                @Override
+                public boolean markSupported()
                 {
-                    @Override
-                    public boolean markSupported()
-                    {
-                        return false;
-                    }
-                });
+                    return false;
+                }
+            });
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Input stream does not support marking. "
-                    + "Wrap input stream with a BufferedInputStream to solve the problem.",
+                            + "Wrap input stream with a BufferedInputStream to solve the problem.",
                     ex.getMessage());
         }
     }
@@ -329,7 +329,8 @@ public class ImageUtilTest extends AssertJUnit
     {
         BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(new Color(100, 100, 100));
         graphics.drawOval(0, 0, 5, 7);
 
@@ -343,7 +344,8 @@ public class ImageUtilTest extends AssertJUnit
     {
         BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(new Color(0, 255, 0));
         graphics.drawOval(0, 0, 5, 7);
 
@@ -357,7 +359,8 @@ public class ImageUtilTest extends AssertJUnit
     {
         BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(new Color(0, 255, 255));
         graphics.drawOval(0, 0, 5, 7);
 
@@ -371,7 +374,8 @@ public class ImageUtilTest extends AssertJUnit
     {
         BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setColor(Color.GREEN);
         graphics.drawOval(0, 0, 5, 7);
         graphics.setColor(Color.BLUE);

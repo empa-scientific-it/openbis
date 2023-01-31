@@ -45,14 +45,15 @@ public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
             resultTemplate += ";host=" + databaseHost;
         }
 
-        String expectedResult = String.format(resultTemplate, username, username, username, databaseHost);
+        String expectedResult =
+                String.format(resultTemplate, username, username, username, databaseHost);
 
         assertEquals(expectedResult, generator.getResult());
     }
 
     private String getResourceFileName(String fileName)
     {
-        return "../datastore_server/resource/test-data/" + getClass().getSimpleName() + "/" + fileName;
+        return "../server-original-data-store/resource/test-data/" + getClass().getSimpleName() + "/" + fileName;
     }
 
 }

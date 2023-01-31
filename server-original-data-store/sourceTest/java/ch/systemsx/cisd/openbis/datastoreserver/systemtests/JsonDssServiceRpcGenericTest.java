@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
  * Verifies that the functionality of {@link IDssServiceRpcGeneric} is accessible over JSON-RPC.
- * 
+ *
  * @author Kaloyan Enimanev
  */
 @Test(groups = { "slow" })
@@ -72,7 +72,8 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
         sessionToken = openbisService.tryToAuthenticateForAllServices("test", "1");
 
         File resourceDir =
-                new File("../datastore_server/resource/test-data/" + getClass().getSimpleName());
+                new File(
+                        "../server-original-data-store/resource/test-data/" + getClass().getSimpleName());
         FileUtils.copyDirectory(resourceDir, rootDir);
     }
 
