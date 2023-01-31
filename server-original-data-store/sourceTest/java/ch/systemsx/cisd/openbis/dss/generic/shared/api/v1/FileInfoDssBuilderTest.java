@@ -32,7 +32,7 @@ public class FileInfoDssBuilderTest extends AssertJUnit
     public void testFileInfoBuilderOnDir() throws IOException
     {
         String root =
-                "../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1";
+                "../server-original-data-store/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1";
         FileInfoDssBuilder builder = new FileInfoDssBuilder(root, root);
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         File requestedFile = new File(root);
@@ -58,7 +58,7 @@ public class FileInfoDssBuilderTest extends AssertJUnit
     public void testFileInfoBuilderOnDirWithTrailingSlash() throws IOException
     {
         String root =
-                "../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/";
+                "../server-original-data-store/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/";
         FileInfoDssBuilder builder = new FileInfoDssBuilder(root, root);
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         File requestedFile = new File(root);

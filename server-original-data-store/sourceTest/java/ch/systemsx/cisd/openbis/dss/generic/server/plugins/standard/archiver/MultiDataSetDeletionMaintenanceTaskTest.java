@@ -113,10 +113,12 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             ":0:0", "wrong_path/:0:0", "wrong_path/test.txt:8:70486887"
     );
 
-    private final String WRONG_PATH_ERROR = "Different paths: Path in the store is '20220111121934409-58/wrong_path' " +
-            "and in the archive '20220111121934409-58/original'.";
+    private final String WRONG_PATH_ERROR =
+            "Different paths: Path in the store is '20220111121934409-58/wrong_path' " +
+                    "and in the archive '20220111121934409-58/original'.";
 
-    private static final class MockMultiDataSetDeletionMaintenanceTask extends MultiDataSetDeletionMaintenanceTask
+    private static final class MockMultiDataSetDeletionMaintenanceTask
+            extends MultiDataSetDeletionMaintenanceTask
     {
         private final IMultiDataSetArchiverDBTransaction transaction;
 
@@ -138,7 +140,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
 
         private final IFreeSpaceProvider freeSpaceProvider;
 
-        public MockMultiDataSetDeletionMaintenanceTask(IMultiDataSetArchiverDBTransaction transaction,
+        public MockMultiDataSetDeletionMaintenanceTask(
+                IMultiDataSetArchiverDBTransaction transaction,
                 IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
                 IEncapsulatedOpenBISService openBISService,
                 IDataStoreServiceInternal dataStoreService,
@@ -221,13 +224,15 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             return MAX_DELETION_DATE;
         }
 
-        @Override protected IFreeSpaceProvider getFreeSpaceProvider()
+        @Override
+        protected IFreeSpaceProvider getFreeSpaceProvider()
         {
             return freeSpaceProvider;
         }
     }
 
-    private static final class MockMultiDataSetFileOperationsManager extends MultiDataSetFileOperationsManager
+    private static final class MockMultiDataSetFileOperationsManager
+            extends MultiDataSetFileOperationsManager
     {
         private static final long serialVersionUID = 1L;
 
@@ -284,7 +289,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         task = new MockMultiDataSetDeletionMaintenanceTask(
                 transaction, transaction, openBISService, dataStoreService,
                 contentProvider, shareIdManager, v3api, configProvider,
-                new MockMultiDataSetFileOperationsManager(properties, directoryProvider, freeSpaceProvider), freeSpaceProvider);
+                new MockMultiDataSetFileOperationsManager(properties, directoryProvider,
+                        freeSpaceProvider), freeSpaceProvider);
         logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
         task.setUp("", properties);
     }
@@ -342,12 +348,18 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         properties.setProperty(
                 MultiDataSetDeletionMaintenanceTask.LAST_SEEN_EVENT_ID_FILE,
                 lastSeenDataSetFile.getPath());
-        properties.setProperty("archiver." + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
-        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY, archive.getAbsolutePath());
+        properties.setProperty(
+                "archiver." + MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY,
+                archive.getAbsolutePath());
+        properties.setProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY,
+                archive.getAbsolutePath());
         if (withReplica)
         {
-            properties.setProperty("archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
-            properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
+            properties.setProperty(
+                    "archiver." + MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY,
+                    replicate.getAbsolutePath());
+            properties.setProperty(MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY,
+                    replicate.getAbsolutePath());
         }
         if (withMappingFile)
         {
@@ -374,7 +386,7 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     private File copyContainerToArchive(File parent, String folderName)
     {
         File dataSetFile = new File(
-                "../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/plugins/standard/archiver/resource/container.tar");
+                "../server-original-data-store/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/plugins/standard/archiver/resource/container.tar");
 
         File container = new File(parent, folderName);
         FileOperations.getInstance().copy(dataSetFile, container);
@@ -397,7 +409,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
     private Map<IDataSetId, DataSet> buildDataSetMap()
     {
         Map<IDataSetId, DataSet> dataSetMap = new HashMap<>();
-        dataSetMap.put(new DataSetPermId(ds4Code), generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
+        dataSetMap.put(new DataSetPermId(ds4Code),
+                generateDataSet(ds4Code, DATA_SET_STANDARD_SIZE));
         return dataSetMap;
     }
 
@@ -474,10 +487,12 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         // GIVEN
         Properties properties = createProperties(false, true);
         IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
-        MockMultiDataSetDeletionMaintenanceTask taskWithoutReplica = new MockMultiDataSetDeletionMaintenanceTask(
-                transaction, transaction, openBISService, dataStoreService,
-                contentProvider, shareIdManager, v3api, configProvider,
-                new MockMultiDataSetFileOperationsManager(properties, directoryProvider, freeSpaceProvider), freeSpaceProvider);
+        MockMultiDataSetDeletionMaintenanceTask taskWithoutReplica =
+                new MockMultiDataSetDeletionMaintenanceTask(
+                        transaction, transaction, openBISService, dataStoreService,
+                        contentProvider, shareIdManager, v3api, configProvider,
+                        new MockMultiDataSetFileOperationsManager(properties, directoryProvider,
+                                freeSpaceProvider), freeSpaceProvider);
         taskWithoutReplica.setUp("", properties);
 
         // Container1 contains only deleted dataSets
@@ -520,7 +535,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         context.checking(new Expectations()
         {
             {
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
 
@@ -533,7 +549,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
                 will(returnValue(goodDs4Content));
 
-                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code),
+                        DataSetArchivingStatus.AVAILABLE, false);
                 one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
             }
         });
@@ -556,7 +573,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         assertEquals(1, recordedUpdates.recordedObject().size());
         DataSetUpdate dataSetUpdate = recordedUpdates.recordedObject().get(0);
         assertTrue(dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().isModified());
-        assertEquals(Boolean.TRUE, dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().getValue());
+        assertEquals(Boolean.TRUE,
+                dataSetUpdate.getPhysicalData().getValue().isArchivingRequested().getValue());
         assertEquals(ds4Code, ((DataSetPermId) dataSetUpdate.getDataSetId()).getPermId());
 
         AssertionUtil.assertContainsLines(
@@ -612,7 +630,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(Arrays.asList(deleted3)));
                 inSequence(sequence);
 
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
                 inSequence(sequence);
@@ -635,7 +654,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(Arrays.asList(deleted3)));
                 inSequence(sequence);
 
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
                 inSequence(sequence);
@@ -653,7 +673,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(goodDs4Content));
                 inSequence(sequence);
 
-                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code),
+                        DataSetArchivingStatus.AVAILABLE, false);
                 inSequence(sequence);
                 one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
                 inSequence(sequence);
@@ -669,7 +690,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             task.execute();
         } catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), "Can't delete the container because something bad happened!");
+            assertEquals(e.getMessage(),
+                    "Can't delete the container because something bad happened!");
         }
 
         //check that archive and replica WAS NOT deleted.
@@ -721,7 +743,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(Arrays.asList(deleted3)));
                 inSequence(sequence);
 
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
                 inSequence(sequence);
@@ -744,7 +767,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(Arrays.asList(deleted3)));
                 inSequence(sequence);
 
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
                 inSequence(sequence);
@@ -762,7 +786,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(goodDs4Content));
                 inSequence(sequence);
 
-                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code),
+                        DataSetArchivingStatus.AVAILABLE, false);
                 inSequence(sequence);
                 one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
                 inSequence(sequence);
@@ -845,7 +870,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         context.checking(new Expectations()
         {
             {
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
 
@@ -878,10 +904,12 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         IFreeSpaceProvider freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         Properties properties = createProperties(true, false);
 
-        MockMultiDataSetDeletionMaintenanceTask taskWithoutMappingFile = new MockMultiDataSetDeletionMaintenanceTask(
-                transaction, transaction, openBISService, dataStoreService,
-                contentProvider, shareIdManager, v3api, configProvider,
-                new MockMultiDataSetFileOperationsManager(properties, directoryProvider, freeSpaceProvider), freeSpaceProvider);
+        MockMultiDataSetDeletionMaintenanceTask taskWithoutMappingFile =
+                new MockMultiDataSetDeletionMaintenanceTask(
+                        transaction, transaction, openBISService, dataStoreService,
+                        contentProvider, shareIdManager, v3api, configProvider,
+                        new MockMultiDataSetFileOperationsManager(properties, directoryProvider,
+                                freeSpaceProvider), freeSpaceProvider);
         taskWithoutMappingFile.setUp("", properties);
 
         final HostAwareFile HostAwareShare = new HostAwareFile(share);
@@ -892,7 +920,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         {
             {
                 // first taskWithoutMappingFile.execute() call
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
 
@@ -900,7 +929,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 will(returnValue(0L)); // not enough free space
 
                 // second taskWithoutMappingFile.execute() call
-                one(v3api).getDataSets(with(SESSION_TOKEN), with(Arrays.asList(new DataSetPermId(ds4Code))),
+                one(v3api).getDataSets(with(SESSION_TOKEN),
+                        with(Arrays.asList(new DataSetPermId(ds4Code))),
                         with(any(DataSetFetchOptions.class)));
                 will(returnValue(buildDataSetMap()));
 
@@ -916,7 +946,8 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
                 one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds4Code);
                 will(returnValue(goodDs4Content));
 
-                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code), DataSetArchivingStatus.AVAILABLE, false);
+                one(openBISService).updateDataSetStatuses(Arrays.asList(ds4Code),
+                        DataSetArchivingStatus.AVAILABLE, false);
                 one(v3api).updateDataSets(with(SESSION_TOKEN), with((recordedUpdates)));
             }
         });
