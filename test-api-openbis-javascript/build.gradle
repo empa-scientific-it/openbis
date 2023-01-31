@@ -5,7 +5,7 @@ evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
-evaluationDependsOn(':datastore_server')
+evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':test-ui-core')
 evaluationDependsOn(':screening')
 

@@ -28,7 +28,7 @@ GRADLE_PROJECTS="\
 authentication \
 commonbase \
 common \
-datastore_server \
+server-original-data-store \
 dbmigration \
 installation \
 test-api-openbis-javascript \

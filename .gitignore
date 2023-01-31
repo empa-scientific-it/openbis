@@ -4,7 +4,7 @@
 */.settings
 */targets
 */.gradle
-datastore_server/source/core-plugins
+server-original-data-store/source/core-plugins
 server-application-server/source/core-plugins
 server-application-server/sourceTest/hot-deployment
 */bin/*

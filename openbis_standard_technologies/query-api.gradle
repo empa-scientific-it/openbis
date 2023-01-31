@@ -6,7 +6,7 @@ task queryApiJar(type: Jar) {
                     project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
-                                            project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
+                                            project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.class"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
         include "ch/systemsx/cisd/common/api/**/*.class"
@@ -31,7 +31,7 @@ task queryApiSources(type: Zip) {
                     project(':openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
                                     project(':openbis_api').files('source/java').getAsFileTree().plus(
-                                            project(':datastore_server').files('source/java').getAsFileTree()))))).matching {
+                                            project(':server-original-data-store').files('source/java').getAsFileTree()))))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.java"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
         include "ch/systemsx/cisd/common/api/**/*.java"
@@ -50,7 +50,7 @@ task queryApiSources(type: Zip) {
 
 configurations.create('queryApiJavadoc')
 dependencies {
-    queryApiJavadoc project(':datastore_server')
+    queryApiJavadoc project(':server-original-data-store')
 }
 
 task queryApiJavaDoc(type: Javadoc) {
@@ -263,11 +263,11 @@ task apiV3Zip(type: Zip, dependsOn: [apiV3JarBatteriesIncluded, apiV3Sources, ap
 
 configurations.create('dropboxApiJavadoc')
 dependencies {
-    dropboxApiJavadoc project(':datastore_server')
+    dropboxApiJavadoc project(':server-original-data-store')
 }
 
 task dropboxApiJavadoc(type: Javadoc) {
-    source project(':datastore_server').files('source/java').getAsFileTree().matching {
+    source project(':server-original-data-store').files('source/java').getAsFileTree().matching {
         include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.java"
         include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.java"
     }

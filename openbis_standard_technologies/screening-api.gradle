@@ -11,7 +11,7 @@ task screeningApiJar(type: Jar) {
                     project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
-                                            project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree().plus(
+                                            project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree().plus(
                                                     project(':screening').compileJava.outputs.getFiles().getAsFileTree())))))).matching {
         include "OpenBISScreeningML*.class"
         include "ch/systemsx/cisd/common/api/**/*.class"
@@ -54,7 +54,7 @@ task screeningApiSources(type: Zip) {
                     project(':openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
                                     project(':openbis_api').files('source/java').getAsFileTree().plus(
-                                            project(':datastore_server').files('source/java').getAsFileTree().plus(
+                                            project(':server-original-data-store').files('source/java').getAsFileTree().plus(
                                                     project(':screening').files('source/java').getAsFileTree())))))).matching {
         include "OpenBISScreeningML*.java"
         include "ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.java"

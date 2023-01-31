@@ -35,7 +35,7 @@ evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
-evaluationDependsOn(':datastore_server')
+evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':screening')
 evaluationDependsOn(':big_data_link_server')
 evaluationDependsOn(':openbis_ng_ui')
@@ -92,7 +92,7 @@ dependencies {
             project(path: ':openbis_api', configuration: 'archives'),
             project(path: ':openbis-common', configuration: 'archives'),
             project(path: ':server-application-server', configuration: 'archives'),
-            project(path: ':datastore_server', configuration: 'archives'),
+            project(path: ':server-original-data-store', configuration: 'archives'),
             project(path: ':screening', configuration: 'archives'),
             'sis:sis-base:18.09.0:sources',
             'cisd:cisd-args4j:9.11.2:sources',
@@ -106,7 +106,7 @@ dependencies {
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
             project(path: ':openbis-common', configuration: 'tests'),
-            project(path: ':datastore_server', configuration: 'tests'),
+            project(path: ':server-original-data-store', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'springframework:spring-test:5.0.17.RELEASE'
@@ -437,11 +437,11 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
         exclude dssCliClientJarName
     }
 
-    from(project(':datastore_server').fileTree(dir: 'dist', includes: ['**/*'], excludes: ['dss_client.sh', 'etc/**'])) {
+    from(project(':server-original-data-store').fileTree(dir: 'dist', includes: ['**/*'], excludes: ['dss_client.sh', 'etc/**'])) {
         into 'datastore_server';
     }
 
-    from(project(':datastore_server').files('dist/etc/datastore_server.conf', 'dist/etc/openBIS.keystore')) {
+    from(project(':server-original-data-store').files('dist/etc/datastore_server.conf', 'dist/etc/openBIS.keystore')) {
         into 'datastore_server/etc';
     }
 

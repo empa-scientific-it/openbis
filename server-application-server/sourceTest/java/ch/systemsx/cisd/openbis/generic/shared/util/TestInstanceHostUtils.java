@@ -47,10 +47,10 @@ public class TestInstanceHostUtils
     {
         String projectName = System.getProperty("ant.project.name", "");
 
-        if (projectName.equals("openbis"))
+        if (projectName.equals("server-application-server"))
         {
             return 0;
-        } else if (projectName.equals("datastore_server"))
+        } else if (projectName.equals("server-original-data-store"))
         {
             return 10;
         } else if (projectName.equals("screening"))

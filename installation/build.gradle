@@ -5,7 +5,7 @@ evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
-evaluationDependsOn(':datastore_server')
+evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':screening')
 evaluationDependsOn(':openbis_standard_technologies')
 
@@ -13,7 +13,7 @@ apply from: '../build/javaproject.gradle'
 
 // Replace BUILD INFO files for AS and DSS because their revision number is usually to low.
 def buildInfo = file("${project.projectDir}/targets/dist/BUILD-${project.name}.INFO").text
-file("../datastore_server/targets/dist/BUILD-datastore_server.INFO").write(buildInfo)
+file("../server-original-data-store/targets/dist/BUILD-datastore_server.INFO").write(buildInfo)
 file("../openbis_standard_technologies/targets/dist/BUILD-openbis_standard_technologies.INFO").write(buildInfo)
 
 buildscript {

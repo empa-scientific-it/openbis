@@ -5,7 +5,7 @@ evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
-evaluationDependsOn(':datastore_server')
+evaluationDependsOn(':server-original-data-store')
 
 apply from: '../build/javaproject.gradle'
 
@@ -13,7 +13,7 @@ configurations.create('devRuntime')
 
 dependencies {
     api project(':common'),
-            project(':datastore_server'),
+            project(':server-original-data-store'),
             'openhms:jackcess:1.2.2',
             'reveregroup:gwt-image-loader:1.1.4',
             'imagej:ij:1.43u',
@@ -27,7 +27,7 @@ dependencies {
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
             project(path: ':openbis-common', configuration: 'tests'),
-            project(path: ':datastore_server', configuration: 'tests'),
+            project(path: ':server-original-data-store', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'springframework:spring-test:5.0.17.RELEASE',
@@ -90,8 +90,8 @@ task executeScreeningDataStoreDev(type: JavaExec) {
     main = 'ch.systemsx.cisd.openbis.dss.generic.DataStoreServer'
     classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime +
             files("../openbis_standard_technologies/dist/core-plugins/microscopy/3/dss/drop-boxes/MicroscopyDropbox/lib/MicroscopyReader_20190521113500.jar")
-    jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../datastore_server/etc/log.xml',
-             '-Djavax.net.ssl.trustStore=../datastore_server/dist/etc/openBIS.keystore',
+    jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../server-original-data-store/etc/log.xml',
+             '-Djavax.net.ssl.trustStore=../server-original-data-store/dist/etc/openBIS.keystore',
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
              '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
 }

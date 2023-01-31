@@ -44,8 +44,8 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         exclude 'dbmigration-*'
         exclude 'openbis-common-*'
         exclude 'openbis_api-*'
-        exclude 'openbis-*'
-        exclude 'datastore_server-*'
+        exclude 'server-application-server-*'
+        exclude 'server-original-data-store-*'
     }
 
     from('source/java/service.properties') {

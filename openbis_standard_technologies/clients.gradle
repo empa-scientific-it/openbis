@@ -49,7 +49,7 @@ task createOpenbisJar(type: Jar) {
             zipTree(project(':common').jar.archivePath).plus(
                     zipTree(project(':openbis-common').jar.archivePath).plus(
                             zipTree(project(':openbis_api').jar.archivePath).plus(
-                                    zipTree(project(':datastore_server').jar.archivePath).plus(
+                                    zipTree(project(':server-original-data-store').jar.archivePath).plus(
                                             zipTree(project(':screening').jar.archivePath).plus(
                                                     zipTree(project(':server-application-server').jar.archivePath))))))).matching {
         include '**/ch/systemsx/cisd/common/**/*.class'
@@ -69,7 +69,7 @@ task createOpenbisJar(type: Jar) {
     }
 }
 createOpenbisJar.dependsOn(':commonbase:jar', ':common:jar', ':openbis-common:jar',
-        ':openbis_api:jar', ':datastore_server:jar', ':screening:jar', ':server-application-server:jar')
+        ':openbis_api:jar', ':server-original-data-store:jar', ':screening:jar', ':server-application-server:jar')
 
 task createDssClientJar(type: Jar) {
     archiveName = dssGuiClientJarName
@@ -81,7 +81,7 @@ task createDssClientJar(type: Jar) {
                     project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
-                                            project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
+                                            project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
         include 'ch/ethz/sis/openbis/generic/asapi/**/*.class'
         include 'ch/ethz/sis/openbis/generic/dssapi/**/*.class'
         include 'ch/systemsx/cisd/common/**/*.class'
@@ -95,7 +95,7 @@ task createDssClientJar(type: Jar) {
         include 'ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo.class'
     })
 
-    from(project(':datastore_server').fileTree(dir: 'resource', includes: ['ok.png', 'wrong.png', 'wait.gif']))
+    from(project(':server-original-data-store').fileTree(dir: 'resource', includes: ['ok.png', 'wrong.png', 'wait.gif']))
 
     def dssClientJars = ['aopalliance.jar', 'sis-base.jar', 'cisd-args4j.jar', 'cglib-nodep.jar ', 'jline.jar',
                          'spring-aop.jar', 'spring-beans.jar', 'spring-context.jar', 'spring-core.jar', 'spring-web.jar', 'spring-webmvc.jar', 'spring-expression.jar',
@@ -158,7 +158,7 @@ task dssClientZip(type: Zip, dependsOn: signWebStartJars) {
         exclude openbisClientJarName
     }
 
-    from(project(':datastore_server').file('dist/dss_client.sh')) {
+    from(project(':server-original-data-store').file('dist/dss_client.sh')) {
         into 'dss_client'
         fileMode 0755
     }
