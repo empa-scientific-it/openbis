@@ -83,13 +83,13 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * Test cases for corresponding {@link TransferredDataSetHandler} class.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-{ TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
-        IdentifiedDataStrategy.class, PluginTaskInfoProvider.class,
-        DssPropertyParametersUtil.class })
+        { TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
+                IdentifiedDataStrategy.class, PluginTaskInfoProvider.class,
+                DssPropertyParametersUtil.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
@@ -305,13 +305,13 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         new DataSetStorageRecoveryManager());
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(storageProcessor).setStoreRootDirectory(workingDirectory);
-                    allowing(storageProcessor).getStoreRootDirectory();
-                    will(returnValue(workingDirectory));
-                }
-            });
+                one(storageProcessor).setStoreRootDirectory(workingDirectory);
+                allowing(storageProcessor).getStoreRootDirectory();
+                will(returnValue(workingDirectory));
+            }
+        });
 
         handler = new TransferredDataSetHandler(globalState, plugin);
 
@@ -336,7 +336,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         targetFolder =
                 IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
-        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO, ".*(DataStrategyStore|FileRenamer)");
+        logRecorder = LogRecordingUtils.createRecorder("%-5p %c - %m%n", Level.INFO,
+                ".*(DataStrategyStore|FileRenamer)");
     }
 
     private final String createLogMsgOfSuccess(final DataSetInformation dataSet)
@@ -426,22 +427,22 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private final void prepareForStrategy(final File dataSet, final Sample sample)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(dataSetInfoExtractor).getDataSetInformation(dataSet, null);
-                    will(returnValue(dataSetInformation));
+                one(dataSetInfoExtractor).getDataSetInformation(dataSet, null);
+                will(returnValue(dataSetInformation));
 
-                    one(limsService).getHomeDatabaseInstance(SESSION_TOKEN);
-                    will(returnValue(homeDatabaseInstance));
+                one(limsService).getHomeDatabaseInstance(SESSION_TOKEN);
+                will(returnValue(homeDatabaseInstance));
 
-                    atLeast(1).of(limsService).tryGetSampleWithExperiment(SESSION_TOKEN,
-                            dataSetInformation.getSampleIdentifier());
-                    will(returnValue(sample));
+                atLeast(1).of(limsService).tryGetSampleWithExperiment(SESSION_TOKEN,
+                        dataSetInformation.getSampleIdentifier());
+                will(returnValue(sample));
 
-                    allowing(typeExtractor).getDataSetType(dataSet);
-                    will(returnValue(DATA_SET_TYPE));
-                }
-            });
+                allowing(typeExtractor).getDataSetType(dataSet);
+                will(returnValue(DATA_SET_TYPE));
+            }
+        });
     }
 
     private final void prepareForStrategyIDENTIFIED(final File dataSet,
@@ -449,35 +450,35 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     {
         prepareForStrategy(dataSet, sample);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(limsService).tryGetPropertiesOfSample(SESSION_TOKEN,
-                            dataSetInformation.getSampleIdentifier());
-                    will(returnValue(new IEntityProperty[0]));
-                }
-            });
+                one(limsService).tryGetPropertiesOfSample(SESSION_TOKEN,
+                        dataSetInformation.getSampleIdentifier());
+                will(returnValue(new IEntityProperty[0]));
+            }
+        });
     }
 
     private final void prepareForRegistration(final File dataSet)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, dataSet);
+                one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, dataSet);
 
-                    one(typeExtractor).getLocatorType(dataSet);
-                    will(returnValue(LOCATOR_TYPE));
+                one(typeExtractor).getLocatorType(dataSet);
+                will(returnValue(LOCATOR_TYPE));
 
-                    one(typeExtractor).getFileFormatType(dataSet);
-                    will(returnValue(FILE_FORMAT_TYPE));
+                one(typeExtractor).getFileFormatType(dataSet);
+                will(returnValue(FILE_FORMAT_TYPE));
 
-                    one(typeExtractor).getProcessorType(dataSet);
-                    will(returnValue(EXAMPLE_PROCESSOR_ID));
+                one(typeExtractor).getProcessorType(dataSet);
+                will(returnValue(EXAMPLE_PROCESSOR_ID));
 
-                    one(typeExtractor).isMeasuredData(dataSet);
-                    will(returnValue(true));
-                }
-            });
+                one(typeExtractor).isMeasuredData(dataSet);
+                will(returnValue(true));
+            }
+        });
     }
 
     private final String getNotificationEmailContent(final DataSetInformation dataset,
@@ -513,7 +514,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         {
             final String normalizedMessage = normalize(e.getMessage());
             assertEquals("Error moving path 'data1' from '<wd>' to '<wd>': "
-                    + "Incoming data set directory '<wd>/data1' is not writable.",
+                            + "Incoming data set directory '<wd>/data1' is not writable.",
                     normalizedMessage);
         }
 
@@ -551,33 +552,33 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
         prepareForRegistration(data1);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
-                            with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(new ExternalDataMatcher(targetData1)));
+                one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
+                        with(equal(dataSetInformation.getSampleIdentifier())),
+                        with(new ExternalDataMatcher(targetData1)));
 
-                    checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
-                            baseExperiment.getRegistrator().getEmail());
+                checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
+                        baseExperiment.getRegistrator().getEmail());
 
-                    allowing(storageProcessor).getStorageFormat();
-                    will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).createTransaction(
-                            with(any(StorageProcessorTransactionParameters.class)));
-                    will(returnValue(transaction));
+                allowing(storageProcessor).getStorageFormat();
+                will(returnValue(StorageFormat.BDS_DIRECTORY));
+                one(storageProcessor).createTransaction(
+                        with(any(StorageProcessorTransactionParameters.class)));
+                will(returnValue(transaction));
 
-                    one(transaction).storeData(typeExtractor, mailClient, data1);
-                    one(transaction).getStoredDataDirectory();
-                    final File finalDataSetPath = new File(baseDir, DATA1_NAME);
-                    will(returnValue(finalDataSetPath));
-                    one(transaction).commit();
+                one(transaction).storeData(typeExtractor, mailClient, data1);
+                one(transaction).getStoredDataDirectory();
+                final File finalDataSetPath = new File(baseDir, DATA1_NAME);
+                will(returnValue(finalDataSetPath));
+                one(transaction).commit();
 
-                    one(shareIdManager).setShareId(DATA_SET_CODE, "1");
+                one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
-                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
-                            with(equal(Collections.singletonList(DATA_SET_CODE))));
-                }
-            });
+                allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
+                        with(equal(Collections.singletonList(DATA_SET_CODE))));
+            }
+        });
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         createLogMsgOfSuccess(dataSetInformation));
@@ -602,33 +603,33 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
         prepareForRegistration(data1);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
-                            with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(new ExternalDataMatcher(targetData1)));
+                one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
+                        with(equal(dataSetInformation.getSampleIdentifier())),
+                        with(new ExternalDataMatcher(targetData1)));
 
-                    checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
-                            baseExperiment.getRegistrator().getEmail());
+                checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
+                        baseExperiment.getRegistrator().getEmail());
 
-                    allowing(storageProcessor).getStorageFormat();
-                    will(returnValue(StorageFormat.BDS_DIRECTORY));
+                allowing(storageProcessor).getStorageFormat();
+                will(returnValue(StorageFormat.BDS_DIRECTORY));
 
-                    one(storageProcessor).createTransaction(
-                            with(any(StorageProcessorTransactionParameters.class)));
-                    will(returnValue(transaction));
-                    one(transaction).storeData(typeExtractor, mailClient, data1);
-                    one(transaction).getStoredDataDirectory();
-                    final File finalDataSetPath = new File(baseDir, DATA1_NAME);
-                    will(returnValue(finalDataSetPath));
-                    one(transaction).commit();
+                one(storageProcessor).createTransaction(
+                        with(any(StorageProcessorTransactionParameters.class)));
+                will(returnValue(transaction));
+                one(transaction).storeData(typeExtractor, mailClient, data1);
+                one(transaction).getStoredDataDirectory();
+                final File finalDataSetPath = new File(baseDir, DATA1_NAME);
+                will(returnValue(finalDataSetPath));
+                one(transaction).commit();
 
-                    one(shareIdManager).setShareId(DATA_SET_CODE, "1");
+                one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
-                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
-                            with(equal(Collections.singletonList(DATA_SET_CODE))));
-                }
-            });
+                allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
+                        with(equal(Collections.singletonList(DATA_SET_CODE))));
+            }
+        });
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         createLogMsgOfSuccess(dataSetInformation));
@@ -649,22 +650,22 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final Experiment baseExperiment = baseSample.getExperiment();
         prepareForStrategy(data1, baseSample);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(limsService).tryGetPropertiesOfSample(SESSION_TOKEN,
-                            dataSetInformation.getSampleIdentifier());
-                    will(returnValue(null));
+                one(limsService).tryGetPropertiesOfSample(SESSION_TOKEN,
+                        dataSetInformation.getSampleIdentifier());
+                will(returnValue(null));
 
-                    final ExperimentIdentifier experimentIdentifier =
-                            dataSetInformation.getExperimentIdentifier();
-                    final String subject =
-                            String.format(DataStrategyStore.SUBJECT_FORMAT, experimentIdentifier);
-                    final String body =
-                            DataStrategyStore.createInvalidSampleCodeMessage(dataSetInformation);
-                    final String email = baseExperiment.getRegistrator().getEmail();
-                    one(mailClient).sendMessage(subject, body, null, null, email);
-                }
-            });
+                final ExperimentIdentifier experimentIdentifier =
+                        dataSetInformation.getExperimentIdentifier();
+                final String subject =
+                        String.format(DataStrategyStore.SUBJECT_FORMAT, experimentIdentifier);
+                final String body =
+                        DataStrategyStore.createInvalidSampleCodeMessage(dataSetInformation);
+                final String email = baseExperiment.getRegistrator().getEmail();
+                one(mailClient).sendMessage(subject, body, null, null, email);
+            }
+        });
         handler.handle(isFinishedData1);
 
         assertEquals(false, isFinishedData1.exists());
@@ -708,30 +709,30 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final Sample baseSample = createBaseSample(dataSetInformation);
         prepareForStrategyIDENTIFIED(folder, targetData1, baseSample);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(typeExtractor).getProcessorType(folder);
-                    will(returnValue(EXAMPLE_PROCESSOR_ID));
+                one(typeExtractor).getProcessorType(folder);
+                will(returnValue(EXAMPLE_PROCESSOR_ID));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, folder);
+                one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, folder);
 
-                    one(storageProcessor).createTransaction(
-                            with(any(StorageProcessorTransactionParameters.class)));
-                    will(returnValue(transaction));
-                    one(transaction).storeData(typeExtractor, mailClient, folder);
-                    UserFailureException exception =
-                            new UserFailureException("Could store data by storage processor");
-                    will(throwException(exception));
+                one(storageProcessor).createTransaction(
+                        with(any(StorageProcessorTransactionParameters.class)));
+                will(returnValue(transaction));
+                one(transaction).storeData(typeExtractor, mailClient, folder);
+                UserFailureException exception =
+                        new UserFailureException("Could store data by storage processor");
+                will(throwException(exception));
 
-                    one(transaction).rollback(exception);
-                    will(returnValue(UnstoreDataAction.MOVE_TO_ERROR));
+                one(transaction).rollback(exception);
+                will(returnValue(UnstoreDataAction.MOVE_TO_ERROR));
 
-                    allowing(typeExtractor).getLocatorType(folder);
-                    allowing(typeExtractor).getDataSetType(folder);
-                    allowing(typeExtractor).getFileFormatType(folder);
-                    allowing(typeExtractor).isMeasuredData(folder);
-                }
-            });
+                allowing(typeExtractor).getLocatorType(folder);
+                allowing(typeExtractor).getDataSetType(folder);
+                allowing(typeExtractor).getFileFormatType(folder);
+                allowing(typeExtractor).isMeasuredData(folder);
+            }
+        });
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         createLogMsgOfSuccess(dataSetInformation));
@@ -774,26 +775,26 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         prepareForStrategyIDENTIFIED(folder, targetData1, baseSample);
         prepareForRegistration(folder);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(storageProcessor).createTransaction(
-                            with(any(StorageProcessorTransactionParameters.class)));
-                    will(returnValue(transaction));
-                    one(transaction).storeData(typeExtractor, mailClient, folder);
-                    one(transaction).getStoredDataDirectory();
-                    will(returnValue(new File(baseDir, DATA1_NAME)));
+                one(storageProcessor).createTransaction(
+                        with(any(StorageProcessorTransactionParameters.class)));
+                will(returnValue(transaction));
+                one(transaction).storeData(typeExtractor, mailClient, folder);
+                one(transaction).getStoredDataDirectory();
+                will(returnValue(new File(baseDir, DATA1_NAME)));
 
-                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
-                            with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(new ExternalDataMatcher(targetData1)));
-                    EnvironmentFailureException exception =
-                            new EnvironmentFailureException("Could not register data set folder");
-                    will(throwException(exception));
+                one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
+                        with(equal(dataSetInformation.getSampleIdentifier())),
+                        with(new ExternalDataMatcher(targetData1)));
+                EnvironmentFailureException exception =
+                        new EnvironmentFailureException("Could not register data set folder");
+                will(throwException(exception));
 
-                    one(transaction).rollback(exception);
-                    one(storageProcessor).getStorageFormat();
-                }
-            });
+                one(transaction).rollback(exception);
+                one(storageProcessor).getStorageFormat();
+            }
+        });
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         createLogMsgOfSuccess(dataSetInformation));
@@ -831,11 +832,11 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         new DynamicTransactionQueryFactory(), true, threadParameters,
                         new DataSetStorageRecoveryManager());
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(storageProcessor).setStoreRootDirectory(workingDirectory);
-                }
-            });
+                one(storageProcessor).setStoreRootDirectory(workingDirectory);
+            }
+        });
 
         handler = new TransferredDataSetHandler(globalState, plugin);
 
@@ -845,33 +846,33 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
         prepareForRegistration(data1);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
-                            with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(new ExternalDataMatcher(targetData1)));
+                one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
+                        with(equal(dataSetInformation.getSampleIdentifier())),
+                        with(new ExternalDataMatcher(targetData1)));
 
-                    checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
-                            baseExperiment.getRegistrator().getEmail());
+                checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
+                        baseExperiment.getRegistrator().getEmail());
 
-                    allowing(storageProcessor).getStorageFormat();
-                    will(returnValue(StorageFormat.BDS_DIRECTORY));
+                allowing(storageProcessor).getStorageFormat();
+                will(returnValue(StorageFormat.BDS_DIRECTORY));
 
-                    one(storageProcessor).createTransaction(
-                            with(any(StorageProcessorTransactionParameters.class)));
-                    will(returnValue(transaction));
-                    one(transaction).storeData(typeExtractor, mailClient, data1);
-                    one(transaction).getStoredDataDirectory();
-                    final File finalDataSetPath = new File(baseDir, DATA1_NAME);
-                    will(returnValue(finalDataSetPath));
-                    one(transaction).commit();
+                one(storageProcessor).createTransaction(
+                        with(any(StorageProcessorTransactionParameters.class)));
+                will(returnValue(transaction));
+                one(transaction).storeData(typeExtractor, mailClient, data1);
+                one(transaction).getStoredDataDirectory();
+                final File finalDataSetPath = new File(baseDir, DATA1_NAME);
+                will(returnValue(finalDataSetPath));
+                one(transaction).commit();
 
-                    one(shareIdManager).setShareId(DATA_SET_CODE, "1");
+                one(shareIdManager).setShareId(DATA_SET_CODE, "1");
 
-                    allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
-                            with(equal(Collections.singletonList(DATA_SET_CODE))));
-                }
-            });
+                allowing(limsService).setStorageConfirmed(with(equal(SESSION_TOKEN)),
+                        with(equal(Collections.singletonList(DATA_SET_CODE))));
+            }
+        });
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         createLogMsgOfSuccess(dataSetInformation));
@@ -879,8 +880,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 LogMonitoringAppender
                         .addAppender(
                                 LogCategory.OPERATION,
-                                Pattern.compile("P[0-9]+-\\{test-script.sh\\} had command line: \\[sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, .*/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/data1\\]"),
-                                Pattern.compile("P[0-9]+-\\{test-script.sh\\} process returned with exit value 1."));
+                                Pattern.compile(
+                                        "P[0-9]+-\\{test-script.sh\\} had command line: \\[sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, .*/server-original-data-store/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/data1\\]"),
+                                Pattern.compile(
+                                        "P[0-9]+-\\{test-script.sh\\} process returned with exit value 1."));
 
         handler.handle(isFinishedData1);
         final File dataSetPath = createDatasetDir(baseDir);
