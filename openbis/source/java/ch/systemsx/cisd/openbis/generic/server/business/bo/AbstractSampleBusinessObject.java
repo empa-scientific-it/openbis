@@ -152,6 +152,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         updateModifierAndModificationDate(experimentPE);
 
         final SamplePE samplePE = new SamplePE();
+        samplePE.setPermId(getOrCreatePermID(newSample));
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
         PersonPE registrator = registratorOrNull != null ? registratorOrNull : findPerson();
@@ -165,7 +166,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         String containerIdentifier = newSample.getContainerIdentifierForNewSample();
         setContainer(sampleIdentifier, samplePE, containerIdentifier,
                 newSample.getDefaultSpaceIdentifier());
-        samplePE.setPermId(getOrCreatePermID(newSample));
         if (newSample.getParentsOrNull() != null)
         {
             final String[] parents = newSample.getParentsOrNull();
