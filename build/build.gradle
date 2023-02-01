@@ -12,6 +12,6 @@ evaluationDependsOn(':installation')
 evaluationDependsOn(':test-ui-core')
 evaluationDependsOn(':test-api-openbis-javascript')
 evaluationDependsOn(':image_readers')
-evaluationDependsOn(':big_data_link_server')
+evaluationDependsOn(':server-external-data-store')
 
 apply from: '../build/javaproject.gradle'

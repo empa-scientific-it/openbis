@@ -37,7 +37,7 @@ evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':screening')
-evaluationDependsOn(':big_data_link_server')
+evaluationDependsOn(':server-external-data-store')
 evaluationDependsOn(':openbis_ng_ui')
 
 
@@ -455,9 +455,9 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
 
 }
 
-task zipBdlServer(type: Zip, dependsOn: project(':big_data_link_server').tasks.distZip) {
+task zipBdlServer(type: Zip, dependsOn: project(':server-external-data-store').tasks.distZip) {
     baseName 'big_data_link_server'
-    from zipTree('../big_data_link_server/build/distributions/big_data_link_server.zip')
+    from zipTree('../server-external-data-store/build/distributions/big_data_link_server.zip')
 }
 
 task pybisZip(type: Zip) {
