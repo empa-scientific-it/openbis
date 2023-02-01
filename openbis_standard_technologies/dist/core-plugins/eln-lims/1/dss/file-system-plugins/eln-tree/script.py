@@ -30,6 +30,7 @@ class Acceptor(object):
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
+        self.dataSetSearchCriteriaExtender = []
 
     def assertValidSection(self, section):
         if section not in self.sections:
@@ -70,7 +71,7 @@ class Acceptor(object):
             showTerm = "show%s" % item
             return mainMenue[showTerm] if showTerm in mainMenue else False
         return False
-    
+
     def _getGroupPrefix(self, code):
         groups = filter(lambda group: code.startswith(group), self.mainMenues.keys())
         return groups[0] if groups else "GENERAL"
@@ -100,6 +101,10 @@ class Acceptor(object):
 
     def acceptDataSet(self, dataSet):
         return dataSet.getType().getCode() not in self.hiddenDataSetTypes
+
+    def extendDataSetSearchCriteria(self, dataSetSearchCriteria, samplePermId):
+        for extender in self.dataSetSearchCriteriaExtender:
+            extender(dataSetSearchCriteria, samplePermId)
 
 class Settings(object):
     def __init__(self, inventorySpaces, mainMenues, sampleTypeViewAttributes):
@@ -294,6 +299,8 @@ def addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
 def addSampleChildNodes(path, samplePermId, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
+    acceptor.extendDataSetSearchCriteria(dataSetSearchCriteria, samplePermId)
+
     listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
 
     fetchOptions = SampleFetchOptions()
@@ -339,6 +346,8 @@ def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, accept
     fetchOptions.withProperties()
     fetchOptions.withSample()
     dataSets = context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
+    print(">>>> data set search criteria: %s" % dataSetSearchCriteria)
+    print(">>>> data sets: %s" % dataSets)
     entitiesByName = {}
     for dataSet in dataSets:
         sample = dataSet.getSample()
