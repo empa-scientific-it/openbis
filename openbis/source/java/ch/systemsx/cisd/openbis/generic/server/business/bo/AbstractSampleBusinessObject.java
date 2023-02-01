@@ -165,12 +165,12 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         String containerIdentifier = newSample.getContainerIdentifierForNewSample();
         setContainer(sampleIdentifier, samplePE, containerIdentifier,
                 newSample.getDefaultSpaceIdentifier());
+        samplePE.setPermId(getOrCreatePermID(newSample));
         if (newSample.getParentsOrNull() != null)
         {
             final String[] parents = newSample.getParentsOrNull();
             setParents(samplePE, parents, newSample.getDefaultSpaceIdentifier());
         }
-        samplePE.setPermId(getOrCreatePermID(newSample));
         setMetaprojects(samplePE, newSample.getMetaprojectsOrNull());
         return samplePE;
     }
