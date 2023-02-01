@@ -457,7 +457,7 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
 
 task zipBdlServer(type: Zip, dependsOn: project(':server-external-data-store').tasks.distZip) {
     baseName 'big_data_link_server'
-    from zipTree('../server-external-data-store/build/distributions/big_data_link_server.zip')
+    from zipTree('../server-external-data-store/build/distributions/server-external-data-store.zip')
 }
 
 task pybisZip(type: Zip) {
