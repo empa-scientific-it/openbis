@@ -1,4 +1,6 @@
 acceptor.hideDataSetType("MICROSCOPY_IMG_CONTAINER")
+acceptor.hideDataSetType("MICROSCOPY_IMG_OVERVIEW")
+acceptor.hideDataSetType("MICROSCOPY_IMG_THUMBNAIL")
 acceptor.hideSampleType("MICROSCOPY_SAMPLE_TYPE")
 
 acceptor.dataSetSearchCriteriaExtender.append(lambda c, id: extendDataSetSearchCriteriaForMicroscopy(c, id))
