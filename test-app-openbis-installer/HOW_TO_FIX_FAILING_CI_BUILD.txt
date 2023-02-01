@@ -4,9 +4,9 @@ ERROR causing test failure: Test data folder missing
 
 Solution:
 
-ssh ci@bs-ci01.ethz.ch
-cd ~/jenkins/workspace_dist/test-app-openbis-installer/targets/
-ln -s /local0/ci/jenkins/test-data/ test-data
+ssh ubuntu@openbis-sis-ci-master-jdk11
+cd ~/PATH/TO/WORKSPACE/test-app-openbis-installer/targets/
+ln -s ~/openbis-continuous-integration-jenkins/home/private/integration-tests/test-data/ test-data
 
 
 Note: If this happening on stage-jenkins you have to do the following:
