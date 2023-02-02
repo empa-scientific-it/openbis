@@ -1,11 +1,26 @@
 package ch.ethz.sis.openbis.generic;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.UploadedDataSetCreation;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -13,25 +28,6 @@ import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-
-import org.apache.log4j.Logger;
-import org.eclipse.jetty.client.api.ContentProvider;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BytesContentProvider;
-import org.eclipse.jetty.http.HttpMethod;
 
 public class OpenBISAPI {
 
@@ -125,7 +121,7 @@ public class OpenBISAPI {
         if (fileOrFolder.isDirectory())
         {
             uploadFileWorkspaceDSSEmptyDir(fileNameOrFolderName);
-            for (File file:fileOrFolder.listFiles())
+            for (File file : fileOrFolder.listFiles())
             {
                 uploadFileWorkspaceDSS(file, fileNameOrFolderName);
             }

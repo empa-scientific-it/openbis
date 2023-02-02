@@ -387,7 +387,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		this._uploadFileWorkspaceDSSFile = function(file, parentId) {
 			var dfd = jquery.Deferred();
 			this._getDataStores().done(function(dataStores) {
-				var filename = encodeURIComponent(parentId + "/" + file.webkitRelativePath);
+				var filename = encodeURIComponent(parentId + "/" +
+					(file.webkitRelativePath ? file.webkitRelativePath : file.name));
 				var sessionID = facade._private.sessionToken;
 				var fileSize = file.size;
 				var chunkSize = 1048576; // 1 MiB
