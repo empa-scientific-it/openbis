@@ -271,7 +271,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createUploadedDataSet = function(creation) {
 			var dfd = jquery.Deferred();
-			this._getDataStores().then(function(dataStores) {
+			this._getDataStores().done(function(dataStores) {
 				if (dataStores.length > 1) {
 					dfd.reject("Please specify exactly one data store");
 					return;
@@ -286,9 +286,9 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 					returnType : {
 						name : "DataSetPermId"
 					}
-				}).then(function(response) {
+				}).done(function(response) {
 					dfd.resolve(response);
-				}).catch(function(error) {
+				}).fail(function(error) {
 					dfd.reject(error);
 				});
 			});
@@ -305,13 +305,13 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			var thisFacade = this;
 			var uploadId = getUUID();
 			var dfd = jquery.Deferred();
-			this._uploadFileWorkspaceDSSEmptyDir(uploadId).then(function() {
-				thisFacade._uploadFileWorkspaceDSS(files, 0, uploadId, new Set()).then(function() {
-					dfd.resolve();
-				}).catch(function(error) {
+			this._uploadFileWorkspaceDSSEmptyDir(uploadId).done(function() {
+				thisFacade._uploadFileWorkspaceDSS(files, 0, uploadId, new Set()).done(function() {
+					dfd.resolve(uploadId);
+				}).fail(function(error) {
 					dfd.reject(error);
 				});
-			}).catch(function(error) {
+			}).fail(function(error) {
 				dfd.reject(error);
 			});
 			return dfd.promise();
@@ -326,27 +326,27 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				var directoryRelativePath = relativePath.substring(0, relativePath.lastIndexOf("/") + 1);
 				if (directoryRelativePath && !createdDirectories.has(directoryRelativePath)) {
 					this._uploadFileWorkspaceDSSEmptyDir(parentId + "/" + directoryRelativePath)
-						.then(function() {
+						.done(function() {
 							createdDirectories.add(directoryRelativePath);
 							thisFacade._uploadFileWorkspaceDSSFile(file, parentId)
-								.then(function() {
-									thisFacade._uploadFileWorkspaceDSS(files, index + 1, createdDirectories);
+								.done(function() {
+									thisFacade._uploadFileWorkspaceDSS(files, index + 1, parentId, createdDirectories);
 									dfd.resolve();
 								})
-								.catch(function(error) {
+								.fail(function(error) {
 									dfd.reject(error);
 								});
 						})
-						.catch(function(error) {
+						.fail(function(error) {
 							dfd.reject(error);
 						});
 				} else {
 					this._uploadFileWorkspaceDSSFile(file, parentId)
-						.then(function() {
-							thisFacade._uploadFileWorkspaceDSS(files, index + 1, createdDirectories);
+						.done(function() {
+							thisFacade._uploadFileWorkspaceDSS(files, index + 1, parentId, createdDirectories);
 							dfd.resolve();
 						})
-						.catch(function(error) {
+						.fail(function(error) {
 							dfd.reject(error);
 						});
 				}
@@ -360,7 +360,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			var sessionID = facade._private.sessionToken;
 			var filename = encodeURIComponent(pathToDir);
 			var dfd = jquery.Deferred();
-			this._getDataStores().then(function(dataStores) {
+			this._getDataStores().done(function (dataStores) {
 				if (dataStores.length !== 1) {
 					dfd.reject("Please specify exactly one data store");
 					return;
@@ -375,10 +375,10 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 					}
 				}).then(function(response) {
 					dfd.resolve(response);
-				}).catch(function(error) {
+				}).catch(function (error) {
 					dfd.reject(error);
 				});
-			}).catch(function(error) {
+			}).fail(function(error) {
 				dfd.reject(error);
 			});
 			return dfd.promise();
@@ -386,7 +386,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this._uploadFileWorkspaceDSSFile = function(file, parentId) {
 			var dfd = jquery.Deferred();
-			this._getDataStores().then(function(dataStores) {
+			this._getDataStores().done(function(dataStores) {
 				var filename = encodeURIComponent(parentId + "/" + file.webkitRelativePath);
 				var sessionID = facade._private.sessionToken;
 				var fileSize = file.size;
@@ -394,12 +394,12 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				var startByte = 0;
 				var iterator = streamFile(file, chunkSize);
 				uploadBlob(dataStores[0], iterator, sessionID, filename, startByte, chunkSize, fileSize)
-					.then(function() {
+					.done(function() {
 						dfd.resolve();
-					}).catch(function(error) {
+					}).fail(function(error) {
 						dfd.reject(error);
 					});
-			}).catch(function(error) {
+			}).fail(function(error) {
 				dfd.reject(error);
 			});
 			return dfd.promise();
@@ -412,27 +412,20 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				var parameters = "?sessionID=" + sessionID + "&filename=" + filename +
 					"&id=1&startByte=" + startByte + "&endByte=" + (startByte + chunkSize) +
 					"&size=" + fileSize + "&emptyFolder=false";
-				try {
-					var responsePromise = fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload", parameters), {
-						method: "POST",
-						headers: {
-							"Content-Type": "multipart/form-data"
-						},
-						body: blob
-					});
-
-					return responsePromise.then(function () {
-						uploadBlob(dataStore, iterator, sessionID, filename, startByte + chunkSize, chunkSize,
-							fileSize);
-						dfd.resolve();
-					}).catch(function (error) {
-						console.error("Error:", error);
-						dfd.reject(error);
-					});
-				} catch (error) {
+				fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload", parameters), {
+					method: "POST",
+					headers: {
+						"Content-Type": "multipart/form-data"
+					},
+					body: blob
+				}).then(function () {
+					uploadBlob(dataStore, iterator, sessionID, filename, startByte + chunkSize, chunkSize,
+						fileSize);
+					dfd.resolve();
+				}).catch(function (error) {
 					console.error("Error:", error);
 					dfd.reject(error);
-				}
+				});
 			} else {
 				dfd.resolve();
 			}
