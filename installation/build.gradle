@@ -1,5 +1,5 @@
 evaluationDependsOn(':commonbase')
-evaluationDependsOn(':common')
+evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
@@ -29,12 +29,12 @@ buildscript {
 }
 
 dependencies {
-    api project(':common')
+    api project(':lib-common')
 
     api 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22'
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-            project(path: ':common', configuration: 'tests'),
+            project(path: ':lib-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD'
 
@@ -165,7 +165,7 @@ task createInstallerJar(type: Jar, dependsOn: [compileInstaller, jar]) {
     archiveName 'openBIS-installer.jar'
     from zipTree(new File(izPackJar))
     from zipTree(jar.archivePath)
-    from zipTree(project(':common').jar.archivePath)
+    from zipTree(project(':lib-common').jar.archivePath)
     from zipTree(project(':commonbase').jar.archivePath)
     for (f in configurations.archives.files) {
         from zipTree(f)

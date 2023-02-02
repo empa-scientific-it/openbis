@@ -1,5 +1,5 @@
 evaluationDependsOn(':commonbase')
-evaluationDependsOn(':common')
+evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
@@ -18,7 +18,7 @@ dependencies {
         exclude group: 'google', module: 'gwt-user'
     }
 
-    api project(':common'),
+    api project(':lib-common'),
             project(':lib-openbis-common'),
             // authentication and dbmigration are required as they contain later versions of
             // some classes than cisd-cifex.jar. They need to be in classpath before cisd-cifex.jar
@@ -57,7 +57,7 @@ dependencies {
             files("../../../openbis-hvl.ethz.ch/deployed/core-plugins/hvl-dropbox/1/dss/dropboxes/hvl-dropbox/lib/jmatio-1.5.jar")
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-            project(path: ':common', configuration: 'tests'),
+            project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),

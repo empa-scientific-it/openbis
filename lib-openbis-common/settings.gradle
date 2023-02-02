@@ -1,1 +1,1 @@
-includeFlat 'commonbase', 'common', 'dbmigration', 'authentication'
+includeFlat 'commonbase', 'lib-common', 'dbmigration', 'authentication'

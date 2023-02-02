@@ -1,12 +1,12 @@
 evaluationDependsOn(':commonbase')
-evaluationDependsOn(':common')
+evaluationDependsOn(':lib-common')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':authentication')
 
 apply from: '../build/javaproject.gradle'
 
 dependencies {
-    api project(':common'),
+    api project(':lib-common'),
             project(':dbmigration'),
             project(':authentication'),
             'googlecode:jsonrpc4j:1.5.3',
@@ -19,7 +19,7 @@ dependencies {
             'truezip:truezip:6.8.1'
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-            project(path: ':common', configuration: 'tests'),
+            project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',

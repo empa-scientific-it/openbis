@@ -1,5 +1,5 @@
 evaluationDependsOn(':commonbase')
-evaluationDependsOn(':common')
+evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
@@ -12,7 +12,7 @@ apply from: '../build/javaproject.gradle'
 configurations.create('devRuntime')
 
 dependencies {
-    api project(':common'),
+    api project(':lib-common'),
             project(':server-original-data-store'),
             'openhms:jackcess:1.2.2',
             'reveregroup:gwt-image-loader:1.1.4',
@@ -22,7 +22,7 @@ dependencies {
     devRuntime project(path: ':server-application-server', configuration: 'devRuntime')
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-            project(path: ':common', configuration: 'tests'),
+            project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
@@ -77,7 +77,7 @@ task executeScreeningOpenBisDev(type: JavaExec) {
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
              '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
     args(['--classes', '../commonbase/targets/gradle/classes/main',
-          '--classes', '../common/targets/gradle/classes/main',
+          '--classes', '../lib-common/targets/gradle/classes/main',
           '--classes', '../authentication/targets/gradle/classes/main',
           '--classes', '../dbmigration/targets/gradle/classes/main',
           '--classes', '../lib-openbis-common/targets/gradle/classes/main',

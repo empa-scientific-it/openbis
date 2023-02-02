@@ -12,8 +12,8 @@ if (System.getProperty("openbis.development-build") != null) {
                 'sencha:gxt:2.2.5',
                 'sis:sis-base:18.09.0',
                 'fasterxml:jackson-annotations:2.9.10',
-                project(':common'),
-                project(path: ':common', configuration: 'archives'),
+                project(':lib-common'),
+                project(path: ':lib-common', configuration: 'archives'),
                 project(path: ':openbis_api'),
                 project(path: ':openbis_api', configuration: 'archives'),
                 project(path: ':lib-openbis-common'),
@@ -57,11 +57,11 @@ task compileGWTToTempJDK8(type: JavaExec, dependsOn: prepareGWT) {
     classpath {
         [
                 sourceSets.main.java.srcDirs,
-                project(":openbis").sourceSets.main.java.srcDirs,
-                project(":openbis").sourceSets.main.output.resourcesDir,
-                project(":openbis").sourceSets.main.output.classesDirs,
-                project(":openbis").sourceSets.main.compileClasspath,
-                project(":common").sourceSets.main.java.srcDirs,
+                project(":server-application-server").sourceSets.main.java.srcDirs,
+                project(":server-application-server").sourceSets.main.output.resourcesDir,
+                project(":server-application-server").sourceSets.main.output.classesDirs,
+                project(":server-application-server").sourceSets.main.compileClasspath,
+                project(":lib-common").sourceSets.main.java.srcDirs,
                 project(":openbis_api").sourceSets.main.java.srcDirs,
                 configurations.gwt
         ]

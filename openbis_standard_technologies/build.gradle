@@ -29,7 +29,7 @@ dependencyCheck {
 }
 
 evaluationDependsOn(':commonbase')
-evaluationDependsOn(':common')
+evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
@@ -88,7 +88,7 @@ dependencies {
             'sybit:image-viewer:0.3.6'
 
     javadoc_sources project(path: ':commonbase', configuration: 'archives'),
-            project(path: ':common', configuration: 'archives'),
+            project(path: ':lib-common', configuration: 'archives'),
             project(path: ':openbis_api', configuration: 'archives'),
             project(path: ':lib-openbis-common', configuration: 'archives'),
             project(path: ':server-application-server', configuration: 'archives'),
@@ -101,7 +101,7 @@ dependencies {
     javadoc_compilation project(path: ':server-screening')
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-            project(path: ':common', configuration: 'tests'),
+            project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
@@ -150,11 +150,11 @@ task compileGwt(dependsOn: classes, type: JavaExec) {
     classpath {
         [
                 sourceSets.main.java.srcDirs,
-                project(":openbis").sourceSets.main.java.srcDirs,
-                project(":openbis").sourceSets.main.output.resourcesDir,
-                project(":openbis").sourceSets.main.output.classesDirs,
-                project(":openbis").sourceSets.main.compileClasspath,
-                project(":common").sourceSets.main.java.srcDirs,
+                project(":server-application-server").sourceSets.main.java.srcDirs,
+                project(":server-application-server").sourceSets.main.output.resourcesDir,
+                project(":server-application-server").sourceSets.main.output.classesDirs,
+                project(":server-application-server").sourceSets.main.compileClasspath,
+                project(":lib-common").sourceSets.main.java.srcDirs,
                 project(":openbis_api").sourceSets.main.java.srcDirs,
                 project(":server-screening").sourceSets.main.java.srcDirs,
                 project(":server-screening").sourceSets.main.output.resourcesDir,
@@ -223,7 +223,7 @@ ext.classpathEntries = files(
         project(':server-screening').file('source/java/screening-applicationContext.xml'),
         project(':server-screening').file('source/java/screening-dssApplicationContext.xml'),
         project(':server-screening').file('source/java/screening-plugin-applicationContext.xml'),
-        project(':common').file('source/java/genericCommonContext.xml'),
+        project(':lib-common').file('source/java/genericCommonContext.xml'),
         'source/java/standard-technologies-applicationContext.xml'
 )
 
@@ -287,7 +287,7 @@ war {
                 project(':server-application-server').file('resource/server/bis-common.xml'),
                 file('resource/server/spring-servlet.xml'),
                 file('resource/server/jetty-web.xml'),
-                project(':common').file('resource/server/web-common.xml')
+                project(':lib-common').file('resource/server/web-common.xml')
     }
 
     from(classpathEntries) {

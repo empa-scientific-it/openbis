@@ -1,1 +1,1 @@
-includeFlat 'commonbase', 'common'
+includeFlat 'commonbase', 'lib-common'
