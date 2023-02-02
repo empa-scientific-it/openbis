@@ -51,7 +51,7 @@ if [ -d $ROOT/openBIS-server ]; then
 fi
 
 # -- DSS
-version=`unzip -c $ROOT/datastore_server/lib/datastore_server-*.jar  BUILD-datastore_server.INFO|tail -n 1`
+version=`unzip -c $ROOT/datastore_server/lib/server-original-data-store-*.jar  BUILD-datastore_server.INFO|tail -n 1`
 restore $CONF/dss-service.properties $ROOT/datastore_server/etc service.properties
 restore $CONF/dss-log.xml $ROOT/datastore_server/etc log.xml
 restore $CONF/datastore_server.conf $ROOT/datastore_server/etc datastore_server.conf

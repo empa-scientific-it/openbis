@@ -16,7 +16,7 @@ set -o errexit
 function listDatabases() {
   
   local LIB=$DSS_SERVER/lib
-  CP=`echo $LIB/datastore_server.jar $LIB/*.jar | sed 's/ /:/g'`
+  CP=`echo $LIB/server-original-data-store.jar $LIB/*.jar | sed 's/ /:/g'`
 
   DB_LIST=$(java -cp $CP ch.systemsx.cisd.openbis.dss.generic.server.dbbackup.BackupDatabaseDescriptionGenerator $@)
 }

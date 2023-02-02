@@ -17,5 +17,5 @@ else
     JAVA_BIN="java"
 fi
 
-CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar | sed 's/ /:/g'`
+CP=`echo $LIB_FOLDER/server-original-data-store.jar $LIB_FOLDER/*.jar | sed 's/ /:/g'`
 "$JAVA_BIN" $JAVA_OPTS -classpath $CP ch.systemsx.cisd.openbis.dss.client.admin.ShareManagerApplication "$@"
