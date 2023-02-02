@@ -32,7 +32,7 @@ configurations.create('externalDss')
 
 dependencies {
     api project(path: ':server-original-data-store'),
-            project(path: ':screening'),
+            project(path: ':server-screening'),
             project(path: ':openbis_standard_technologies'),
             'testng:testng:6.8-CISD',
             'selenium:selenium-java:3.141.59'

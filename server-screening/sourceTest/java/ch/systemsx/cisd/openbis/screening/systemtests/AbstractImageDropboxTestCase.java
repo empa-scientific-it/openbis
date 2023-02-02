@@ -41,13 +41,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSystemTestCase
 {
     private static final FileFilter SVN_FILTER = new FileFilter()
+    {
+        @Override
+        public boolean accept(File pathname)
         {
-            @Override
-            public boolean accept(File pathname)
-            {
-                return pathname.getName().equals(".svn") == false;
-            }
-        };
+            return pathname.getName().equals(".svn") == false;
+        }
+    };
 
     protected ImageChecker imageChecker;
 
@@ -79,7 +79,8 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
     {
         File destination = new File(workingDirectory, "test-data");
         destination.mkdirs();
-        FileUtils.copyDirectory(new File(getTestDataFolder(), getDataFolderToDrop()), destination, SVN_FILTER);
+        FileUtils.copyDirectory(new File(getTestDataFolder(), getDataFolderToDrop()), destination,
+                SVN_FILTER);
         return destination;
     }
 
@@ -87,24 +88,27 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
 
     protected String getTestDataFolder()
     {
-        return "../screening/resource/test-data/" + getClass().getSimpleName();
+        return "../server-screening/resource/test-data/" + getClass().getSimpleName();
     }
 
     protected AbstractExternalData getRegisteredContainerDataSet()
     {
         Class<? extends AbstractImageDropboxTestCase> testClass = getClass();
         AbstractExternalData containerDataSet = getRegisteredContainerDataSet(testClass);
-        assertNotNull("No container data set found for test " + testClass.getSimpleName(), containerDataSet);
+        assertNotNull("No container data set found for test " + testClass.getSimpleName(),
+                containerDataSet);
         return containerDataSet;
     }
 
-    protected AbstractExternalData getRegisteredContainerDataSet(Class<? extends AbstractImageDropboxTestCase> testClass)
+    protected AbstractExternalData getRegisteredContainerDataSet(
+            Class<? extends AbstractImageDropboxTestCase> testClass)
     {
         List<AbstractExternalData> dataSets = getRegisteredContainerDataSets(testClass);
         return dataSets.isEmpty() ? null : dataSets.get(0);
     }
 
-    protected List<AbstractExternalData> getRegisteredContainerDataSets(Class<? extends AbstractImageDropboxTestCase> testClass)
+    protected List<AbstractExternalData> getRegisteredContainerDataSets(
+            Class<? extends AbstractImageDropboxTestCase> testClass)
     {
         List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
         String experimentCode = translateIntoCamelCase(testClass.getSimpleName()).toUpperCase();
@@ -121,14 +125,17 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
 
     private List<AbstractExternalData> getRegisteredDataSets(String experimentCode)
     {
-        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/" + experimentCode);
-        List<Experiment> experiments = commonServer.listExperiments(sessionToken, Arrays.asList(identifier));
+        ExperimentIdentifier identifier =
+                ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/" + experimentCode);
+        List<Experiment> experiments =
+                commonServer.listExperiments(sessionToken, Arrays.asList(identifier));
         if (experiments.isEmpty())
         {
             return Collections.emptyList();
         }
         Experiment experiment = experiments.get(0);
-        return commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(Arrays.asList(experiment)), false);
+        return commonServer.listRelatedDataSets(sessionToken,
+                new DataSetRelatedEntities(Arrays.asList(experiment)), false);
     }
 
     private String translateIntoCamelCase(String string)

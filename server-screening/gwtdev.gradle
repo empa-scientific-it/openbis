@@ -22,7 +22,7 @@ if (System.getProperty("openbis.development-build") != null) {
                 project(path: ':openbis-common', configuration: 'archives'),
                 project(path: ':server-application-server'),
                 project(path: ':server-application-server', configuration: 'archives'),
-                project(path: ':screening', configuration: 'archives')
+                project(path: ':server-screening', configuration: 'archives')
     }
 }
 
@@ -70,8 +70,8 @@ task compileGWTToTemp(type: JavaExec, dependsOn: prepareGWT) {
                 project(":openbis").sourceSets.main.compileClasspath,
                 project(":common").sourceSets.main.java.srcDirs,
                 project(":openbis_api").sourceSets.main.java.srcDirs,
-                project(":screening").sourceSets.main.java.srcDirs,
-                project(":screening").sourceSets.main.output.resourcesDir,
+                project(":server-screening").sourceSets.main.java.srcDirs,
+                project(":server-screening").sourceSets.main.output.resourcesDir,
                 configurations.gwt
         ]
     }

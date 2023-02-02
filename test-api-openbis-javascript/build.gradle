@@ -7,7 +7,7 @@ evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':test-ui-core')
-evaluationDependsOn(':screening')
+evaluationDependsOn(':server-screening')
 
 
 apply from: '../build/javaproject.gradle'
@@ -33,7 +33,7 @@ configurations.create('testRuntimeSecond')
 configurations.create('externalDss')
 
 dependencies {
-    api project(path: ':screening'),
+    api project(path: ':server-screening'),
             project(path: ':openbis_standard_technologies'),
             project(path: ':test-ui-core', configuration: 'tests'),
             'reflections:reflections:0.9.10',
@@ -47,7 +47,7 @@ dependencies {
 
     testRuntimeSecond 'google:gwt-user:2.4'
 
-    externalDss project(':screening')
+    externalDss project(':server-screening')
 }
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath

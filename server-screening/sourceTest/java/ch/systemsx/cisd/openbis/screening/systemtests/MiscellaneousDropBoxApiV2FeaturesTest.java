@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
  * @author Franz-Josef Elmer
  */
 @Test(groups =
-{ "slow", "systemtest" })
+        { "slow", "systemtest" })
 public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSystemTestCase
 {
     @BeforeTest
@@ -90,7 +90,8 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
                         ListSampleCriteria.createForExperiment(new TechId(experiment.getId())));
         Sample sample = samples.get(0);
 
-        PlateContent plateContent = screeningServer.getPlateContent(sessionToken, new TechId(sample.getId()));
+        PlateContent plateContent =
+                screeningServer.getPlateContent(sessionToken, new TechId(sample.getId()));
 
         PlateMetadata plateMetadata = plateContent.getPlateMetadata();
         assertEquals(4, plateMetadata.getRowsNum());
@@ -98,7 +99,8 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
         assertEquals(0, plateMetadata.getWells().size());
         List<ImageDatasetEnrichedReference> imageDatasets = plateContent.getImageDatasets();
         DatasetImagesReference imageDataset = imageDatasets.get(0).getImageDataset();
-        assertEquals("/TEST/TEST-PROJECT/TEST-EXP-HCS", imageDataset.getDatasetReference().getExperimentIdentifier());
+        assertEquals("/TEST/TEST-PROJECT/TEST-EXP-HCS",
+                imageDataset.getDatasetReference().getExperimentIdentifier());
         assertEquals(1, imageDatasets.size());
         List<ImageResolution> imageDatasetResolutions =
                 screeningServer.getImageDatasetResolutions(sessionToken,
@@ -120,7 +122,7 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
 
     private String getTestDataFolder()
     {
-        return "../screening/resource/test-data/" + getClass().getSimpleName() + "/";
+        return "../server-screening/resource/test-data/" + getClass().getSimpleName() + "/";
     }
 
     @Override

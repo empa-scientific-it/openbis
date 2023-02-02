@@ -91,8 +91,9 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
             FileUtilities.deleteRecursively(file);
         }
     }
-    
-    private static final Set<String> PLATE_IDS = new HashSet<>(Arrays.asList("/TEST/BASE64PLATE", "/TEST/TEST-PROJECT/BASE64PLATE"));
+
+    private static final Set<String> PLATE_IDS =
+            new HashSet<>(Arrays.asList("/TEST/BASE64PLATE", "/TEST/TEST-PROJECT/BASE64PLATE"));
 
     @Test
     public void base64EncodedImagesContainTheOriginalData() throws Exception
@@ -158,7 +159,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
 
     private static String getTestDataFolder()
     {
-        return "../screening/resource/test-data/ImageBase64EncodingTest/";
+        return "../server-screening/resource/test-data/ImageBase64EncodingTest/";
     }
 
     @Override

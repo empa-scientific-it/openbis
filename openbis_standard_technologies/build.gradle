@@ -36,7 +36,7 @@ evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
-evaluationDependsOn(':screening')
+evaluationDependsOn(':server-screening')
 evaluationDependsOn(':server-external-data-store')
 evaluationDependsOn(':openbis_ng_ui')
 
@@ -61,7 +61,7 @@ def jettyVersion = '9.4.44'
 def jettyDistributionVersion = '9.4.44.v20210927'
 
 dependencies {
-    api project(':screening')
+    api project(':server-screening')
 
     providedCompile 'google:gwt-user:2.4'
 
@@ -78,7 +78,7 @@ dependencies {
 
     zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 
-    datastore_server project(':screening'),
+    datastore_server project(':server-screening'),
             'bioformats:bioformats:6.5.1',
             'imagej:ij:1.43u',
             'cisd:cisd-openbis-knime-server:13.6.0.r29301',
@@ -93,12 +93,12 @@ dependencies {
             project(path: ':openbis-common', configuration: 'archives'),
             project(path: ':server-application-server', configuration: 'archives'),
             project(path: ':server-original-data-store', configuration: 'archives'),
-            project(path: ':screening', configuration: 'archives'),
+            project(path: ':server-screening', configuration: 'archives'),
             'sis:sis-base:18.09.0:sources',
             'cisd:cisd-args4j:9.11.2:sources',
             'cisd:cisd-hotdeploy:13.01.0:sources'
 
-    javadoc_compilation project(path: ':screening')
+    javadoc_compilation project(path: ':server-screening')
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
             project(path: ':common', configuration: 'tests'),
@@ -156,8 +156,8 @@ task compileGwt(dependsOn: classes, type: JavaExec) {
                 project(":openbis").sourceSets.main.compileClasspath,
                 project(":common").sourceSets.main.java.srcDirs,
                 project(":openbis_api").sourceSets.main.java.srcDirs,
-                project(":screening").sourceSets.main.java.srcDirs,
-                project(":screening").sourceSets.main.output.resourcesDir,
+                project(":server-screening").sourceSets.main.java.srcDirs,
+                project(":server-screening").sourceSets.main.output.resourcesDir,
                 configurations.gwt
         ]
     }
@@ -220,9 +220,9 @@ ext.classpathEntries = files(
         project(':server-application-server').file('source/java/hibernateContext.xml'),
         project(':server-application-server').file('source/java/schema-for-xslt20.xsd'),
         project(':server-application-server').file('source/java/XMLSchema.xsd'),
-        project(':screening').file('source/java/screening-applicationContext.xml'),
-        project(':screening').file('source/java/screening-dssApplicationContext.xml'),
-        project(':screening').file('source/java/screening-plugin-applicationContext.xml'),
+        project(':server-screening').file('source/java/screening-applicationContext.xml'),
+        project(':server-screening').file('source/java/screening-dssApplicationContext.xml'),
+        project(':server-screening').file('source/java/screening-plugin-applicationContext.xml'),
         project(':common').file('source/java/genericCommonContext.xml'),
         'source/java/standard-technologies-applicationContext.xml'
 )
@@ -305,7 +305,7 @@ war {
         rename 'BUILD.*INFO', 'BUILD-openbis.INFO'
     }
 
-    from('../screening/source') {
+    from('../server-screening/source') {
         into("WEB-INF/classes")
         include "sql/**/*.sql"
         exclude "sql/imaging/postgresql/_ERD"
@@ -340,7 +340,7 @@ task zipCorePlugins(type: SymZip) {
     downloadCorePlugin('https://github.com/aarpon/obit_flow_core_technology/archive/release/20.x.zip', 'flow')
     downloadCorePlugin('https://github.com/aarpon/obit_microscopy_core_technology/archive/release/20.x.zip', 'microscopy')
     downloadCorePlugin('https://github.com/aarpon/obit_shared_core_technology/archive/release/20.x.zip', 'shared')
-    from project(':screening').fileTree(dir: 'source/core-plugins', includes: ['screening/**', 'screening-optional/**'], excludes: ['**/package-to-dist'])
+    from project(':server-screening').fileTree(dir: 'source/core-plugins', includes: ['screening/**', 'screening-optional/**'], excludes: ['**/package-to-dist'])
     from fileTree(dir: 'targets/downloads/obit_flow_core_technology-release-20.x/core-plugins', includes: ['flow/**'])
     from fileTree(dir: 'targets/downloads/obit_microscopy_core_technology-release-20.x/core-plugins', includes: ['microscopy/**'])
     from fileTree(dir: 'targets/downloads/obit_shared_core_technology-release-20.x/core-plugins', includes: ['shared/**'])
@@ -449,7 +449,7 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
         into 'datastore_server'
     }
 
-    from(project(':screening').file('dist/etc/tabular-data-graph.properties')) {
+    from(project(':server-screening').file('dist/etc/tabular-data-graph.properties')) {
         into 'datastore_server/etc';
     }
 

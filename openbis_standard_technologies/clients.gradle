@@ -50,7 +50,7 @@ task createOpenbisJar(type: Jar) {
                     zipTree(project(':openbis-common').jar.archivePath).plus(
                             zipTree(project(':openbis_api').jar.archivePath).plus(
                                     zipTree(project(':server-original-data-store').jar.archivePath).plus(
-                                            zipTree(project(':screening').jar.archivePath).plus(
+                                            zipTree(project(':server-screening').jar.archivePath).plus(
                                                     zipTree(project(':server-application-server').jar.archivePath))))))).matching {
         include '**/ch/systemsx/cisd/common/**/*.class'
         include '**/ch/systemsx/cisd/openbis/common/**/*.class'
@@ -69,7 +69,7 @@ task createOpenbisJar(type: Jar) {
     }
 }
 createOpenbisJar.dependsOn(':commonbase:jar', ':common:jar', ':openbis-common:jar',
-        ':openbis_api:jar', ':server-original-data-store:jar', ':screening:jar', ':server-application-server:jar')
+        ':openbis_api:jar', ':server-original-data-store:jar', ':server-screening:jar', ':server-application-server:jar')
 
 task createDssClientJar(type: Jar) {
     archiveName = dssGuiClientJarName
@@ -133,7 +133,7 @@ task copyJarsForWebStart(type: Copy, dependsOn: [createOpenbisJar, createDssClie
 task signWebStartJars(type: Copy, dependsOn: [copyJarsForWebStart]) {
     from jarsToBeSignedFolder
     into signedJarsFolder
-    def keystoreFile = '../screening/etc/dev.keystore'
+    def keystoreFile = '../server-screening/etc/dev.keystore'
     inputs.file keystoreFile
     doLast {
         file(signedJarsFolder).listFiles().each { file ->

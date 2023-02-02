@@ -1,3 +1,3 @@
 includeFlat 'commonbase', 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'server-application-server',
-        'server-original-data-store', 'screening', 'openbis_standard_technologies',
-        'test-ui-core', 'screening'
+        'server-original-data-store', 'server-screening', 'openbis_standard_technologies',
+        'test-ui-core'

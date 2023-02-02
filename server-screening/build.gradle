@@ -52,11 +52,11 @@ sourceSets {
 
 jar {
     duplicatesStrategy 'include'
-    from('../screening/source/sql') {
+    from('../server-screening/source/sql') {
         into('/sql')
         include '**/*.sql'
     }
-    from('../screening/source/java') {
+    from('../server-screening/source/java') {
         include 'screening-dssApplicationContext.xml'
     }
 }
