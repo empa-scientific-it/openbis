@@ -31,7 +31,7 @@ dependencyCheck {
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 evaluationDependsOn(':openbis_api')
-evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
@@ -90,7 +90,7 @@ dependencies {
     javadoc_sources project(path: ':commonbase', configuration: 'archives'),
             project(path: ':common', configuration: 'archives'),
             project(path: ':openbis_api', configuration: 'archives'),
-            project(path: ':openbis-common', configuration: 'archives'),
+            project(path: ':lib-openbis-common', configuration: 'archives'),
             project(path: ':server-application-server', configuration: 'archives'),
             project(path: ':server-original-data-store', configuration: 'archives'),
             project(path: ':server-screening', configuration: 'archives'),
@@ -105,7 +105,7 @@ dependencies {
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
-            project(path: ':openbis-common', configuration: 'tests'),
+            project(path: ':lib-openbis-common', configuration: 'tests'),
             project(path: ':server-original-data-store', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',

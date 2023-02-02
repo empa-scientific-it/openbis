@@ -47,7 +47,7 @@ task createOpenbisJar(type: Jar) {
     outputs.file new File(jarsToBeSignedFolder, archiveName)
     from zipTree(project(':commonbase').jar.archivePath).plus(
             zipTree(project(':common').jar.archivePath).plus(
-                    zipTree(project(':openbis-common').jar.archivePath).plus(
+                    zipTree(project(':lib-openbis-common').jar.archivePath).plus(
                             zipTree(project(':openbis_api').jar.archivePath).plus(
                                     zipTree(project(':server-original-data-store').jar.archivePath).plus(
                                             zipTree(project(':server-screening').jar.archivePath).plus(
@@ -68,7 +68,7 @@ task createOpenbisJar(type: Jar) {
         include '**/*BuildAndEnvironmentInfo.class'
     }
 }
-createOpenbisJar.dependsOn(':commonbase:jar', ':common:jar', ':openbis-common:jar',
+createOpenbisJar.dependsOn(':commonbase:jar', ':common:jar', ':lib-openbis-common:jar',
         ':openbis_api:jar', ':server-original-data-store:jar', ':server-screening:jar', ':server-application-server:jar')
 
 task createDssClientJar(type: Jar) {
@@ -78,7 +78,7 @@ task createDssClientJar(type: Jar) {
 
     from(project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
             project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
-                    project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
+                    project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
                                             project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree()))))).matching {

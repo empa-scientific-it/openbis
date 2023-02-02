@@ -16,8 +16,8 @@ if (System.getProperty("openbis.development-build") != null) {
                 project(path: ':common', configuration: 'archives'),
                 project(path: ':openbis_api'),
                 project(path: ':openbis_api', configuration: 'archives'),
-                project(path: ':openbis-common'),
-                project(path: ':openbis-common', configuration: 'archives'),
+                project(path: ':lib-openbis-common'),
+                project(path: ':lib-openbis-common', configuration: 'archives'),
                 project(path: ':server-application-server', configuration: 'archives')
     }
 }
@@ -37,7 +37,7 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         exclude 'common-*'
         exclude 'authentication-*'
         exclude 'dbmigration-*'
-        exclude 'openbis-common-*'
+        exclude 'lib-openbis-common-*'
         exclude 'openbis_api-*'
     }
 

@@ -3,7 +3,7 @@ task queryApiJar(type: Jar) {
     includeEmptyDirs false
     from project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
             project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
-                    project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
+                    project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
                                             project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
@@ -28,7 +28,7 @@ task queryApiSources(type: Zip) {
     archiveName 'sources-query-api.zip'
     from project(':commonbase').files('source/java').getAsFileTree().plus(
             project(':common').files('source/java').getAsFileTree().plus(
-                    project(':openbis-common').files('source/java').getAsFileTree().plus(
+                    project(':lib-openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
                                     project(':openbis_api').files('source/java').getAsFileTree().plus(
                                             project(':server-original-data-store').files('source/java').getAsFileTree()))))).matching {
@@ -100,7 +100,7 @@ task apiV3Jar(type: Jar) {
     includeEmptyDirs false
     from project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
             project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
-                    project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
+                    project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree())))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.class"
@@ -214,7 +214,7 @@ task apiV3Sources(type: Jar) {
     archiveName 'sources-api-v3.zip'
     from project(':commonbase').files('source/java').getAsFileTree().plus(
             project(':common').files('source/java').getAsFileTree().plus(
-                    project(':openbis-common').files('source/java').getAsFileTree().plus(
+                    project(':lib-openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
                                     project(':openbis_api').files('source/java').getAsFileTree())))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.java"

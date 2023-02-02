@@ -1,7 +1,7 @@
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 evaluationDependsOn(':openbis_api')
-evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')

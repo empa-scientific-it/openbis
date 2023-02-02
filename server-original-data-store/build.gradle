@@ -1,7 +1,7 @@
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 evaluationDependsOn(':openbis_api')
-evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
@@ -19,7 +19,7 @@ dependencies {
     }
 
     api project(':common'),
-            project(':openbis-common'),
+            project(':lib-openbis-common'),
             // authentication and dbmigration are required as they contain later versions of
             // some classes than cisd-cifex.jar. They need to be in classpath before cisd-cifex.jar
             project(':authentication'),
@@ -61,7 +61,7 @@ dependencies {
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
-            project(path: ':openbis-common', configuration: 'tests'),
+            project(path: ':lib-openbis-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD'
 

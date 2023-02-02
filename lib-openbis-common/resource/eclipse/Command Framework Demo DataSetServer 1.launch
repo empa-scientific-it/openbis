@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/openbis-common"/>
+<listEntry value="/lib-openbis-common"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.common.server.command.demo.DataSetServer"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="DSS-2&#13;&#10;8092&#13;&#10;http://localhost:8090&#13;&#10;targets/command/demo/dss2_received&#13;&#10;targets/command/demo/dss2_transmitted"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openbis-common"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="DSS-1&#13;&#10;8091&#13;&#10;http://localhost:8090&#13;&#10;targets/command/demo/dss1_received&#13;&#10;targets/command/demo/dss1_transmitted"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="lib-openbis-common"/>
 </launchConfiguration>

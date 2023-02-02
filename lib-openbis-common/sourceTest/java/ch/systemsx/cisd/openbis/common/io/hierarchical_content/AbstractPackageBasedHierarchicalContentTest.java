@@ -42,13 +42,14 @@ public abstract class AbstractPackageBasedHierarchicalContentTest extends Abstra
 {
 
     private static final File TEST_HDF5_CONTAINER = new File(
-            "../openbis-common/resource/test-data/HDF5ContainerBasedHierarchicalContentNodeTest/thumbnails.h5");
+            "../lib-openbis-common/resource/test-data/HDF5ContainerBasedHierarchicalContentNodeTest/thumbnails.h5");
 
     protected void init()
     {
     }
 
-    protected abstract IHierarchicalContent createPackage(File packageFile, File dataDir) throws Exception;
+    protected abstract IHierarchicalContent createPackage(File packageFile, File dataDir)
+            throws Exception;
 
     @BeforeMethod
     public void beforeMethod()
@@ -99,12 +100,15 @@ public abstract class AbstractPackageBasedHierarchicalContentTest extends Abstra
         List<IHierarchicalContentNode> grandChildNodes = childNodes.get(0).getChildNodes();
         assertDirectoryNode("alpha/beta", "beta", grandChildNodes.get(0));
         assertDirectoryNode("alpha/empty-dir", "empty-dir", grandChildNodes.get(1));
-        List<IHierarchicalContentNode> grandGrandChildNodes = grandChildNodes.get(0).getChildNodes();
-        assertFileNode("alpha/beta/hello.txt", "hello.txt", "hello world!", grandGrandChildNodes.get(0));
+        List<IHierarchicalContentNode> grandGrandChildNodes =
+                grandChildNodes.get(0).getChildNodes();
+        assertFileNode("alpha/beta/hello.txt", "hello.txt", "hello world!",
+                grandGrandChildNodes.get(0));
         assertEquals(1, grandGrandChildNodes.size());
         assertFileNode("alpha/read.me", "read.me", "don't read me!", grandChildNodes.get(2));
         assertEquals(3, grandChildNodes.size());
-        assertFileNode("change-log.txt", "change-log.txt", "nothing really changed.", childNodes.get(1));
+        assertFileNode("change-log.txt", "change-log.txt", "nothing really changed.",
+                childNodes.get(1));
         IHierarchicalContentNode hdf5Node = childNodes.get(2);
         assertEquals(true, hdf5Node.isDirectory());
         assertEquals(-2098219814, hdf5Node.getChecksumCRC32());
@@ -114,10 +118,12 @@ public abstract class AbstractPackageBasedHierarchicalContentTest extends Abstra
         // method may cause such a side effect due to some OS compatibility conversion
         File dataRoot = new File(workingDirectory, "data");
         File originalHdf5ContainerFile = new File(dataRoot, "my-container.h5");
-        assertTrue(Math.abs(originalHdf5ContainerFile.lastModified() - hdf5Node.getLastModified()) <= 2000);
+        assertTrue(Math.abs(
+                originalHdf5ContainerFile.lastModified() - hdf5Node.getLastModified()) <= 2000);
     }
 
-    private void assertDirectoryNode(String expectedPath, String expectedName, IHierarchicalContentNode node)
+    private void assertDirectoryNode(String expectedPath, String expectedName,
+            IHierarchicalContentNode node)
     {
         assertPathAndName(expectedPath, expectedName, node);
         assertEquals(true, node.isDirectory());
@@ -133,13 +139,16 @@ public abstract class AbstractPackageBasedHierarchicalContentTest extends Abstra
         IOUtils.copy(node.getInputStream(), output);
         assertEquals(expectedContent, output.toString());
         CRC32 checksum = new CRC32();
-        CheckedInputStream in = new CheckedInputStream(new ByteArrayInputStream(expectedContent.getBytes()), checksum);
+        CheckedInputStream in =
+                new CheckedInputStream(new ByteArrayInputStream(expectedContent.getBytes()),
+                        checksum);
         IOUtils.copy(in, new NullOutputStream());
         assertEquals(checksum.getValue(), node.getChecksumCRC32());
 
     }
 
-    private void assertPathAndName(String expectedPath, String expectedName, IHierarchicalContentNode node)
+    private void assertPathAndName(String expectedPath, String expectedName,
+            IHierarchicalContentNode node)
     {
         assertEquals(expectedPath, node.getRelativePath());
         assertEquals(expectedName, node.getName());
@@ -150,7 +159,9 @@ public abstract class AbstractPackageBasedHierarchicalContentTest extends Abstra
         } else
         {
             assertEquals(expectedPath,
-                    (StringUtils.isBlank(parentRelativePath) ? "" : parentRelativePath + "/") + node.getName());
+                    (StringUtils.isBlank(parentRelativePath) ?
+                            "" :
+                            parentRelativePath + "/") + node.getName());
         }
     }
 

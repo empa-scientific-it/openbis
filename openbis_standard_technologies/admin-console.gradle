@@ -27,7 +27,7 @@ task adminConsole(type: Jar) {
     archiveName 'openbis-admin-console.jar'
     includeEmptyDirs false
     from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
-            project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
+            project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                     project(':server-screening').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
                                     project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(

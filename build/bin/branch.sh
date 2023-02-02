@@ -32,11 +32,11 @@ server-original-data-store \
 dbmigration \
 installation \
 test-api-openbis-javascript \
-openbis \
-openbis-common \
+server-application-server \
+lib-openbis-common \
 openbis_standard_technologies \
 openbis_api \
-screening \
+server-screening \
 test-ui-core\
 "
 
