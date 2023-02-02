@@ -921,6 +921,9 @@ public final class SampleBOTest extends AbstractBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
 
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2023010112341234-10"));
+
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
 
