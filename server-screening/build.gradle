@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
@@ -21,7 +21,7 @@ dependencies {
 
     devRuntime project(path: ':server-application-server', configuration: 'devRuntime')
 
-    testImplementation project(path: ':commonbase', configuration: 'tests'),
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
@@ -76,7 +76,7 @@ task executeScreeningOpenBisDev(type: JavaExec) {
              '-Djavax.net.ssl.trustStore=../server-application-server/dist/server/openBIS.keystore',
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',
              '-Dorg.mortbay.util.FileResource.checkAliases=false', '-Xmx2048M', '-ea'])
-    args(['--classes', '../commonbase/targets/gradle/classes/main',
+    args(['--classes', '../lib-commonbase/targets/gradle/classes/main',
           '--classes', '../lib-common/targets/gradle/classes/main',
           '--classes', '../authentication/targets/gradle/classes/main',
           '--classes', '../dbmigration/targets/gradle/classes/main',

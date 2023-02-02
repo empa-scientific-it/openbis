@@ -26,8 +26,8 @@ git push -u origin $1
 # fix dependency versions
 GRADLE_PROJECTS="\
 authentication \
-commonbase \
-common \
+lib-commonbase \
+lib-common \
 server-original-data-store \
 dbmigration \
 installation \

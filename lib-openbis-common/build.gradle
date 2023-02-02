@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':authentication')
@@ -18,7 +18,7 @@ dependencies {
             'apache:commons-collections4:4.1',
             'truezip:truezip:6.8.1'
 
-    testImplementation project(path: ':commonbase', configuration: 'tests'),
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),

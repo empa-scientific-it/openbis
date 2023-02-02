@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 
 apply from: '../build/javaproject.gradle'
@@ -9,7 +9,7 @@ dependencies {
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-annotations:2.9.10'
 
-    testImplementation project(path: ':commonbase', configuration: 'tests'),
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',

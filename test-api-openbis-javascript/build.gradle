@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')

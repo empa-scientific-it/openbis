@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
@@ -56,7 +56,7 @@ dependencies {
             files("../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/password-reset-api/lib/persistentkeyvaluestore.jar"),
             files("../../../openbis-hvl.ethz.ch/deployed/core-plugins/hvl-dropbox/1/dss/dropboxes/hvl-dropbox/lib/jmatio-1.5.jar")
 
-    testImplementation project(path: ':commonbase', configuration: 'tests'),
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),

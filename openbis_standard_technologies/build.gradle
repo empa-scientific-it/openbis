@@ -28,7 +28,7 @@ dependencyCheck {
     }
 }
 
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
@@ -87,7 +87,7 @@ dependencies {
             'slf4j:slf4j-log4j12:1.6.2',
             'sybit:image-viewer:0.3.6'
 
-    javadoc_sources project(path: ':commonbase', configuration: 'archives'),
+    javadoc_sources project(path: ':lib-commonbase', configuration: 'archives'),
             project(path: ':lib-common', configuration: 'archives'),
             project(path: ':openbis_api', configuration: 'archives'),
             project(path: ':lib-openbis-common', configuration: 'archives'),
@@ -100,7 +100,7 @@ dependencies {
 
     javadoc_compilation project(path: ':server-screening')
 
-    testImplementation project(path: ':commonbase', configuration: 'tests'),
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
             project(path: ':authentication', configuration: 'tests'),
@@ -427,8 +427,8 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
         exclude '**/lucene*.jar'
         exclude '**/restrictions*.jar'
         exclude '**/testng*.jar'
-        rename 'common-.*jar', 'common.jar'
-        rename 'commonbase-.*jar', 'commonbase.jar'
+        rename 'lib-common-.*jar', 'lib-common.jar'
+        rename 'lib-commonbase-.*jar', 'lib-commonbase.jar'
     }
 
     from(signedJarsFolder) {

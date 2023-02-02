@@ -1,4 +1,4 @@
-evaluationDependsOn(':commonbase')
+evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
@@ -33,7 +33,7 @@ dependencies {
 
     api 'izpack:izpack:5.0-beta9-SNAPSHOT-2022-03-22'
 
-    testImplementation project(path: ':commonbase', configuration: 'tests'),
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD'
@@ -166,7 +166,7 @@ task createInstallerJar(type: Jar, dependsOn: [compileInstaller, jar]) {
     from zipTree(new File(izPackJar))
     from zipTree(jar.archivePath)
     from zipTree(project(':lib-common').jar.archivePath)
-    from zipTree(project(':commonbase').jar.archivePath)
+    from zipTree(project(':lib-commonbase').jar.archivePath)
     for (f in configurations.archives.files) {
         from zipTree(f)
     }

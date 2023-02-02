@@ -153,8 +153,8 @@ unzip -q lib/sis-base-*.jar -d $LIB_FOLDER native/*
 unzip -q lib/sis-jhdf5-*.jar -d $LIB_FOLDER native/*
 
 # Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. 
-# datastore_server.jar and common.jar have to appear before cifex.jar
-CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/common.jar \
+# datastore_server.jar and lib-common.jar have to appear before cifex.jar
+CP=`echo $LIB_FOLDER/slf4j-log4j12-1.6.2.jar $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/lib-common.jar \
     $LIB_FOLDER/dbmigration*.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar \
     | sed 's/\(.*\) [^ ]*jython27[^ ]* \(.*\)/\1 \2/g' \
     | sed 's/ /:/g'`

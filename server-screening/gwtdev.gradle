@@ -14,8 +14,8 @@ if (System.getProperty("openbis.development-build") != null) {
                 'fasterxml:jackson-annotations:2.9.10',
                 project(':lib-common'),
                 project(path: ':lib-common', configuration: 'archives'),
-                project(':commonbase'),
-                project(path: ':commonbase', configuration: 'archives'),
+                project(':lib-commonbase'),
+                project(path: ':lib-commonbase', configuration: 'archives'),
                 project(path: ':openbis_api'),
                 project(path: ':openbis_api', configuration: 'archives'),
                 project(path: ':lib-openbis-common'),
@@ -38,8 +38,8 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
     from(project.configurations.runtimeOnly.files) {
         into '../lib'
         exclude 'cisd-cifex*'
-        exclude 'common-*'
-        exclude 'commonbase-*'
+        exclude 'lib-common-*'
+        exclude 'lib-commonbase-*'
         exclude 'authentication-*'
         exclude 'dbmigration-*'
         exclude 'lib-openbis-common-*'

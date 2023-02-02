@@ -14,7 +14,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.jetty.runner.Runner"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--classes ../commonbase/targets/classes&#10;--classes ../lib-common/targets/classes&#10;--classes ../authentication/targets/classes&#10;--classes ../dbmigration/targets/classes&#10;--classes ../lib-openbis-common/targets/classes&#10;--classes ../openbis_api/targets/classes&#10;--classes targets/classes&#10;--lib targets/www/lib/&#10;--port 8888&#10;targets/www"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--classes ../lib-commonbase/targets/classes&#10;--classes ../lib-common/targets/classes&#10;--classes ../authentication/targets/classes&#10;--classes ../dbmigration/targets/classes&#10;--classes ../lib-openbis-common/targets/classes&#10;--classes ../openbis_api/targets/classes&#10;--classes targets/classes&#10;--lib targets/www/lib/&#10;--port 8888&#10;targets/www"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openbis"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dpython.path=../libraries/jython/jython-lib&#10;-Dlog4j.configuration=etc/log.xml&#13;&#10;-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore&#10;-Dorg.mortbay.util.FileResource.checkAliases=false&#13;&#10;-Xmx2048M&#10;-XX:MaxPermSize=512m&#13;&#10;-ea"/>
 </launchConfiguration>

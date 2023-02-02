@@ -6,7 +6,7 @@ dependencies {
 task screeningApiJar(type: Jar) {
     archiveName 'openbis_screening_api.jar'
     includeEmptyDirs false
-    from project(':commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
+    from project(':lib-commonbase').compileJava.outputs.getFiles().getAsFileTree().plus(
             project(':lib-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                     project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
@@ -49,7 +49,7 @@ task screeningApiJar(type: Jar) {
 
 task screeningApiSources(type: Zip) {
     archiveName 'sources-screening-api.zip'
-    from project(':commonbase').files('source/java').getAsFileTree().plus(
+    from project(':lib-commonbase').files('source/java').getAsFileTree().plus(
             project(':lib-common').files('source/java').getAsFileTree().plus(
                     project(':lib-openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
