@@ -5,11 +5,11 @@ prerequisite:
 $ brew install git-annex
 
 Install obis
-$ cd openbis/obis/src/python
+$ cd openbis/app-openbis-command-line/src/python
 $ pip install -e .
 
 Remove global settings (global and local settings are getting merged)
-$ rm -rf ~./obis
+$ rm -rf ~./app-openbis-command-line
 
 
 Create global settings

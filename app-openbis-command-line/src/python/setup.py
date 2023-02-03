@@ -21,7 +21,7 @@ setup(
     description="Local data management with assistance from OpenBIS.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://sissource.ethz.ch/sispub/openbis/tree/master/obis",
+    url="https://sissource.ethz.ch/sispub/openbis/tree/master/app-openbis-command-line",
     author="ID SIS • ETH Zürich",
     author_email="swen@ethz.ch",
     license="Apache Software License Version 2.0",

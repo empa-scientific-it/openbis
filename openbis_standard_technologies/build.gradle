@@ -467,7 +467,7 @@ task pybisZip(type: Zip) {
 
 task obisZip(type: Zip) {
     baseName 'obis'
-    from '../obis/'
+    from '../app-openbis-command-line/'
 }
 
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip]) {
