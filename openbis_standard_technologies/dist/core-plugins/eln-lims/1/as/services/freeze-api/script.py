@@ -60,7 +60,7 @@ def process(context, parameters):
 			spaceCode = getSpace(entity);
 			
 			# 2. Verify that the user is an admin in such space
-			userId = sessionToken.split("-")[0];
+			userId = "-".join(sessionToken.split("-")[:-1])
 			isAdminOfSpace = isUserAdminOnSpace(context.applicationService, sessionToken, userId, spaceCode);
 			if not isAdminOfSpace:
 				raise  AuthorizationFailureException("The user is not enough rights to freeze.")

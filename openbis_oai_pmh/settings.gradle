@@ -1,1 +1,0 @@
-includeFlat 'commonbase', 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 'datastore_server'

@@ -1,6 +1,12 @@
+## Changes with pybis-1.35.0
+
+- removal of deprecated 'cli'
+- removal of 'click' dependency
+- update of contact information
+
 ## Changes with pybis-1.34.6
 
-- new option 'permanently' in the delete method in openbis_object.py 
+- new option 'permanently' in the delete method in openbis_object.py
 
 ## Changes with pybis-1.34.2
 
@@ -105,13 +111,14 @@
 ## Changes with pybis-1.20.1
 
 - improved search performance
-- introduced lazy loading for Things.df and Things.objects, so all necessary, and potentially costly, computation takes place only when the user requests those properties
+- introduced lazy loading for Things.df and Things.objects, so all necessary, and potentially
+  costly, computation takes place only when the user requests those properties
 
 ## Changes with pybis-1.20.0
 
 - metadata for property_types can now be changed to:
-  - {'custom_widget' : 'Word Processor'}
-  - {'custom_widget' : 'Spreadsheet'}
+    - {'custom_widget' : 'Word Processor'}
+    - {'custom_widget' : 'Spreadsheet'}
 - added documentation how to change the ELN settings
 - removed deprecated update_sample()
 - removed deprecated update_experiment()
@@ -170,7 +177,7 @@
 
 - prevent other users to read the saved token (chmod 600)
 - fixed various pylint issues
-- fixed «session no longer valid» message
+- fixed «session no longer valid» message
 - fixed search issues
 
 ## Changes with pybis-1.18.2
@@ -324,7 +331,8 @@
 
 ## Changes with pybis-1.10.3
 
-- print warning message when downloaded file-size does not match with promised file-size. Do not die.
+- print warning message when downloaded file-size does not match with promised file-size. Do not
+  die.
 
 ## Changes with pybis-1.10.2
 
@@ -339,7 +347,8 @@
 
 - dataSet upload now supports zipfiles
 - dataSet upload now supports files and folders
-- different behaviour when providing a folder: files are no longer flattened out, structure is kept intact
+- different behaviour when providing a folder: files are no longer flattened out, structure is kept
+  intact
 
 ## Changes with pybis-1.9.8
 
@@ -442,8 +451,10 @@
 - make search more robust: allow get_sample('SPACE/CODE') instead of get_sample('/SPACE/CODE')
 - make search more robust: allow get_sample(' 20160706001644827-208 ')
 - make interface more robust (allow sample.permid instead of sample.permId)
-- make properties more robust: allow get_samples(props='name') instead of get_samples(props=['name'])
-- fixed bug when parent/children of more than one element was searched: o.get_experiments().get_samples().get_parents()
+- make properties more robust: allow get_samples(props='name') instead of get_samples(
+  props=['name'])
+- fixed bug when parent/children of more than one element was searched: o.get_experiments()
+  .get_samples().get_parents()
 
 ## Changes with pybis-1.7.4
 
@@ -452,7 +463,8 @@
 - PropertyAssignments and other internal data are now finally nicely presented in Jupyter
 - various bugfixes
 - README.md is now correctly displayed
-- setup.py is fixed, installation should no longer fail because of some utf-8 problems on certain machines
+- setup.py is fixed, installation should no longer fail because of some utf-8 problems on certain
+  machines
 
 ## Changes with pybis-1.7.3
 

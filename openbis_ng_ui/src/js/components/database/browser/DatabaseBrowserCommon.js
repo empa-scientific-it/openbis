@@ -2,6 +2,9 @@ import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 
+const TOTAL_LOAD_LIMIT = 500
+const LOAD_LIMIT = 50
+
 const TYPE_SPACES = 'spaces'
 const TYPE_PROJECTS = 'projects'
 const TYPE_COLLECTIONS = 'collections'
@@ -54,10 +57,12 @@ function spacesFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_SPACES),
     text: messages.get(messages.SPACES),
     object: {
-      type: TYPE_SPACES
+      type: TYPE_SPACES,
+      id: TYPE_SPACES
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -80,10 +85,12 @@ function projectsFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_PROJECTS),
     text: messages.get(messages.PROJECTS),
     object: {
-      type: TYPE_PROJECTS
+      type: TYPE_PROJECTS,
+      id: TYPE_PROJECTS
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -106,10 +113,12 @@ function collectionsFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_COLLECTIONS),
     text: messages.get(messages.COLLECTIONS),
     object: {
-      type: TYPE_COLLECTIONS
+      type: TYPE_COLLECTIONS,
+      id: TYPE_COLLECTIONS
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -132,10 +141,12 @@ function objectsFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_OBJECTS),
     text: messages.get(messages.OBJECTS),
     object: {
-      type: TYPE_OBJECTS
+      type: TYPE_OBJECTS,
+      id: TYPE_OBJECTS
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -145,10 +156,12 @@ function objectsChildrenFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_OBJECT_CHILDREN),
     text: messages.get(messages.CHILDREN),
     object: {
-      type: TYPE_OBJECT_CHILDREN
+      type: TYPE_OBJECT_CHILDREN,
+      id: TYPE_OBJECT_CHILDREN
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -170,10 +183,12 @@ function dataSetsFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_DATA_SETS),
     text: messages.get(messages.DATA_SETS),
     object: {
-      type: TYPE_DATA_SETS
+      type: TYPE_DATA_SETS,
+      id: TYPE_DATA_SETS
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -183,10 +198,12 @@ function dataSetsChildrenFolderNode(parent) {
     id: BrowserCommon.nodeId(parent.id, TYPE_DATA_SET_CHILDREN),
     text: messages.get(messages.CHILDREN),
     object: {
-      type: TYPE_DATA_SET_CHILDREN
+      type: TYPE_DATA_SET_CHILDREN,
+      id: TYPE_DATA_SET_CHILDREN
     },
     parent: parent,
     canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
@@ -204,6 +221,8 @@ function dataSetNode(parent, dataSetCode) {
 }
 
 export default {
+  TOTAL_LOAD_LIMIT,
+  LOAD_LIMIT,
   TYPE_SPACES,
   TYPE_PROJECTS,
   TYPE_COLLECTIONS,

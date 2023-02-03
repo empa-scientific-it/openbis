@@ -1,3 +1,0 @@
-ERROR: There are following files mentioned in the mapping file which do not exist:
-[file1.mzxml]
-Browse the mapping file and check if you have not misspelled some file names.

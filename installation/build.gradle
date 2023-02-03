@@ -7,8 +7,6 @@ evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':openbis')
 evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':screening')
-evaluationDependsOn(':rtd_yeastx')
-evaluationDependsOn(':deep_sequencing_unit')
 evaluationDependsOn(':openbis_standard_technologies')
 
 apply from: '../gradle/javaproject.gradle'

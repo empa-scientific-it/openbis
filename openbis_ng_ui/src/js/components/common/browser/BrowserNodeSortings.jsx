@@ -4,11 +4,13 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
 import Sort from '@material-ui/icons/Sort'
 import Mask from '@src/js/components/common/loading/Mask.jsx'
 import Popover from '@material-ui/core/Popover'
 import Container from '@src/js/components/common/form/Container.jsx'
 import RadioGroupField from '@src/js/components/common/form/RadioGroupField.jsx'
+import BrowserTreeController from '@src/js/components/common/browser/BrowserTreeController.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -19,6 +21,11 @@ const styles = theme => ({
   button: {
     padding: '4px',
     margin: '-4px'
+  },
+  clear: {
+    '& $button': {
+      marginLeft: '4px'
+    }
   }
 })
 
@@ -50,12 +57,25 @@ class BrowserNodeSortings extends React.PureComponent {
     }
   }
 
+  handleClearCustom(event) {
+    const { node, onClearCustom } = this.props
+    event.stopPropagation()
+    this.handleClose()
+    if (onClearCustom) {
+      onClearCustom(node.id)
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'BrowserNodeSortings.render')
 
     const { node, classes } = this.props
 
-    if (!node || !node.canHaveChildren || _.isEmpty(node.sortings)) {
+    if (
+      !node ||
+      !node.canHaveChildren ||
+      (_.isEmpty(node.sortings) && _.isEmpty(node.customSorting))
+    ) {
       return null
     }
 
@@ -102,13 +122,29 @@ class BrowserNodeSortings extends React.PureComponent {
   renderSortings() {
     const { node } = this.props
 
-    const options = Object.entries(node.sortings)
-      .map(([id, sorting]) => ({
-        value: id,
-        label: sorting.label,
-        index: sorting.index
-      }))
-      .sort(option => option.index)
+    let options = []
+
+    if (!_.isEmpty(node.sortings)) {
+      const sortings = Object.entries(node.sortings)
+        .map(([id, sorting]) => ({
+          value: id,
+          label: sorting.label,
+          index: sorting.index
+        }))
+        .sort(sorting => sorting.index)
+      options = [...sortings]
+    }
+
+    if (!_.isEmpty(node.customSorting)) {
+      options = [
+        ...options,
+        {
+          id: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
+          value: BrowserTreeController.INTERNAL_CUSTOM_SORTING_ID,
+          label: this.renderCustomSorting()
+        }
+      ]
+    }
 
     return (
       <RadioGroupField
@@ -117,6 +153,23 @@ class BrowserNodeSortings extends React.PureComponent {
         options={options}
         onChange={this.handleChange}
       />
+    )
+  }
+
+  renderCustomSorting() {
+    const { classes } = this.props
+    return (
+      <span className={classes.clear}>
+        <span>{messages.get(messages.CUSTOM_SORTING)}</span>
+        <Tooltip title={messages.get(messages.CLEAR_SORTING)}>
+          <IconButton
+            onClick={this.handleClearCustom}
+            classes={{ root: classes.button }}
+          >
+            <CloseIcon fontSize='small' />
+          </IconButton>
+        </Tooltip>
+      </span>
     )
   }
 }

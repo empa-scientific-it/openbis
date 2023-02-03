@@ -29,4 +29,6 @@ public interface IRelationshipTypeDAO extends IGenericDAO<RelationshipTypePE>
      */
     public RelationshipTypePE tryFindRelationshipTypeByCode(String code);
 
+    public Long getRelationshipTypeId(String code);
+
 }

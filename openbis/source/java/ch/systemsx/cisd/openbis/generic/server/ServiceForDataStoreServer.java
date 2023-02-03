@@ -68,8 +68,12 @@ import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.api.retry.RetryCaller;
+import ch.systemsx.cisd.common.api.retry.config.DefaultRetryConfiguration;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
@@ -488,7 +492,16 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             operationLog.info("Obtain version of Data Store Server at " + dssURL);
         }
-        int dssVersion = service.getVersion(dssSessionToken);
+
+        int dssVersion =
+                new RetryCaller<Integer, InvalidAuthenticationException>(DefaultRetryConfiguration.getInstance(), new Log4jSimpleLogger(operationLog))
+                {
+                    @Override protected Integer call() throws InvalidAuthenticationException
+                    {
+                        return service.getVersion(dssSessionToken);
+                    }
+                }.callWithRetry();
+
         if (IDataStoreService.VERSION != dssVersion)
         {
             String msg =

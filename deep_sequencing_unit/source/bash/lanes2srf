@@ -1,7 +1,0 @@
-#!/bin/bash
-SRF_DIR=Srf
-[ -d $SRF_DIR ] || mkdir -p $SRF_DIR ]
-for a in 1 2 3 4 5 6 7 8; do
-  echo Converting Lane $a to SRF
-  time /dsf/illumina2srf -I -b -o $SRF_DIR/s_${a}.srf s_${a}_*_qseq.txt ;
-done

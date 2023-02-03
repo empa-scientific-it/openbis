@@ -1,5 +1,7 @@
 import os
 import re
+from sets import Set
+
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.etlserver import ETLDaemon
 from SimpleInfoObject import SimpleInfoObject
@@ -9,6 +11,9 @@ from DetailInfoBuilder import DetailInfoBuilder
 
 
 def process(tr, parameters, tableBuilder):
+    if parameters.get("checkAuthorization") == True:
+        checkAuthorization(tr, tableBuilder)
+        return
     assertAuthorization(tr)
     logDirectory = tr.getGlobalState().getDssRegistrationLogDir().getAbsolutePath()
     inProcessLogFiles = getAllLogFiles(logDirectory, "in-process")
@@ -34,15 +39,33 @@ def process(tr, parameters, tableBuilder):
         detailInfoBuilder.buildRow(detailInfoMap)
 
 
+def checkAuthorization(tr, tableBuilder):
+    tableBuilder.addHeader("isAuthorized")
+    row = tableBuilder.addRow()
+    row.setCell("isAuthorized", "true" if isAuthorized(tr) else "false")
+
+
 def assertAuthorization(tr):
+    if not isAuthorized(tr):
+        raise UserFailureException("User isn't authorized for using the Dropbox Monitor.")
+
+
+def isAuthorized(tr):
     authService = tr.getAuthorizationService()
     roleAssignements = authService.listRoleAssignments()
     for ra in roleAssignements:
-        user = ra.getUser().getUserId()
-        role = ra.getRoleSetCode()
-        if user == userId and str(role).endswith("ADMIN"):
-            return
-    raise UserFailureException("User isn't authorized for using the Dropbox Monitor.")
+        if ra.getUser() is not None:
+            user = ra.getUser().getUserId()
+            role = str(ra.getRoleSetCode())
+            if user == userId and (role.endswith("USER") or role.endswith("ADMIN")):
+                return True
+    groups = Set([g.getCode() for g in authService.listAuthorizationGroupsForUser(userId)])
+    for ra in roleAssignements:
+        if ra.getAuthorizationGroup() is not None and ra.getAuthorizationGroup().getCode() in groups:
+            role = str(ra.getRoleSetCode())
+            if role.endswith("USER") or role.endswith("ADMIN"):
+                return True
+    return False
 
 
 def listAllDropboxes():

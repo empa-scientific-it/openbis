@@ -2,6 +2,9 @@ import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 
+const TOTAL_LOAD_LIMIT = 500
+const LOAD_LIMIT = 50
+
 function objectTypesFolderNode(parentId) {
   return {
     id: BrowserCommon.nodeId(parentId, objectType.OBJECT_TYPE),
@@ -10,7 +13,8 @@ function objectTypesFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.OBJECT_TYPE
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -33,7 +37,8 @@ function collectionTypesFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.COLLECTION_TYPE
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -56,7 +61,8 @@ function dataSetTypesFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.DATA_SET_TYPE
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -79,7 +85,8 @@ function materialTypesFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.MATERIAL_TYPE
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -102,7 +109,8 @@ function vocabularyTypesFolderNode(parentId) {
       type: objectType.OVERVIEW,
       id: objectType.VOCABULARY_TYPE
     },
-    canHaveChildren: true
+    canHaveChildren: true,
+    childrenLoadLimit: LOAD_LIMIT
   }
 }
 
@@ -124,12 +132,13 @@ function propertyTypesFolderNode(parentId) {
     object: {
       type: objectType.OVERVIEW,
       id: objectType.PROPERTY_TYPE
-    },
-    canHaveChildren: false
+    }
   }
 }
 
 export default {
+  TOTAL_LOAD_LIMIT,
+  LOAD_LIMIT,
   objectTypesFolderNode,
   objectTypeNode,
   collectionTypesFolderNode,

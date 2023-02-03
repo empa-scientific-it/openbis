@@ -1,2 +1,0 @@
-Cygwin 2.0.0 (32bit)
-only those DLLs found by https://en.wikipedia.org/wiki/Dependency_Walker included

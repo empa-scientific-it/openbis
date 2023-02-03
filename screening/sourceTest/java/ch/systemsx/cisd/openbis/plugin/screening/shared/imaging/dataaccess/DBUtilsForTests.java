@@ -35,6 +35,6 @@ public class DBUtilsForTests
     {
         String databaseVersion = new ImagingDatabaseVersionHolder().getDatabaseVersion();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                databaseVersion, null);
+                databaseVersion, null, null);
     }
 }

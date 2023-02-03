@@ -131,6 +131,9 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /** Returns ids of samples connected with experiments specified by given ids. */
     List<TechId> listSampleIdsByExperimentIds(Collection<TechId> experimentIds);
 
+    /** Returns ids of samples connected with projects specified by given ids. */
+    List<TechId> listSampleIdsByProjectIds(Collection<TechId> projectIds);
+
     /** Returns ids of sample of specified types specified by given ids. */
     List<TechId> listSampleIdsBySampleTypeIds(Collection<TechId> sampleTypeIds);
     

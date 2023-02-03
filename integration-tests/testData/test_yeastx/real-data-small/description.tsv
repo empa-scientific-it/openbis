@@ -1,6 +1,0 @@
-# openbis-user@mailinator.pl
-file_name	sample	group	experiment	project	conversion
-file1.mzXML	s32	TEST			fiaML
-file2.eicML	glucose 1	TEST			
-file3.mzXML	glucose 2	TEST	Praktikum Metabolic Networks 2009	TEST_PROJECT	eicML
-file4.fiaML	glucose 1	TEST			

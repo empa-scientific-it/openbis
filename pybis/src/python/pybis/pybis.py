@@ -147,46 +147,6 @@ def is_personal_access_token(token: str):
     return token.startswith("$pat")
 
 
-def save_config(config_filepath: Path, config: dict) -> dict:
-    with open(config_filepath, "w", encoding="utf-8") as fh:
-        fh.write(json.dumps(config))
-
-
-def read_config(config_filepath: Path) -> dict:
-    if config_filepath.exists():
-        with open(config_filepath, "r") as fh:
-            config = json.load(fh)
-        return config
-    else:
-        return {}
-
-
-def get_global_config():
-    config_filepath = PYBIS_FOLDER / CONFIG_FILENAME
-    config = read_config(config_filepath=config_filepath)
-    return config
-
-
-def set_global_config(hostname=None, token=None):
-    global_openbis = PYBIS_FOLDER / CONFIG_FILENAME
-    config = {"hostname": hostname, "token": token}
-    save_config(config_filepath=global_openbis, config=config)
-    return
-
-
-def get_local_config():
-    config_filepath = Path.cwd() / CONFIG_FILENAME
-    config = read_config(config_filepath=config_filepath)
-    return config
-
-
-def set_local_config(hostname=None, token=None):
-    local_openbis = Path.cwd() / CONFIG_FILENAME
-    config = {"hostname": hostname, "token": token}
-    save_config(config_filepath=local_openbis, config=config)
-    return
-
-
 def get_saved_tokens():
     tokens = {}
     for filepath in PYBIS_FOLDER.glob("*.token"):
@@ -682,15 +642,15 @@ def _subcriteria_for_properties(prop, value, entity):
 
     # searching for parent/child/container identifier
     if any(
-        relation == prop.lower()
-        for relation in [
-            "parent",
-            "child",
-            "container",
-            "parents",
-            "children",
-            "containers",
-        ]
+            relation == prop.lower()
+            for relation in [
+                "parent",
+                "child",
+                "container",
+                "parents",
+                "children",
+                "containers",
+            ]
     ):
         relation = prop.lower()
         if is_identifier(value):
@@ -729,8 +689,8 @@ def _subcriteria_for_properties(prop, value, entity):
 
     # searching for parent/child/container property:
     elif any(
-        prop.lower().startswith(relation)
-        for relation in ["parent_", "child_", "container_"]
+            prop.lower().startswith(relation)
+            for relation in ["parent_", "child_", "container_"]
     ):
         match = re.search(r"^(\w+?)_(.*)", prop.lower())
         if match:
@@ -981,12 +941,12 @@ class Openbis:
     token: str
 
     def __init__(
-        self,
-        url=None,
-        verify_certificates=True,
-        token=None,
-        use_cache=True,
-        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False,
+            self,
+            url=None,
+            verify_certificates=True,
+            token=None,
+            use_cache=True,
+            allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False,
     ):
         """Initialize a new connection to an openBIS server.
 
@@ -1025,8 +985,8 @@ class Openbis:
         if url_obj.hostname is None:
             raise ValueError("hostname is missing")
         if (
-            url_obj.scheme == "http"
-            and not allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks
+                url_obj.scheme == "http"
+                and not allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks
         ):
             raise ValueError("always use https!")
 
@@ -1469,15 +1429,15 @@ class Openbis:
             return None
 
     def mount(
-        self,
-        username=None,
-        password=None,
-        hostname=None,
-        mountpoint=None,
-        volname=None,
-        path="/",
-        port=2222,
-        kex_algorithms="+diffie-hellman-group1-sha1",
+            self,
+            username=None,
+            password=None,
+            hostname=None,
+            mountpoint=None,
+            volname=None,
+            path="/",
+            port=2222,
+            kex_algorithms="+diffie-hellman-group1-sha1",
     ):
         """Mounts openBIS dataStore without being root, using sshfs and fuse. Both
         SSHFS and FUSE must be installed on the system (see below)
@@ -1999,11 +1959,11 @@ class Openbis:
         )
 
     def get_or_create_personal_access_token(
-        self,
-        sessionName: str,
-        validFrom: datetime = datetime.now(),
-        validTo: datetime = None,
-        force=False,
+            self,
+            sessionName: str,
+            validFrom: datetime = datetime.now(),
+            validTo: datetime = None,
+            force=False,
     ) -> str:
         """Creates a new personal access token (PAT).  If a PAT with the given sessionName
         already exists and its expiry date (validToDate) is not within the warning period,
@@ -2037,10 +1997,10 @@ class Openbis:
                 existing_pat.validToDate, "%Y-%m-%d %H:%M:%S"
             )
             if validTo_date > (
-                datetime.now()
-                + relativedelta(
-                    seconds=server_info.personal_access_tokens_validity_warning_period
-                )
+                    datetime.now()
+                    + relativedelta(
+                seconds=server_info.personal_access_tokens_validity_warning_period
+            )
             ):
                 # return existing PAT which is within warning period
                 if not force:
@@ -2076,12 +2036,12 @@ class Openbis:
             pass
 
     def get_personal_access_tokens(
-        self,
-        sessionName=None,
-        start_with=None,
-        count=None,
-        save_to_disk=False,
-        **search_args,
+            self,
+            sessionName=None,
+            start_with=None,
+            count=None,
+            save_to_disk=False,
+            **search_args,
     ):
         """Get a list of Personal Access Tokens (PAT).
 
@@ -2350,9 +2310,9 @@ class Openbis:
 
         code = str(code).upper()
         space = (
-            not only_data
-            and use_cache
-            and self._object_cache(entity="space", code=code)
+                not only_data
+                and use_cache
+                and self._object_cache(entity="space", code=code)
         )
         if space:
             return space
@@ -2385,24 +2345,24 @@ class Openbis:
                 return space
 
     def get_samples(
-        self,
-        identifier=None,
-        code=None,
-        permId=None,
-        space=None,
-        project=None,
-        experiment=None,
-        collection=None,
-        type=None,
-        start_with=None,
-        count=None,
-        withParents=None,
-        withChildren=None,
-        tags=None,
-        attrs=None,
-        props=None,
-        where=None,
-        **properties,
+            self,
+            identifier=None,
+            code=None,
+            permId=None,
+            space=None,
+            project=None,
+            experiment=None,
+            collection=None,
+            type=None,
+            start_with=None,
+            count=None,
+            withParents=None,
+            withChildren=None,
+            tags=None,
+            attrs=None,
+            props=None,
+            where=None,
+            **properties,
     ):
         """Returns a DataFrame of all samples for a given space/project/experiment (or any combination)
 
@@ -2567,20 +2527,20 @@ class Openbis:
         return fetchopts
 
     def get_experiments(
-        self,
-        code=None,
-        permId=None,
-        type=None,
-        space=None,
-        project=None,
-        start_with=None,
-        count=None,
-        tags=None,
-        is_finished=None,
-        attrs=None,
-        props=None,
-        where=None,
-        **properties,
+            self,
+            code=None,
+            permId=None,
+            type=None,
+            space=None,
+            project=None,
+            start_with=None,
+            count=None,
+            tags=None,
+            is_finished=None,
+            attrs=None,
+            props=None,
+            where=None,
+            **properties,
     ):
         """Returns a DataFrame of all samples for a given space/project (or any combination)
 
@@ -2751,7 +2711,7 @@ class Openbis:
                         columns = []
                         for i, experiment in enumerate(response):
                             for prop_name, val in experiment.get(
-                                "properties", {}
+                                    "properties", {}
                             ).items():
                                 experiments.loc[i, prop_name.upper()] = val
                                 columns.append(prop_name.upper())
@@ -2784,26 +2744,26 @@ class Openbis:
     get_collections = get_experiments  # Alias
 
     def get_datasets(
-        self,
-        permId=None,
-        code=None,
-        type=None,
-        withParents=None,
-        withChildren=None,
-        start_with=None,
-        count=None,
-        kind=None,
-        status=None,
-        sample=None,
-        experiment=None,
-        collection=None,
-        project=None,
-        space=None,
-        tags=None,
-        attrs=None,
-        props=None,
-        where=None,
-        **properties,
+            self,
+            permId=None,
+            code=None,
+            type=None,
+            withParents=None,
+            withChildren=None,
+            start_with=None,
+            count=None,
+            kind=None,
+            status=None,
+            sample=None,
+            experiment=None,
+            collection=None,
+            project=None,
+            space=None,
+            tags=None,
+            attrs=None,
+            props=None,
+            where=None,
+            **properties,
     ):
         """Returns a DataFrame of all dataSets for a given project/experiment/sample (or any combination)
 
@@ -2959,14 +2919,14 @@ class Openbis:
         )
 
     def get_experiment(
-        self, code, withAttachments=False, only_data=False, use_cache=True
+            self, code, withAttachments=False, only_data=False, use_cache=True
     ):
         """Returns an experiment object for a given identifier (code)."""
 
         experiment = (
-            not only_data
-            and use_cache
-            and self._object_cache(entity="experiment", code=code)
+                not only_data
+                and use_cache
+                and self._object_cache(entity="experiment", code=code)
         )
         if experiment:
             return experiment
@@ -3030,7 +2990,7 @@ class Openbis:
     new_collection = new_experiment  # Alias
 
     def create_external_data_management_system(
-        self, code, label, address, address_type="FILE_SYSTEM"
+            self, code, label, address, address_type="FILE_SYSTEM"
     ):
         """Create an external DMS.
         :param code: An openBIS code for the external DMS.
@@ -3080,7 +3040,6 @@ class Openbis:
         request = {"method": method, "params": [self.token, [objectId], delete_options]}
         return self._post_request(self.as_v3, request)
 
-
     def confirm_deletions(self, deletion_ids):
         request = {
             "method": "confirmDeletions",
@@ -3090,7 +3049,6 @@ class Openbis:
             ],
         }
         self._post_request(self.as_v3, request)
-
 
     def get_deletions(self, start_with=None, count=None):
         search_criteria = {"@type": "as.dto.deletion.search.DeletionSearchCriteria"}
@@ -3135,9 +3093,9 @@ class Openbis:
         """Returns a Project object for a given identifier, code or permId."""
 
         project = (
-            not only_data
-            and use_cache
-            and self._object_cache(entity="project", code=projectId)
+                not only_data
+                and use_cache
+                and self._object_cache(entity="project", code=projectId)
         )
         if project:
             return project
@@ -3184,11 +3142,11 @@ class Openbis:
             return project
 
     def get_projects(
-        self,
-        space=None,
-        code=None,
-        start_with=None,
-        count=None,
+            self,
+            space=None,
+            code=None,
+            start_with=None,
+            count=None,
     ):
         """Get a list of all available projects (DataFrame object)."""
 
@@ -3323,11 +3281,11 @@ class Openbis:
         """
 
         if (
-            use_cache
-            and self.use_cache
-            and vocabulary is not None
-            and start_with is None
-            and count is None
+                use_cache
+                and self.use_cache
+                and vocabulary is not None
+                and start_with is None
+                and count is None
         ):
             voc = self._object_cache(entity="term", code=vocabulary)
             if voc:
@@ -3387,10 +3345,10 @@ class Openbis:
             df_initializer=create_data_frame,
         )
         if (
-            self.use_cache
-            and vocabulary is not None
-            and start_with is None
-            and count is None
+                self.use_cache
+                and vocabulary is not None
+                and start_with is None
+                and count is None
         ):
             self._object_cache(entity="term", code=vocabulary, value=things)
 
@@ -3492,9 +3450,9 @@ class Openbis:
 
         code = str(code).upper()
         voc = (
-            not only_data
-            and use_cache
-            and self._object_cache(entity="vocabulary", code=code)
+                not only_data
+                and use_cache
+                and self._object_cache(entity="vocabulary", code=code)
         )
         if voc:
             return voc
@@ -3562,9 +3520,9 @@ class Openbis:
                 identifiers.append(_type_for_id(ident, "tag"))
         else:
             tag = (
-                not only_data
-                and use_cache
-                and self._object_cache(entity="tag", code=permId)
+                    not only_data
+                    and use_cache
+                    and self._object_cache(entity="tag", code=permId)
             )
             if tag:
                 return tag
@@ -3631,7 +3589,7 @@ class Openbis:
         )
 
     def search_semantic_annotations(
-        self, permId=None, entityType=None, propertyType=None, only_data=False
+            self, permId=None, entityType=None, propertyType=None, only_data=False
     ):
         """Get a list of semantic annotations for permId, entityType, propertyType or
         property type assignment (DataFrame object).
@@ -3918,17 +3876,17 @@ class Openbis:
         return Plugin(self, name=name, pluginType=pluginType, **kwargs)
 
     def new_property_type(
-        self,
-        code,
-        label,
-        description,
-        dataType,
-        managedInternally=False,
-        vocabulary=None,
-        materialType=None,
-        schema=None,
-        transformation=None,
-        metaData=None,
+            self,
+            code,
+            label,
+            description,
+            dataType,
+            managedInternally=False,
+            vocabulary=None,
+            materialType=None,
+            schema=None,
+            transformation=None,
+            metaData=None,
     ):
         """Creates a new property type.
 
@@ -3973,15 +3931,15 @@ class Openbis:
         )
 
     def get_property_type(
-        self, code, only_data=False, start_with=None, count=None, use_cache=True
+            self, code, only_data=False, start_with=None, count=None, use_cache=True
     ):
 
         if not isinstance(code, list) and start_with is None and count is None:
             code = str(code).upper()
             pt = (
-                use_cache
-                and self.use_cache
-                and self._object_cache(entity="property_type", code=code)
+                    use_cache
+                    and self.use_cache
+                    and self._object_cache(entity="property_type", code=code)
             )
             if pt:
                 if only_data:
@@ -4062,7 +4020,7 @@ class Openbis:
         )
 
     def _property_type_things(
-        self, objects, start_with=None, count=None, totalCount=None
+            self, objects, start_with=None, count=None, totalCount=None
     ):
         """takes a list of objects and returns a Things object"""
 
@@ -4177,7 +4135,7 @@ class Openbis:
     get_object_type = get_sample_type  # Alias
 
     def get_entity_types(
-        self, entity, cls, type=None, start_with=None, count=None, with_vocabulary=False
+            self, entity, cls, type=None, start_with=None, count=None, with_vocabulary=False
     ):
         method_name = get_method_for_entity(entity, "search")
         if type is not None:
@@ -4227,21 +4185,21 @@ class Openbis:
         )
 
     def get_entity_type(
-        self,
-        entity,
-        identifier,
-        cls,
-        method=None,
-        only_data=False,
-        with_vocabulary=False,
-        use_cache=True,
+            self,
+            entity,
+            identifier,
+            cls,
+            method=None,
+            only_data=False,
+            with_vocabulary=False,
+            use_cache=True,
     ):
 
         et = (
-            not only_data
-            and not isinstance(identifier, list)
-            and use_cache
-            and self._object_cache(entity=entity, code=identifier)
+                not only_data
+                and not isinstance(identifier, list)
+                and use_cache
+                and self._object_cache(entity=entity, code=identifier)
         )
         if et:
             return et
@@ -4291,14 +4249,14 @@ class Openbis:
                 return obj
 
     def _get_types_of(
-        self,
-        method_name,
-        entity,
-        type_name=None,
-        start_with=None,
-        count=None,
-        additional_attributes=None,
-        optional_attributes=None,
+            self,
+            method_name,
+            entity,
+            type_name=None,
+            start_with=None,
+            count=None,
+            additional_attributes=None,
+            optional_attributes=None,
     ):
         """Returns a list of all available types of an entity.
         If the name of the entity-type is given, it returns a PropertyAssignments object
@@ -4373,7 +4331,7 @@ class Openbis:
         )
 
     def _get_attributes(
-        self, type_name, types, additional_attributes, optional_attributes
+            self, type_name, types, additional_attributes, optional_attributes
     ):
         attributes = ["code", "description"] + additional_attributes
         attributes += [
@@ -4503,15 +4461,15 @@ class Openbis:
             )
 
     def _dataset_list_for_response(
-        self,
-        response,
-        attrs=None,
-        props=None,
-        start_with=None,
-        count=None,
-        totalCount=0,
-        objects=None,
-        parsed=False,
+            self,
+            response,
+            attrs=None,
+            props=None,
+            start_with=None,
+            count=None,
+            totalCount=0,
+            objects=None,
+            parsed=False,
     ):
         """returns a Things object, containing a DataFrame plus some additional information"""
 
@@ -4672,7 +4630,7 @@ class Openbis:
         )
 
     def get_sample(
-        self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
+            self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4740,14 +4698,14 @@ class Openbis:
             )
 
     def _sample_list_for_response(
-        self,
-        response,
-        attrs=None,
-        props=None,
-        start_with=None,
-        count=None,
-        totalCount=0,
-        parsed=False,
+            self,
+            response,
+            attrs=None,
+            props=None,
+            start_with=None,
+            count=None,
+            totalCount=0,
+            parsed=False,
     ):
         if not parsed:
             parse_jackson(response)
@@ -4944,7 +4902,7 @@ class Openbis:
     get_object = get_sample  # Alias
 
     def get_external_data_management_systems(
-        self, start_with=None, count=None, only_data=False
+            self, start_with=None, count=None, only_data=False
     ):
         entity = "externalDms"
 
@@ -5025,19 +4983,19 @@ class Openbis:
         return Space(self, None, **kwargs)
 
     def new_git_data_set(
-        self,
-        data_set_type,
-        path,
-        commit_id,
-        repository_id,
-        dms,
-        sample=None,
-        experiment=None,
-        properties={},
-        dss_code=None,
-        parents=None,
-        data_set_code=None,
-        contents=[],
+            self,
+            data_set_type,
+            path,
+            commit_id,
+            repository_id,
+            dms,
+            sample=None,
+            experiment=None,
+            properties={},
+            dss_code=None,
+            parents=None,
+            data_set_code=None,
+            contents=[],
     ):
         """Create a link data set.
         :param data_set_type: The type of the data set
@@ -5174,16 +5132,16 @@ class Openbis:
         return Transaction(*entities)
 
     def new_sample_type(
-        self,
-        code,
-        generatedCodePrefix,
-        subcodeUnique=False,
-        autoGeneratedCode=False,
-        listable=True,
-        showContainer=False,
-        showParents=True,
-        showParentMetadata=False,
-        validationPlugin=None,
+            self,
+            code,
+            generatedCodePrefix,
+            subcodeUnique=False,
+            autoGeneratedCode=False,
+            listable=True,
+            showContainer=False,
+            showParents=True,
+            showParentMetadata=False,
+            validationPlugin=None,
     ):
         """Creates a new sample type."""
 
@@ -5203,13 +5161,13 @@ class Openbis:
     new_object_type = new_sample_type
 
     def new_dataset_type(
-        self,
-        code,
-        description=None,
-        mainDataSetPattern=None,
-        mainDataSetPath=None,
-        disallowDeletion=False,
-        validationPlugin=None,
+            self,
+            code,
+            description=None,
+            mainDataSetPattern=None,
+            mainDataSetPath=None,
+            disallowDeletion=False,
+            validationPlugin=None,
     ):
         """Creates a new dataSet type."""
 
@@ -5225,10 +5183,10 @@ class Openbis:
         )
 
     def new_experiment_type(
-        self,
-        code,
-        description=None,
-        validationPlugin=None,
+            self,
+            code,
+            description=None,
+            validationPlugin=None,
     ):
         """Creates a new experiment type (collection type)"""
         return ExperimentType(
@@ -5242,10 +5200,10 @@ class Openbis:
     new_collection_type = new_experiment_type
 
     def new_material_type(
-        self,
-        code,
-        description=None,
-        validationPlugin=None,
+            self,
+            code,
+            description=None,
+            validationPlugin=None,
     ):
         """Creates a new material type."""
         return MaterialType(
@@ -5257,14 +5215,14 @@ class Openbis:
         )
 
     def new_dataset(
-        self,
-        type=None,
-        kind="PHYSICAL",
-        files=None,
-        file=None,
-        props=None,
-        folder=None,
-        **kwargs,
+            self,
+            type=None,
+            kind="PHYSICAL",
+            files=None,
+            file=None,
+            props=None,
+            folder=None,
+            **kwargs,
     ):
         """Creates a new dataset of a given type.
 
@@ -5321,7 +5279,7 @@ class Openbis:
         )
 
     def new_vocabulary(
-        self, code, terms, managedInternally=False, chosenFromList=True, **kwargs
+            self, code, terms, managedInternally=False, chosenFromList=True, **kwargs
     ):
         """Creates a new vocabulary
         Usage::

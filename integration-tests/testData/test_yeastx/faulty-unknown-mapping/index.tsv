@@ -1,7 +1,0 @@
-# openbis-user@mailinator.pl
-file_name	sample	group	experiment	project	conversion
-file1.mzXML	unknown	TEST			eicML
-file2.mzXML	x	TEST	unknown	unknown	eicML
-file3.mzXML	x	TEST	without-proj		eicML
-file4.mzXML	x	TEST		without-exp	eicML
-file5.mzXML	x	unknown			eicML

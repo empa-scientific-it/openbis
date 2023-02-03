@@ -1,1 +1,0 @@
-ERROR: No datasets from the directory 'faulty-to-many-mapping-files' can be processed because there is more than one file with extension '[tsv]'.
