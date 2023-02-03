@@ -387,14 +387,10 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		this._uploadFileWorkspaceDSSFile = function(file, parentId) {
 			var dfd = jquery.Deferred();
 			this._getDataStores().done(function(dataStores) {
-				var filename = encodeURIComponent(parentId + "/" +
-					(file.webkitRelativePath ? file.webkitRelativePath : file.name));
 				var sessionID = facade._private.sessionToken;
-				var fileSize = file.size;
 				var chunkSize = 1048576; // 1 MiB
 				var startByte = 0;
-				var iterator = streamFile(file, chunkSize);
-				uploadBlob(dataStores[0], iterator, sessionID, filename, startByte, chunkSize, fileSize)
+				uploadBlob(dataStores[0], parentId, sessionID, file, startByte, chunkSize)
 					.done(function() {
 						dfd.resolve();
 					}).fail(function(error) {
@@ -406,10 +402,15 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return dfd.promise();
 		}
 
-		function uploadBlob(dataStore, iterator, sessionID, filename, startByte, chunkSize, fileSize) {
+		function uploadBlob(dataStore, parentId, sessionID, file, startByte, chunkSize) {
 			var dfd = jquery.Deferred();
-			var blob = iterator.next();
-			if (blob) {
+			var fileSize = file.size;
+
+			if (startByte < fileSize) {
+				var blob = makeChunk(file, startByte, Math.min(startByte + chunkSize, fileSize));
+
+				var filename = encodeURIComponent(parentId + "/" +
+					(file.webkitRelativePath ? file.webkitRelativePath : file.name));
 				var parameters = "?sessionID=" + sessionID + "&filename=" + filename +
 					"&id=1&startByte=" + startByte + "&endByte=" + (startByte + chunkSize) +
 					"&size=" + fileSize + "&emptyFolder=false";
@@ -420,8 +421,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 					},
 					body: blob
 				}).then(function () {
-					uploadBlob(dataStore, iterator, sessionID, filename, startByte + chunkSize, chunkSize,
-						fileSize);
+					uploadBlob(dataStore, parentId, sessionID, file, startByte + chunkSize, chunkSize);
 					dfd.resolve();
 				}).catch(function (error) {
 					console.error("Error:", error);
@@ -431,22 +431,6 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				dfd.resolve();
 			}
 			return dfd.promise();
-		}
-
-		function streamFile(file, chunkSize) {
-			var start = 0;
-			var value;
-			return {
-				next() {
-					value = makeChunk(file, start, Math.min(start + chunkSize, file.size));
-					if (value && value.size > 0) {
-						start += chunkSize;
-						return value;
-					} else {
-						return null;
-					}
-				}
-			}
 		}
 
 		function makeChunk(file, startByte, endByte) {
