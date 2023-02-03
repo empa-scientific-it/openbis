@@ -35,7 +35,7 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         into '../lib'
         exclude 'cisd-cifex*'
         exclude 'lib-common-*'
-        exclude 'authentication-*'
+        exclude 'lib-authentication-*'
         exclude 'dbmigration-*'
         exclude 'lib-openbis-common-*'
         exclude 'openbis_api-*'

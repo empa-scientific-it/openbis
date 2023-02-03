@@ -25,7 +25,7 @@ git push -u origin $1
 
 # fix dependency versions
 GRADLE_PROJECTS="\
-authentication \
+lib-authentication \
 lib-commonbase \
 lib-common \
 server-original-data-store \

@@ -1,14 +1,14 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':dbmigration')
-evaluationDependsOn(':authentication')
+evaluationDependsOn(':lib-authentication')
 
 apply from: '../build/javaproject.gradle'
 
 dependencies {
     api project(':lib-common'),
             project(':dbmigration'),
-            project(':authentication'),
+            project(':lib-authentication'),
             'googlecode:jsonrpc4j:1.5.3',
             'fasterxml:jackson-databind:2.9.10.8',
             'reflections:reflections:0.9.10',
@@ -21,7 +21,7 @@ dependencies {
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
-            project(path: ':authentication', configuration: 'tests'),
+            project(path: ':lib-authentication', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'eclipse:jetty-servlet:9.4.44.v20210927'

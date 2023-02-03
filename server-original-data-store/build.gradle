@@ -2,7 +2,7 @@ evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
-evaluationDependsOn(':authentication')
+evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':server-application-server')
 
@@ -22,7 +22,7 @@ dependencies {
             project(':lib-openbis-common'),
             // authentication and dbmigration are required as they contain later versions of
             // some classes than cisd-cifex.jar. They need to be in classpath before cisd-cifex.jar
-            project(':authentication'),
+            project(':lib-authentication'),
             project(':dbmigration'),
             'apache:ftpserver-core:1.0.6',
             'apache:sshd-sftp:2.7.0',
@@ -59,7 +59,7 @@ dependencies {
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
-            project(path: ':authentication', configuration: 'tests'),
+            project(path: ':lib-authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',

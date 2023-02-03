@@ -2,7 +2,7 @@ evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
-evaluationDependsOn(':authentication')
+evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':dbmigration')
 
 apply from: '../build/javaproject.gradle'
@@ -14,7 +14,7 @@ dependencies {
     api project(':lib-common'),
             project(':openbis_api'),
             project(':lib-openbis-common'),
-            project(':authentication'),
+            project(':lib-authentication'),
             project(':dbmigration'),
             'sencha:gxt:2.2.5',
             'jboss:javassist:3.28.0.GA',
@@ -44,7 +44,7 @@ dependencies {
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':dbmigration', configuration: 'tests'),
-            project(path: ':authentication', configuration: 'tests'),
+            project(path: ':lib-authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
@@ -133,7 +133,7 @@ task openBISDevelopementEnvironmentASStart(type: JavaExec) {
              '-Xmx2048M', '-ea'])
     args(['--classes', '../lib-commonbase/targets/gradle/classes/java/main',
           '--classes', '../lib-common/targets/gradle/classes/java/main',
-          '--classes', '../authentication/targets/gradle/classes/java/main',
+          '--classes', '../lib-authentication/targets/gradle/classes/java/main',
           '--classes', '../dbmigration/targets/gradle/classes/java/main',
           '--classes', '../lib-openbis-common/targets/gradle/classes/java/main',
           '--classes', '../openbis_api/targets/gradle/classes/java/main',
