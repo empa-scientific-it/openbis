@@ -30,7 +30,7 @@ lib-commonbase \
 lib-common \
 server-original-data-store \
 lib-dbmigration \
-installation \
+app-openbis-installer \
 test-api-openbis-javascript \
 server-application-server \
 lib-openbis-common \

@@ -151,7 +151,7 @@ task(compileInstaller) {
         compilerContainer.addComponent(compilerData.class, compilerData)
         def compilerConfig = compilerContainer.getComponent(com.izforge.izpack.compiler.CompilerConfig.class)
         def propertyManager = compilerContainer.getComponent(com.izforge.izpack.compiler.data.PropertyManager.class)
-        propertyManager.addProperty('installer.dist.dir', '../installation/' + installerDistDir)
+        propertyManager.addProperty('installer.dist.dir', '../app-openbis-installer/' + installerDistDir)
         propertyManager.addProperty('version.number', versionNumber)
         propertyManager.addProperty('revision.number', Integer.toString(revisionNumber))
         compilerConfig.executeCompiler()

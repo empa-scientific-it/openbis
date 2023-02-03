@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then echo "Tag does not exist!"; exit 1; fi
 cd openbis_standard_technologies
 ./gradlew :clientsAndApis -x test
 ./gradlew :generateJavadoc
-cd ../installation
+cd ../app-openbis-installer
 ./gradlew :build -x test
 
 cd ../..
@@ -61,6 +61,6 @@ cd -
 # move components to fileserver
 mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
 mv openbis/openbis_standard_technologies/targets/gradle/distributions/big_data_link_server*.zip .
-mv openbis/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
+mv openbis/app-openbis-installer/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
 
 move_to_file_server

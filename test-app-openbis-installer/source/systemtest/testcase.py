@@ -8,7 +8,7 @@ import traceback
 
 import systemtest.util as util
 
-INSTALLER_PROJECT = 'installation'
+INSTALLER_PROJECT = 'app-openbis-installer'
 OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis_standard_technologies'
 DATAMOVER_PROJECT = 'datamover'
 
@@ -136,11 +136,11 @@ class TestCase(object):
         """
         if actualValue > expectedUpperLimit:
             self.fail("%s\n  actual value <%s> exceeds the expected upper limit <%s>" % (
-            itemName, actualValue, expectedUpperLimit))
+                itemName, actualValue, expectedUpperLimit))
             return False
         elif verbose:
             util.printAndFlush("%s actual value <%s> is below the expected upper limit <%s>" % (
-            itemName, actualValue, expectedUpperLimit))
+                itemName, actualValue, expectedUpperLimit))
         return True
 
     def assertEquals(self, itemName, expected, actual, verbose=True):
@@ -250,7 +250,7 @@ class TestCase(object):
         util.executeCommand(['tar', '-zxf', installerPath, '-C', self.playgroundFolder],
                             "Couldn't untar openBIS installer.")
         consolePropertiesFile = "%s/%s/console.properties" % (
-        self.playgroundFolder, installerFileName)
+            self.playgroundFolder, installerFileName)
         consoleProperties = util.readProperties(consolePropertiesFile)
         installPath = self._getInstallPath(instanceName)
         consoleProperties['INSTALL_PATH'] = installPath
@@ -350,7 +350,7 @@ class _Controller(object):
         self.instanceName = instanceName
         self.installPath = installPath
         util.printAndFlush("Controller created for instance '%s'. Installation path: %s" % (
-        instanceName, installPath))
+            instanceName, installPath))
 
     def createFolder(self, folderPath):
         """
@@ -413,7 +413,7 @@ class DatamoverController(_Controller):
         self.serviceProperties['quiet-period'] = 5
         self.serviceProperties['inactivity-period'] = 15
         dataCompletedScript = "%s/%s/data-completed.sh" % (
-        testCase.getTemplatesFolder(), instanceName)
+            testCase.getTemplatesFolder(), instanceName)
         if os.path.exists(dataCompletedScript):
             self.serviceProperties['data-completed-script'] = "../../../../%s" % dataCompletedScript
 
@@ -504,10 +504,10 @@ class DataSet(object):
         parents = [d.id for d in self.parents]
         children = [d.id for d in self.children]
         return "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (
-        self.id, self.dataStore, self.code, self.type,
-        self.location, self.status, self.presentInArchive,
-        parents, children, self.experimentCode,
-        self.producer, self.productionTimeStamp)
+            self.id, self.dataStore, self.code, self.type,
+            self.location, self.status, self.presentInArchive,
+            parents, children, self.experimentCode,
+            self.producer, self.productionTimeStamp)
 
 
 class OpenbisController(_Controller):
@@ -829,7 +829,7 @@ class OpenbisController(_Controller):
         if os.path.isdir(templateStore):
             storeFolder = "%s/data/store" % self.installPath
             util.printAndFlush("Set up initial data store by copying content of %s to %s" % (
-            templateStore, storeFolder))
+                templateStore, storeFolder))
             shutil.rmtree(storeFolder, ignore_errors=True)
             shutil.copytree(templateStore, storeFolder)
 
@@ -838,7 +838,7 @@ class OpenbisController(_Controller):
         if os.path.isdir(templateFileServer):
             fileServiceFolder = "%s/data/file-server" % self.installPath
             util.printAndFlush("Set up initial file server by copying content of %s to %s" % (
-            templateFileServer, fileServiceFolder))
+                templateFileServer, fileServiceFolder))
             shutil.rmtree(fileServiceFolder, ignore_errors=True)
             shutil.copytree(templateFileServer, fileServiceFolder)
 
