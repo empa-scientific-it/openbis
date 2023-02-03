@@ -41,7 +41,7 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         exclude 'lib-common-*'
         exclude 'lib-commonbase-*'
         exclude 'lib-authentication-*'
-        exclude 'dbmigration-*'
+        exclude 'lib-dbmigration-*'
         exclude 'lib-openbis-common-*'
         exclude 'openbis_api-*'
         exclude 'server-application-server-*'

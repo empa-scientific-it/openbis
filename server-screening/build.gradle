@@ -3,7 +3,7 @@ evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
-evaluationDependsOn(':dbmigration')
+evaluationDependsOn(':lib-dbmigration')
 evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 
@@ -23,7 +23,7 @@ dependencies {
 
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
-            project(path: ':dbmigration', configuration: 'tests'),
+            project(path: ':lib-dbmigration', configuration: 'tests'),
             project(path: ':lib-authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
@@ -79,7 +79,7 @@ task executeScreeningOpenBisDev(type: JavaExec) {
     args(['--classes', '../lib-commonbase/targets/gradle/classes/main',
           '--classes', '../lib-common/targets/gradle/classes/main',
           '--classes', '../lib-authentication/targets/gradle/classes/main',
-          '--classes', '../dbmigration/targets/gradle/classes/main',
+          '--classes', '../lib-dbmigration/targets/gradle/classes/main',
           '--classes', '../lib-openbis-common/targets/gradle/classes/main',
           '--classes', '../openbis_api/targets/gradle/classes/main',
           '--classes', '../server-application-server/targets/gradle/classes/main',

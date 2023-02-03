@@ -29,7 +29,7 @@ lib-authentication \
 lib-commonbase \
 lib-common \
 server-original-data-store \
-dbmigration \
+lib-dbmigration \
 installation \
 test-api-openbis-javascript \
 server-application-server \

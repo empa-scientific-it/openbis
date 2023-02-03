@@ -1,1 +1,1 @@
-includeFlat 'lib-commonbase', 'lib-common', 'openbis_api', 'lib-openbis-common', 'lib-authentication', 'dbmigration'
+includeFlat 'lib-commonbase', 'lib-common', 'openbis_api', 'lib-openbis-common', 'lib-authentication', 'lib-dbmigration'

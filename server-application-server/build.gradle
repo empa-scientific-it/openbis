@@ -3,7 +3,7 @@ evaluationDependsOn(':lib-common')
 evaluationDependsOn(':openbis_api')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
-evaluationDependsOn(':dbmigration')
+evaluationDependsOn(':lib-dbmigration')
 
 apply from: '../build/javaproject.gradle'
 
@@ -15,7 +15,7 @@ dependencies {
             project(':openbis_api'),
             project(':lib-openbis-common'),
             project(':lib-authentication'),
-            project(':dbmigration'),
+            project(':lib-dbmigration'),
             'sencha:gxt:2.2.5',
             'jboss:javassist:3.28.0.GA',
             'hibernate:hibernate-core:5.2.14.Final',
@@ -43,7 +43,7 @@ dependencies {
 
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
-            project(path: ':dbmigration', configuration: 'tests'),
+            project(path: ':lib-dbmigration', configuration: 'tests'),
             project(path: ':lib-authentication', configuration: 'tests'),
             project(path: ':openbis_api', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
@@ -134,7 +134,7 @@ task openBISDevelopementEnvironmentASStart(type: JavaExec) {
     args(['--classes', '../lib-commonbase/targets/gradle/classes/java/main',
           '--classes', '../lib-common/targets/gradle/classes/java/main',
           '--classes', '../lib-authentication/targets/gradle/classes/java/main',
-          '--classes', '../dbmigration/targets/gradle/classes/java/main',
+          '--classes', '../lib-dbmigration/targets/gradle/classes/java/main',
           '--classes', '../lib-openbis-common/targets/gradle/classes/java/main',
           '--classes', '../openbis_api/targets/gradle/classes/java/main',
           '--classes', 'targets/gradle/classes/java/main', '--lib', 'targets/www/lib/', '--port', '8888', 'targets/www'])
