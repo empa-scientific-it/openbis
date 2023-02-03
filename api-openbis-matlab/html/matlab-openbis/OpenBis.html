@@ -1,21 +1,23 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-                "http://www.w3.org/TR/REC-html40/loose.dtd">
+        "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html>
 <head>
-  <title>Description of OpenBis</title>
-  <meta name="keywords" content="OpenBis">
-  <meta name="description" content="">
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
-  <meta name="robots" content="index, follow">
-  <link type="text/css" rel="stylesheet" href="../m2html.css">
+    <title>Description of OpenBis</title>
+    <meta name="keywords" content="OpenBis">
+    <meta name="description" content="">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+    <meta name="robots" content="index, follow">
+    <link type="text/css" rel="stylesheet" href="../m2html.css">
 </head>
 <body>
 <a name="_top"></a>
-<div><a href="../index.html">Home</a> &gt;  <a href="index.html">matlab-openbis</a> &gt; OpenBis.m</div>
+<div><a href="../index.html">Home</a> &gt; <a href="index.html">api-openbis-matlab</a> &gt;
+    OpenBis.m
+</div>
 
 <!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
-<td align="right"><a href="index.html">Index for matlab-openbis&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+<td align="right"><a href="index.html">Index for api-openbis-matlab&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
 
 <h1>OpenBis
 </h1>
@@ -23,27 +25,85 @@
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong></strong></div>
 
-<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a>
+</h2>
 <div class="box"><strong>This is a script file. </strong></div>
 
-<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"></pre></div>
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a>
+</h2>
+<div class="fragment">
+    <pre class="comment"></pre>
+</div>
 
 <!-- crossreference -->
-<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0"
+                                                                          src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="OpenBis.html" class="code" title="">OpenBis</a>	</li><li><a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>	df_to_table</li><li><a href="user_url_pw_inputdlg.html" class="code" title="function [url, user, pw] = user_url_pw_inputdlg">user_url_pw_inputdlg</a>	user_url_pw_inputdlg</li></ul>
+    <li><a href="OpenBis.html" class="code" title="">OpenBis</a></li>
+    <li><a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>
+        df_to_table
+    </li>
+    <li><a href="user_url_pw_inputdlg.html" class="code"
+           title="function [url, user, pw] = user_url_pw_inputdlg">user_url_pw_inputdlg</a>
+        user_url_pw_inputdlg
+    </li>
+</ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="OpenBis.html" class="code" title="">OpenBis</a>	</li><li><a href="obi_test.html" class="code" title="function pass = obi_test(varargin)">obi_test</a>	obi_test Testing function for the Matlab openBIS Toolbox</li></ul>
+    <li><a href="OpenBis.html" class="code" title="">OpenBis</a></li>
+    <li><a href="obi_test.html" class="code" title="function pass = obi_test(varargin)">obi_test</a>
+        obi_test Testing function for the Matlab openBIS Toolbox
+    </li>
+</ul>
 <!-- crossreference -->
 
-<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0"
+                                                                  src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function obj = OpenBis(varargin)</a></li><li><a href="#_sub2" class="code">function logout(obj)</a></li><li><a href="#_sub3" class="code">function tf= is_session_active(obj)</a></li><li><a href="#_sub4" class="code">function token = token(obj)</a></li><li><a href="#_sub5" class="code">function experiment_types = get_experiment_types(obj)</a></li><li><a href="#_sub6" class="code">function sample_types = get_sample_types(obj)</a></li><li><a href="#_sub7" class="code">function material_types = get_material_types(obj)</a></li><li><a href="#_sub8" class="code">function dataset_types = get_dataset_types(obj)</a></li><li><a href="#_sub9" class="code">function terms = get_terms(obj)</a></li><li><a href="#_sub10" class="code">function tags = get_tags(obj)</a></li><li><a href="#_sub11" class="code">function spaces = get_spaces(obj)</a></li><li><a href="#_sub12" class="code">function space = get_space(obj, code)</a></li><li><a href="#_sub13" class="code">function space = new_space(obj, code, description)</a></li><li><a href="#_sub14" class="code">function delete_space(obj, code, reason)</a></li><li><a href="#_sub15" class="code">function projects = get_projects(obj, space, code)</a></li><li><a href="#_sub16" class="code">function project = get_project(obj, id)</a></li><li><a href="#_sub17" class="code">function project = new_project(obj, space, code, description)</a></li><li><a href="#_sub18" class="code">function delete_project(obj, code, reason)</a></li><li><a href="#_sub19" class="code">function experiments = get_experiments(obj, varargin)</a></li><li><a href="#_sub20" class="code">function experiment = get_experiment(obj, id)</a></li><li><a href="#_sub21" class="code">function exp = new_experiment(obj, type, code, project)</a></li><li><a href="#_sub22" class="code">function objects = get_objects(obj, varargin)</a></li><li><a href="#_sub23" class="code">function object = get_object(obj, id)</a></li><li><a href="#_sub24" class="code">function object = new_object(obj, type, space, code)</a></li><li><a href="#_sub25" class="code">function object = delete_object(obj, object, reason)</a></li><li><a href="#_sub26" class="code">function datasets = get_datasets(obj, varargin)</a></li><li><a href="#_sub27" class="code">function dataset = get_dataset(obj, permid, varargin)</a></li><li><a href="#_sub28" class="code">function files = get_dataset_files(obj, dataset, varargin)</a></li><li><a href="#_sub29" class="code">function path_to_file = dataset_download(obj, dataset, files, varargin)</a></li><li><a href="#_sub30" class="code">function dataset = new_dataset(obj, type, object, file_list, varargin)</a></li><li><a href="#_sub31" class="code">function dataset = new_dataset_container(obj, type, experiment, object)</a></li></ul>
+    <li><a href="#_sub1" class="code">function obj = OpenBis(varargin)</a></li>
+    <li><a href="#_sub2" class="code">function logout(obj)</a></li>
+    <li><a href="#_sub3" class="code">function tf= is_session_active(obj)</a></li>
+    <li><a href="#_sub4" class="code">function token = token(obj)</a></li>
+    <li><a href="#_sub5" class="code">function experiment_types = get_experiment_types(obj)</a></li>
+    <li><a href="#_sub6" class="code">function sample_types = get_sample_types(obj)</a></li>
+    <li><a href="#_sub7" class="code">function material_types = get_material_types(obj)</a></li>
+    <li><a href="#_sub8" class="code">function dataset_types = get_dataset_types(obj)</a></li>
+    <li><a href="#_sub9" class="code">function terms = get_terms(obj)</a></li>
+    <li><a href="#_sub10" class="code">function tags = get_tags(obj)</a></li>
+    <li><a href="#_sub11" class="code">function spaces = get_spaces(obj)</a></li>
+    <li><a href="#_sub12" class="code">function space = get_space(obj, code)</a></li>
+    <li><a href="#_sub13" class="code">function space = new_space(obj, code, description)</a></li>
+    <li><a href="#_sub14" class="code">function delete_space(obj, code, reason)</a></li>
+    <li><a href="#_sub15" class="code">function projects = get_projects(obj, space, code)</a></li>
+    <li><a href="#_sub16" class="code">function project = get_project(obj, id)</a></li>
+    <li><a href="#_sub17" class="code">function project = new_project(obj, space, code,
+        description)</a></li>
+    <li><a href="#_sub18" class="code">function delete_project(obj, code, reason)</a></li>
+    <li><a href="#_sub19" class="code">function experiments = get_experiments(obj, varargin)</a>
+    </li>
+    <li><a href="#_sub20" class="code">function experiment = get_experiment(obj, id)</a></li>
+    <li><a href="#_sub21" class="code">function exp = new_experiment(obj, type, code, project)</a>
+    </li>
+    <li><a href="#_sub22" class="code">function objects = get_objects(obj, varargin)</a></li>
+    <li><a href="#_sub23" class="code">function object = get_object(obj, id)</a></li>
+    <li><a href="#_sub24" class="code">function object = new_object(obj, type, space, code)</a></li>
+    <li><a href="#_sub25" class="code">function object = delete_object(obj, object, reason)</a></li>
+    <li><a href="#_sub26" class="code">function datasets = get_datasets(obj, varargin)</a></li>
+    <li><a href="#_sub27" class="code">function dataset = get_dataset(obj, permid, varargin)</a>
+    </li>
+    <li><a href="#_sub28" class="code">function files = get_dataset_files(obj, dataset,
+        varargin)</a></li>
+    <li><a href="#_sub29" class="code">function path_to_file = dataset_download(obj, dataset, files,
+        varargin)</a></li>
+    <li><a href="#_sub30" class="code">function dataset = new_dataset(obj, type, object, file_list,
+        varargin)</a></li>
+    <li><a href="#_sub31" class="code">function dataset = new_dataset_container(obj, type,
+        experiment, object)</a></li>
+</ul>
 
-<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a>
+</h2>
 <div class="fragment"><pre>0001 classdef <a href="OpenBis.html" class="code" title="">OpenBis</a>
 0002     <span class="comment">% OpenBis   High-level class for interacting with Python (pyBIS) Openbis objects</span>
 0003     <span class="comment">% This class creates a MATLAB OpenBis object that encapsulates the Python (pyBIS) Openbis object</span>
@@ -73,21 +133,24 @@ This function is called by:
 0027         <span class="comment">%% Constructor method</span>
 0028         <a name="_sub0" href="#_subfunctions" class="code">function obj = OpenBis(varargin)</a>
 0029             <span class="comment">% OpenBis   Constructor method for class OpenBis</span>
-0030             <span class="comment">% Creates the Python Openbis object and logs into the server</span>
+0030             <span
+            class="comment">% Creates the Python Openbis object and logs into the server</span>
 0031             <span class="comment">% Optional positional input arguments:</span>
 0032             <span class="comment">% url ... URL of the openBIS server (incl. port)</span>
 0033             <span class="comment">% user ... user name for openBIS</span>
 0034             <span class="comment">% pw ... password for openBIS</span>
 0035             <span class="comment">% Usage:</span>
 0036             <span class="comment">% obi = OpenBis() --&gt; opens UI to enter URL, user name and password</span>
-0037             <span class="comment">% obi = OpenBis('server_url', 'user_name', 'user_password')</span>
+0037             <span
+            class="comment">% obi = OpenBis('server_url', 'user_name', 'user_password')</span>
 0038             
 0039             <span class="keyword">if</span> nargin &gt; 0
 0040                 url = varargin{1};
 0041                 user = varargin{2};
 0042                 pw = varargin{3};
 0043             <span class="keyword">else</span>
-0044                 [url, user, pw] = <a href="user_url_pw_inputdlg.html" class="code" title="function [url, user, pw] = user_url_pw_inputdlg">user_url_pw_inputdlg</a>;
+0044                 [url, user, pw] = <a href="user_url_pw_inputdlg.html" class="code"
+                                          title="function [url, user, pw] = user_url_pw_inputdlg">user_url_pw_inputdlg</a>;
 0045             <span class="keyword">end</span>
 0046             
 0047             o = py.pybis.Openbis(url, pyargs(<span class="string">'verify_certificates'</span>, 0));
@@ -106,7 +169,8 @@ This function is called by:
 0060             obj.pybis.logout();
 0061         <span class="keyword">end</span>
 0062         
-0063         <a name="_sub2" href="#_subfunctions" class="code">function tf= is_session_active(obj)</a>
+0063         <a name="_sub2" href="#_subfunctions"
+                class="code">function tf= is_session_active(obj)</a>
 0064             <span class="comment">%is_session_active</span>
 0065             <span class="comment">% Check if the session token is still active. Returns true or false.</span>
 0066             <span class="comment">% Usage:</span>
@@ -140,7 +204,8 @@ This function is called by:
 0094             <span class="comment">% experiment_types = obi.get_experiment_types()</span>
 0095             
 0096             experiment_types = obj.pybis.get_experiment_types();
-0097             experiment_types = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(experiment_types.df);
+0097             experiment_types = <a href="df_to_table.html" class="code"
+                                       title="function [matlab_table] = df_to_table(df)">df_to_table</a>(experiment_types.df);
 0098         <span class="keyword">end</span>
 0099         
 0100         <a name="_sub5" href="#_subfunctions" class="code">function sample_types = get_sample_types(obj)</a>
@@ -150,7 +215,8 @@ This function is called by:
 0104             <span class="comment">% sample_types = obi.get_sample_types()</span>
 0105             
 0106             sample_types = obj.pybis.get_sample_types();
-0107             sample_types = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(sample_types.df);
+0107             sample_types = <a href="df_to_table.html" class="code"
+                                   title="function [matlab_table] = df_to_table(df)">df_to_table</a>(sample_types.df);
 0108         <span class="keyword">end</span>
 0109         
 0110         <a name="_sub6" href="#_subfunctions" class="code">function material_types = get_material_types(obj)</a>
@@ -160,7 +226,8 @@ This function is called by:
 0114             <span class="comment">% material_types = obi.get_material_types()</span>
 0115             
 0116             material_types = obj.pybis.get_material_types();
-0117             material_types = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(material_types.df);
+0117             material_types = <a href="df_to_table.html" class="code"
+                                     title="function [matlab_table] = df_to_table(df)">df_to_table</a>(material_types.df);
 0118         <span class="keyword">end</span>
 0119         
 0120         <a name="_sub7" href="#_subfunctions" class="code">function dataset_types = get_dataset_types(obj)</a>
@@ -170,7 +237,8 @@ This function is called by:
 0124             <span class="comment">% dataset_types = obi.get_dataset_types()</span>
 0125             
 0126             dataset_types = obj.pybis.get_dataset_types();
-0127             dataset_types = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(dataset_types.df);
+0127             dataset_types = <a href="df_to_table.html" class="code"
+                                    title="function [matlab_table] = df_to_table(df)">df_to_table</a>(dataset_types.df);
 0128         <span class="keyword">end</span>
 0129         
 0130         <a name="_sub8" href="#_subfunctions" class="code">function terms = get_terms(obj)</a>
@@ -180,7 +248,8 @@ This function is called by:
 0134             <span class="comment">% terms = obi.get_terms()</span>
 0135             
 0136             terms = obj.pybis.get_terms();
-0137             terms = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(terms.df);
+0137             terms = <a href="df_to_table.html" class="code"
+                            title="function [matlab_table] = df_to_table(df)">df_to_table</a>(terms.df);
 0138         <span class="keyword">end</span>
 0139         
 0140         <a name="_sub9" href="#_subfunctions" class="code">function tags = get_tags(obj)</a>
@@ -190,7 +259,8 @@ This function is called by:
 0144             <span class="comment">% tags = obi.get_tags()</span>
 0145             
 0146             tags = obj.pybis.get_tags();
-0147             tags = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(tags.df);
+0147             tags = <a href="df_to_table.html" class="code"
+                           title="function [matlab_table] = df_to_table(df)">df_to_table</a>(tags.df);
 0148         <span class="keyword">end</span>
 0149         
 0150         
@@ -201,14 +271,16 @@ This function is called by:
 0155         <span class="comment">%   new_space</span>
 0156         <span class="comment">%   space.delete</span>
 0157         
-0158         <a name="_sub10" href="#_subfunctions" class="code">function spaces = get_spaces(obj)</a>
+0158         <a name="_sub10" href="#_subfunctions"
+                class="code">function spaces = get_spaces(obj)</a>
 0159             <span class="comment">%get_spaces</span>
 0160             <span class="comment">% Return table of all available spaces.</span>
 0161             <span class="comment">% Usage:</span>
 0162             <span class="comment">% spaces = obi.get_spaces()</span>
 0163             
 0164             spaces = obj.pybis.get_spaces();
-0165             spaces = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(spaces.df);
+0165             spaces = <a href="df_to_table.html" class="code"
+                             title="function [matlab_table] = df_to_table(df)">df_to_table</a>(spaces.df);
 0166         <span class="keyword">end</span>
 0167         
 0168         <a name="_sub11" href="#_subfunctions" class="code">function space = get_space(obj, code)</a>
@@ -232,14 +304,16 @@ This function is called by:
 0186             <span class="comment">% Usage:</span>
 0187             <span class="comment">% space = obi.new_space('code', 'description')</span>
 0188             
-0189             space = obj.pybis.new_space(pyargs(<span class="string">'code'</span>,  code, <span class="keyword">...</span>
+0189             space = obj.pybis.new_space(pyargs(<span class="string">'code'</span>,  code, <span
+            class="keyword">...</span>
 0190                 <span class="string">'description'</span>, description));
 0191             space.save;
 0192         <span class="keyword">end</span>
 0193         
 0194         <a name="_sub13" href="#_subfunctions" class="code">function delete_space(obj, code, reason)</a>
 0195             <span class="comment">%delete_space</span>
-0196             <span class="comment">% Delete space with code and provide a reason for deletion</span>
+0196             <span
+            class="comment">% Delete space with code and provide a reason for deletion</span>
 0197             <span class="comment">% Required input arguments:</span>
 0198             <span class="comment">% code ... Space code</span>
 0199             <span class="comment">% reason ... reason for deletion</span>
@@ -267,8 +341,10 @@ This function is called by:
 0221             <span class="comment">% Usage:</span>
 0222             <span class="comment">% projects = obi.get_projects('space', 'code')</span>
 0223             
-0224             projects = obj.pybis.get_projects(pyargs(<span class="string">'space'</span>,  space, <span class="string">'code'</span>, code));
-0225             projects = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(projects.df);
+0224             projects = obj.pybis.get_projects(pyargs(<span class="string">'space'</span>,  space, <span
+            class="string">'code'</span>, code));
+0225             projects = <a href="df_to_table.html" class="code"
+                               title="function [matlab_table] = df_to_table(df)">df_to_table</a>(projects.df);
 0226         <span class="keyword">end</span>
 0227         
 0228         <a name="_sub15" href="#_subfunctions" class="code">function project = get_project(obj, id)</a>
@@ -285,23 +361,27 @@ This function is called by:
 0239         
 0240         <a name="_sub16" href="#_subfunctions" class="code">function project = new_project(obj, space, code, description)</a>
 0241             <span class="comment">%new_project</span>
-0242             <span class="comment">% Create a new project in space with code and description</span>
+0242             <span
+            class="comment">% Create a new project in space with code and description</span>
 0243             <span class="comment">% Return the project object</span>
 0244             <span class="comment">% Input arguments</span>
 0245             <span class="comment">% space ... Space code</span>
 0246             <span class="comment">% code ... Project code / id</span>
 0247             <span class="comment">% description ... Project description</span>
 0248             <span class="comment">% Usage:</span>
-0249             <span class="comment">% project = obi.new_project('space', 'code', 'description')</span>
+0249             <span
+            class="comment">% project = obi.new_project('space', 'code', 'description')</span>
 0250             
 0251             space = obj.pybis.get_space(space);
-0252             project = space.new_project(pyargs(<span class="string">'code'</span>, code,  <span class="string">'description'</span>, description));
+0252             project = space.new_project(pyargs(<span class="string">'code'</span>, code,  <span
+            class="string">'description'</span>, description));
 0253             project.save();
 0254         <span class="keyword">end</span>
 0255         
 0256         <a name="_sub17" href="#_subfunctions" class="code">function delete_project(obj, code, reason)</a>
 0257             <span class="comment">%delete_project</span>
-0258             <span class="comment">% Delete project with code and provide a reason for deletion</span>
+0258             <span
+            class="comment">% Delete project with code and provide a reason for deletion</span>
 0259             <span class="comment">% Required input arguments:</span>
 0260             <span class="comment">% code ... Project code</span>
 0261             <span class="comment">% reason ... reason for deletion</span>
@@ -343,8 +423,10 @@ This function is called by:
 0297             parse(p, obj, varargin{:});
 0298             a = p.Results;
 0299             
-0300             experiments = obj.pybis.get_experiments(pyargs(<span class="string">'space'</span>, a.space, <span class="string">'type'</span>, a.type, <span class="string">'project'</span>, a.project));
-0301             experiments = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(experiments.df);
+0300             experiments = obj.pybis.get_experiments(pyargs(<span class="string">'space'</span>, a.space, <span
+            class="string">'type'</span>, a.type, <span class="string">'project'</span>, a.project));
+0301             experiments = <a href="df_to_table.html" class="code"
+                                  title="function [matlab_table] = df_to_table(df)">df_to_table</a>(experiments.df);
 0302         <span class="keyword">end</span>
 0303         
 0304         <a name="_sub19" href="#_subfunctions" class="code">function experiment = get_experiment(obj, id)</a>
@@ -364,7 +446,8 @@ This function is called by:
 0318             <span class="comment">% Required input arguments:</span>
 0319             <span class="comment">% type ... new experiment type - see: obi.get_experiment_types()</span>
 0320             <span class="comment">% code ... new experiment code</span>
-0321             <span class="comment">% project ... project for new experiment ('/SPACE/Project')</span>
+0321             <span
+            class="comment">% project ... project for new experiment ('/SPACE/Project')</span>
 0322             <span class="comment">% Usage:</span>
 0323             <span class="comment">% exp = obi.new_experiment('DEFAULT_EXPERIMENT', 'EXP1234', '/SPACE/Project')</span>
 0324             
@@ -375,7 +458,9 @@ This function is called by:
 0329             p = obj.get_project(project);
 0330             
 0331             <span class="comment">% instantiate a new experiment object</span>
-0332             exp = py.pybis.pybis.Experiment(obj.pybis, pyargs(<span class="string">'type'</span>, t, <span class="string">'code'</span>, code, <span class="string">'project'</span>, p));
+0332             exp = py.pybis.pybis.Experiment(obj.pybis, pyargs(<span
+            class="string">'type'</span>, t, <span class="string">'code'</span>, code, <span
+            class="string">'project'</span>, p));
 0333             
 0334             <span class="comment">% save experiment</span>
 0335             exp.save();
@@ -391,7 +476,8 @@ This function is called by:
 0345         
 0346         <a name="_sub21" href="#_subfunctions" class="code">function objects = get_objects(obj, varargin)</a>
 0347             <span class="comment">%get_objects</span>
-0348             <span class="comment">% Return a table of objects matching specified criteria</span>
+0348             <span
+            class="comment">% Return a table of objects matching specified criteria</span>
 0349             <span class="comment">% Optional keyword arguments:</span>
 0350             <span class="comment">% id ... object identifier ('SPACE/PROJECT/')</span>
 0351             <span class="comment">% Usage:</span>
@@ -407,7 +493,8 @@ This function is called by:
 0361             a = p.Results;
 0362            
 0363             objects = obj.pybis.get_objects(a.id);
-0364             objects = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(objects.df);
+0364             objects = <a href="df_to_table.html" class="code"
+                              title="function [matlab_table] = df_to_table(df)">df_to_table</a>(objects.df);
 0365         <span class="keyword">end</span>
 0366         
 0367         <a name="_sub22" href="#_subfunctions" class="code">function object = get_object(obj, id)</a>
@@ -434,7 +521,9 @@ This function is called by:
 0388             <span class="comment">% Usage:</span>
 0389             <span class="comment">% object = obi.new_object('type', 'space', 'code')</span>
 0390             
-0391             object = obj.pybis.new_object(pyargs(<span class="string">'type'</span>, type, <span class="string">'space'</span>, space, <span class="string">'code'</span>, code));
+0391             object = obj.pybis.new_object(pyargs(<span
+            class="string">'type'</span>, type, <span class="string">'space'</span>, space, <span
+            class="string">'code'</span>, code));
 0392             object.save();
 0393         <span class="keyword">end</span>
 0394         
@@ -490,9 +579,13 @@ This function is called by:
 0444             parse(p, obj, varargin{:});
 0445             a = p.Results;
 0446             
-0447             datasets = obj.pybis.get_datasets(pyargs(<span class="string">'code'</span>, a.code, <span class="string">'type'</span>, a.type, <span class="string">'experiment'</span>, a.experiment, <span class="keyword">...</span>
-0448                 <span class="string">'project'</span>, a.project, <span class="string">'tags'</span>, a.tags));
-0449             datasets = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(datasets.df);
+0447             datasets = obj.pybis.get_datasets(pyargs(<span class="string">'code'</span>, a.code, <span
+            class="string">'type'</span>, a.type, <span class="string">'experiment'</span>, a.experiment, <span
+            class="keyword">...</span>
+0448                 <span class="string">'project'</span>, a.project, <span
+            class="string">'tags'</span>, a.tags));
+0449             datasets = <a href="df_to_table.html" class="code"
+                               title="function [matlab_table] = df_to_table(df)">df_to_table</a>(datasets.df);
 0450         <span class="keyword">end</span>
 0451         
 0452         <a name="_sub26" href="#_subfunctions" class="code">function dataset = get_dataset(obj, permid, varargin)</a>
@@ -519,10 +612,12 @@ This function is called by:
 0473         
 0474         <a name="_sub27" href="#_subfunctions" class="code">function files = get_dataset_files(obj, dataset, varargin)</a>
 0475             <span class="comment">%get_dataset_files</span>
-0476             <span class="comment">% Get list of files in a dataset starting with start_folder.</span>
+0476             <span
+            class="comment">% Get list of files in a dataset starting with start_folder.</span>
 0477             <span class="comment">% Input arguments:</span>
 0478             <span class="comment">% dataset ... dataset object returned by get_dataset</span>
-0479             <span class="comment">% start_folder ... starting folder for files (default: '/')</span>
+0479             <span
+            class="comment">% start_folder ... starting folder for files (default: '/')</span>
 0480             <span class="comment">% Usage:</span>
 0481             <span class="comment">% files = obi.get_dataset_files(dataset)</span>
 0482             
@@ -536,7 +631,8 @@ This function is called by:
 0490             a = p.Results;
 0491             
 0492             files = dataset.get_files(pyargs(<span class="string">'start_folder'</span>, a.start_folder));
-0493             files = <a href="df_to_table.html" class="code" title="function [matlab_table] = df_to_table(df)">df_to_table</a>(files);
+0493             files = <a href="df_to_table.html" class="code"
+                            title="function [matlab_table] = df_to_table(df)">df_to_table</a>(files);
 0494         <span class="keyword">end</span>
 0495         
 0496         <a name="_sub28" href="#_subfunctions" class="code">function path_to_file = dataset_download(obj, dataset, files, varargin)</a>
@@ -544,7 +640,8 @@ This function is called by:
 0498             <span class="comment">% Download files in a dataset</span>
 0499             <span class="comment">% dataset ... dataset object returned by get_dataset</span>
 0500             <span class="comment">% files ... cell array of files</span>
-0501             <span class="comment">% destination ... folder to download to (default: data)</span>
+0501             <span
+            class="comment">% destination ... folder to download to (default: data)</span>
 0502             <span class="comment">% wait_until_finished ... wait or download in the background (default: true)</span>
 0503             <span class="comment">% workers ... number of workers to use for download (default: 10)</span>
 0504             <span class="comment">% Usage:</span>
@@ -565,7 +662,9 @@ This function is called by:
 0519             parse(p, obj, dataset, files, varargin{:});
 0520             a = p.Results;
 0521             
-0522             dataset.download(pyargs(<span class="string">'files'</span>, a.files, <span class="string">'destination'</span>, a.destination, <span class="string">'wait_until_finished'</span>, a.wait_until_finished, <span class="string">'workers'</span>, int16(a.workers)));
+0522             dataset.download(pyargs(<span class="string">'files'</span>, a.files, <span
+            class="string">'destination'</span>, a.destination, <span class="string">'wait_until_finished'</span>, a.wait_until_finished, <span
+            class="string">'workers'</span>, int16(a.workers)));
 0523             
 0524             path_to_file = fullfile(a.destination, dataset.char, a.files);
 0525             
@@ -593,8 +692,10 @@ This function is called by:
 0547             parse(p, obj, type, object, file_list, varargin{:});
 0548             a = p.Results;
 0549             
-0550             dataset = obj.pybis.new_dataset(pyargs(<span class="string">'type'</span>, a.type, <span class="string">'experiment'</span>, a.object, <span class="keyword">...</span>
-0551                 <span class="string">'files'</span>, a.file_list, <span class="string">'props'</span>, a.properties));
+0550             dataset = obj.pybis.new_dataset(pyargs(<span class="string">'type'</span>, a.type, <span
+            class="string">'experiment'</span>, a.object, <span class="keyword">...</span>
+0551                 <span class="string">'files'</span>, a.file_list, <span
+            class="string">'props'</span>, a.properties));
 0552             dataset.save();
 0553             
 0554         <span class="keyword">end</span>
@@ -617,7 +718,9 @@ This function is called by:
 0571             parse(p, obj, type, experiment, object, file_list);
 0572             a = p.Results;
 0573             
-0574             dataset = obj.pybis.new_dataset(pyargs(<span class="string">'type'</span>, a.type, <span class="string">'experiment'</span>, a.experiment, <span class="string">'sample'</span>, a.object, <span class="string">'kind'</span>, <span class="string">'CONTAINER'</span>));
+0574             dataset = obj.pybis.new_dataset(pyargs(<span class="string">'type'</span>, a.type, <span
+            class="string">'experiment'</span>, a.experiment, <span class="string">'sample'</span>, a.object, <span
+            class="string">'kind'</span>, <span class="string">'CONTAINER'</span>));
 0575             dataset.save();
 0576             
 0577         <span class="keyword">end</span>
@@ -627,7 +730,12 @@ This function is called by:
 0581     
 0582 <span class="keyword">end</span>
 0583 
-0584</pre></div>
-<hr><address>Generated on Tue 06-Jul-2021 16:01:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0584</pre>
+</div>
+<hr>
+<address>Generated on Tue 06-Jul-2021 16:01:18 by <strong><a
+        href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong>
+    &copy; 2005
+</address>
 </body>
 </html>

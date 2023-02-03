@@ -1,18 +1,20 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-                "http://www.w3.org/TR/REC-html40/loose.dtd">
+        "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html>
 <head>
-  <title>Description of user_url_pw_input_dialog</title>
-  <meta name="keywords" content="user_url_pw_input_dialog">
-  <meta name="description" content="user_url_pw_input">
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
-  <meta name="robots" content="index, follow">
-  <link type="text/css" rel="stylesheet" href="../m2html.css">
+    <title>Description of user_url_pw_input_dialog</title>
+    <meta name="keywords" content="user_url_pw_input_dialog">
+    <meta name="description" content="user_url_pw_input">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+    <meta name="robots" content="index, follow">
+    <link type="text/css" rel="stylesheet" href="../m2html.css">
 </head>
 <body>
 <a name="_top"></a>
-<div><a href="../index.html">Home</a> &gt;  <a href="index.html">matlab-openbis</a> &gt; user_url_pw_input_dialog.m</div>
+<div><a href="../index.html">Home</a> &gt; <a href="index.html">api-openbis-matlab</a> &gt;
+    user_url_pw_input_dialog.m
+</div>
 
 <!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
 <td align="right"><a href="index.html">Index for matlab-openbis&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
@@ -23,15 +25,19 @@
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong>user_url_pw_input</strong></div>
 
-<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a>
+</h2>
 <div class="box"><strong>function [url, user, pass] = user_url_pw_input_dialog </strong></div>
 
-<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a>
+</h2>
 <div class="fragment"><pre class="comment">user_url_pw_input
-   Return the URL, user name and password for the openBIS server</pre></div>
+   Return the URL, user name and password for the openBIS server</pre>
+</div>
 
 <!-- crossreference -->
-<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0"
+                                                                          src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -40,11 +46,16 @@ This function is called by:
 </ul>
 <!-- crossreference -->
 
-<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0"
+                                                                  src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function my_closereq(fig,selection)</a></li><li><a href="#_sub2" class="code">function textChanging(txt, event)</a></li><li><a href="#_sub3" class="code">function buttonPushed(btn, fig)</a></li></ul>
+    <li><a href="#_sub1" class="code">function my_closereq(fig,selection)</a></li>
+    <li><a href="#_sub2" class="code">function textChanging(txt, event)</a></li>
+    <li><a href="#_sub3" class="code">function buttonPushed(btn, fig)</a></li>
+</ul>
 
-<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a>
+</h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [url, user, pass] = user_url_pw_input_dialog</a>
 0002 <span class="comment">%user_url_pw_input</span>
 0003 <span class="comment">%   Return the URL, user name and password for the openBIS server</span>
@@ -55,11 +66,14 @@ This function is called by:
 0008 
 0009 
 0010 ScreenSize = get(0,<span class="string">'ScreenSize'</span>);
-0011 fig = uifigure(<span class="string">'Name'</span>, <span class="string">'Enter openBIS credentials'</span>, <span class="string">'Position'</span>,[(ScreenSize(3:4)-[300 75])/2 400 150]);
-0012 fig.CloseRequestFcn = @(fig,event)<a href="#_sub1" class="code" title="subfunction my_closereq(fig,selection)">my_closereq</a>(fig);
+0011 fig = uifigure(<span class="string">'Name'</span>, <span class="string">'Enter openBIS credentials'</span>, <span
+            class="string">'Position'</span>,[(ScreenSize(3:4)-[300 75])/2 400 150]);
+0012 fig.CloseRequestFcn = @(fig,event)<a href="#_sub1" class="code"
+                                          title="subfunction my_closereq(fig,selection)">my_closereq</a>(fig);
 0013 
 0014 <span class="comment">% URL label and text field</span>
-0015 lbl_url = uilabel(fig, <span class="string">'Text'</span>, <span class="string">'URL:'</span>, <span class="keyword">...</span>
+0015 lbl_url = uilabel(fig, <span class="string">'Text'</span>, <span class="string">'URL:'</span>, <span
+            class="keyword">...</span>
 0016     <span class="string">'Position'</span>,[10 120 80 20]);
 0017 
 0018 txt_url = uieditfield(fig,<span class="keyword">...</span>
@@ -68,7 +82,8 @@ This function is called by:
 0021     <span class="string">'Tag'</span>, <span class="string">'url_textfield'</span>);
 0022 
 0023 <span class="comment">% User label and text field</span>
-0024 lbl_user = uilabel(fig, <span class="string">'Text'</span>, <span class="string">'User:'</span>, <span class="keyword">...</span>
+0024 lbl_user = uilabel(fig, <span class="string">'Text'</span>, <span class="string">'User:'</span>, <span
+            class="keyword">...</span>
 0025     <span class="string">'Position'</span>,[10 90 80 20]);
 0026 
 0027 txt_user = uieditfield(fig,<span class="keyword">...</span>
@@ -77,21 +92,29 @@ This function is called by:
 0030     <span class="string">'Tag'</span>, <span class="string">'user_textfield'</span>);
 0031 
 0032 <span class="comment">% Password label and text field</span>
-0033 lbl_pass = uilabel(fig, <span class="string">'Text'</span>, <span class="string">'Password:'</span>, <span class="keyword">...</span>
+0033 lbl_pass = uilabel(fig, <span class="string">'Text'</span>, <span
+            class="string">'Password:'</span>, <span class="keyword">...</span>
 0034     <span class="string">'Position'</span>,[10 60 80 20]);
 0035 
 0036 txt_pass = uieditfield(fig,<span class="keyword">...</span>
 0037     <span class="string">'Position'</span>,[70 60 280 20], <span class="keyword">...</span>
-0038     <span class="string">'Tag'</span>, <span class="string">'pass_textfield'</span>, <span class="keyword">...</span>
-0039     <span class="string">'ValueChangingFcn'</span>, @<a href="#_sub2" class="code" title="subfunction textChanging(txt, event)">textChanging</a>, <span class="keyword">...</span>
+0038     <span class="string">'Tag'</span>, <span class="string">'pass_textfield'</span>, <span
+            class="keyword">...</span>
+0039     <span class="string">'ValueChangingFcn'</span>, @<a href="#_sub2" class="code"
+                                                             title="subfunction textChanging(txt, event)">textChanging</a>, <span
+            class="keyword">...</span>
 0040     <span class="string">'UserData'</span>, <span class="string">''</span>);
 0041 
 0042 <span class="comment">% Push button to accept entries</span>
 0043 btn = uibutton(fig,<span class="string">'push'</span>, <span class="keyword">...</span>
 0044                <span class="string">'Position'</span>,[150 10 100 40], <span class="keyword">...</span>
-0045                <span class="string">'Text'</span>, <span class="string">'Connect'</span>, <span class="keyword">...</span>
-0046                <span class="string">'FontWeight'</span>, <span class="string">'bold'</span>, <span class="keyword">...</span>
-0047                <span class="string">'ButtonPushedFcn'</span>, @(btn,event) <a href="#_sub3" class="code" title="subfunction buttonPushed(btn, fig)">buttonPushed</a>(btn, fig));
+0045                <span class="string">'Text'</span>, <span class="string">'Connect'</span>, <span
+            class="keyword">...</span>
+0046                <span class="string">'FontWeight'</span>, <span
+            class="string">'bold'</span>, <span class="keyword">...</span>
+0047                <span class="string">'ButtonPushedFcn'</span>, @(btn,event) <a href="#_sub3"
+                                                                                   class="code"
+                                                                                   title="subfunction buttonPushed(btn, fig)">buttonPushed</a>(btn, fig));
 0048 
 0049 uiwait(fig)
 0050     
@@ -137,7 +160,12 @@ This function is called by:
 0090         close(fig)
 0091 <span class="keyword">end</span>
 0092 
-0093</pre></div>
-<hr><address>Generated on Tue 06-Jul-2021 16:01:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0093</pre>
+</div>
+<hr>
+<address>Generated on Tue 06-Jul-2021 16:01:18 by <strong><a
+        href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong>
+    &copy; 2005
+</address>
 </body>
 </html>
