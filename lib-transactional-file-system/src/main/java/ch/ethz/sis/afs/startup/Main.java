@@ -26,28 +26,37 @@ import ch.ethz.sis.shared.startup.Configuration;
 import java.io.File;
 import java.util.List;
 
-public class Main {
+public class Main
+{
 
-    public static List getParameterClasses() {
+    public static List getParameterClasses()
+    {
         return List.of(AtomicFileSystemParameter.class);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
-        Configuration configuration = new Configuration(getParameterClasses(), "../afs/src/main/resources/afs-config.properties");
+        Configuration configuration = new Configuration(getParameterClasses(),
+                "../lib-transactional-file-system/src/main/resources/afs-config.properties");
 
         // Initializing LogManager
         LogFactoryFactory logFactoryFactory = new LogFactoryFactory();
-        LogFactory logFactory = logFactoryFactory.create(configuration.getStringProperty(AtomicFileSystemParameter.logFactoryClass));
-        logFactory.configure(configuration.getStringProperty(AtomicFileSystemParameter.logConfigFile));
+        LogFactory logFactory = logFactoryFactory.create(
+                configuration.getStringProperty(AtomicFileSystemParameter.logFactoryClass));
+        logFactory.configure(
+                configuration.getStringProperty(AtomicFileSystemParameter.logConfigFile));
         LogManager.setLogFactory(logFactory);
 
         //
-        JSONObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemParameter.jsonObjectMapperClass);
-        String writeAheadLogRoot = configuration.getStringProperty(AtomicFileSystemParameter.writeAheadLogRoot);
+        JSONObjectMapper jsonObjectMapper =
+                configuration.getSharableInstance(AtomicFileSystemParameter.jsonObjectMapperClass);
+        String writeAheadLogRoot =
+                configuration.getStringProperty(AtomicFileSystemParameter.writeAheadLogRoot);
         String storageRoot = configuration.getStringProperty(AtomicFileSystemParameter.storageRoot);
 
-        TransactionManager transactionManager = new TransactionManager(jsonObjectMapper, writeAheadLogRoot, storageRoot);
+        TransactionManager transactionManager =
+                new TransactionManager(jsonObjectMapper, writeAheadLogRoot, storageRoot);
         transactionManager.reCommitTransactionsAfterCrash();
     }
 }

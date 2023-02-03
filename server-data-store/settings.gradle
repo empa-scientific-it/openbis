@@ -1,1 +1,1 @@
-includeFlat 'afs'
+includeFlat 'lib-transactional-file-system'
