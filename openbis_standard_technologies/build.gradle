@@ -462,7 +462,7 @@ task zipBdlServer(type: Zip, dependsOn: project(':server-external-data-store').t
 
 task pybisZip(type: Zip) {
     baseName 'pybis'
-    from '../pybis/'
+    from '../api-openbis-python3-pybis/'
 }
 
 task obisZip(type: Zip) {
