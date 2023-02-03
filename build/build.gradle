@@ -11,7 +11,7 @@ evaluationDependsOn(':openbis_standard_technologies')
 evaluationDependsOn(':installation')
 evaluationDependsOn(':test-ui-core')
 evaluationDependsOn(':test-api-openbis-javascript')
-evaluationDependsOn(':image_readers')
+evaluationDependsOn(':lib-image-readers')
 evaluationDependsOn(':server-external-data-store')
 
 apply from: '../build/javaproject.gradle'

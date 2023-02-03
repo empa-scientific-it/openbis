@@ -1,1 +1,1 @@
-includeFlat 'microservice-server-template'
+includeFlat 'lib-microservice-server'

@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    api project(':microservice-server-template')
+    api project(':lib-microservice-server')
     api 'openbis:openbis-v3-api-batteries-included:20.10.0'
 }
 
