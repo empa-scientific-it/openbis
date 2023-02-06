@@ -302,7 +302,7 @@ class TestCase(object):
         # util.unzip(zipFile, installPath)
         # util.executeCommand(['pip', 'install', installPath + '/src/python'], "Installation of pybis failed.")
         # install the local pybis in editable-mode (-e)
-        util.executeCommand(['pip', 'install', '-e', '../pybis/src/python'],
+        util.executeCommand(['pip', 'install', '-e', '../api-openbis-python3-pybis/src/python'],
                             "Installation of pybis failed.")
 
     def installObis(self):

@@ -4,7 +4,7 @@ export PYTHONPATH=/Users/vermeul/openbis/test-app-openbis-installer/source:/User
 
 # make sure you test the develop-version of pybis or obis
 
-cd ~/openbis/pybis/src/python
+cd ~/openbis/api-openbis-python3-pybis/src/python
 pip install -e .
 
 # ... and prevent this test-suite to install pybis from some source
