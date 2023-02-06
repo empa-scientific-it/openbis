@@ -3,7 +3,7 @@
 pushd $(dirname $0) > /dev/null
 
 OPENBIS_STANDARD_TECHNOLOGIES_DIR=../../..
-OPENBIS_DIR=../../../../openbis
+OPENBIS_DIR=../../../../server-application-server
 
 CURRENT_DIR=$(pwd)
 TEMP_DIR=${CURRENT_DIR}/temp
