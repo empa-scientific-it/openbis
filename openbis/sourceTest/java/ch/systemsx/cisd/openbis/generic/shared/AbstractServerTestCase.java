@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -84,15 +86,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -133,6 +126,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected IPermIdDAO permIdDAO;
 
     protected ISampleDAO sampleDAO;
+
+    protected ISampleRelationshipDAO sampleRelationshipDAO;
 
     protected ISpaceBO spaceBO;
 
@@ -236,10 +231,12 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
         // DAO
         daoFactory = context.mock(IDAOFactory.class);
+        CommonServiceProvider.setDAOFactory(daoFactory);
         personDAO = context.mock(IPersonDAO.class);
         groupDAO = context.mock(ISpaceDAO.class);
         spaceDAO = groupDAO;
         sampleDAO = context.mock(ISampleDAO.class);
+        sampleRelationshipDAO = context.mock(ISampleRelationshipDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         dataSetDAO = context.mock(IDataDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
@@ -298,6 +295,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(groupDAO));
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
+                    allowing(daoFactory).getSampleRelationshipDAO();
+                    will(returnValue(sampleRelationshipDAO));
                     allowing(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
                     allowing(daoFactory).getRoleAssignmentDAO();
