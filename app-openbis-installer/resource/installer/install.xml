@@ -1,220 +1,246 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <installation version="1.0">
-  <info>
-    <appname>openBIS</appname>
-    <appversion>@{version.number} (r@{revision.number})</appversion>
-    <url>http://www.cisd.ethz.ch/software/openBIS</url>
-    <uninstaller write="no"/>
-    <javaversion>1.6</javaversion>
-    <os>
-      <family>unix, mac</family>  
-    </os>
-  </info>
+    <info>
+        <appname>openBIS</appname>
+        <appversion>@{version.number} (r@{revision.number})</appversion>
+        <url>http://www.cisd.ethz.ch/software/openBIS</url>
+        <uninstaller write="no"/>
+        <javaversion>1.6</javaversion>
+        <os>
+            <family>unix, mac</family>
+        </os>
+    </info>
 
-  <!-- Sets the installer window size. -->
-  <guiprefs width="640" height="530" resizable="yes">
-      <modifier key="useHeadingPanel" value="yes"/>
-      <modifier key="headingImageOnLeft" value="yes"/>
-      <modifier key="headingBackgroundColor" value="0xffffff"/>
-  </guiprefs>
+    <!-- Sets the installer window size. -->
+    <guiprefs width="640" height="530" resizable="yes">
+        <modifier key="useHeadingPanel" value="yes"/>
+        <modifier key="headingImageOnLeft" value="yes"/>
+        <modifier key="headingBackgroundColor" value="0xffffff"/>
+    </guiprefs>
 
-  <locale>
-    <langpack iso3="eng" />
-  </locale>
+    <locale>
+        <langpack iso3="eng"/>
+    </locale>
 
-  <!-- The resources section. The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel. -->
-  <resources>
-    <res id="HTMLHelloPanel.info" src="@{installer.dist.dir}/hello.html"/>
-    <res id="HTMLInfoPanel.dbsetup" src="@{installer.dist.dir}/postgres-setup.html"/>
-    <res id="TargetPanel.dir" src="@{installer.dist.dir}/default-install-dir.txt" />
-    <res id="Heading.image" src="@{installer.dist.dir}/openBIS_logo_229x100.png"/>
-    <res id="userInputSpec.xml" src="@{installer.dist.dir}/userInputSpec.xml" />
-  </resources>
+    <!-- The resources section. The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel. -->
+    <resources>
+        <res id="HTMLHelloPanel.info" src="@{installer.dist.dir}/hello.html"/>
+        <res id="HTMLInfoPanel.dbsetup" src="@{installer.dist.dir}/postgres-setup.html"/>
+        <res id="TargetPanel.dir" src="@{installer.dist.dir}/default-install-dir.txt"/>
+        <res id="Heading.image" src="@{installer.dist.dir}/openBIS_logo_229x100.png"/>
+        <res id="userInputSpec.xml" src="@{installer.dist.dir}/userInputSpec.xml"/>
+    </resources>
 
-  <variables>
-    <!-- suppress the "target directory will be created" message -->
-    <variable name="ShowCreateDirectoryMessage"  value="false" />
-    <variable name="data.validation.error.title"  value="Error" />
-    <variable name="VERSION_NUMBER"  value="@{version.number}" />
-    <variable name="REVISION_NUMBER"  value="@{revision.number}" />
-  </variables>
+    <variables>
+        <!-- suppress the "target directory will be created" message -->
+        <variable name="ShowCreateDirectoryMessage" value="false"/>
+        <variable name="data.validation.error.title" value="Error"/>
+        <variable name="VERSION_NUMBER" value="@{version.number}"/>
+        <variable name="REVISION_NUMBER" value="@{revision.number}"/>
+    </variables>
 
-  <dynamicvariables>
-      <variable name="INSTALL_BIN_PATH" value="$INSTALL_PATH/bin" />
-      <variable name="INSTALL_OPENBIS_PATH" value="$INSTALL_PATH/servers/openBIS-server" />
-      <variable name="INSTALL_DSS_PATH" value="$INSTALL_PATH/servers/datastore_server" />
-      <!-- the path where the openBIS-server installation is extracted.-->
-      <variable name="INSTALL_TMPEXTRACT" value="$INSTALL_PATH/tmp-extract" />
-      <variable name="INSTALL_OPENBIS_TMPEXTRACT" value="$INSTALL_TMPEXTRACT/openBIS-server" />
-      <!--  temporary extract folder the "data" contents -->
-      <variable name="DATA_TMPEXTRACT" value="$INSTALL_PATH/data-tmp-extract" />
-  </dynamicvariables>
+    <dynamicvariables>
+        <variable name="INSTALL_BIN_PATH" value="$INSTALL_PATH/bin"/>
+        <variable name="INSTALL_OPENBIS_PATH" value="$INSTALL_PATH/servers/openBIS-server"/>
+        <variable name="INSTALL_DSS_PATH" value="$INSTALL_PATH/servers/datastore_server"/>
+        <!-- the path where the openBIS-server installation is extracted.-->
+        <variable name="INSTALL_TMPEXTRACT" value="$INSTALL_PATH/tmp-extract"/>
+        <variable name="INSTALL_OPENBIS_TMPEXTRACT" value="$INSTALL_TMPEXTRACT/openBIS-server"/>
+        <!--  temporary extract folder the "data" contents -->
+        <variable name="DATA_TMPEXTRACT" value="$INSTALL_PATH/data-tmp-extract"/>
+    </dynamicvariables>
 
-  <conditions>
-    <condition type="java" id="isUpdateInstallation">
-      <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-        <field>isUpdateInstallation</field>
-      </java>
-      <returnvalue type="boolean">true</returnvalue>
-    </condition>
-    <condition type="java" id="isFirstTimeInstallation">
-      <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-        <field>isFirstTimeInstallation</field>
-      </java>
-      <returnvalue type="boolean">true</returnvalue>
-    </condition>
-    <condition type="java" id="noPsqlToolsOnPath">
-      <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-        <field>noPsqlToolsOnPath</field>
-      </java>
-      <returnvalue type="boolean">true</returnvalue>
-    </condition>
-    <condition type="java" id="presentKeyStoreFile">
-      <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-        <field>presentKeyStoreFile</field>
-      </java>
-      <returnvalue type="boolean">true</returnvalue>
-    </condition>
-    <condition type="java" id="isUpdateInstallationWithDatabaseSelection">
-      <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-        <field>isUpdateInstallationWithDatabaseSelection</field>
-      </java>
-      <returnvalue type="boolean">true</returnvalue>
-    </condition>
-    <condition type="java" id="isUpdateInstallationWithoutDatabaseSelection">
-      <java>
-        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-        <field>isUpdateInstallationWithoutDatabaseSelection</field>
-      </java>
-      <returnvalue type="boolean">true</returnvalue>
-    </condition>
-  </conditions>
+    <conditions>
+        <condition type="java" id="isUpdateInstallation">
+            <java>
+                <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+                <field>isUpdateInstallation</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="java" id="isFirstTimeInstallation">
+            <java>
+                <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+                <field>isFirstTimeInstallation</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="java" id="noPsqlToolsOnPath">
+            <java>
+                <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+                <field>noPsqlToolsOnPath</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="java" id="presentKeyStoreFile">
+            <java>
+                <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+                <field>presentKeyStoreFile</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="java" id="isUpdateInstallationWithDatabaseSelection">
+            <java>
+                <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+                <field>isUpdateInstallationWithDatabaseSelection</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="java" id="isUpdateInstallationWithoutDatabaseSelection">
+            <java>
+                <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+                <field>isUpdateInstallationWithoutDatabaseSelection</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+    </conditions>
 
-  <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
-  <panels>
-    <panel classname="com.izforge.izpack.panels.htmlhello.HTMLHelloPanel"/>
-    <panel classname="com.izforge.izpack.panels.target.TargetPanel">
-      <actions>
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.InitializeInstallationContextAction" />
-      </actions>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.htmlinfo.HTMLInfoPanel" id="dbsetup" condition="isFirstTimeInstallation">
-        <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.DB_CHECK" condition="isUpdateInstallation">
-        <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
-        <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.KEY_STORE" >
-      <actions>
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.KeystoreAction" />
-      </actions>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.KEY_STORE_PASSWORDS" condition="presentKeyStoreFile">
-      <validator classname="ch.systemsx.cisd.openbis.installer.izpack.KeyStoreValidator" />
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES">
-      <actions>
-        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction" />
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction" />
-      </actions>
-    </panel>
+    <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
+    <panels>
+        <panel classname="com.izforge.izpack.panels.htmlhello.HTMLHelloPanel"/>
+        <panel classname="com.izforge.izpack.panels.target.TargetPanel">
+            <actions>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.InitializeInstallationContextAction"/>
+            </actions>
+        </panel>
 
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
-      <actions>
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetHostnameVariableAction" />
-      </actions>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BACKUP_OLD" condition="isUpdateInstallationWithoutDatabaseSelection">
-      <actions>
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction" />
-      </actions>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BACKUP" condition="isUpdateInstallationWithDatabaseSelection">
-      <actions>
-        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetDatabasesToBackupAction" />
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction" />
-      </actions>
-    </panel>
-    
-    
-    <panel classname="com.izforge.izpack.panels.packs.PacksPanel"/>
-    <panel classname="com.izforge.izpack.panels.install.InstallPanel">
-      <actions>
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteSetupScriptsAction" />
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.OpenGettingStartedPageAction" />
-      </actions>
-    </panel>
-    
-    <panel classname="com.izforge.izpack.panels.simplefinish.SimpleFinishPanel"/>
-  </panels>
+        <panel classname="com.izforge.izpack.panels.htmlinfo.HTMLInfoPanel" id="dbsetup"
+               condition="isFirstTimeInstallation">
+            <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.DB_CHECK" condition="isUpdateInstallation">
+            <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
+            <validator
+                    classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.KEY_STORE">
+            <actions>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.KeystoreAction"/>
+            </actions>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.KEY_STORE_PASSWORDS" condition="presentKeyStoreFile">
+            <validator classname="ch.systemsx.cisd.openbis.installer.izpack.KeyStoreValidator"/>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.TECHNOLOGIES">
+            <actions>
+                <action stage="preactivate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction"/>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction"/>
+            </actions>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
+            <actions>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.SetHostnameVariableAction"/>
+            </actions>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.BACKUP_OLD"
+               condition="isUpdateInstallationWithoutDatabaseSelection">
+            <actions>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction"/>
+            </actions>
+        </panel>
+
+        <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel"
+               id="UserInputPanel.BACKUP" condition="isUpdateInstallationWithDatabaseSelection">
+            <actions>
+                <action stage="preactivate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.SetDatabasesToBackupAction"/>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction"/>
+            </actions>
+        </panel>
 
 
-  <!-- The packs (packages) to be installed. -->
-  <packs>
-    <pack name="openBIS Server" required="no" loose="yes">
-      <description>The openBIS application server</description>
-      <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
-      <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
-      <!-- run post installation script for the openBIS server -->
-      <executable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/install.sh" stage="postinstall" failure="abort">
-        <args>
-          <arg value="$INSTALL_OPENBIS_PATH" />
-          <arg value="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
-        </args>
-      </executable>
-    </pack>
+        <panel classname="com.izforge.izpack.panels.packs.PacksPanel"/>
+        <panel classname="com.izforge.izpack.panels.install.InstallPanel">
+            <actions>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteSetupScriptsAction"/>
+                <action stage="postvalidate"
+                        classname="ch.systemsx.cisd.openbis.installer.izpack.OpenGettingStartedPageAction"/>
+            </actions>
+        </panel>
 
-    <pack name="Datastore Server" required="yes" loose="yes">
-      <description>The data store server managing raw data</description>
-      <file src="@{installer.dist.dir}/datastore_server" targetdir="$INSTALL_PATH/servers"/>
-      <file src="@{installer.dist.dir}/core-plugins" targetdir="$INSTALL_PATH/servers"/>
-      <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
-      
-      <!--  
-         Since there is no way to copy all contents of the "data" folder directly to DSS_ROOT_DIR,
-         we extract "data" to a temporary folder, move the content DSS_ROOT_DIR and delete the temp dir. 
-      -->
-      <file src="@{installer.dist.dir}/data" targetdir="$DATA_TMPEXTRACT" condition="isFirstTimeInstallation"/>
-      <parsable targetfile="$DATA_TMPEXTRACT/data/doc/getting-started-with-openBIS.html" condition="isFirstTimeInstallation"/>
-    </pack>
-    
-    <pack name="Big Data Link Server" required="no" loose="yes">
-      <description>The distributed data store server managing raw data</description>
-      <file src="@{installer.dist.dir}/big_data_link_server" targetdir="$INSTALL_PATH/servers"/>
-    </pack>
-    
+        <panel classname="com.izforge.izpack.panels.simplefinish.SimpleFinishPanel"/>
+    </panels>
 
-    <pack name="Administration Scripts" required="yes" loose="yes">
-      <description>Scripts to facilitate openBIS administration</description>
-      <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
-      
-      <!--  set all *.sh files executable -->      
-      <executable targetfile="${INSTALL_BIN_PATH}/finish-installation.sh" stage="postinstall" keep="true">
-        <args>
-          <arg value="$INSTALL_TMPEXTRACT" />
-          <arg value="$DATA_TMPEXTRACT" />
-          <arg value="$DSS_ROOT_DIR" />
-          <arg value="$POSTGRES_BIN" />
-        </args>
-      </executable>
-    </pack>
 
-  </packs>
+    <!-- The packs (packages) to be installed. -->
+    <packs>
+        <pack name="openBIS Server" required="no" loose="yes">
+            <description>The openBIS application server</description>
+            <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
+            <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties"/>
+            <!-- run post installation script for the openBIS server -->
+            <executable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/install.sh" stage="postinstall"
+                        failure="abort">
+                <args>
+                    <arg value="$INSTALL_OPENBIS_PATH"/>
+                    <arg value="$INSTALL_OPENBIS_TMPEXTRACT/service.properties"/>
+                </args>
+            </executable>
+        </pack>
+
+        <pack name="Datastore Server" required="yes" loose="yes">
+            <description>The data store server managing raw data</description>
+            <file src="@{installer.dist.dir}/datastore_server" targetdir="$INSTALL_PATH/servers"/>
+            <file src="@{installer.dist.dir}/core-plugins" targetdir="$INSTALL_PATH/servers"/>
+            <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties"/>
+
+            <!--
+               Since there is no way to copy all contents of the "data" folder directly to DSS_ROOT_DIR,
+               we extract "data" to a temporary folder, move the content DSS_ROOT_DIR and delete the temp dir.
+            -->
+            <file src="@{installer.dist.dir}/data" targetdir="$DATA_TMPEXTRACT"
+                  condition="isFirstTimeInstallation"/>
+            <parsable targetfile="$DATA_TMPEXTRACT/data/doc/getting-started-with-openBIS.html"
+                      condition="isFirstTimeInstallation"/>
+        </pack>
+
+        <pack name="Big Data Link Server" required="no" loose="yes">
+            <description>The distributed data store server managing raw data</description>
+            <file src="@{installer.dist.dir}/server-external-data-store"
+                  targetdir="$INSTALL_PATH/servers"/>
+        </pack>
+
+
+        <pack name="Administration Scripts" required="yes" loose="yes">
+            <description>Scripts to facilitate openBIS administration</description>
+            <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH"/>
+
+            <!--  set all *.sh files executable -->
+            <executable targetfile="${INSTALL_BIN_PATH}/finish-installation.sh" stage="postinstall"
+                        keep="true">
+                <args>
+                    <arg value="$INSTALL_TMPEXTRACT"/>
+                    <arg value="$DATA_TMPEXTRACT"/>
+                    <arg value="$DSS_ROOT_DIR"/>
+                    <arg value="$POSTGRES_BIN"/>
+                </args>
+            </executable>
+        </pack>
+
+    </packs>
 
 </installation>
