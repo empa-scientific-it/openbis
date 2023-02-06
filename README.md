@@ -87,7 +87,7 @@ option for cross-compilation".
     1. run openBISDevelopementEnvironmentASPrepare gradle task
     2. run openBISDevelopementEnvironmentASStart gradle task
 3. In command line do:
-    1. cd /<OPENBIS_PROJECT_ROOT>/openbis_ng_ui
+    1. cd /<OPENBIS_PROJECT_ROOT>/ui-admin
     2. npm install
     3. npm run dev
 4. Open in your chosen browser a url, by default: http://localhost:8124/ng-ui-path

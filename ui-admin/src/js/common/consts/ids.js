@@ -1,5 +1,5 @@
 // app
-const WEB_APP_ID = 'openbis_ng_ui'
+const WEB_APP_ID = 'ui-admin'
 const WEB_APP_SERVICE = 'openbis-ng-ui-service'
 const EXPORT_SERVICE = 'xls-export'
 

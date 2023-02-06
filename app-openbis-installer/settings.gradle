@@ -1,4 +1,4 @@
 includeFlat 'lib-commonbase', 'lib-common',
         'api-openbis-java', 'lib-openbis-common', 'lib-authentication', 'lib-dbmigration', 'server-application-server',
         'server-original-data-store', 'server-screening', 'openbis_standard_technologies', 'server-external-data-store',
-        'openbis_ng_ui', 'lib-microservice-server'
+        'ui-admin', 'lib-microservice-server'

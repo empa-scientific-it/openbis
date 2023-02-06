@@ -38,7 +38,7 @@ evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':server-screening')
 evaluationDependsOn(':server-external-data-store')
-evaluationDependsOn(':openbis_ng_ui')
+evaluationDependsOn(':ui-admin')
 
 
 apply from: '../build/javaproject.gradle'
@@ -498,8 +498,8 @@ task deleteOpenbisNgUi(type: Delete) {
     delete 'dist/core-plugins/openbis-ng-ui'
 }
 
-task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':openbis_ng_ui:copyWebApp']) {
-    from project(':openbis_ng_ui').file('build/core-plugins')
+task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':ui-admin:copyWebApp']) {
+    from project(':ui-admin').file('build/core-plugins')
     into file('dist/core-plugins')
 }
 
