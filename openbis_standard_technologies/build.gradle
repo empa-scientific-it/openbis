@@ -275,7 +275,7 @@ war.dependsOn copyJarsForWebStart
 war {
     rootSpec.eachFile { file ->
         if (file.name.startsWith('cisd-cifex')
-                || file.name.startsWith('datastore_server')
+                || file.name.startsWith('server-original-data-store')
                 || file.name.startsWith('bioformats')
                 || file.name.startsWith('cisd-image-readers')
         ) {
