@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.testng.annotations.AfterMethod;
@@ -113,6 +115,8 @@ public class ScreeningServerTest extends AbstractServerTestCase
                     one(sampleBO).loadBySamplePermId(PERM_ID);
                     one(sampleBO).getSample();
                     will(returnValue(exampleSample));
+                    one(sampleRelationshipDAO).listSampleParents(List.of(exampleSample.getId()));
+                    will(returnValue(List.of()));
                 }
             });
 
@@ -143,6 +147,8 @@ public class ScreeningServerTest extends AbstractServerTestCase
                             SampleIdentifierFactory.parse(SAMPLE_IDENTIFIER));
                     one(sampleBO).getSample();
                     will(returnValue(exampleSample));
+                    one(sampleRelationshipDAO).listSampleParents(List.of(exampleSample.getId()));
+                    will(returnValue(List.of()));
                 }
             });
 
