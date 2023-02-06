@@ -36,58 +36,31 @@ async function testSelectNode() {
     id: 'root',
     children: [
       {
+        id: 'root__user',
         text: 'Users',
         expanded: false,
         selected: false,
-        children: [
-          {
-            text: fixture.ANOTHER_USER_DTO.userId,
-            expanded: false,
-            selected: false
-          },
-          {
-            text: fixture.TEST_USER_DTO.userId,
-            expanded: false,
-            selected: true
-          }
-        ]
+        children: []
       },
       {
+        id: 'root__userGroup',
         text: 'Groups',
         expanded: false,
         selected: false,
-        children: [
-          {
-            text: fixture.ALL_USERS_GROUP_DTO.code,
-            expanded: false,
-            selected: false
-          },
-          {
-            text: fixture.ANOTHER_USER_GROUP_DTO.code,
-            expanded: false,
-            selected: false
-          },
-          {
-            text: fixture.TEST_USER_GROUP_DTO.code,
-            expanded: false,
-            selected: false
-          }
-        ]
+        children: []
       }
     ]
   })
 
-  await common.controller.selectObject({
-    type: objectType.USER_GROUP,
-    id: fixture.ANOTHER_USER_GROUP_DTO.code
-  })
+  await common.controller.expandNode('root__user')
 
   expect(common.controller.getTree()).toMatchObject({
     id: 'root',
     children: [
       {
+        id: 'root__user',
         text: 'Users',
-        expanded: false,
+        expanded: true,
         selected: false,
         children: [
           {
@@ -98,31 +71,16 @@ async function testSelectNode() {
           {
             text: fixture.TEST_USER_DTO.userId,
             expanded: false,
-            selected: false
+            selected: true
           }
         ]
       },
       {
+        id: 'root__userGroup',
         text: 'Groups',
         expanded: false,
         selected: false,
-        children: [
-          {
-            text: fixture.ALL_USERS_GROUP_DTO.code,
-            expanded: false,
-            selected: false
-          },
-          {
-            text: fixture.ANOTHER_USER_GROUP_DTO.code,
-            expanded: false,
-            selected: true
-          },
-          {
-            text: fixture.TEST_USER_GROUP_DTO.code,
-            expanded: false,
-            selected: false
-          }
-        ]
+        children: []
       }
     ]
   })
@@ -134,6 +92,59 @@ async function testSelectAnotherNode() {
 
   await common.controller.load()
   await common.controller.changeAutoShowSelectedObject()
+
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        id: 'root__user',
+        text: 'Users',
+        expanded: false,
+        selected: false,
+        children: []
+      },
+      {
+        id: 'root__userGroup',
+        text: 'Groups',
+        expanded: false,
+        selected: false,
+        children: []
+      }
+    ]
+  })
+
+  await common.controller.expandNode('root__user')
+
+  expect(common.controller.getTree()).toMatchObject({
+    id: 'root',
+    children: [
+      {
+        id: 'root__user',
+        text: 'Users',
+        expanded: true,
+        selected: false,
+        children: [
+          {
+            text: fixture.ANOTHER_USER_DTO.userId,
+            expanded: false,
+            selected: false
+          },
+          {
+            text: fixture.TEST_USER_DTO.userId,
+            expanded: false,
+            selected: false
+          }
+        ]
+      },
+      {
+        id: 'root__userGroup',
+        text: 'Groups',
+        expanded: false,
+        selected: false,
+        children: []
+      }
+    ]
+  })
 
   await common.controller.selectObject({
     type: objectType.USER,
@@ -149,8 +160,9 @@ async function testSelectAnotherNode() {
     id: 'root',
     children: [
       {
+        id: 'root__user',
         text: 'Users',
-        expanded: false,
+        expanded: true,
         selected: false,
         children: [
           {
@@ -166,6 +178,7 @@ async function testSelectAnotherNode() {
         ]
       },
       {
+        id: 'root__userGroup',
         text: 'Groups',
         expanded: false,
         selected: false,
@@ -193,12 +206,14 @@ async function testSelectVirtualNode() {
       {
         text: 'Users',
         expanded: false,
-        selected: true
+        selected: true,
+        children: []
       },
       {
         text: 'Groups',
         expanded: false,
-        selected: false
+        selected: false,
+        children: []
       }
     ]
   })

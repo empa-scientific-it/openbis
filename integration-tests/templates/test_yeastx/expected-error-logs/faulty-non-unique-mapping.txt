@@ -1,5 +1,0 @@
-ERROR: file1.mzXML - cannot upload the file: sample '/TEST/any' does not exist or is not connected to any experiment.
-ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the space 'TEST' with property 'samplename' set to 'any' in any experiment>
-ERROR: file2.mzXML - cannot upload the file: sample '/TEST/any' does not exist or is not connected to any experiment.
-ERROR: file2.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the space 'TEST' with property 'samplename' set to 'any' in project 'TEST_PROJECT', experiment name = 'Praktikum Metabolic Networks 2009'>
-ERROR: file3.mzXML - no mapping could be found for this dataset

@@ -155,6 +155,15 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
                     PersonalAccessTokenValidityWarningTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
         }
 
+//        if (false == isTaskConfigured(tasks, XLSImporterWarmupTask.class))
+//        {
+//            tasks = addTask(tasks,
+//                    XLSImporterWarmupTask.class,
+//                    XLSImporterWarmupTask.DEFAULT_MAINTENANCE_TASK_NAME,
+//                    true,
+//                    XLSImporterWarmupTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
+//        }
+
         plugins = MaintenanceTaskUtils.startupMaintenancePlugins(tasks);
     }
 

@@ -1,13 +1,12 @@
 import _ from 'lodash'
 import React from 'react'
-import { createBrowserHistory } from 'history'
+import { createHashHistory } from 'history'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import routes from '@src/js/common/consts/routes.js'
 import users from '@src/js/common/consts/users.js'
 import cookie from '@src/js/common/cookie.js'
-import url from '@src/js/common/url.js'
 import ids from '@src/js/common/consts/ids.js'
 
 const AppContext = React.createContext()
@@ -16,12 +15,10 @@ export class AppController {
   init(context) {
     context.initState(this.initialState())
 
-    const history = createBrowserHistory({
-      basename: url.getApplicationPath() + '#'
-    })
+    const history = createHashHistory()
 
     history.listen(location => {
-      const route = routes.parse(location.pathname)
+      const route = routes.parse(location.location.pathname)
       this.routeChanged(route.path)
     })
 

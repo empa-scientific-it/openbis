@@ -355,7 +355,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
 
         PostRegistrationCleanUpAction cleanupAction =
                 new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
-                        new DoNothingDelegatedAction());
+                        new DoNothingDelegatedAction(), getGlobalState());
 
         handleRecoveryState(recoveryInfo.getRecoveryStage(), recoveryState, cleanupAction,
                 recoveryMarkerFileCleanupAction);

@@ -1,10 +1,13 @@
+import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import { DragDropContext } from 'react-beautiful-dnd'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
 import BrowserNodeAutoShowSelected from '@src/js/components/common/browser/BrowserNodeAutoShowSelected.jsx'
+import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -20,9 +23,6 @@ const styles = theme => ({
     marginLeft: '-12px',
     marginRight: '16px',
     display: 'flex'
-  },
-  filterButton: {
-    marginLeft: '16px'
   },
   nodes: {
     height: '100%',
@@ -42,10 +42,22 @@ class Browser extends React.PureComponent {
     this.state = {}
     this.controller = props.controller
     this.controller.init(new ComponentContext(this))
+    this.handleDragEnd = this.handleDragEnd.bind(this)
   }
 
   async componentDidMount() {
     await this.controller.load()
+  }
+
+  handleDragEnd(result) {
+    const { controller } = this.props
+    if (!_.isNil(result.source) && !_.isNil(result.destination)) {
+      controller.changeCustomSorting(
+        result.destination.droppableId,
+        result.source.index,
+        result.destination.index
+      )
+    }
   }
 
   render() {
@@ -88,7 +100,13 @@ class Browser extends React.PureComponent {
                   : classes.hidden
               }
             >
-              <BrowserNode controller={controller} node={fullTree} level={-1} />
+              <DragDropContext onDragEnd={this.handleDragEnd}>
+                <BrowserNode
+                  controller={controller}
+                  node={fullTree}
+                  level={-1}
+                />
+              </DragDropContext>
             </div>
           )}
           {filteredTree && (
@@ -99,11 +117,13 @@ class Browser extends React.PureComponent {
                   : classes.hidden
               }
             >
-              <BrowserNode
-                controller={controller}
-                node={filteredTree}
-                level={-1}
-              />
+              <DragDropContext onDragEnd={this.handleDragEnd}>
+                <BrowserNode
+                  controller={controller}
+                  node={filteredTree}
+                  level={-1}
+                />
+              </DragDropContext>
             </div>
           )}
         </div>
@@ -116,6 +136,9 @@ class Browser extends React.PureComponent {
     const { controller } = this
     const { classes } = this.props
 
+    const node = controller.getNodeSetAsRoot() ||
+      controller.getRoot() || { canHaveChildren: true }
+
     return (
       <FilterField
         filter={controller.getFilter() || ''}
@@ -124,12 +147,16 @@ class Browser extends React.PureComponent {
         loading={controller.isLoading() || controller.isTreeLoading()}
         endAdornments={
           <div className={classes.filterButtons}>
-            <div className={classes.filterButton}>
-              <BrowserNodeAutoShowSelected
-                value={controller.isAutoShowSelectedObject()}
-                onClick={controller.changeAutoShowSelectedObject}
-              />
-            </div>
+            <BrowserNodeAutoShowSelected
+              value={controller.isAutoShowSelectedObject()}
+              onClick={controller.changeAutoShowSelectedObject}
+            />
+            <BrowserNodeCollapseAll
+              node={node}
+              canUndo={controller.canUndoCollapseAllNodes(node.id)}
+              onCollapseAll={controller.collapseAllNodes}
+              onUndoCollapseAll={controller.undoCollapseAllNodes}
+            />
           </div>
         }
       />

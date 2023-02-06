@@ -20,7 +20,8 @@ check ch.* independentOf org.apache.commons.lang.*
 																				 ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTranslatorUtils \
 																				 ch.systemsx.cisd.openbis.generic.shared.translator.ScriptTranslator \
 																				 ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.AbstractCommonPropertyBasedHotDeployPluginFactory \
-																				 ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPluginFactory
+																				 ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPluginFactory \
+																				 ch.systemsx.cisd.openbis.generic.shared.dto.*
 
 check sets [generic.client] [generic.server] [generic.shared]
 

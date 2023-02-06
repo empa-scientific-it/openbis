@@ -37,9 +37,6 @@ evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':openbis')
 evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':screening')
-evaluationDependsOn(':rtd_yeastx')
-evaluationDependsOn(':deep_sequencing_unit')
-evaluationDependsOn(':plasmid')
 evaluationDependsOn(':big_data_link_server')
 evaluationDependsOn(':openbis_ng_ui')
 
@@ -81,10 +78,7 @@ dependencies {
 
 	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 
-	datastore_server project(':deep_sequencing_unit'),
-					 project(':rtd_yeastx'),
-					 project(':screening'),
-					 project(':plasmid'),
+	datastore_server project(':screening'),
 					 'bioformats:bioformats:6.5.1',
 					 'imagej:ij:1.43u',
 					 'cisd:cisd-openbis-knime-server:13.6.0.r29301',
@@ -201,7 +195,7 @@ task untarGwt(type: Copy) {
 
 node {
 	download = true
-	version = '10.22.0'
+	version = '18.12.1'
 	workDir = file("${projectDir}/node/nodejs")
 	nodeModulesDir = file("${projectDir}")
 }
@@ -326,12 +320,14 @@ war {
 }
 
 def downloadCorePlugin(url, pluginname) {
-  def file = project(':openbis').file("../openbis_standard_technologies/targets/downloads/${pluginname}.zip")
-  if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
-    file.getParentFile().mkdirs()
-    ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])
-    ext.executeFunction('unzip', ['-uqo', file.getAbsolutePath(), '-d', '../openbis_standard_technologies/targets/downloads/'])
-  }
+	if (!project.getGradle().startParameter.isOffline()) {
+		def file = project(':openbis').file("../openbis_standard_technologies/targets/downloads/${pluginname}.zip")
+		if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
+			file.getParentFile().mkdirs()
+			ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])
+			ext.executeFunction('unzip', ['-uqo', file.getAbsolutePath(), '-d', '../openbis_standard_technologies/targets/downloads/'])
+		}
+	}
 }
 
 import org.paleozogt.gradle.zip.SymZip;
@@ -345,7 +341,6 @@ task zipCorePlugins(type: SymZip) {
   downloadCorePlugin('https://github.com/aarpon/obit_microscopy_core_technology/archive/release/20.x.zip', 'microscopy')
   downloadCorePlugin('https://github.com/aarpon/obit_shared_core_technology/archive/release/20.x.zip', 'shared')
   from project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/package-to-dist'])
-  from project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/package-to-dist'])
   from fileTree(dir: 'targets/downloads/obit_flow_core_technology-release-20.x/core-plugins', includes:['flow/**'])
   from fileTree(dir: 'targets/downloads/obit_microscopy_core_technology-release-20.x/core-plugins', includes:['microscopy/**'])
   from fileTree(dir: 'targets/downloads/obit_shared_core_technology-release-20.x/core-plugins', includes:['shared/**'])

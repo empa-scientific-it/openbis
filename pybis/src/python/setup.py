@@ -10,12 +10,11 @@ from setuptools import setup, find_packages
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-
 setup(
     name="PyBIS",
-    version="1.34.6",
-    author="Swen Vermeul • ID SIS • ETH Zürich",
-    author_email="swen@ethz.ch",
+    version="1.35.0",
+    author="ID SIS • ETH Zürich",
+    author_email="openbis-support@id.ethz.ch",
     description="openBIS connection and interaction, optimized for using with Jupyter",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -27,7 +26,6 @@ setup(
         "requests",
         "urllib3",
         "pandas",
-        "click",
         "texttable",
         "tabulate",
         "python-dateutil",
@@ -38,9 +36,4 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    entry_points={
-        "console_scripts": [
-            "pybis=pybis.cli:cli",
-        ]
-    },
 )

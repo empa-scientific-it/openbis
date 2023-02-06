@@ -36,7 +36,7 @@ public class ScreeningSqlMigrationTest extends SqlMigrationTestAbstract
     public void test_migration()
             throws Exception
     {
-        testMigration(new ImagingDatabaseVersionHolder().getDatabaseVersion(), null);
+        testMigration(new ImagingDatabaseVersionHolder().getDatabaseVersion(), null, null);
     }
 
     @Override

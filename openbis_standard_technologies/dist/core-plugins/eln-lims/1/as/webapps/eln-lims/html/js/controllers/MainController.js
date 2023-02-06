@@ -485,6 +485,11 @@ function MainController(profile) {
 					this._showAdvancedSearchPage(argToUse);
 					//window.scrollTo(0,0);
 					break;
+                case "showDropboxMonitorPage":
+                    document.title = "Dropbox Monitor";
+                    this._showDropboxMonitor();
+                    //window.scrollTo(0,0);
+                    break;
 				case "showArchivingHelperPage":
 					document.title = "Archiving Helper";
 					this._showArchivingHelper();
@@ -1141,6 +1146,13 @@ function MainController(profile) {
         this.currentView = userManagementConfigController;
     }
 
+    this._showDropboxMonitor = function() {
+        var views = this._getNewViewModel(true, true, false);
+        var dropboxMonitorController = new DropboxMonitorController(this);
+        dropboxMonitorController.init(views);
+        this.currentView = dropboxMonitorController;
+    }
+    
     this._showArchivingHelper = function() {
         var views = this._getNewViewModel(true, true, false);
         

@@ -1,5 +1,5 @@
 /* eslint-disable-next-line no-undef */
-module.exports = function(api) {
+module.exports = function (api) {
   api.cache(true)
 
   const presets = ['@babel/preset-env', '@babel/preset-react']

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ISampleRelationshipDAO;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
@@ -58,6 +59,8 @@ public interface IAuthorizationDAOFactory
     public IProjectDAO getProjectDAO();
 
     public ISampleDAO getSampleDAO();
+
+    public ISampleRelationshipDAO getSampleRelationshipDAO();
 
     public IGridCustomFilterDAO getGridCustomFilterDAO();
 

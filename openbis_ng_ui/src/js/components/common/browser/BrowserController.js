@@ -39,10 +39,30 @@ export default class BrowserController {
         return controller._doLoadNodePath(params)
       }
       async doLoadNodes(params) {
-        return await controller._doLoadNodes({
+        const loadResult = await controller._doLoadNodes({
           ...params,
           filter: null
         })
+
+        function verifyNodes(loadResult) {
+          if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
+            const nodesWithChildren = loadResult.nodes.filter(
+              node => !_.isNil(node.children)
+            )
+            if (!_.isEmpty(nodesWithChildren)) {
+              console.error(
+                'Unfiltered tree nodes cannot be loaded together with their children. They must be loaded level by level, otherwise the custom sorting will not work properly. Incorrect nodes: ' +
+                  JSON.stringify(nodesWithChildren)
+              )
+              loadResult.nodes = []
+              loadResult.totalCount = 0
+            }
+          }
+        }
+
+        verifyNodes(loadResult)
+
+        return loadResult
       }
     }
 
@@ -52,10 +72,28 @@ export default class BrowserController {
       }
       async doLoadNodes(params) {
         const { filter } = controller.context.getState()
-        return await controller._doLoadNodes({
+
+        const loadResult = await controller._doLoadNodes({
           ...params,
           filter: util.trim(filter)
         })
+
+        function modifyNodes(loadResult) {
+          if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
+            loadResult.nodes.forEach(node => {
+              node.sortings = {}
+              node.sortingId = null
+              node.draggable = false
+              if (!_.isEmpty(node.children)) {
+                modifyNodes(node.children)
+              }
+            })
+          }
+        }
+
+        modifyNodes(loadResult)
+
+        return loadResult
       }
     }
 
@@ -138,6 +176,10 @@ export default class BrowserController {
     this._saveSettings()
   }
 
+  async loadNode(nodeId, offset, limit, append) {
+    await this._getTreeController().loadNode(nodeId, offset, limit, append)
+  }
+
   async filterChange(newFilter) {
     await this._setFilter(newFilter, 500)
   }
@@ -187,6 +229,14 @@ export default class BrowserController {
 
   async collapseAllNodes(nodeId) {
     await this._getTreeController().collapseAllNodes(nodeId)
+  }
+
+  async undoCollapseAllNodes(nodeId) {
+    await this._getTreeController().undoCollapseAllNodes(nodeId)
+  }
+
+  canUndoCollapseAllNodes(nodeId) {
+    return this._getTreeController().canUndoCollapseAllNodes(nodeId)
   }
 
   async setNodeAsRoot(node) {
@@ -251,6 +301,18 @@ export default class BrowserController {
 
   async changeSorting(nodeId, sortingId) {
     await this._getTreeController().changeSorting(nodeId, sortingId)
+  }
+
+  async changeCustomSorting(nodeId, oldIndex, newIndex) {
+    await this._getTreeController().changeCustomSorting(
+      nodeId,
+      oldIndex,
+      newIndex
+    )
+  }
+
+  async clearCustomSorting(nodeId) {
+    await this._getTreeController().clearCustomSorting(nodeId)
   }
 
   isLoaded() {

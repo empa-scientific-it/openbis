@@ -5,10 +5,11 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import compare from '@src/js/common/compare.js'
 
-const LOAD_LIMIT = 50
-const TOTAL_LOAD_LIMIT = 500
-
 export default class DatabaseBrowserControllerLoadNodesFiltered {
+  constructor(controller) {
+    this.controller = controller
+  }
+
   async doLoadFilteredNodes(params) {
     const { node } = params
 
@@ -60,29 +61,24 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
       samples.getTotalCount() +
       dataSets.getTotalCount()
 
-    if (totalCount > TOTAL_LOAD_LIMIT) {
-      return BrowserCommon.tooManyResultsFound(node.id)
+    if (totalCount > DatabaseBrowserCommon.TOTAL_LOAD_LIMIT) {
+      return {
+        nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+      }
     }
 
     const result = {
-      nodes: [],
-      loadMore: {
-        offset: 0,
-        limit: TOTAL_LOAD_LIMIT,
-        loadedCount: loadedCount,
-        totalCount: totalCount,
-        append: false
-      }
+      nodes: []
     }
 
     if (node.internalRoot) {
       const root = BrowserCommon.rootNode()
-      root.children = this.doLoadFilteredNodes({
+      root.children = await this.doLoadFilteredNodes({
         ...params,
         node: root
       })
       result.nodes.push(root)
-    } else if (node.object.type === BrowserCommon.TYPE_ROOT) {
+    } else if (node.root) {
       if (!_.isEmpty(entities.spaces)) {
         const spacesNode = this.createSpacesNode(
           Object.values(entities.spaces),
@@ -152,13 +148,29 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
       }
     }
 
+    if (loadedCount < totalCount) {
+      const loadMoreNode = BrowserCommon.loadMoreResults(
+        node.id,
+        totalCount - loadedCount
+      )
+      loadMoreNode.onClick = () => {
+        this.controller.loadNode(
+          node.id,
+          0,
+          DatabaseBrowserCommon.TOTAL_LOAD_LIMIT,
+          false
+        )
+      }
+      result.nodes.push(loadMoreNode)
+    }
+
     return result
   }
 
   async searchSpaces(params) {
     const { node, filter, offset, limit } = params
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       return new openbis.SearchResult([], 0)
     }
 
@@ -167,7 +179,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const fetchOptions = new openbis.SpaceFetchOptions()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit || LOAD_LIMIT)
+    fetchOptions.count(limit || DatabaseBrowserCommon.LOAD_LIMIT)
 
     const result = await openbis.searchSpaces(criteria, fetchOptions)
 
@@ -180,7 +192,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.ProjectSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         criteria.withSpace().withCode().thatEquals(node.object.id)
       } else {
@@ -192,7 +204,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     fetchOptions.withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit || LOAD_LIMIT)
+    fetchOptions.count(limit || DatabaseBrowserCommon.LOAD_LIMIT)
 
     const result = await openbis.searchProjects(criteria, fetchOptions)
 
@@ -205,7 +217,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.ExperimentSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         criteria.withProject().withSpace().withCode().thatEquals(node.object.id)
       } else if (node.object.type === objectType.PROJECT) {
@@ -219,7 +231,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     fetchOptions.withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit || LOAD_LIMIT)
+    fetchOptions.count(limit || DatabaseBrowserCommon.LOAD_LIMIT)
 
     const result = await openbis.searchExperiments(criteria, fetchOptions)
 
@@ -232,7 +244,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -270,7 +282,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     fetchOptions.withExperiment().withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit || LOAD_LIMIT)
+    fetchOptions.count(limit || DatabaseBrowserCommon.LOAD_LIMIT)
 
     const result = await openbis.searchSamples(criteria, fetchOptions)
 
@@ -283,7 +295,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withCode().thatContains(filter)
 
-    if (node && node.object.type !== BrowserCommon.TYPE_ROOT) {
+    if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
         const subcriteria = criteria.withSubcriteria()
         subcriteria.withOrOperator()
@@ -351,7 +363,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     fetchOptions.withSample().withExperiment().withProject().withSpace()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
-    fetchOptions.count(limit || LOAD_LIMIT)
+    fetchOptions.count(limit || DatabaseBrowserCommon.LOAD_LIMIT)
 
     const result = await openbis.searchDataSets(criteria, fetchOptions)
 

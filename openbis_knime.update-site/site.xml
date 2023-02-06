@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <category-def name="openBIS KNIME Nodes" label="openBIS KNIME Nodes">
-      <description>
-         Nodes for integreting openBIS into a KNIME workflow.
-      </description>
-   </category-def>
-</site>

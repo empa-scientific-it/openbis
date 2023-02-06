@@ -292,6 +292,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             treeModelUtils.push({ displayName: "Advanced Search", title : advancedSearchLink, entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
         }
 
+        if (profile.dropboxMonitorUsageAuthorized) {
+            var dropboxMonitorLink = _this.getLinkForNode("Dropbox Monitor", "DROPBOX_MONITOR", "showDropboxMonitorPage", null, null);
+            treeModelUtils.push({displayName: "Dropbox Monitor", title: dropboxMonitorLink, entityType: "DROPBOX_MONITOR", key: "DROPBOX_MONITOR", folder:false, lazy:false, view:"showDropboxMonitorPage", icon:"glyphicon glyphicon-info-sign"});
+        }
+
         if(profile.mainMenu.showArchivingHelper && profile.showDatasetArchivingButton) {
             var archivingHelperLink = _this.getLinkForNode("Archiving Helper", "ARCHIVING_HELPER", "showArchivingHelperPage", null, null);
             treeModelUtils.push({ displayName: "Archiving Helper", title : archivingHelperLink, entityType: "ARCHIVING_HELPER", key : "ARCHIVING_HELPER", folder : false, lazy : false, view : "showArchivingHelperPage", icon : "./img/archive-not-requested-icon.png" });

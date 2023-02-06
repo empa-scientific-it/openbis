@@ -1,9 +1,0 @@
-#! /bin/sh
-
-if [ $# -ne 1 ]; then
-    echo "Usage is $0 <project name>"
-    exit 1
-fi
-export JAVA_HOME=/usr/java/jdk5_32
-rm -rf projects/cisd/trunk/$1
-svn co http://svncisd.ethz.ch/repos/cisd/$1/trunk projects/cisd/trunk/$1

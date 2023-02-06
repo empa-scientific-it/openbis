@@ -31,6 +31,8 @@ public final class DatabaseVersionHolder
     /** Current version of the database INDICES. */
     private static final String DATABASE_FULL_TEXT_SEARCH_DOCUMENT_VERSION = "002";
 
+    private static final String RELEASE_PATCHES_VERSION = "000";
+
     private DatabaseVersionHolder()
     {
         // Can not be instantiated
@@ -50,6 +52,14 @@ public final class DatabaseVersionHolder
     public static String getDatabaseFullTextSearchDocumentVersion()
     {
         return DATABASE_FULL_TEXT_SEARCH_DOCUMENT_VERSION;
+    }
+
+    /**
+     * Returns the current version of the database.
+     */
+    public static String getReleasePatchesVersion()
+    {
+        return RELEASE_PATCHES_VERSION;
     }
 
 }

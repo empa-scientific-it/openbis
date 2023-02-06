@@ -69,7 +69,7 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
         return type;
     }
 
-    private synchronized Long getRelationshipTypeId(String code)
+    public synchronized Long getRelationshipTypeId(String code)
     {
         if (relationshipTypeIdsMap == null)
         {

@@ -1,2 +1,0 @@
-ERROR: file2.eicML - cannot upload the file: conversion column must be empty for this type of file.
-ERROR: file2.fiaML - cannot upload the file: conversion column must be empty for this type of file.

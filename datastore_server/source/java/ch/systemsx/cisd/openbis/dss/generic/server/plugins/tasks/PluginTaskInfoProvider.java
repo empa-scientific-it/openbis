@@ -71,6 +71,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         final String storeRootDir = properties.getProperty(STOREROOT_DIR_KEY);
         final File storeRoot = new File(storeRootDir);
+        storeRoot.mkdir();
         final File workspaceRoot = SessionWorkspaceUtil.getSessionWorkspace(properties);
         PluginTaskInfoProvider providers =
                 new PluginTaskInfoProvider(properties, servletPropertiesManager, storeRoot,

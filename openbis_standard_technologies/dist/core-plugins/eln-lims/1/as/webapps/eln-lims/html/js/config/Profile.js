@@ -152,6 +152,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.isAdmin = false;
+        this.dropboxMonitorUsageAuthorized = false;
         this.userManagementMaintenanceTaskConfig = null;
 		this.devEmail = "sis.eln.servicedesk@id.ethz.ch";
 
@@ -214,6 +215,16 @@ $.extend(DefaultProfile.prototype, {
                 }
             next();
         }
+        this.beforeViewPaint = function(viewType, model, $container) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].beforeViewPaint(viewType, model, $container);
+			}
+		}
+        this.afterViewPaint = function(viewType, model, $container) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].afterViewPaint(viewType, model, $container);
+			}
+		}
 		this.getPluginUtilities = function() {
 		    var extraUtilities = [];
             for(var eIdx = 0; eIdx < this.plugins.length; eIdx++) {
@@ -1261,11 +1272,14 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
-		this.initIsAdmin = function(callback) {
+		this.initAuthorizationInfo = function(callback) {
 			var _this = this;
 			this.serverFacade.listPersons(function(data) {
 				_this.isAdmin = !(data.error);
-				callback();
+                _this.serverFacade.isDropboxMonitorUsageAuthorized(function(result) {
+                    _this.dropboxMonitorUsageAuthorized = result[0][0].value === "true";
+                    callback();
+                });
 			});
 		}
 
@@ -1364,7 +1378,7 @@ $.extend(DefaultProfile.prototype, {
 				_this.initVocabulariesForSampleTypes(function() {
 					_this.initSearchDomains(function() {
 						_this.initDirectLinkURL(function() {
-							_this.initIsAdmin(function() {
+                            _this.initAuthorizationInfo(function() {
                                 _this.initUserManagementMaintenanceTaskConfig(function() {
                                     _this.initDatasetTypeCodes(function() {
                                         _this.initServerInfo(function() {

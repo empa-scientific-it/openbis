@@ -127,38 +127,48 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor, ICre
 
     private final void authenticate()
     {
-        if (operationLog.isDebugEnabled())
+        try
         {
-            operationLog.debug("Authenticating to openBIS server as user '" + username + "'.");
-        }
-        SessionContextDTO sessionContextDTO = service.tryAuthenticate(username, password);
-        String sessionToken =
-                sessionContextDTO == null ? null : sessionContextDTO.getSessionToken();
-        if (sessionToken == null)
-        {
-            final String msg =
-                    "Authentication failure to openBIS server. Most probable cause: user or password are invalid.";
-            throw new ConfigurationFailureException(msg);
-        }
-        sessionHolder.setSessionToken(sessionToken);
-        DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
-        dataStoreServerInfo.setPort(port);
-        dataStoreServerInfo.setUseSSL(useSSL);
-        dataStoreServerInfo.setDataStoreCode(sessionHolder.getDataStoreCode());
-        if (downloadUrl == null)
-        {
-            final String msg =
-                    "'" + DssPropertyParametersUtil.DOWNLOAD_URL_KEY + "' can't be null.";
-            throw new ConfigurationFailureException(msg);
-        }
-        dataStoreServerInfo.setDownloadUrl(downloadUrl);
-        dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
-        dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
-        dataStoreServerInfo.setArchiverConfigured(archiverConfigured);
-        dataStoreServerInfo.setTimeoutInMinutes(timeoutInMinutes);
-        dataStoreServerInfo.setDataSourceDefinitions(dataSourceProvider.getAllDataSourceDefinitions());
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Authenticating to openBIS server as user '" + username + "'.");
+            }
+            SessionContextDTO sessionContextDTO = service.tryAuthenticate(username, password);
+            String sessionToken =
+                    sessionContextDTO == null ? null : sessionContextDTO.getSessionToken();
+            if (sessionToken == null)
+            {
+                final String msg =
+                        "Authentication failure to openBIS server. Most probable cause: user or password are invalid.";
+                throw new ConfigurationFailureException(msg);
+            }
+            sessionHolder.setSessionToken(sessionToken);
+            DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
+            dataStoreServerInfo.setPort(port);
+            dataStoreServerInfo.setUseSSL(useSSL);
+            dataStoreServerInfo.setDataStoreCode(sessionHolder.getDataStoreCode());
+            if (downloadUrl == null)
+            {
+                final String msg =
+                        "'" + DssPropertyParametersUtil.DOWNLOAD_URL_KEY + "' can't be null.";
+                throw new ConfigurationFailureException(msg);
+            }
+            dataStoreServerInfo.setDownloadUrl(downloadUrl);
+            dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
+            dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
+            dataStoreServerInfo.setArchiverConfigured(archiverConfigured);
+            dataStoreServerInfo.setTimeoutInMinutes(timeoutInMinutes);
+            dataStoreServerInfo.setDataSourceDefinitions(dataSourceProvider.getAllDataSourceDefinitions());
 
-        service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
+            service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
+        } catch (Exception e)
+        {
+            // Clear the session token to repeat the authentication on the next intercepted call.
+            // If we don't do this the communication between AS and DSS may work incorrectly. For instance,
+            // AS may keep on using an old entry from data_stores database table and send a stale session token to DSS.
+            sessionHolder.setSessionToken(null);
+            throw e;
+        }
     }
 
     /**

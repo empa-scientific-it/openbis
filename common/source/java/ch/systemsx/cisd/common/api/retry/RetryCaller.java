@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.api.retry;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
@@ -115,10 +116,17 @@ public abstract class RetryCaller<T, E extends Throwable>
         }
         if (e instanceof RemoteAccessException)
         {
-            return e.getCause() instanceof SocketTimeoutException
-                    || e.getCause() instanceof SocketException;
+            Throwable cause = e.getCause();
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+
+            return isRetryableRemoteAccessCause(cause) || isRetryableRemoteAccessCause(rootCause);
         }
         return false;
+    }
+
+    private boolean isRetryableRemoteAccessCause(Throwable cause)
+    {
+        return cause instanceof SocketTimeoutException || cause instanceof SocketException;
     }
 
     private boolean shouldRetry()

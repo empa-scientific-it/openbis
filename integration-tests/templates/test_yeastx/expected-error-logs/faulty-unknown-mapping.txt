@@ -1,7 +1,0 @@
-ERROR: file1.mzXML - cannot upload the file: sample '/TEST/unknown' does not exist or is not connected to any experiment.
-ERROR: file1.mzXML - cannot upload the file: there is no sample which matches the criteria <Samples from the space 'TEST' with property 'samplename' set to 'unknown' in any experiment>
-ERROR: file2.mzXML - cannot upload the file: No project 'UNKNOWN' could be found in the 'TEST' space!
-ERROR: file3.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
-ERROR: file4.mzXML - cannot upload the file: experiment and project columns should be both empty or should be both filled.
-ERROR: file5.mzXML - cannot upload the file: sample '/unknown/x' does not exist or is not connected to any experiment.
-ERROR: file5.mzXML - cannot upload the file: No group with the name 'unknown' found!

@@ -14,9 +14,9 @@ export default class DatabaseBrowserController extends BrowserController {
     const { filter } = params
 
     if (filter) {
-      return await new DatabaseBrowserControllerLoadNodesFiltered().doLoadFilteredNodes(
-        params
-      )
+      return await new DatabaseBrowserControllerLoadNodesFiltered(
+        this
+      ).doLoadFilteredNodes(params)
     } else {
       return await new DatabaseBrowserControllerLoadNodesUnfiltered().doLoadUnfilteredNodes(
         params

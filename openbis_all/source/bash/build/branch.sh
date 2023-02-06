@@ -28,20 +28,14 @@ GRADLE_PROJECTS="\
 authentication \
 commonbase \
 common \
-datamover \
 datastore_server \
 dbmigration \
-deep_sequencing_unit \
 installation \
 js-test \
 openbis \
 openbis-common \
 openbis_standard_technologies \
 openbis_api \
-plasmid \
-rtd_phosphonetx \
-rtd_yeastx \
-rtd_cina \
 screening \
 ui-test\
 "

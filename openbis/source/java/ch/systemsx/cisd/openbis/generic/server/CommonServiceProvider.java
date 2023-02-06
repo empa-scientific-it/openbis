@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 import org.springframework.context.ApplicationContext;
@@ -41,6 +42,8 @@ public class CommonServiceProvider
 {
     private static ApplicationContext applicationContext;
 
+    private static IDAOFactory daoFactory;
+
     public static void setApplicationContext(ApplicationContext context)
     {
         applicationContext = context;
@@ -63,7 +66,15 @@ public class CommonServiceProvider
 
     public static IDAOFactory getDAOFactory()
     {
-        return (IDAOFactory) applicationContext.getBean("dao-factory");
+        if (daoFactory == null) {
+            daoFactory = (IDAOFactory) applicationContext.getBean("dao-factory");
+        }
+        return daoFactory;
+    }
+
+    public static void setDAOFactory(IDAOFactory daoFactory)
+    {
+        CommonServiceProvider.daoFactory = daoFactory;
     }
 
     public static ICommonBusinessObjectFactory getBusinessObjectFactory()

@@ -88,4 +88,29 @@ public class HttpServletRequestUtils
             }
         }
     }
+
+    /**
+     * Returns a value of the specified request parameter as Boolean. If the value is null or the trimmed value is empty then returns False.
+     *
+     * @throws IllegalArgumentException when the parameter value is not a valid boolean
+     */
+    public static final Boolean getBooleanParameter(HttpServletRequest request, String parameterName)
+    {
+        String parameterValue = getStringParameter(request, parameterName);
+
+        if (parameterValue == null)
+        {
+            return Boolean.FALSE;
+        } else
+        {
+            try
+            {
+                return Boolean.valueOf(parameterValue);
+            } catch (NumberFormatException e)
+            {
+                throw new IllegalArgumentException("Parameter: " + parameterName
+                        + " is not a valid boolean: " + parameterValue);
+            }
+        }
+    }
 }

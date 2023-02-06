@@ -1,7 +1,0 @@
-<suite name="SystemTests" verbose="2" >
-  <test name="SystemTests" annotations="JDK">
-    <packages>
-      <package name="ch.systemsx.cisd.openbis.proteomics.systemtests.*" />
-   </packages>
- </test>
-</suite>

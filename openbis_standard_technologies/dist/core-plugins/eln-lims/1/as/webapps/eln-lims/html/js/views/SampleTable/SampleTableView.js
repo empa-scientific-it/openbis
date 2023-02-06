@@ -21,6 +21,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.repaint = function(views) {
 		var $container = views.content;
+        mainController.profile.beforeViewPaint(ViewType.SAMPLE_TABLE, this._sampleTableModel, $container);
 		var _this = this;
 		
 		var $title = $("<div>");
@@ -113,6 +114,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		$container.append(this._tableContainer);
+        mainController.profile.afterViewPaint(ViewType.SAMPLE_TABLE, this._sampleTableModel, $container);
 	}
 	
 	this.getTableContainer = function() {

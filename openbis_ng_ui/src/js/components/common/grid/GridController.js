@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
 import FileSaver from 'file-saver'
-import CsvStringify from 'csv-stringify'
+import { stringify } from 'csv-stringify'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
@@ -1186,7 +1186,7 @@ export default class GridController {
         arrayOfRowArrays.push(rowAsArray)
       })
 
-      CsvStringify(
+      stringify(
         {
           header: false,
           delimiter: '\t',

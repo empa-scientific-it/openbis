@@ -16,18 +16,12 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.db.Script;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -47,6 +41,8 @@ public final class DBMigrationEngine
     /** Path to the file which has the last version of applied full text search migration scripts. */
     public static final String FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH = "etc/full-text-search-document-version";
 
+    private static final String RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH = "etc/release-patches-document-version";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
     /**
@@ -56,7 +52,8 @@ public final class DBMigrationEngine
      */
     public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
             final DatabaseConfigurationContext context, final String databaseVersion,
-            final String fullTextSearchDocumentVersion)
+            final String fullTextSearchDocumentVersion,
+            final String releasePatchesVersion)
     {
         assert context != null : "Unspecified database configuration context.";
         assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
@@ -73,6 +70,7 @@ public final class DBMigrationEngine
         if (Integer.parseInt(databaseVersion) >= 180)
         {
             migrationEngine.migrateFullTextSearch(fullTextSearchDocumentVersion);
+            migrationEngine.migrateReleasePatches(releasePatchesVersion);
         }
 
         /*
@@ -189,7 +187,7 @@ public final class DBMigrationEngine
     private void migrateFullTextSearch(final String fullTextSearchDocumentVersion)
     {
         final File file = new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH);
-        final Integer ftsDocumentVersionFromFile = readVersionFromFile(file);
+        final Integer ftsDocumentVersionFromFile = readVersionFromFileAsInteger(file);
         operationLog.info("Deciding application of full text search scripts, looking for current at:" + file.getAbsolutePath());
         operationLog.info("Deciding application of full text search scripts, current: " + ftsDocumentVersionFromFile + " available: " + fullTextSearchDocumentVersion);
         if (fullTextSearchDocumentVersion != null && (ftsDocumentVersionFromFile == null
@@ -207,8 +205,47 @@ public final class DBMigrationEngine
         }
     }
 
+    private void migrateReleasePatches(final String releasePatchesVersion)
+    {
+        if (releasePatchesVersion == null) {
+            operationLog.info("Application of release patches Skipped");
+            return;
+        }
+        operationLog.info("Application of release patches START");
+        try {
+            String versionOnFile = readVersionFromFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH));
+            if (versionOnFile == null) {
+                versionOnFile = "000";
+            }
+
+            operationLog.info("Application of release patches version: " + releasePatchesVersion);
+            while (Integer.parseInt(versionOnFile) < Integer.parseInt(releasePatchesVersion)) {
+                String nextVersion = increment(versionOnFile);
+                Script mainScript = scriptProvider.tryGetReleasePatchScripts(nextVersion);
+                scriptExecutor.execute(mainScript, false, null);
+                FileUtilities.writeToFile(new File(RELEASE_PATCHES_DOCUMENT_VERSION_FILE_PATH), nextVersion);
+                operationLog.info("Application of release patches succeed for version: " + nextVersion);
+                versionOnFile = nextVersion;
+            }
+        } catch (Exception e) {
+            operationLog.info("Application of release patches failed, server will shutdown.", e);
+            System.exit(-1);
+        }
+        operationLog.info("Application of release patches END");
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private Integer readVersionFromFile(final File file)
+    private Integer readVersionFromFileAsInteger(final File file)
+    {
+        String versionFromFile = readVersionFromFile(file);
+        if (versionFromFile != null) {
+            return Integer.parseInt(versionFromFile);
+        } else {
+            return null;
+        }
+    }
+
+    private String readVersionFromFile(final File file)
     {
         if (file.exists() == false)
         {
@@ -217,7 +254,7 @@ public final class DBMigrationEngine
         }
         try
         {
-            return Integer.parseInt(FileUtilities.loadToString(file).trim());
+            return FileUtilities.loadToString(file).trim();
         } catch (final NumberFormatException e)
         {
             operationLog.error(String.format("Contents of the file '%s' cannot be parsed as integer",

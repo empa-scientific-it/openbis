@@ -17,35 +17,7 @@
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
-      <param name="project" value="deep_sequencing_unit" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="rtd_phosphonetx" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="rtd_yeastx" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
       <param name="project" value="screening" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="eu_basysbio" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="rtd_cina" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="plasmid" />
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="eu_basynthec" />
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="_dist">
@@ -54,10 +26,6 @@
     </antcall>
     <antcall target="_dist">
       <param name="project" value="installation"/>
-      <param name="pattern" value="*"/>
-    </antcall>
-    <antcall target="_dist">
-      <param name="project" value="sanofi"/>
       <param name="pattern" value="*"/>
     </antcall>
     <antcall target="javadoc"/>
@@ -105,28 +73,7 @@
       <param name="project" value="datastore_server"/>
     </antcall>
     <antcall target="_clean">
-      <param name="project" value="deep_sequencing_unit"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="rtd_phosphonetx"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="rtd_yeastx"/>
-    </antcall>
-    <antcall target="_clean">
       <param name="project" value="screening"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="eu_basysbio"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="rtd_cina"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="plasmid"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="eu_basynthec"/>
     </antcall>
     <antcall target="_clean">
       <param name="project" value="openbis_standard_technologies"/>
@@ -134,9 +81,6 @@
     <antcall target="_clean">
       <param name="project" value="installation"/>
     </antcall>
-	<antcall target="_clean">
-	  <param name="project" value="sanofi"/>
-	</antcall>
   </target>
 
   <target name="_clean">

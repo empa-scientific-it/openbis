@@ -48,7 +48,6 @@ public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecu
     public void verify(IOperationContext context, CollectionBatch<SamplePE> batch)
     {
         super.verify(context, batch);
-
         new CollectionBatchProcessor<SamplePE>(context, batch)
             {
                 @Override
@@ -82,8 +81,12 @@ public class VerifySampleParentsExecutor extends AbstractVerifyEntityCyclesExecu
     @Override
     protected Map<Long, Set<Long>> getRelatedIdsMap(IOperationContext context, Set<Long> entityIds)
     {
-        Long relationshipId = getRelationshipIdExecutor.get(context, RelationshipType.PARENT_CHILD);
+        Long relationshipId = getRelatedIdForParentChild(context);
         return daoFactory.getSampleDAO().mapSampleIdsByChildrenIds(entityIds, relationshipId);
     }
 
+    private Long getRelatedIdForParentChild(IOperationContext context)
+    {
+        return getRelationshipIdExecutor.get(context, RelationshipType.PARENT_CHILD);
+    }
 }
