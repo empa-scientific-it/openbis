@@ -141,6 +141,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     one(sampleBO).loadBySamplePermId(permId);
                     one(sampleBO).getSample();
                     will(returnValue(plate));
+                    one(sampleRelationshipDAO).listSampleParents(List.of(plate.getId()));
+                    will(returnValue(List.of()));
 
                     one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
