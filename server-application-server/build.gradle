@@ -1,6 +1,6 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
-evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':api-openbis-java')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')
@@ -12,7 +12,7 @@ configurations.create('devRuntime')
 
 dependencies {
     api project(':lib-common'),
-            project(':openbis_api'),
+            project(':api-openbis-java'),
             project(':lib-openbis-common'),
             project(':lib-authentication'),
             project(':lib-dbmigration'),
@@ -45,7 +45,7 @@ dependencies {
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':lib-dbmigration', configuration: 'tests'),
             project(path: ':lib-authentication', configuration: 'tests'),
-            project(path: ':openbis_api', configuration: 'tests'),
+            project(path: ':api-openbis-java', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
@@ -136,7 +136,7 @@ task openBISDevelopementEnvironmentASStart(type: JavaExec) {
           '--classes', '../lib-authentication/targets/gradle/classes/java/main',
           '--classes', '../lib-dbmigration/targets/gradle/classes/java/main',
           '--classes', '../lib-openbis-common/targets/gradle/classes/java/main',
-          '--classes', '../openbis_api/targets/gradle/classes/java/main',
+          '--classes', '../api-openbis-java/targets/gradle/classes/java/main',
           '--classes', 'targets/gradle/classes/java/main', '--lib', 'targets/www/lib/', '--port', '8888', 'targets/www'])
 }
 

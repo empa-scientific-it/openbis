@@ -16,8 +16,8 @@ if (System.getProperty("openbis.development-build") != null) {
                 project(path: ':lib-common', configuration: 'archives'),
                 project(':lib-commonbase'),
                 project(path: ':lib-commonbase', configuration: 'archives'),
-                project(path: ':openbis_api'),
-                project(path: ':openbis_api', configuration: 'archives'),
+                project(path: ':api-openbis-java'),
+                project(path: ':api-openbis-java', configuration: 'archives'),
                 project(path: ':lib-openbis-common'),
                 project(path: ':lib-openbis-common', configuration: 'archives'),
                 project(path: ':server-application-server'),
@@ -43,7 +43,7 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         exclude 'lib-authentication-*'
         exclude 'lib-dbmigration-*'
         exclude 'lib-openbis-common-*'
-        exclude 'openbis_api-*'
+        exclude 'api-openbis-java-*'
         exclude 'server-application-server-*'
         exclude 'server-original-data-store-*'
     }
@@ -69,7 +69,7 @@ task compileGWTToTemp(type: JavaExec, dependsOn: prepareGWT) {
                 project(":server-application-server").sourceSets.main.output.classesDirs,
                 project(":server-application-server").sourceSets.main.compileClasspath,
                 project(":lib-common").sourceSets.main.java.srcDirs,
-                project(":openbis_api").sourceSets.main.java.srcDirs,
+                project(":api-openbis-java").sourceSets.main.java.srcDirs,
                 project(":server-screening").sourceSets.main.java.srcDirs,
                 project(":server-screening").sourceSets.main.output.resourcesDir,
                 configurations.gwt

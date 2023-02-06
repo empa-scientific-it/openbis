@@ -1,6 +1,6 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
-evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':api-openbis-java')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')
@@ -60,7 +60,7 @@ dependencies {
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':lib-dbmigration', configuration: 'tests'),
             project(path: ':lib-authentication', configuration: 'tests'),
-            project(path: ':openbis_api', configuration: 'tests'),
+            project(path: ':api-openbis-java', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD'

@@ -5,7 +5,7 @@ task queryApiJar(type: Jar) {
             project(':lib-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                     project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
-                                    project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
+                                    project(':api-openbis-java').compileJava.outputs.getFiles().getAsFileTree().plus(
                                             project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree()))))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.class"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
@@ -30,7 +30,7 @@ task queryApiSources(type: Zip) {
             project(':lib-common').files('source/java').getAsFileTree().plus(
                     project(':lib-openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
-                                    project(':openbis_api').files('source/java').getAsFileTree().plus(
+                                    project(':api-openbis-java').files('source/java').getAsFileTree().plus(
                                             project(':server-original-data-store').files('source/java').getAsFileTree()))))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.java"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
@@ -102,7 +102,7 @@ task apiV3Jar(type: Jar) {
             project(':lib-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                     project(':lib-openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
                             project(':server-application-server').compileJava.outputs.getFiles().getAsFileTree().plus(
-                                    project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree())))).matching {
+                                    project(':api-openbis-java').compileJava.outputs.getFiles().getAsFileTree())))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.class"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
         include "ch/systemsx/cisd/common/spring/IRemoteSpringBeanProvider.class"
@@ -216,7 +216,7 @@ task apiV3Sources(type: Jar) {
             project(':lib-common').files('source/java').getAsFileTree().plus(
                     project(':lib-openbis-common').files('source/java').getAsFileTree().plus(
                             project(':server-application-server').files('source/java').getAsFileTree().plus(
-                                    project(':openbis_api').files('source/java').getAsFileTree())))).matching {
+                                    project(':api-openbis-java').files('source/java').getAsFileTree())))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.java"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
         include "ch/systemsx/cisd/common/spring/IRemoteSpringBeanProvider.java"
@@ -234,7 +234,7 @@ task apiV3Sources(type: Jar) {
 
 configurations.create('apiV3Javadoc')
 dependencies {
-    apiV3Javadoc project(':openbis_api')
+    apiV3Javadoc project(':api-openbis-java')
 }
 
 task apiV3JavaDoc(type: Javadoc) {

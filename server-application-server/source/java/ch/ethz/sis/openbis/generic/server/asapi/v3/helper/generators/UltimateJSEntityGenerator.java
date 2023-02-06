@@ -19,7 +19,7 @@ public class UltimateJSEntityGenerator
     private static final String API_PROJECT_ROOT_FOLDER = "/Users/fedoreno/projects/work/openbis";
 
     private static final String API_PROJECT_SOURCE_FOLDER =
-            API_PROJECT_ROOT_FOLDER + "/openbis_api/source/java/";
+            API_PROJECT_ROOT_FOLDER + "/api-openbis-java/source/java/";
 
     @SuppressWarnings("unused")
     private static final String JSTEST_PROJECT_SOURCE_FOLDER = API_PROJECT_ROOT_FOLDER

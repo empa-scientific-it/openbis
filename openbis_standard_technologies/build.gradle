@@ -30,7 +30,7 @@ dependencyCheck {
 
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
-evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':api-openbis-java')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')
@@ -91,7 +91,7 @@ dependencies {
 
     javadoc_sources project(path: ':lib-commonbase', configuration: 'archives'),
             project(path: ':lib-common', configuration: 'archives'),
-            project(path: ':openbis_api', configuration: 'archives'),
+            project(path: ':api-openbis-java', configuration: 'archives'),
             project(path: ':lib-openbis-common', configuration: 'archives'),
             project(path: ':server-application-server', configuration: 'archives'),
             project(path: ':server-original-data-store', configuration: 'archives'),
@@ -106,7 +106,7 @@ dependencies {
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':lib-dbmigration', configuration: 'tests'),
             project(path: ':lib-authentication', configuration: 'tests'),
-            project(path: ':openbis_api', configuration: 'tests'),
+            project(path: ':api-openbis-java', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
             project(path: ':server-original-data-store', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
@@ -157,7 +157,7 @@ task compileGwt(dependsOn: classes, type: JavaExec) {
                 project(":server-application-server").sourceSets.main.output.classesDirs,
                 project(":server-application-server").sourceSets.main.compileClasspath,
                 project(":lib-common").sourceSets.main.java.srcDirs,
-                project(":openbis_api").sourceSets.main.java.srcDirs,
+                project(":api-openbis-java").sourceSets.main.java.srcDirs,
                 project(":server-screening").sourceSets.main.java.srcDirs,
                 project(":server-screening").sourceSets.main.output.resourcesDir,
                 configurations.gwt

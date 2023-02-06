@@ -1,6 +1,6 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
-evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':api-openbis-java')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')

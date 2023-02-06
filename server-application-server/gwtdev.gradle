@@ -14,8 +14,8 @@ if (System.getProperty("openbis.development-build") != null) {
                 'fasterxml:jackson-annotations:2.9.10',
                 project(':lib-common'),
                 project(path: ':lib-common', configuration: 'archives'),
-                project(path: ':openbis_api'),
-                project(path: ':openbis_api', configuration: 'archives'),
+                project(path: ':api-openbis-java'),
+                project(path: ':api-openbis-java', configuration: 'archives'),
                 project(path: ':lib-openbis-common'),
                 project(path: ':lib-openbis-common', configuration: 'archives'),
                 project(path: ':server-application-server', configuration: 'archives')
@@ -38,7 +38,7 @@ task prepareGWT(type: Copy, dependsOn: [deleteGWT, compileJava]) {
         exclude 'lib-authentication-*'
         exclude 'lib-dbmigration-*'
         exclude 'lib-openbis-common-*'
-        exclude 'openbis_api-*'
+        exclude 'api-openbis-java-*'
     }
 
     from('source/java/service.properties') {
@@ -62,7 +62,7 @@ task compileGWTToTempJDK8(type: JavaExec, dependsOn: prepareGWT) {
                 project(":server-application-server").sourceSets.main.output.classesDirs,
                 project(":server-application-server").sourceSets.main.compileClasspath,
                 project(":lib-common").sourceSets.main.java.srcDirs,
-                project(":openbis_api").sourceSets.main.java.srcDirs,
+                project(":api-openbis-java").sourceSets.main.java.srcDirs,
                 configurations.gwt
         ]
     }
