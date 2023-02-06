@@ -53,7 +53,8 @@ archivesBaseName = 'openBIS-server-standard-technologies'
 
 configurations.create('gwt')
 configurations.create('zipping')
-configurations.create('server-original-data-store')
+//configurations.create('server-original-data-store')
+configurations.create('server_original_data_store')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
 
@@ -78,7 +79,9 @@ dependencies {
 
     zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 
-    "server-original-data-store" project(':server-screening'),
+//    configurations.getByName("server-original-data-store") {
+//        implementation project(':server-screening'),
+    server_original_data_store project(':server-screening'),
             'bioformats:bioformats:6.5.1',
             'imagej:ij:1.43u',
             'cisd:cisd-openbis-knime-server:13.6.0.r29301',
@@ -86,6 +89,7 @@ dependencies {
             'slf4j:slf4j:1.6.2',
             'slf4j:slf4j-log4j12:1.6.2',
             'sybit:image-viewer:0.3.6'
+//    }
 
     javadoc_sources project(path: ':lib-commonbase', configuration: 'archives'),
             project(path: ':lib-common', configuration: 'archives'),
@@ -415,7 +419,9 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
     baseName 'datastore_server-standard-technologies'
     includeEmptyDirs true
 
-    from("server-original-data-store") {
+//    from("server-original-data-store") {
+//    from(configurations.server_original_data_store) {
+    from(configurations.getByName("server_original_data_store")) {
         into 'datastore_server/lib'
         exclude '**/antlr*.jar'
         exclude '**/fastutil*.jar'
