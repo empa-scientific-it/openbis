@@ -53,7 +53,7 @@ archivesBaseName = 'openBIS-server-standard-technologies'
 
 configurations.create('gwt')
 configurations.create('zipping')
-//configurations.create('server-original-data-store')
+// TODO: find how configuration can be renamed into 'server-original-data-store'
 configurations.create('server_original_data_store')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
@@ -79,8 +79,6 @@ dependencies {
 
     zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 
-//    configurations.getByName("server-original-data-store") {
-//        implementation project(':server-screening'),
     server_original_data_store project(':server-screening'),
             'bioformats:bioformats:6.5.1',
             'imagej:ij:1.43u',
@@ -419,9 +417,7 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
     baseName 'datastore_server-standard-technologies'
     includeEmptyDirs true
 
-//    from("server-original-data-store") {
-//    from(configurations.server_original_data_store) {
-    from(configurations.getByName("server_original_data_store")) {
+    from(configurations.server_original_data_store) {
         into 'datastore_server/lib'
         exclude '**/antlr*.jar'
         exclude '**/fastutil*.jar'
