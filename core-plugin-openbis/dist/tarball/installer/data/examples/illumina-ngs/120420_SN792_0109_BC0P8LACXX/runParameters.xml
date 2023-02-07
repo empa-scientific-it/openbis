@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<RunParameters xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Setup>
+    <ExperimentName>120420_C0P8LACXX</ExperimentName>
+    <ScanID>-999</ScanID>
+    <FCPosition>B</FCPosition>
+    <WorkFlowType>SINGLEINDEX</WorkFlowType>
+    <PairEndFC>false</PairEndFC>
+    <Read1>50</Read1>
+    <IndexRead1>7</IndexRead1>
+    <IndexRead2>0</IndexRead2>
+    <Read2>0</Read2>
+    <OutputFolder>Y:\</OutputFolder>
+    <PeriodicSave>Save All Thumbnails</PeriodicSave>
+    <Flowcell>HiSeq Flow Cell v3</Flowcell>
+    <FirstBaseConfirmation>true</FirstBaseConfirmation>
+    <ControlLane>5</ControlLane>
+    <KeepIntensityFiles>true</KeepIntensityFiles>
+    <Sbs>TruSeq SBS Kit v3</Sbs>
+    <Pe />
+    <Index>TruSeq Multiplex Sequencing Primer Box</Index>
+    <AlignToPhiX>
+      <Lane>5</Lane>
+    </AlignToPhiX>
+    <ApplicationName>HiSeq Control Software</ApplicationName>
+    <ApplicationVersion>1.5.15.1</ApplicationVersion>
+    <RunID>120420_SN792_0109_BC0P8LACXX</RunID>
+    <RunStartDate>120420</RunStartDate>
+    <ScannerID>SN792</ScannerID>
+    <ScanNumber>109</ScanNumber>
+    <ComputerName>BS-DSFCONTROL03</ComputerName>
+    <FPGAVersion>3.0.35.1</FPGAVersion>
+    <CPLDVersion>3.0.14</CPLDVersion>
+    <RTAVersion>1.13.48</RTAVersion>
+    <ChemistryVersion>Illumina,Bruno Fluidics Controller,0,v2.0340</ChemistryVersion>
+    <CameraFirmware>2.00-d10</CameraFirmware>
+    <CameraDriver>5.50.0.3135</CameraDriver>
+    <FocusCameraFirmware />
+    <Barcode>C0P8LACXX</Barcode>
+    <Username>sbsuser</Username>
+    <SelectedSections>
+      <Section Name="A_1" />
+      <Section Name="B_1" />
+      <Section Name="C_1" />
+      <Section Name="D_1" />
+      <Section Name="E_1" />
+      <Section Name="F_1" />
+      <Section Name="G_1" />
+      <Section Name="H_1" />
+    </SelectedSections>
+    <FocusMethod>DynamicITF</FocusMethod>
+    <SelectedSurface>BothLaneSurfaces</SelectedSurface>
+    <SwathScanMode>AutoSwath</SwathScanMode>
+    <EnableLft>true</EnableLft>
+    <AutoTiltOnce>true</AutoTiltOnce>
+    <EnableAutoCenter>true</EnableAutoCenter>
+    <EnableAnalysis>true</EnableAnalysis>
+    <EnableBasecalling>true</EnableBasecalling>
+    <EnableCameraLogging>false</EnableCameraLogging>
+    <AdapterPlate>HiSeq Adapter Plate</AdapterPlate>
+    <SlideHolder>HiSeq Flow Cell Holder</SlideHolder>
+    <TemplateCycleCount>4</TemplateCycleCount>
+    <NumAnalysisThreads>8</NumAnalysisThreads>
+    <FPGADynamicFocusSettings>
+      <MaxInitialZJumpHalfUm>3</MaxInitialZJumpHalfUm>
+      <MaxSubsequentZJumpHalfUm>7</MaxSubsequentZJumpHalfUm>
+      <NumberOfInitialZJumps>0</NumberOfInitialZJumps>
+      <CVGainStart>500</CVGainStart>
+      <CVGainPosLocked>500</CVGainPosLocked>
+      <Offset>250</Offset>
+      <HotPixel>350</HotPixel>
+      <MotorDelayFrames>25</MotorDelayFrames>
+      <DitherSize>100</DitherSize>
+      <IntensityCeiling>65535</IntensityCeiling>
+      <IGain>100</IGain>
+      <IHistory>4</IHistory>
+    </FPGADynamicFocusSettings>
+    <TileWidth>2048</TileWidth>
+    <TileHeight>10000</TileHeight>
+    <ImageWidth>2048</ImageWidth>
+    <ImageHeight>160000</ImageHeight>
+    <LaneLength>60</LaneLength>
+    <NumTilesPerSwath>16</NumTilesPerSwath>
+    <NumSwaths>3</NumSwaths>
+    <UseExistingRecipe>false</UseExistingRecipe>
+    <Reads>
+      <Read Number="1" NumCycles="50" IsIndexedRead="N" />
+      <Read Number="2" NumCycles="7" IsIndexedRead="Y" />
+    </Reads>
+    <EnableNotifications>false</EnableNotifications>
+    <ReagentKits>
+      <Sbs>
+        <SbsReagentKit>
+          <ID>REA-0122918 REA-0113370</ID>
+          <Prime>false</Prime>
+          <NumberCyclesRemaining>59</NumberCyclesRemaining>
+          <IsNew50Cycle>true</IsNew50Cycle>
+          <IsNew200Cycle>false</IsNew200Cycle>
+        </SbsReagentKit>
+      </Sbs>
+      <Index>
+        <ReagentKit>
+          <ID>REA-0123179</ID>
+        </ReagentKit>
+      </Index>
+      <Pe />
+    </ReagentKits>
+    <Resume>false</Resume>
+    <ResumeCycle>0</ResumeCycle>
+    <SupportMultipleSurfacesInUI>true</SupportMultipleSurfacesInUI>
+    <TempFolder>E:\Illumina\HiSeqTemp\120420_SN792_0109_BC0P8LACXX</TempFolder>
+    <PromptForPeReagents>true</PromptForPeReagents>
+    <MockRun>false</MockRun>
+  </Setup>
+  <Version>1</Version>
+</RunParameters>

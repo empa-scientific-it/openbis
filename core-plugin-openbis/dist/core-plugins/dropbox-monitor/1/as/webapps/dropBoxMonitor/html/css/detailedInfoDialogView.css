@@ -1,0 +1,72 @@
+.info-div {
+  margin: 0px;
+  line-height: 1;
+}
+.files-list {
+  overflow: auto;
+  display: inline-block;
+  float: left;
+  width: 40%;
+  height: 98%;
+}
+.files-container {
+  font-size: 14px;
+  float: right;
+  overflow: auto;
+  display: inline-block;
+  width: 60%;
+  height: 98%;
+}
+.text {
+  font-size: 14px;
+  cursor: pointer;
+}
+.failed-text {
+  color: red;
+}
+.succeded-text {
+  color: green;
+}
+.process-text {
+  color: blue;
+}
+.ui-dialog {
+  padding: 0px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+.ui-dialog-content {
+  overflow: hidden;
+}
+.ui-widget-content {
+  background: rgb(255, 255, 255);
+}
+.ui-widget-header {
+  border: 1px solid #fff;
+  background: rgb(204, 204, 204);
+  color: black;
+}
+.ui-dialog-titlebar-close {
+  position: relative;
+}
+.ui-dialog-titlebar-close:after {
+  position: absolute;
+  float: right;
+  font-family: FontAwesome;
+  right: 2px;
+  bottom: 0px;
+  content: "\f00d";
+}
+.files-list-row {
+  border-bottom: 1px solid rgba(204, 204, 204, 0.2);
+}
+.files-list-cell {
+  padding: 2px;
+  padding-left: 8px;
+}
+.bold-text {
+  font-weight: bold;
+}
+.normal-text {
+  font-weight: normal;
+}

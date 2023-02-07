@@ -1,0 +1,533 @@
+buildscript {
+    apply from: '../build/repository.gradle'
+
+    repositories repositoryConfig
+
+    dependencies {
+        classpath 'apache:commons-codec:1.10',
+                'owasp:dependency-check-gradle:6.2.2',
+                'paleozogt:symzip-plugin:0.10.1'
+    }
+}
+
+plugins {
+    id "com.github.node-gradle.node" version "3.2.1"
+}
+apply plugin: org.owasp.dependencycheck.gradle.DependencyCheckPlugin
+apply plugin: "org.paleozogt.symzip"
+
+dependencyCheck {
+    failBuildOnCVSS = 7 // 0 - 4 = low, 4 - 7 = medium, 7 - 9 = high, 9-10 = critical
+    suppressionFile = "owasp_suppressing_false_positives.xml"
+    analyzers {
+        assemblyEnabled = false
+    }
+    proxy {
+        server = 'proxy.ethz.ch'
+        port = 3128
+    }
+}
+
+evaluationDependsOn(':lib-commonbase')
+evaluationDependsOn(':lib-common')
+evaluationDependsOn(':api-openbis-java')
+evaluationDependsOn(':lib-openbis-common')
+evaluationDependsOn(':lib-authentication')
+evaluationDependsOn(':lib-dbmigration')
+evaluationDependsOn(':server-application-server')
+evaluationDependsOn(':server-original-data-store')
+evaluationDependsOn(':server-screening')
+evaluationDependsOn(':server-external-data-store')
+evaluationDependsOn(':ui-admin')
+
+
+apply from: '../build/javaproject.gradle'
+apply from: 'query-api.gradle'
+apply from: 'screening-api.gradle'
+apply from: 'clients.gradle'
+apply from: 'admin-console.gradle'
+
+apply plugin: 'war'
+
+archivesBaseName = 'openBIS-server-standard-technologies'
+
+configurations.create('gwt')
+configurations.create('zipping')
+// TODO: find how configuration can be renamed into 'server-original-data-store'
+configurations.create('server_original_data_store')
+configurations.create('javadoc_sources')
+configurations.create('javadoc_compilation')
+
+def jettyVersion = '9.4.44'
+def jettyDistributionVersion = '9.4.44.v20210927'
+
+dependencies {
+    api project(':server-screening')
+
+    providedCompile 'google:gwt-user:2.4'
+
+    providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20210927@jar",
+            "eclipse:jetty-xml:${jettyVersion}.v20210927@jar",
+            "eclipse:jetty-webapp:${jettyVersion}.v20210927@jar",
+            "eclipse:jetty-servlet:${jettyVersion}.v20210927@jar",
+            "eclipse:jetty-security:${jettyVersion}.v20210927@jar",
+            "eclipse:jetty-server:${jettyVersion}.v20210927@jar",
+            "eclipse:jetty-continuation:${jettyVersion}.v20210927@jar"
+
+    gwt 'reveregroup:gwt-image-loader:1.1.4',
+            'google:gwt-dev:2.4'
+
+    zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
+
+    server_original_data_store project(':server-screening'),
+            'bioformats:bioformats:6.5.1',
+            'imagej:ij:1.43u',
+            'cisd:cisd-openbis-knime-server:13.6.0.r29301',
+            'apache:xml-apis:1.3.03',
+            'slf4j:slf4j:1.6.2',
+            'slf4j:slf4j-log4j12:1.6.2',
+            'sybit:image-viewer:0.3.6'
+//    }
+
+    javadoc_sources project(path: ':lib-commonbase', configuration: 'archives'),
+            project(path: ':lib-common', configuration: 'archives'),
+            project(path: ':api-openbis-java', configuration: 'archives'),
+            project(path: ':lib-openbis-common', configuration: 'archives'),
+            project(path: ':server-application-server', configuration: 'archives'),
+            project(path: ':server-original-data-store', configuration: 'archives'),
+            project(path: ':server-screening', configuration: 'archives'),
+            'sis:sis-base:18.09.0:sources',
+            'cisd:cisd-args4j:9.11.2:sources',
+            'cisd:cisd-hotdeploy:13.01.0:sources'
+
+    javadoc_compilation project(path: ':server-screening')
+
+    testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
+            project(path: ':lib-common', configuration: 'tests'),
+            project(path: ':lib-dbmigration', configuration: 'tests'),
+            project(path: ':lib-authentication', configuration: 'tests'),
+            project(path: ':api-openbis-java', configuration: 'tests'),
+            project(path: ':lib-openbis-common', configuration: 'tests'),
+            project(path: ':server-original-data-store', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD',
+            'springframework:spring-test:5.0.17.RELEASE'
+    testImplementation(project(path: ':server-application-server', configuration: 'tests')) {
+        exclude group: 'google', module: 'gwt-user'
+    }
+
+}
+
+sourceSets {
+    test {
+        resources {
+            srcDirs = ['source/java', 'sourceTest/java']
+        }
+    }
+}
+
+def gwtBuildDir = "${project.buildDir}/gwt"
+def gwtCacheBuildDir = "${project.buildDir}/gwt-unitCache"
+def gwtModuleName = 'ch.systemsx.cisd.openbis.OpenBIS'
+def gwtModuleBuildDir = "${gwtBuildDir}/${gwtModuleName}"
+def gwtArchivePath = 'resource'
+def gwtArchiveFileName = 'gwt.tar.gz'
+
+task compileGwt(dependsOn: classes, type: JavaExec) {
+    ext.buildDir = gwtBuildDir
+    def extraDir = "${project.buildDir}/extra"
+
+    // inputs.source
+    sourceSets.main.java.srcDirs
+    // inputs.dir
+    sourceSets.main.output.resourcesDir
+    outputs.dir buildDir
+
+    doFirst {
+        file(buildDir).mkdirs()
+    }
+
+    main = 'com.google.gwt.dev.Compiler'
+
+    classpath {
+        [
+                sourceSets.main.java.srcDirs,
+                project(":server-application-server").sourceSets.main.java.srcDirs,
+                project(":server-application-server").sourceSets.main.output.resourcesDir,
+                project(":server-application-server").sourceSets.main.output.classesDirs,
+                project(":server-application-server").sourceSets.main.compileClasspath,
+                project(":lib-common").sourceSets.main.java.srcDirs,
+                project(":api-openbis-java").sourceSets.main.java.srcDirs,
+                project(":server-screening").sourceSets.main.java.srcDirs,
+                project(":server-screening").sourceSets.main.output.resourcesDir,
+                configurations.gwt
+        ]
+    }
+
+    args =
+            [
+                    gwtModuleName,
+                    '-war', buildDir,
+                    '-logLevel', 'INFO',
+                    '-localWorkers', '2',
+                    '-compileReport',
+                    '-extra', extraDir,
+            ]
+
+    maxHeapSize = '1024m'
+
+    systemProperty "javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl"
+}
+
+task buildCoreUIPackageUsingJDK8(type: Tar, dependsOn: compileGwt) {
+    from gwtBuildDir
+    destinationDirectory = file(gwtArchivePath)
+    archiveFileName = gwtArchiveFileName
+    compression = Compression.GZIP
+    doLast { // Cleanup, the rest of the build should not use these
+        delete gwtBuildDir
+        delete gwtCacheBuildDir
+    }
+}
+
+task untarGwt(type: Copy) {
+    from tarTree(resources.gzip("${gwtArchivePath}/${gwtArchiveFileName}"))
+    into gwtBuildDir
+}
+
+node {
+    download = true
+    version = '18.12.1'
+    workDir = file("${projectDir}/node/nodejs")
+    nodeModulesDir = file("${projectDir}")
+}
+
+task bundleOpenbisStaticResources(type: Exec) {
+    dependsOn 'untarGwt'
+    dependsOn 'npmInstall'
+    commandLine 'bash', '-c', "${projectDir}/resource/js/v3/build.sh"
+}
+
+task copyOpenbisStaticResources(type: Copy) {
+    dependsOn 'bundleOpenbisStaticResources'
+    from "${project(':server-application-server').projectDir}/source/java/ch/systemsx/cisd/openbis/public"
+    into gwtModuleBuildDir
+}
+
+ext.classpathEntries = files(
+        project(':server-application-server').file('source/java/applicationContext.xml'),
+        project(':server-application-server').file('source/java/dbConfigurationContext.xml'),
+        project(':server-application-server').file('source/java/ehcache.xml'),
+        project(':server-application-server').file('source/java/genericApplicationContext.xml'),
+        project(':server-application-server').file('source/java/hibernateContext.xml'),
+        project(':server-application-server').file('source/java/schema-for-xslt20.xsd'),
+        project(':server-application-server').file('source/java/XMLSchema.xsd'),
+        project(':server-screening').file('source/java/screening-applicationContext.xml'),
+        project(':server-screening').file('source/java/screening-dssApplicationContext.xml'),
+        project(':server-screening').file('source/java/screening-plugin-applicationContext.xml'),
+        project(':lib-common').file('source/java/genericCommonContext.xml'),
+        'source/java/standard-technologies-applicationContext.xml'
+)
+
+ext.zipEntries = files(
+        project(':server-application-server').file('dist/server/autosymlink.sh'),
+        project(':server-application-server').file('dist/server/check.sh'),
+        project(':server-application-server').file('dist/server/configure.sh'),
+        project(':server-application-server').file('dist/server/export-master-data.py'),
+        project(':server-application-server').file('dist/server/export-master-data.sh'),
+        project(':server-application-server').file('dist/server/install.sh'),
+        project(':server-application-server').file('dist/server/openBIS.keystore'),
+        project(':server-application-server').file('dist/server/openbis.conf'),
+        project(':server-application-server').file('dist/server/passwd.sh'),
+        project(':server-application-server').file('dist/server/register-master-data.sh'),
+        project(':server-application-server').file('dist/server/setup-env'),
+        project(':server-application-server').file('dist/server/shutdown.sh'),
+        project(':server-application-server').file('dist/server/startup.sh'),
+        project(':server-application-server').file('dist/server/status.sh'),
+        project(':server-application-server').file('dist/server/version.sh'),
+        project(':server-application-server').file('dist/server/watchdog.sh'),
+        project(':server-application-server').fileTree(dir: 'dist/server').matching {
+            include 'base/**'
+        },
+        file('dist/server/service.properties'),
+        file('dist/server/web-client.properties')
+)
+
+task checkFilesExist {
+    inputs.files files(classpathEntries, zipEntries)
+    doLast {
+        classpathEntries.each {
+            x -> assert x.exists()
+        }
+        zipEntries.each {
+            x -> assert x.exists()
+        }
+    }
+}
+
+
+war.dependsOn untarGwt
+war.dependsOn copyOpenbisStaticResources
+war.dependsOn checkFilesExist
+war.dependsOn copyJarsForWebStart
+war {
+    rootSpec.eachFile { file ->
+        if (file.name.startsWith('cisd-cifex')
+                || file.name.startsWith('server-original-data-store')
+                || file.name.startsWith('bioformats')
+                || file.name.startsWith('cisd-image-readers')
+        ) {
+            file.exclude()
+        }
+    }
+
+    from "${project.buildDir}/gwt/ch.systemsx.cisd.openbis.OpenBIS"
+    from signedJarsFolder
+    webXml = file('resource/server/web.xml')
+    webInf {
+        from "${project.buildDir}/gwt/WEB-INF",
+                project(':server-application-server').file('resource/server/bis-common.xml'),
+                file('resource/server/spring-servlet.xml'),
+                file('resource/server/jetty-web.xml'),
+                project(':lib-common').file('resource/server/web-common.xml')
+    }
+
+    from(classpathEntries) {
+        into("WEB-INF/classes")
+    }
+
+    from('dist/server') {
+        into("WEB-INF/classes")
+        include "etc/log.xml"
+    }
+
+    from('targets/dist') {
+        into("WEB-INF/classes")
+        include 'BUILD*INFO'
+        rename 'BUILD.*INFO', 'BUILD-openbis.INFO'
+    }
+
+    from('../server-screening/source') {
+        into("WEB-INF/classes")
+        include "sql/**/*.sql"
+        exclude "sql/imaging/postgresql/_ERD"
+    }
+
+    from('../server-application-server/source') {
+        into("WEB-INF/classes")
+        include "sql/**/*.sql"
+        exclude "sql/generic/_ERD"
+        duplicatesStrategy 'exclude'
+    }
+}
+
+def downloadCorePlugin(url, pluginname) {
+    if (!project.getGradle().startParameter.isOffline()) {
+        def file = project(':server-application-server').file("../core-plugin-openbis/targets/downloads/${pluginname}.zip")
+        if (file.exists() == false || System.currentTimeMillis() - file.lastModified() > 3600000) {
+            file.getParentFile().mkdirs()
+            ext.executeFunction('curl', [url, '-sLk', '-o', file.getAbsolutePath()])
+            ext.executeFunction('unzip', ['-uqo', file.getAbsolutePath(), '-d', '../core-plugin-openbis/targets/downloads/'])
+        }
+    }
+}
+
+import org.paleozogt.gradle.zip.SymZip;
+
+task zipCorePlugins(type: SymZip) {
+    duplicatesStrategy 'include'
+    includeEmptyDirs = false
+    archiveName 'core-plugins.zip'
+
+    downloadCorePlugin('https://github.com/aarpon/obit_flow_core_technology/archive/release/20.x.zip', 'flow')
+    downloadCorePlugin('https://github.com/aarpon/obit_microscopy_core_technology/archive/release/20.x.zip', 'microscopy')
+    downloadCorePlugin('https://github.com/aarpon/obit_shared_core_technology/archive/release/20.x.zip', 'shared')
+    from project(':server-screening').fileTree(dir: 'source/core-plugins', includes: ['screening/**', 'screening-optional/**'], excludes: ['**/package-to-dist'])
+    from fileTree(dir: 'targets/downloads/obit_flow_core_technology-release-20.x/core-plugins', includes: ['flow/**'])
+    from fileTree(dir: 'targets/downloads/obit_microscopy_core_technology-release-20.x/core-plugins', includes: ['microscopy/**'])
+    from fileTree(dir: 'targets/downloads/obit_shared_core_technology-release-20.x/core-plugins', includes: ['shared/**'])
+    from 'dist/core-plugins'
+    from 'dist/server/core-plugins.properties'
+    into 'core-plugins'
+}
+
+def generateMD5(final file) {
+    java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5")
+    file.withInputStream() { is ->
+        byte[] buffer = new byte[8192]
+        int read = 0
+        while ((read = is.read(buffer)) > 0) {
+            digest.update(buffer, 0, read);
+        }
+    }
+    byte[] md5sum = digest.digest()
+    BigInteger bigInt = new BigInteger(1, md5sum)
+    return bigInt.toString(16)
+}
+
+task checksums {
+    ext.destFile = new File(buildDir, 'configuration.MD5')
+    ext.inputFiles = war.getSource().filter({ file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties') })
+    inputs.files inputFiles
+    outputs.file destFile
+    doLast {
+        if (destFile.exists()) {
+            destFile.delete()
+        }
+        destFile.createNewFile()
+
+        def configFiles = classpathEntries.filter({ file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties') })
+        configFiles.each { file ->
+            destFile.text += generateMD5(file) + " webapps/openbis/WEB-INF/classes/" + file.name + "\n"
+        }
+
+        configFiles = war.getSource().filter({ file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties') }).minus(classpathEntries)
+        configFiles.each { file ->
+            destFile.text += generateMD5(file) + " webapps/openbis/WEB-INF/" + file.name + "\n"
+        }
+    }
+}
+checksums.dependsOn war
+
+task createJettyVersionFile {
+    ext.versionFile = new File(buildDir, 'jetty-version.txt')
+    outputs.file versionFile
+    doLast {
+        versionFile.text = "${jettyDistributionVersion}"
+    }
+}
+
+task zip(type: Zip, dependsOn: createJettyVersionFile) {
+    from createJettyVersionFile
+    from war
+    from zipEntries
+    from checksums
+    from configurations.zipping
+    from zipCorePlugins.archivePath
+    from zipAdminConsole.archivePath
+    rename 'jetty-distribution(.*).zip', 'jetty.zip'
+    rename 'openBIS(.*).war', 'openBIS.war'
+}
+zip.dependsOn war
+zip.dependsOn zipCorePlugins
+zip.dependsOn zipAdminConsole
+zip.dependsOn checksums
+
+task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
+    baseName 'datastore_server-standard-technologies'
+    includeEmptyDirs true
+
+    from(configurations.server_original_data_store) {
+        into 'datastore_server/lib'
+        exclude '**/antlr*.jar'
+        exclude '**/fastutil*.jar'
+        exclude '**/gwt*.jar'
+        exclude '**/gxt*.jar'
+        exclude '**/hibernate*.jar'
+        exclude '**/jmock*.jar'
+        exclude '**/junit*.jar'
+        exclude '**/lucene*.jar'
+        exclude '**/restrictions*.jar'
+        exclude '**/testng*.jar'
+        rename 'lib-common-.*jar', 'lib-common.jar'
+        rename 'lib-commonbase-.*jar', 'lib-commonbase.jar'
+    }
+
+    from(signedJarsFolder) {
+        into 'datastore_server/lib/dss_upload_gui'
+        exclude openbisClientJarName
+        exclude dssCliClientJarName
+    }
+
+    from(project(':server-original-data-store').fileTree(dir: 'dist', includes: ['**/*'], excludes: ['dss_client.sh', 'etc/**'])) {
+        into 'datastore_server';
+    }
+
+    from(project(':server-original-data-store').files('dist/etc/datastore_server.conf', 'dist/etc/openBIS.keystore')) {
+        into 'datastore_server/etc';
+    }
+
+    from(fileTree(dir: 'dist', includes: ['etc/service.properties', 'etc/log.xml'])) {
+        into 'datastore_server'
+    }
+
+    from(project(':server-screening').file('dist/etc/tabular-data-graph.properties')) {
+        into 'datastore_server/etc';
+    }
+
+}
+
+task zipBdlServer(type: Zip, dependsOn: project(':server-external-data-store').tasks.distZip) {
+    baseName 'big_data_link_server'
+    from zipTree('../server-external-data-store/build/distributions/server-external-data-store.zip')
+}
+
+task pybisZip(type: Zip) {
+    baseName 'pybis'
+    from '../api-openbis-python3-pybis/'
+}
+
+task obisZip(type: Zip) {
+    baseName 'obis'
+    from '../app-openbis-command-line/'
+}
+
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip]) {
+    baseName 'openBIS-clients-and-APIs'
+    from dssClientZip.archivePath
+    from queryApiZip.archivePath
+    from apiV3Zip.archivePath
+    from screeningApiZip.archivePath
+    from pybisZip.archivePath
+    from obisZip.archivePath
+    from dropboxJavaDocZip.archivePath
+    from dynamicApiJavadocZip.archivePath
+    from('dist/client/readme.txt')
+    rename { filename ->
+        if (filename.startsWith('pybis-')) {
+            def contentOfSetUpFile = zipTree(pybisZip.archivePath).getFiles().findAll { it.path.endsWith('src/python/setup.cfg') }.iterator().next().text
+            def pybisVersion = (contentOfSetUpFile =~ /version.*=.*(.*)/)[0][1]
+            'pybis-' + pybisVersion + '.zip'
+        } else {
+            filename
+        }
+    }
+}
+
+task deleteOpenbisNgUi(type: Delete) {
+    delete 'dist/core-plugins/ui-admin'
+}
+
+task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':ui-admin:copyWebApp']) {
+    from project(':ui-admin').file('build/core-plugins')
+    into file('dist/core-plugins')
+}
+
+zipCorePlugins.dependsOn copyOpenbisNgUiToCorePlugins
+
+task generateJavadoc(type: Javadoc) {
+    source = configurations.javadoc_sources.collect {
+        zipTree(it).matching {
+            include "**/ch/ethz/sis/openbis/generic/asapi/**/*.java"
+            include "**/ch/ethz/sis/openbis/generic/dssapi/**/*.java"
+            include "**/ch/systemsx/cisd/**/api/**/*.java"
+            include "**/ch/systemsx/cisd/common/annotation/*.java"
+            include "**/ch/systemsx/cisd/base/**/*.java"
+            include "**/OpenBISScreeningML.java"
+            include "**/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
+            include "**/ch/systemsx/cisd/**/etlserver/registrator/*.java"
+            include "**/ch/systemsx/cisd/common/mail/*.java"
+        }
+    }
+    classpath = configurations.javadoc_compilation
+    maxMemory = "1024m"
+    options.addStringOption("source", "1.8")
+}
+
+build.dependsOn zip
+build.dependsOn zipDss
+build.dependsOn zipBdlServer
+build.dependsOn clientsAndApis
+build.dependsOn dssUploadGuiStandaloneZip
+build.dependsOn dssUploadGuiStandaloneJar
+build.dependsOn generateJavadoc

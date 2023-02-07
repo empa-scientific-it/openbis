@@ -44,15 +44,20 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
             if (extraGradle4ClassPath.exists())
             {
                 classpath += ":" + (extraGradle4ClassPath).getCanonicalPath();
-            } else if(extraGradle3ClassPath.exists()) {
+            } else if (extraGradle3ClassPath.exists())
+            {
                 classpath += ":" + (extraGradle3ClassPath).getCanonicalPath();
             } else
             {
-                throw new RuntimeException("Classpath Missing: " + extraGradle3ClassPath + " or " + extraGradle3ClassPath);
+                throw new RuntimeException(
+                        "Classpath Missing: " + extraGradle3ClassPath + " or " + extraGradle3ClassPath);
             }
-            classpath += ":../../../../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/htmlcleaner-2.23.jar";
-            classpath += ":../../../../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/plasmapper.jar";
-            classpath += ":../../../../openbis_standard_technologies/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/zip4j_1.3.2.jar";
+            classpath +=
+                    ":../../../../core-plugin-openbis/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/htmlcleaner-2.23.jar";
+            classpath +=
+                    ":../../../../core-plugin-openbis/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/plasmapper.jar";
+            classpath +=
+                    ":../../../../core-plugin-openbis/dist/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/zip4j_1.3.2.jar";
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -65,7 +70,7 @@ public abstract class JsTestDataStoreServer extends TestDataStoreServer
                 + " -Dfile.encoding=UTF-8 -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog -classpath " + classpath
                 + " ch.systemsx.cisd.openbis.dss.generic.DataStoreServer";
     }
-    
+
     public void cleanUp()
     {
         File emailFolder = new File(getRootPath(), EMAIL_FOLDER);

@@ -34,7 +34,7 @@ app-openbis-installer \
 test-api-openbis-javascript \
 server-application-server \
 lib-openbis-common \
-openbis_standard_technologies \
+core-plugin-openbis \
 api-openbis-java \
 server-screening \
 test-ui-core\

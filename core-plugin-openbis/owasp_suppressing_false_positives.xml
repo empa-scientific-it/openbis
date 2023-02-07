@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+	<!-- XML Beans 2.6.0 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/xmlbeans@.*$</packageUrl>
+		<cve>CVE-2021-23926</cve>
+	</suppress>
+	<!-- Bootstrap -->
+	<suppress>
+		<packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
+		<cve>CVE-2018-14040</cve>
+		<cve>CVE-2018-14041</cve>
+		<cve>CVE-2018-14042</cve>
+		<cve>CVE-2019-8331</cve>
+	</suppress>
+	<!-- Jquery 1.11.3 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
+		<cve>CVE-2015-9251</cve>
+		<cve>CVE-2019-11358</cve>
+		<cve>CVE-2020-11022</cve>
+		<cve>CVE-2020-11023</cve>
+		<cve>CVE-2012-6708</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:javascript/moment\.js@.*$</packageUrl>
+		<vulnerabilityName>reDOS - regular expression denial of service</vulnerabilityName>
+	</suppress>
+
+	<!-- Bouncy Castle -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/bouncycastle/bcprov@.*$</packageUrl>
+		<cve>CVE-2018-1000613</cve>
+		<cve>CVE-2020-26939</cve>
+	</suppress>
+	<!-- Commons Compress 1.8 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/commons\-compress@.*$</packageUrl>
+		<cve>CVE-2018-11771</cve>
+	</suppress>
+	<!-- Spring 5 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/springframework/.*$</packageUrl>
+		<cve>CVE-2018-11039</cve>
+		<cve>CVE-2018-11040</cve>
+		<cve>CVE-2018-1199</cve>
+		<cve>CVE-2018-1257</cve>
+		<cve>CVE-2018-1270</cve>
+		<cve>CVE-2018-1271</cve>
+		<cve>CVE-2018-1272</cve>
+		<cve>CVE-2018-1275</cve>
+		<cve>CVE-2018-15756</cve>
+		<cve>CVE-2020-5398</cve>
+		<cve>CVE-2020-5421</cve>
+	</suppress>
+	<!-- Apache Poi 3.17 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/poi@.*$</packageUrl>
+		<cve>CVE-2019-12415</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/poi\-ooxml@.*$</packageUrl>
+		<cve>CVE-2019-12415</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/poi\-ooxml\-schemas@.*$</packageUrl>
+		<cve>CVE-2019-12415</cve>
+	</suppress>
+	<!-- Log4j 1.2 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/log4j@.*$</packageUrl>
+		<cve>CVE-2019-17571</cve>
+		<cve>CVE-2020-9488</cve>
+	</suppress>
+	<!-- Jython 2.7 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-compress@.*$</packageUrl>
+		<cve>CVE-2021-35515</cve>
+		<cve>CVE-2021-35516</cve>
+		<cve>CVE-2021-35517</cve>
+		<cve>CVE-2021-36090</cve>
+	</suppress>
+	<!-- Junit 4 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
+		<cve>CVE-2020-15250</cve>
+	</suppress>
+	<!-- Hibernate 4 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/hibernate/hibernate\-validator@.*$</packageUrl>
+		<cve>CVE-2019-14900</cve>
+		<cve>CVE-2020-25638</cve>
+	</suppress>
+	<!-- Old Jackson used by ? -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/googlecode/jsonrpc4j@.*$</packageUrl>
+		<cve>CVE-2018-7489</cve>
+	</suppress>
+	<!-- Old Jetty used by GWT -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/org\.mortbay\.jetty/jetty@.*$</packageUrl>
+		<cve>CVE-2009-1523</cve>
+		<cve>CVE-2009-1524</cve>
+		<cve>CVE-2009-5047</cve>
+		<cve>CVE-2011-4461</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+		<cve>CVE-2017-9735</cve>
+		<cve>CVE-2019-10241</cve>
+		<cve>CVE-2019-10247</cve>
+		<cve>CVE-2020-27216</cve>
+		<cve>CVE-2021-28169</cve>
+		<cve>CVE-2021-34428</cve>
+	</suppress>
+	<!-- GWT -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/net\.sourceforge\.htmlunit/htmlunit@.*$</packageUrl>
+		<cve>CVE-2020-5529</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpmime@.*$</packageUrl>
+		<cve>CVE-2012-6153</cve>
+	</suppress>
+	<!-- ? -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/bouncycastle/bcprov@.*$</packageUrl>
+		<cve>CVE-2018-1000180</cve>
+	</suppress>
+	<!-- ? -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/apache/geronimo\-stax@.*$</packageUrl>
+		<cve>CVE-2006-0254</cve>
+		<cve>CVE-2008-0732</cve>
+		<cve>CVE-2011-5034</cve>
+	</suppress>
+	<!-- Bio Formats 6.5.1 -->
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
+		<cve>CVE-2020-13956</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/com\.squareup\.okhttp3/okhttp@.*$</packageUrl>
+		<cve>CVE-2018-20200</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+		<cve>CVE-2020-8908</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
+		<cve>CVE-2017-5929</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
+		<cve>CVE-2017-5929</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-annotations@.*$</packageUrl>
+		<cve>CVE-2018-1000873</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+		<cve>CVE-2018-1000873</cve>
+	</suppress>
+	<suppress>
+		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+		<cve>CVE-2018-1000873</cve>
+		<cve>CVE-2018-14718</cve>
+		<cve>CVE-2018-14719</cve>
+		<cve>CVE-2018-14720</cve>
+		<cve>CVE-2018-14721</cve>
+		<cve>CVE-2018-19360</cve>
+		<cve>CVE-2018-19361</cve>
+		<cve>CVE-2018-19362</cve>
+		<cve>CVE-2019-12086</cve>
+		<cve>CVE-2019-12384</cve>
+		<cve>CVE-2019-12814</cve>
+		<cve>CVE-2019-14379</cve>
+		<cve>CVE-2019-14439</cve>
+		<cve>CVE-2019-14540</cve>
+		<cve>CVE-2019-14892</cve>
+		<cve>CVE-2019-14893</cve>
+		<cve>CVE-2019-16335</cve>
+		<cve>CVE-2019-16942</cve>
+		<cve>CVE-2019-16943</cve>
+		<cve>CVE-2019-17267</cve>
+		<cve>CVE-2019-17531</cve>
+		<cve>CVE-2019-20330</cve>
+		<cve>CVE-2020-10672</cve>
+		<cve>CVE-2020-10673</cve>
+		<cve>CVE-2020-10968</cve>
+		<cve>CVE-2020-10969</cve>
+		<cve>CVE-2020-11111</cve>
+		<cve>CVE-2020-11112</cve>
+		<cve>CVE-2020-11113</cve>
+		<cve>CVE-2020-11619</cve>
+		<cve>CVE-2020-11620</cve>
+		<cve>CVE-2020-14060</cve>
+		<cve>CVE-2020-14061</cve>
+		<cve>CVE-2020-14062</cve>
+		<cve>CVE-2020-14195</cve>
+		<cve>CVE-2020-24616</cve>
+		<cve>CVE-2020-24750</cve>
+		<cve>CVE-2020-25649</cve>
+		<cve>CVE-2020-35490</cve>
+		<cve>CVE-2020-35491</cve>
+		<cve>CVE-2020-35728</cve>
+		<cve>CVE-2020-36179</cve>
+		<cve>CVE-2020-36180</cve>
+		<cve>CVE-2020-36181</cve>
+		<cve>CVE-2020-36182</cve>
+		<cve>CVE-2020-36183</cve>
+		<cve>CVE-2020-36184</cve>
+		<cve>CVE-2020-36185</cve>
+		<cve>CVE-2020-36186</cve>
+		<cve>CVE-2020-36187</cve>
+		<cve>CVE-2020-36188</cve>
+		<cve>CVE-2020-36189</cve>
+		<cve>CVE-2020-8840</cve>
+		<cve>CVE-2020-9546</cve>
+		<cve>CVE-2020-9547</cve>
+		<cve>CVE-2020-9548</cve>
+		<cve>CVE-2021-20190</cve>
+	</suppress>
+   <!-- GWT Development - Jetty 6 -->
+   <suppress>
+      <gav regex="true">^org\.mortbay\.jetty:jetty-util:.*$</gav>
+      <cpe>cpe:/a:mortbay:jetty</cpe>
+   </suppress>
+   <suppress>
+	   <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
+	   <cpe>cpe:/a:mortbay:jetty</cpe>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^org\.mortbay\.jetty:servlet-api-2\.5:.*$</gav>
+	   <cpe>cpe:/a:mortbay:jetty</cpe>
+	</suppress>
+	<!-- GWT Development - Apache Client -->
+	<suppress>
+	   <gav regex="true">^org\.apache\.httpcomponents:httpclient:.*$</gav>
+	   <cve>CVE-2011-1498</cve>
+	   <cve>CVE-2014-3577</cve>
+	   <cve>CVE-2015-5262</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^org\.apache\.httpcomponents:httpmime:.*$</gav>
+	   <cve>CVE-2011-1498</cve>
+	   <cve>CVE-2014-3577</cve>
+	   <cve>CVE-2015-5262</cve>
+	</suppress>
+	<!-- Jetty 8 - False positive, found in a ehcache POM file -->
+	<suppress>
+	   	<notes><![CDATA[ ehcache-2.10.0.jar ]]></notes>
+	   	<gav regex="true">^org\.eclipse\.jetty:jetty-continuation:.*$</gav>
+	   	<cve>CVE-2017-9735</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+	</suppress>
+	<suppress>
+	   	<notes><![CDATA[ ehcache-2.10.0.jar ]]></notes>
+	   	<gav regex="true">^org\.eclipse\.jetty:jetty-http:.*$</gav>
+	   	<cve>CVE-2017-9735</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+	</suppress>
+	<suppress>
+	   	<notes><![CDATA[ ehcache-2.10.0.jar ]]></notes>
+	   	<gav regex="true">^org\.eclipse\.jetty:jetty-security:.*$</gav>
+	   	<cve>CVE-2017-9735</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+	</suppress>
+	<suppress>
+	   	<notes><![CDATA[ ehcache-2.10.0.jar ]]></notes>
+	   	<gav regex="true">^org\.eclipse\.jetty:jetty-server:.*$</gav>
+	   	<cve>CVE-2017-9735</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+	</suppress>
+	<suppress>
+	   	<notes><![CDATA[ ehcache-2.10.0.jar ]]></notes>
+	   	<gav regex="true">^org\.eclipse\.jetty:jetty-servlet:.*$</gav>
+	   	<cve>CVE-2017-9735</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+	</suppress>
+	<suppress>
+	   	<notes><![CDATA[ ehcache-2.10.0.jar ]]></notes>
+	   	<gav regex="true">^org\.eclipse\.jetty:jetty-util:.*$</gav>
+	   	<cve>CVE-2017-9735</cve>
+		<cve>CVE-2017-7656</cve>
+		<cve>CVE-2017-7657</cve>
+		<cve>CVE-2017-7658</cve>
+	</suppress>
+	<!-- Jetty 9.4.9 -->
+	<suppress>
+   		<gav regex="true">^org\.eclipse\.jetty\.alpn:alpn-api:.*$</gav>
+   		<cve>CVE-2017-9735</cve> <!-- False positive, only affects 9.4.6 and earlier -->
+		<cve>CVE-2017-7656</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7657</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7658</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+	</suppress>
+	<suppress>
+   		<gav regex="true">^org\.eclipse\.jetty\.orbit:javax\.security\.auth\.message:.*$</gav>
+   		<cve>CVE-2017-9735</cve> <!-- False positive, only affects 9.4.6 and earlier -->
+		<cve>CVE-2017-7656</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7657</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7658</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+	</suppress>
+	<suppress>
+   		<gav regex="true">^org\.eclipse\.jetty\.orbit:javax\.mail\.glassfish:.*$</gav>
+   		<cve>CVE-2017-9735</cve> <!-- False positive, only affects 9.4.6 and earlier -->
+		<cve>CVE-2017-7656</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7657</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7658</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+	</suppress>
+	<suppress>
+   		<gav regex="true">^org\.eclipse\.jetty\.toolchain:jetty-schemas:.*$</gav>
+   		<cve>CVE-2007-5613</cve>  <!-- False positive, only affects 6.1.6 and earlier -->
+   		<cve>CVE-2007-5614</cve>  <!-- False positive, only affects 6.1.6 and earlier -->
+   		<cve>CVE-2007-5615</cve>  <!-- False positive, only affects 6.1.6 and earlier -->
+   		<cve>CVE-2017-9735</cve> <!-- False positive, only affects 9.4.6 and earlier -->
+		<cve>CVE-2017-7656</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7657</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+		<cve>CVE-2017-7658</cve> <!-- False positive, only affects 9.4.10 and earlier -->
+	</suppress>
+	<!-- Jackson 2.0.2 -->
+	<suppress>
+   		<gav regex="true">^com\.fasterxml\.jackson\.core:jackson-annotations:.*$</gav>
+   		<cve>CVE-2017-15095</cve> <!-- Only affects you if you allow to deserialize generic classes, object, serializable, etc.. -->
+   		<cve>CVE-2017-17485</cve> <!-- Only affects you if you allow to deserialize generic classes, object, serializable, etc.. -->
+   		<cve>CVE-2017-7525</cve> <!-- Only affects you if you allow to deserialize generic classes, object, serializable, etc.. -->
+   		<cve>CVE-2018-5968</cve> <!-- No Gadgets used, or DTOs are plain DTOs -->
+   		<cve>CVE-2018-7489</cve> <!-- We don't use c3p0 libraries -->
+	</suppress>
+	<suppress>
+   		<gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+   		<cve>CVE-2017-15095</cve><cve>CVE-2017-17485</cve><cve>CVE-2017-7525</cve><cve>CVE-2018-5968</cve><cve>CVE-2018-7489</cve>
+	</suppress>
+	<!-- Spring 4.1 -->
+	<suppress>
+	   <gav regex="true">^springframework:spring-aop:.*$</gav>
+	   <cve>CVE-2015-0201</cve> <!-- The Java SockJS client, we don't use the web sockets client -->
+	   <cve>CVE-2015-3192</cve> <!-- DOS Attacks using crafted DTD for XML, where we use DTDs? -->
+	   <cve>CVE-2015-5211</cve> <!-- This only affects downloads where the user could give the name of the file, not the case of the DSS -->
+	   <cve>CVE-2016-5007</cve> <!-- We don't use spring security to protect controllers -->
+	   <cve>CVE-2018-1270</cve> <!-- We don't use web sockets endpoints -->
+	   <cve>CVE-2018-1271</cve> <!-- We don't deploy on Windows -->
+	   <cve>CVE-2018-1272</cve> <!-- We don't forward user input blindly to create packages from our web client -->
+	   <cve>CVE-2018-1258</cve> <!-- We don't use the web-security jar -->
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-beans:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^org\.springframework:spring-context:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-core:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-web:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-webmvc:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-expression:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-tx:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-context-support:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^springframework:spring-jdbc:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<suppress>
+	   <gav regex="true">^org\.springframework:spring-orm:.*$</gav>
+	   <cve>CVE-2018-1258</cve><cve>CVE-2015-0201</cve><cve>CVE-2015-3192</cve><cve>CVE-2015-5211</cve><cve>CVE-2016-5007</cve><cve>CVE-2018-1270</cve><cve>CVE-2018-1271</cve><cve>CVE-2018-1272</cve>
+	</suppress>
+	<!-- Postgresql JDBC -->
+	<suppress>
+   		<gav regex="true">^org\.postgresql:postgresql:.*$</gav>
+   		<cve>CVE-2017-14798</cve> <!-- Clients can't use JDBC directly and execute their own SQL -->
+   		<cve>CVE-2018-1115</cve> <!-- We don't use any admin pack -->
+		<cve>CVE-2016-7048</cve> <!-- Don't apply to the driver -->
+		<cve>CVE-2018-10936</cve>
+		<cve>CVE-2020-13692</cve>
+	</suppress>
+	<!-- Jython -->
+	<suppress>
+		<gav regex="true">^org\.jruby\.extras:jaffl:.*$</gav>
+		<cpe>CVE-2010-1330</cpe>
+		<cpe>CVE-2011-4838</cpe>
+		<cpe>CVE-2012-5370</cpe>
+	</suppress>
+</suppressions>

@@ -1,2 +1,0 @@
-4.0.7 +
-Manual Patch from erjakhar96 commented on 5 Apr: https://github.com/select2/select2/issues/3125

@@ -1,0 +1,230 @@
+body
+{
+   margin: 0px;
+   font-family: Arial, Helvetica, sans-serif;
+   background-color: #F4F5F5;
+   border-top-style: solid;
+   border-top-color: #FF9900;
+   border-top-width: 10px;
+   padding-top: 3px;
+   background-image: url('../Status_Files/illumina.png');
+   background-repeat: no-repeat;
+   background-position: top right;
+   color: #555;
+   font-weight: bold;
+}
+
+#tabmenu
+{
+   font: normal 14px Arial, Helvetica, sans-serif;
+   list-style-type: none;
+   border-bottom: 1px solid #BB5500;
+   margin: 12px 0px 0px 0px;
+   padding-left: 0;
+   padding-right: 0;
+   padding-bottom: 26px;
+   font-weight: bold;
+}
+
+#tabmenu li
+{
+   display: inline;
+   float: left;
+   height: 24px;
+   min-width: 80px;
+   text-align: center;
+   padding: 0;
+}
+
+#tabmenu li a
+{
+   float: left;
+   color: #777;
+   text-decoration: none;
+   padding: 4px;
+   text-align: center;
+   background-color: #ddd;
+   min-width: 80px;
+   border: 1px solid gray;
+   border-bottom: none;
+   margin: 0px 1px 0px 1px;
+
+}
+
+#tabmenu li a.selected
+{
+   background-color: #F7F8f8;
+   color: #000;
+   font-size: 100%;
+   border:  1px solid #BB5500;
+	border-bottom: 2px solid #F7F8f8;
+
+}
+
+#tabmenu li a:hover
+{
+	color: #BB5500;
+	font-size :120%;
+   border:  1px solid #BB5500;
+}
+#tabmenu li a.selected:hover
+{
+	border-bottom: 2px solid #F7F8f8;
+}
+
+#container
+{
+	border: 1px solid #BB5500;
+	border-top: none;
+	padding: 10px;
+	left: 0;
+	top: 0;
+	background-color: #F7F8f8;
+	min-width: 1100px;
+}
+
+
+
+#tabmenu li a.space
+{
+	font-weight: normal;
+	font-size :100%;
+	color: #000;
+	background-color: #F5F5F5;
+	border: none;
+	text-align: right;
+}
+
+table.DataTable
+{
+	border-collapse: collapse;
+	background-color: #e0e0e0;
+   border: 1px dotted #BB5500;
+   padding: 10px;
+   padding:50px;
+
+}
+
+table.DataTable td, table.DataTable th
+{
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: smaller;
+   font-weight: bold;
+   font-variant: normal;
+   text-transform: none;
+   padding: 3px; 
+   border-right: dotted 1px #BB5500;
+   border-left: dotted 1px #BB5500;
+   color: #555555;
+}
+
+table.DataTable tr:hover td, table.DataTable tr:hover td a, table.DataTable tr:hover th a
+{
+	color: #BB5500;
+}
+
+table.DataTable th
+{
+   padding: 5px;
+   border: dotted 1px #BB5500;
+   color: #000000;
+}
+
+table.InfoTable
+{
+   margin: 20px;
+   border-style: none;
+   border-collapse: collapse;
+   background-color: #e0e0e0;
+   padding: 50px;
+   outline-style: solid;
+   outline-color: #e0e0e0;
+   outline-width: 10px;
+}
+
+table.InfoTable td, table.InfoTable th
+{
+   border-style: none;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: smaller;
+   font-weight: bold;
+   font-variant: normal;
+   text-transform: none;
+   padding: 5px 30px 5px 20px;
+   color: #555555;
+   text-align: left;
+}
+
+table.InfoTable tr:hover td, table.InfoTable tr:hover td a, table.InfoTable tr:hover th a
+{
+   color: #BB5500;
+}
+
+table.InfoTable th
+{
+   color: #000000;
+}
+
+table.StatusTable
+{
+   margin: 0px 0px 0px 0px;
+   border-collapse: collapse;
+   background-color: #e0e0e0;
+   padding: 1px;
+   /*outline-style: solid;
+   outline-color: #e0e0e0;
+   outline-width: 2px;*/
+   border: 1px dotted #BB5500;
+
+}
+
+table.StatusTable td, table.StatusTable th
+{
+   border: 1px dotted #BB5500;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: small;
+   font-weight: bold;
+   font-variant: normal;
+   text-transform: none;
+   color: #555555;
+   text-align: left;
+}
+table.StatusTable th
+{
+	border-right: none;
+	padding-right: 5px;
+}
+
+table.StatusTable td
+{
+	border-left: none;
+	padding-right: 5px;
+	color: #BB5500;
+}
+
+table.StatusTable tr:hover td, table.StatusTable tr:hover td a, table.StatusTable tr:hover th a
+{
+   color: #ff8800;
+}
+
+label
+{
+   font-size: smaller;
+   font-weight: normal;
+   color: #000000;
+}
+
+image.Chart
+{
+   border: 1px solid #BB5500;
+	margin: 5px 0px 0px 0px;
+}
+
+iframe
+{ 
+	margin: 5px 0px 0px 0px;
+	border: 1px solid #BB5500;
+}
+
+#RunNameTD
+{font-size :100%; padding-left: 20px}

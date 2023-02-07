@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="https://sis.id.ethz.ch/software/#openbis/xmdterms/"
+	xmlns="https://sis.id.ethz.ch/software/#openbis/xmdterms/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema for
+			master data
+			Created
+			2017-02-06
+			Created by Ganime Akin.
+		</xsd:documentation>
+	</xsd:annotation>
+
+ 	<xsd:element name="masterData">
+		<xsd:annotation>
+			<xsd:documentation>master data</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="validationPlugins" type="validationPlugins" maxOccurs="1" minOccurs="0" />
+				<xsd:element name="fileFormatTypes" type="validationPlugins" maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<!-- The following defines a list of properties. -->
+	<xsd:complexType name="validationPlugins">
+		<xsd:sequence>
+			<xsd:element name="validationPlugin" maxOccurs="unbounded"
+				minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element type="xsd:string" name="code" />
+						<xsd:element type="xsd:string" name="name" />
+						<xsd:element type="xsd:string" name="description" />
+						<xsd:element type="xsd:string" name="type" />
+						<xsd:element type="xsd:string" name="entityKind" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:group name="elementsGroup">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				This group is included
+				as
+				a convenience for schema authors
+				who need to refer to all the DC
+				and
+				SIS elements.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:choice minOccurs="0" maxOccurs="1">
+				<xsd:element ref="masterData" />
+			</xsd:choice>
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:complexType name="elementContainer">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				This is included as a
+				convenience for schema authors who need to define
+				a root
+				or container
+				element for all of the SIS elements.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice>
+			<xsd:group ref="elementsGroup" />
+		</xsd:choice>
+	</xsd:complexType>
+</xsd:schema>

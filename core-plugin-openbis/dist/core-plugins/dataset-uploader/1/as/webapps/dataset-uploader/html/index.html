@@ -1,0 +1,88 @@
+<!--
+/*
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>DataSet Uploader</title>
+	
+	<!-- Third party Stylesheets -->
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-jnotify/css/jNotify.sis.jquery.css" />
+	
+	<!-- Third party libraries -->
+	<script type="text/javascript" src="./lib/jquery/js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/moment.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script type="text/javascript" src="./lib/jquery-jnotify/js/jNotify.sis.jquery.js"></script>
+	<script type="text/javascript" src="./lib/jquery-blockui/js/jquery.blockUI.js"></script>
+	
+	<!-- First party libraries -->
+  <script type="text/javascript" src="../../common-dictionary.js"></script>
+	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
+	
+	<!-- Plugin Code -->
+	<script type="text/javascript" src="./js/BlockScrollUtil.js"></script>
+	<script type="text/javascript" src="./js/Util.js"></script>
+	<script type="text/javascript" src="./js/FormUtil.js"></script>
+	<script type="text/javascript" src="./js/DataSetFormController.js"></script>
+	<script type="text/javascript" src="./js/DataSetFormModel.js"></script>
+	<script type="text/javascript" src="./js/DataSetFormView.js"></script>
+	
+	<script type="text/javascript">
+	var openBIS = new openbis();
+	
+	//
+	// Application Startup
+	//
+	$(document).ready(function() {
+		$(document).ajaxError(function( event, jqxhr, settings, thrownError ) {
+			try {
+				Util.showError("AJAX Error status: " + jqxhr.status + " - Status text: " + jqxhr.statusText + " - Calling: " + settings.url + " - With Data: " + settings.data);
+			} catch(err) {
+				Util.showError("Unknown AJAX Error");
+			}
+		});
+		
+		// create a context object to access the context information
+        var context = new openbisWebAppContext();
+        openBIS.useSession(context.getSessionId());
+        
+        var isSample = context.getEntityKind() === "SAMPLE";
+        var identifier = context.getEntityIdentifier();
+        var isSharedSample = identifier.split("/").length === 2;
+        if (isSample && isSharedSample) {
+        	$("#dataset-uploader-form").append("This sample does not belong to a space and therefore cannot hold datasets.");
+        } else { 
+        	var datasetFormController = new DataSetFormController();
+        	datasetFormController.init($("#dataset-uploader-form"), {identifier : identifier, isSample : isSample});
+        }
+	});
+	</script>
+</head>
+<body>
+	<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12" id ="dataset-uploader-form"></div>
+			</div>
+	</div>
+</body>
+</html>

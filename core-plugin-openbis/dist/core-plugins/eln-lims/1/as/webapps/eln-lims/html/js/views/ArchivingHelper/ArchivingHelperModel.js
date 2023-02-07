@@ -1,0 +1,3 @@
+function ArchivingHelperModel() {
+    this.dataSetsForArchiving = {};
+}

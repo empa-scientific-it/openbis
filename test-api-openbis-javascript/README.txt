@@ -58,7 +58,7 @@ Here are some tips for speed up development:
   
 * In case of changes of Java classes the a stop and restart (using ./gradlew test-api-openbis-javascript:clean test-api-openbis-javascript:test) is needed.
   The test server is available much faster after outcommenting the following lines in build.gradle of 
-  project openbis_standard_technologies:
+  project core-plugin-openbis:
   
   war.dependsOn compileGwt
   war.dependsOn signWebStartJars

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="https://sis.id.ethz.ch/software/#openbis/xdterms/"
+	xmlns="https://sis.id.ethz.ch/software/#openbis/xdterms/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			First draft of the XML Schema for
+			exchanging openbis meta data using ResourceSync
+			Created
+			2016-04-18
+			Created by Ganime Akin.
+			Updated
+			2016-17-11
+			Updated by Ganime Akin
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="xd">
+		<xsd:annotation>
+			<xsd:documentation>Metadata about an entity</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="properties" type="properties" maxOccurs="1" minOccurs="0" />
+				<xsd:element name="connections" type="connections" maxOccurs="1" minOccurs="0" />
+				<xsd:element name="binaryData" type="binaryData" maxOccurs="unbounded" minOccurs="0" />
+			</xsd:sequence>
+			<xsd:attribute name="kind" type="xsd:string" />
+			<xsd:attribute name="type" type="xsd:string" />
+			<xsd:attribute name="code" type="xsd:string" />
+			<xsd:attribute name="space" type="xsd:string" />
+			<xsd:attribute name="project" type="xsd:string" />
+			<xsd:attribute name="experiment" type="xsd:string" />
+			<xsd:attribute name="desc" type="xsd:string" />
+		</xsd:complexType>
+	</xsd:element>
+	<!-- The following defines a list of properties. -->
+	<xsd:complexType name="properties">
+		<xsd:sequence>
+			<xsd:element name="property" maxOccurs="unbounded"
+				minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element type="xsd:string" name="code" />
+						<xsd:element type="xsd:string" name="value" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+    <!-- The following provides URI for physical data files. -->
+	<xsd:complexType name="binaryData">
+		<xsd:sequence>
+			<xsd:element type="xsd:string" name="link" maxOccurs="unbounded"
+				minOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+    <!-- The following is used to represent unidirectional connections between entities. -->
+	<xsd:complexType name="connections">
+		<xsd:sequence>
+			<xsd:element name="connection" maxOccurs="unbounded"
+				minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element type="xsd:string" name="to" />
+						<xsd:element type="xsd:string" name="type" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:group name="elementsGroup">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				This group is included
+				as
+				a convenience for schema authors
+				who need to refer to all the DC
+				and
+				SIS elements.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:choice minOccurs="0" maxOccurs="1">
+				<xsd:element ref="xd" />
+			</xsd:choice>
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:complexType name="elementContainer">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				This is included as a
+				convenience for schema authors who need to define
+				a root
+				or container
+				element for all of the SIS elements.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice>
+			<xsd:group ref="elementsGroup" />
+		</xsd:choice>
+	</xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,18 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script type="text/javascript">
+    function setupImage() {
+       document.PlotImage.src = getParam() + "?" + (new Date().getMilliseconds());
+        document.PlotImage.style.display = "block"
+    }
+    function getParam() {
+    	return location.href.substring(location.href.indexOf('?') + 1, location.href.length);
+    }
+</script>
+</head>
+<body onload='try{setupImage()}catch(err){};'>
+    <img name="PlotImage" id="PlotImage" title="Data by cycle" style="display:none" src="#" alt="No data"/>
+</body>
+</html>
+
+

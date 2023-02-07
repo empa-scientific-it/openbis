@@ -89,7 +89,7 @@ task executeScreeningOpenBisDev(type: JavaExec) {
 task executeScreeningDataStoreDev(type: JavaExec) {
     main = 'ch.systemsx.cisd.openbis.dss.generic.DataStoreServer'
     classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime +
-            files("../openbis_standard_technologies/dist/core-plugins/microscopy/3/dss/drop-boxes/MicroscopyDropbox/lib/MicroscopyReader_20190521113500.jar")
+            files("../core-plugin-openbis/dist/core-plugins/microscopy/3/dss/drop-boxes/MicroscopyDropbox/lib/MicroscopyReader_20190521113500.jar")
     jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=../server-original-data-store/etc/log.xml',
              '-Djavax.net.ssl.trustStore=../server-original-data-store/dist/etc/openBIS.keystore',
              '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog',

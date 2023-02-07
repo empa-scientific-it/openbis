@@ -1,3 +1,0 @@
-function UnarchivingHelperModel() {
-	this.dataSetsForUnarchiving = {};
-}

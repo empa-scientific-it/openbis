@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<PeriodicSave xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="Save All Thumbnails" Version="1">
+  <SaveImages>false</SaveImages>
+  <SaveThumbnails>true</SaveThumbnails>
+  <UseZPositionNaming>false</UseZPositionNaming>
+  <Surfaces>Both</Surfaces>
+  <Swaths>Both</Swaths>
+  <Channels>
+    <Channel>A</Channel>
+    <Channel>T</Channel>
+    <Channel>C</Channel>
+    <Channel>G</Channel>
+  </Channels>
+  <Chunks />
+</PeriodicSave>

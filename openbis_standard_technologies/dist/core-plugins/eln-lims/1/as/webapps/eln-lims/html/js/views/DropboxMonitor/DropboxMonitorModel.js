@@ -1,3 +1,0 @@
-function DropboxMonitorModel() {
-    this.dropboxes = [];
-}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app [
+]>
+<web-app>
+
+    <display-name>openBIS</display-name>
+    <description>openBIS server</description>
+
+    <listener>
+        <listener-class>ch.systemsx.cisd.common.servlet.CISDContextLoaderListener</listener-class>
+    </listener>
+    
+    <servlet>
+        <servlet-name>spring</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+	    <init-param>
+	      <param-name>aliases</param-name>
+	      <param-value>true</param-value>
+	    </init-param>        
+    </servlet>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:standard-technologies-applicationContext.xml</param-value>
+        <description>File for Spring beans.</description>
+    </context-param>
+    
+    <context-param>
+        <param-name>infoClass</param-name>
+        <param-value>ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo</param-value>
+    </context-param>
+
+    <context-param>
+        <!-- 
+        The path of cookie with openBIS session id needs to be set explicitly here. Otherwise 
+        this cookie will be overwritten with a cookie created for the openBIS-DSS session.
+        -->
+        <param-name>org.mortbay.jetty.servlet.SessionPath</param-name>
+        <param-value>/openbis</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.Default.dirAllowed</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>
+            ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
+        </listener-class>
+    </listener>
+    
+    <filter>
+        <filter-name>MethodFilter</filter-name>
+        <filter-class>ch.systemsx.cisd.common.servlet.MethodFilter</filter-class>
+        <init-param>
+            <param-name>allowed-methods</param-name>
+            <param-value>GET, POST</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>MethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter>
+        <filter-name>HeaderFilter</filter-name>
+        <filter-class>ch.systemsx.cisd.common.servlet.HeaderFilter</filter-class>
+        <init-param>
+            <param-name>X-Frame-Options</param-name>
+            <param-value>SAMEORIGIN</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>HeaderFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter>
+        <filter-name>CacheFilter</filter-name>
+        <filter-class>ch.systemsx.cisd.openbis.generic.server.CacheFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CacheFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>CrossOriginFilter</filter-name>
+        <filter-class>ch.systemsx.cisd.openbis.generic.server.OpenbisCrossOriginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CrossOriginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
+    <servlet-mapping>
+        <servlet-name>spring</servlet-name>
+        <url-pattern>/openbis/*</url-pattern>
+    </servlet-mapping>
+         
+  <!--
+    // Additional servlets
+  -->
+
+</web-app>

@@ -1,2 +1,0 @@
-UPDATE property_types SET meta_data = '{ "custom_widget" : "Word Processor" }'::jsonb WHERE id IN (SELECT id FROM property_types WHERE daty_id = (SELECT id FROM data_types WHERE code = 'MULTILINE_VARCHAR'));
-UPDATE property_types SET meta_data = NULL WHERE id IN (SELECT id FROM property_types WHERE daty_id IN (SELECT id FROM data_types WHERE code NOT IN ('MULTILINE_VARCHAR', 'XML')));

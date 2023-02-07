@@ -55,7 +55,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
                 new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         jettySSLIniFile = new File(workingDirectory, Utils.AS_PATH + Utils.JETTY_SSL_INI_PATH);
         FileUtils.copyFile(
-                new File("../openbis_standard_technologies/dist/etc/service.properties/"),
+                new File("../core-plugin-openbis/dist/etc/service.properties/"),
                 dssServicePropertiesFile);
         FileUtils.copyFile(
                 new File("../server-application-server/dist/server/base/start.d/ssl.ini"),

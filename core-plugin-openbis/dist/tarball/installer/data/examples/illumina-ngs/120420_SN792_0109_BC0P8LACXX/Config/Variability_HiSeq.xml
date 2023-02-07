@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ImagingVariability Name="HiSeq Sequencing Kit" Version="1">
+  <ImagingVariabilityDefinitions>
+    <ImagingVariabilityDefinition Name="IndexRead">
+      <Cycles>
+        <Cycle Start="1">
+          <Pass1SpeedMmSec>2</Pass1SpeedMmSec>
+          <Pass2SpeedMmSec>2</Pass2SpeedMmSec>
+          <Laser1ExcitationFilter>OD0.6</Laser1ExcitationFilter>
+          <Laser2ExcitationFilter>OD0.2</Laser2ExcitationFilter>
+        </Cycle>
+      </Cycles>
+    </ImagingVariabilityDefinition>
+    <ImagingVariabilityDefinition Name="Read1">
+      <Cycles>
+        <Cycle Start="1" End="75">
+          <Pass1SpeedMmSec>2</Pass1SpeedMmSec>
+          <Pass2SpeedMmSec>2</Pass2SpeedMmSec>
+	  <Laser1ExcitationFilter>OD0.6</Laser1ExcitationFilter>
+	  <Laser2ExcitationFilter>OD0.2</Laser2ExcitationFilter>
+        </Cycle>
+        <Cycle Start="76">
+          <Pass1SpeedMmSec>2</Pass1SpeedMmSec>
+          <Pass2SpeedMmSec>2</Pass2SpeedMmSec>
+          <Laser1ExcitationFilter>OD0.4</Laser1ExcitationFilter>
+	  <Laser2ExcitationFilter>OpenBandPassPosition</Laser2ExcitationFilter>
+        </Cycle>
+      </Cycles>
+    </ImagingVariabilityDefinition>
+    <ImagingVariabilityDefinition Name="Read2">
+      <Cycles>
+        <Cycle Start="1" End="50">
+          <Pass1SpeedMmSec>2</Pass1SpeedMmSec>
+          <Pass2SpeedMmSec>2</Pass2SpeedMmSec>
+	  <Laser1ExcitationFilter>OD0.6</Laser1ExcitationFilter>
+	  <Laser2ExcitationFilter>OD0.2</Laser2ExcitationFilter>
+        </Cycle>
+        <Cycle Start="51">
+          <Pass1SpeedMmSec>2</Pass1SpeedMmSec>
+          <Pass2SpeedMmSec>2</Pass2SpeedMmSec>
+          <Laser1ExcitationFilter>OD0.4</Laser1ExcitationFilter>
+	  <Laser2ExcitationFilter>OpenBandPassPosition</Laser2ExcitationFilter>
+        </Cycle>
+      </Cycles>
+    </ImagingVariabilityDefinition>
+  </ImagingVariabilityDefinitions>
+</ImagingVariability>

@@ -1,0 +1,3 @@
+The library source structure has been modified to fit other libraries structure.
+The css has been modified to point correctly to the images.
+A new method called jNotifyImage has been added and new css for it, to display images.

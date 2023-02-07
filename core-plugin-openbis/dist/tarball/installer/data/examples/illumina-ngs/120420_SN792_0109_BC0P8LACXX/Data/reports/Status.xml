@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Illumina RTA Status Report-->
+<Status>
+  <Software>Illumina RTA 1.13.48</Software>
+  <RunName>120420_SN792_0109_BC0P8LACXX</RunName>
+  <InstrumentName>BS-DSFCONTROL03</InstrumentName>
+  <RunStarted>Sunday, April 22, 2012 2:16 PM</RunStarted>
+  <NumCycles>57</NumCycles>
+  <ImgCycle>57</ImgCycle>
+  <ScoreCycle>57</ScoreCycle>
+  <CallCycle>57</CallCycle>
+  <InputDir>E:\Illumina\HiSeqTemp\120420_SN792_0109_BC0P8LACXX</InputDir>
+  <OutputDir>Y:\120420_SN792_0109_BC0P8LACXX</OutputDir>
+  <Configuration>
+    <CopyAllFiles>true</CopyAllFiles>
+    <CopyImages>False</CopyImages>
+    <DeleteImages>True</DeleteImages>
+    <RunInfoExists>True</RunInfoExists>
+    <IsPairedEndRun>False</IsPairedEndRun>
+    <NumberOfReads>2</NumberOfReads>
+    <NumberOfLanes>8</NumberOfLanes>
+    <TilesPerLane>96</TilesPerLane>
+    <ControlLane>5</ControlLane>
+  </Configuration>
+</Status>

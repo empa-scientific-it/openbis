@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<link rel="stylesheet" href="./Status.css" type="text/css" media="screen"/>
+	<script src="./Status.js" type="text/javascript"></script>
+	<script src="./ByCycle.js" type="text/javascript"></script>
+	<title>Status</title>
+</head>
+ 
+<body>
+ <table style="border:none"><tr>
+	<td><img alt="Refresh" title="Refresh" name="RefreshBtn" height="25" width="25" src="./RefreshBtn/r1.png"  onmouseout="this.src='./RefreshBtn/r1.png'" onmouseover="this.src='./RefreshBtn/r2.png'" onmousedown="this.src='./RefreshBtn/r3.png'" onmouseup="this.src='./RefreshBtn/r2.png'" onclick="window.location.reload(true)" />&#160;</td>
+	<td id="StatUpdateDiv" >
+		<table class="StatusTable"><tr>
+			<th>Total:</th><td>0</td><th>Extracted:</th><td>0</td><th>Called:</th><td>0</td>
+			<th>Scored:</th><td>0</td><th>Copied:</th><td>0</td><th>Err.Rated:</th><td>0</td>
+		</tr></table></td> 
+	<td id="RunNameTD">Loading Run Data ...</td>
+ </tr></table>
+	<script type="text/javascript">
+		loadXSLTable('../reports/StatusUpdate.xml', './StatusUpdate.xsl', 'StatUpdateDiv');
+		var runName = xslTransform(loadXMLDoc('../reports/Status.xml'), loadXMLDoc('./RunName.xsl'));
+		document.getElementById("RunNameTD").innerHTML = runName;
+		document.title = runName + " Status";
+	</script>
+
+<ul id="tabmenu">
+
+
+	<li><a href="./RunInfo.htm">Run Info</a></li>
+	<li><a href="../Status.htm">Tile Status</a></li>
+	<li><a href="./Charts.htm">Charts</a></li>
+	<li><a href="./Summary.htm">Summary</a></li>
+	<li><a class="space">Plots:</a></li>
+	<li><a href="./ByLane.htm">Cluster Density</a></li>
+	<li><a class="selected" href="./ByCycle.htm">Data By Cycle</a></li>
+</ul>
+ 
+<div id="container">
+   <form action="" name="Plot1" id="Plot1" style="margin: 0px 0px 0px 0px;">
+		<table style="border:none"><tr>
+		<td><img style="margin: 0px 0px -5px 0px;" alt="Refresh" name="RefreshBtn" height="25" width="25" src="./RefreshBtn/r1.png"  onmouseout="this.src='./RefreshBtn/r1.png'" onmouseover="this.src='./RefreshBtn/r2.png'" onmousedown="this.src='./RefreshBtn/r3.png'" onmouseup="this.src='./RefreshBtn/r2.png'" onclick="changeFrameSrc(Plot1)" />&#160;</td>
+		<td><select size="1" name="QCOptDropDown"  onchange="changeFrameSrc(this.form)">
+			<option value="Intensity" selected="selected">Intensity</option>
+         <option value="FWHM">Focus Quality</option>
+			<option value="QScore">Quality Score</option>
+			<option value="NumGT30">%Q>=30</option>
+			<option value="ErrRate">Error Rate</option>
+		</select> &#160;</td>								
+		<td><select size="1" name="lanesDropDown"  style="display:inline" onchange="changeFrameSrc(this.form)">
+			<option value="L0" selected="selected">All Lanes</option>
+			<option value="L1">Lane 1</option>
+			<option value="L2">Lane 2</option>
+			<option value="L3">Lane 3</option>
+			<option value="L4">Lane 4</option>
+			<option value="L5">Lane 5</option>
+			<option value="L6">Lane 6</option>
+			<option value="L7">Lane 7</option>
+			<option value="L8">Lane 8</option>
+		</select>&#160;&#160;</td>
+      <td><select size="1" name="baseDropDown" style="display:inline" onchange="changeFrameSrc(this.form)">
+         <option value="A">Base A</option>
+         <option value="C">Base C</option>
+         <option value="G">Base G</option>
+         <option value="T">Base T</option>
+      </select></td>
+      </tr></table> 
+		<iframe name="Plot1Fr" src="./ByCycleFrame.htm?../reports/ByCycle/Intensity_L0a.png" height="387" width="95%" frameborder="0" >
+		   <img name="imgPlot" alt="No Data" src="../reports/ByCycle/Intensity_L0a.png"/>
+		</iframe >
+	</form >
+   <form action="" name="Plot2" id="Plot2" style="margin: 0px 0px 0px 0px;">
+		<table style="border:none"><tr>
+		<td><img style="margin: 0px 0px -5px 0px;" alt="Refresh" name="RefreshBtn" height="25" width="25" src="./RefreshBtn/r1.png"  onmouseout="this.src='./RefreshBtn/r1.png'" onmouseover="this.src='./RefreshBtn/r2.png'" onmousedown="this.src='./RefreshBtn/r3.png'" onmouseup="this.src='./RefreshBtn/r2.png'" onclick="changeFrameSrc(Plot2)" />&#160;</td>
+		<td><select size="1" name="QCOptDropDown"  onchange="changeFrameSrc(this.form)">
+			<option value="Intensity">Intensity</option>
+         <option value="FWHM" selected="selected">Focus Quality</option>
+			<option value="QScore">Quality Score</option>
+			<option value="NumGT30">%Q>=30</option>
+			<option value="ErrRate">Error Rate</option>
+		</select> &#160;</td>								
+		<td><select size="1" name="lanesDropDown"  style="display:inline" onchange="changeFrameSrc(this.form)">
+			<option value="L0" selected="selected">All Lanes</option>
+			<option value="L1">Lane 1</option>
+			<option value="L2">Lane 2</option>
+			<option value="L3">Lane 3</option>
+			<option value="L4">Lane 4</option>
+			<option value="L5">Lane 5</option>
+			<option value="L6">Lane 6</option>
+			<option value="L7">Lane 7</option>
+			<option value="L8">Lane 8</option>
+		</select>&#160;&#160;</td>
+      <td><select size="1" name="baseDropDown" style="display:inline" onchange="changeFrameSrc(this.form)">
+         <option value="A">Base A</option>
+         <option value="C">Base C</option>
+         <option value="G">Base G</option>
+         <option value="T">Base T</option>
+      </select></td>
+      </tr></table> 
+		<iframe name="Plot2Fr" src="./ByCycleFrame.htm?../reports/ByCycle/FWHM_L0a.png" height="387" width="95%" frameborder="0">
+         <img name="imgPlot" alt="No Data" src="../reports/ByCycle/FWHM_L0a.png"/>
+		</iframe >
+	</form >
+</div>
+</body>
+</html>
+

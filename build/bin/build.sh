@@ -37,7 +37,7 @@ git checkout $tag
 if [ $? -ne 0 ]; then echo "Tag does not exist!"; exit 1; fi
 
 # build
-cd openbis_standard_technologies
+cd core-plugin-openbis
 ./gradlew :clientsAndApis -x test
 ./gradlew :generateJavadoc
 cd ../app-openbis-installer
@@ -46,7 +46,7 @@ cd ../app-openbis-installer
 cd ../..
 
 # move documentation to fileserver
-cp -r openbis/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$tag
+cp -r openbis/core-plugin-openbis/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$tag
 cd ~openbis/fileserver/doc/openbis
 if [ ${tag:0:1} == "S" ]; then
   rm current
@@ -59,8 +59,8 @@ fi
 cd -
 
 # move components to fileserver
-mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
-mv openbis/openbis_standard_technologies/targets/gradle/distributions/big_data_link_server*.zip .
+mv openbis/core-plugin-openbis/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
+mv openbis/core-plugin-openbis/targets/gradle/distributions/big_data_link_server*.zip .
 mv openbis/app-openbis-installer/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
 
 move_to_file_server

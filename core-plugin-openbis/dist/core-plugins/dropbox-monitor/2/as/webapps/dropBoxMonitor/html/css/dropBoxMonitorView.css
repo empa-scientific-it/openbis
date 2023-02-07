@@ -1,0 +1,99 @@
+.page-header-override {
+  margin: 0px;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 0px;
+}
+.legend-panel {
+  padding: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+}
+.panel-heading {
+  padding: 0px;
+}
+.legend-label {
+  padding: 10px 15px;
+  font-size: 13px;
+  background-color: #f5f5f5;
+  border-right: #ddd 1px solid;
+  color: black;
+}
+.row {
+  margin: 0px;
+}
+.header-button {
+  margin-left: 5px;
+  margin-bottom: 5px;
+  float: right;
+}
+.quickmargin {
+  margin: 200px;
+  padding: 20px;
+}
+.presentationTable {
+  margin-top: 5px;
+  text-align: center;
+  border-collapse: collapse;
+}
+.header {
+  position: relative;
+  border: 1px solid rgb(204, 204, 204);
+  background-color: rgb(224, 224, 224);
+  text-align: center;
+}
+.header:after {
+  position: absolute;
+  float: right;
+  font-family: FontAwesome;
+  right: 10px;
+  top: 8px;
+  content: "\f0dc";
+}
+.header:focus {
+  outline: none;
+}
+.headerSortUp {
+  background-color: #ccc;
+}
+.headerSortUp:after {
+  position: absolute;
+  float: right;
+  font-family: FontAwesome;
+  right: 10px;
+  content: "\f0de";
+}
+.headerSortDown {
+  background-color: rgb(204, 204, 204);
+}
+.headerSortDown:after {
+  position: absolute;
+  float: right;
+  font-family: FontAwesome;
+  right: 10px;
+  content: "\f0dd";
+}
+h1 {
+  margin-top: 20px;
+  margin-bottom: -20px;
+  text-align: center;
+}
+hr {
+  margin: 5px;
+  margin-bottom: 0px;
+  clear: both;
+}
+tr {
+  margin-top: 5px;
+  cursor: pointer;
+}
+p {
+  top: 0px;
+  margin: 0 0 2px;
+}
+.fa-smile-o {
+  color: green;
+}
+.fa-frown-o {
+  color: red;
+}

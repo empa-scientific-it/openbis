@@ -1,0 +1,9 @@
+Run the following commands:
+
+cd core-plugin-openbis
+JAVA_HOME=<path to home of jdk 8> ./gradlew buildCoreUIPackageUsingJDK8
+
+Example for <path to home of jdk 8>: /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/
+
+A new version of resource/gwt.tar.gz has been created and should committed to the git repository.
+

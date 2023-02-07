@@ -31,7 +31,7 @@ For now it can be build following the next commands and only with JDK8:
 
 ```
 git clone https://sissource.ethz.ch/sispub/openbis.git
-cd openbis_standard_technologies/
+cd core-plugin-openbis/
 ./gradlew clean
 ./gradlew buildCoreUIPackageUsingJDK8 -x test
 ```
@@ -40,7 +40,7 @@ cd openbis_standard_technologies/
 
 ```
 git clone https://sissource.ethz.ch/sispub/openbis.git
-cd openbis_standard_technologies/
+cd core-plugin-openbis/
 ./gradlew clean
 ./gradlew bundleOpenbisStaticResources -x test
 ```
@@ -80,7 +80,7 @@ option for cross-compilation".
 ## Development of NG UI
 
 1. Generate openBIS JS bundle by running in command line
-    1. cd /<OPENBIS_PROJECT_ROOT>/openbis_standard_technologies
+    1. cd /<OPENBIS_PROJECT_ROOT>/core-plugin-openbis
     2. ./gradlew :bundleOpenbisStaticResources
 2. Start openBIS in your chosen IDE (NG UI assumes it will run
    at: http://localhost:8888/openbis-test/):

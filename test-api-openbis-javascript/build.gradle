@@ -34,7 +34,7 @@ configurations.create('externalDss')
 
 dependencies {
     api project(path: ':server-screening'),
-            project(path: ':openbis_standard_technologies'),
+            project(path: ':core-plugin-openbis'),
             project(path: ':test-ui-core', configuration: 'tests'),
             'reflections:reflections:0.9.10',
             'fasterxml:jackson-core:2.9.10',
@@ -52,8 +52,8 @@ dependencies {
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
-task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
-    from project(':openbis_standard_technologies').war
+task copyWar(type: Copy, dependsOn: project(':core-plugin-openbis').war) {
+    from project(':core-plugin-openbis').war
     into 'targets/gradle/openbis-war'
     rename { filename -> 'openbis.war' }
 }

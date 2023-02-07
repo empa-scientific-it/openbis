@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.1//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.1/distro-source/core/src/gwt-module.dtd">
+<module rename-to="ch.systemsx.cisd.openbis.OpenBIS">
+  <inherits name='ch.systemsx.cisd.openbis.OpenBIS-without-entry-point' />
+  <set-property name="user.agent" value="gecko1_8" />
+
+    <entry-point class='ch.systemsx.cisd.openbis.client.web.client.application.StandardClient' />
+    
+    <script src="proteomics-dictionary.js"/>
+    <public path="plugin/proteomics/client/web/public"/>
+    <source path="plugin/proteomics/client/web/client"/>
+    <source path="plugin/proteomics/shared/basic" />
+    
+    <script src="screening-dictionary.js"/>
+    <public path="plugin/screening/client/web/public"/>
+    <source path="plugin/screening/client/web/client"/>
+    <source path="plugin/screening/shared/basic" />
+    
+    <source path="client/web/client"/>
+    <public path="client/web/public"/>
+</module>

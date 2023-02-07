@@ -1,0 +1,53 @@
+body {
+    font-size: 70%; /*The biggest table so far is the demultiplex summary. Verify if it is still viewable if you change this*/
+}
+
+/* Firefox and probably others: force right scrollbar to make sure that percentage colun widths are calculated
+   same way as in data table */
+#ScrollableTableHeaderDiv {overflow: scroll; overflow-x: hidden; border-left: 1px gray solid; border-bottom: 0px gray solid; 
+            padding:0px; margin: 0px;
+
+    border-width: 1px 1px 1px 1px;
+    border-style: inset inset inset inset;
+}
+
+/*IE 7 and 8 only. Disable the header table right scrollbar so that it does not get painted on top of the
+  last column heading*/
+*+html #ScrollableTableHeaderDiv {overflow: hidden; overflow-x: hidden; border-left: 1px gray solid; border-bottom: 0px gray solid; 
+            padding:0px; margin: 0px;
+
+    border-width: 1px 1px 1px 1px;
+    border-style: inset inset inset inset;
+}
+
+/*IE 6 only (unverified). Disable the header table right scrollbar so that it does not get painted on top of the
+  last column heading*/
+* html #ScrollableTableHeaderDiv {overflow: hidden; overflow-x: hidden; border-left: 1px gray solid; border-bottom: 0px gray solid; 
+            padding:0px; margin: 0px;
+
+    border-width: 1px 1px 1px 1px;
+    border-style: inset inset inset inset;
+}
+
+#ScrollableTableBodyDiv {overflow: scroll; overflow-x: hidden; max-height: 400px; 
+            padding:0px; margin: 0px;
+    border-width: 1px 1px 1px 1px;
+    border-style: inset inset inset inset;
+    word-break: break-all; /*enables breaking of word at any characater in IE. Firefox only breaks at delimeters*/
+}
+
+
+table {
+    border-width: 1px 1px 1px 1px;
+    border-spacing: 0px;
+    border-style: inset inset inset inset;
+    border-collapse: collapse;
+    background-color: white;
+}
+table td, th {
+    border-width: 1px 1px 1px 1px;
+    padding: 1px 1px 1px 1px;
+    border-style: inset inset inset inset;
+    background-color: white;
+}
+    

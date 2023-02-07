@@ -80,7 +80,7 @@ task compileGWT(type: Copy, dependsOn: compileGWTToTempJDK8) {
 }
 
 task untarGwt(type: Copy, dependsOn: prepareGWT) {
-    from tarTree(resources.gzip("../openbis_standard_technologies/resource/gwt.tar.gz"))
+    from tarTree(resources.gzip("../core-plugin-openbis/resource/gwt.tar.gz"))
     into "${project.projectDir.absolutePath}/targets/www/gwt-temp"
 }
 

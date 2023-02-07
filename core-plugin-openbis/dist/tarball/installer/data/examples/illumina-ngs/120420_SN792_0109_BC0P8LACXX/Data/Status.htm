@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<link rel="stylesheet" href="./Status_Files/Status.css" type="text/css" media="screen"/>
+	<script src="./Status_Files/Status.js" type="text/javascript"></script>
+	<title>Status</title>
+</head>
+<body>
+<table style="border:none"><tr>
+	<td><img alt="Refresh" title="Refresh" name="RefreshBtn" height="25" width="25" src="./Status_Files/RefreshBtn/r1.png"  onmouseout="this.src='./Status_Files/RefreshBtn/r1.png'" onmouseover="this.src='./Status_Files/RefreshBtn/r2.png'" onmousedown="this.src='./Status_Files/RefreshBtn/r3.png'" onmouseup="this.src='./Status_Files/RefreshBtn/r2.png'" onclick="window.location.reload(true)" />&#160;</td>
+	<td id="StatUpdateDiv" >
+		<table class="StatusTable"><tr>
+			<th>Total:</th><td>0</td><th>Extracted:</th><td>0</td><th>Called:</th><td>0</td>
+			<th>Scored:</th><td>0</td><th>Copied:</th><td>0</td><th>Err.Rated:</th><td>0</td>
+		</tr></table></td> 
+	<td id="RunNameTD">Loading Run Data ...</td>
+	</tr></table>
+	<script type="text/javascript">
+		loadXSLTable('./reports/StatusUpdate.xml', './Status_Files/StatusUpdate.xsl', 'StatUpdateDiv');
+		runName = xslTransform(loadXMLDoc('./reports/Status.xml'), loadXMLDoc('./Status_Files/RunName.xsl'));
+		document.getElementById("RunNameTD").innerHTML = runName;
+		document.title = runName + " Status";
+</script>
+<ul id="tabmenu">
+	<li><a href="./Status_Files/RunInfo.htm">Run Info</a></li>
+	<li><a class="selected" href="Status.htm">Tile Status</a></li>
+	<li><a href="./Status_Files/Charts.htm">Charts</a></li>
+	<li><a href="./Status_Files/Summary.htm">Summary</a></li>
+  <li><a class="space">Plots:</a></li>
+	<li><a href="./Status_Files/ByLane.htm">Cluster Density</a></li>
+	<li><a href="./Status_Files/ByCycle.htm">Data By Cycle</a></li>
+</ul>
+<div id="container">
+  <img class="Chart" id="ProcessControlImg" src="./reports/Process Control.png" alt="Cannot display image"/>
+</div>
+ 
+</body>
+</html>
+

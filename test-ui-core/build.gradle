@@ -6,7 +6,7 @@ evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')
 evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
-evaluationDependsOn(':openbis_standard_technologies')
+evaluationDependsOn(':core-plugin-openbis')
 
 apply from: '../build/javaproject.gradle'
 
@@ -33,7 +33,7 @@ configurations.create('externalDss')
 dependencies {
     api project(path: ':server-original-data-store'),
             project(path: ':server-screening'),
-            project(path: ':openbis_standard_technologies'),
+            project(path: ':core-plugin-openbis'),
             'testng:testng:6.8-CISD',
             'selenium:selenium-java:3.141.59'
 
@@ -46,8 +46,8 @@ dependencies {
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
-task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
-    from project(':openbis_standard_technologies').war
+task copyWar(type: Copy, dependsOn: project(':core-plugin-openbis').war) {
+    from project(':core-plugin-openbis').war
     into 'targets/gradle/openbis-war'
     rename { filename -> 'openbis.war' }
 }

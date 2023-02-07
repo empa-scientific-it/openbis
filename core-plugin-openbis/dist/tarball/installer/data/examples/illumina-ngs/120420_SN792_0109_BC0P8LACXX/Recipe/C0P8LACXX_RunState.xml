@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<RecipeState xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Filepath>E:\Illumina\HiSeqTemp\120420_SN792_0109_BC0P8LACXX\Recipe\C0P8LACXX_RunState.xml</Filepath>
+  <CurrentProtocolIndex>4</CurrentProtocolIndex>
+  <LastProtocolIndex>4</LastProtocolIndex>
+  <CurrentItemIndex>-1</CurrentItemIndex>
+  <LastItemIndex>-1</LastItemIndex>
+  <CurrentCycle>57</CurrentCycle>
+  <LastCompletedCycle>57</LastCompletedCycle>
+  <LastChemistryCompletedCycle>57</LastChemistryCompletedCycle>
+  <CurrentChemistryIndex>0</CurrentChemistryIndex>
+  <LastChemistryIndex>0</LastChemistryIndex>
+</RecipeState>

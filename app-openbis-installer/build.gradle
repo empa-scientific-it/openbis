@@ -7,14 +7,14 @@ evaluationDependsOn(':lib-dbmigration')
 evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':server-screening')
-evaluationDependsOn(':openbis_standard_technologies')
+evaluationDependsOn(':core-plugin-openbis')
 
 apply from: '../build/javaproject.gradle'
 
 // Replace BUILD INFO files for AS and DSS because their revision number is usually to low.
 def buildInfo = file("${project.projectDir}/targets/dist/BUILD-${project.name}.INFO").text
 file("../server-original-data-store/targets/dist/BUILD-datastore_server.INFO").write(buildInfo)
-file("../openbis_standard_technologies/targets/dist/BUILD-openbis_standard_technologies.INFO").write(buildInfo)
+file("../core-plugin-openbis/targets/dist/BUILD-core-plugin-openbis.INFO").write(buildInfo)
 
 buildscript {
     apply from: '../build/repository.gradle'
@@ -53,13 +53,13 @@ println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
-task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_technologies:zip', ':openbis_standard_technologies:zipDss', 'openbis_standard_technologies:zipBdlServer']) {
+task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', 'core-plugin-openbis:zipBdlServer']) {
     duplicatesStrategy 'include'
     from "${project.projectDir}/resource/installer"
-    from "${project.projectDir}/../openbis_standard_technologies/dist/tarball/installer"
-    from zipTree(project(':openbis_standard_technologies').zipDss.archivePath)
+    from "${project.projectDir}/../core-plugin-openbis/dist/tarball/installer"
+    from zipTree(project(':core-plugin-openbis').zipDss.archivePath)
     into installerDistDir
-    from zipTree(project(':openbis_standard_technologies').zipBdlServer.archivePath)
+    from zipTree(project(':core-plugin-openbis').zipBdlServer.archivePath)
     into installerDistDir
     from("${installerDistDir}/../BUILD-installation.INFO") {
         into 'bin'
@@ -67,7 +67,7 @@ task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_techn
     from("${buildDir}/classes/java/main/InstallerVariableAccess.class") {
         into 'bin'
     }
-    from(zipTree(project(':openbis_standard_technologies').zip.archivePath)) {
+    from(zipTree(project(':core-plugin-openbis').zip.archivePath)) {
         into "openBIS-server"
     }
 }

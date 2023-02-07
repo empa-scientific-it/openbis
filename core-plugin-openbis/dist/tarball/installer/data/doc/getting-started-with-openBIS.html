@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <link href="css/getting-started-with-openBIS.css" rel="stylesheet" type="text/css">
+  <title>Getting started with openBIS</title>
+</head>
+
+<body>
+  
+  <h1> Getting started with openBIS <h1>
+  
+  <div><img alt="openBIS" id="openbis-logo" name="openbis-logo" src="images/openBIS_Logo.svg" style=
+  "position: absolute; top: 10px; right: 20px; height: 80px;"></div>
+
+  <h3>A. Start servers</h3>The installation has completed successfully. To start openBIS launch the following script:
+
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/allup.sh
+  </div>This command might take several minutes on the inital startup, depending on the performance of your server!<br>
+  After the completion of the above command openBIS will be available at <a href=
+  "https://${HOSTNAME}:8443/openbis">https://${HOSTNAME}:8443/openbis</a><br><br>
+  
+  <div class="text">
+  Note: by default, openBIS expects to be able to connect your PostgreSQL database as superuser 'postgres' without a password.
+  This is because openBIS needs to create its database users and schemas.
+  If this assumption does not hold, the following commands print the SQL scripts that can be used to create the required databases manually:<br>
+  </div>
+
+  openBIS application server database:
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh openbis_prod openbis
+  </div> 
+  
+  DSS pathinfo database:
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh pathinfo_prod openbis
+  </div> 
+
+  Imaging database (required only if technology 'microscopy' is enabled)
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh imaging_prod openbis
+  </div> 
+  
+  <div class="text"> 
+  The first argument of script 'init_database.sh' defines the database name. The second argument defines the username that openBIS will be using to connect the corresponding database.
+  Again, openBIS expects the user(s) can connect the database without a password. If this is not the case, the password needs to be set to service.properties.
+  Consult openBIS documentation for details.
+  </div>
+  
+  <h3>B. Importing test data</h3>
+
+  <p>By now you have a fully functional openBIS instance, but it makes little sense if it has no data in it.</p>
+
+  <h4 class="generic">Generic</h4>
+
+  <p>Here are the steps to register a file/folder as a data set into openBIS.</p>
+
+  <ol>
+    <li>Open <a href="https://${HOSTNAME}:8444/datastore_server">https://${HOSTNAME}:8444/datastore_server</a> and 
+    accept the self-signed certificate of the server. The site itself will show an error message which can be ignored.
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis">openBIS</a> as admin.
+    </li>
+
+    <li>Open the Collection Browser by clicking on the menu item Browse -&gt; Collections and open the default collection. </li>
+
+    <li>Click on the Data Set Uploader tab and upload one or several files.</li>
+
+    <li>Choose a data set type and press the button 'Create Data Set'.</li>
+  </ol>
+
+  <p></p>
+
+  <h4 class="illumina-ngs">Illumina NGS (ETH BSSE Setup)</h4>
+
+  <ol>
+    <li>A flow cell with flow lanes is created reading out two XML files provided by the Illumina sequencer:
+
+      <div class="sourcecode">
+        mkdir -p ${DSS_ROOT_DIR}/create-flowcell-hiseq/120420_SN792_0109_BC0P8LACXX/;<br>
+        cp -R ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX/*.xml
+        ${DSS_ROOT_DIR}/create-flowcell-hiseq/120420_SN792_0109_BC0P8LACXX;<br>
+        touch ${DSS_ROOT_DIR}/create-flowcell-hiseq/.MARKER_is_finished_120420_SN792_0109_BC0P8LACXX<br>
+      </div>
+    </li>
+
+    <li>A flow cell output from a HiSeq2000 is registered as a data set of the object 120420_SN792_0109_BC0P8LACXX.<br>
+
+      Additionally a data set is registered for each flow lane:
+
+      <div class="sourcecode">
+        rsync -a --exclude=Unaligned* ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX
+        ${DSS_ROOT_DIR}/register-flowcell-hiseq;<br>
+        touch ${DSS_ROOT_DIR}/register-flowcell-hiseq/.MARKER_is_finished_120420_SN792_0109_BC0P8LACXX;<br>
+      </div>
+    </li>
+
+    <li>The sequencer is finished and we want to track this automatically. Therefore we sync the RTAComplete.txt in a
+    drop box:
+
+      <div class="sourcecode">
+        mkdir -p ${DSS_ROOT_DIR}/read-rta-timestamp/120420_SN792_0109_BC0P8LACXX/; rsync
+        ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX/RTAComplete.txt
+        ${DSS_ROOT_DIR}/read-rta-timestamp/120420_SN792_0109_BC0P8LACXX/RTAComplete.txt; touch
+        ${DSS_ROOT_DIR}/read-rta-timestamp/.MARKER_is_finished_120420_SN792_0109_BC0P8LACXX
+      </div>
+    </li>
+
+    <li> For creating some objects we use the 'Object Registration'. This is available under the 'Import' menu: <br>    
+      Import -> Object Registration -> Choose object type '(multiple)' and browse to the file:
+      <div class="sourcecode">  ${DSS_ROOT_DIR}/examples/illumina-ngs/tsv-files/example_samples_with_parents.tsv</div>
+      
+      Tick 'Update existing'and press the 'Save' button. <br>
+      This created several objects which can be viewed via Browse -> Objects. You might need to select the Object Type 'all' <br>
+      and the Space 'all'. <br>
+      Note that the objects are in a parent-/child relationship indicated by the objects shown in the 'Parents' column.
+    </li>
+    
+    <br>
+    
+
+    <li>After the demultiplexing using the Illumina 'configureBclToFastq.pl' the FASTQ files are created and also some
+    statistic files are provided.<br>
+      Let's register them as well in openBIS:
+
+      <div class="sourcecode">
+        
+        mkdir ${DSS_ROOT_DIR}/register-unaligned/120420_SN792_0109_BC0P8LACXX; <br>
+        rsync -a ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX/Unaligned* ${DSS_ROOT_DIR}/register-unaligned/120420_SN792_0109_BC0P8LACXX;<br>
+        touch ${DSS_ROOT_DIR}/register-unaligned/.MARKER_is_finished_120420_SN792_0109_BC0P8LACXX;
+      </div>
+      <br>
+      The demultiplexed FASTQ files are a data set of the objects BSSE-QGF-LIBRARY-1 and BSSE-QGF-LIBRARY-2. Note that lane 1 and two <br>
+      contained both objects which results in two FASTQ data sets for each object.
+      
+    </li>
+  </ol><br>
+  A short description of all drop boxes is also provided here: <a href=
+  "https://wiki-bsse.ethz.ch/display/openBISDoc/openBIS+for+Illumina+NGS" target="_blank">openBIS for Illumina
+  NGS<a><br>
+
+ <h4 class="eln-lims">ELN-LIMS</h4>
+
+  <p>Here are the steps to create your first experimental step and register an image file as preview into the ELN-LIMS interface.</p>
+
+  <ol>
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis/webapp/eln-lims">ELN/LIMS</a> interface as admin.</li>
+    <li>Using the navigation tree on the left hand-side go to <em>Lab Notebook</em> -> <em>Others</em> 
+    -> <em>Default Lab Notebook</em> -> <em>Default Project</em> -> <em>Default Experiment</em></li>
+	<li>Click on the Upload plus sign on the toolbar and create a new <em>Experimental Step</em>.</li>
+    <li>Click on the Upload button.</li>
+    <li>Choose <em>Eln Preview</em> as Data Set Type and drop an image file in the Files Uploader section.</li>
+    <li>Click the Save button.</li>
+    <li>Now you have a basic lab notebook with an experiment, experimental step and one image used as preview.</li>
+  </ol>
+  
+<h4 class="microscopy">Microscopy</h4>
+  <ol>
+    <li>At the console execute the command:
+      <div class="sourcecode">
+        cp -R ${DSS_ROOT_DIR}/examples/microscopy_example ${DSS_ROOT_DIR}/incoming-microscopy;<br>
+        touch ${DSS_ROOT_DIR}/incoming-microscopy/.MARKER_is_finished_microscopy_example
+      </div>
+    </li>
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis/webapp/eln-lims">ELN/LIMS</a> as admin.</li>
+    <li>Find the example in project DEFAULT of space DEFAULT.</li>
+  </ol>
+
+<h4 class="flow">Flow Cytometry</h4>
+  <ol>
+    <li>At the console execute the command:
+      <div class="sourcecode">
+        cp -R ${DSS_ROOT_DIR}/examples/flow_cytometry_example ${DSS_ROOT_DIR}/incoming-facsaria;<br>
+        touch ${DSS_ROOT_DIR}/incoming-facsaria/.MARKER_is_finished_flow_cytometry_example
+      </div>
+    </li>
+    <li>Log in to <a href="https://${HOSTNAME}:8443/openbis/webapp/eln-lims">ELN/LIMS</a> as admin.</li>
+    <li>Find the example in project DEFAULT of space DEFAULT.</li>
+  </ol>
+
+
+  <h3>Importing example data</h3>
+
+  <p></p>
+
+  <div class="text">
+    To import example data please add plugin "[technology]-optional" to core-plugins.properties, where [technology] is
+    "screening", "illumina-ngs" or "proteomics"
+  </div>
+
+  <p><br></p>
+
+  <h3>Customizing openBIS</h3>
+
+  <div class="text">
+    In the scientific world there is no one-size-fits-them-all solutions. Your research data is certainly different
+    from our example data. Luckily, openBIS provides an easy way to script the import process - the dropboxes. You can
+    learn how to create your custom-tailored dropboxes <a href="https://wiki-bsse.ethz.ch/display/openbisDoc/Dropboxes"
+    target="_blank">here</a>.
+  </div></a></a>
+</body>
+</html>

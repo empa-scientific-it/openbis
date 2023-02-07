@@ -9,7 +9,7 @@ import traceback
 import systemtest.util as util
 
 INSTALLER_PROJECT = 'app-openbis-installer'
-OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'openbis_standard_technologies'
+OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'core-plugin-openbis'
 DATAMOVER_PROJECT = 'datamover'
 
 PSQL_EXE = 'psql'

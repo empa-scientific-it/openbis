@@ -1,0 +1,182 @@
+<!doctype html>
+<html><head><title>bwip-js - JavaScript Barcode Generator</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta charset="utf-8" />
+<meta name="keywords" content="bar code, barcode generator, online barcode generator, free barcode generator, javascript, javascript library, nodejs, QR Code, EAN, EAN 13, Code 128, UPC, ISBN, ITF 14, Code 39, GS1, GS1 128, PDF417, HIBC, DataMatrix, Data Matrix, DataBar, OCR, OCR B, OCR font, Aztec Code, PostNet, USPS, Pharmacode" />
+<meta name="description" content="JavaScript barcode generator and library.  Create any barcode in your browser." />
+<!--
+	Copyright (c) 2011-2018 Mark Warren.
+
+	See the LICENSE file in the bwip-js root directory
+	for the extended copyright notice.
+-->
+<link rel="stylesheet" type="text/css" href="lib/demo.css">
+<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
+<script type="text/javascript" src="bwipp.js"></script>
+<script type="text/javascript" src="bwipjs.js"></script>
+<script type="text/javascript" src="lib/jquery.js"></script>
+<script type="text/javascript" src="lib/jquery-ui.min.js"></script>
+<script type="text/javascript" src="lib/xhr-fonts.js"></script>
+<script type="text/javascript" src="lib/bitmap.js"></script>
+<script type="text/javascript" src="lib/symdesc.js"></script>
+<script type="text/javascript" src="lib/canvas-toblob.js"></script>
+<script type="text/javascript" src="lib/filesaver.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#render').button().click(render);
+});
+
+function render() {
+	var options = [{
+		id : "code128",
+		value : "Code 128"
+	},{
+		id : "qrcode",
+		value : "QR Code"
+	},{
+		id : "microqrcode",
+		value : "Micro QR Code"
+	}];
+
+	var elt  = symdesc[options[0].id];
+	var text = "123456789-1234";
+	var altx = "123456789-1234 Text";
+	var opts = "includetext";
+	var rot  = "N";
+	var monochrome = true;
+	var scaleX = 2;
+	var scaleY = 2;
+
+	var bw = new BWIPJS(bwipjs_fonts, monochrome);
+
+	// Clear the page
+	$('#output').text('');
+	$('#stats').text('');
+	$('#proof-img').css('visibility', 'hidden');
+	$('.saveas').css('visibility', 'hidden');
+
+	var canvas = document.getElementById('canvas');
+	canvas.height = 1;
+	canvas.width  = 1;
+	canvas.style.visibility = 'hidden';
+
+	// Convert the options to a dictionary object, so we can pass alttext with
+	// spaces.
+	var tmp = opts.split(' '); 
+	opts = {};
+	for (var i = 0; i < tmp.length; i++) {
+		if (!tmp[i]) {
+			continue;
+		}
+		var eq = tmp[i].indexOf('=');
+		if (eq == -1) {
+			opts[tmp[i]] = true;
+		} else {
+			opts[tmp[i].substr(0, eq)] = tmp[i].substr(eq+1);
+		}
+	}
+
+	// Add the alternate text
+	if (altx) {
+		opts.alttext = altx;
+		opts.includetext = true;
+	}
+	// We use mm rather than inches for height - except pharmacode2 height
+	// which is expected to be in mm
+	if (+opts.height && elt.sym != 'pharmacode2') {
+		opts.height = opts.height / 25.4 || 0.5;
+	}
+	// Likewise, width.
+	if (+opts.width) {
+		opts.width = opts.width / 25.4 || 0;
+	}
+	// BWIPP does not extend the background color into the
+	// human readable text.  Fix that in the bitmap interface.
+	if (opts.backgroundcolor) {
+		bw.bitmap(new Bitmap(canvas, rot, opts.backgroundcolor));
+		delete opts.backgroundcolor;
+	} else {
+		bw.bitmap(new Bitmap(canvas, rot));
+	}
+	
+	// Set the scaling factors
+	bw.scale(scaleX, scaleY);
+
+	// Add optional padding to the image
+	bw.bitmap().pad(+opts.paddingwidth*scaleX || 0,
+					+opts.paddingheight*scaleY || 0);
+
+	var ts0 = Date.now();
+	try {
+		// Call into the BWIPP cross-compiled code.
+		BWIPP()(bw, elt.sym, text, opts);
+
+		// Allow the font manager to demand-load any required fonts
+		// before calling render().
+		var ts1 = Date.now();
+		bwipjs_fonts.loadfonts(function(e) {
+			if (e) {
+				$('#output').text(e.stack || (''+e));
+			} else {
+				show();
+			}
+		});
+	} catch (e) {
+		// Watch for BWIPP generated raiseerror's.
+		var msg = ''+e;
+		if (msg.indexOf("bwipp.") >= 0) {
+			$('#output').text(msg);
+		} else if (e.stack) {
+			$('#output').text(e.stack);
+		} else {
+			$('#output').text(e);
+		}
+		return;
+	}
+
+	// Draw the barcode to the canvas
+	function show() {
+		bw.render();
+		var ts2 = Date.now();
+
+		canvas.style.visibility = 'visible';
+		$('#stats').text('Rendered in ' + (ts2-ts0) + ' msecs');
+		$('.saveas').css('visibility', 'visible');
+		saveCanvas.basename = elt.sym + '-' +
+				text.replace(/[^a-zA-Z0-9._]+/g, '-');
+
+		// Show proofs?
+		if (location.search.indexOf('proofs=1') != -1) { 
+			var img = document.getElementById('proof-img');
+			if (img) {
+				img.src = 'proofs/' + elt.sym + '.png';
+				img.style.visibility = 'visible';
+			}
+		}
+	}
+}
+
+function saveCanvas(type, ext) {
+	var canvas = document.getElementById('canvas');
+	canvas.toBlob(function (blob) {
+		saveAs(blob, saveCanvas.basename + ext);
+	}, type, 1);
+}
+
+</script>
+</head><body>
+
+<div id="content">
+	<canvas id="canvas" width=1 height=1 style="border:1px solid #fff;visibility:hidden"></canvas>
+	<br>
+	<a class="saveas" href="javascript:saveCanvas('image/png','.png')">Save As PNG</a>
+	<br>
+	<div id="proof" style="position:relative;border:1px solid #fff"></div>
+	<br>
+	<div id="output" style="white-space:pre"></div>
+	<br>
+	<button id="render">Show Barcode</button>
+</div>
+
+</body>
+</html>

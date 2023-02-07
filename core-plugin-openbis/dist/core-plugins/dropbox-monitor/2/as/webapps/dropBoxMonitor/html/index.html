@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DropBox Monitor v2000</title>
+  <script type="text/javascript" src="./lib_jquery/jquery-1.11.3.js"></script>
+  <link type="text/css" rel="stylesheet" href="./lib_bootstrap/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="./lib_fontsAwesome/css/font-awesome.min.css" />
+  <link type="text/css" rel="stylesheet" href="./lib_jquery/jquery-ui.css" />
+  <script type="text/javascript" src="./lib_jquery/jquery-ui.js"></script>
+  <script type="text/javascript" src="./lib_bootstrap/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../../resources/js/openbis.js"></script>
+  <script type="text/javascript" src="./lib_jquery/jquery.tablesorter.js"></script>
+  <script type="text/javascript" src="./lib_javascript/require.js"></script>
+</head>
+
+<body>
+  <script>
+    $(document).ready(function() {
+      require(["./lib_javascript/OpenBISCommunication/OpenBISCommunicationFacade",
+          "./lib_javascript/DropBoxMonitorMain/DropBoxMonitorMain.js"
+        ],
+        function(OpenBISCommunicationFacade, DropBoxMonitorMain) {
+          var serverCommunicationFacade = new OpenBISCommunicationFacade(new openbis());
+          var mainLogicObject = new DropBoxMonitorMain(serverCommunicationFacade, "body");
+          mainLogicObject.run();
+        });
+    });
+  </script>
+</body>
+
+</html>
