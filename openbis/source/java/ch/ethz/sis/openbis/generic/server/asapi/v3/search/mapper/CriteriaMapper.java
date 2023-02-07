@@ -66,6 +66,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchC
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.RegistrationDateSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SamplePropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StrictlyStringPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringPropertySearchCriteria;
@@ -160,6 +161,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.L
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.ListableSampleTypeSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.NameSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.NumberFieldSearchConditionTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.SamplePropertySearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.StringFieldSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.TextAttributeConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.UserIdSearchConditionTranslator;
@@ -289,7 +291,8 @@ public class CriteriaMapper
                 booleanFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(RegistrationDateSearchCriteria.class,
                 dateFieldSearchConditionTranslator);
-//        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SamplePropertySearchCriteria.class, );
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SamplePropertySearchCriteria.class,
+                new SamplePropertySearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(ShareIdSearchCriteria.class, stringFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SizeSearchCriteria.class, numberFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SpeedHintSearchCriteria.class, numberFieldSearchConditionTranslator);

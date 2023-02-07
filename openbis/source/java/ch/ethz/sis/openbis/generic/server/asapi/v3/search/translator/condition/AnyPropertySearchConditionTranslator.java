@@ -39,7 +39,8 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
         if (criterion.getFieldType() == SearchFieldType.ANY_PROPERTY)
         {
             return TranslatorUtils.getPropertyJoinInformationMap(tableMapper, aliasFactory);
-        } else {
+        } else
+        {
             throw new IllegalArgumentException();
         }
     }

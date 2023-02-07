@@ -21,6 +21,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.OR;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
@@ -29,27 +30,27 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.VOCABULARY_TERM_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERM_ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_IDENTIFIER_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_PROP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLES_VIEW;
 
 import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabularyPropertySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SamplePropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 
-public class ControlledVocabularyPropertySearchConditionTranslator
-        implements IConditionTranslator<ControlledVocabularyPropertySearchCriteria>
+public class SamplePropertySearchConditionTranslator implements IConditionTranslator<SamplePropertySearchCriteria>
 {
 
     @Override
-    public Map<String, JoinInformation> getJoinInformationMap(
-            final ControlledVocabularyPropertySearchCriteria criterion, final TableMapper tableMapper,
-            final IAliasFactory aliasFactory)
+    public Map<String, JoinInformation> getJoinInformationMap(final SamplePropertySearchCriteria criterion,
+            final TableMapper tableMapper, final IAliasFactory aliasFactory)
     {
         if (criterion.getFieldType() == SearchFieldType.PROPERTY)
         {
@@ -61,7 +62,7 @@ public class ControlledVocabularyPropertySearchConditionTranslator
     }
 
     @Override
-    public void translate(final ControlledVocabularyPropertySearchCriteria criterion, final TableMapper tableMapper,
+    public void translate(final SamplePropertySearchCriteria criterion, final TableMapper tableMapper,
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases,
             final Map<String, String> dataTypeByPropertyCode)
     {
@@ -91,27 +92,44 @@ public class ControlledVocabularyPropertySearchConditionTranslator
         TranslatorUtils.appendPropertiesExist(sqlBuilder, valuesTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
-        appendControlledVocabularySubselectConstraint(args, sqlBuilder, value, valuesTableAlias);
+        if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
+                || tableMapper == TableMapper.DATA_SET)
+        {
+            appendSampleSubselectConstraint(args, sqlBuilder, value, valuesTableAlias);
+        } else
+        {
+            throw new IllegalArgumentException("Sample properties are not supported for " + tableMapper);
+        }
 
         sqlBuilder.append(RP);
     }
 
-    private static void appendControlledVocabularySubselectConstraint(final List<Object> args,
-            final StringBuilder sqlBuilder, final String value, final String propertyTableAlias)
+    private static void appendSampleSubselectConstraint(final List<Object> args, final StringBuilder sqlBuilder,
+            final String value, final String propertyTableAlias)
     {
-        sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VOCABULARY_TERM_COLUMN)
-                .append(SP).append(IN).append(SP);
+        sqlBuilder.append(propertyTableAlias).append(PERIOD)
+                .append(SAMPLE_PROP_COLUMN).append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
-
         sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
-                .append(FROM).append(SP).append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP)
+                .append(FROM).append(SP).append(SAMPLES_VIEW).append(SP)
                 .append(WHERE).append(SP);
-        sqlBuilder.append(CODE_COLUMN);
 
-        sqlBuilder.append(SP).append(EQ).append(SP).append(QU);
-        args.add(value);
+        translateStringComparison(CODE_COLUMN, value, sqlBuilder, args);
+
+        sqlBuilder.append(SP).append(OR).append(SP);
+        translateStringComparison(PERM_ID_COLUMN, value, sqlBuilder, args);
+
+        sqlBuilder.append(SP).append(OR).append(SP);
+        translateStringComparison(SAMPLE_IDENTIFIER_COLUMN, value, sqlBuilder, args);
 
         sqlBuilder.append(RP);
+    }
+
+    private static void translateStringComparison(final String columnName, final String value,
+            final StringBuilder sqlBuilder, final List<Object> args)
+    {
+        sqlBuilder.append(columnName).append(SP).append(EQ).append(SP).append(QU);
+        args.add(value);
     }
 
 }

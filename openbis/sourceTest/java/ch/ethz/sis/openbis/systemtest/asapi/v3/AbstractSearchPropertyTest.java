@@ -913,7 +913,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         assertEquals(entities.size(), 1);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSearchWithSampleProperty()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
