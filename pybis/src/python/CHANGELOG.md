@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.1
+
+- fix overriding parents/children when performing update using results from get_samples call
+
 ## Changes with pybis-1.35.0
 
 - removal of deprecated 'cli'

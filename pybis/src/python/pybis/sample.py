@@ -9,7 +9,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
     """A Sample (new: Object) is one of the most commonly used entities in openBIS."""
 
     def __init__(
-        self, openbis_obj, type, project=None, data=None, props=None, **kwargs
+        self, openbis_obj, type, project=None, data=None, props=None, attrs=None, **kwargs
     ):
         self.__dict__["openbis"] = openbis_obj
         self.__dict__["type"] = type
@@ -49,13 +49,19 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
             self.a.__dict__["_parents"] = []
         else:
             if not self.is_new:
-                self.a.__dict__["_parents_orig"] = self.a.__dict__["_parents"]
+                if attrs is not None and "parents" not in attrs:
+                    self.a.__dict__["_parents"] = None
+                else:
+                    self.a.__dict__["_parents_orig"] = self.a.__dict__["_parents"]
 
         if getattr(self, "children") is None:
             self.a.__dict__["_children"] = []
         else:
             if not self.is_new:
-                self.a.__dict__["_children_orig"] = self.a.__dict__["_children"]
+                if attrs is not None and "children" not in attrs:
+                    self.a.__dict__["_children"] = None
+                else:
+                    self.a.__dict__["_children_orig"] = self.a.__dict__["_children"]
 
         if getattr(self, "components") is None:
             self.a.__dict__["_components"] = []
