@@ -92,8 +92,6 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         this.pluginsFolder = new File(pluginsFolderName);
         this.scannerType = scannerType;
         this.log = logger;
-        log.log(LogLevel.INFO, "Provided Core-plugins folder:"
-                + pluginsFolder.getAbsolutePath());
         if (pluginsFolder.exists())
         {
             if (false == pluginsFolder.isDirectory())
@@ -137,12 +135,9 @@ public class CorePluginScanner implements ICorePluginResourceLoader
             Collections.sort(pluginDirectories);
             for (File pluginDir : pluginDirectories)
             {
-                log.log(LogLevel.INFO,
-                        "Looking for plugins in folder: " + pluginDir.getAbsolutePath());
                 CorePlugin plugin = tryLoadLatestVersion(pluginDir);
                 if (plugin != null)
                 {
-                    log.log(LogLevel.INFO, "Plugin found: " + pluginDir.getName());
                     result.add(plugin);
                 }
             }
