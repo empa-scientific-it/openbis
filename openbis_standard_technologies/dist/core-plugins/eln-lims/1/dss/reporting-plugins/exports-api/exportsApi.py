@@ -151,10 +151,12 @@ def validateDataSize(entitiesToExport, tr):
             estimatedSizeInBytes += 12000;  # AVG File Metadata size
     estimatedSizeInMegabytes = estimatedSizeInBytes / 1000000;
     operationLog.info(
-        "Size Limit check - limitDataSizeInBytes: " + str(limitDataSizeInBytes) + " > " + " estimatedSizeInBytes: " + str(estimatedSizeInBytes));
+        u"Size Limit check - limitDataSizeInBytes: " + str(limitDataSizeInBytes).encode('utf-8') +
+        u" > estimatedSizeInBytes: " + str(estimatedSizeInBytes).encode('utf-8'));
     if estimatedSizeInBytes > limitDataSizeInBytes:
-        raise UserFailureException("The selected data is " + str(estimatedSizeInMegabytes) + " MB that is bigger than the configured limit of " + str(
-            limitDataSizeInMegabytes) + " MB");
+        raise UserFailureException(u"The selected data is " + estimatedSizeInMegabytes +
+                                   u" MB that is bigger than the configured limit of " +
+                                   limitDataSizeInMegabytes + u" MB");
 
 
 def findEntitiesToExport(params):
@@ -172,17 +174,17 @@ def findEntitiesToExport(params):
         if entity.get("expand"):
             entitiesToExpand.append(entityAsPythonMap);
 
-    operationLog.info("Found %d entities to expand." % len(entitiesToExpand))
+    operationLog.info(u"Found %d entities to expand." % len(entitiesToExpand))
     while entitiesToExpand:
         entityToExpand = entitiesToExpand.popleft();
         type = entityToExpand["type"];
         permId = entityToExpand["permId"];
-        operationLog.info("Expanding type: " + str(type) + " permId: " + str(permId));
+        operationLog.info(u"Expanding type: " + type.encode("utf-8") + u" permId: " + permId.encode("utf-8"));
 
         if type == "ROOT":
             criteria = SpaceSearchCriteria();
             results = v3.searchSpaces(sessionToken, criteria, SpaceFetchOptions());
-            operationLog.info("Found: " + str(results.getTotalCount()) + " spaces");
+            operationLog.info(u"Found: %d spaces" % results.getTotalCount());
             for space in results.getObjects():
                 entityFound = {"type": "SPACE", "permId": space.getCode(), "registrationDate": space.getRegistrationDate()};
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
@@ -191,7 +193,7 @@ def findEntitiesToExport(params):
             criteria = ProjectSearchCriteria();
             criteria.withSpace().withCode().thatEquals(permId);
             results = v3.searchProjects(sessionToken, criteria, ProjectFetchOptions());
-            operationLog.info("Found: " + str(results.getTotalCount()) + " projects");
+            operationLog.info(u"Found: %d projects" % results.getTotalCount());
             for project in results.getObjects():
                 entityFound = {"type": "PROJECT", "permId": project.getPermId().getPermId(), "registrationDate": project.getRegistrationDate()};
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
@@ -200,7 +202,7 @@ def findEntitiesToExport(params):
             criteria = ExperimentSearchCriteria();
             criteria.withProject().withPermId().thatEquals(permId);
             results = v3.searchExperiments(sessionToken, criteria, ExperimentFetchOptions());
-            operationLog.info("Found: " + str(results.getTotalCount()) + " experiments");
+            operationLog.info(u"Found: %d experiments" % results.getTotalCount());
             for experiment in results.getObjects():
                 entityFound = {"type": "EXPERIMENT", "permId": experiment.getPermId().getPermId(),
                                "registrationDate": experiment.getRegistrationDate()};
@@ -210,7 +212,7 @@ def findEntitiesToExport(params):
             criteria = SampleSearchCriteria();
             criteria.withExperiment().withPermId().thatEquals(permId);
             results = v3.searchSamples(sessionToken, criteria, SampleFetchOptions());
-            operationLog.info("Found: " + str(results.getTotalCount()) + " samples");
+            operationLog.info(u"Found: %d samples" % results.getTotalCount());
 
             dCriteria = DataSetSearchCriteria();
             dCriteria.withExperiment().withPermId().thatEquals(permId);
@@ -218,13 +220,13 @@ def findEntitiesToExport(params):
             fetchOptions = DataSetFetchOptions()
             fetchOptions.withDataStore()
             dResults = v3.searchDataSets(sessionToken, dCriteria, fetchOptions);
-            operationLog.info("Found: " + str(dResults.getTotalCount()) + " datasets");
+            operationLog.info(u"Found: %d datasets" % dResults.getTotalCount());
             for dataset in dResults.getObjects():
                 entityFound = {"type": "DATASET", "permId": dataset.getPermId().getPermId(), "registrationDate": dataset.getRegistrationDate()};
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
                 entitiesToExpand.append(entityFound);
 
-            operationLog.info("Found: " + str(results.getTotalCount()) + " samples");
+            operationLog.info(u"Found: %d samples" % results.getTotalCount());
             for sample in results.getObjects():
                 entityFound = {"type": "SAMPLE", "permId": sample.getPermId().getPermId(), "registrationDate": sample.getRegistrationDate()};
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
@@ -235,7 +237,7 @@ def findEntitiesToExport(params):
             fetchOptions = DataSetFetchOptions()
             fetchOptions.withDataStore()
             results = v3.searchDataSets(sessionToken, criteria, fetchOptions);
-            operationLog.info("Found: " + str(results.getTotalCount()) + " datasets");
+            operationLog.info(u"Found: %d datasets" % results.getTotalCount());
             for dataset in results.getObjects():
                 entityFound = {"type": "DATASET", "permId": dataset.getPermId().getPermId(), "registrationDate": dataset.getRegistrationDate()};
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
@@ -244,7 +246,7 @@ def findEntitiesToExport(params):
             criteria = DataSetFileSearchCriteria();
             criteria.withDataSet().withPermId().thatEquals(permId);
             results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
-            operationLog.info("Found: " + str(results.getTotalCount()) + " files");
+            operationLog.info(u"Found: %d files" % results.getTotalCount());
             for file in results.getObjects():
                 entityFound = {"type": "FILE", "permId": permId, "path": file.getPath(), "isDirectory": file.isDirectory(),
                                "length": file.getFileLength()};
@@ -282,7 +284,7 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
     for entity in entities:
         type = entity["type"];
         permId = entity["permId"];
-        operationLog.info("exporting type: " + str(type) + " permId: " + str(permId));
+        operationLog.info(u"exporting type: " + type.encode("utf-8") + u" permId: " + permId.encode("utf-8"));
         entityObj = None;
         entityFilePath = None;
 
@@ -383,8 +385,7 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
         if entityObj is not None:
             objectCache[permId] = entityObj;
 
-        operationLog.info("--> Entity type: " + type + " permId: " + permId + " obj: " + str(entityObj is not None) + " path: " + str(
-            entityFilePath) + " before files.");
+        operationLog.info(u"--> Entity type: %s permId: %s obj: %s path: %s before files." % (type, permId, str(entityObj is not None), entityFilePath));
         if entityObj is not None and entityFilePath is not None:
             # JSON
             entityJson = String(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(entityObj));
@@ -403,19 +404,20 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
             entityHTML = getDOCX(entityObj, v3, sessionToken, True);
             fileMetadatum = addFile(tempDirPath, entityFilePath, "html", entityHTML, zos, deflated=deflated);
             fileMetadata.append(fileMetadatum)
-            operationLog.info("--> Entity type: " + type + " permId: " + permId + " post html.");
+            operationLog.info(u"--> Entity type: " + type.encode("utf-8") + u" permId: " + permId.encode("utf-8") +
+                              u" post html.");
     if emptyZip:
-        raise IOError('Nothing added to ZIP file.')
+        raise IOError("Nothing added to ZIP file.")
     return fileMetadata
 
 
 def generateDownloadUrl(sessionToken, tempZipFileName, tempZipFilePath):
     # Store on workspace to be able to generate a download link
-    operationLog.info("Zip file can be found on the temporal directory: " + tempZipFilePath);
+    operationLog.info(u"Zip file can be found on the temporal directory: " + tempZipFilePath.encode("utf-8"));
     dssService = ServiceProvider.getApplicationContext().getBean("dss-service-rpc-generic")
     dssService.putFileToSessionWorkspace(sessionToken, tempZipFileName, FileInputStream(File(tempZipFilePath)))
     tempZipFileWorkspaceURL = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=" + tempZipFileName;
-    operationLog.info("Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL);
+    operationLog.info(u"Zip file can be downloaded from the workspace: " + tempZipFileWorkspaceURL.encode("utf-8"));
     return tempZipFileWorkspaceURL
 
 
