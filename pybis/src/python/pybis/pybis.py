@@ -4811,6 +4811,7 @@ class Openbis:
                         openbis_obj=self,
                         type=self.get_sample_type(obj["type"]["code"]),
                         data=obj,
+                        attrs=attrs
                     ),
                     response,
                 )

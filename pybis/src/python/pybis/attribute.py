@@ -284,8 +284,9 @@ class AttrHolder:
                 # all items in a list
                 if "multi" in self._defs and attr in self._defs["multi"]:
                     items = self.__dict__.get("_" + attr, [])
-                    if items == None:
-                        items = []
+                    if items is None:
+                        # 'None' multivalue attributes should be omitted during update
+                        continue
                     up_obj[attr2ids[attr]] = {
                         "actions": [
                             {
@@ -745,6 +746,8 @@ class AttrHolder:
         """add parent to _parents list"""
         if not isinstance(parents_to_add, list):
             parents_to_add = [parents_to_add]
+        if self.__dict__["_parents"] is None:
+            self.__dict__["_parents"] = []
         for parent in parents_to_add:
             ident = self._ident_for_whatever(parent)
             if ident not in self.__dict__["_parents"]:
@@ -754,6 +757,8 @@ class AttrHolder:
         """remove parent from _parents list"""
         if not isinstance(parents_to_remove, list):
             parents_to_remove = [parents_to_remove]
+        if self.__dict__["_parents"] is None:
+            self.__dict__["_parents"] = []
         for parent in parents_to_remove:
             ident = self._ident_for_whatever(parent)
             for i, item in enumerate(self.__dict__["_parents"]):
@@ -787,6 +792,8 @@ class AttrHolder:
         """add children to _children list"""
         if getattr(self, "_children") is None:
             self.__dict__["_children"] = []
+        if self.__dict__["_children"] is None:
+            self.__dict__["_children"] = []
         if not isinstance(children, list):
             children = [children]
         for child in children:
@@ -798,6 +805,8 @@ class AttrHolder:
             return
         if not isinstance(children, list):
             children = [children]
+        if self.__dict__["_children"] is None:
+            self.__dict__["_children"] = []
         for child in children:
             ident = self._ident_for_whatever(child)
             for i, item in enumerate(self.__dict__["_children"]):
