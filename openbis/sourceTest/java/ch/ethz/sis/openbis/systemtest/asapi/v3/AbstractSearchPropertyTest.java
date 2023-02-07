@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.BooleanFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabularyPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
@@ -857,10 +858,43 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         };
     }
 
-    @Test(dataProvider = "withControlledVocabularyAsStringPropertyExamples")
+    @Test(dataProvider = "withControlledVocabularyPropertyExamples")
     public void testWithControlledVocabularyProperty(final String value, final String queryString, final boolean found)
     {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
+        final VocabularyTermCreation vocabularyTermCreation1 = new VocabularyTermCreation();
+        vocabularyTermCreation1.setCode("WINTER");
+        final VocabularyTermCreation vocabularyTermCreation2 = new VocabularyTermCreation();
+        vocabularyTermCreation2.setCode("SPRING");
+        final VocabularyTermCreation vocabularyTermCreation3 = new VocabularyTermCreation();
+        vocabularyTermCreation3.setCode("SUMMER");
+        final VocabularyTermCreation vocabularyTermCreation4 = new VocabularyTermCreation();
+        vocabularyTermCreation4.setCode("AUTUMN");
+
+        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
+        vocabularyCreation.setCode("SEASONS");
+        vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
+                vocabularyTermCreation3, vocabularyTermCreation4));
+        final VocabularyPermId vocabularyPermId =
+                v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
+
+        final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
+                vocabularyPermId);
+        final ObjectPermId entityPermId = createEntity(sessionToken, propertyTypeId, value);
+        final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
+        new VocabularyQueryInjector(searchCriteria, propertyTypeId).buildCriteria(queryString);
+
+        // When
+        final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
+
+        // Then
+        assertEquals(entities.size(), found ? 1 : 0);
+        if (found)
+        {
+            assertEquals(entities.get(0).getPermId().toString(), entityPermId.getPermId());
+        }
     }
 
     @Test
@@ -879,21 +913,21 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         assertEquals(entities.size(), 1);
     }
 
-//    @Test
-//    public void testSearchWithSampleProperty()
-//    {
-//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-//        final PropertyTypePermId propertyTypeId = createASamplePropertyType(sessionToken, null);
-//
-//        createEntity(sessionToken, propertyTypeId, "/CISD/CL1");
-//
-//        final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
-//        searchCriteria.withOrOperator();
-//        searchCriteria.withSampleProperty(propertyTypeId.getPermId()).thatEquals("/CISD/CL1");
-//
-//        final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
-//        assertEquals(entities.size(), 1);
-//    }
+    @Test(enabled = false)
+    public void testSearchWithSampleProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final PropertyTypePermId propertyTypeId = createASamplePropertyType(sessionToken, null);
+
+        createEntity(sessionToken, propertyTypeId, "/CISD/CL1");
+
+        final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
+        searchCriteria.withOrOperator();
+        searchCriteria.withSampleProperty(propertyTypeId.getPermId()).thatEquals("/CISD/CL1");
+
+        final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
+        assertEquals(entities.size(), 1);
+    }
 
     @Test
     public void testSearchWithPropertyMatchingMaterialProperty()
@@ -1471,6 +1505,29 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
             if (operator == Operator.EQUAL)
             {
                 criteria.thatEquals(value);
+            } else
+            {
+                throw new IllegalArgumentException("Unsupported operator " + operator);
+            }
+        }
+    }
+
+    static final class VocabularyQueryInjector extends AbstractQueryInjector
+    {
+        VocabularyQueryInjector(final AbstractEntitySearchCriteria<?> searchCriteria,
+                final PropertyTypePermId propertyTypeId)
+        {
+            super(searchCriteria, propertyTypeId);
+        }
+
+        @Override
+        protected void injectQuery(final Operator operator, final String operand)
+        {
+            final ControlledVocabularyPropertySearchCriteria criteria =
+                    searchCriteria.withVocabularyProperty(propertyTypeId.getPermId());
+            if (operator == Operator.EQUAL)
+            {
+                criteria.thatEquals(operand);
             } else
             {
                 throw new IllegalArgumentException("Unsupported operator " + operator);

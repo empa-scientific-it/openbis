@@ -70,6 +70,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StrictlyStringProp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.TextAttributeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabularyPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ArchivingRequestedSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.CompleteSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ContentCopySearchCriteria;
@@ -145,6 +146,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.B
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.CodeSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.CollectionFieldSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.CompleteSearchConditionTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.ControlledVocabularyPropertySearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.DataSetKindSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.DateFieldSearchConditionTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.EmailSearchConditionTranslator;
@@ -245,6 +247,8 @@ public class CriteriaMapper
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(CodesSearchCriteria.class, collectionFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(CollectionFieldSearchCriteria.class,
                 collectionFieldSearchConditionTranslator);
+        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(ControlledVocabularyPropertySearchCriteria.class,
+                new ControlledVocabularyPropertySearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(CompleteSearchCriteria.class, new CompleteSearchConditionTranslator());
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(DataSetKindSearchCriteria.class,
                 new DataSetKindSearchConditionTranslator());
@@ -285,6 +289,7 @@ public class CriteriaMapper
                 booleanFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(RegistrationDateSearchCriteria.class,
                 dateFieldSearchConditionTranslator);
+//        CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SamplePropertySearchCriteria.class, );
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(ShareIdSearchCriteria.class, stringFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SizeSearchCriteria.class, numberFieldSearchConditionTranslator);
         CRITERIA_TO_CONDITION_TRANSLATOR_MAP.put(SpeedHintSearchCriteria.class, numberFieldSearchConditionTranslator);

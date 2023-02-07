@@ -116,9 +116,9 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
         return with(new SamplePropertySearchCriteria(propertyName));
     }
 
-    public VocabularyPropertySearchCriteria withVocabularyProperty(final String propertyName)
+    public ControlledVocabularyPropertySearchCriteria withVocabularyProperty(final String propertyName)
     {
-        return with(new VocabularyPropertySearchCriteria(propertyName));
+        return with(new ControlledVocabularyPropertySearchCriteria(propertyName));
     }
 
     /**

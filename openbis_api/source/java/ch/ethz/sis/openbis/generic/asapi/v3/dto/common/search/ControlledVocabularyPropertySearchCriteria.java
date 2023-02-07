@@ -18,16 +18,21 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-// TODO: add JS criteria
-@JsonObject("as.dto.common.search.VocabularyPropertySearchCriteria")
-public class VocabularyPropertySearchCriteria extends AbstractFieldSearchCriteria<String>
+// TODO: add JS criteria!
+@JsonObject("as.dto.common.search.ControlledVocabularyPropertySearchCriteria")
+public class ControlledVocabularyPropertySearchCriteria extends AbstractFieldSearchCriteria<String>
 {
 
     private static final long serialVersionUID = 1L;
 
-    VocabularyPropertySearchCriteria(final String propertyName)
+    ControlledVocabularyPropertySearchCriteria(final String propertyName)
     {
         super(propertyName, SearchFieldType.PROPERTY);
+    }
+
+    public void thatEquals(final String value)
+    {
+        setFieldValue(value);
     }
 
 }
