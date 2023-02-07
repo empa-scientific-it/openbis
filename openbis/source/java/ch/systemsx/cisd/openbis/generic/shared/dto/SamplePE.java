@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,10 +44,6 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -65,6 +62,9 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -129,29 +129,32 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private String permId;
 
-    private Set<SampleRelationshipPE> parentRelationships;
+    private Set<SampleRelationshipPE> parentRelationships = new LinkedHashSet<SampleRelationshipPE>();
 
-    private Set<SampleRelationshipPE> childRelationships;
+    private Set<SampleRelationshipPE> childRelationships = new LinkedHashSet<SampleRelationshipPE>();
 
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();
 
-    @Transient
+    @OptimisticLock(excluded = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
+    @Fetch(FetchMode.SUBSELECT)
     private Set<SampleRelationshipPE> getSampleChildRelationships()
     {
-        if (childRelationships == null) {
-            if (id == null) {
-                childRelationships = new HashSet<>();
-            } else {
-                childRelationships = new HashSet<>(CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().listSampleChildren(List.of(id)));
-            }
-        }
         return childRelationships;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setSampleChildRelationships(final Set<SampleRelationshipPE> childRelationships)
+    {
+        this.childRelationships = childRelationships;
     }
 
     @Transient
     public Set<SampleRelationshipPE> getChildRelationships()
     {
+
         return new UnmodifiableSetDecorator<SampleRelationshipPE>(getSampleChildRelationships());
     }
 
@@ -168,20 +171,21 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     {
         relationship.setParentSample(this);
         getSampleChildRelationships().add(relationship);
-        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().persist(List.of(relationship));
     }
 
-    @Transient
+    @OptimisticLock(excluded = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childSample", orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<SampleRelationshipPE> getSampleParentRelationships()
     {
-        if (parentRelationships == null) {
-            if (id == null) {
-                parentRelationships = new HashSet<>();
-            } else {
-                parentRelationships = new HashSet<>(CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().listSampleParents(List.of(id)));
-            }
-        }
         return parentRelationships;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setSampleParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
+    {
+        this.parentRelationships = parentRelationships;
     }
 
     @Transient
@@ -201,7 +205,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     public void setParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
     {
-        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().delete(getSampleParentRelationships());
         getSampleParentRelationships().clear();
         for (final SampleRelationshipPE sampleRelationship : parentRelationships)
         {
@@ -218,7 +221,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     {
         relationship.setChildSample(this);
         getSampleParentRelationships().add(relationship);
-        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().persist(List.of(relationship));
     }
 
     public void removeParentRelationship(final SampleRelationshipPE relationship)
@@ -227,7 +229,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         relationship.getParentSample().getSampleChildRelationships().remove(relationship);
         relationship.setChildSample(null);
         relationship.setParentSample(null);
-        CommonServiceProvider.getDAOFactory().getSampleRelationshipDAO().delete(List.of(relationship));
     }
 
     /**
