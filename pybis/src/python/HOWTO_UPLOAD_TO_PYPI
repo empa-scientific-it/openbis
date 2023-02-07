@@ -1,18 +1,15 @@
-# Convert README.md markdown to README.rst reStructuredText
-pandoc --from=markdown --to=rst --output=README.rst README.md
+# PyBIS Release Guide
+1. Change version number in setup.py
+2. Change version number in __init__.py
+3. Create a source-distribution
+python3 setup.py sdist
 
-# create a python2 / python 3 universal distribution
-python setup.py bdist_wheel --universal
-
-# create a pure python distribution, which only works for a specific python version
-python setup.py bdist_wheel
-
-# create a source-distribution
-python setup.py sdist
-
-# see distributions
+4. See distributions
 ls -la dist/
 
-# upload distribution(s) to pypi
-twine upload dist/*
+5. Upload distribution(s) to pypi. For testing purposes one can use "--repository testpypi" to keep the production repository intact. To install the artifacts from the test repo use "pip install -i https://test.pypi.org/simple/ PyBIS==X.Y.Z".
+twine upload dist/PyBIS-X.Y.Z.tar.gz   # version you have just created
 
+6. Update the change log: https://sissource.ethz.ch/sispub/openbis/-/blob/master/pybis/src/python/CHANGELOG.md
+
+7. Once everything is done, send an email to a contact person so he can take over sending the notification to pybis user group list informing them of the new release and include a link to the change log.
