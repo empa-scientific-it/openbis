@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-// TODO: add JS criteria
 @JsonObject("as.dto.common.search.SamplePropertySearchCriteria")
 public class SamplePropertySearchCriteria extends AbstractFieldSearchCriteria<String>
 {
