@@ -495,7 +495,7 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
 }
 
 task deleteOpenbisNgUi(type: Delete) {
-    delete 'dist/core-plugins/openbis-ng-ui'
+    delete 'dist/core-plugins/ui-admin'
 }
 
 task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':ui-admin:copyWebApp']) {

@@ -38,19 +38,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
  * Helper class for checking enabled module.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class ModuleEnabledChecker
 {
-    private static final IKeyExtractor<String, CorePlugin> CORE_PLUGIN_NAME_EXTRACTOR = new IKeyExtractor<String, CorePlugin>()
-        {
-            @Override
-            public String getKey(CorePlugin corePlugin)
+    private static final IKeyExtractor<String, CorePlugin> CORE_PLUGIN_NAME_EXTRACTOR =
+            new IKeyExtractor<String, CorePlugin>()
             {
-                return corePlugin.getName();
-            }
-        };
+                @Override
+                public String getKey(CorePlugin corePlugin)
+                {
+                    return corePlugin.getName();
+                }
+            };
 
     private final List<Pattern> enabledModulesPatterns;
 
@@ -75,15 +76,18 @@ public class ModuleEnabledChecker
         }
     }
 
-    public Set<CorePlugin> getModuleWithEnabledMasterDataInitializations(List<CorePlugin> corePlugins)
+    public Set<CorePlugin> getModuleWithEnabledMasterDataInitializations(
+            List<CorePlugin> corePlugins)
     {
         Set<CorePlugin> result = new LinkedHashSet<>();
-        TableMap<String, CorePlugin> pluginsByName = new TableMap<>(corePlugins, CORE_PLUGIN_NAME_EXTRACTOR);
+        TableMap<String, CorePlugin> pluginsByName =
+                new TableMap<>(corePlugins, CORE_PLUGIN_NAME_EXTRACTOR);
         for (String enabledPlugin : getEnabledPlugins(corePlugins))
         {
-            CorePlugin plugin = getPluginByFullRequiredPluginName(pluginsByName, enabledPlugin, null);
+            CorePlugin plugin =
+                    getPluginByFullRequiredPluginName(pluginsByName, enabledPlugin, null);
             String name = plugin.getName();
-            if (enabledPlugin.equals(name) 
+            if (enabledPlugin.equals(name)
                     || enabledPlugin.equals(name + ":" + INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME))
             {
                 result.add(plugin);
@@ -91,10 +95,11 @@ public class ModuleEnabledChecker
         }
         return result;
     }
-    
+
     Set<String> getEnabledPlugins(List<CorePlugin> corePlugins)
     {
-        TableMap<String, CorePlugin> pluginsByName = new TableMap<>(corePlugins, CORE_PLUGIN_NAME_EXTRACTOR);
+        TableMap<String, CorePlugin> pluginsByName =
+                new TableMap<>(corePlugins, CORE_PLUGIN_NAME_EXTRACTOR);
         Set<String> result = new LinkedHashSet<>();
         for (CorePlugin corePlugin : getListOfEnabledPlugins(corePlugins))
         {
@@ -104,7 +109,7 @@ public class ModuleEnabledChecker
         return result;
     }
 
-    private void addRequiredPlugins(Set<String> result, Set<CorePlugin> visitedPlugins, 
+    private void addRequiredPlugins(Set<String> result, Set<CorePlugin> visitedPlugins,
             TableMap<String, CorePlugin> pluginsByName, CorePlugin corePlugin)
     {
         if (visitedPlugins.contains(corePlugin))
@@ -114,13 +119,14 @@ public class ModuleEnabledChecker
         visitedPlugins.add(corePlugin);
         for (String requiredPlugin : corePlugin.getRequiredPlugins())
         {
-            CorePlugin referredPlugin = getPluginByFullRequiredPluginName(pluginsByName, requiredPlugin, corePlugin);
+            CorePlugin referredPlugin =
+                    getPluginByFullRequiredPluginName(pluginsByName, requiredPlugin, corePlugin);
             addRequiredPlugins(result, visitedPlugins, pluginsByName, referredPlugin);
             result.add(requiredPlugin);
         }
     }
 
-    private CorePlugin getPluginByFullRequiredPluginName(TableMap<String, CorePlugin> pluginsByName, 
+    private CorePlugin getPluginByFullRequiredPluginName(TableMap<String, CorePlugin> pluginsByName,
             String requiredPlugin, CorePlugin corePlugin)
     {
         FullPluginName fullPluginName = new FullPluginName(requiredPlugin);
@@ -128,13 +134,13 @@ public class ModuleEnabledChecker
         CorePlugin referredPlugin = pluginsByName.tryGet(moduleName);
         if (referredPlugin == null)
         {
-            throw new ConfigurationFailureException("Required plugin '" + requiredPlugin 
-                    + "' specified by core plugin '" + corePlugin + "' refers to the unknown module '" 
-                    + moduleName + "'." );
+            throw new ConfigurationFailureException("Required plugin '" + requiredPlugin
+                    + "' specified by core plugin '" + corePlugin + "' refers to the unknown module '"
+                    + moduleName + "'.");
         }
         return referredPlugin;
     }
-    
+
     List<CorePlugin> getListOfEnabledPlugins(List<CorePlugin> corePlugins)
     {
         ArrayList<CorePlugin> result = new ArrayList<>();
@@ -153,7 +159,7 @@ public class ModuleEnabledChecker
         }
         return result;
     }
-    
+
     public List<String> getListOfEnabledModules(List<String> moduleNames)
     {
         List<String> remainingModules = new LinkedList<>(moduleNames);
@@ -185,13 +191,15 @@ public class ModuleEnabledChecker
         }
         return false;
     }
-    
+
     private static final class FullPluginName
     {
         private final String module;
+
         private final String pluginType;
+
         private final String name;
-        
+
         FullPluginName(String nameAsString)
         {
             String[] splittedName = nameAsString.split(":");
@@ -232,6 +240,6 @@ public class ModuleEnabledChecker
             }
             return builder.toString();
         }
-        
+
     }
 }

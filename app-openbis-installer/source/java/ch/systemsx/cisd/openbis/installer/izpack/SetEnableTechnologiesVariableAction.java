@@ -32,18 +32,20 @@ import com.izforge.izpack.data.PanelAction;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
- * Action which sets the variable <code>ENABLED_TECHNOLOGIES_VARNAME</code> or updates service.properties of AS.
- * 
+ * Action which sets the variable <code>ENABLED_TECHNOLOGIES_VARNAME</code> or updates
+ * service.properties of AS.
+ *
  * @author Franz-Josef Elmer
  */
 public class SetEnableTechnologiesVariableAction implements PanelAction
 {
-    static final String[] MODULES = { "monitoring-support", "dropbox-monitor", "dataset-uploader", 
-            "dataset-file-search", "xls-import", "search-store", "openbis-sync", "openbis-ng-ui" };
+    static final String[] MODULES = { "monitoring-support", "dropbox-monitor", "dataset-uploader",
+            "dataset-file-search", "xls-import", "search-store", "openbis-sync", "ui-admin" };
 
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
-    private final SetTechnologyCheckBoxesAction technologyCheckBoxesAction = new SetTechnologyCheckBoxesAction();
+    private final SetTechnologyCheckBoxesAction technologyCheckBoxesAction =
+            new SetTechnologyCheckBoxesAction();
 
     @Override
     public void initialize(PanelActionConfiguration configuration)
@@ -112,7 +114,8 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
                 if (technology == GlobalInstallationContext.TECHNOLOGY_MICROSCOPY ||
                         technology == GlobalInstallationContext.TECHNOLOGY_FLOW_CYTOMETRY)
                 {
-                    String lowerCasedTechnologyShared = GlobalInstallationContext.TECHNOLOGY_SHARED_MICROSCOPY_FLOW_CYTOMETRY.toLowerCase();
+                    String lowerCasedTechnologyShared =
+                            GlobalInstallationContext.TECHNOLOGY_SHARED_MICROSCOPY_FLOW_CYTOMETRY.toLowerCase();
                     enabledModules.add(lowerCasedTechnologyShared);
                     allTechnologies.add(lowerCasedTechnologyShared);
                 }
@@ -136,7 +139,8 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
                 }
             }
         }
-        Utils.updateOrAppendProperty(configFile, ENABLED_TECHNOLOGIES_KEY, String.join(", ", enabledModules));
+        Utils.updateOrAppendProperty(configFile, ENABLED_TECHNOLOGIES_KEY,
+                String.join(", ", enabledModules));
     }
 
 }

@@ -1,38 +1,38 @@
 plugins {
-  id "com.github.node-gradle.node" version "3.2.1"
+    id "com.github.node-gradle.node" version "3.2.1"
 }
 
 configure(allprojects) {
-  apply plugin:'base'
-  
-  repositories {
-    mavenCentral()
-  }
+    apply plugin: 'base'
+
+    repositories {
+        mavenCentral()
+    }
 }
 
 node {
-  download = true
-  version = '18.12.1'
-  workDir = file("${projectDir}/node/nodejs")
-  nodeModulesDir = file("${projectDir}")
+    download = true
+    version = '18.12.1'
+    workDir = file("${projectDir}/node/nodejs")
+    nodeModulesDir = file("${projectDir}")
 }
 
-task cleanBuild(type:Delete){
-  delete 'build'
+task cleanBuild(type: Delete) {
+    delete 'build'
 }
 
 task copyCorePlugins(type: Copy) {
-  from file('src/core-plugins')
-  into file('build/core-plugins')
+    from file('src/core-plugins')
+    into file('build/core-plugins')
 }
 
 task copyWebApp(type: Copy) {
-  from file('build/js')
-  into file('build/core-plugins/openbis-ng-ui/1/as/webapps/openbis-ng-ui/html')
+    from file('build/js')
+    into file('build/core-plugins/ui-admin/1/as/webapps/ui-admin/html')
 }
 
 task test {
-  dependsOn npm_run_test
+    dependsOn npm_run_test
 }
 
 npm_run_build.dependsOn cleanBuild

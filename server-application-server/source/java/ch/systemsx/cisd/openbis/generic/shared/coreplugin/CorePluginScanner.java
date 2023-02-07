@@ -34,9 +34,9 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
- * The {@link CorePluginScanner} contains no special logic. Its sole function is to understand the plugins folder hierarchy and to load plugins from
- * the file system.
- * 
+ * The {@link CorePluginScanner} contains no special logic. Its sole function is to understand the
+ * plugins folder hierarchy and to load plugins from the file system.
+ *
  * @author Kaloyan Enimanev
  */
 public class CorePluginScanner implements ICorePluginResourceLoader
@@ -44,7 +44,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     static final String CORE_PLUGIN_PROPERTIES_FILE_NAME = "core-plugin.properties";
 
     static final String REQUIRED_PLUGINS_KEY = "required-plugins";
-    
+
     /**
      * the type of plugins we are scanning for.
      */
@@ -86,11 +86,14 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         this(pluginsFolderName, scannerType, DEFAULT_LOGGER);
     }
 
-    public CorePluginScanner(String pluginsFolderName, ScannerType scannerType, ISimpleLogger logger)
+    public CorePluginScanner(String pluginsFolderName, ScannerType scannerType,
+            ISimpleLogger logger)
     {
         this.pluginsFolder = new File(pluginsFolderName);
         this.scannerType = scannerType;
         this.log = logger;
+        log.log(LogLevel.INFO, "Provided Core-plugins folder:"
+                + pluginsFolder.getAbsolutePath());
         if (pluginsFolder.exists())
         {
             if (false == pluginsFolder.isDirectory())
@@ -134,9 +137,12 @@ public class CorePluginScanner implements ICorePluginResourceLoader
             Collections.sort(pluginDirectories);
             for (File pluginDir : pluginDirectories)
             {
+                log.log(LogLevel.INFO,
+                        "Looking for plugins in folder: " + pluginDir.getAbsolutePath());
                 CorePlugin plugin = tryLoadLatestVersion(pluginDir);
                 if (plugin != null)
                 {
+                    log.log(LogLevel.INFO, "Plugin found: " + pluginDir.getName());
                     result.add(plugin);
                 }
             }
@@ -164,7 +170,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
             } else
             {
                 log.log(LogLevel.WARN, String.format("Invalid version '%s' for plugin '%s'. "
-                        + "Plugin version must be non-negative integer numbers.",
+                                + "Plugin version must be non-negative integer numbers.",
                         versionDir.getName(), pluginRootDir.getAbsolutePath()));
             }
         }
@@ -183,7 +189,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     private List<File> listFiles(File folder)
     {
         List<File> files = FileUtilities.listDirectories(folder, false);
-        for (Iterator<File> iterator = files.iterator(); iterator.hasNext();)
+        for (Iterator<File> iterator = files.iterator(); iterator.hasNext(); )
         {
             File file = iterator.next();
             if (file.getName().startsWith("."))
@@ -202,8 +208,10 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         File corePluginPropertiesFile = new File(versionDir, CORE_PLUGIN_PROPERTIES_FILE_NAME);
         if (corePluginPropertiesFile.isFile())
         {
-            Properties corePluginProperties = PropertyIOUtils.loadProperties(corePluginPropertiesFile);
-            for (String requiredPlugin : corePluginProperties.getProperty(REQUIRED_PLUGINS_KEY, "").split(","))
+            Properties corePluginProperties =
+                    PropertyIOUtils.loadProperties(corePluginPropertiesFile);
+            for (String requiredPlugin : corePluginProperties.getProperty(REQUIRED_PLUGINS_KEY, "")
+                    .split(","))
             {
                 corePlugin.addRequiredPlugin(requiredPlugin.trim());
             }
@@ -230,7 +238,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
             return -1;
         }
     }
-    
+
     private boolean isNumber(File versionDir)
     {
         try
