@@ -58,7 +58,7 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
         for (SampleRelationshipPE sampleRelationship : sampleRelationships)
         {
             sampleRelationship.setRelationship(relationshipType);
-            getHibernateTemplate().update(sampleRelationship);
+            getHibernateTemplate().persist(sampleRelationship);
         }
     }
 
