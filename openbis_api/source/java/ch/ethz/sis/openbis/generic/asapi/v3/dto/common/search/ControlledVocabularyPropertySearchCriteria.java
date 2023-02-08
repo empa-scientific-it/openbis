@@ -24,6 +24,11 @@ public class ControlledVocabularyPropertySearchCriteria extends AbstractFieldSea
 
     private static final long serialVersionUID = 1L;
 
+    ControlledVocabularyPropertySearchCriteria()
+    {
+        super(null, SearchFieldType.PROPERTY);
+    }
+
     ControlledVocabularyPropertySearchCriteria(final String propertyName)
     {
         super(propertyName, SearchFieldType.PROPERTY);

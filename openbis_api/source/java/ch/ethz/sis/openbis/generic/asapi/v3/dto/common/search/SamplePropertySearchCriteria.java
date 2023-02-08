@@ -24,6 +24,11 @@ public class SamplePropertySearchCriteria extends AbstractFieldSearchCriteria<St
 
     private static final long serialVersionUID = 1L;
 
+    SamplePropertySearchCriteria()
+    {
+        super(null, SearchFieldType.PROPERTY);
+    }
+
     public SamplePropertySearchCriteria(final String propertyName)
     {
         super(propertyName, SearchFieldType.PROPERTY);
