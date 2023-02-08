@@ -62,6 +62,14 @@ define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria",
 			var BooleanPropertySearchCriteria = require("as/dto/common/search/BooleanPropertySearchCriteria");
 			return this.addCriteria(new BooleanPropertySearchCriteria(propertyName));
 		};
+		prototype.withSampleProperty = function(propertyName) {
+			var SamplePropertySearchCriteria = require("as/dto/common/search/SamplePropertySearchCriteria");
+			return this.addCriteria(new SamplePropertySearchCriteria(propertyName));
+		};
+		prototype.withVocabularyProperty = function(propertyName) {
+			var ControlledVocabularyPropertySearchCriteria = require("as/dto/common/search/ControlledVocabularyPropertySearchCriteria");
+			return this.addCriteria(new ControlledVocabularyPropertySearchCriteria(propertyName));
+		};
 		prototype.withTag = function() {
 			var TagSearchCriteria = require("as/dto/tag/search/TagSearchCriteria");
 			return this.addCriteria(new TagSearchCriteria());
