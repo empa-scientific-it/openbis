@@ -27,12 +27,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
@@ -41,12 +43,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
@@ -917,16 +926,67 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     public void testSearchWithSampleProperty()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        final PropertyTypePermId propertyTypeId = createASamplePropertyType(sessionToken, null);
 
-        createEntity(sessionToken, propertyTypeId, "/CISD/CL1");
+        final String samplePropertyCode1 = "Sample1";
+        final String samplePropertyCode2 = "Sample2";
+
+        final EntityTypePermId propertySampleType = createASampleType(sessionToken, false);
+        final PropertyTypePermId samplePropertyTypeId1 = createASamplePropertyType(sessionToken, propertySampleType,
+                samplePropertyCode1);
+        final PropertyTypePermId samplePropertyTypeId2 = createASamplePropertyType(sessionToken, propertySampleType,
+                samplePropertyCode2);
+
+        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, samplePropertyTypeId1,
+                samplePropertyTypeId2);
+
+        final SamplePermId sample1 = createSample(sessionToken, samplePropertyCode1, propertySampleType, Map.of());
+        final SamplePermId sample2 = createSample(sessionToken, samplePropertyCode2, propertySampleType, Map.of());
+
+        final ObjectPermId entity1 = createEntity(sessionToken, "Entity", searchTest1EntityTypeId,
+                new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId(),
+                        samplePropertyTypeId2.getPermId(), sample2.getPermId())));
+
+        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, samplePropertyTypeId1,
+                samplePropertyTypeId2);
+        final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
+                new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId())));
 
         final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
         searchCriteria.withOrOperator();
-        searchCriteria.withSampleProperty(propertyTypeId.getPermId()).thatEquals("/CISD/CL1");
+        searchCriteria.withSampleProperty(searchTest1EntityTypeId.getPermId()).thatEquals(sample1.getPermId());
 
-        final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
-        assertEquals(entities.size(), 1);
+        try
+        {
+            final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
+            assertEquals(entities.size(), 1);
+            assertEquals(entities.get(0).getPermId(), entity1);
+        } finally
+        {
+            final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
+            final IDeletionId samplesDeletion = deleteSamples(sessionToken, sample1, sample2);
+            v3api.confirmDeletions(sessionToken, List.of(entitiesDeletion, samplesDeletion));
+            deleteEntityTypes(sessionToken, searchTest1EntityTypeId, searchTest2EntityTypeId);
+            deletePropertyTypes(sessionToken, samplePropertyTypeId1, samplePropertyTypeId2);
+            deleteSampleTypes(sessionToken, propertySampleType);
+        }
+    }
+
+    protected SamplePermId createSample(final String sessionToken, final String code,
+            final EntityTypePermId entityTypeId, final Map<String, String> propertyMap)
+    {
+        final SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode(code);
+        sampleCreation.setTypeId(entityTypeId);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setProperties(propertyMap);
+        return v3api.createSamples(sessionToken, List.of(sampleCreation)).get(0);
+    }
+
+    protected IDeletionId deleteSamples(final String sessionToken, final ISampleId... entityIds)
+    {
+        final SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("Test");
+        return v3api.deleteSamples(sessionToken, List.of(entityIds), deletionOptions);
     }
 
     @Test
@@ -1174,10 +1234,17 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         return createEntity(sessionToken, "ENTITY_TO_BE_DELETED", entityTypeId, propertyTypeId.getPermId(), value);
     }
 
-    protected abstract EntityTypePermId createEntityType(String sessionToken, PropertyTypePermId propertyTypeId);
+    protected abstract EntityTypePermId createEntityType(String sessionToken, PropertyTypePermId... propertyTypeIds);
+
+    protected abstract void deleteEntityTypes(String sessionToken, IEntityTypeId... entityTypeIds);
+
+    protected abstract ObjectPermId createEntity(String sessionToken, String code, EntityTypePermId entityTypeId,
+            Map<String, String> propertyMap);
 
     protected abstract ObjectPermId createEntity(String sessionToken, String code, EntityTypePermId entityTypeId,
             String propertyType, String value);
+
+    protected abstract IDeletionId deleteEntities(String sessionToken, IObjectId... entityIds);
 
     protected abstract AbstractEntitySearchCriteria<?> createSearchCriteria();
 

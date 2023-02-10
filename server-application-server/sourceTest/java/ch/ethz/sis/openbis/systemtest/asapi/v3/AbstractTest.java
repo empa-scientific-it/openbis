@@ -79,6 +79,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnot
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IValidationPluginHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
@@ -120,11 +121,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -1480,15 +1485,28 @@ public class AbstractTest extends SystemTestCase
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
-    protected PropertyTypePermId createASamplePropertyType(String sessionToken, IEntityTypeId sampleTypeId)
+    protected PropertyTypePermId createASamplePropertyType(final String sessionToken, final IEntityTypeId sampleTypeId)
+    {
+        return createASamplePropertyType(sessionToken, sampleTypeId, "TYPE-" + System.currentTimeMillis());
+    }
+
+    protected PropertyTypePermId createASamplePropertyType(final String sessionToken,
+            final IEntityTypeId sampleTypeId, final String code)
     {
         PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         creation.setDataType(DataType.SAMPLE);
         creation.setSampleTypeId(sampleTypeId);
         creation.setLabel("label");
         creation.setDescription("description");
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
+    }
+
+    protected void deletePropertyTypes(final String sessionToken, final IPropertyTypeId... propertyTypeIds)
+    {
+        final PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
+        deletionOptions.setReason("Test");
+        v3api.deletePropertyTypes(sessionToken, List.of(propertyTypeIds), deletionOptions);
     }
 
     protected PropertyTypePermId createAMaterialPropertyType(final String sessionToken,
@@ -1503,7 +1521,8 @@ public class AbstractTest extends SystemTestCase
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
-    protected EntityTypePermId createASampleType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
+    protected EntityTypePermId createASampleType(String sessionToken, boolean mandatory,
+            PropertyTypePermId... propertyTypes)
     {
         SampleTypeCreation creation = new SampleTypeCreation();
         creation.setCode("SAMPLE-TYPE-" + System.currentTimeMillis());
@@ -1517,6 +1536,13 @@ public class AbstractTest extends SystemTestCase
         }
         creation.setPropertyAssignments(assignments);
         return v3api.createSampleTypes(sessionToken, Arrays.asList(creation)).get(0);
+    }
+
+    protected void deleteSampleTypes(final String sessionToken, final IEntityTypeId... entityTypeIds)
+    {
+        final SampleTypeDeletionOptions deletionOptions = new SampleTypeDeletionOptions();
+        deletionOptions.setReason("Test");
+        v3api.deleteSampleTypes(sessionToken, List.of(entityTypeIds), deletionOptions);
     }
 
     protected EntityTypePermId createAnExperimentType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
