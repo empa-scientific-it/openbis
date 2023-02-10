@@ -662,6 +662,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         sample.setPermId(daoFactory.getPermIdDAO().createPermId());
         sample.setSampleType(type);
         sample.setSpace(sampleOwner.tryGetSpace());
+        sample.setModificationDate(new Date());
         if (generatorOrNull != null)
         {
             sample.addParentRelationship(new SampleRelationshipPE(generatorOrNull, sample,
