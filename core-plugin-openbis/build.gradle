@@ -39,6 +39,7 @@ evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':server-screening')
 evaluationDependsOn(':server-external-data-store')
 evaluationDependsOn(':ui-admin')
+evaluationDependsOn(':ui-eln-lims')
 
 
 apply from: '../build/javaproject.gradle'
@@ -57,6 +58,7 @@ configurations.create('zipping')
 configurations.create('server_original_data_store')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
+configurations.create('blast_tar')
 
 def jettyVersion = '9.4.44'
 def jettyDistributionVersion = '9.4.44.v20210927'
@@ -78,6 +80,8 @@ dependencies {
             'google:gwt-dev:2.4'
 
     zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
+
+    blast_tar "blast:blast:2.2.30@tar.gz"
 
     server_original_data_store project(':server-screening'),
             'bioformats:bioformats:6.5.1',
@@ -348,6 +352,9 @@ task zipCorePlugins(type: SymZip) {
     from fileTree(dir: 'targets/downloads/obit_shared_core_technology-release-20.x/core-plugins', includes: ['shared/**'])
     from 'dist/core-plugins'
     from 'dist/server/core-plugins.properties'
+    from(configurations.blast_tar.collect { tarTree(it) }) {
+        into 'eln-lims'
+    }
     into 'core-plugins'
 }
 
@@ -503,7 +510,17 @@ task copyOpenbisNgUiToCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':u
     into file('dist/core-plugins')
 }
 
+task deleteOpenbisElnLims(type: Delete) {
+    delete 'dist/core-plugins/eln-lims'
+}
+
+task copyOpenbisElnLimsCorePlugins(type: Copy, dependsOn: [deleteOpenbisNgUi, ':ui-eln-lims:copyCorePlugins']) {
+    from project(':ui-eln-lims').file('build/core-plugins')
+    into file('dist/core-plugins')
+}
+
 zipCorePlugins.dependsOn copyOpenbisNgUiToCorePlugins
+zipCorePlugins.dependsOn copyOpenbisElnLimsCorePlugins
 
 task generateJavadoc(type: Javadoc) {
     source = configurations.javadoc_sources.collect {

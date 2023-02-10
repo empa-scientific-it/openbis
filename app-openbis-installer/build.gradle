@@ -61,7 +61,7 @@ task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zi
     into installerDistDir
     from zipTree(project(':core-plugin-openbis').zipBdlServer.archivePath)
     into installerDistDir
-    from("${installerDistDir}/../BUILD-installation.INFO") {
+    from("${installerDistDir}/../BUILD-app-openbis-installer.INFO") {
         into 'bin'
     }
     from("${buildDir}/classes/java/main/InstallerVariableAccess.class") {
