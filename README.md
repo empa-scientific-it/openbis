@@ -1,8 +1,12 @@
+
+!["openBIS"](./docs/readme/openbis-logo.png "openBIS")
+
+# Software Requirements
+
+- JDK 17
+- Postgres 15
+
 # Building openBIS
-
-## Requirements
-
-- JDK11 or JDK 17
 
 ## Step By Step:
 
@@ -26,7 +30,8 @@ requirements.
 
 ## Why the core UI made using GWT is not build anymore?
 
-It increases the time to obtain a build plus it requires JDK8, it will be removed on next release.
+The core UI is deprecated for removal on next mayor release and requires JDK8.
+
 For now it can be build following the next commands and only with JDK8:
 
 ```
@@ -57,14 +62,13 @@ openbis.bundle.min.js
 
 ## Requirements
 
-- Postgres 11
 - IntelliJ IDEA CE
 
 ## Step By Step:
 
 ```
 File -> New -> Project From Existing Sources
-Select the gradle folder to load the gradle model
+Select the build folder to load the gradle model
 After the model is loaded execute the tasks:
 
 openBISDevelopementEnvironmentASPrepare
@@ -72,10 +76,30 @@ openBISDevelopementEnvironmentASStart
 openBISDevelopementEnvironmentDSSStart
 ```
 
-## IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
+## Typical Errors
+
+# IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
 
 Turn off "File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use --release
 option for cross-compilation".
+
+# IntelliJ can't find a particular method:
+
+Code compatiblity 1.8 is set by default to work well with our javadoc tools but it can be set to 17 on IntelliJ. See image below.
+
+!["IntelliJ Configuration 1"](./docs/readme/intellij-config-1.png "IntelliJ Configuration 1")
+
+# Test seem to run through Gradle and fail:
+
+They need to be set to run using IntelliJ.
+
+!["IntelliJ Configuration 2"](./docs/readme/intellij-config-2.png "IntelliJ Configuration 2")
+
+# Test seem to run through intelliJ but throw a package not open error:
+
+The project don't uses modules yet. Add add open statements manually when launching the tests as shown below.
+
+!["IntelliJ Configuration 3"](./docs/readme/intellij-config-3.png "IntelliJ Configuration 3")
 
 ## Development of NG UI
 
@@ -96,7 +120,3 @@ option for cross-compilation".
 
 1. Under "IntelliJ IDEA" -> "Preferences" -> "Languages and Frameworks" -> Javascript, set the
    language version to ECMAScript 6.
-
-## Setting up Visual Studio Code (alternative to IntelliJ Idea)
-
-Install "ESLint" and "Prettier - Code formatter" extensions.
