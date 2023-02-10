@@ -53,7 +53,7 @@ println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
-task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', 'core-plugin-openbis:zipBdlServer']) {
+task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', ':core-plugin-openbis:zipBdlServer']) {
     duplicatesStrategy 'include'
     from "${project.projectDir}/resource/installer"
     from "${project.projectDir}/../core-plugin-openbis/dist/tarball/installer"
