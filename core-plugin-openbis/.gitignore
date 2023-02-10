@@ -5,3 +5,4 @@
 /.idea/
 *.iml
 *.eml
+/dist/core-plugins/eln-lims
