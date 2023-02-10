@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- JDK11 or JDK 17
+- JDK11 or JDK17
 
 ## Step By Step:
 
