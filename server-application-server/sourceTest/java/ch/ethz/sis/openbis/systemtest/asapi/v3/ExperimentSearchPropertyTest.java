@@ -45,7 +45,7 @@ public class ExperimentSearchPropertyTest extends AbstractSearchPropertyTest
 {
 
     @Override
-    protected EntityTypePermId createEntityType(final String sessionToken, final PropertyTypePermId... propertyTypeIds)
+    protected EntityTypePermId createEntityType(final String sessionToken, final String code, final PropertyTypePermId... propertyTypeIds)
     {
         return createAnExperimentType(sessionToken, false, propertyTypeIds);
     }

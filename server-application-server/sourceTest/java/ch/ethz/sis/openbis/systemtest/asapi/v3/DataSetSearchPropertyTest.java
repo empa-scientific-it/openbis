@@ -44,7 +44,7 @@ public class DataSetSearchPropertyTest extends AbstractSearchPropertyTest
 {
 
     @Override
-    protected EntityTypePermId createEntityType(final String sessionToken, final PropertyTypePermId... propertyTypeIds)
+    protected EntityTypePermId createEntityType(final String sessionToken, final String code, final PropertyTypePermId... propertyTypeIds)
     {
         return createADataSetType(sessionToken, false, propertyTypeIds);
     }

@@ -883,7 +883,8 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         vocabularyTermCreation4.setCode("AUTUMN");
 
         final VocabularyCreation vocabularyCreation = new VocabularyCreation();
-        vocabularyCreation.setCode("SEASONS");
+        final String vocabularyCode = "SEASONS";
+        vocabularyCreation.setCode(vocabularyCode);
         vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
                 vocabularyTermCreation3, vocabularyTermCreation4));
         final VocabularyPermId vocabularyPermId =
@@ -893,7 +894,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
                 vocabularyPermId);
         final ObjectPermId entityPermId = createEntity(sessionToken, propertyTypeId, value);
         final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
-        new VocabularyQueryInjector(searchCriteria, propertyTypeId).buildCriteria(queryString);
+        new VocabularyQueryInjector(searchCriteria, vocabularyCode).buildCriteria(queryString);
 
         // When
         final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
@@ -936,7 +937,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final PropertyTypePermId samplePropertyTypeId2 = createASamplePropertyType(sessionToken, propertySampleType,
                 samplePropertyCode2);
 
-        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, samplePropertyTypeId1,
+        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, null, samplePropertyTypeId1,
                 samplePropertyTypeId2);
 
         final SamplePermId sample1 = createSample(sessionToken, samplePropertyCode1, propertySampleType, Map.of());
@@ -946,7 +947,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
                 new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId(),
                         samplePropertyTypeId2.getPermId(), sample2.getPermId())));
 
-        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, samplePropertyTypeId1,
+        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, null, samplePropertyTypeId1,
                 samplePropertyTypeId2);
         final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
                 new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId())));
@@ -997,38 +998,43 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     }
 
     @Test
-    public void testSearchWithEnumProperty()
+    public void testSearchWithControlledVocabularyProperty()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final String term1 = "TERM1";
         final String term2 = "TERM2";
         final String term3 = "TERM3";
-        final VocabularyPermId vocabulary = createVocabulary(sessionToken, "TERMS", term1, term2, term3);
+        final String vocabularyCode1 = "TERMS1";
+        final String vocabularyCode2 = "TERMS2";
+        final VocabularyPermId vocabulary1 = createVocabulary(sessionToken, vocabularyCode1, term1, term2, term3);
+        final VocabularyPermId vocabulary2 = createVocabulary(sessionToken, vocabularyCode2, term1, term2, term3);
 
         final EntityTypePermId propertySampleType = createASampleType(sessionToken, false);
         final PropertyTypePermId vocabularyPropertyTypeId1 = createAVocabularyPropertyType(sessionToken,
-                vocabulary, "Vocabulary1");
+                vocabulary1, "Vocabulary1");
         final PropertyTypePermId vocabularyPropertyTypeId2 = createAVocabularyPropertyType(sessionToken,
-                vocabulary, "Vocabulary2");
+                vocabulary1, "Vocabulary2");
+        final PropertyTypePermId vocabularyPropertyTypeId3 = createAVocabularyPropertyType(sessionToken,
+                vocabulary2, "Vocabulary3");
 
-        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, vocabularyPropertyTypeId1,
-                vocabularyPropertyTypeId2);
+        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, "ET1",
+                vocabularyPropertyTypeId1, vocabularyPropertyTypeId2);
 
         final ObjectPermId entity1 = createEntity(sessionToken, "Entity", searchTest1EntityTypeId,
                 new HashMap<>(Map.of(vocabularyPropertyTypeId1.getPermId(), term1,
                         vocabularyPropertyTypeId2.getPermId(), term2)));
 
-        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, vocabularyPropertyTypeId1,
-                vocabularyPropertyTypeId2);
+        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, "ET2",
+                vocabularyPropertyTypeId3);
         final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
-                new HashMap<>(Map.of(vocabularyPropertyTypeId1.getPermId(), term1)));
+                new HashMap<>(Map.of(vocabularyPropertyTypeId3.getPermId(), term1)));
 
         try
         {
             final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
             searchCriteria1.withOrOperator();
-            searchCriteria1.withVocabularyProperty(searchTest1EntityTypeId.getPermId()).thatEquals(term1);
+            searchCriteria1.withVocabularyProperty(vocabularyCode1).thatEquals(term1);
 
             final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
             assertEquals(entities1.size(), 1);
@@ -1291,11 +1297,11 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
 
     private ObjectPermId createEntity(String sessionToken, PropertyTypePermId propertyTypeId, String value)
     {
-        EntityTypePermId entityTypeId = createEntityType(sessionToken, propertyTypeId);
+        EntityTypePermId entityTypeId = createEntityType(sessionToken, null, propertyTypeId);
         return createEntity(sessionToken, "ENTITY_TO_BE_DELETED", entityTypeId, propertyTypeId.getPermId(), value);
     }
 
-    protected abstract EntityTypePermId createEntityType(String sessionToken, PropertyTypePermId... propertyTypeIds);
+    protected abstract EntityTypePermId createEntityType(String sessionToken, final String code, PropertyTypePermId... propertyTypeIds);
 
     protected abstract void deleteEntityTypes(String sessionToken, IEntityTypeId... entityTypeIds);
 
@@ -1642,17 +1648,20 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
 
     static final class VocabularyQueryInjector extends AbstractQueryInjector
     {
+
+        private final String vocabularyCode;
+
         VocabularyQueryInjector(final AbstractEntitySearchCriteria<?> searchCriteria,
-                final PropertyTypePermId propertyTypeId)
+                final String vocabularyCode)
         {
-            super(searchCriteria, propertyTypeId);
+            super(searchCriteria, null);
+            this.vocabularyCode = vocabularyCode;
         }
 
-        @Override
-        protected void injectQuery(final Operator operator, final String operand)
+        public void injectQuery(final Operator operator, final String operand)
         {
             final ControlledVocabularyPropertySearchCriteria criteria =
-                    searchCriteria.withVocabularyProperty(propertyTypeId.getPermId());
+                    searchCriteria.withVocabularyProperty(vocabularyCode);
             if (operator == Operator.EQUAL)
             {
                 criteria.thatEquals(operand);
@@ -1661,5 +1670,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
                 throw new IllegalArgumentException("Unsupported operator " + operator);
             }
         }
+
     }
+
 }

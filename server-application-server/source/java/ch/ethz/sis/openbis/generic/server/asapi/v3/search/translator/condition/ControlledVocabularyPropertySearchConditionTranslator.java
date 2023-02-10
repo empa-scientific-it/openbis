@@ -20,7 +20,9 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LEFT_JOIN;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ON;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
@@ -28,8 +30,10 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CONTROLLED_VOCABULARY_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.VOCABULARY_TERM_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TABLE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
 
 import java.util.List;
@@ -86,29 +90,42 @@ public class ControlledVocabularyPropertySearchConditionTranslator
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases)
     {
         final String value = criterion.getFieldValue();
+        final String name = criterion.getFieldName();
         final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
 
         TranslatorUtils.appendPropertiesExist(sqlBuilder, valuesTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
-        appendControlledVocabularySubselectConstraint(args, sqlBuilder, value, valuesTableAlias);
+        appendControlledVocabularySubselectConstraint(args, sqlBuilder, name, value, valuesTableAlias);
 
         sqlBuilder.append(RP);
     }
 
     private static void appendControlledVocabularySubselectConstraint(final List<Object> args,
-            final StringBuilder sqlBuilder, final String value, final String propertyTableAlias)
+            final StringBuilder sqlBuilder, final String name, final String value, final String propertyTableAlias)
     {
+        final String controlledVocabularyTableAlias = "cv";
+        final String controlledVocabularyTermTableAlias = "cvt";
+
         sqlBuilder.append(propertyTableAlias).append(PERIOD).append(VOCABULARY_TERM_COLUMN)
                 .append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
 
-        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
+        sqlBuilder.append(SELECT).append(SP).append(controlledVocabularyTermTableAlias).append(PERIOD)
+                .append(ID_COLUMN).append(SP)
                 .append(FROM).append(SP).append(CONTROLLED_VOCABULARY_TERM_TABLE).append(SP)
-                .append(WHERE).append(SP);
-        sqlBuilder.append(CODE_COLUMN);
-
-        sqlBuilder.append(SP).append(EQ).append(SP).append(QU);
+                .append(controlledVocabularyTermTableAlias).append(SP)
+                .append(LEFT_JOIN).append(SP).append(CONTROLLED_VOCABULARY_TABLE).append(SP)
+                .append(controlledVocabularyTableAlias).append(SP).append(ON).append(SP)
+                .append(controlledVocabularyTermTableAlias).append(PERIOD).append(CONTROLLED_VOCABULARY_COLUMN)
+                .append(SP).append(EQ).append(SP).append(controlledVocabularyTableAlias).append(PERIOD)
+                .append(ID_COLUMN).append(SP)
+                .append(WHERE)
+                .append(SP).append(controlledVocabularyTableAlias).append(PERIOD).append(CODE_COLUMN)
+                .append(SP).append(EQ).append(SP).append(QU).append(SP).append(AND).append(SP)
+                .append(controlledVocabularyTermTableAlias).append(PERIOD).append(CODE_COLUMN)
+                .append(SP).append(EQ).append(SP).append(QU);
+        args.add(name);
         args.add(value);
 
         sqlBuilder.append(RP);

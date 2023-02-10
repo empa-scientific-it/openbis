@@ -45,7 +45,8 @@ public class SampleSearchPropertyTest extends AbstractSearchPropertyTest
 {
 
     @Override
-    protected EntityTypePermId createEntityType(final String sessionToken, final PropertyTypePermId... propertyTypeIds)
+    protected EntityTypePermId createEntityType(final String sessionToken, final String code,
+            final PropertyTypePermId... propertyTypeIds)
     {
         return createASampleType(sessionToken, false, propertyTypeIds);
     }

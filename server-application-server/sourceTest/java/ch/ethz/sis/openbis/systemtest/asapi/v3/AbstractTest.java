@@ -1539,8 +1539,14 @@ public class AbstractTest extends SystemTestCase
     protected EntityTypePermId createASampleType(String sessionToken, boolean mandatory,
             PropertyTypePermId... propertyTypes)
     {
+        return createASampleType(sessionToken, "SAMPLE-TYPE-" + System.currentTimeMillis(), mandatory, propertyTypes);
+    }
+
+    protected EntityTypePermId createASampleType(final String sessionToken, final String code, boolean mandatory,
+            PropertyTypePermId... propertyTypes)
+    {
         SampleTypeCreation creation = new SampleTypeCreation();
-        creation.setCode("SAMPLE-TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         List<PropertyAssignmentCreation> assignments = new ArrayList<>();
         for (PropertyTypePermId propertyType : propertyTypes)
         {
@@ -1576,10 +1582,18 @@ public class AbstractTest extends SystemTestCase
         v3api.deleteSampleTypes(sessionToken, List.of(entityTypeIds), deletionOptions);
     }
 
-    protected EntityTypePermId createAnExperimentType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
+    protected EntityTypePermId createAnExperimentType(final String sessionToken, final boolean mandatory,
+            final PropertyTypePermId... propertyTypes)
+    {
+        return createAnExperimentType(sessionToken, "EXPERIMENT-TYPE-" + System.currentTimeMillis(), mandatory,
+                propertyTypes);
+    }
+
+    protected EntityTypePermId createAnExperimentType(final String sessionToken, final String code,
+            final boolean mandatory, final PropertyTypePermId... propertyTypes)
     {
         ExperimentTypeCreation creation = new ExperimentTypeCreation();
-        creation.setCode("EXPERIMENT-TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         List<PropertyAssignmentCreation> assignments = new ArrayList<>();
         for (PropertyTypePermId propertyType : propertyTypes)
         {
@@ -1592,10 +1606,18 @@ public class AbstractTest extends SystemTestCase
         return v3api.createExperimentTypes(sessionToken, Arrays.asList(creation)).get(0);
     }
 
-    protected EntityTypePermId createADataSetType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
+    protected EntityTypePermId createADataSetType(final String sessionToken, final boolean mandatory,
+            final PropertyTypePermId... propertyTypes)
+    {
+        return createADataSetType(sessionToken, "DATA-SET-TYPE-" + System.currentTimeMillis(), mandatory,
+                propertyTypes);
+    }
+
+    protected EntityTypePermId createADataSetType(final String sessionToken, final String code,
+            final boolean mandatory, final PropertyTypePermId... propertyTypes)
     {
         DataSetTypeCreation creation = new DataSetTypeCreation();
-        creation.setCode("DATA-SET-TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         List<PropertyAssignmentCreation> assignments = new ArrayList<>();
         for (PropertyTypePermId propertyType : propertyTypes)
         {
