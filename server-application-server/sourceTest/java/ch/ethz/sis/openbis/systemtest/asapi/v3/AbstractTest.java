@@ -136,6 +136,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
@@ -1502,6 +1505,18 @@ public class AbstractTest extends SystemTestCase
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
+    protected PropertyTypePermId createAVocabularyPropertyType(final String sessionToken,
+            final IVocabularyId vocabularyId, final String code)
+    {
+        final PropertyTypeCreation creation = new PropertyTypeCreation();
+        creation.setCode(code);
+        creation.setDataType(DataType.CONTROLLEDVOCABULARY);
+        creation.setVocabularyId(vocabularyId);
+        creation.setLabel("label");
+        creation.setDescription("description");
+        return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
+    }
+
     protected void deletePropertyTypes(final String sessionToken, final IPropertyTypeId... propertyTypeIds)
     {
         final PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
@@ -1536,6 +1551,22 @@ public class AbstractTest extends SystemTestCase
         }
         creation.setPropertyAssignments(assignments);
         return v3api.createSampleTypes(sessionToken, Arrays.asList(creation)).get(0);
+    }
+
+    protected VocabularyPermId createVocabulary(final String sessionToken, final String code, final String... terms)
+    {
+        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
+        vocabularyCreation.setCode(code);
+
+        final List<VocabularyTermCreation> termList = Arrays.stream(terms).map(termString ->
+        {
+            final VocabularyTermCreation creation = new VocabularyTermCreation();
+            creation.setCode(termString);
+            return creation;
+        }).collect(Collectors.toList());
+        vocabularyCreation.setTerms(termList);
+
+        return v3api.createVocabularies(sessionToken, List.of(vocabularyCreation)).get(0);
     }
 
     protected void deleteSampleTypes(final String sessionToken, final IEntityTypeId... entityTypeIds)

@@ -951,15 +951,22 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
                 new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId())));
 
-        final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
-        searchCriteria.withOrOperator();
-        searchCriteria.withSampleProperty(searchTest1EntityTypeId.getPermId()).thatEquals(sample1.getPermId());
-
         try
         {
-            final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
-            assertEquals(entities.size(), 1);
-            assertEquals(entities.get(0).getPermId(), entity1);
+            final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
+            searchCriteria1.withOrOperator();
+            searchCriteria1.withSampleProperty(searchTest1EntityTypeId.getPermId()).thatEquals(sample1.getPermId());
+
+            final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
+            assertEquals(entities1.size(), 1);
+            assertEquals(entities1.get(0).getPermId(), entity1);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria2 = createSearchCriteria();
+            searchCriteria2.withOrOperator();
+            searchCriteria2.withSampleProperty("WHATEVER").thatEquals(sample1.getPermId());
+
+            final List<? extends IPermIdHolder> entities2 = search(sessionToken, searchCriteria2);
+            assertEquals(entities2.size(), 0);
         } finally
         {
             final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
@@ -987,6 +994,60 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
         deletionOptions.setReason("Test");
         return v3api.deleteSamples(sessionToken, List.of(entityIds), deletionOptions);
+    }
+
+    @Test
+    public void testSearchWithEnumProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String term1 = "TERM1";
+        final String term2 = "TERM2";
+        final String term3 = "TERM3";
+        final VocabularyPermId vocabulary = createVocabulary(sessionToken, "TERMS", term1, term2, term3);
+
+        final EntityTypePermId propertySampleType = createASampleType(sessionToken, false);
+        final PropertyTypePermId vocabularyPropertyTypeId1 = createAVocabularyPropertyType(sessionToken,
+                vocabulary, "Vocabulary1");
+        final PropertyTypePermId vocabularyPropertyTypeId2 = createAVocabularyPropertyType(sessionToken,
+                vocabulary, "Vocabulary2");
+
+        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, vocabularyPropertyTypeId1,
+                vocabularyPropertyTypeId2);
+
+        final ObjectPermId entity1 = createEntity(sessionToken, "Entity", searchTest1EntityTypeId,
+                new HashMap<>(Map.of(vocabularyPropertyTypeId1.getPermId(), term1,
+                        vocabularyPropertyTypeId2.getPermId(), term2)));
+
+        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, vocabularyPropertyTypeId1,
+                vocabularyPropertyTypeId2);
+        final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
+                new HashMap<>(Map.of(vocabularyPropertyTypeId1.getPermId(), term1)));
+
+        try
+        {
+            final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
+            searchCriteria1.withOrOperator();
+            searchCriteria1.withVocabularyProperty(searchTest1EntityTypeId.getPermId()).thatEquals(term1);
+
+            final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
+            assertEquals(entities1.size(), 1);
+            assertEquals(entities1.get(0).getPermId(), entity1);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria2 = createSearchCriteria();
+            searchCriteria2.withOrOperator();
+            searchCriteria2.withVocabularyProperty("WHATEVER").thatEquals(term1);
+
+            final List<? extends IPermIdHolder> entities2 = search(sessionToken, searchCriteria2);
+            assertEquals(entities2.size(), 0);
+        } finally
+        {
+            final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
+            v3api.confirmDeletions(sessionToken, List.of(entitiesDeletion));
+            deleteEntityTypes(sessionToken, searchTest1EntityTypeId, searchTest2EntityTypeId);
+            deletePropertyTypes(sessionToken, vocabularyPropertyTypeId1, vocabularyPropertyTypeId2);
+            deleteSampleTypes(sessionToken, propertySampleType);
+        }
     }
 
     @Test
