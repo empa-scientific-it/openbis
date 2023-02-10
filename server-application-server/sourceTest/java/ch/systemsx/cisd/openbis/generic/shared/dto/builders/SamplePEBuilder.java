@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
+import ch.systemsx.cisd.openbis.generic.SamplePENoDAO;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -32,14 +33,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  */
 public class SamplePEBuilder
 {
-    private final SamplePE sample = new SamplePE();
+    private final SamplePE sample;
+
+    public SamplePEBuilder(boolean disableDAO)
+    {
+        if (disableDAO) {
+            sample = new SamplePENoDAO();
+        } else {
+            sample = new SamplePE();
+        }
+    }
 
     public SamplePEBuilder()
     {
+        sample = new SamplePE();
     }
 
     public SamplePEBuilder(long id)
     {
+        this();
+        sample.setId(id);
+    }
+
+    public SamplePEBuilder(long id, boolean disableDAO)
+    {
+        this(disableDAO);
         sample.setId(id);
     }
 
