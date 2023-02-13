@@ -338,6 +338,13 @@ def downloadCorePlugin(url, pluginname) {
 
 import org.paleozogt.gradle.zip.SymZip;
 
+//task unTarBlast {
+//
+//}
+
+//unTarBlast.dependsOn copyOpenbisElnLimsCorePlugins
+//zipCorePlugins.dependsOn unTarBlast
+
 task zipCorePlugins(type: SymZip) {
     duplicatesStrategy 'include'
     includeEmptyDirs = false
