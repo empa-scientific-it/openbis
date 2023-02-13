@@ -2,13 +2,12 @@
 
 pushd $(dirname $0) > /dev/null
 
-OPENBIS_STANDARD_TECHNOLOGIES_DIR=../../..
-OPENBIS_DIR=../../../../server-application-server
+NODE_PATH=../node/nodejs/node-*/bin/node
 
 CURRENT_DIR=$(pwd)
 TEMP_DIR=${CURRENT_DIR}/temp
 
-V3_DIR=$OPENBIS_DIR/source/java/ch/systemsx/cisd/openbis/public/resources/api/v3
+V3_DIR=../src/v3
 
 # create an empty temporary folder
 rm -rvf $TEMP_DIR
@@ -25,8 +24,8 @@ cat config.bundle.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js"
 cat config.bundle.min.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/config.bundle.min.js
 
 # create a JS bundle using NodeJS binary installed by NodeJS gradle plugin
-$OPENBIS_STANDARD_TECHNOLOGIES_DIR/node/nodejs/node-*/bin/node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
-$OPENBIS_STANDARD_TECHNOLOGIES_DIR/node/nodejs/node-*/bin/node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=uglify out=$TEMP_DIR/openbis.bundle.min.js
+$NODE_PATH r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
+$NODE_PATH r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=uglify out=$TEMP_DIR/openbis.bundle.min.js
 
 # copy relevant files to the V3 public folder
 cp $TEMP_DIR/config.bundle.js $TEMP_DIR/config.bundle.min.js $TEMP_DIR/openbis.bundle.js $TEMP_DIR/openbis.bundle.min.js $V3_DIR

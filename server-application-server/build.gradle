@@ -145,6 +145,5 @@ cleanDbSuiteProjectSamplesEnabled.dependsOn(testProjectSamplesEnabled)
 test.maxHeapSize = "10240m"
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
-//test.dependsOn(testProjectSamplesEnabled)
 
 apply from: 'gwtdev.gradle'

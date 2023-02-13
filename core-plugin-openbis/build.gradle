@@ -10,9 +10,9 @@ buildscript {
     }
 }
 
-plugins {
-    id "com.github.node-gradle.node" version "3.2.1"
-}
+//plugins {
+//    id "com.github.node-gradle.node" version "3.2.1"
+//}
 apply plugin: org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 apply plugin: "org.paleozogt.symzip"
 
@@ -91,7 +91,6 @@ dependencies {
             'slf4j:slf4j:1.6.2',
             'slf4j:slf4j-log4j12:1.6.2',
             'sybit:image-viewer:0.3.6'
-//    }
 
     javadoc_sources project(path: ':lib-commonbase', configuration: 'archives'),
             project(path: ':lib-common', configuration: 'archives'),
@@ -199,23 +198,14 @@ task untarGwt(type: Copy) {
     into gwtBuildDir
 }
 
-node {
-    download = true
-    version = '18.12.1'
-    workDir = file("${projectDir}/node/nodejs")
-    nodeModulesDir = file("${projectDir}")
-}
 
-task bundleOpenbisStaticResources(type: Exec) {
+task copyOpenbisStaticResources(type: Copy, dependsOn: [':api-openbis-javascript:bundleOpenbisStaticResources']) {
     dependsOn 'untarGwt'
-    dependsOn 'npmInstall'
-    commandLine 'bash', '-c', "${projectDir}/resource/js/v3/build.sh"
-}
-
-task copyOpenbisStaticResources(type: Copy) {
-    dependsOn 'bundleOpenbisStaticResources'
     from "${project(':server-application-server').projectDir}/source/java/ch/systemsx/cisd/openbis/public"
     into gwtModuleBuildDir
+    from("${project(':api-openbis-javascript').projectDir}/src/v3") {
+        into "${gwtModuleBuildDir}/resources/api"
+    }
 }
 
 ext.classpathEntries = files(
@@ -337,13 +327,6 @@ def downloadCorePlugin(url, pluginname) {
 }
 
 import org.paleozogt.gradle.zip.SymZip;
-
-//task unTarBlast {
-//
-//}
-
-//unTarBlast.dependsOn copyOpenbisElnLimsCorePlugins
-//zipCorePlugins.dependsOn unTarBlast
 
 task zipCorePlugins(type: SymZip) {
     duplicatesStrategy 'include'
