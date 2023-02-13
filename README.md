@@ -97,7 +97,7 @@ They need to be set to run using IntelliJ.
 
 # Test seem to run through intelliJ but throw a package not open error:
 
-The project don't uses modules yet. Add add open statements manually when launching the tests as shown below.
+The project does not uses modules yet. Add '--add-opens' statements manually when launching the tests as shown below.
 
 !["IntelliJ Configuration 3"](./docs/readme/intellij-config-3.png "IntelliJ Configuration 3")
 
