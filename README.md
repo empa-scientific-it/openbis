@@ -67,9 +67,9 @@ File -> New -> Project From Existing Sources
 Select the gradle folder to load the gradle model
 After the model is loaded execute the tasks:
 
-openBISDevelopementEnvironmentASPrepare
-openBISDevelopementEnvironmentASStart
-openBISDevelopementEnvironmentDSSStart
+openBISDevelopmentEnvironmentASPrepare
+openBISDevelopmentEnvironmentASStart
+openBISDevelopmentEnvironmentDSSStart
 ```
 
 ## IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
@@ -84,8 +84,8 @@ option for cross-compilation".
     2. ./gradlew :bundleOpenbisStaticResources
 2. Start openBIS in your chosen IDE (NG UI assumes it will run
    at: http://localhost:8888/openbis-test/):
-    1. run openBISDevelopementEnvironmentASPrepare gradle task
-    2. run openBISDevelopementEnvironmentASStart gradle task
+    1. run openBISDevelopmentEnvironmentASPrepare gradle task
+    2. run openBISDevelopmentEnvironmentASStart gradle task
 3. In command line do:
     1. cd /<OPENBIS_PROJECT_ROOT>/ui-admin
     2. npm install

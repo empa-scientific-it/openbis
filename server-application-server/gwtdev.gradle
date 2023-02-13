@@ -96,7 +96,7 @@ task copyV3Api(type: Copy, dependsOn: [compileGWTToTempJDK11, ':api-openbis-java
     into "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS/resources/api/v3"
 }
 
-task openBISDevelopementEnvironmentASPrepare(type: Copy, dependsOn: copyV3Api) {
+task openBISDevelopmentEnvironmentASPrepare(type: Copy, dependsOn: copyV3Api) {
     from "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS"
     into "targets/www/openbis-test"
 }
