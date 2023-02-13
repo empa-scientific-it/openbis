@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.SamplePENoDAO;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -717,9 +718,14 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    /*
+     * These tests have never used the DB, they lack a lot of necessary constraints.
+     *
+     * This abstraction allows them to avoid using the introduced DAO behaving as naively as before introducing it.
+     */
     private SamplePE createSample(String code)
     {
-        SamplePE sample = new SamplePE();
+        SamplePE sample = new SamplePENoDAO();
         sample.setCode(code);
         return sample;
     }

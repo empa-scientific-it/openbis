@@ -5,6 +5,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ISampleRelationshipDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -48,6 +49,10 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
         return cast.get(0);
     }
 
+//    private long getNextId() {
+//        return getNextSequenceId(SequenceNames.SAMPLE_RELATIONSHIPS_SEQUENCE);
+//    }
+
     //
     // DAO Methods
     //
@@ -58,6 +63,15 @@ public class SampleRelationshipDAO extends AbstractGenericEntityDAO<SampleRelati
         for (SampleRelationshipPE sampleRelationship : sampleRelationships)
         {
             sampleRelationship.setRelationship(relationshipType);
+// This alternative implementations attaches the object to the session without flushing it to the database
+//            // Set id so PE object can be attached to session, if the id is null an Exception is thrown.
+//            if (sampleRelationship.getId() == null) {
+//                sampleRelationship.setId(getNextId());
+//            }
+//            // Attach object to session if is not already, attaching an already attach object results in an Exception.
+//            if (getHibernateTemplate().contains(sampleRelationship) == false) {
+//                getHibernateTemplate().update(sampleRelationship);
+//            }
             getHibernateTemplate().persist(sampleRelationship);
         }
     }

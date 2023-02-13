@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.openbis.generic.SamplePENoDAO;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for corresponding {@link SampleGenericBusinessRules} class.
- * 
+ *
  * @author Izabela Adamczyk
  */
 public final class SampleGenericBusinessRulesTest extends AssertJUnit
@@ -45,6 +46,15 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
 
     private static final String SAMPLE_3 = "sample-3";
 
+    /*
+     * These tests have never used the DB, they lack a lot of necessary constraints.
+     *
+     * This abstraction allows them to avoid using the introduced DAO behaving as naively as before introducing it.
+     */
+    private static SamplePE getSamplePE() {
+        return new SamplePENoDAO();
+    }
+
     private static SpacePE createGroup(String code)
     {
         SpacePE g = new SpacePE();
@@ -54,7 +64,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
 
     private static SamplePE createGroupSample(SpacePE g, String code)
     {
-        SamplePE s = new SamplePE();
+        SamplePE s = getSamplePE();
         s.setCode(code);
         s.setSpace(g);
         return s;
@@ -62,7 +72,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
 
     private static SamplePE createSharedSample(String code)
     {
-        SamplePE s = new SamplePE();
+        SamplePE s = getSamplePE();
         s.setCode(code);
         return s;
     }
@@ -155,7 +165,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     }
 
     private void setBidirectionalRelationships(SamplePE child, SamplePE generatorOrNull,
-            SamplePE containerOrNull)
+                                               SamplePE containerOrNull)
     {
         child.setContainer(containerOrNull);
         if (generatorOrNull != null)
