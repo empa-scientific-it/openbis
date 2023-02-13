@@ -79,7 +79,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
         EntityTypePropertyTypePE etpt =
                 typeBuilder.assign(propertyType).getEntityTypePropertyType();
         SamplePEBuilder builder =
-                new SamplePEBuilder(137)
+                new SamplePEBuilder(137, true)
                         .space(new SpacePEBuilder().code("S1").getSpace())
                         .code("P1").permID(PERM_ID).type(typeBuilder.getSampleType())
                         .property(etpt, "hello");

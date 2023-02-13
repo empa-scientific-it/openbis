@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.SamplePENoDAO;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -528,7 +529,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
     private static SamplePE createSamplePE()
     {
-        SamplePE sample = new SamplePE();
+        SamplePE sample = new SamplePENoDAO();
         sample.setId(1L);
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setContainerHierarchyDepth(1);
