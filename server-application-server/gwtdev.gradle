@@ -16,6 +16,7 @@ if (System.getProperty("openbis.development-build") != null) {
                 project(path: ':lib-common', configuration: 'archives'),
                 project(path: ':api-openbis-java'),
                 project(path: ':api-openbis-java', configuration: 'archives'),
+                project(path: ':api-openbis-javascript'),
                 project(path: ':lib-openbis-common'),
                 project(path: ':lib-openbis-common', configuration: 'archives'),
                 project(path: ':server-application-server', configuration: 'archives')
