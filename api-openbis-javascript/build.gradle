@@ -2,9 +2,6 @@ plugins {
     id "com.github.node-gradle.node" version "3.2.1"
 }
 
-evaluationDependsOn(':core-plugin-openbis')
-evaluationDependsOn(':server-application-server')
-
 apply from: '../build/javaproject.gradle'
 
 node {
