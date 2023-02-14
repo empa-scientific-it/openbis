@@ -191,7 +191,7 @@ public class ImportSamplesTest extends AbstractImportTest
                 Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
                 Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC)));
         List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC)));
-        List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(6), (SampleIdentifier)ids.get(7), (SampleIdentifier)ids.get(8));
+        List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(9), (SampleIdentifier)ids.get(10), (SampleIdentifier)ids.get(11));
         // WHEN
         List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
         Set<String> differentCyclicAssignments = new HashSet<>();
@@ -215,7 +215,7 @@ public class ImportSamplesTest extends AbstractImportTest
                 Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
                 Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_CYCLIC_FIX_TYPE)));
         List<IObjectId> ids = TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE_CYCLIC)));
-        List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(6), (SampleIdentifier)ids.get(7), (SampleIdentifier)ids.get(8));
+        List<ISampleId> sampleIds = List.of((SampleIdentifier)ids.get(9), (SampleIdentifier)ids.get(10), (SampleIdentifier)ids.get(11));
         // WHEN
         List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
         Set<String> differentCyclicAssignments = new HashSet<>();
