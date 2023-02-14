@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,20 +79,34 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     private Set<String> existingCodes;
 
+    Map<String, Integer> beforeVersions;
+
     private EntityTypePermId permId;
 
     private AttributeValidator<Attribute> attributeValidator;
 
-    public PropertyAssignmentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
+    public PropertyAssignmentImportHelper(DelayedExecutionDecorator delayedExecutor,
+                                          ImportModes mode,
+                                          ImportOptions options,
+                                          Map<String, Integer> beforeVersions)
     {
         super(mode, options);
         this.delayedExecutor = delayedExecutor;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
+        this.beforeVersions = beforeVersions;
     }
 
     @Override protected ImportTypes getTypeName()
     {
         return ImportTypes.PROPERTY_TYPE;
+    }
+
+    @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
+    {
+        String newVersion = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
+        String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
+
+        return VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)

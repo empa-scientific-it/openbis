@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,9 @@ public class XLSImport
 
     private final String xlsName;
 
-    private final Map<String, Integer> versions;
+    private final Map<String, Integer> beforeVersions;
+
+    private final Map<String, Integer> afterVersions;
 
     private final VocabularyImportHelper vocabularyHelper;
 
@@ -82,21 +85,22 @@ public class XLSImport
         this.api = api;
         this.options = options;
         this.xlsName = xlsName;
-        this.versions = VersionInfoHandler.loadVersions(options, xlsName);
-        this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.versions);
+        this.beforeVersions = Collections.unmodifiableMap(VersionInfoHandler.loadVersions(options, xlsName));
+        this.afterVersions = VersionInfoHandler.loadVersions(options, xlsName);
+        this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.afterVersions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
 
-        this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, versions);
-        this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, versions);
-        this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, versions);
+        this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.spaceHelper = new SpaceImportHelper(this.delayedExecutor, mode, options);
         this.projectHelper = new ProjectImportHelper(this.delayedExecutor, mode, options);
         this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options);
         this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options);
-        this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options);
+        this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options, beforeVersions);
         this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);
         this.semanticAnnotationImportHelper = new SemanticAnnotationImportHelper(this.delayedExecutor, mode, options);
     }
@@ -211,7 +215,7 @@ public class XLSImport
 
         this.delayedExecutor.hasFinished();
 
-        VersionInfoHandler.writeVersions(options, xlsName, versions);
+        VersionInfoHandler.writeVersions(options, xlsName, afterVersions);
         return new ArrayList<>(this.delayedExecutor.getIds());
     }
 
