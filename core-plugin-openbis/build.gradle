@@ -198,14 +198,15 @@ task untarGwt(type: Copy) {
     into gwtBuildDir
 }
 
-
-task copyOpenbisStaticResources(type: Copy, dependsOn: [':api-openbis-javascript:bundleOpenbisStaticResources']) {
+task copyOpenbisStaticResources(type: Copy) {
     dependsOn 'untarGwt'
     from "${project(':server-application-server').projectDir}/source/java/ch/systemsx/cisd/openbis/public"
     into gwtModuleBuildDir
-    from("${project(':api-openbis-javascript').projectDir}/src/v3") {
-        into "${gwtModuleBuildDir}/resources/api"
-    }
+}
+
+task copyV3ApiResources(type: Copy, dependsOn: [copyOpenbisStaticResources, ':api-openbis-javascript:bundleOpenbisStaticResources']) {
+    from("${project(':api-openbis-javascript').projectDir}/src/v3")
+    into "${gwtModuleBuildDir}/resources/api/v3"
 }
 
 ext.classpathEntries = files(
@@ -259,9 +260,9 @@ task checkFilesExist {
     }
 }
 
-
 war.dependsOn untarGwt
 war.dependsOn copyOpenbisStaticResources
+war.dependsOn copyV3ApiResources
 war.dependsOn checkFilesExist
 war.dependsOn copyJarsForWebStart
 war {
