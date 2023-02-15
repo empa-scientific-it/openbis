@@ -196,3 +196,17 @@ def test_get_samples_update_in_transaction(openbis_instance):
     assert sample1.parents == [sample3.identifier]
     assert sample2.parents == []
     assert sample3.children == [sample1.identifier]
+
+
+def test_failed_second_login_raises_exception(openbis_instance):
+    '''
+        Logins to openBIS using wrong username/password, PyBIS should raise exception
+    '''
+    assert openbis_instance.is_session_active() is True
+
+    try:
+        openbis_instance.login('non_existing_username_for_test', 'abcdef')
+        # Login should fail at this point
+        assert False
+    except ValueError as e:
+        assert str(e) == "login to openBIS failed"

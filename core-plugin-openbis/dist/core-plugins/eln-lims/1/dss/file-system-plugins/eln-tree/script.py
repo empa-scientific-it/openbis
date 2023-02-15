@@ -17,6 +17,14 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearc
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
 from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
+class NodeWithEntityType(Node):
+    def __init__(self, type, permId, entityType):
+        super(NodeWithEntityType, self).__init__(type, permId)
+        self.entityType = entityType
+
+    def getEntityType(self):
+        return self.entityType
+
 class Acceptor(object):
     def __init__(self, settings):
         self.sections = ["Lab Notebook", "Inventory", "Stock"]
@@ -30,7 +38,6 @@ class Acceptor(object):
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
-        self.dataSetSearchCriteriaExtender = []
 
     def assertValidSection(self, section):
         if section not in self.sections:
@@ -217,7 +224,8 @@ def listExperimentContent(subPath, acceptor, context):
     node = getNode(subPath, acceptor, context)
     response = context.createDirectoryResponse()
     experimentPermId = node.getPermId()
-    addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
+    experimentType = node.getEntityType()
+    addExperimentChildNodes(path, experimentPermId, experimentType, response, acceptor, context)
     return response
 
 def listChildren(subPath, acceptor, context):
@@ -235,7 +243,7 @@ def listChildren(subPath, acceptor, context):
             return context.createFileResponse(contentNode, content)
     elif nodeType == "SAMPLE":
         response = context.createDirectoryResponse()
-        addSampleChildNodes(path, permId, response, acceptor, context)
+        addSampleChildNodes(path, permId, node.getEntityType(), response, acceptor, context)
         return response
 
 def getNode(subPath, acceptor, context):
@@ -249,10 +257,12 @@ def getNode(subPath, acceptor, context):
             parentNode = getNode(parentPath, acceptor, context)
             parentPathString = "/".join(parentPath)
             nodeType = parentNode.getType()
+            entityType = parentNode.getEntityType()
+            permId = parentNode.getPermId()
             if nodeType == "EXPERIMENT":
-                addExperimentChildNodes(parentPathString, parentNode.getPermId(), None, acceptor, context)
+                addExperimentChildNodes(parentPathString, permId, entityType, None, acceptor, context)
             elif nodeType == "SAMPLE":
-                addSampleChildNodes(parentPathString, parentNode.getPermId(), None, acceptor, context)
+                addSampleChildNodes(parentPathString, permId, entityType, None, acceptor, context)
             elif nodeType == "DATASET":
                 dataSetCode, contentNode, _ = getContentNode(parentNode.getPermId(), context)
                 addDataSetFileNodes(parentPathString, dataSetCode, contentNode, None, acceptor, context)
@@ -277,7 +287,7 @@ def addExperimentNodes(section, space, project, response, acceptor, context):
             gatherEntity(entitiesByName, experiment)
     addNodes("EXPERIMENT", entitiesByName, "%s/%s/%s" % (section, space, project), response, context)
 
-def addExperimentChildNodes(path, experimentPermId, response, acceptor, context):
+def addExperimentChildNodes(path, experimentPermId, experimentType, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
     listDataSets(path, dataSetSearchCriteria, False, response, acceptor, context)
@@ -296,10 +306,9 @@ def addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
             gatherEntity(entitiesByName, sample)
     addNodes("SAMPLE", entitiesByName, path, response, context)
 
-def addSampleChildNodes(path, samplePermId, response, acceptor, context):
+def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
-    acceptor.extendDataSetSearchCriteria(dataSetSearchCriteria, samplePermId)
 
     listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
 
@@ -326,7 +335,7 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
         nodeName = childNode.getName()
         filePath = "%s/%s" % (path, nodeName)
         filePermId = "%s::%s" % (dataSetCode, childNode.getRelativePath())
-        context.getCache().putNode(Node("DATASET", filePermId), filePath)
+        context.getCache().putNode(NodeWithEntityType("DATASET", filePermId, None), filePath)
         if response is not None:
             if childNode.isDirectory():
                 response.addDirectory(nodeName, childNode.getLastModified())
@@ -346,8 +355,6 @@ def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, accept
     fetchOptions.withProperties()
     fetchOptions.withSample()
     dataSets = context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
-    print(">>>> data set search criteria: %s" % dataSetSearchCriteria)
-    print(">>>> data sets: %s" % dataSets)
     entitiesByName = {}
     for dataSet in dataSets:
         sample = dataSet.getSample()
@@ -376,7 +383,9 @@ def addNodes(nodeType, entitiesByName, parentPath, response, context):
         for entity in entities:
             nodeName = name if len(entities) == 1 else "%s [%s]" % (name, entity.getCode())
             path = "%s/%s" % (parentPath, nodeName)
-            context.getCache().putNode(Node(nodeType, entity.getPermId().getPermId()), path)
+            entityTypeCode = entity.getType().getCode()
+            entityPermId = entity.getPermId().getPermId()
+            context.getCache().putNode(NodeWithEntityType(nodeType, entityPermId, entityTypeCode), path)
             if response is not None:
                 response.addDirectory(nodeName, entity.getModificationDate())
 

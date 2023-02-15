@@ -1310,16 +1310,19 @@ class Openbis:
 
         if password is None:
             import getpass
-
             password = getpass.getpass()
+
+        def is_different_login():
+            return username != self._get_username()
 
         login_request = {
             "method": "login",
             "params": [username, password],
         }
-        self.token = self._post_request(self.as_v3, login_request)
-        if self.token is None:
+        token = self._post_request(self.as_v3, login_request)
+        if token is None or (is_different_login() and token == self.token):
             raise ValueError("login to openBIS failed")
+        self.token = token
         if save_token:
             self._save_token_to_disk()
             self._password(password)
