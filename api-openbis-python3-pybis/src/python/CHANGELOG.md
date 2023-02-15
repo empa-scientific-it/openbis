@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.2
+
+- Added rising an error when re-login fails
+
 ## Changes with pybis-1.35.1
 
 - fix overriding parents/children when performing update using results from get_samples call
