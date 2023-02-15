@@ -89,8 +89,8 @@ public class ControlledVocabularyPropertySearchConditionTranslator
     static void doTranslate(final AbstractFieldSearchCriteria<String> criterion, final TableMapper tableMapper,
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases)
     {
-        final String value = criterion.getFieldValue();
         final String name = criterion.getFieldName();
+        final String value = criterion.getFieldValue();
         final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
 
         TranslatorUtils.appendPropertiesExist(sqlBuilder, valuesTableAlias);

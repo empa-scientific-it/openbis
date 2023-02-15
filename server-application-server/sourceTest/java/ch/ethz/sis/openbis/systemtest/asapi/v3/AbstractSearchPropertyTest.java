@@ -42,15 +42,25 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.BooleanFieldSearch
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabularyPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
@@ -928,54 +938,68 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final String samplePropertyCode1 = "Sample1";
-        final String samplePropertyCode2 = "Sample2";
+        final String samplePropertyCode1 = "SAMPLE1";
+        final String samplePropertyCode2 = "SAMPLE2";
+        final String samplePropertyCode3 = "SAMPLE3";
 
-        final EntityTypePermId propertySampleType = createASampleType(sessionToken, false);
-        final PropertyTypePermId samplePropertyTypeId1 = createASamplePropertyType(sessionToken, propertySampleType,
+        final EntityTypePermId propertySampleType1 = createASampleType(sessionToken, false);
+        final PropertyTypePermId samplePropertyType1 = createASamplePropertyType(sessionToken, propertySampleType1,
                 samplePropertyCode1);
-        final PropertyTypePermId samplePropertyTypeId2 = createASamplePropertyType(sessionToken, propertySampleType,
+        final PropertyTypePermId samplePropertyType2 = createASamplePropertyType(sessionToken, propertySampleType1,
                 samplePropertyCode2);
 
-        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, null, samplePropertyTypeId1,
-                samplePropertyTypeId2);
+        final EntityTypePermId propertySampleType2 = createASampleType(sessionToken, false);
+        final PropertyTypePermId samplePropertyType3= createASamplePropertyType(sessionToken, propertySampleType2,
+                samplePropertyCode3);
 
-        final SamplePermId sample1 = createSample(sessionToken, samplePropertyCode1, propertySampleType, Map.of());
-        final SamplePermId sample2 = createSample(sessionToken, samplePropertyCode2, propertySampleType, Map.of());
+        final EntityTypePermId searchTest1EntityType = createEntityType(sessionToken, null, samplePropertyType1,
+                samplePropertyType2);
+        final SamplePermId sample1 = createSample(sessionToken, samplePropertyCode1, propertySampleType1, Map.of());
+        final SamplePermId sample2 = createSample(sessionToken, samplePropertyCode2, propertySampleType1, Map.of());
 
-        final ObjectPermId entity1 = createEntity(sessionToken, "Entity", searchTest1EntityTypeId,
-                new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId(),
-                        samplePropertyTypeId2.getPermId(), sample2.getPermId())));
+        final ObjectPermId entity1 = createEntity(sessionToken, "Entity1", searchTest1EntityType,
+                new HashMap<>(Map.of(samplePropertyCode1, sample1.getPermId(),
+                        samplePropertyCode2, sample2.getPermId())));
 
-        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, null, samplePropertyTypeId1,
-                samplePropertyTypeId2);
-        final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
-                new HashMap<>(Map.of(samplePropertyTypeId1.getPermId(), sample1.getPermId())));
+        final EntityTypePermId searchTest2EntityType = createEntityType(sessionToken, null, samplePropertyType3);
+        final SamplePermId sample3 = createSample(sessionToken, samplePropertyCode3, propertySampleType2, Map.of());
+
+        final ObjectPermId entity2 = createEntity(sessionToken, "Entity2", searchTest2EntityType,
+                new HashMap<>(Map.of(samplePropertyCode3, sample3.getPermId())));
 
         try
         {
             final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
-            searchCriteria1.withOrOperator();
-            searchCriteria1.withSampleProperty(searchTest1EntityTypeId.getPermId()).thatEquals(sample1.getPermId());
-
+            searchCriteria1.withSampleProperty(samplePropertyType1.getPermId()).thatEquals(sample1.getPermId());
             final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
             assertEquals(entities1.size(), 1);
             assertEquals(entities1.get(0).getPermId(), entity1);
 
             final AbstractEntitySearchCriteria<?> searchCriteria2 = createSearchCriteria();
-            searchCriteria2.withOrOperator();
-            searchCriteria2.withSampleProperty("WHATEVER").thatEquals(sample1.getPermId());
-
+            searchCriteria2.withSampleProperty(samplePropertyType2.getPermId()).thatEquals(sample1.getPermId());
             final List<? extends IPermIdHolder> entities2 = search(sessionToken, searchCriteria2);
             assertEquals(entities2.size(), 0);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria3 = createSearchCriteria();
+            searchCriteria3.withSampleProperty(samplePropertyType3.getPermId());
+            final List<? extends IPermIdHolder> entities3 = search(sessionToken, searchCriteria3);
+            assertEquals(entities3.size(), 1);
+            assertEquals(entities3.get(0).getPermId(), entity2);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria4 = createSearchCriteria();
+            searchCriteria4.withSampleProperty("WHATEVER").thatEquals(sample3.getPermId());
+            final List<? extends IPermIdHolder> entities4 = search(sessionToken, searchCriteria4);
+            assertEquals(entities4.size(), 0);
         } finally
         {
             final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
-            final IDeletionId samplesDeletion = deleteSamples(sessionToken, sample1, sample2);
+            final IDeletionId samplesDeletion = deleteSamples(sessionToken, sample1, sample2, sample3);
             v3api.confirmDeletions(sessionToken, List.of(entitiesDeletion, samplesDeletion));
-            deleteEntityTypes(sessionToken, searchTest1EntityTypeId, searchTest2EntityTypeId);
-            deletePropertyTypes(sessionToken, samplePropertyTypeId1, samplePropertyTypeId2);
-            deleteSampleTypes(sessionToken, propertySampleType);
+            deleteEntities(sessionToken, entity1, entity2);
+
+            deleteEntityTypes(sessionToken, searchTest1EntityType, searchTest2EntityType);
+            deletePropertyTypes(sessionToken, samplePropertyType1, samplePropertyType2);
+            deleteSampleTypes(sessionToken, propertySampleType1);
         }
     }
 
@@ -1021,13 +1045,13 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, "ET1",
                 vocabularyPropertyTypeId1, vocabularyPropertyTypeId2);
 
-        final ObjectPermId entity1 = createEntity(sessionToken, "Entity", searchTest1EntityTypeId,
+        final ObjectPermId entity1 = createEntity(sessionToken, "Entity1", searchTest1EntityTypeId,
                 new HashMap<>(Map.of(vocabularyPropertyTypeId1.getPermId(), term1,
                         vocabularyPropertyTypeId2.getPermId(), term2)));
 
         final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, "ET2",
                 vocabularyPropertyTypeId3);
-        final ObjectPermId entity2 = createEntity(sessionToken, "Sample4", searchTest2EntityTypeId,
+        final ObjectPermId entity2 = createEntity(sessionToken, "Entity2", searchTest2EntityTypeId,
                 new HashMap<>(Map.of(vocabularyPropertyTypeId3.getPermId(), term1)));
 
         try

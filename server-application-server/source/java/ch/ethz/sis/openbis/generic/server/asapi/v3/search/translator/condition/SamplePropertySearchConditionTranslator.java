@@ -35,6 +35,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_IDE
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_PROP_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLES_VIEW;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SamplePropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinType;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 
 public class SamplePropertySearchConditionTranslator implements IConditionTranslator<SamplePropertySearchCriteria>
@@ -54,7 +57,41 @@ public class SamplePropertySearchConditionTranslator implements IConditionTransl
     {
         if (criterion.getFieldType() == SearchFieldType.PROPERTY)
         {
-            return TranslatorUtils.getPropertyJoinInformationMap(tableMapper, aliasFactory);
+            final Map<String, JoinInformation> joinInformationMap = new LinkedHashMap<>();
+            final String valuesTableAlias = aliasFactory.createAlias();
+
+            final JoinInformation joinInformation1 = new JoinInformation();
+            joinInformation1.setJoinType(JoinType.LEFT);
+            joinInformation1.setMainTable(tableMapper.getEntitiesTable());
+            joinInformation1.setMainTableAlias(SearchCriteriaTranslator.MAIN_TABLE_ALIAS);
+            joinInformation1.setMainTableIdField(ID_COLUMN);
+            joinInformation1.setSubTable(tableMapper.getValuesTable());
+            joinInformation1.setSubTableAlias(valuesTableAlias);
+            joinInformation1.setSubTableIdField(tableMapper.getValuesTableEntityIdField());
+            joinInformationMap.put(tableMapper.getValuesTable(), joinInformation1);
+
+            final String entityTypeAttributeTypeTableAlias = aliasFactory.createAlias();
+            final JoinInformation joinInformation2 = new JoinInformation();
+            joinInformation2.setJoinType(JoinType.LEFT);
+            joinInformation2.setMainTable(tableMapper.getValuesTable());
+            joinInformation2.setMainTableAlias(valuesTableAlias);
+            joinInformation2.setMainTableIdField(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
+            joinInformation2.setSubTable(tableMapper.getEntityTypesAttributeTypesTable());
+            joinInformation2.setSubTableAlias(entityTypeAttributeTypeTableAlias);
+            joinInformation2.setSubTableIdField(ID_COLUMN);
+            joinInformationMap.put(tableMapper.getEntityTypesAttributeTypesTable(), joinInformation2);
+
+            final JoinInformation joinInformation3 = new JoinInformation();
+            joinInformation3.setJoinType(JoinType.LEFT);
+            joinInformation3.setMainTable(tableMapper.getEntityTypesAttributeTypesTable());
+            joinInformation3.setMainTableAlias(entityTypeAttributeTypeTableAlias);
+            joinInformation3.setMainTableIdField(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
+            joinInformation3.setSubTable(tableMapper.getAttributeTypesTable());
+            joinInformation3.setSubTableAlias(aliasFactory.createAlias());
+            joinInformation3.setSubTableIdField(ID_COLUMN);
+            joinInformationMap.put(tableMapper.getAttributeTypesTable(), joinInformation3);
+
+            return joinInformationMap;
         } else
         {
             throw new IllegalArgumentException();
@@ -86,6 +123,7 @@ public class SamplePropertySearchConditionTranslator implements IConditionTransl
     static void doTranslate(final AbstractFieldSearchCriteria<String> criterion, final TableMapper tableMapper,
             final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases)
     {
+        final String name = criterion.getFieldName();
         final String value = criterion.getFieldValue();
         final String valuesTableAlias = aliases.get(tableMapper.getValuesTable()).getSubTableAlias();
 
@@ -95,6 +133,10 @@ public class SamplePropertySearchConditionTranslator implements IConditionTransl
         if (tableMapper == TableMapper.SAMPLE || tableMapper == TableMapper.EXPERIMENT
                 || tableMapper == TableMapper.DATA_SET)
         {
+            sqlBuilder.append(aliases.get(tableMapper.getAttributeTypesTable()).getSubTableAlias()).append(PERIOD)
+                    .append(CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
+            args.add(name);
+            sqlBuilder.append(SP).append(AND).append(SP);
             appendSampleSubselectConstraint(args, sqlBuilder, value, valuesTableAlias);
         } else
         {
@@ -104,23 +146,24 @@ public class SamplePropertySearchConditionTranslator implements IConditionTransl
         sqlBuilder.append(RP);
     }
 
-    private static void appendSampleSubselectConstraint(final List<Object> args, final StringBuilder sqlBuilder,
+    public static void appendSampleSubselectConstraint(final List<Object> args, final StringBuilder sqlBuilder,
             final String value, final String propertyTableAlias)
     {
         sqlBuilder.append(propertyTableAlias).append(PERIOD)
                 .append(SAMPLE_PROP_COLUMN).append(SP).append(IN).append(SP);
         sqlBuilder.append(LP);
         sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP)
-                .append(FROM).append(SP).append(SAMPLES_VIEW).append(SP)
-                .append(WHERE).append(SP);
+                .append(FROM).append(SP).append(SAMPLES_VIEW).append(SP);
 
-        translateStringComparison(CODE_COLUMN, value, sqlBuilder, args);
-
-        sqlBuilder.append(SP).append(OR).append(SP);
-        translateStringComparison(PERM_ID_COLUMN, value, sqlBuilder, args);
-
-        sqlBuilder.append(SP).append(OR).append(SP);
-        translateStringComparison(SAMPLE_IDENTIFIER_COLUMN, value, sqlBuilder, args);
+        if (value != null)
+        {
+            sqlBuilder.append(WHERE).append(SP);
+            translateStringComparison(CODE_COLUMN, value, sqlBuilder, args);
+            sqlBuilder.append(SP).append(OR).append(SP);
+            translateStringComparison(PERM_ID_COLUMN, value, sqlBuilder, args);
+            sqlBuilder.append(SP).append(OR).append(SP);
+            translateStringComparison(SAMPLE_IDENTIFIER_COLUMN, value, sqlBuilder, args);
+        }
 
         sqlBuilder.append(RP);
     }
