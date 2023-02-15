@@ -36,6 +36,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.VOCABULARY
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TABLE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabularyPropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinType;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 
 public class ControlledVocabularyPropertySearchConditionTranslator
@@ -57,7 +60,41 @@ public class ControlledVocabularyPropertySearchConditionTranslator
     {
         if (criterion.getFieldType() == SearchFieldType.PROPERTY)
         {
-            return TranslatorUtils.getPropertyJoinInformationMap(tableMapper, aliasFactory);
+            final Map<String, JoinInformation> joinInformationMap = new LinkedHashMap<>();
+            final String valuesTableAlias = aliasFactory.createAlias();
+
+            final JoinInformation joinInformation1 = new JoinInformation();
+            joinInformation1.setJoinType(JoinType.LEFT);
+            joinInformation1.setMainTable(tableMapper.getEntitiesTable());
+            joinInformation1.setMainTableAlias(SearchCriteriaTranslator.MAIN_TABLE_ALIAS);
+            joinInformation1.setMainTableIdField(ID_COLUMN);
+            joinInformation1.setSubTable(tableMapper.getValuesTable());
+            joinInformation1.setSubTableAlias(valuesTableAlias);
+            joinInformation1.setSubTableIdField(tableMapper.getValuesTableEntityIdField());
+            joinInformationMap.put(tableMapper.getValuesTable(), joinInformation1);
+
+            final String entityTypeAttributeTypeTableAlias = aliasFactory.createAlias();
+            final JoinInformation joinInformation2 = new JoinInformation();
+            joinInformation2.setJoinType(JoinType.LEFT);
+            joinInformation2.setMainTable(tableMapper.getValuesTable());
+            joinInformation2.setMainTableAlias(valuesTableAlias);
+            joinInformation2.setMainTableIdField(tableMapper.getValuesTableEntityTypeAttributeTypeIdField());
+            joinInformation2.setSubTable(tableMapper.getEntityTypesAttributeTypesTable());
+            joinInformation2.setSubTableAlias(entityTypeAttributeTypeTableAlias);
+            joinInformation2.setSubTableIdField(ID_COLUMN);
+            joinInformationMap.put(tableMapper.getEntityTypesAttributeTypesTable(), joinInformation2);
+
+            final JoinInformation joinInformation3 = new JoinInformation();
+            joinInformation3.setJoinType(JoinType.LEFT);
+            joinInformation3.setMainTable(tableMapper.getEntityTypesAttributeTypesTable());
+            joinInformation3.setMainTableAlias(entityTypeAttributeTypeTableAlias);
+            joinInformation3.setMainTableIdField(tableMapper.getEntityTypesAttributeTypesTableAttributeTypeIdField());
+            joinInformation3.setSubTable(tableMapper.getAttributeTypesTable());
+            joinInformation3.setSubTableAlias(aliasFactory.createAlias());
+            joinInformation3.setSubTableIdField(ID_COLUMN);
+            joinInformationMap.put(tableMapper.getAttributeTypesTable(), joinInformation3);
+
+            return joinInformationMap;
         } else
         {
             throw new IllegalArgumentException();
@@ -96,13 +133,18 @@ public class ControlledVocabularyPropertySearchConditionTranslator
         TranslatorUtils.appendPropertiesExist(sqlBuilder, valuesTableAlias);
         sqlBuilder.append(SP).append(AND).append(SP).append(LP);
 
-        appendControlledVocabularySubselectConstraint(args, sqlBuilder, name, value, valuesTableAlias);
+        sqlBuilder.append(aliases.get(tableMapper.getAttributeTypesTable()).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
+        args.add(name);
+        sqlBuilder.append(SP).append(AND).append(SP);
+
+        appendControlledVocabularySubselectConstraint(args, sqlBuilder, value, valuesTableAlias);
 
         sqlBuilder.append(RP);
     }
 
     private static void appendControlledVocabularySubselectConstraint(final List<Object> args,
-            final StringBuilder sqlBuilder, final String name, final String value, final String propertyTableAlias)
+            final StringBuilder sqlBuilder, final String value, final String propertyTableAlias)
     {
         final String controlledVocabularyTableAlias = "cv";
         final String controlledVocabularyTermTableAlias = "cvt";
@@ -119,14 +161,14 @@ public class ControlledVocabularyPropertySearchConditionTranslator
                 .append(controlledVocabularyTableAlias).append(SP).append(ON).append(SP)
                 .append(controlledVocabularyTermTableAlias).append(PERIOD).append(CONTROLLED_VOCABULARY_COLUMN)
                 .append(SP).append(EQ).append(SP).append(controlledVocabularyTableAlias).append(PERIOD)
-                .append(ID_COLUMN).append(SP)
-                .append(WHERE)
-                .append(SP).append(controlledVocabularyTableAlias).append(PERIOD).append(CODE_COLUMN)
-                .append(SP).append(EQ).append(SP).append(QU).append(SP).append(AND).append(SP)
-                .append(controlledVocabularyTermTableAlias).append(PERIOD).append(CODE_COLUMN)
-                .append(SP).append(EQ).append(SP).append(QU);
-        args.add(name);
-        args.add(value);
+                .append(ID_COLUMN);
+
+        if (value != null)
+        {
+            sqlBuilder.append(SP).append(WHERE).append(SP).append(controlledVocabularyTermTableAlias).append(PERIOD)
+                    .append(CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
+            args.add(value);
+        }
 
         sqlBuilder.append(RP);
     }

@@ -1476,8 +1476,14 @@ public class AbstractTest extends SystemTestCase
     protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
             final VocabularyPermId vocabularyPermId)
     {
+        return createAPropertyType(sessionToken, dataType, vocabularyPermId, "TYPE-" + System.currentTimeMillis());
+    }
+
+    protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
+            final VocabularyPermId vocabularyPermId, final String code)
+    {
         final PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         creation.setDataType(dataType);
         creation.setLabel("label");
         creation.setDescription("description");

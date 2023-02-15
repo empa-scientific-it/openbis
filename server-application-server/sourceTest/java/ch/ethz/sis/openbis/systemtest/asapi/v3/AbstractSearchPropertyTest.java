@@ -76,6 +76,7 @@ import ch.ethz.sis.openbis.systemtest.asapi.v3.util.Operator;
  */
 public abstract class AbstractSearchPropertyTest extends AbstractTest
 {
+
     @DataProvider
     protected Object[][] withPropertyExamples()
     {
@@ -835,21 +836,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         // Given
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final VocabularyTermCreation vocabularyTermCreation1 = new VocabularyTermCreation();
-        vocabularyTermCreation1.setCode("WINTER");
-        final VocabularyTermCreation vocabularyTermCreation2 = new VocabularyTermCreation();
-        vocabularyTermCreation2.setCode("SPRING");
-        final VocabularyTermCreation vocabularyTermCreation3 = new VocabularyTermCreation();
-        vocabularyTermCreation3.setCode("SUMMER");
-        final VocabularyTermCreation vocabularyTermCreation4 = new VocabularyTermCreation();
-        vocabularyTermCreation4.setCode("AUTUMN");
-
-        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
-        vocabularyCreation.setCode("SEASONS");
-        vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
-                vocabularyTermCreation3, vocabularyTermCreation4));
-        final VocabularyPermId vocabularyPermId =
-                v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
+        final VocabularyPermId vocabularyPermId = createControlledVocabulary(sessionToken, "SEASONS");
 
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
                 vocabularyPermId);
@@ -878,33 +865,20 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     }
 
     @Test(dataProvider = "withControlledVocabularyPropertyExamples")
-    public void testWithControlledVocabularyProperty(final String value, final String queryString, final boolean found)
+    public void testWithControlledVocabularyPropertyThatEquals(final String value, final String queryString,
+            final boolean found)
     {
         // Given
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        final VocabularyTermCreation vocabularyTermCreation1 = new VocabularyTermCreation();
-        vocabularyTermCreation1.setCode("WINTER");
-        final VocabularyTermCreation vocabularyTermCreation2 = new VocabularyTermCreation();
-        vocabularyTermCreation2.setCode("SPRING");
-        final VocabularyTermCreation vocabularyTermCreation3 = new VocabularyTermCreation();
-        vocabularyTermCreation3.setCode("SUMMER");
-        final VocabularyTermCreation vocabularyTermCreation4 = new VocabularyTermCreation();
-        vocabularyTermCreation4.setCode("AUTUMN");
-
-        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
         final String vocabularyCode = "SEASONS";
-        vocabularyCreation.setCode(vocabularyCode);
-        vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
-                vocabularyTermCreation3, vocabularyTermCreation4));
-        final VocabularyPermId vocabularyPermId =
-                v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
+        final String propertyTypeCode = "SEASONS_VOCABULARY";
+        final VocabularyPermId vocabularyPermId = createControlledVocabulary(sessionToken, vocabularyCode);
 
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
-                vocabularyPermId);
+                vocabularyPermId, propertyTypeCode);
         final ObjectPermId entityPermId = createEntity(sessionToken, propertyTypeId, value);
         final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
-        new VocabularyQueryInjector(searchCriteria, vocabularyCode).buildCriteria(queryString);
+        new VocabularyQueryInjector(searchCriteria, propertyTypeCode).buildCriteria(queryString);
 
         // When
         final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
@@ -915,6 +889,24 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         {
             assertEquals(entities.get(0).getPermId().toString(), entityPermId.getPermId());
         }
+    }
+
+    private VocabularyPermId createControlledVocabulary(final String sessionToken, final String vocabularyCode)
+    {
+        final VocabularyTermCreation vocabularyTermCreation1 = new VocabularyTermCreation();
+        vocabularyTermCreation1.setCode("WINTER");
+        final VocabularyTermCreation vocabularyTermCreation2 = new VocabularyTermCreation();
+        vocabularyTermCreation2.setCode("SPRING");
+        final VocabularyTermCreation vocabularyTermCreation3 = new VocabularyTermCreation();
+        vocabularyTermCreation3.setCode("SUMMER");
+        final VocabularyTermCreation vocabularyTermCreation4 = new VocabularyTermCreation();
+        vocabularyTermCreation4.setCode("AUTUMN");
+
+        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
+        vocabularyCreation.setCode(vocabularyCode);
+        vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
+                vocabularyTermCreation3, vocabularyTermCreation4));
+        return v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
     }
 
     @Test
@@ -1029,53 +1021,60 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final String term1 = "TERM1";
         final String term2 = "TERM2";
         final String term3 = "TERM3";
-        final String vocabularyCode1 = "TERMS1";
-        final String vocabularyCode2 = "TERMS2";
-        final VocabularyPermId vocabulary1 = createVocabulary(sessionToken, vocabularyCode1, term1, term2, term3);
-        final VocabularyPermId vocabulary2 = createVocabulary(sessionToken, vocabularyCode2, term1, term2, term3);
+        final VocabularyPermId vocabulary1 = createVocabulary(sessionToken, "TERMS1", term1, term2, term3);
+        final VocabularyPermId vocabulary2 = createVocabulary(sessionToken, "TERMS2", term1, term2, term3);
 
         final EntityTypePermId propertySampleType = createASampleType(sessionToken, false);
-        final PropertyTypePermId vocabularyPropertyTypeId1 = createAVocabularyPropertyType(sessionToken,
-                vocabulary1, "Vocabulary1");
-        final PropertyTypePermId vocabularyPropertyTypeId2 = createAVocabularyPropertyType(sessionToken,
-                vocabulary1, "Vocabulary2");
-        final PropertyTypePermId vocabularyPropertyTypeId3 = createAVocabularyPropertyType(sessionToken,
-                vocabulary2, "Vocabulary3");
+        final PropertyTypePermId vocabularyPropertyType1 = createAVocabularyPropertyType(sessionToken,
+                vocabulary1, "VOCABULARY1");
+        final PropertyTypePermId vocabularyPropertyType2 = createAVocabularyPropertyType(sessionToken,
+                vocabulary1, "VOCABULARY2");
+        final PropertyTypePermId vocabularyPropertyType3 = createAVocabularyPropertyType(sessionToken,
+                vocabulary2, "VOCABULARY3");
 
         final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, "ET1",
-                vocabularyPropertyTypeId1, vocabularyPropertyTypeId2);
+                vocabularyPropertyType1, vocabularyPropertyType2);
 
         final ObjectPermId entity1 = createEntity(sessionToken, "Entity1", searchTest1EntityTypeId,
-                new HashMap<>(Map.of(vocabularyPropertyTypeId1.getPermId(), term1,
-                        vocabularyPropertyTypeId2.getPermId(), term2)));
+                new HashMap<>(Map.of(vocabularyPropertyType1.getPermId(), term1,
+                        vocabularyPropertyType2.getPermId(), term2)));
 
         final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, "ET2",
-                vocabularyPropertyTypeId3);
+                vocabularyPropertyType3);
         final ObjectPermId entity2 = createEntity(sessionToken, "Entity2", searchTest2EntityTypeId,
-                new HashMap<>(Map.of(vocabularyPropertyTypeId3.getPermId(), term1)));
+                new HashMap<>(Map.of(vocabularyPropertyType3.getPermId(), term1)));
 
         try
         {
             final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
-            searchCriteria1.withOrOperator();
-            searchCriteria1.withVocabularyProperty(vocabularyCode1).thatEquals(term1);
+            searchCriteria1.withVocabularyProperty(vocabularyPropertyType1.getPermId()).thatEquals(term1);
 
             final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
             assertEquals(entities1.size(), 1);
             assertEquals(entities1.get(0).getPermId(), entity1);
 
             final AbstractEntitySearchCriteria<?> searchCriteria2 = createSearchCriteria();
-            searchCriteria2.withOrOperator();
-            searchCriteria2.withVocabularyProperty("WHATEVER").thatEquals(term1);
-
+            searchCriteria2.withVocabularyProperty(vocabularyPropertyType3.getPermId()).thatEquals(term2);
             final List<? extends IPermIdHolder> entities2 = search(sessionToken, searchCriteria2);
             assertEquals(entities2.size(), 0);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria3 = createSearchCriteria();
+            searchCriteria3.withVocabularyProperty(vocabularyPropertyType3.getPermId());
+            final List<? extends IPermIdHolder> entities3 = search(sessionToken, searchCriteria3);
+            assertEquals(entities3.size(), 1);
+            assertEquals(entities3.get(0).getPermId(), entity2);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria4 = createSearchCriteria();
+            searchCriteria4.withVocabularyProperty("WHATEVER").thatEquals(term1);
+
+            final List<? extends IPermIdHolder> entities4 = search(sessionToken, searchCriteria4);
+            assertEquals(entities4.size(), 0);
         } finally
         {
             final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
             v3api.confirmDeletions(sessionToken, List.of(entitiesDeletion));
             deleteEntityTypes(sessionToken, searchTest1EntityTypeId, searchTest2EntityTypeId);
-            deletePropertyTypes(sessionToken, vocabularyPropertyTypeId1, vocabularyPropertyTypeId2);
+            deletePropertyTypes(sessionToken, vocabularyPropertyType1, vocabularyPropertyType2);
             deleteSampleTypes(sessionToken, propertySampleType);
         }
     }
