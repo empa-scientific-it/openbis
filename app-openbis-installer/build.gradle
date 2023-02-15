@@ -1,6 +1,7 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':api-openbis-java')
+evaluationDependsOn(':api-openbis-javascript')
 evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')
@@ -53,7 +54,7 @@ println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
-task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', 'core-plugin-openbis:zipBdlServer']) {
+task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', ':core-plugin-openbis:zipBdlServer']) {
     duplicatesStrategy 'include'
     from "${project.projectDir}/resource/installer"
     from "${project.projectDir}/../core-plugin-openbis/dist/tarball/installer"
@@ -61,7 +62,7 @@ task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zi
     into installerDistDir
     from zipTree(project(':core-plugin-openbis').zipBdlServer.archivePath)
     into installerDistDir
-    from("${installerDistDir}/../BUILD-installation.INFO") {
+    from("${installerDistDir}/../BUILD-app-openbis-installer.INFO") {
         into 'bin'
     }
     from("${buildDir}/classes/java/main/InstallerVariableAccess.class") {

@@ -1,0 +1,20 @@
+plugins {
+    id "com.github.node-gradle.node" version "3.2.1"
+}
+
+apply from: '../build/javaproject.gradle'
+
+node {
+    download = true
+    version = '18.12.1'
+    workDir = file("${projectDir}/node/nodejs")
+    nodeModulesDir = file("${projectDir}")
+}
+
+
+task bundleOpenbisStaticResources(type: Exec) {
+    dependsOn 'npmInstall'
+    commandLine 'bash', '-c', "${projectDir}/bin/build.sh"
+}
+
+
