@@ -141,11 +141,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create sample type
-                        boolean sTisNewVersion = sampleTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         sampleTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.SAMPLE_TYPE);
                         // parse and assignment properties
-                        if (sTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -157,11 +156,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create experiment type
-                        boolean eTisNewVersion = experimentTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         experimentTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.EXPERIMENT_TYPE);
                         // parse and assignment properties
-                        if (eTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -173,11 +171,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create dataset type
-                        boolean dTisNewVersion = datasetTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         datasetTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.DATASET_TYPE);
                         // parse and assignment properties
-                        if (dTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
