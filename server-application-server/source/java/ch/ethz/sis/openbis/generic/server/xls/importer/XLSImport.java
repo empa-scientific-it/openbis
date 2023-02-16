@@ -59,8 +59,6 @@ public class XLSImport
 
     private final ImportOptions options;
 
-    private final String xlsName;
-
     private final Map<String, Integer> beforeVersions;
 
     private final Map<String, Integer> afterVersions;
@@ -93,15 +91,13 @@ public class XLSImport
 
     private final DatabaseConsistencyChecker dbChecker;
 
-    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options,
-            String xlsName)
+    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String ignoredXLSName)
     {
         this.sessionToken = sessionToken;
         this.api = api;
         this.options = options;
-        this.xlsName = xlsName;
-        this.beforeVersions = Collections.unmodifiableMap(VersionInfoHandler.loadVersions(options, xlsName));
-        this.afterVersions = VersionInfoHandler.loadVersions(options, xlsName);
+        this.beforeVersions = Collections.unmodifiableMap(VersionInfoHandler.loadAllVersions(options));
+        this.afterVersions = VersionInfoHandler.loadAllVersions(options);
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.afterVersions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
 
@@ -160,11 +156,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create sample type
-                        boolean sTisNewVersion = sampleTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         sampleTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.SAMPLE_TYPE);
                         // parse and assignment properties
-                        if (sTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -176,11 +171,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create experiment type
-                        boolean eTisNewVersion = experimentTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         experimentTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.EXPERIMENT_TYPE);
                         // parse and assignment properties
-                        if (eTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -192,11 +186,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create dataset type
-                        boolean dTisNewVersion = datasetTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         datasetTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.DATASET_TYPE);
                         // parse and assignment properties
-                        if (dTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -230,7 +223,7 @@ public class XLSImport
 
         this.delayedExecutor.hasFinished();
 
-        VersionInfoHandler.writeVersions(options, xlsName, afterVersions);
+        VersionInfoHandler.writeAllVersions(options, afterVersions);
         return new ArrayList<>(this.delayedExecutor.getIds());
     }
 
