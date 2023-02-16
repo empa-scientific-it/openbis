@@ -25,17 +25,31 @@ public class VersionInfoHandler
     private static final String DEVELOPMENT_DEFAULT_PATH =
             "../server-application-server/targets/xls-import-version-info-dev.json";
 
-    public static Map<String, Integer> loadVersions(ImportOptions options, String xlsName)
+    public static Map<String, Integer> loadAllVersions(ImportOptions options)
     {
         if (options.getIgnoreVersioning())
         {
             return new HashMap<>();
         }
-        return loadVersionFile().getOrDefault("VERSION-" + xlsName, new HashMap<>());
+        Map<String, Integer> allVersionsMerged = new HashMap<>();
+        Map<String, Map<String, Integer>> allVersions = loadVersionFile();
+        // Versions from all XLS files are NOW merged to follow the same modification rules as on the UI
+        for (String versionsFromIgnoredXLSName:allVersions.keySet()) {
+            Map<String, Integer> versionsForIgnoredXLSName = allVersions.get(versionsFromIgnoredXLSName);
+            for (String type:versionsForIgnoredXLSName.keySet()) {
+                Integer version = versionsForIgnoredXLSName.get(type);
+                // Keep the highest version
+                if (allVersionsMerged.containsKey(type) == false ||
+                        allVersionsMerged.get(type) > version) {
+                    allVersionsMerged.put(type, version);
+                }
+            }
+        }
+
+        return allVersionsMerged;
     }
 
-    public static void writeVersions(ImportOptions options, String xlsName,
-            Map<String, Integer> versions)
+    public static void writeAllVersions(ImportOptions options, Map<String, Integer> versions)
     {
         if (options.getIgnoreVersioning())
         {
@@ -46,7 +60,7 @@ public class VersionInfoHandler
         String newPath = path + ".new";
 
         Map<String, Map<String, Integer>> allVersions = loadVersionFile();
-        allVersions.put("VERSION-" + xlsName, versions);
+        allVersions.put("VERSION-GENERAL", versions);
         JSONHandler.writeVersionDataFile(allVersions, newPath);
 
         try

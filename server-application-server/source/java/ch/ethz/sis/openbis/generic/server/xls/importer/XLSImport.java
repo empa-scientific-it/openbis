@@ -44,8 +44,6 @@ public class XLSImport
 
     private final ImportOptions options;
 
-    private final String xlsName;
-
     private final Map<String, Integer> beforeVersions;
 
     private final Map<String, Integer> afterVersions;
@@ -78,15 +76,13 @@ public class XLSImport
 
     private final DatabaseConsistencyChecker dbChecker;
 
-    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options,
-            String xlsName)
+    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String ignoredXLSName)
     {
         this.sessionToken = sessionToken;
         this.api = api;
         this.options = options;
-        this.xlsName = xlsName;
-        this.beforeVersions = Collections.unmodifiableMap(VersionInfoHandler.loadVersions(options, xlsName));
-        this.afterVersions = VersionInfoHandler.loadVersions(options, xlsName);
+        this.beforeVersions = Collections.unmodifiableMap(VersionInfoHandler.loadAllVersions(options));
+        this.afterVersions = VersionInfoHandler.loadAllVersions(options);
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.afterVersions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
 
@@ -215,7 +211,7 @@ public class XLSImport
 
         this.delayedExecutor.hasFinished();
 
-        VersionInfoHandler.writeVersions(options, xlsName, afterVersions);
+        VersionInfoHandler.writeAllVersions(options, afterVersions);
         return new ArrayList<>(this.delayedExecutor.getIds());
     }
 
