@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ETH Zuerich, SIS
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.get;
 
 import java.util.List;
