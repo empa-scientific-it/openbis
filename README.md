@@ -120,3 +120,16 @@ The project does not uses modules yet. Add '--add-opens' statements manually whe
 
 1. Under "IntelliJ IDEA" -> "Preferences" -> "Languages and Frameworks" -> Javascript, set the
    language version to ECMAScript 6.
+
+## Coding Style
+
+openBIS uses a particular coding style that guarantees all code is formatted uniformly.
+
+To make use of the preset go to File/Settings or IntelliJIDEA/Preferences depending on your OS.
+
+Then import the XML file under 'docs/CISD_Conventions_IntelliJ_V2.xml'. See images below.
+
+!["IntelliJ Code Style Configuration 1"](./docs/readme/intellij-codestyle-config-1.png "IntelliJ Code Style Configuration 1")
+!["IntelliJ Code Style Configuration 2"](./docs/readme/intellij-codestyle-config-2.png "IntelliJ Code Style Configuration 2")
+!["IntelliJ Code Style Configuration 3"](./docs/readme/intellij-codestyle-config-3.png "IntelliJ Code Style Configuration 3")
+!["IntelliJ Code Style Configuration 4"](./docs/readme/intellij-codestyle-config-4.png "IntelliJ Code Style Configuration 4")
