@@ -355,45 +355,36 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return new Promise(function(resolve, reject) {
 				thisFacade._getDataStores().done(function(dataStores) {
 					uploadBlob(dataStores[0], parentId, facade._private.sessionToken, file, 0, 1048576)
-						.done(function() {
-							resolve();
-						}).fail(function(error) {
-						reject(error);
-					});
+						.then(function (value) {
+							resolve(value);
+						})
+						.catch(function (reason) {
+							reject(reason);
+						});
 				}).fail(function(error) {
 					reject(error);
 				});
 			});
 		}
 
-		function uploadBlob(dataStore, parentId, sessionID, file, startByte, chunkSize) {
+		async function uploadBlob(dataStore, parentId, sessionID, file, startByte, chunkSize) {
 			var fileSize = file.size;
-			var promises = [];
 			for (var byte = startByte; byte < fileSize; byte += chunkSize) {
-				const dfd = jquery.Deferred();
-				fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload",
-						"?sessionID=" + sessionID +
-						"&filename=" + encodeURIComponent(parentId + "/" +
-								(file.webkitRelativePath ? file.webkitRelativePath : file.name)) +
-						"&id=1&startByte=" + byte +
-						"&endByte=" + (byte + chunkSize) +
-						"&size=" + fileSize +
-						"&emptyFolder=false"), {
+				await fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload",
+					"?sessionID=" + sessionID +
+					"&filename=" + encodeURIComponent(parentId + "/" +
+						(file.webkitRelativePath ? file.webkitRelativePath : file.name)) +
+					"&id=1&startByte=" + byte +
+					"&endByte=" + (byte + chunkSize) +
+					"&size=" + fileSize +
+					"&emptyFolder=false"), {
 					method: "POST",
 					headers: {
 						"Content-Type": "multipart/form-data"
 					},
 					body: makeChunk(file, byte, Math.min(byte + chunkSize, fileSize))
-				}).then(function () {
-					dfd.resolve();
-				}).catch(function (error) {
-					console.error("Error:", error);
-					dfd.reject(error);
 				});
-				promises.push(dfd);
 			}
-
-			return jquery.when.apply(jquery, promises);
 		}
 
 		function makeChunk(file, startByte, endByte) {
