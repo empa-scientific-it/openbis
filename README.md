@@ -120,3 +120,32 @@ The project does not uses modules yet. Add '--add-opens' statements manually whe
 
 1. Under "IntelliJ IDEA" -> "Preferences" -> "Languages and Frameworks" -> Javascript, set the
    language version to ECMAScript 6.
+
+## Coding Style
+
+openBIS source code uses a particular style preset that guarantees all code is formatted uniformly.
+
+To make use of the preset go to File/Settings or IntelliJIDEA/Preferences depending on your OS.
+
+Then import the XML file under 'docs/CISD_Conventions_IntelliJ_V2.xml'. See images below.
+
+!["IntelliJ Code Style Configuration 1"](./docs/readme/intellij-codestyle-config-1.png "IntelliJ Code Style Configuration 1")
+!["IntelliJ Code Style Configuration 2"](./docs/readme/intellij-codestyle-config-2.png "IntelliJ Code Style Configuration 2")
+!["IntelliJ Code Style Configuration 3"](./docs/readme/intellij-codestyle-config-3.png "IntelliJ Code Style Configuration 3")
+!["IntelliJ Code Style Configuration 4"](./docs/readme/intellij-codestyle-config-4.png "IntelliJ Code Style Configuration 4")
+
+## Git Hooks
+
+openBIS source code commit messages use a particular formatting.
+
+This formatting guarantees that there is a User Story behind it.
+
+To ensure commits follow the formatting 'Git Hooks' are provided.
+
+Just copy them from the root folder of this repo run the next command:
+````
+%/> cp ./docs/hooks/* ./.git/hooks/   
+%/> git add README.md
+%/> git commit -m "Test incorrectly formatted message"
+Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:')
+````
