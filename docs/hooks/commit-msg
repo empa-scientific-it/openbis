@@ -10,7 +10,7 @@
 # Remember to keep the name of the file as "commit-msg".
 
 commit_regex='(SSDM-[0-9]+:|merge|rebase)'
-error_msg="Aborting commit. Your commit message is missing an issue number ('SSDM-XXXX:')"
+error_msg="Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:')"
 
 if ! grep -iqE "$commit_regex" "$1"; then
     echo "$error_msg" >&2
