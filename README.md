@@ -62,6 +62,7 @@ openbis.bundle.min.js
 
 ## Requirements
 
+- Software Requirements
 - IntelliJ IDEA CE
 
 ## Step By Step
@@ -116,11 +117,8 @@ To guarantee all new source files contain the appropriate license a preset is pr
 To make use of the preset go to File/Settings or IntelliJIDEA/Preferences depending on your OS.
 
 Then import the XML file under 'docs/copyright/Copyright_IntelliJ.xml' under the copyright section as the image below indicate.
-
 !["IntelliJ Copyright Configuration 1"](./docs/readme/intellij-copyright-config-1.png "IntelliJ Copyright Configuration 1")
-
 Last, set the Copyright Profile under the Copyright section as the image below indicate:
-
 !["IntelliJ Copyright Configuration 2"](./docs/readme/intellij-copyright-config-2.png "IntelliJ Copyright Configuration 2")
 
 ## Typical Errors
@@ -133,19 +131,16 @@ option for cross-compilation".
 # IntelliJ can't find a particular method
 
 Code compatiblity 1.8 is set by default to work well with our javadoc tools but it can be set to 17 on IntelliJ. See image below.
-
 !["IntelliJ Configuration 1"](./docs/readme/intellij-config-1.png "IntelliJ Configuration 1")
 
 # Test seem to run through Gradle and fail
 
 They need to be set to run using IntelliJ.
-
 !["IntelliJ Configuration 2"](./docs/readme/intellij-config-2.png "IntelliJ Configuration 2")
 
 # Test seem to run through intelliJ but throw a package not open error
 
 The project does not uses modules yet. Add '--add-opens' statements manually when launching the tests as shown below.
-
 !["IntelliJ Configuration 3"](./docs/readme/intellij-config-3.png "IntelliJ Configuration 3")
 
 ## Development of NG UI
