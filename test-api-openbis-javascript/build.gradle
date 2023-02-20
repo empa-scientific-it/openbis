@@ -32,6 +32,7 @@ sourceSets {
 configurations.create('testRuntimeFirst')
 configurations.create('testRuntimeSecond')
 configurations.create('externalDss')
+configurations.create('blast_tar')
 
 dependencies {
     api project(path: ':server-screening'),
@@ -49,6 +50,8 @@ dependencies {
     testRuntimeSecond 'google:gwt-user:2.4'
 
     externalDss project(':server-screening')
+
+    blast_tar "blast:blast:2.2.30@tar.gz"
 }
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
@@ -57,6 +60,21 @@ task copyWar(type: Copy, dependsOn: project(':core-plugin-openbis').war) {
     from project(':core-plugin-openbis').war
     into 'targets/gradle/openbis-war'
     rename { filename -> 'openbis.war' }
+}
+
+task copyBlast(type: Copy) {
+    doFirst {
+        println "Copying blast library into plugins folder for test"
+    }
+    from(configurations.blast_tar.collect { tarTree(it) })
+    into 'servers/common/core-plugins/eln-lims'
+}
+
+task deleteBlast(type: Delete) {
+    doFirst {
+        println "DELETE temporary blast library folder"
+    }
+    delete 'servers/common/core-plugins/eln-lims/bin'
 }
 
 task deleteXlsImportVersionInfoJson(type: Delete) {
@@ -110,3 +128,7 @@ test {
 }
 test.dependsOn clean
 test.dependsOn copyWar
+test.dependsOn copyBlast
+
+test.finalizedBy deleteBlast
+
