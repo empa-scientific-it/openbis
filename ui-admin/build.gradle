@@ -28,7 +28,7 @@ task copyCorePlugins(type: Copy) {
 
 task copyWebApp(type: Copy) {
     from file('build/js')
-    into file('build/core-plugins/ui-admin/1/as/webapps/ui-admin/html')
+    into file('build/core-plugins/admin/1/as/webapps/admin/html')
 }
 
 task test {

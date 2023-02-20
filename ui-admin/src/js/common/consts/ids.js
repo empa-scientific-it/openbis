@@ -1,6 +1,6 @@
 // app
-const WEB_APP_ID = 'ui-admin'
-const WEB_APP_SERVICE = 'ui-admin-service'
+const WEB_APP_ID = 'admin'
+const WEB_APP_SERVICE = 'admin-service'
 const EXPORT_SERVICE = 'xls-export'
 
 // grids

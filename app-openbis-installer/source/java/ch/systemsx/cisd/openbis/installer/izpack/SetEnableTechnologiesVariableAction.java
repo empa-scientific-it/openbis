@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 public class SetEnableTechnologiesVariableAction implements PanelAction
 {
     static final String[] MODULES = { "monitoring-support", "dropbox-monitor", "dataset-uploader",
-            "dataset-file-search", "xls-import", "search-store", "openbis-sync", "ui-admin" };
+            "dataset-file-search", "xls-import", "search-store", "openbis-sync", "admin" };
 
     static final String ENABLED_TECHNOLOGIES_VARNAME = "ENABLED_TECHNOLOGIES";
 
