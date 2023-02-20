@@ -99,15 +99,7 @@ class Acceptor(object):
         self.hiddenSampleTypes[typeCode] = True
 
     def acceptSample(self, sample):
-        group = self._getGroupPrefix(sample.getSpace().getCode())
-        attributes = self.sampleTypeViewAttributes[group]
-        sampleTypeCode = sample.getType().getCode()
-        if sampleTypeCode in self.hiddenSampleTypes:
-            return False
-        if sampleTypeCode in attributes:
-            attr = attributes[sampleTypeCode]
-            return "SHOW_ON_NAV" in attr and attr["SHOW_ON_NAV"]
-        return False
+        return sample.getType().getCode() not in self.hiddenSampleTypes
 
     def hideDataSetType(self, typeCode):
         self.hiddenDataSetTypes[typeCode] = True
