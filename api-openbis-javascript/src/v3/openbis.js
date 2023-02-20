@@ -300,13 +300,25 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			);
 		}
 
-	    this.uploadFileWorkspaceDSS = async function(files) {
+	    this.uploadFilesWorkspaceDSS = function(files) {
+			var thisFacade = this;
 			var uploadId = getUUID();
-			await this._uploadFileWorkspaceDSSEmptyDir(uploadId);
-			return await this._uploadFileWorkspaceDSS(files, uploadId);
+			var dfd = jquery.Deferred();
+
+			this._uploadFileWorkspaceDSSEmptyDir(uploadId).then(function() {
+				thisFacade._uploadFilesWorkspaceDSS(files, uploadId).then(function(result) {
+					dfd.resolve(result);
+				}).catch(function(error) {
+					dfd.reject(error);
+				});
+			}).catch(function(error) {
+				dfd.reject(error);
+			});
+
+			return dfd;
     	}
 
-		this._uploadFileWorkspaceDSS = async function(files, parentId) {
+		this._uploadFilesWorkspaceDSS = async function(files, parentId) {
 			var createdDirectories = new Set();
 			var filesCount = files.length;
 			for (var i = 0; i < filesCount; i++) {
