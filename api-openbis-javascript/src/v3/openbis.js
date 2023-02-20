@@ -300,141 +300,103 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			);
 		}
 
-	    this.uploadFileWorkspaceDSS = function(files) {
+	    this.uploadFilesWorkspaceDSS = function(files) {
 			var thisFacade = this;
 			var uploadId = getUUID();
 			var dfd = jquery.Deferred();
-			this._uploadFileWorkspaceDSSEmptyDir(uploadId).done(function() {
-				thisFacade._uploadFileWorkspaceDSS(files, 0, uploadId, new Set()).done(function() {
-					dfd.resolve(uploadId);
-				}).fail(function(error) {
+
+			this._uploadFileWorkspaceDSSEmptyDir(uploadId).then(function() {
+				thisFacade._uploadFilesWorkspaceDSS(files, uploadId).then(function(result) {
+					dfd.resolve(result);
+				}).catch(function(error) {
 					dfd.reject(error);
 				});
-			}).fail(function(error) {
+			}).catch(function(error) {
 				dfd.reject(error);
 			});
-			return dfd.promise();
+
+			return dfd;
     	}
 
-		this._uploadFileWorkspaceDSS = function(files, index, parentId, createdDirectories) {
-			var thisFacade = this;
-			var dfd = jquery.Deferred();
-			if (index < files.length) {
-				var relativePath = files[index].webkitRelativePath;
+		this._uploadFilesWorkspaceDSS = async function(files, parentId) {
+			var createdDirectories = new Set();
+			var filesCount = files.length;
+			for (var i = 0; i < filesCount; i++) {
+				var relativePath = files[i].webkitRelativePath;
 				var directoryRelativePath = relativePath.substring(0, relativePath.lastIndexOf("/") + 1);
 				if (directoryRelativePath && !createdDirectories.has(directoryRelativePath)) {
-					this._uploadFileWorkspaceDSSEmptyDir(parentId + "/" + directoryRelativePath)
-						.done(function() {
-							createdDirectories.add(directoryRelativePath);
-							thisFacade._uploadFileWorkspaceDSSFile(files[index], parentId)
-								.done(function() {
-									thisFacade._uploadFileWorkspaceDSS(files, index + 1, parentId, createdDirectories)
-										.done(function() {
-											dfd.resolve();
-										})
-										.fail(function(error) {
-											dfd.reject(error);
-										});
-								})
-								.fail(function(error) {
-									dfd.reject(error);
-								});
-						})
-						.fail(function(error) {
-							dfd.reject(error);
-						});
-				} else {
-					this._uploadFileWorkspaceDSSFile(files[index], parentId)
-						.done(function() {
-							thisFacade._uploadFileWorkspaceDSS(files, index + 1, parentId, createdDirectories)
-								.done(function() {
-									dfd.resolve();
-								})
-								.fail(function(error) {
-									dfd.reject(error);
-								});
-						})
-						.fail(function(error) {
-							dfd.reject(error);
-						});
+					await this._uploadFileWorkspaceDSSEmptyDir(parentId + "/" + directoryRelativePath);
+					createdDirectories.add(directoryRelativePath);
 				}
-			} else {
-				dfd.resolve();
+				await this._uploadFileWorkspaceDSSFile(files[i], parentId);
 			}
-			return dfd.promise();
+			return parentId;
 		}
 
 		this._uploadFileWorkspaceDSSEmptyDir = function(pathToDir) {
+			var thisFacade = this;
 			var sessionID = facade._private.sessionToken;
 			var filename = encodeURIComponent(pathToDir);
-			var dfd = jquery.Deferred();
-			this._getDataStores().done(function (dataStores) {
-				if (dataStores.length === 1) {
-					fetch(createUrlWithParameters(dataStores[0], "session_workspace_file_upload",
-						"?sessionID=" + sessionID +
-						"&filename=" + filename +
-						"&id=1&startByte=0&endByte=0&size=0&emptyFolder=true"), {
-						method: "POST",
-						headers: {
-							"Content-Type": "multipart/form-data"
-						}
-					}).then(function (response) {
-						dfd.resolve(response);
-					}).catch(function (error) {
-						dfd.reject(error);
-					});
-				} else {
-					dfd.reject("Please specify exactly one data store");
-				}
-			}).fail(function(error) {
-				dfd.reject(error);
+			return new Promise(function(resolve, reject) {
+				thisFacade._getDataStores().done(function(dataStores) {
+					if (dataStores.length === 1) {
+						fetch(createUrlWithParameters(dataStores[0], "session_workspace_file_upload",
+							"?sessionID=" + sessionID +
+							"&filename=" + filename +
+							"&id=1&startByte=0&endByte=0&size=0&emptyFolder=true"), {
+							method: "POST",
+							headers: {
+								"Content-Type": "multipart/form-data"
+							}
+						}).then(function (response) {
+							resolve(response);
+						}).catch(function (error) {
+							reject(error);
+						});
+					} else {
+						reject("Please specify exactly one data store");
+					}
+				}).fail(function(error) {
+					reject(error);
+				});
 			});
-			return dfd.promise();
 		}
 
 		this._uploadFileWorkspaceDSSFile = function(file, parentId) {
-			const dfd = jquery.Deferred();
-			this._getDataStores().done(function(dataStores) {
-				uploadBlob(dataStores[0], parentId, facade._private.sessionToken, file, 0, 1048576)
-					.done(function() {
-						dfd.resolve();
-					}).fail(function(error) {
-						dfd.reject(error);
-					});
-			}).fail(function(error) {
-				dfd.reject(error);
+			var thisFacade = this;
+			return new Promise(function(resolve, reject) {
+				thisFacade._getDataStores().done(function(dataStores) {
+					uploadBlob(dataStores[0], parentId, facade._private.sessionToken, file, 0, 1048576)
+						.then(function (value) {
+							resolve(value);
+						})
+						.catch(function (reason) {
+							reject(reason);
+						});
+				}).fail(function(error) {
+					reject(error);
+				});
 			});
-			return dfd.promise();
 		}
 
-		function uploadBlob(dataStore, parentId, sessionID, file, startByte, chunkSize) {
+		async function uploadBlob(dataStore, parentId, sessionID, file, startByte, chunkSize) {
 			var fileSize = file.size;
-			var promises = [];
 			for (var byte = startByte; byte < fileSize; byte += chunkSize) {
-				const dfd = jquery.Deferred();
-				fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload",
-						"?sessionID=" + sessionID +
-						"&filename=" + encodeURIComponent(parentId + "/" +
-								(file.webkitRelativePath ? file.webkitRelativePath : file.name)) +
-						"&id=1&startByte=" + byte +
-						"&endByte=" + (byte + chunkSize) +
-						"&size=" + fileSize +
-						"&emptyFolder=false"), {
+				await fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload",
+					"?sessionID=" + sessionID +
+					"&filename=" + encodeURIComponent(parentId + "/" +
+						(file.webkitRelativePath ? file.webkitRelativePath : file.name)) +
+					"&id=1&startByte=" + byte +
+					"&endByte=" + (byte + chunkSize) +
+					"&size=" + fileSize +
+					"&emptyFolder=false"), {
 					method: "POST",
 					headers: {
 						"Content-Type": "multipart/form-data"
 					},
 					body: makeChunk(file, byte, Math.min(byte + chunkSize, fileSize))
-				}).then(function () {
-					dfd.resolve();
-				}).catch(function (error) {
-					console.error("Error:", error);
-					dfd.reject(error);
 				});
-				promises.push(dfd);
 			}
-
-			return jquery.when.apply(jquery, promises);
 		}
 
 		function makeChunk(file, startByte, endByte) {
