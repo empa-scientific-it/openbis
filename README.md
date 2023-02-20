@@ -62,9 +62,10 @@ openbis.bundle.min.js
 
 ## Requirements
 
+- Software Requirements
 - IntelliJ IDEA CE
 
-## Step By Step:
+## Step By Step
 
 ```
 File -> New -> Project From Existing Sources
@@ -76,6 +77,50 @@ openBISDevelopementEnvironmentASStart
 openBISDevelopementEnvironmentDSSStart
 ```
 
+## Source Code Auto Formatting
+
+OpenBIS source code uses a particular style preset that guarantees all code is formatted uniformly.
+
+To make use of the preset go to File/Settings or IntelliJIDEA/Preferences depending on your OS.
+
+Then import the XML file under 'docs/codestyle/SIS_Conventions_IntelliJ_V3.xml'. See images below:
+
+!["IntelliJ Code Style Configuration 1"](./docs/readme/intellij-codestyle-config-1.png "IntelliJ Code Style Configuration 1")
+!["IntelliJ Code Style Configuration 2"](./docs/readme/intellij-codestyle-config-2.png "IntelliJ Code Style Configuration 2")
+!["IntelliJ Code Style Configuration 3"](./docs/readme/intellij-codestyle-config-3.png "IntelliJ Code Style Configuration 3")
+!["IntelliJ Code Style Configuration 4"](./docs/readme/intellij-codestyle-config-4.png "IntelliJ Code Style Configuration 4")
+
+## Commit Messages Formatting
+
+OpenBIS source code commit messages use a particular formatting.
+
+This formatting guarantees that there is a User Story behind it.
+
+To ensure commits follow the formatting 'Git Hooks' are provided.
+
+Just copy them from the root folder of this repo run the next command:
+````
+%/> cp ./docs/hooks/* ./.git/hooks/   
+%/> git add README.md
+%/> git commit -m "Test incorrectly formatted message"
+Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:')
+````
+
+## Source Code Copyright Header
+
+OpenBIS source code is licensed under SIS copyright and licensed under 'Apache 2 License':
+````
+http://www.apache.org/licenses/LICENSE-2.0
+````
+To guarantee all new source files contain the appropriate license a preset is provided.
+
+To make use of the preset go to File/Settings or IntelliJIDEA/Preferences depending on your OS.
+
+Then import the XML file under 'docs/copyright/Copyright_IntelliJ.xml' under the copyright section as the image below indicate.
+!["IntelliJ Copyright Configuration 1"](./docs/readme/intellij-copyright-config-1.png "IntelliJ Copyright Configuration 1")
+Last, set the Copyright Profile under the Copyright section as the image below indicate:
+!["IntelliJ Copyright Configuration 2"](./docs/readme/intellij-copyright-config-2.png "IntelliJ Copyright Configuration 2")
+
 ## Typical Errors
 
 # IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
@@ -83,22 +128,19 @@ openBISDevelopementEnvironmentDSSStart
 Turn off "File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use --release
 option for cross-compilation".
 
-# IntelliJ can't find a particular method:
+# IntelliJ can't find a particular method
 
 Code compatiblity 1.8 is set by default to work well with our javadoc tools but it can be set to 17 on IntelliJ. See image below.
-
 !["IntelliJ Configuration 1"](./docs/readme/intellij-config-1.png "IntelliJ Configuration 1")
 
-# Test seem to run through Gradle and fail:
+# Test seem to run through Gradle and fail
 
 They need to be set to run using IntelliJ.
-
 !["IntelliJ Configuration 2"](./docs/readme/intellij-config-2.png "IntelliJ Configuration 2")
 
-# Test seem to run through intelliJ but throw a package not open error:
+# Test seem to run through intelliJ but throw a package not open error
 
 The project does not uses modules yet. Add '--add-opens' statements manually when launching the tests as shown below.
-
 !["IntelliJ Configuration 3"](./docs/readme/intellij-config-3.png "IntelliJ Configuration 3")
 
 ## Development of NG UI
@@ -120,32 +162,3 @@ The project does not uses modules yet. Add '--add-opens' statements manually whe
 
 1. Under "IntelliJ IDEA" -> "Preferences" -> "Languages and Frameworks" -> Javascript, set the
    language version to ECMAScript 6.
-
-## Coding Style
-
-openBIS source code uses a particular style preset that guarantees all code is formatted uniformly.
-
-To make use of the preset go to File/Settings or IntelliJIDEA/Preferences depending on your OS.
-
-Then import the XML file under 'docs/CISD_Conventions_IntelliJ_V2.xml'. See images below.
-
-!["IntelliJ Code Style Configuration 1"](./docs/readme/intellij-codestyle-config-1.png "IntelliJ Code Style Configuration 1")
-!["IntelliJ Code Style Configuration 2"](./docs/readme/intellij-codestyle-config-2.png "IntelliJ Code Style Configuration 2")
-!["IntelliJ Code Style Configuration 3"](./docs/readme/intellij-codestyle-config-3.png "IntelliJ Code Style Configuration 3")
-!["IntelliJ Code Style Configuration 4"](./docs/readme/intellij-codestyle-config-4.png "IntelliJ Code Style Configuration 4")
-
-## Git Hooks
-
-openBIS source code commit messages use a particular formatting.
-
-This formatting guarantees that there is a User Story behind it.
-
-To ensure commits follow the formatting 'Git Hooks' are provided.
-
-Just copy them from the root folder of this repo run the next command:
-````
-%/> cp ./docs/hooks/* ./.git/hooks/   
-%/> git add README.md
-%/> git commit -m "Test incorrectly formatted message"
-Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:')
-````
