@@ -16,8 +16,8 @@ dependencies {
             'fasterxml:jackson-annotations:2.9.10',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-databind:2.9.10.8',
-            'slf4j:slf4j-api:1.7.9',
-            'log4j:log4j-slf4j-impl:2.19.0'
+            'slf4j:slf4j-api:1.7.9', // Required by Jetty that uses SLF4J
+            'log4j:log4j-slf4j-impl:2.19.0' // Required by Jetty to tell SLF4J to use LOG4J
 
     annotationProcessor 'lombok:lombok:1.18.22'
 }
