@@ -1543,8 +1543,7 @@ var FormUtil = new function() {
 								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized in the ELN after upload</b></center>")
 								.append("The eln-lims dropbox requires a root folder with a specific name. This name contains information on where the data should be uploaded.").append("<br>")
 								.append("1. Generate the name of the root folder with this helper tool using the form below.").append("<br>")
-								.append("2. The root folder should contain another folder, with a name of your choice, with the data to upload. This can have as many layers as needed.").append("<br>")
-								.append("3. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
+								.append("2. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
 								
 
 			// dataset type dropdown
