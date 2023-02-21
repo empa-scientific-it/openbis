@@ -135,6 +135,7 @@ class ConfigEnv(object):
         self.add_param(ConfigParam(name='obis_metadata_folder'))
         self.add_param(ConfigParam(name='openbis_token'))
         self.add_param(ConfigParam(name='session_name'))
+        self.add_param(ConfigParam(name='is_physical', default_value=False))
 
     def add_param(self, param):
         self.params[param.name] = param

@@ -20,24 +20,19 @@
 cli.py
 
 The module that implements the CLI for obis.
-
-
-Created by Chandrasekhar Ramakrishnan on 2017-01-27.
-Copyright (c) 2017 Chandrasekhar Ramakrishnan. All rights reserved.
 """
 import json
 import os
 from datetime import datetime
-from requests import ConnectionError
 
 import click
 from dateutil.relativedelta import relativedelta
 from pybis import Openbis
+from requests import ConnectionError
 
-from ..dm.command_result import CommandResult
-from ..dm.utils import cd
 from .click_util import click_echo
 from .data_mgmt_runner import DataMgmtRunner
+from ..dm.command_result import CommandResult
 
 
 def click_progress(progress_data):
@@ -448,25 +443,32 @@ def commit(ctx, msg, auto_add, ignore_missing_parent, repository):
 
 
 _init_params = [
-    click.argument('repository', type=click.Path(
+    click.argument('repository_path', type=click.Path(
         exists=False, file_okay=False), required=False),
     click.argument('description', default=""),
+
 ]
 
 
 @repository.command("init", short_help="Initialize the folder as a data repository.")
 @click.pass_context
 @add_params(_init_params)
-def repository_init(ctx, repository, description):
-    return init_data_impl(ctx, repository, description)
+def repository_init(ctx, repository_path, description):
+    return init_data_impl(ctx, repository_path, description)
+
+
+_init_params_physical = \
+    _init_params + \
+    [click.option('-p', '--physical', 'is_physical', default=False, is_flag=True,
+                  help='If parent data set is missing, ignore it.')]
 
 
 @cli.command(short_help="Initialize the folder as a data repository.")
 @click.pass_context
-@add_params(_init_params)
-def init(ctx, repository, description):
-    ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(repository_init, repository=repository, description=description)
+@add_params(_init_params_physical)
+def init(ctx, repository_path, description, is_physical):
+    ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False, is_physical=is_physical)
+    ctx.invoke(repository_init, repository_path=repository_path, description=description)
 
 # init analysis
 
@@ -481,17 +483,17 @@ _init_analysis_params += _init_params
 @repository.command("init_analysis", short_help="Initialize the folder as an analysis folder.")
 @click.pass_context
 @add_params(_init_analysis_params)
-def repository_init_analysis(ctx, parent, repository, description):
-    return init_analysis_impl(ctx, parent, repository, description)
+def repository_init_analysis(ctx, parent, repository_path, description):
+    return init_analysis_impl(ctx, parent, repository_path, description)
 
 
 @cli.command(name='init_analysis', short_help="Initialize the folder as an analysis folder.")
 @click.pass_context
 @add_params(_init_analysis_params)
-def init_analysis(ctx, parent, repository, description):
+def init_analysis(ctx, parent, repository_path, description):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_init_analysis, parent=parent,
-               repository=repository, description=description)
+               repository_path=repository_path, description=description)
 
 # status
 

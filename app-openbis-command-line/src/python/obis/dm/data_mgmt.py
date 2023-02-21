@@ -2,59 +2,49 @@
 # -*- coding: utf-8 -*-
 
 #   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #        http://www.apache.org/licenses/LICENSE-2.0
-#   
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-
-"""
-data_mgmt.py
-
-Module implementing data management operations.
-
-Created by Chandrasekhar Ramakrishnan on 2017-02-01.
-Copyright (c) 2017 Chandrasekhar Ramakrishnan. All rights reserved.
-"""
 import abc
 import json
 import os
 import shutil
-import traceback
-import pybis
-import requests
 import signal
 import sys
 from pathlib import Path
+
+import requests
+
 from . import config as dm_config
+from .command_result import CommandResult
 from .commands.addref import Addref
-from .commands.removeref import Removeref
 from .commands.clone import Clone
+from .commands.download import Download
 from .commands.move import Move
 from .commands.openbis_sync import OpenbisSync
-from .commands.download import Download
-from .command_log import CommandLog
-from .command_result import CommandResult
-from .command_result import CommandException
+from .commands.removeref import Removeref
 from .git import GitWrapper
-from .utils import default_echo
+from .utils import Type
+from .utils import cd
 from .utils import complete_git_config
 from .utils import complete_openbis_config
-from .utils import cd
-from ..scripts import cli
+from .utils import default_echo
 from ..scripts.click_util import click_echo, check_result
 
 
 # noinspection PyPep8Naming
-def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_config={}, openbis=None, log=None, debug=False, login=True):
+def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_config={},
+             openbis=None, log=None, debug=False, login=True, repository_type=Type.UNKNOWN):
     """Factory method for DataMgmt instances"""
 
     echo_func = echo_func if echo_func is not None else default_echo
@@ -63,19 +53,31 @@ def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_conf
     metadata_path = git_config['metadata_path']
     invocation_path = git_config['invocation_path']
 
-    complete_git_config(git_config)
-    git_wrapper = GitWrapper(**git_config)
-    if not git_wrapper.can_run():
-        # TODO We could just as well throw an error here instead of creating
-        #      creating the NoGitDataMgmt which will fail later.
-        return NoGitDataMgmt(settings_resolver, None, git_wrapper, openbis, log, data_path, metadata_path, invocation_path)
-
     if settings_resolver is None:
         settings_resolver = dm_config.SettingsResolver()
 
-    complete_openbis_config(openbis_config, settings_resolver)
+    if repository_type == Type.UNKNOWN:
+        if os.path.exists('.obis'):
+            config_dict = settings_resolver.config.config_dict()
+            if config_dict['is_physical'] is True:
+                repository_type = Type.PHYSICAL
+            else:
+                repository_type = Type.LINK
+        else:
+            repository_type = Type.LINK
 
-    return GitDataMgmt(settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug, login)
+    if repository_type == Type.PHYSICAL:
+        return PhysicalDataMgmt(settings_resolver, None, None, openbis, log, data_path, metadata_path, invocation_path)
+    else:
+        complete_git_config(git_config)
+        git_wrapper = GitWrapper(**git_config)
+        if not git_wrapper.can_run():
+            # TODO We could just as well throw an error here instead of creating
+            #      creating the NoGitDataMgmt which will fail later.
+            return NoGitDataMgmt(settings_resolver, None, git_wrapper, openbis, log, data_path, metadata_path, invocation_path)
+
+        complete_openbis_config(openbis_config, settings_resolver)
+        return GitDataMgmt(settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug, login)
 
 
 class AbstractDataMgmt(metaclass=abc.ABCMeta):
@@ -325,6 +327,7 @@ class GitDataMgmt(AbstractDataMgmt):
 
     def init_data(self, desc=None):
         # check that repository does not already exist
+        # TODO remove .git check after physical flow is implemented
         if os.path.exists('.obis') and os.path.exists('.git'):
             return CommandResult(returncode=-1, output="Folder is already an obis repository.")
         result = self.git_wrapper.git_init()
@@ -524,3 +527,48 @@ class GitDataMgmt(AbstractDataMgmt):
             return CommandResult(returncode=-1, output="Error: " + str(e))
         else:
             return CommandResult(returncode=0, output="")
+
+
+class PhysicalDataMgmt(AbstractDataMgmt):
+    """DataMgmt operations for DSS-stored data."""
+
+    def get_settings_resolver(self):
+        return dm_config.SettingsResolver()
+
+    def setup_local_settings(self, all_settings):
+        self.error_raise("setup local settings", "Not implemented.")
+
+    def init_data(self, desc=None):
+        if os.path.exists('.obis'):
+            return CommandResult(returncode=-1, output="Folder is already an obis repository.")
+        self.settings_resolver.set_resolver_location_roots('data_set', '.')
+        self.settings_resolver.copy_global_to_local()
+        self.settings_resolver.config.set_value_for_parameter("is_physical", True, "local")
+        return CommandResult(returncode=0, output="Physical obis repository initialized!")
+
+    def init_analysis(self, parent_folder, desc=None):
+        self.error_raise("init analysis", "Not implemented.")
+
+    def commit(self, msg, auto_add=True, sync=True):
+        self.error_raise("commit", "Not implemented.")
+
+    def sync(self):
+        self.error_raise("sync", "Not implemented.")
+
+    def status(self):
+        self.error_raise("status", "Not implemented.")
+
+    def clone(self, data_set_id, ssh_user, content_copy_index, skip_integrity_check):
+        self.error_raise("clone", "Not implemented.")
+
+    def move(self, data_set_id, ssh_user, content_copy_index, skip_integrity_check):
+        self.error_raise("move", "Not implemented.")
+
+    def addref(self):
+        self.error_raise("addref", "Not implemented.")
+
+    def removeref(self, data_set_id=None):
+        self.error_raise("removeref", "Not implemented.")
+
+    def download(self, data_set_id, content_copy_index, file, skip_integrity_check):
+        self.error_raise("download", "Not implemented.")

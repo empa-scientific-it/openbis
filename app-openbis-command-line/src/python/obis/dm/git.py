@@ -77,7 +77,7 @@ class GitWrapper(object):
         else:
             return self._git(["annex", "status", path], strip_leading_whitespace=False)
 
-    def git_annex_init(self, desc, git_annex_backend=None):
+    def git_annex_backend(self, desc, git_annex_backend=None):
         """ Configures annex in a git repository."""
 
         # We use annex --version=5 since that works better with big files. Version 

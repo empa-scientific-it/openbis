@@ -12,11 +12,19 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import subprocess
 import os
+import subprocess
 from contextlib import contextmanager
+from enum import Enum
+
 from .command_result import CommandResult, CommandException
 
+
+class Type(Enum):
+    """Enum representing which what type of repository it is"""
+    LINK = 1,
+    PHYSICAL = 2,
+    UNKNOWN = 3
 
 def complete_openbis_config(config, resolver, local_only=True):
     """Add default values for empty entries in the config."""
@@ -27,6 +35,8 @@ def complete_openbis_config(config, resolver, local_only=True):
         config['verify_certificates'] = config_dict['verify_certificates']
     if config.get('token') is None:
         config['token'] = None
+    if config.get('is_physical') is None:
+        config['is_physical'] = None
     if config.get('allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks') is None:
         config['allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks'] = not config_dict['allow_only_https']
 
