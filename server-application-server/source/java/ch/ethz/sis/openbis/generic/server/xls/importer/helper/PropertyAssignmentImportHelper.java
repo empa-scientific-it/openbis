@@ -121,7 +121,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         String newVersion = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
         String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
 
-        return VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
+        return !existingCodes.contains(code) || VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
