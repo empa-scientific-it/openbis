@@ -16,12 +16,13 @@ import getpass
 import hashlib
 import os
 import socket
+
 import pybis
-from ..command_result import CommandResult
-from ..command_result import CommandException
+
 from .. import config as dm_config
+from ..command_result import CommandException
+from ..command_result import CommandResult
 from ..utils import complete_openbis_config
-from ...scripts import cli
 
 
 class OpenbisCommand(object):
@@ -36,7 +37,14 @@ class OpenbisCommand(object):
         self.config_dict = dm.settings_resolver.config_dict()
 
         if self.openbis is None and dm.openbis_config.get('url') is not None:
-            self.openbis = pybis.Openbis(**dm.openbis_config)
+            self.openbis = pybis.Openbis(url=dm.openbis_config.get('url'),
+                                         verify_certificates=dm.openbis_config.get(
+                                             'verify_certificates'),
+                                         token=dm.openbis_config.get('token'),
+                                         use_cache=dm.openbis_config.get('use_cache'),
+                                         allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=dm.openbis_config.get(
+                                             'allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks'),
+                                         )
             if self.user() is not None:
                 result = self.login()
                 if result.failure():
@@ -198,8 +206,11 @@ class OpenbisCommand(object):
         except ValueError:
             # external dms does not exist - create it
             try:
-                external_dms = self.openbis.create_external_data_management_system(external_dms_id, external_dms_id,
-                                                                                   "{}:/{}".format(hostname, edms_path))
+                external_dms = self.openbis.create_external_data_management_system(external_dms_id,
+                                                                                   external_dms_id,
+                                                                                   "{}:/{}".format(
+                                                                                       hostname,
+                                                                                       edms_path))
             except Exception as error:
                 return CommandResult(returncode=-1, output=str(error))
         return CommandResult(returncode=0, output=external_dms)

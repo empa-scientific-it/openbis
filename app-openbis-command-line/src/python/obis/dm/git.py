@@ -12,12 +12,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import shutil
 import os
-from pathlib import Path
-from .utils import run_shell, cd
-from .command_result import CommandResult, CommandException
+import shutil
+
 from .checksum import ChecksumGeneratorCrc32, ChecksumGeneratorGitAnnex
+from .utils import run_shell
 
 
 class GitWrapper(object):
@@ -77,7 +76,7 @@ class GitWrapper(object):
         else:
             return self._git(["annex", "status", path], strip_leading_whitespace=False)
 
-    def git_annex_backend(self, desc, git_annex_backend=None):
+    def git_annex_init(self, desc, git_annex_backend=None):
         """ Configures annex in a git repository."""
 
         # We use annex --version=5 since that works better with big files. Version 

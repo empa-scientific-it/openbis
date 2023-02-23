@@ -30,6 +30,7 @@ from .command_result import CommandResult
 from .commands.addref import Addref
 from .commands.clone import Clone
 from .commands.download import Download
+from .commands.download_physical import DownloadPhysical
 from .commands.move import Move
 from .commands.openbis_sync import OpenbisSync
 from .commands.removeref import Removeref
@@ -67,17 +68,20 @@ def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_conf
             repository_type = Type.LINK
 
     if repository_type == Type.PHYSICAL:
-        return PhysicalDataMgmt(settings_resolver, None, None, openbis, log, data_path, metadata_path, invocation_path)
+        return PhysicalDataMgmt(settings_resolver, None, None, openbis, log, data_path,
+                                metadata_path, invocation_path)
     else:
         complete_git_config(git_config)
         git_wrapper = GitWrapper(**git_config)
         if not git_wrapper.can_run():
             # TODO We could just as well throw an error here instead of creating
             #      creating the NoGitDataMgmt which will fail later.
-            return NoGitDataMgmt(settings_resolver, None, git_wrapper, openbis, log, data_path, metadata_path, invocation_path)
+            return NoGitDataMgmt(settings_resolver, None, git_wrapper, openbis, log, data_path,
+                                 metadata_path, invocation_path)
 
         complete_openbis_config(openbis_config, settings_resolver)
-        return GitDataMgmt(settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug, login)
+        return GitDataMgmt(settings_resolver, openbis_config, git_wrapper, openbis, log, data_path,
+                           metadata_path, invocation_path, debug, login)
 
 
 class AbstractDataMgmt(metaclass=abc.ABCMeta):
@@ -86,7 +90,8 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
     All operations throw an exepction if they fail.
     """
 
-    def __init__(self, settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug=False, login=True):
+    def __init__(self, settings_resolver, openbis_config, git_wrapper, openbis, log, data_path,
+                 metadata_path, invocation_path, debug=False, login=True):
         self.settings_resolver = settings_resolver
         self.openbis_config = openbis_config
         self.git_wrapper = git_wrapper
@@ -259,22 +264,25 @@ def restore_signal_handler(data_mgmt):
 
 def with_log(f):
     """ To be used with commands that use the CommandLog. """
+
     def f_with_log(self, *args):
         try:
             result = f(self, *args)
         except Exception as e:
             self.log.log_error(str(e))
             raise e
-        if result.failure() ==  False:
+        if result.failure() == False:
             self.log.success()
         else:
             self.log.log_error(result.output)
         return result
+
     return f_with_log
 
 
 def with_restore(f):
     """ Sets the restore point and restores on error. """
+
     def f_with_restore(self, *args):
         self.set_restorepoint()
         try:
@@ -291,6 +299,7 @@ def with_restore(f):
                 raise e
             self.clear_restorepoint()
             return CommandResult(returncode=-1, output="Error: " + str(e))
+
     return f_with_restore
 
 
@@ -305,7 +314,6 @@ class GitDataMgmt(AbstractDataMgmt):
             settings_resolver.set_resolver_location_roots('data_set', relative_path)
             return settings_resolver
 
-
     # TODO add this to abstract / other class
     def setup_local_settings(self, all_settings):
         self.settings_resolver.set_resolver_location_roots('data_set', '.')
@@ -314,16 +322,13 @@ class GitDataMgmt(AbstractDataMgmt):
             for key, value in settings.items():
                 resolver.set_value_for_parameter(key, value, 'local')
 
-
     def get_data_set_id(self, relative_path):
         settings_resolver = self.get_settings_resolver(relative_path)
         return settings_resolver.repository.config_dict().get('data_set_id')
 
-
     def get_repository_id(self, relative_path):
         settings_resolver = self.get_settings_resolver(relative_path)
         return settings_resolver.repository.config_dict().get('id')
-
 
     def init_data(self, desc=None):
         # check that repository does not already exist
@@ -345,13 +350,13 @@ class GitDataMgmt(AbstractDataMgmt):
         self.settings_resolver.copy_global_to_local()
         return CommandResult(returncode=0, output="")
 
-
     def init_analysis(self, parent_folder, desc=None):
         # get data_set_id of parent from current folder or explicit parent argument
         parent_data_set_id = self.get_data_set_id(parent_folder)
         # check that parent repository has been added to openBIS
         if self.get_repository_id(parent_folder) is None:
-            return CommandResult(returncode=-1, output="Parent data set must be committed to openBIS before creating an analysis data set.")
+            return CommandResult(returncode=-1,
+                                 output="Parent data set must be committed to openBIS before creating an analysis data set.")
         # init analysis repository
         result = self.init_data(desc)
         if result.failure():
@@ -366,19 +371,17 @@ class GitDataMgmt(AbstractDataMgmt):
                 self.git_wrapper.git_ignore(analysis_folder_relative)
 
         # set data_set_id to analysis repository so it will be used as parent when committing
-        self.set_property(self.settings_resolver.repository, "data_set_id", parent_data_set_id, False, False)
+        self.set_property(self.settings_resolver.repository, "data_set_id", parent_data_set_id,
+                          False, False)
         return result
-
 
     @with_restore
     def sync(self):
         return self._sync()
 
-
     def _sync(self):
         cmd = OpenbisSync(self, self.ignore_missing_parent)
         return cmd.run()
-
 
     @with_restore
     def commit(self, msg, auto_add=True, sync=True):
@@ -397,7 +400,6 @@ class GitDataMgmt(AbstractDataMgmt):
         if sync:
             result = self._sync()
         return result
-
 
     def status(self):
         git_status = self.git_wrapper.git_status()
@@ -454,7 +456,8 @@ class GitDataMgmt(AbstractDataMgmt):
     # settings
     #
 
-    def config(self, category, is_global, is_data_set_property, prop=None, value=None, set=False, get=False, clear=False):
+    def config(self, category, is_global, is_data_set_property, prop=None, value=None, set=False,
+               get=False, clear=False):
         """
         :param category: config, object, collection, data_set or repository
         :param is_global: act on global settings - local if false
@@ -503,26 +506,31 @@ class GitDataMgmt(AbstractDataMgmt):
                 config_str = json.dumps(little_dict, indent=4, sort_keys=True)
                 click_echo("{}".format(config_str), with_timestamp=False)
         elif set == True:
-            return check_result("config", self.set_property(resolver, prop, value, is_global, is_data_set_property))
+            return check_result("config", self.set_property(resolver, prop, value, is_global,
+                                                            is_data_set_property))
         elif clear == True:
             if prop is None:
                 returncode = 0
                 for prop in config_dict.keys():
-                    returncode += check_result("config", self.set_property(resolver, prop, None, is_global, is_data_set_property))
+                    returncode += check_result("config",
+                                               self.set_property(resolver, prop, None, is_global,
+                                                                 is_data_set_property))
                 return returncode
             else:
-                return check_result("config", self.set_property(resolver, prop, None, is_global, is_data_set_property))
+                return check_result("config", self.set_property(resolver, prop, None, is_global,
+                                                                is_data_set_property))
 
     def set_property(self, resolver, prop, value, is_global, is_data_set_property=False):
         """Helper function to implement the property setting semantics."""
         loc = 'global' if is_global else 'local'
         try:
             if is_data_set_property:
-                resolver.set_value_for_json_parameter('properties', prop, value, loc, apply_rules=True)
+                resolver.set_value_for_json_parameter('properties', prop, value, loc,
+                                                      apply_rules=True)
             else:
                 resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
         except Exception as e:
-            if self.debug ==  True:
+            if self.debug == True:
                 raise e
             return CommandResult(returncode=-1, output="Error: " + str(e))
         else:
@@ -544,7 +552,10 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         self.settings_resolver.set_resolver_location_roots('data_set', '.')
         self.settings_resolver.copy_global_to_local()
         self.settings_resolver.config.set_value_for_parameter("is_physical", True, "local")
-        return CommandResult(returncode=0, output="Physical obis repository initialized!")
+        openbis_url = self.settings_resolver.config.config_dict()['openbis_url']
+        self.settings_resolver.config.set_value_for_parameter("fileservice_url",
+                                                              openbis_url, "local")
+        return CommandResult(returncode=0, output="Physical obis repository initialized.")
 
     def init_analysis(self, parent_folder, desc=None):
         self.error_raise("init analysis", "Not implemented.")
@@ -570,5 +581,6 @@ class PhysicalDataMgmt(AbstractDataMgmt):
     def removeref(self, data_set_id=None):
         self.error_raise("removeref", "Not implemented.")
 
-    def download(self, data_set_id, content_copy_index, file, skip_integrity_check):
-        self.error_raise("download", "Not implemented.")
+    def download(self, data_set_id, _content_copy_index, file, _skip_integrity_check):
+        cmd = DownloadPhysical(self, data_set_id, file)
+        return cmd.run()
