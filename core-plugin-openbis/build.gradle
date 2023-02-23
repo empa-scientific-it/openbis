@@ -59,6 +59,10 @@ configurations.create('server_original_data_store')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
 configurations.create('blast_tar')
+configurations.create('libOpenbisCommonJavadoc')
+configurations.create('serverOriginalDataStoreJavadoc')
+configurations.create('serverApplicationServerJavadoc')
+configurations.create('serverScreeningJavadoc')
 
 def jettyVersion = '9.4.44'
 def jettyDistributionVersion = '9.4.44.v20210927'
@@ -119,6 +123,10 @@ dependencies {
         exclude group: 'google', module: 'gwt-user'
     }
 
+    libOpenbisCommonJavadoc project(':lib-openbis-common')
+    serverOriginalDataStoreJavadoc project(':server-original-data-store')
+    serverApplicationServerJavadoc project(':server-application-server')
+    serverScreeningJavadoc project(':server-screening')
 }
 
 sourceSets {
@@ -470,7 +478,59 @@ task obisZip(type: Zip) {
     from '../app-openbis-command-line/'
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip]) {
+task libOpenbisCommonJavadoc(type: Javadoc) {
+    source project(':lib-openbis-common').files('source/java').getAsFileTree().matching {
+        include "**/ch/ethz/sis/openbis/common/io/hierarchical_content/api/**/*.java"
+    }
+    classpath = configurations.libOpenbisCommonJavadoc
+}
+
+task libOpenbisCommonJavadocZip(type: Zip, dependsOn: libOpenbisCommonJavadoc) {
+    archiveName 'javadoc-lib-openbis-common.zip'
+    from libOpenbisCommonJavadoc.destinationDir
+}
+
+task serverOriginalDataStoreJavadoc(type: Javadoc) {
+    source project(':server-original-data-store').files('source/java').getAsFileTree().matching {
+        include "**/ch/systemsx/cisd/openbis/dss/generic/server/plugins/jython/api/**/*.java"
+        include "**/ch/systemsx/cisd/openbis/dss/generic/shared/api/internal/**/*.java"
+    }
+    classpath = configurations.serverOriginalDataStoreJavadoc
+}
+
+task serverOriginalDataStoreJavadocZip(type: Zip, dependsOn: serverOriginalDataStoreJavadoc) {
+    archiveName 'javadoc-server-original-data-store.zip'
+    from serverOriginalDataStoreJavadoc.destinationDir
+}
+
+task serverApplicationServerJavadoc(type: Javadoc) {
+    source project(':server-application-server').files('source/java').getAsFileTree().matching {
+        include "**/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/**/*.java"
+    }
+    classpath = configurations.serverApplicationServerJavadoc
+}
+
+task serverApplicationServerJavadocZip(type: Zip, dependsOn: serverApplicationServerJavadoc) {
+    archiveName 'javadoc-server-application-server.zip'
+    from serverApplicationServerJavadoc.destinationDir
+}
+
+task serverScreeningJavadoc(type: Javadoc) {
+    source project(':server-screening').files('source/java').getAsFileTree().matching {
+        include "**/ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.java"
+    }
+    classpath = configurations.serverScreeningJavadoc
+}
+
+task serverScreeningJavadocZip(type: Zip, dependsOn: serverScreeningJavadoc) {
+    archiveName 'javadoc-server-screening.zip'
+    from serverScreeningJavadoc.destinationDir
+}
+
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip,
+                                           dropboxJavaDocZip, dynamicApiJavadocZip, libOpenbisCommonJavadocZip,
+                                           serverOriginalDataStoreJavadocZip, serverApplicationServerJavadocZip,
+                                           serverScreeningJavadocZip]) {
     baseName 'openBIS-clients-and-APIs'
     from dssClientZip.archivePath
     from queryApiZip.archivePath
@@ -480,6 +540,10 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
     from obisZip.archivePath
     from dropboxJavaDocZip.archivePath
     from dynamicApiJavadocZip.archivePath
+    from libOpenbisCommonJavadocZip.archivePath
+    from serverOriginalDataStoreJavadocZip.archivePath
+    from serverApplicationServerJavadocZip.archivePath
+    from serverScreeningJavadocZip.archivePath
     from('dist/client/readme.txt')
     rename { filename ->
         if (filename.startsWith('pybis-')) {
@@ -519,17 +583,17 @@ task generateJavadoc(type: Javadoc) {
             include "**/ch/ethz/sis/openbis/generic/asapi/**/*.java"
             include "**/ch/ethz/sis/openbis/generic/dssapi/**/*.java"
             include "**/ch/systemsx/cisd/**/api/**/*.java"
-            include "**/ch/systemsx/cisd/common/annotation/*.java"
-            include "**/ch/systemsx/cisd/base/**/*.java"
-            include "**/OpenBISScreeningML.java"
             include "**/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
             include "**/ch/systemsx/cisd/**/etlserver/registrator/*.java"
+            include "**/ch/systemsx/cisd/base/**/*.java"
+            include "**/ch/systemsx/cisd/common/annotation/*.java"
             include "**/ch/systemsx/cisd/common/mail/*.java"
+            include "**/OpenBISScreeningML.java"
         }
     }
     classpath = configurations.javadoc_compilation
     maxMemory = "1024m"
-    options.addStringOption("source", "1.8")
+    options.addStringOption("source", "11")
 }
 
 build.dependsOn zip
