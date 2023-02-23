@@ -34,6 +34,7 @@ from .commands.download_physical import DownloadPhysical
 from .commands.move import Move
 from .commands.openbis_sync import OpenbisSync
 from .commands.removeref import Removeref
+from .commands.search import Search
 from .git import GitWrapper
 from .utils import Type
 from .utils import cd
@@ -216,6 +217,19 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         """
         return
 
+    @abc.abstractmethod
+    def search(self, type_code, space, project, experiment, property_code, property_value, save):
+        """Search for objects in openBIS using filtering criteria.
+        :param type_code: Type of searched object.
+        :param space: Space path to filter object.
+        :param project: Project path to filter object.
+        :param experiment: Experiment path to filter object.
+        :param property_code: Custom property code to search by, property_value must be set as well.
+        :param property_value: Custom property value to search by, property_code must be set as well.
+        :param save: File path to save results. If missing, search results will not be saved.
+        """
+        return
+
 
 class NoGitDataMgmt(AbstractDataMgmt):
     """DataMgmt operations when git is not available -- show error messages."""
@@ -255,6 +269,9 @@ class NoGitDataMgmt(AbstractDataMgmt):
 
     def download(self, data_set_id, content_copy_index, file, skip_integrity_check):
         self.error_raise("download", "No git command found.")
+
+    def search(self, *_):
+        self.error_raise("search", "No git command found.")
 
 
 def restore_signal_handler(data_mgmt):
@@ -332,8 +349,7 @@ class GitDataMgmt(AbstractDataMgmt):
 
     def init_data(self, desc=None):
         # check that repository does not already exist
-        # TODO remove .git check after physical flow is implemented
-        if os.path.exists('.obis') and os.path.exists('.git'):
+        if os.path.exists('.obis'):
             return CommandResult(returncode=-1, output="Folder is already an obis repository.")
         result = self.git_wrapper.git_init()
         if result.failure():
@@ -536,6 +552,9 @@ class GitDataMgmt(AbstractDataMgmt):
         else:
             return CommandResult(returncode=0, output="")
 
+    def search(self, *_):
+        self.error_raise("search", "This functionality is not implemented for data of LINK type.")
+
 
 class PhysicalDataMgmt(AbstractDataMgmt):
     """DataMgmt operations for DSS-stored data."""
@@ -544,7 +563,7 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         return dm_config.SettingsResolver()
 
     def setup_local_settings(self, all_settings):
-        self.error_raise("setup local settings", "Not implemented.")
+        self.error_raise("setup local settings", "Not implemented for PHYSICAL data.")
 
     def init_data(self, desc=None):
         if os.path.exists('.obis'):
@@ -558,29 +577,34 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         return CommandResult(returncode=0, output="Physical obis repository initialized.")
 
     def init_analysis(self, parent_folder, desc=None):
-        self.error_raise("init analysis", "Not implemented.")
+        self.error_raise("init analysis", "Not implemented for PHYSICAL data.")
 
     def commit(self, msg, auto_add=True, sync=True):
-        self.error_raise("commit", "Not implemented.")
+        self.error_raise("commit", "Not implemented for PHYSICAL data.")
 
     def sync(self):
-        self.error_raise("sync", "Not implemented.")
+        self.error_raise("sync", "Not implemented for PHYSICAL data.")
 
     def status(self):
-        self.error_raise("status", "Not implemented.")
+        self.error_raise("status", "Not implemented for PHYSICAL data.")
 
     def clone(self, data_set_id, ssh_user, content_copy_index, skip_integrity_check):
-        self.error_raise("clone", "Not implemented.")
+        self.error_raise("clone", "Not implemented for PHYSICAL data.")
 
     def move(self, data_set_id, ssh_user, content_copy_index, skip_integrity_check):
-        self.error_raise("move", "Not implemented.")
+        self.error_raise("move", "Not implemented for PHYSICAL data.")
 
     def addref(self):
-        self.error_raise("addref", "Not implemented.")
+        self.error_raise("addref", "Not implemented for PHYSICAL data.")
 
     def removeref(self, data_set_id=None):
-        self.error_raise("removeref", "Not implemented.")
+        self.error_raise("removeref", "Not implemented for PHYSICAL data.")
 
     def download(self, data_set_id, _content_copy_index, file, _skip_integrity_check):
         cmd = DownloadPhysical(self, data_set_id, file)
         return cmd.run()
+
+    def search(self, type_code, space, project, experiment, property_code, property_value, save):
+        cmd = Search(self, type_code, space, project, experiment, property_code, property_value,
+                     save)
+        return cmd.search_samples()
