@@ -268,6 +268,18 @@ def repository_clear(ctx, settings):
 # data_set: type, properties
 
 
+_search_params = [
+    click.option('-type', '--type', 'type_code', default=None, help='Type code to filter by'),
+    click.option('-space', '--space', default=None, help='Space code'),
+    click.option('-project', '--project', default=None, help='Full project identification code'),
+    click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
+    click.option('-property', '--property', 'property_code', default=None, help='Property code'),
+    click.option('-property-value', '--property-value', 'property_value', default=None,
+                 help='Property value'),
+    click.option('-save', '--save', default=None, help='Filename to save results'),
+]
+
+
 @cli.group('data_set')
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
 @click.option('-p', '--is_data_set_property', default=False, is_flag=True,
@@ -302,6 +314,35 @@ def data_set_get(ctx, data_set_settings):
 @click.pass_context
 def data_set_clear(ctx, data_set_settings):
     return ctx.obj['runner'].run("data_set_clear", lambda dm: _clear(ctx, data_set_settings))
+
+
+@data_set.command('search', short_help="Search for datasets using a filtering criteria.")
+@add_params(_search_params)
+@click.pass_context
+def data_set_search(ctx, type_code, space, project, experiment, property_code, property_value,
+                    save):
+    if all(v is None for v in
+           [type_code, space, project, experiment, property_code, property_value]):
+        click_echo("You must provide at least one filtering criteria!")
+        return -1
+    if (property_code is None and property_value is not None) or (
+            property_code is not None and property_value is None):
+        click_echo("Property code and property value need to be specified!")
+        return -1
+    ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
+    ctx.invoke(_data_set_search, type_code=type_code, space=space,
+               project=project, experiment=experiment, property_code=property_code,
+               property_value=property_value, save=save)
+
+
+@add_params(_search_params)
+@click.pass_context
+def _data_set_search(ctx, type_code, space, project, experiment, property_code, property_value,
+                     save):
+    return ctx.obj['runner'].run("data_set_search",
+                                 lambda dm: dm.search_data_set(type_code, space, project,
+                                                               experiment, property_code,
+                                                               property_value, save)),
 
 
 # # object: object_id
@@ -340,19 +381,7 @@ def object_clear(ctx, object_settings):
     return ctx.obj['runner'].run("object_clear", lambda dm: _clear(ctx, object_settings))
 
 
-_search_params = [
-    click.option('-type', '--type', 'type_code', default=None, help='Type code to filter by'),
-    click.option('-space', '--space', default=None, help='Space code'),
-    click.option('-project', '--project', default=None, help='Full project identification code'),
-    click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
-    click.option('-property', '--property', 'property_code', default=None, help='Property code'),
-    click.option('-property-value', '--property-value', 'property_value', default=None,
-                 help='Property value'),
-    click.option('-save', '--save', default=None, help='Filename to save results'),
-]
-
-
-@cli.command(short_help="Download files of a linked data set.")
+@object.command('search', short_help="Search for samples using a filtering criteria.")
 @add_params(_search_params)
 @click.pass_context
 def object_search(ctx, type_code, space, project, experiment, property_code, property_value, save):
@@ -370,13 +399,12 @@ def object_search(ctx, type_code, space, project, experiment, property_code, pro
                property_value=property_value, save=save)
 
 
-@object.command('search')
 @add_params(_search_params)
 @click.pass_context
 def _object_search(ctx, type_code, space, project, experiment, property_code, property_value, save):
     return ctx.obj['runner'].run("object_search",
-                                 lambda dm: dm.search(type_code, space, project, experiment,
-                                                      property_code, property_value, save)),
+                                 lambda dm: dm.search_object(type_code, space, project, experiment,
+                                                             property_code, property_value, save)),
 
 
 # # collection: collection_id

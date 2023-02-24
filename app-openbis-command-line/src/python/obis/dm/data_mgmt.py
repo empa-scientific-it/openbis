@@ -218,8 +218,22 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def search(self, type_code, space, project, experiment, property_code, property_value, save):
+    def search_object(self, type_code, space, project, experiment, property_code, property_value,
+                      save):
         """Search for objects in openBIS using filtering criteria.
+        :param type_code: Type of searched object.
+        :param space: Space path to filter object.
+        :param project: Project path to filter object.
+        :param experiment: Experiment path to filter object.
+        :param property_code: Custom property code to search by, property_value must be set as well.
+        :param property_value: Custom property value to search by, property_code must be set as well.
+        :param save: File path to save results. If missing, search results will not be saved.
+        """
+        return
+
+    def search_data_set(self, type_code, space, project, experiment, property_code, property_value,
+                        save):
+        """Search for datasets in openBIS using filtering criteria.
         :param type_code: Type of searched object.
         :param space: Space path to filter object.
         :param project: Project path to filter object.
@@ -270,7 +284,10 @@ class NoGitDataMgmt(AbstractDataMgmt):
     def download(self, data_set_id, content_copy_index, file, skip_integrity_check):
         self.error_raise("download", "No git command found.")
 
-    def search(self, *_):
+    def search_object(self, *_):
+        self.error_raise("search", "No git command found.")
+
+    def search_data_set(self, *_):
         self.error_raise("search", "No git command found.")
 
 
@@ -552,7 +569,10 @@ class GitDataMgmt(AbstractDataMgmt):
         else:
             return CommandResult(returncode=0, output="")
 
-    def search(self, *_):
+    def search_object(self, *_):
+        self.error_raise("search", "This functionality is not implemented for data of LINK type.")
+
+    def search_data_set(self, *_):
         self.error_raise("search", "This functionality is not implemented for data of LINK type.")
 
 
@@ -604,7 +624,14 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         cmd = DownloadPhysical(self, data_set_id, file)
         return cmd.run()
 
-    def search(self, type_code, space, project, experiment, property_code, property_value, save):
+    def search_object(self, type_code, space, project, experiment, property_code, property_value,
+                      save):
         cmd = Search(self, type_code, space, project, experiment, property_code, property_value,
                      save)
         return cmd.search_samples()
+
+    def search_data_set(self, type_code, space, project, experiment, property_code, property_value,
+                        save):
+        cmd = Search(self, type_code, space, project, experiment, property_code, property_value,
+                     save)
+        return cmd.search_data_sets()
