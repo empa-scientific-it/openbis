@@ -29,7 +29,6 @@ from . import config as dm_config
 from .command_result import CommandResult
 from .commands.addref import Addref
 from .commands.clone import Clone
-from .commands.download import Download
 from .commands.download_physical import DownloadPhysical
 from .commands.move import Move
 from .commands.openbis_sync import OpenbisSync
@@ -37,7 +36,7 @@ from .commands.removeref import Removeref
 from .commands.search import Search
 from .commands.upload import Upload
 from .git import GitWrapper
-from .utils import Type
+from .utils import Type, OperationType
 from .utils import cd
 from .utils import complete_git_config
 from .utils import complete_openbis_config
@@ -351,6 +350,64 @@ def with_restore(f):
     return f_with_restore
 
 
+def update_config(resolver, debug, is_global, is_data_set_property, operation_type, prop=None,
+                  value=None):
+    if is_global:
+        resolver.set_location_search_order(['global'])
+    else:
+        resolver.set_location_search_order(['local'])
+
+    config_dict = resolver.config_dict()
+    if is_data_set_property:
+        config_dict = config_dict['properties']
+
+    if operation_type is OperationType.GET:
+        if prop is None:
+            config_str = json.dumps(config_dict, indent=4, sort_keys=True)
+            click_echo("{}".format(config_str), with_timestamp=False)
+        else:
+            if not prop in config_dict:
+                raise ValueError(
+                    "Unknown setting {} for {}.".format(prop, resolver.categoty))
+            little_dict = {prop: config_dict[prop]}
+            config_str = json.dumps(little_dict, indent=4, sort_keys=True)
+            click_echo("{}".format(config_str), with_timestamp=False)
+    elif operation_type is OperationType.SET:
+        return check_result("config",
+                            set_property(debug, resolver, prop, value, is_global,
+                                         is_data_set_property))
+    elif operation_type is OperationType.CLEAR:
+        if prop is None:
+            return_code = 0
+            for prop in config_dict.keys():
+                return_code += check_result("config",
+                                            set_property(debug, resolver, prop, None,
+                                                         is_global,
+                                                         is_data_set_property))
+            return return_code
+        else:
+            return check_result("config",
+                                set_property(debug, resolver, prop, None, is_global,
+                                             is_data_set_property))
+
+
+def set_property(debug, resolver, prop, value, is_global, is_data_set_property=False):
+    """Helper function to implement the property setting semantics."""
+    loc = 'global' if is_global else 'local'
+    try:
+        if is_data_set_property:
+            resolver.set_value_for_json_parameter('properties', prop, value, loc,
+                                                  apply_rules=True)
+        else:
+            resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
+    except Exception as e:
+        if debug is True:
+            raise e
+        return CommandResult(returncode=-1, output="Error: " + str(e))
+    else:
+        return CommandResult(returncode=0, output="")
+
+
 class GitDataMgmt(AbstractDataMgmt):
     """DataMgmt operations in normal state."""
 
@@ -496,101 +553,45 @@ class GitDataMgmt(AbstractDataMgmt):
         return cmd.run()
 
     def download(self, data_set_id, content_copy_index, file, skip_integrity_check):
-        cmd = Download(self, data_set_id, content_copy_index, file, skip_integrity_check)
-        return cmd.run()
+        self.error_raise("download", "This command is only available for Manager Data.")
 
     #
     # settings
     #
 
-    def config(self, category, is_global, is_data_set_property, prop=None, value=None, set=False,
-               get=False, clear=False):
+    def config(self, category, is_global, is_data_set_property, operation_type, prop=None,
+               value=None):
         """
         :param category: config, object, collection, data_set or repository
         :param is_global: act on global settings - local if false
         :param is_data_set_property: true if prop / value are a data set property
+        :param operation_type: type of operation to perform. It can be GET, SET, CLEAR
         :param prop: setting key
         :param value: setting value
-        :param set: True for setting values
-        :param get: True for getting values
-        :param clear: True for clearing values
         """
         resolver = self.settings_resolver.get(category)
         if resolver is None:
             raise ValueError('Invalid settings category: ' + category)
-        # we can only do one action at a time
-        if set == True:
-            assert get == False
-            assert clear == False
+        if operation_type is OperationType.SET:
             assert prop is not None
             assert value is not None
-        elif get == True:
-            assert set == False
-            assert clear == False
+        elif operation_type is OperationType.GET:
+            assert prop is not None
             assert value is None
-        elif clear == True:
-            assert get == False
-            assert set == False
+        elif operation_type is OperationType.CLEAR:
             assert value is None
 
-        assert set == True or get == True or clear == True
-        if is_global:
-            resolver.set_location_search_order(['global'])
-        else:
-            resolver.set_location_search_order(['local'])
-
-        config_dict = resolver.config_dict()
-        if is_data_set_property:
-            config_dict = config_dict['properties']
-        if get == True:
-            if prop is None:
-                config_str = json.dumps(config_dict, indent=4, sort_keys=True)
-                click_echo("{}".format(config_str), with_timestamp=False)
-            else:
-                if not prop in config_dict:
-                    raise ValueError("Unknown setting {} for {}.".format(prop, resolver.categoty))
-                little_dict = {prop: config_dict[prop]}
-                config_str = json.dumps(little_dict, indent=4, sort_keys=True)
-                click_echo("{}".format(config_str), with_timestamp=False)
-        elif set == True:
-            return check_result("config", self.set_property(resolver, prop, value, is_global,
-                                                            is_data_set_property))
-        elif clear == True:
-            if prop is None:
-                returncode = 0
-                for prop in config_dict.keys():
-                    returncode += check_result("config",
-                                               self.set_property(resolver, prop, None, is_global,
-                                                                 is_data_set_property))
-                return returncode
-            else:
-                return check_result("config", self.set_property(resolver, prop, None, is_global,
-                                                                is_data_set_property))
-
-    def set_property(self, resolver, prop, value, is_global, is_data_set_property=False):
-        """Helper function to implement the property setting semantics."""
-        loc = 'global' if is_global else 'local'
-        try:
-            if is_data_set_property:
-                resolver.set_value_for_json_parameter('properties', prop, value, loc,
-                                                      apply_rules=True)
-            else:
-                resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
-        except Exception as e:
-            if self.debug == True:
-                raise e
-            return CommandResult(returncode=-1, output="Error: " + str(e))
-        else:
-            return CommandResult(returncode=0, output="")
+        return update_config(resolver, self.debug, is_global, is_data_set_property,
+                             operation_type, prop, value)
 
     def search_object(self, *_):
-        self.error_raise("search", "This functionality is not implemented for data of LINK type.")
+        self.error_raise("search", "This command is only available for Manager Data.")
 
     def search_data_set(self, *_):
-        self.error_raise("search", "This functionality is not implemented for data of LINK type.")
+        self.error_raise("search", "This command is only available for Manager Data.")
 
     def upload(self, *_):
-        self.error_raise("upload", "This functionality is not implemented for data of LINK type.")
+        self.error_raise("upload", "This command is only available for Manager Data.")
 
 
 class PhysicalDataMgmt(AbstractDataMgmt):
@@ -600,7 +601,8 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         return dm_config.SettingsResolver()
 
     def setup_local_settings(self, all_settings):
-        self.error_raise("setup local settings", "Not implemented for PHYSICAL data.")
+        self.error_raise("setup local settings",
+                         "This command is only available for External Manager Data")
 
     def init_data(self, desc=None):
         if os.path.exists('.obis'):
@@ -611,31 +613,32 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         openbis_url = self.settings_resolver.config.config_dict()['openbis_url']
         self.settings_resolver.config.set_value_for_parameter("fileservice_url",
                                                               openbis_url, "local")
-        return CommandResult(returncode=0, output="Physical obis repository initialized.")
+        return CommandResult(returncode=0, output="Managed data obis repository initialized.")
 
     def init_analysis(self, parent_folder, desc=None):
-        self.error_raise("init analysis", "Not implemented for PHYSICAL data.")
+        self.error_raise("init analysis",
+                         "This command is only available for External Manager Data")
 
     def commit(self, msg, auto_add=True, sync=True):
-        self.error_raise("commit", "Not implemented for PHYSICAL data.")
+        self.error_raise("commit", "This command is only available for External Manager Data")
 
     def sync(self):
-        self.error_raise("sync", "Not implemented for PHYSICAL data.")
+        self.error_raise("sync", "This command is only available for External Manager Data")
 
     def status(self):
-        self.error_raise("status", "Not implemented for PHYSICAL data.")
+        self.error_raise("status", "This command is only available for External Manager Data")
 
     def clone(self, data_set_id, ssh_user, content_copy_index, skip_integrity_check):
-        self.error_raise("clone", "Not implemented for PHYSICAL data.")
+        self.error_raise("clone", "This command is only available for External Manager Data")
 
     def move(self, data_set_id, ssh_user, content_copy_index, skip_integrity_check):
-        self.error_raise("move", "Not implemented for PHYSICAL data.")
+        self.error_raise("move", "This command is only available for External Manager Data")
 
     def addref(self):
-        self.error_raise("addref", "Not implemented for PHYSICAL data.")
+        self.error_raise("addref", "This command is only available for External Manager Data")
 
     def removeref(self, data_set_id=None):
-        self.error_raise("removeref", "Not implemented for PHYSICAL data.")
+        self.error_raise("removeref", "This command is only available for External Manager Data")
 
     def download(self, data_set_id, _content_copy_index, file, _skip_integrity_check):
         cmd = DownloadPhysical(self, data_set_id, file)
@@ -657,82 +660,32 @@ class PhysicalDataMgmt(AbstractDataMgmt):
                      save)
         return cmd.search_data_sets()
 
-    def config(self, category, is_global, is_data_set_property, prop=None, value=None, set=False,
-               get=False, clear=False):
+    def config(self, category, is_global, is_data_set_property, operation_type, prop=None,
+               value=None):
         """
         :param category: config, object, collection, data_set or repository
         :param is_global: act on global settings - local if false
         :param is_data_set_property: true if prop / value are a data set property
+        :param operation_type: type of operation to perform. It can be GET, SET, CLEAR
         :param prop: setting key
         :param value: setting value
-        :param set: True for setting values
-        :param get: True for getting values
-        :param clear: True for clearing values
         """
         resolver = self.settings_resolver.get(category)
         if resolver is None:
             raise ValueError('Invalid settings category: ' + category)
-        # we can only do one action at a time
-        if set is True:
-            assert get is False
-            assert clear is False
+        if operation_type is OperationType.SET:
             assert prop is not None
             assert value is not None
-        elif get is True:
-            assert set is False
-            assert clear is False
+        elif operation_type is OperationType.GET:
+            assert prop is not None
             assert value is None
-        elif clear is True:
-            assert get is False
-            assert set is False
-            assert value is None
+        elif operation_type is OperationType.CLEAR:
+            self.error_raise(f"{category} clear",
+                             "This command is only available for External Manager Data")
 
-        assert set is True or get is True or clear is True
-        if is_global:
-            resolver.set_location_search_order(['global'])
+        if category == "object" or category == "collection":
+            click_echo("Not yet implemented.")
+            return 0
         else:
-            resolver.set_location_search_order(['local'])
-
-        config_dict = resolver.config_dict()
-        if is_data_set_property:
-            config_dict = config_dict['properties']
-        if get is True:
-            if prop is None:
-                config_str = json.dumps(config_dict, indent=4, sort_keys=True)
-                click_echo("{}".format(config_str), with_timestamp=False)
-            else:
-                if not prop in config_dict:
-                    raise ValueError("Unknown setting {} for {}.".format(prop, resolver.categoty))
-                little_dict = {prop: config_dict[prop]}
-                config_str = json.dumps(little_dict, indent=4, sort_keys=True)
-                click_echo("{}".format(config_str), with_timestamp=False)
-        elif set is True:
-            return check_result("config", self.set_property(resolver, prop, value, is_global,
-                                                            is_data_set_property))
-        elif clear is True:
-            if prop is None:
-                return_code = 0
-                for prop in config_dict.keys():
-                    return_code += check_result("config",
-                                                self.set_property(resolver, prop, None, is_global,
-                                                                  is_data_set_property))
-                return return_code
-            else:
-                return check_result("config", self.set_property(resolver, prop, None, is_global,
-                                                                is_data_set_property))
-
-    def set_property(self, resolver, prop, value, is_global, is_data_set_property=False):
-        """Helper function to implement the property setting semantics."""
-        loc = 'global' if is_global else 'local'
-        try:
-            if is_data_set_property:
-                resolver.set_value_for_json_parameter('properties', prop, value, loc,
-                                                      apply_rules=True)
-            else:
-                resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
-        except Exception as e:
-            if self.debug is True:
-                raise e
-            return CommandResult(returncode=-1, output="Error: " + str(e))
-        else:
-            return CommandResult(returncode=0, output="")
+            return update_config(resolver, self.debug, is_global, is_data_set_property,
+                                 operation_type, prop, value)

@@ -33,6 +33,7 @@ from requests import ConnectionError
 from .click_util import click_echo
 from .data_mgmt_runner import DataMgmtRunner
 from ..dm.command_result import CommandResult
+from ..dm.utils import OperationType
 
 
 def click_progress(progress_data):
@@ -174,21 +175,21 @@ def _join_settings_get(setting_lists):
     return joined
 
 
-def _access_settings(ctx, prop=None, value=None, set=False, get=False, clear=False):
+def _access_settings(ctx, operation_type, prop=None, value=None):
     is_global = ctx.obj['is_global']
     runner = ctx.obj['runner']
     resolver = ctx.obj['resolver']
     is_data_set_property = False
     if 'is_data_set_property' in ctx.obj:
         is_data_set_property = ctx.obj['is_data_set_property']
-    runner.config(resolver, is_global, is_data_set_property,
-                  prop=prop, value=value, set=set, get=get, clear=clear)
+    runner.config(resolver, is_global, is_data_set_property, operation_type,
+                  prop=prop, value=value)
 
 
 def _set(ctx, settings):
     settings_dict = _join_settings_set(settings)
     for prop, value in settings_dict.items():
-        _access_settings(ctx, prop=prop, value=value, set=True)
+        _access_settings(ctx, OperationType.SET, prop=prop, value=value)
     return CommandResult(returncode=0, output='')
 
 
@@ -197,7 +198,7 @@ def _get(ctx, settings):
     if len(settings_list) == 0:
         settings_list = [None]
     for prop in settings_list:
-        _access_settings(ctx, prop=prop, get=True)
+        _access_settings(ctx, OperationType.GET, prop=prop)
     return CommandResult(returncode=0, output='')
 
 
@@ -206,7 +207,7 @@ def _clear(ctx, settings):
     if len(settings_list) == 0:
         settings_list = [None]
     for prop in settings_list:
-        _access_settings(ctx, prop=prop, clear=True)
+        _access_settings(ctx, OperationType.CLEAR, prop=prop)
     return CommandResult(returncode=0, output='')
 
 

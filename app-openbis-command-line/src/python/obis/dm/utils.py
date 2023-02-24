@@ -26,6 +26,14 @@ class Type(Enum):
     PHYSICAL = 2,
     UNKNOWN = 3
 
+
+class OperationType(Enum):
+    """Enum representing basic operation types"""
+    GET = 1,
+    SET = 2,
+    CLEAR = 3
+
+
 def complete_openbis_config(config, resolver, local_only=True):
     """Add default values for empty entries in the config."""
     config_dict = resolver.config.config_dict(local_only)

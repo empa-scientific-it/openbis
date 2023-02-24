@@ -108,11 +108,11 @@ class DataMgmtRunner(object):
         else:
             return self._get_dm().get_settings_resolver()
 
-    def config(self, resolver, is_global, is_data_set_property, prop, value, set, get, clear):
+    def config(self, resolver, is_global, is_data_set_property, operation_type, prop, value):
         self.init_paths()
         with cd(self.metadata_path):
-            self._get_dm().config(resolver, is_global, is_data_set_property, prop, value, set, get,
-                                  clear)
+            self._get_dm().config(resolver, is_global, is_data_set_property, operation_type, prop,
+                                  value)
 
     def _get_dm(self):
         git_config = {
