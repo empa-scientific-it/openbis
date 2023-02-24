@@ -748,7 +748,7 @@ def removeref(ctx, data_set_id, repository):
                repository=repository)
 
 
-# data set commands: download / clone
+# data set commands: download, upload, clone
 
 # download
 
@@ -763,7 +763,7 @@ _download_params = [
 ]
 
 
-@data_set.command("download", short_help="Download files of a linked data set.")
+@data_set.command("download", short_help="Download files of a data set.")
 @add_params(_download_params)
 @click.pass_context
 def data_set_download(ctx, content_copy_index, file, data_set_id, skip_integrity_check):
@@ -772,13 +772,40 @@ def data_set_download(ctx, content_copy_index, file, data_set_id, skip_integrity
                                                         skip_integrity_check))
 
 
-@cli.command(short_help="Download files of a linked data set.")
+@cli.command("download", short_help="Download files of a data set.")
 @add_params(_download_params)
 @click.pass_context
 def download(ctx, content_copy_index, file, data_set_id, skip_integrity_check):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(data_set_download, content_copy_index=content_copy_index, file=file,
                data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
+
+
+# upload
+
+
+_upload_params = [
+    click.option(
+        '-f', '--file', "files", help='file or directory to upload.', required=True, multiple=True),
+    click.argument('sample_id'),
+    click.argument('data_set_type'),
+]
+
+
+@data_set.command("upload", short_help="Upload files to form a data set.")
+@add_params(_upload_params)
+@click.pass_context
+def data_set_upload(ctx, sample_id, data_set_type, files):
+    return ctx.obj['runner'].run("upload",
+                                 lambda dm: dm.upload(sample_id, data_set_type, files))
+
+
+@cli.command("upload", short_help="Upload files to form a data set.")
+@add_params(_upload_params)
+@click.pass_context
+def download(ctx, sample_id, data_set_type, files):
+    ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
+    ctx.invoke(data_set_upload, files=files, sample_id=sample_id, data_set_type=data_set_type)
 
 
 # clone

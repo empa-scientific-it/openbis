@@ -35,6 +35,7 @@ from .commands.move import Move
 from .commands.openbis_sync import OpenbisSync
 from .commands.removeref import Removeref
 from .commands.search import Search
+from .commands.upload import Upload
 from .git import GitWrapper
 from .utils import Type
 from .utils import cd
@@ -218,6 +219,15 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
+    def upload(self, sample_id, data_set_type, files):
+        """Upload files/directories into a new data set.
+        :param sample_id: permId or sample path of the parent sample
+        :param data_set_type: type of created data set
+        :param files: list of files/directories to upload
+        """
+        return
+
+    @abc.abstractmethod
     def search_object(self, type_code, space, project, experiment, property_code, property_value,
                       save):
         """Search for objects in openBIS using filtering criteria.
@@ -231,6 +241,7 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         """
         return
 
+    @abc.abstractmethod
     def search_data_set(self, type_code, space, project, experiment, property_code, property_value,
                         save):
         """Search for datasets in openBIS using filtering criteria.
@@ -289,6 +300,9 @@ class NoGitDataMgmt(AbstractDataMgmt):
 
     def search_data_set(self, *_):
         self.error_raise("search", "No git command found.")
+
+    def upload(self, *_):
+        self.error_raise("upload", "No git command found.")
 
 
 def restore_signal_handler(data_mgmt):
@@ -575,6 +589,9 @@ class GitDataMgmt(AbstractDataMgmt):
     def search_data_set(self, *_):
         self.error_raise("search", "This functionality is not implemented for data of LINK type.")
 
+    def upload(self, *_):
+        self.error_raise("upload", "This functionality is not implemented for data of LINK type.")
+
 
 class PhysicalDataMgmt(AbstractDataMgmt):
     """DataMgmt operations for DSS-stored data."""
@@ -622,6 +639,10 @@ class PhysicalDataMgmt(AbstractDataMgmt):
 
     def download(self, data_set_id, _content_copy_index, file, _skip_integrity_check):
         cmd = DownloadPhysical(self, data_set_id, file)
+        return cmd.run()
+
+    def upload(self, sample_id, data_set_type, files):
+        cmd = Upload(self, sample_id, data_set_type, files)
         return cmd.run()
 
     def search_object(self, type_code, space, project, experiment, property_code, property_value,
