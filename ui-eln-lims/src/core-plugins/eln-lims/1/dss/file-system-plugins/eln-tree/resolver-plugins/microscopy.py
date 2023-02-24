@@ -10,6 +10,8 @@ acceptor.hideDataSetType("MICROSCOPY_IMG_THUMBNAIL")
 
 def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
+    dataSetSearchCriteria.withOrOperator()
+    dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
     parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
     parentsSearchCriteria.withPermId().thatEquals(samplePermId)
     fetchOptions = DataSetFetchOptions()
