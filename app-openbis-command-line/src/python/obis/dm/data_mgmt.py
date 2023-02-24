@@ -656,3 +656,83 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         cmd = Search(self, type_code, space, project, experiment, property_code, property_value,
                      save)
         return cmd.search_data_sets()
+
+    def config(self, category, is_global, is_data_set_property, prop=None, value=None, set=False,
+               get=False, clear=False):
+        """
+        :param category: config, object, collection, data_set or repository
+        :param is_global: act on global settings - local if false
+        :param is_data_set_property: true if prop / value are a data set property
+        :param prop: setting key
+        :param value: setting value
+        :param set: True for setting values
+        :param get: True for getting values
+        :param clear: True for clearing values
+        """
+        resolver = self.settings_resolver.get(category)
+        if resolver is None:
+            raise ValueError('Invalid settings category: ' + category)
+        # we can only do one action at a time
+        if set is True:
+            assert get is False
+            assert clear is False
+            assert prop is not None
+            assert value is not None
+        elif get is True:
+            assert set is False
+            assert clear is False
+            assert value is None
+        elif clear is True:
+            assert get is False
+            assert set is False
+            assert value is None
+
+        assert set is True or get is True or clear is True
+        if is_global:
+            resolver.set_location_search_order(['global'])
+        else:
+            resolver.set_location_search_order(['local'])
+
+        config_dict = resolver.config_dict()
+        if is_data_set_property:
+            config_dict = config_dict['properties']
+        if get is True:
+            if prop is None:
+                config_str = json.dumps(config_dict, indent=4, sort_keys=True)
+                click_echo("{}".format(config_str), with_timestamp=False)
+            else:
+                if not prop in config_dict:
+                    raise ValueError("Unknown setting {} for {}.".format(prop, resolver.categoty))
+                little_dict = {prop: config_dict[prop]}
+                config_str = json.dumps(little_dict, indent=4, sort_keys=True)
+                click_echo("{}".format(config_str), with_timestamp=False)
+        elif set is True:
+            return check_result("config", self.set_property(resolver, prop, value, is_global,
+                                                            is_data_set_property))
+        elif clear is True:
+            if prop is None:
+                return_code = 0
+                for prop in config_dict.keys():
+                    return_code += check_result("config",
+                                                self.set_property(resolver, prop, None, is_global,
+                                                                  is_data_set_property))
+                return return_code
+            else:
+                return check_result("config", self.set_property(resolver, prop, None, is_global,
+                                                                is_data_set_property))
+
+    def set_property(self, resolver, prop, value, is_global, is_data_set_property=False):
+        """Helper function to implement the property setting semantics."""
+        loc = 'global' if is_global else 'local'
+        try:
+            if is_data_set_property:
+                resolver.set_value_for_json_parameter('properties', prop, value, loc,
+                                                      apply_rules=True)
+            else:
+                resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
+        except Exception as e:
+            if self.debug is True:
+                raise e
+            return CommandResult(returncode=-1, output="Error: " + str(e))
+        else:
+            return CommandResult(returncode=0, output="")
