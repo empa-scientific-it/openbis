@@ -62,7 +62,6 @@ configurations.create('blast_tar')
 configurations.create('libOpenbisCommonJavadoc')
 configurations.create('serverOriginalDataStoreJavadoc')
 configurations.create('serverApplicationServerJavadoc')
-configurations.create('serverScreeningJavadoc')
 
 def jettyVersion = '9.4.44'
 def jettyDistributionVersion = '9.4.44.v20210927'
@@ -126,7 +125,6 @@ dependencies {
     libOpenbisCommonJavadoc project(':lib-openbis-common')
     serverOriginalDataStoreJavadoc project(':server-original-data-store')
     serverApplicationServerJavadoc project(':server-application-server')
-    serverScreeningJavadoc project(':server-screening')
 }
 
 sourceSets {
@@ -515,22 +513,9 @@ task serverApplicationServerJavadocZip(type: Zip, dependsOn: serverApplicationSe
     from serverApplicationServerJavadoc.destinationDir
 }
 
-task serverScreeningJavadoc(type: Javadoc) {
-    source project(':server-screening').files('source/java').getAsFileTree().matching {
-        include "**/ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.java"
-    }
-    classpath = configurations.serverScreeningJavadoc
-}
-
-task serverScreeningJavadocZip(type: Zip, dependsOn: serverScreeningJavadoc) {
-    archiveName 'javadoc-server-screening.zip'
-    from serverScreeningJavadoc.destinationDir
-}
-
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip,
                                            dropboxJavaDocZip, dynamicApiJavadocZip, libOpenbisCommonJavadocZip,
-                                           serverOriginalDataStoreJavadocZip, serverApplicationServerJavadocZip,
-                                           serverScreeningJavadocZip]) {
+                                           serverOriginalDataStoreJavadocZip, serverApplicationServerJavadocZip]) {
     baseName 'openBIS-clients-and-APIs'
     from dssClientZip.archivePath
     from queryApiZip.archivePath
@@ -543,7 +528,6 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
     from libOpenbisCommonJavadocZip.archivePath
     from serverOriginalDataStoreJavadocZip.archivePath
     from serverApplicationServerJavadocZip.archivePath
-    from serverScreeningJavadocZip.archivePath
     from('dist/client/readme.txt')
     rename { filename ->
         if (filename.startsWith('pybis-')) {
