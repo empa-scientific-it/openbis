@@ -29,6 +29,7 @@ from . import config as dm_config
 from .command_result import CommandResult
 from .commands.addref import Addref
 from .commands.clone import Clone
+from .commands.collection import Collection
 from .commands.download_physical import DownloadPhysical
 from .commands.move import Move
 from .commands.object import Object
@@ -688,8 +689,8 @@ class PhysicalDataMgmt(AbstractDataMgmt):
             cmd = Object(self, operation_type, prop, value)
             return cmd.run()
         elif category == "collection":
-            click_echo("Not yet implemented.")
-            return 0
+            cmd = Collection(self, operation_type, prop, value)
+            return cmd.run()
         else:
             return update_config(resolver, self.debug, is_global, is_data_set_property,
                                  operation_type, prop, value)
