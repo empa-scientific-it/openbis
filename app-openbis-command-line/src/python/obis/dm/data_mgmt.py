@@ -31,6 +31,7 @@ from .commands.addref import Addref
 from .commands.clone import Clone
 from .commands.download_physical import DownloadPhysical
 from .commands.move import Move
+from .commands.object import Object
 from .commands.openbis_sync import OpenbisSync
 from .commands.removeref import Removeref
 from .commands.search import Search
@@ -683,7 +684,10 @@ class PhysicalDataMgmt(AbstractDataMgmt):
             self.error_raise(f"{category} clear",
                              "This command is only available for External Manager Data")
 
-        if category == "object" or category == "collection":
+        if category == "object":
+            cmd = Object(self, operation_type, prop, value)
+            return cmd.run()
+        elif category == "collection":
             click_echo("Not yet implemented.")
             return 0
         else:

@@ -92,12 +92,28 @@ class Search(OpenbisCommand):
             where=properties,
             props="*"  # Fetch all properties
         )
-        click_echo(f"Number of objects matching criteria: {len(search_results)}")
+
+        collections = self.openbis.get_collections(
+            space=self.space,
+            project=self.project,
+            type=self.type_code,
+            where=properties,
+            props="*"  # Fetch all properties
+        )
+
         click_echo("Looking for data sets")
         datasets = []
+        perm_ids = set()
         for sample in search_results:
             ds = sample.get_datasets()
-            datasets += ds.objects
+            for ds_object in ds.objects:
+                datasets += [ds_object] if ds_object.permId not in perm_ids else []
+                perm_ids.add(ds_object.permId)
+        for collection in collections:
+            ds = collection.get_datasets()
+            for ds_object in ds.objects:
+                datasets += [ds_object] if ds_object.permId not in perm_ids else []
+                perm_ids.add(ds_object.permId)
 
         click_echo(f"Data sets found: {len(datasets)}")
         if self.save_path is not None:
