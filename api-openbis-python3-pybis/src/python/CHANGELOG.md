@@ -1,3 +1,8 @@
+## Changes with pybis-1.35.3
+
+- Modified set_token() method to accept PersonalAccessToken object
+- Minor code refactoring
+
 ## Changes with pybis-1.35.2
 
 - Added rising an error when re-login fails
