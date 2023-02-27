@@ -477,7 +477,7 @@ class GitDataMgmt(AbstractDataMgmt):
                 self.git_wrapper.git_ignore(analysis_folder_relative)
 
         # set data_set_id to analysis repository so it will be used as parent when committing
-        self.set_property(self.settings_resolver.repository, "data_set_id", parent_data_set_id,
+        set_property(self.settings_resolver.repository, "data_set_id", parent_data_set_id,
                           False, False)
         return result
 
