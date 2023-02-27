@@ -30,7 +30,7 @@ branch=$1
 tag=$2
 
 # cd to repository root directory
-cd "$(dirname "$0")/../../../.."
+cd "$(dirname "$0")/../.."
 
 # checkout tag
 git checkout $tag

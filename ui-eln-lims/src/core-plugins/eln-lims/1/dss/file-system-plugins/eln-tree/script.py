@@ -260,13 +260,11 @@ def getNode(subPath, acceptor, context):
             nodeType = parentNode.getType()
             entityType = parentNode.getEntityType()
             permId = parentNode.getPermId()
-            print(">>>>>>>>>> GET NODE: %s, %s, %s" % (path, nodeType, parentNode.permIds))
             if nodeType == "EXPERIMENT":
                 addExperimentChildNodes(parentPathString, permId, entityType, None, acceptor, context)
             elif nodeType == "SAMPLE":
                 addSampleChildNodes(parentPathString, permId, entityType, None, acceptor, context)
             elif nodeType == "DATASET":
-                print("====== GET DATASET NODE: %s, %s" % (path, parentNode.permIds))
                 dataSetCode, contentNode, _ = getContentNode(parentNode.getPermId(), context)
                 addDataSetFileNodes(parentPathString, dataSetCode, contentNode, None, acceptor, context)
             else:
@@ -342,7 +340,7 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
         filePath = "%s/%s" % (path, nodeName)
         filePermId = "%s::%s" % (dataSetCode, childNode.getRelativePath())
         cachedNode = context.getCache().getNode(filePath)
-        if cachedNode is not None:
+        if cachedNode is not None and filePermId not in cachedNode.permIds:
             cachedNode.addPermId(filePermId)
         else:
             context.getCache().putNode(NodeWithEntityType("DATASET", filePermId, None), filePath)

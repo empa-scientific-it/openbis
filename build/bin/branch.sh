@@ -17,7 +17,7 @@ if [ -n "$branch_heads" ]; then
 fi
 
 # cd to repository root directory
-cd "$(dirname "$0")/../../../.."
+cd "$(dirname "$0")/../.."
 
 # create branch in git from master
 git checkout -b $1
