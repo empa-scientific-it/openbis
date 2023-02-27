@@ -609,8 +609,7 @@ class PhysicalDataMgmt(AbstractDataMgmt):
     def init_data(self, desc=None):
         if os.path.exists('.obis'):
             return CommandResult(returncode=-1, output="Folder is already an obis repository.")
-        self.settings_resolver.set_resolver_location_roots('data_set', '.')
-        self.settings_resolver.copy_global_to_local()
+        self.settings_resolver.config.copy_global_to_local()
         self.settings_resolver.config.set_value_for_parameter("is_physical", True, "local")
         openbis_url = self.settings_resolver.config.config_dict()['openbis_url']
         self.settings_resolver.config.set_value_for_parameter("fileservice_url",
