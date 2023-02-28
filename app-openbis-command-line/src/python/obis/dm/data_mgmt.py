@@ -256,6 +256,63 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         """
         return
 
+    def update_config(self, resolver, debug, is_global, is_data_set_property, operation_type,
+                      prop=None,
+                      value=None):
+        if is_global:
+            resolver.set_location_search_order(['global'])
+        else:
+            resolver.set_location_search_order(['local'])
+
+        config_dict = resolver.config_dict()
+        if is_data_set_property:
+            config_dict = config_dict['properties']
+
+        if operation_type is OperationType.GET:
+            if prop is None:
+                config_str = json.dumps(config_dict, indent=4, sort_keys=True)
+                click_echo("{}".format(config_str), with_timestamp=False)
+            else:
+                if not prop in config_dict:
+                    raise ValueError(
+                        "Unknown setting {} for {}.".format(prop, resolver.categoty))
+                little_dict = {prop: config_dict[prop]}
+                config_str = json.dumps(little_dict, indent=4, sort_keys=True)
+                click_echo("{}".format(config_str), with_timestamp=False)
+        elif operation_type is OperationType.SET:
+            return check_result("config",
+                                self.set_property(debug, resolver, prop, value, is_global,
+                                                  is_data_set_property))
+        elif operation_type is OperationType.CLEAR:
+            if prop is None:
+                return_code = 0
+                for prop in config_dict.keys():
+                    return_code += check_result("config",
+                                                self.set_property(debug, resolver, prop, None,
+                                                                  is_global, is_data_set_property))
+                return return_code
+            else:
+                return check_result("config",
+                                    self.set_property(debug, resolver, prop, None, is_global,
+                                                      is_data_set_property))
+
+    @staticmethod
+    def set_property(debug, resolver, prop, value, is_global, is_data_set_property=False):
+        """Helper function to implement the property setting semantics."""
+        loc = 'global' if is_global else 'local'
+        try:
+            if is_data_set_property:
+                resolver.set_value_for_json_parameter('properties', prop, value, loc,
+                                                      apply_rules=True)
+            else:
+                resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
+        except Exception as e:
+            if debug is True:
+                raise e
+            return CommandResult(returncode=-1, output="Error: " + str(e))
+        else:
+            return CommandResult(returncode=0, output="")
+
 
 class NoGitDataMgmt(AbstractDataMgmt):
     """DataMgmt operations when git is not available -- show error messages."""
@@ -352,64 +409,6 @@ def with_restore(f):
     return f_with_restore
 
 
-def update_config(resolver, debug, is_global, is_data_set_property, operation_type, prop=None,
-                  value=None):
-    if is_global:
-        resolver.set_location_search_order(['global'])
-    else:
-        resolver.set_location_search_order(['local'])
-
-    config_dict = resolver.config_dict()
-    if is_data_set_property:
-        config_dict = config_dict['properties']
-
-    if operation_type is OperationType.GET:
-        if prop is None:
-            config_str = json.dumps(config_dict, indent=4, sort_keys=True)
-            click_echo("{}".format(config_str), with_timestamp=False)
-        else:
-            if not prop in config_dict:
-                raise ValueError(
-                    "Unknown setting {} for {}.".format(prop, resolver.categoty))
-            little_dict = {prop: config_dict[prop]}
-            config_str = json.dumps(little_dict, indent=4, sort_keys=True)
-            click_echo("{}".format(config_str), with_timestamp=False)
-    elif operation_type is OperationType.SET:
-        return check_result("config",
-                            set_property(debug, resolver, prop, value, is_global,
-                                         is_data_set_property))
-    elif operation_type is OperationType.CLEAR:
-        if prop is None:
-            return_code = 0
-            for prop in config_dict.keys():
-                return_code += check_result("config",
-                                            set_property(debug, resolver, prop, None,
-                                                         is_global,
-                                                         is_data_set_property))
-            return return_code
-        else:
-            return check_result("config",
-                                set_property(debug, resolver, prop, None, is_global,
-                                             is_data_set_property))
-
-
-def set_property(debug, resolver, prop, value, is_global, is_data_set_property=False):
-    """Helper function to implement the property setting semantics."""
-    loc = 'global' if is_global else 'local'
-    try:
-        if is_data_set_property:
-            resolver.set_value_for_json_parameter('properties', prop, value, loc,
-                                                  apply_rules=True)
-        else:
-            resolver.set_value_for_parameter(prop, value, loc, apply_rules=True)
-    except Exception as e:
-        if debug is True:
-            raise e
-        return CommandResult(returncode=-1, output="Error: " + str(e))
-    else:
-        return CommandResult(returncode=0, output="")
-
-
 class GitDataMgmt(AbstractDataMgmt):
     """DataMgmt operations in normal state."""
 
@@ -487,7 +486,6 @@ class GitDataMgmt(AbstractDataMgmt):
             return CommandResult(returncode=-1, output="Error: " + str(e))
         else:
             return CommandResult(returncode=0, output="")
-
 
     @with_restore
     def sync(self):
@@ -591,8 +589,8 @@ class GitDataMgmt(AbstractDataMgmt):
         elif operation_type is OperationType.CLEAR:
             assert value is None
 
-        return update_config(resolver, self.debug, is_global, is_data_set_property,
-                             operation_type, prop, value)
+        return self.update_config(resolver, self.debug, is_global, is_data_set_property,
+                                  operation_type, prop, value)
 
     def search_object(self, *_):
         self.error_raise("search", "This command is only available for Manager Data.")
@@ -699,5 +697,5 @@ class PhysicalDataMgmt(AbstractDataMgmt):
             cmd = Collection(self, operation_type, prop, value)
             return cmd.run()
         else:
-            return update_config(resolver, self.debug, is_global, is_data_set_property,
-                                 operation_type, prop, value)
+            return self.update_config(resolver, self.debug, is_global, is_data_set_property,
+                                      operation_type, prop, value)
