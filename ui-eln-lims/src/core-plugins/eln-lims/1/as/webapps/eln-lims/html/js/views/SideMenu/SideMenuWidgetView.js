@@ -623,10 +623,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 experimentDisplayName = experiment.properties[profile.propertyReplacingCode];
                             }
                             var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(experiment.getIdentifier().getIdentifier());
-                            var isInventorySpace = profile.isInventorySpace(experimentSpace);
+                            var experimentType = experiment.getType().getCode();
                             var viewToUse = null;
                             var loadSamples = null;
-                            if(isInventorySpace) {
+                            if (experimentType == "COLLECTION") {
                                 viewToUse = "showSamplesPage";
                                 loadSamples = false;
                             } else {
