@@ -18,7 +18,7 @@ import sys
 if sys.version_info < (3, 3):
     sys.exit("Sorry, Python < 3.3 is not supported")
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -31,13 +31,13 @@ data_files = [
 
 setup(
     name="obis",
-    version="0.3.2",
+    version="0.4.0rc1",
     description="Local data management with assistance from OpenBIS.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://sissource.ethz.ch/sispub/openbis/tree/master/app-openbis-command-line",
     author="ID SIS • ETH Zürich",
-    author_email="swen@ethz.ch",
+    author_email="openbis-support@id.ethz.ch",
     license="Apache Software License Version 2.0",
     packages=["obis", "obis.dm", "obis.dm.commands", "obis.scripts"],
     data_files=data_files,
