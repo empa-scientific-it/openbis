@@ -477,9 +477,17 @@ class GitDataMgmt(AbstractDataMgmt):
                 self.git_wrapper.git_ignore(analysis_folder_relative)
 
         # set data_set_id to analysis repository so it will be used as parent when committing
-        set_property(self.debug, self.settings_resolver.repository, "data_set_id",
-                     parent_data_set_id, False, False)
-        return result
+        try:
+            self.settings_resolver.repository.set_value_for_parameter("data_set_id",
+                                                                      parent_data_set_id, "local",
+                                                                      apply_rules=True)
+        except Exception as e:
+            if self.debug is True:
+                raise e
+            return CommandResult(returncode=-1, output="Error: " + str(e))
+        else:
+            return CommandResult(returncode=0, output="")
+
 
     @with_restore
     def sync(self):
