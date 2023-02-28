@@ -24,21 +24,21 @@ data_mgmt_test.py
 Created by Chandrasekhar Ramakrishnan on 2017-02-02.
 Copyright (c) 2017 Chandrasekhar Ramakrishnan. All rights reserved.
 """
+import hashlib
 import json
 import os
 import random
 import shutil
 import socket
-import hashlib
-
 from datetime import datetime
+from unittest.mock import Mock, MagicMock, ANY
 
+from pybis.pybis import ExternalDMS, DataSet
+
+from . import CommandResult
 from . import data_mgmt
 from . import git
 from . import utils
-from . import CommandResult
-from unittest.mock import Mock, MagicMock, ANY
-from pybis.pybis import ExternalDMS, DataSet
 
 
 def generate_perm_id():
@@ -60,8 +60,23 @@ def shared_dm(path):
     return dm
 
 
+def physical_dm(path):
+    openbis_config = {
+        'allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks': True
+    }
+    dm = data_mgmt.DataMgmt(openbis_config=openbis_config,
+                            git_config={'data_path': path,
+                                        'metadata_path': path,
+                                        'invocation_path': path
+                                        },
+                            repository_type=utils.Type.PHYSICAL)
+    dm.debug = True
+    return dm
+
+
 def test_no_git(tmpdir):
-    git_config = {'find_git': False, 'data_path': None, 'metadata_path': None, 'invocation_path': None}
+    git_config = {'find_git': False, 'data_path': None, 'metadata_path': None,
+                  'invocation_path': None}
     dm = data_mgmt.DataMgmt(git_config=git_config)
     try:
         dm.init_data("")
@@ -99,16 +114,17 @@ def test_data_use_case(tmpdir):
     dm = shared_dm(tmpdir)
 
     tmp_dir_path = str(tmpdir)
-    assert git_status(tmp_dir_path).returncode == 128  # The folder should not be a git repo at first.
+    assert git_status(
+        tmp_dir_path).returncode == 128  # The folder should not be a git repo at first.
 
     with data_mgmt.cd(tmp_dir_path):
-
         result = dm.init_data("test")
         print(result.output)
         assert result.returncode == 0
 
         assert git_status(tmp_dir_path).returncode == 0  # The folder should be a git repo now
-        assert git_status(tmp_dir_path, annex=True).returncode == 0  # ...and a git-annex repo as well.
+        assert git_status(tmp_dir_path,
+                          annex=True).returncode == 0  # ...and a git-annex repo as well.
 
         copy_test_data(tmpdir)
 
@@ -153,7 +169,6 @@ def test_child_data_set(tmpdir):
     tmp_dir_path = str(tmpdir)
 
     with data_mgmt.cd(tmp_dir_path):
-
         result = dm.init_data("test")
         assert result.returncode == 0
 
@@ -180,7 +195,8 @@ def test_child_data_set(tmpdir):
         assert repository_id is not None
 
         contents = git.GitRepoFileInfo(dm.git_wrapper).contents(git_annex_hash_as_checksum=True)
-        check_new_data_set_expectations(dm, tmp_dir_path, commit_id, repository_id, ANY, child_ds_code, parent_ds_code, 
+        check_new_data_set_expectations(dm, tmp_dir_path, commit_id, repository_id, ANY,
+                                        child_ds_code, parent_ds_code,
                                         properties, contents)
 
 
@@ -215,9 +231,10 @@ def test_undo_commit_when_sync_fails(tmpdir):
     # given
     dm = shared_dm(tmpdir)
     dm.git_wrapper = Mock()
-    dm.git_wrapper.git_top_level_path = MagicMock(return_value = CommandResult(returncode=0, output=None))
-    dm.git_wrapper.git_add = MagicMock(return_value = CommandResult(returncode=0, output=None))
-    dm.git_wrapper.git_commit = MagicMock(return_value = CommandResult(returncode=0, output=None))
+    dm.git_wrapper.git_top_level_path = MagicMock(
+        return_value=CommandResult(returncode=0, output=None))
+    dm.git_wrapper.git_add = MagicMock(return_value=CommandResult(returncode=0, output=None))
+    dm.git_wrapper.git_commit = MagicMock(return_value=CommandResult(returncode=0, output=None))
     dm._sync = lambda *args: CommandResult(returncode=-1, output="dummy error")
     # when
     result = dm.commit("Added data.")
@@ -230,7 +247,6 @@ def test_init_analysis(tmpdir):
     tmp_dir_path = str(tmpdir)
 
     with data_mgmt.cd(tmp_dir_path):
-
         dm = shared_dm(tmp_dir_path)
         prepare_registration_expectations(dm)
         openbis = dm.openbis
@@ -250,7 +266,6 @@ def test_init_analysis(tmpdir):
         os.mkdir(analysis_repo)
 
         with data_mgmt.cd(analysis_repo):
-
             dm = shared_dm(os.path.join(tmpdir, analysis_repo))
             dm.openbis = openbis
             prepare_new_data_set_expectations(dm)
@@ -269,8 +284,25 @@ def test_init_analysis(tmpdir):
             assert repository_id is not None
 
             contents = git.GitRepoFileInfo(dm.git_wrapper).contents(git_annex_hash_as_checksum=True)
-            check_new_data_set_expectations(dm, tmp_dir_path + '/' + analysis_repo, commit_id, repository_id, ANY, child_ds_code, parent_ds_code, 
+            check_new_data_set_expectations(dm, tmp_dir_path + '/' + analysis_repo, commit_id,
+                                            repository_id, ANY, child_ds_code, parent_ds_code,
                                             None, contents)
+
+
+def test_init_physical(tmpdir):
+    tmp_dir_path = str(tmpdir)
+
+    with data_mgmt.cd(tmp_dir_path):
+        dm = physical_dm(tmp_dir_path)
+        init_result = dm.init_data("")
+        assert init_result.returncode == 0
+
+        files = os.listdir(os.path.join(tmp_dir_path, ".obis"))
+        assert files == ['config.json']
+
+        with open(os.path.join(tmp_dir_path, ".obis", "config.json")) as f:
+            config_local = json.load(f)
+        assert config_local.get('is_physical') is True
 
 
 # TODO Test that if the data set registration fails, the data_set_id is reverted
@@ -288,10 +320,11 @@ def set_registration_configuration(dm, properties=None):
 def prepare_registration_expectations(dm):
     dm.openbis = Mock()
     dm.openbis.is_session_active = MagicMock(return_value=True)
-    edms = ExternalDMS(dm.openbis, {'code': 'AUSER-MACHINE-ffffffff', 'label': 'AUSER-MACHINE-ffffffff'})
+    edms = ExternalDMS(dm.openbis,
+                       {'code': 'AUSER-MACHINE-ffffffff', 'label': 'AUSER-MACHINE-ffffffff'})
     dm.openbis.create_external_data_management_system = MagicMock(return_value=edms)
     dm.openbis.get_external_data_management_system = MagicMock(return_value=edms)
-    dm.openbis.create_permId.side_effect = [0, 1, 2 , 3, 4, 5, 6, 7, 8, 9]
+    dm.openbis.create_permId.side_effect = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     prepare_new_data_set_expectations(dm)
 
 
@@ -301,8 +334,8 @@ def prepare_new_data_set_expectations(dm, properties={}):
     data_set = DataSet(dm.openbis, None,
                        {'code': perm_id, 'properties': properties, 'components': [],
                         "parents": [], "children": [], "samples": [], 'tags': [], 'containers': [],
-                        'physicalData': None, 'linkedData': { 'contentCopies': []}},
-                        kind='LINK')
+                        'physicalData': None, 'linkedData': {'contentCopies': []}},
+                       kind='LINK')
     dm.openbis.new_git_data_set = MagicMock(return_value=data_set)
     dm.openbis.get_dataset = MagicMock(return_value=data_set)
 
@@ -312,11 +345,13 @@ def prepare_new_data_set_expectations(dm, properties={}):
     dm.openbis.get_sample = MagicMock(return_value=sample)
 
 
-
-def check_new_data_set_expectations(dm, tmp_dir_path, commit_id, repository_id, external_dms, data_set_id, parent_id, properties,
+def check_new_data_set_expectations(dm, tmp_dir_path, commit_id, repository_id, external_dms,
+                                    data_set_id, parent_id, properties,
                                     contents):
-    dm.openbis.new_git_data_set.assert_called_with('DS_TYPE', tmp_dir_path, commit_id, repository_id, external_dms,
-                                                   data_set_code=data_set_id, experiment=None, parents=parent_id, properties=properties,
+    dm.openbis.new_git_data_set.assert_called_with('DS_TYPE', tmp_dir_path, commit_id,
+                                                   repository_id, external_dms,
+                                                   data_set_code=data_set_id, experiment=None,
+                                                   parents=parent_id, properties=properties,
                                                    contents=contents, sample="/SAMPLE/ID")
 
 

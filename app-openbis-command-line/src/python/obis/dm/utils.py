@@ -12,10 +12,27 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import subprocess
 import os
+import subprocess
 from contextlib import contextmanager
+from datetime import datetime
+from enum import Enum
+
 from .command_result import CommandResult, CommandException
+
+
+class Type(Enum):
+    """Enum representing which what type of repository it is"""
+    LINK = 1,
+    PHYSICAL = 2,
+    UNKNOWN = 3
+
+
+class OperationType(Enum):
+    """Enum representing basic operation types"""
+    GET = 1,
+    SET = 2,
+    CLEAR = 3
 
 
 def complete_openbis_config(config, resolver, local_only=True):
@@ -27,8 +44,12 @@ def complete_openbis_config(config, resolver, local_only=True):
         config['verify_certificates'] = config_dict['verify_certificates']
     if config.get('token') is None:
         config['token'] = None
-    if config.get('allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks') is None:
-        config['allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks'] = not config_dict['allow_only_https']
+    if config.get('is_physical') is None:
+        config['is_physical'] = None
+    if config.get(
+            'allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks') is None:
+        config['allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks'] = not \
+        config_dict['allow_only_https']
 
 
 def complete_git_config(config):
@@ -51,7 +72,9 @@ def default_echo(details):
 
 
 def run_shell(args, shell=False, strip_leading_whitespace=True, raise_exception_on_failure=False):
-    result = CommandResult(subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell), strip_leading_whitespace=strip_leading_whitespace)
+    result = CommandResult(
+        subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell),
+        strip_leading_whitespace=strip_leading_whitespace)
     if raise_exception_on_failure == True and result.failure():
         raise CommandException(result)
     return result
@@ -76,3 +99,15 @@ def cd(newdir):
         yield
     finally:
         os.chdir(prevdir)
+
+
+def is_valid_perm_id(name):
+    if "-" not in name:
+        return False
+    split = name.split("-")
+    try:
+        datetime.strptime(split[0], "%Y%m%d%H%M%S%f")
+        int(split[1])
+        return True
+    except ValueError:
+        return False

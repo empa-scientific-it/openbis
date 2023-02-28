@@ -12,12 +12,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import shutil
 import os
-from pathlib import Path
-from .utils import run_shell, cd
-from .command_result import CommandResult, CommandException
+import shutil
+
 from .checksum import ChecksumGeneratorCrc32, ChecksumGeneratorGitAnnex
+from .utils import run_shell
 
 
 class GitWrapper(object):

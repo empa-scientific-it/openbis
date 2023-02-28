@@ -12,9 +12,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from tabulate import tabulate
-from pandas import DataFrame, Series
 import pandas as pd
+from pandas import DataFrame
+from tabulate import tabulate
 
 
 class Things:
@@ -38,20 +38,20 @@ class Things:
     """
 
     def __init__(
-        self,
-        openbis_obj,
-        entity,
-        identifier_name="code",
-        additional_identifier=None,
-        start_with=None,
-        count=None,
-        totalCount=None,
-        single_item_method=None,
-        response=None,
-        df_initializer=None,
-        objects_initializer=None,
-        attrs=None,
-        props=None,
+            self,
+            openbis_obj,
+            entity,
+            identifier_name="code",
+            additional_identifier=None,
+            start_with=None,
+            count=None,
+            totalCount=None,
+            single_item_method=None,
+            response=None,
+            df_initializer=None,
+            objects_initializer=None,
+            attrs=None,
+            props=None,
     ):
         self.openbis = openbis_obj
         self.entity = entity
@@ -251,8 +251,5 @@ class Things:
                 get_item = getattr(self.openbis, "get_" + self.entity)
             for item in self.df[[self.identifier_name]][
                 self.identifier_name
-            ].iteritems():
+            ].items():
                 yield get_item(item[1])
-                # yield getattr(self.openbis, 'get_' + self.entity)(item[1])
-
-                # return self.df[[self.identifier_name]].to_dict()[self.identifier_name]

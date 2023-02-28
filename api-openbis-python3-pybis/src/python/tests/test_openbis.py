@@ -12,13 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import json
-import random
 import re
+import time
 
 import pytest
-import time
-from pybis import DataSet
 from pybis import Openbis
 
 
@@ -47,7 +44,7 @@ def test_cached_token(other_openbis_instance):
     assert other_openbis_instance.is_token_valid() is False
 
 
-def test_create_permId(openbis_instance):
+def test_create_perm_id(openbis_instance):
     permId = openbis_instance.create_permId()
     assert permId is not None
     m = re.search("([0-9]){17}-([0-9]*)", permId)
@@ -58,9 +55,9 @@ def test_create_permId(openbis_instance):
 
 
 def test_get_samples_update_in_transaction(openbis_instance):
-    '''
+    """
         Update samples in transaction without overriding parents/children
-    '''
+    """
     name_suffix = str(time.time())
     # Create new space
     space = openbis_instance.new_space(code='space_name' + name_suffix, description='')
@@ -213,9 +210,9 @@ def test_get_samples_update_in_transaction(openbis_instance):
 
 
 def test_failed_second_login_raises_exception(openbis_instance):
-    '''
+    """
         Logins to openBIS using wrong username/password, PyBIS should raise exception
-    '''
+    """
     assert openbis_instance.is_session_active() is True
 
     try:
@@ -224,3 +221,15 @@ def test_failed_second_login_raises_exception(openbis_instance):
         assert False
     except ValueError as e:
         assert str(e) == "login to openBIS failed"
+
+
+def test_set_token_accepts_personal_access_token_object(openbis_instance):
+    """
+        Verifies that set_token method accepts both permId and PersonalAccessToken object
+    """
+    assert openbis_instance.is_session_active() is True
+
+    pat = openbis_instance.get_or_create_personal_access_token(sessionName="Project A")
+
+    openbis_instance.set_token(pat, save_token=True)
+    openbis_instance.set_token(pat.permId, save_token=True)

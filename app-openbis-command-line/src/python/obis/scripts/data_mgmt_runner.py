@@ -12,25 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import click
-import json
 import os
 import sys
 
-from datetime import datetime
-
-from .. import dm
-from ..dm.utils import cd
-from ..dm.command_result import CommandResult, CommandException
-from ..dm.command_log import CommandLog
-from ..dm.utils import run_shell
 from .click_util import click_echo, check_result
+from .. import dm
+from ..dm.command_log import CommandLog
+from ..dm.command_result import CommandResult, CommandException
+from ..dm.utils import Type
+from ..dm.utils import cd
+from ..dm.utils import run_shell
 
 
 class DataMgmtRunner(object):
 
-
-    def __init__(self, context, halt_on_error_log=True, data_path=None, bootstrap_settings=None, check_result=True, login=True, openbis=None):
+    def __init__(self, context, halt_on_error_log=True, data_path=None, bootstrap_settings=None,
+                 check_result=True, login=True, openbis=None, is_physical=False):
         self.context = context
         self.halt_on_error_log = halt_on_error_log
         self.data_path = data_path
@@ -40,7 +37,7 @@ class DataMgmtRunner(object):
         self.check_result = check_result
         self.login = login
         self.openbis = openbis
-
+        self.repository_type = Type.PHYSICAL if is_physical else Type.UNKNOWN
 
     def init_paths(self, repository=None):
         # data path
@@ -63,18 +60,18 @@ class DataMgmtRunner(object):
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path)
 
-
     def _validate_obis_metadata_folder(self, obis_metadata_folder):
         if not os.path.isabs(obis_metadata_folder):
             return CommandResult(
-                returncode=-1, 
-                output="Ignoring obis_metadata_folder. Must be absolute but is: {}".format(obis_metadata_folder))
+                returncode=-1,
+                output="Ignoring obis_metadata_folder. Must be absolute but is: {}".format(
+                    obis_metadata_folder))
         if not os.path.exists(obis_metadata_folder):
             return CommandResult(
-                returncode=-1, 
-                output="Ignoring obis_metadata_folder. Folder does not exist: {}".format(obis_metadata_folder))
+                returncode=-1,
+                output="Ignoring obis_metadata_folder. Folder does not exist: {}".format(
+                    obis_metadata_folder))
         return CommandResult(returncode=0, output="")
-
 
     def run(self, command, function, repository=None):
         self.init_paths(repository)
@@ -84,7 +81,6 @@ class DataMgmtRunner(object):
             return check_result(command, result)
         else:
             return result
-
 
     def _run(self, function):
         try:
@@ -99,12 +95,10 @@ class DataMgmtRunner(object):
                 raise e
             return CommandResult(returncode=-1, output="Error: " + str(e))
 
-
     def get_settings(self, repository=None, do_cd=True):
         self.init_paths()
         with cd(self.metadata_path):
             return self.get_settings_resolver(do_cd).config_dict()
-
 
     def get_settings_resolver(self, do_cd=True):
         if do_cd:
@@ -114,25 +108,28 @@ class DataMgmtRunner(object):
         else:
             return self._get_dm().get_settings_resolver()
 
-
-    def config(self, resolver, is_global, is_data_set_property, prop, value, set, get, clear):
+    def config(self, resolver, is_global, is_data_set_property, operation_type, prop, value):
         self.init_paths()
         with cd(self.metadata_path):
-            self._get_dm().config(resolver, is_global, is_data_set_property, prop, value, set, get, clear)
-
+            self._get_dm().config(resolver, is_global, is_data_set_property, operation_type, prop,
+                                  value)
 
     def _get_dm(self):
         git_config = {
-                'find_git': True,
-                'data_path': self.data_path,
-                'metadata_path': self.metadata_path,
-                'invocation_path': self.invocation_path
-            }
+            'find_git': True,
+            'data_path': self.data_path,
+            'metadata_path': self.metadata_path,
+            'invocation_path': self.invocation_path
+        }
         openbis_config = {}
         if self.context.get('verify_certificates') is not None:
             openbis_config['verify_certificates'] = self.context['verify_certificates']
         log = CommandLog()
         if self.halt_on_error_log and log.any_log_exists():
-            click_echo("Error: A previous command did not finish. Please check the log ({}) and remove it when you want to continue using obis".format(log.folder_path))
+            click_echo(
+                "Error: A previous command did not finish. Please check the log ({}) and remove it when you want to continue using obis".format(
+                    log.folder_path))
             sys.exit(-1)
-        return dm.DataMgmt(openbis_config=openbis_config, git_config=git_config, log=log, debug=self.context['debug'], login=self.login, openbis=self.openbis)
+        return dm.DataMgmt(openbis_config=openbis_config, git_config=git_config, log=log,
+                           debug=self.context['debug'], login=self.login, openbis=self.openbis,
+                           repository_type=self.repository_type)

@@ -32,7 +32,7 @@ import zlib
 from datetime import datetime
 from pathlib import Path
 from typing import List
-from urllib.parse import quote, urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 import urllib3
@@ -56,9 +56,9 @@ from .entity_type import (
     MaterialType,
     SampleType,
 )
+from .experiment import Experiment
 from .group import Group
 from .openbis_object import OpenBisObject, Transaction
-from .experiment import Experiment
 from .person import Person
 from .project import Project
 from .role_assignment import RoleAssignment
@@ -81,7 +81,6 @@ from .utils import (
     extract_permid,
     extract_person,
     extract_userId,
-    extract_username_from_token,
     format_timestamp,
     is_identifier,
     is_number,
@@ -4404,6 +4403,8 @@ class Openbis:
         """
         if not token:
             return
+        if type(token) is PersonalAccessToken:
+            token = token.permId
         if not self.is_token_valid(token):
             raise ValueError("Session is no longer valid. Please log in again.")
         else:

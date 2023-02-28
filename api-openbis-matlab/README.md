@@ -10,13 +10,7 @@ see https://ch.mathworks.com/help/matlab/call-python-libraries.html), all the fu
 is directly available from within MATLAB. The main goal of the toolbox is to provide a more
 MATLABish way of accessing pyBIS fucntions.
 
-To get started, checkout the installation instructions in the
-repository's [Wiki](https://sissource.ethz.ch/hluetcke/matlab-openbis/wikis/home). A usage example
-is provided in the
-script [openbis_example.mlx](https://sissource.ethz.ch/hluetcke/matlab-openbis/blob/master/openbis_example.mlx)
-which can be run within the MATLAB Live Editor. Documentation is provided in the
-file [OpenBis.m](https://sissource.ethz.ch/hluetcke/matlab-openbis/blob/master/OpenBis.m). In the
-MATLAB Desktop UI, you can get the documentation by typing `doc OpenBis`.
+To get started, checkout the installation instructions [here](https://sissource.ethz.ch/sispub/openbis/-/blob/master/docs/api-openbis-matlab/home.md). A usage example is provided in the script [openbis_example.mlx](https://sissource.ethz.ch/sispub/openbis/-/blob/master/api-openbis-matlab/openbis_example.mlx) which can be run within the MATLAB Live Editor. Documentation is provided in the file [OpenBis.m](https://sissource.ethz.ch/sispub/openbis/-/blob/master/api-openbis-matlab/OpenBis.m). In the MATLAB Desktop UI, you can get the documentation by typing `doc OpenBis`.
 
 This repository is maintained by the [Scientific IT Services](https://sis.id.ethz.ch/)
 of [ETH Zurich](www.ethz.ch). 
