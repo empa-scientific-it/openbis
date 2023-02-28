@@ -14,9 +14,9 @@
 #
 
 import difflib
-import re
 import os
 import os.path
+import re
 import shutil
 import time
 import traceback
@@ -312,22 +312,14 @@ class TestCase(object):
         return ScreeningTestClient(self, installPath)
 
     def installPybis(self):
-        # zipFile = self.artifactRepository.getPathToArtifact(OPENBIS_STANDARD_TECHNOLOGIES_PROJECT, 'pybis-')
-        # installPath = "%s/pybis" % self.playgroundFolder
-        # util.unzip(zipFile, installPath)
-        # util.executeCommand(['pip', 'install', installPath + '/src/python'], "Installation of pybis failed.")
         # install the local pybis in editable-mode (-e)
         util.executeCommand(['pip', 'install', '-e', '../api-openbis-python3-pybis/src/python'],
                             "Installation of pybis failed.")
 
     def installObis(self):
-        # zipFile = self.artifactRepository.getPathToArtifact(OPENBIS_STANDARD_TECHNOLOGIES_PROJECT, 'obis-')
-        # installPath = "%s/obis" % self.playgroundFolder
-        # util.unzip(zipFile, installPath)
-        # print('pip install ' + installPath + '/src/python')
-        # util.executeCommand(['pip', 'install', installPath + '/src/python'], "Installation of obis failed.")
+        # install the local obis in editable-mode (-e)
         util.executeCommand(['pip', 'install', '-e', '../app-openbis-command-line/src/python'],
-                            "Installation of pybis failed.")
+                            "Installation of obis failed.")
 
     def getTemplatesFolder(self):
         return "%s/%s" % (TEMPLATES, self.name)
