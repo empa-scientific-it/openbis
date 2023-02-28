@@ -274,8 +274,8 @@ _search_params = [
     click.option('-space', '--space', default=None, help='Space code'),
     click.option('-project', '--project', default=None, help='Full project identification code'),
     click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
-    click.option('-property', '--property', 'property_code', default=None, help='Property code'),
-    click.option('-property-value', '--property-value', 'property_value', default=None,
+    click.option('-property', 'property_code', default=None, help='Property code'),
+    click.option('-property-value', 'property_value', default=None,
                  help='Property value'),
     click.option('-save', '--save', default=None, help='Filename to save results'),
 ]

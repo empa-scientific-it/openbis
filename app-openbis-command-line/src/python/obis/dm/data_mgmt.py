@@ -584,7 +584,6 @@ class GitDataMgmt(AbstractDataMgmt):
             assert prop is not None
             assert value is not None
         elif operation_type is OperationType.GET:
-            assert prop is not None
             assert value is None
         elif operation_type is OperationType.CLEAR:
             assert value is None
@@ -684,7 +683,6 @@ class PhysicalDataMgmt(AbstractDataMgmt):
             assert prop is not None
             assert value is not None
         elif operation_type is OperationType.GET:
-            assert prop is not None
             assert value is None
         elif operation_type is OperationType.CLEAR:
             self.error_raise(f"{category} clear",
@@ -696,6 +694,9 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         elif category == "collection":
             cmd = Collection(self, operation_type, prop, value)
             return cmd.run()
-        else:
+        elif category == "config":
             return self.update_config(resolver, self.debug, is_global, is_data_set_property,
                                       operation_type, prop, value)
+        else:
+            self.error_raise(f"{category} {operation_type}",
+                             "This command is only available for External Manager Data")
