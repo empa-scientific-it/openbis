@@ -53,11 +53,14 @@ class Collection(OpenbisCommand):
         for perm_id in dataset_perm_ids:
             ds = self.get_dataset(perm_id)
             datasets += [ds] if ds is not None and ds.sample is None else []
-        datasets = set(datasets)
-        for dataset in datasets:
-            experiment = dataset.experiment
-            click_echo(
-                f"Collection: {experiment.permId} '{self.prop}' = {experiment.props[self.prop]}")
+        if not datasets:
+            click_echo(f"No parent collections found.")
+        else:
+            datasets = set(datasets)
+            for dataset in datasets:
+                experiment = dataset.experiment
+                click_echo(
+                    f"Collection: {experiment.permId} '{self.prop}' = {experiment.props[self.prop]}")
         return 0
 
     def set(self):
@@ -66,13 +69,16 @@ class Collection(OpenbisCommand):
         for perm_id in dataset_perm_ids:
             ds = self.get_dataset(perm_id)
             datasets += [ds] if ds is not None and ds.sample is None else []
-        datasets = set(datasets)
-        for dataset in datasets:
-            experiment = dataset.experiment
-            experiment.props[self.prop] = self.value
-            click_echo(
-                f"Setting collection: {experiment.permId} property '{self.prop}' to '{experiment.props[self.prop]}'")
-            experiment.save()
+        if not datasets:
+            click_echo(f"No parent collections found.")
+        else:
+            datasets = set(datasets)
+            for dataset in datasets:
+                experiment = dataset.experiment
+                experiment.props[self.prop] = self.value
+                click_echo(
+                    f"Setting collection: {experiment.permId} property '{self.prop}' to '{experiment.props[self.prop]}'")
+                experiment.save()
         return 0
 
     def empty_or_split(self):

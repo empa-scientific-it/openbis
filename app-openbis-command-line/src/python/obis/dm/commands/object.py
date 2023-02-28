@@ -53,10 +53,13 @@ class Object(OpenbisCommand):
         for perm_id in dataset_perm_ids:
             ds = self.get_dataset(perm_id)
             datasets += [ds] if ds is not None and ds.sample is not None else []
-        datasets = set(datasets)
-        for dataset in datasets:
-            sample = dataset.sample
-            click_echo(f"Object: {sample.permId} '{self.prop}' = {sample.props[self.prop]}")
+        if not datasets:
+            click_echo(f"No parent objects found.")
+        else:
+            datasets = set(datasets)
+            for dataset in datasets:
+                sample = dataset.sample
+                click_echo(f"Object: {sample.permId} '{self.prop}' = {sample.props[self.prop]}")
         return 0
 
     def set(self):
@@ -65,22 +68,25 @@ class Object(OpenbisCommand):
         for perm_id in dataset_perm_ids:
             ds = self.get_dataset(perm_id)
             datasets += [ds] if ds is not None and ds.sample is not None else []
-        datasets = set(datasets)
-        for dataset in datasets:
-            sample = dataset.sample
-            if self.prop == "parents":
-                sample.parents = self.empty_or_split()
-                click_echo(
-                    f"Setting object: {sample.permId} parents to {self.empty_or_split()}")
-            elif self.prop == "children":
-                sample.children = self.empty_or_split()
-                click_echo(
-                    f"Setting object: {sample.permId} children to {self.empty_or_split()}")
-            else:
-                sample.props[self.prop] = self.value
-                click_echo(
-                    f"Setting object: {sample.permId} property '{self.prop}' to '{sample.props[self.prop]}'")
-            sample.save()
+        if not datasets:
+            click_echo(f"No parent objects found.")
+        else:
+            datasets = set(datasets)
+            for dataset in datasets:
+                sample = dataset.sample
+                if self.prop == "parents":
+                    sample.parents = self.empty_or_split()
+                    click_echo(
+                        f"Setting object: {sample.permId} parents to {self.empty_or_split()}")
+                elif self.prop == "children":
+                    sample.children = self.empty_or_split()
+                    click_echo(
+                        f"Setting object: {sample.permId} children to {self.empty_or_split()}")
+                else:
+                    sample.props[self.prop] = self.value
+                    click_echo(
+                        f"Setting object: {sample.permId} property '{self.prop}' to '{sample.props[self.prop]}'")
+                sample.save()
         return 0
 
     def empty_or_split(self):

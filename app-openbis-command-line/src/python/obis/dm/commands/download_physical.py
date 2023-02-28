@@ -42,5 +42,5 @@ class DownloadPhysical(OpenbisCommand):
         files = self.files if self.files is not None else data_set.file_list
 
         with cd(self.data_mgmt.invocation_path):
-            target_folder = data_set.download(files)
+            target_folder = data_set.download(files, destination=self.data_mgmt.invocation_path)
             return CommandResult(returncode=0, output="Files downloaded to: %s" % target_folder)
