@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.compilerArgs << '-parameters'
+}
+
+repositories {
+    ivy {
+        ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
+}
+
+dependencies {
+    implementation 'fasterxml:jackson-annotations:2.9.10',
+            'fasterxml:jackson-core:2.9.10',
+            'fasterxml:jackson-databind:2.9.10.8',
+            'fasterxml:jackson-datatype-jsr310:2.9.10'
+    testImplementation 'junit:junit:4.13.2'
+    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+}
+
+test {
+    useJUnitPlatform()
+}
