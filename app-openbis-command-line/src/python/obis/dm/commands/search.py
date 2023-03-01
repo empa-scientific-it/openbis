@@ -90,6 +90,7 @@ class Search(OpenbisCommand):
             experiment=self.experiment,
             type=self.type_code,
             where=properties,
+            attrs=["parents", "children"],
             props="*"  # Fetch all properties
         )
 

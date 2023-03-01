@@ -453,7 +453,10 @@ def collection_clear(ctx, settings):
 def config(ctx, is_global):
     """ Get/set configurations.
     """
-    runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
+    if is_global is True:
+        runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False, is_physical=True)
+    else:
+        runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.obj['is_global'] = is_global
     ctx.obj['runner'] = runner
     ctx.obj['resolver'] = 'config'

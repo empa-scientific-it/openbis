@@ -59,7 +59,12 @@ class Object(OpenbisCommand):
             datasets = set(datasets)
             for dataset in datasets:
                 sample = dataset.sample
-                click_echo(f"Object: {sample.permId} '{self.prop}' = {sample.props[self.prop]}")
+                if self.prop == "parents":
+                    click_echo(f"Object: {sample.permId} '{self.prop}' = {sample.parents}")
+                elif self.prop == "children":
+                    click_echo(f"Object: {sample.permId} '{self.prop}' = {sample.children}")
+                else:
+                    click_echo(f"Object: {sample.permId} '{self.prop}' = {sample.props[self.prop]}")
         return 0
 
     def set(self):

@@ -139,6 +139,12 @@ Here is a short summary of which commands are available in given modes:
 | token            |          ❌          |          ✅          |
 | upload           |          ✅          |          ❌          |
 
+**Login**
+
+Some commands like `download` or `upload` will connect to OpenBIS instance. At that time, oBIS will
+use username configured in `.obis/config.json` and will ask for password whenever session expires or
+username changes.
+
 ## 4.1 Standard Data Store
 
 Standard Data Store mode depicts a workflow where datasets are stored directly in the OpenBIS
