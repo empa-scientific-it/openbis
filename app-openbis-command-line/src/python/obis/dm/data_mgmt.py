@@ -683,7 +683,7 @@ class PhysicalDataMgmt(AbstractDataMgmt):
             assert value is not None
         elif operation_type is OperationType.GET:
             assert value is None
-        elif operation_type is OperationType.CLEAR:
+        elif operation_type is OperationType.CLEAR and category != "config":
             self.error_raise(f"{category} clear",
                              "This command is only available for External Manager Data")
 

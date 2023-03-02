@@ -675,7 +675,6 @@ def get_settings():
 
 def get_settings_global():
     settings = cmd("obis settings -g get")
-    print(settings)
     return json.loads(settings)
 
 
