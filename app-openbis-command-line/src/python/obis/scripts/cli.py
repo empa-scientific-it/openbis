@@ -270,7 +270,8 @@ def repository_clear(ctx, settings):
 
 
 _search_params = [
-    click.option('-type', '--type', 'type_code', default=None, help='Type code to filter by'),
+    click.option('-object_type', '--object_type', 'type_code', default=None,
+                 help='Object type code to filter by'),
     click.option('-space', '--space', default=None, help='Space code'),
     click.option('-project', '--project', default=None, help='Full project identification code'),
     click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
@@ -757,31 +758,29 @@ def removeref(ctx, data_set_id, repository):
 # download
 
 _download_params = [
-    click.option('-c', '--content_copy_index', type=int, default=None,
-                 help='Index of the content copy to download from.'),
+    click.argument('data_set_id'),
     click.option(
         '-f', '--file', help='File in the data set to download - downloading all if not given.'),
-    click.option('-s', '--skip_integrity_check', default=False,
-                 is_flag=True, help='Skip file integrity check with checksums.'),
-    click.argument('data_set_id'),
+    click.option('-s', '--skip_integrity_check', default=False, is_flag=True,
+                 help='Flag to skip file integrity check with checksums'),
 ]
 
 
 @data_set.command("download", short_help="Download files of a data set.")
 @add_params(_download_params)
 @click.pass_context
-def data_set_download(ctx, content_copy_index, file, data_set_id, skip_integrity_check):
+def data_set_download(ctx, file, data_set_id, skip_integrity_check):
     return ctx.obj['runner'].run("download",
-                                 lambda dm: dm.download(data_set_id, content_copy_index, file,
-                                                        skip_integrity_check))
+                                 lambda dm: dm.download(data_set_id=data_set_id, file=file,
+                                                        skip_integrity_check=skip_integrity_check))
 
 
 @cli.command("download", short_help="Download files of a data set.")
 @add_params(_download_params)
 @click.pass_context
-def download(ctx, content_copy_index, file, data_set_id, skip_integrity_check):
+def download(ctx, file, data_set_id, skip_integrity_check):
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(data_set_download, content_copy_index=content_copy_index, file=file,
+    ctx.invoke(data_set_download, file=file,
                data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
 
 

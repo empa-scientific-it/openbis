@@ -199,7 +199,8 @@ it comes to integration with other tools.
 obis data_set search [OPTIONS]
 
 Options:
-  -type, --type TEXT              Type code to filter by
+  -object_type, --object_type TEXT              
+                                  Object type code to filter by
   -space, --space TEXT            Space code
   -project, --project TEXT        Full project identification code
   -experiment, --experiment TEXT  Full experiment code
