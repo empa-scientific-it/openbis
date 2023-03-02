@@ -899,7 +899,7 @@ var FormUtil = new function() {
 	this.getFieldForPropertyType = function(propertyType, timestampValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
-			$component = this._getBooleanField(propertyType.code, propertyType.description, undefined, propertyType.mandatory);
+			$component = this._getBoolean2Field(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			var vocabulary = profile.getVocabularyByCode(propertyType.vocabulary.code);
 			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
@@ -943,18 +943,37 @@ var FormUtil = new function() {
 	//
 	this.setFieldValue = function(propertyType, $field, value) {
 		if(propertyType.dataType === "BOOLEAN") {
-			$($($field.children()[0]).children()[0]).prop('checked', value === "true");
+		    if(value === 'true') {
+		        value = 'true';
+		    } else if (value === 'false') {
+		        value = 'false';
+		    } else {
+		        value = '';
+		    }
+			$field.val(value);
 		} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 			$($($field.children()[0]).children()[0]).val(value);
 		} else {
 			$field.val(value);
 		}
 	}
-	
+
+	this.getBooleanValue = function($field) {
+	    var value = null;
+	    if($field.val() === 'true') {
+            value = true;
+        } else if ($field.val() === 'false') {
+            value = false;
+        } else {
+            value = null;
+        }
+        return value;
+	}
+
 	this.getFieldValue = function(propertyType, $field) {
 		var propertyTypeValue;
 		if (propertyType.dataType === "BOOLEAN") {
-			propertyTypeValue = $field.children().is(":checked");
+		    propertyTypeValue = this.getBooleanValue($field);
 		} else {
 			propertyTypeValue = $field.val();
 		}
@@ -964,6 +983,14 @@ var FormUtil = new function() {
 	//
 	// Form Fields
 	//
+	this._getBoolean2Field = function(id, alt, isRequired) {
+		var $dropdown = this.getDropDownForTerms(id, [
+		    { code : "true", label : "yes" },
+		    { code : "false", label : "no" }
+		], alt, isRequired);
+		return $dropdown;
+	}
+
 	this._getBooleanField = function(id, alt, checked, isRequired) {
 		var attr = {'type' : 'checkbox', 'alt' : alt, 'placeholder' : alt };
 		if(checked) {

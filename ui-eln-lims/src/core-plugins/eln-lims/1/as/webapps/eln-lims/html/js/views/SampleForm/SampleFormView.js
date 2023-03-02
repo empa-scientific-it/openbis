@@ -741,7 +741,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
-							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
+						    FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						} else {
 							$component.val(value);
@@ -757,7 +757,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 							_this._sampleFormModel.isFormDirty = true;
 							var field = $(this);
 							if(propertyType.dataType === "BOOLEAN") {
-								_this._sampleFormModel.sample.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
+								_this._sampleFormModel.sample.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
 							} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
