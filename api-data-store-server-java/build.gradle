@@ -1,0 +1,114 @@
+evaluationDependsOn(':lib-json')
+evaluationDependsOn(':lib-transactional-file-system')
+//
+//apply from: '../build/javaproject.gradle'
+
+
+
+//'lib-transactional-file-system', 'lib-json'
+//apply plugin: 'java'
+//apply plugin: 'application'
+//
+//compileJava {
+//    options.compilerArgs << '-parameters'
+//}
+//
+//compileTestJava {
+//    options.compilerArgs << '-parameters'
+//}
+//
+//repositories {
+//    ivy {
+//        ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+//        artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+//    }
+//}
+
+//dependencies {
+//    compileOnly 'lombok:lombok:1.18.22'
+//    annotationProcessor 'lombok:lombok:1.18.22'
+//
+//
+//    api project(':lib-json')
+//
+//    implementation project(':lib-json'),
+//            project(':lib-transactional-file-system')
+//
+////    testCompileOnly 'lombok:lombok:1.18.22'
+////    testAnnotationProcessor 'lombok:lombok:1.18.22'
+//    testImplementation 'testng:testng:6.8-CISD',
+////            project(':lib-json')
+//                project(path: ':lib-json', configuration: 'tests')
+////            project(path: ':lib-commonbase', configuration: 'tests'),
+////            project(path: ':lib-common', configuration: 'tests'),
+////            'fjelmer:classycle:1.4.2'
+//    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+//}
+
+
+//dependencies {
+//    annotationProcessor 'lombok:lombok:1.18.22'
+//    implementation project(':lib-json'),
+////    project(':lib-transactional-file-system'),
+//            'lombok:lombok:1.18.22'
+//    testImplementation 'junit:junit:4.10',
+//            project(':lib-json')
+//    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+////            'org.junit.vintage:junit-vintage-engine:5.8.2'
+//}
+//
+//test {
+//    useJUnitPlatform()
+//}
+
+//tasks.register('AFSServerDevelopmentEnvironmentStart') {
+//    main = 'ch.ethz.sis.afsclient.startup.Main'
+//    classpath = sourceSets.main.runtimeClasspath
+//    jvmArgs(['-Xmx256M'])
+//}
+
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+//compileTestJava {
+//    options.compilerArgs << '-parameters'
+//}
+
+
+repositories {
+    ivy {
+        ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
+}
+
+//dependencies {
+//    compileOnly 'lombok:lombok:1.18.22'
+//    annotationProcessor 'lombok:lombok:1.18.22'
+//    implementation project(':lib-json'),
+//            project(':lib-transactional-file-system')
+//    testImplementation 'testng:testng:6.8-CISD',
+//            project(':lib-json')
+//    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+////            'org.junit.vintage:junit-vintage-engine:5.8.2'
+//}
+
+dependencies {
+    compileOnly 'lombok:lombok:1.18.22'
+    annotationProcessor 'lombok:lombok:1.18.22'
+    implementation project(':lib-transactional-file-system'),
+            project(':lib-json'),
+            'lombok:lombok:1.18.22'
+//    testImplementation 'testng:testng:6.8-CISD'
+    testImplementation 'junit:junit:4.10'
+    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+}
+
+//test {
+//    useJUnitPlatform()
+//}
