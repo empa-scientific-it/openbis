@@ -76,7 +76,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 				if(dataExperiment.error) {
 					Util.showError(dataExperiment.error.message);
 				} else {
-					Util.showSuccess("" + ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.identifier) + " moved to Trashcan");
+                    Util.showSuccess("" + ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.experimentTypeCode) + " moved to Trashcan");
 					
 					//Delete experiment from UI
 					mainController.sideMenu.deleteNodeByEntityPermId(_this._experimentFormModel.experiment.permId, true);
@@ -130,10 +130,11 @@ function ExperimentFormController(mainController, mode, experiment) {
 					}
 					
 					var message = "";
+                    var prefix = ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.experimentTypeCode);
 					if(_this._experimentFormModel.mode === FormMode.CREATE) {
-						message = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " Created.";
+                        message = prefix + " Created.";
 					} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
-						message = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " Updated.";
+                        message = prefix + " Updated.";
 					}
 					
 					var callbackOk = function() {

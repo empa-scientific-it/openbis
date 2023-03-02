@@ -600,7 +600,7 @@ function MainController(profile) {
 					var experimentTypeCode = argsMap["experimentTypeCode"];
 					var projectIdentifier = argsMap["projectIdentifier"];
 					
-					document.title = "Create " + ELNDictionary.getExperimentKindName(projectIdentifier) + " " + experimentTypeCode;
+                    document.title = "Create " + ELNDictionary.getExperimentKindName(experimentTypeCode) + " " + experimentTypeCode;
 					var experiment = {
 							experimentTypeCode : experimentTypeCode,
 							identifier : projectIdentifier
@@ -1180,7 +1180,7 @@ function MainController(profile) {
 
 				switch (collectionView) {
 					case "FORM_VIEW": {
-						document.title = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+                        document.title = ELNDictionary.getExperimentKindName(experiment.experimentTypeCode) + " " +
 							experimentIdentifier;
 						_this._showExperimentPage(experiment, FormMode.VIEW);
 						break;
@@ -1191,7 +1191,7 @@ function MainController(profile) {
 						}
 
 						var sampleTableController = new SampleTableController(_this,
-							"" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " " +
+                            Util.getDisplayNameFromCode(experiment.experimentTypeCode) + " " +
 							experimentIdentifier, experimentIdentifier, null, null, experiment);
 						sampleTableController.init(views);
 						_this.currentView = sampleTableController;

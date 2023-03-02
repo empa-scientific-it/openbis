@@ -960,7 +960,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					if(data.entityKind === "Sample") {
 						return ELNDictionary.Sample;
 					} else if(data.entityKind === "Experiment") {
-						return ELNDictionary.getExperimentKindName(data.identifier);
+                        return ELNDictionary.getExperimentKindName(data.entityType);
 					} else {
 						return data.entityKind;
 					}
