@@ -275,6 +275,7 @@ _search_params = [
     click.option('-space', '--space', default=None, help='Space code'),
     click.option('-project', '--project', default=None, help='Full project identification code'),
     click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
+    click.option('-type', '--type', 'type_code', default=None, help='Type code'),
     click.option('-property', 'property_code', default=None, help='Property code'),
     click.option('-property-value', 'property_value', default=None,
                  help='Property value'),
@@ -758,7 +759,10 @@ def removeref(ctx, data_set_id, repository):
 # download
 
 _download_params = [
-    click.argument('data_set_id'),
+    click.argument('data_set_id', required=False),
+    click.option('-from-file', '--from-file', 'from_file',
+                 help='An output .CSV file from `obis data_set search` command with the list of' +
+                      ' objects to download datasets from'),
     click.option(
         '-f', '--file', help='File in the data set to download - downloading all if not given.'),
     click.option('-s', '--skip_integrity_check', default=False, is_flag=True,
@@ -766,22 +770,21 @@ _download_params = [
 ]
 
 
-@data_set.command("download", short_help="Download files of a data set.")
-@add_params(_download_params)
-@click.pass_context
-def data_set_download(ctx, file, data_set_id, skip_integrity_check):
-    return ctx.obj['runner'].run("download",
-                                 lambda dm: dm.download(data_set_id=data_set_id, file=file,
-                                                        skip_integrity_check=skip_integrity_check))
-
-
 @cli.command("download", short_help="Download files of a data set.")
 @add_params(_download_params)
 @click.pass_context
-def download(ctx, file, data_set_id, skip_integrity_check):
+def download(ctx, data_set_id, from_file, file, skip_integrity_check):
+    """ Downloads dataset files from OpenBIS instance.\n
+    DATA_SET    Unique identifier of dataset within OpenBIS instance."""
+    if (data_set_id is None and from_file is None) or (
+            data_set_id is not None and from_file is not None):
+        click_echo("'data_set_id' or 'from_file' must be provided!")
+        return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(data_set_download, file=file,
-               data_set_id=data_set_id, skip_integrity_check=skip_integrity_check)
+    return ctx.obj['runner'].run("download",
+                                 lambda dm: dm.download(data_set_id=data_set_id,
+                                                        from_file=from_file, file=file,
+                                                        skip_integrity_check=skip_integrity_check))
 
 
 # upload
@@ -795,20 +798,17 @@ _upload_params = [
 ]
 
 
-@data_set.command("upload", short_help="Upload files to form a data set.")
-@add_params(_upload_params)
-@click.pass_context
-def data_set_upload(ctx, sample_id, data_set_type, files):
-    return ctx.obj['runner'].run("upload",
-                                 lambda dm: dm.upload(sample_id, data_set_type, files))
-
-
 @cli.command("upload", short_help="Upload files to form a data set.")
 @add_params(_upload_params)
 @click.pass_context
-def download(ctx, sample_id, data_set_type, files):
+def upload(ctx, sample_id, data_set_type, files):
+    """ Creates data set under object and upload files to it.\n
+    SAMPLE_ID       Unique identifier an object in OpenBIS.\n
+    DATA_SET_TYPE   Newly created data set type.
+    """
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(data_set_upload, files=files, sample_id=sample_id, data_set_type=data_set_type)
+    ctx.obj['runner'].run("upload",
+                          lambda dm: dm.upload(sample_id, data_set_type, files))
 
 
 # clone

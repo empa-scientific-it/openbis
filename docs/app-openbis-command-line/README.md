@@ -204,6 +204,7 @@ Options:
   -space, --space TEXT            Space code
   -project, --project TEXT        Full project identification code
   -experiment, --experiment TEXT  Full experiment code
+  -type, --type TEXT              Type code
   -property TEXT                  Property code
   -property-value TEXT            Property value
   -save, --save TEXT              Directory name to save results
@@ -211,7 +212,7 @@ Options:
 
 With `data_set search` command, obis connects to a configured OpenBIS instance and searches for all
 data sets that fulfill given filtering criteria.
-At least one filtering criteria must be specified. Resulting data set files can be downloaded by
+At least one filtering criteria must be specified. Search results can be downloaded by
 using `save` option.
 
 *Note: Filtering by `-project` may not work when `Project Samples` are disabled in OpenBIS
@@ -221,6 +222,15 @@ configuration.*
 
 ```
 obis download [options] [data_set_id]
+
+Options:
+  -from-file, --from-file TEXT  An output .CSV file from `obis data_set search`
+                                command with the list of objects to download
+                                data sets from
+  -f, --file TEXT               File in the data set to download - downloading
+                                all if not given.
+  -s, --skip_integrity_check    Flag to skip file integrity check with
+                                checksums
 ```
 
 The `download` command downloads, the files of a given data set from the OpenBIS instance specified

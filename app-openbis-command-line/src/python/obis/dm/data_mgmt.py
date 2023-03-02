@@ -210,9 +210,10 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def download(self, data_set_id, file, skip_integrity_check):
+    def download(self, data_set_id, from_file, file, skip_integrity_check):
         """Download files of a repository without adding a content copy.
         :param data_set_id: Id of the data set to download from.
+        :param from_file: Path of a file with a list of datasets to download.
         :param file: Path of a file in the data set to download. All files are downloaded if it is None.
         :param skip_integrity_check: Checksums of files are not verified if true.
         """
@@ -349,7 +350,7 @@ class NoGitDataMgmt(AbstractDataMgmt):
     def removeref(self, data_set_id=None):
         self.error_raise("removeref", "No git command found.")
 
-    def download(self, data_set_id, file, skip_integrity_check):
+    def download(self, *_):
         self.error_raise("download", "No git command found.")
 
     def search_object(self, *_):
@@ -559,7 +560,7 @@ class GitDataMgmt(AbstractDataMgmt):
         cmd = Removeref(self, data_set_id=data_set_id)
         return cmd.run()
 
-    def download(self, data_set_id, file, skip_integrity_check):
+    def download(self, data_set_id, from_file, file, skip_integrity_check):
         self.error_raise("download", "This command is only available for Manager Data.")
 
     #
@@ -645,8 +646,8 @@ class PhysicalDataMgmt(AbstractDataMgmt):
     def removeref(self, data_set_id=None):
         self.error_raise("removeref", "This command is only available for External Manager Data")
 
-    def download(self, data_set_id, file, skip_integrity_check):
-        cmd = DownloadPhysical(self, data_set_id, file, skip_integrity_check)
+    def download(self, data_set_id, from_file, file, skip_integrity_check):
+        cmd = DownloadPhysical(self, data_set_id, from_file, file, skip_integrity_check)
         return cmd.run()
 
     def upload(self, sample_id, data_set_type, files):
