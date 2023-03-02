@@ -13,9 +13,8 @@ ELNDictionary.getExperimentDualName = function() {
 	return ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory;
 }
 
-ELNDictionary.getExperimentKindName = function(identifier, isPlural) {
-	var space = IdentifierUtil.getSpaceCodeFromIdentifier(identifier);
-	if(profile.isInventorySpace(space)) {
+ELNDictionary.getExperimentKindName = function(entityType, isPlural) {
+    if (entityType === "COLLECTION") {
 		return (isPlural)?ELNDictionary.ExperimentsInventory:ELNDictionary.ExperimentInventory;
 	} else {
 		return (isPlural)?ELNDictionary.ExperimentsELN:ELNDictionary.ExperimentELN;
