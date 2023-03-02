@@ -21,16 +21,17 @@
 #   The pybis module must be available.
 
 import json
-import settings
+import os
 import socket
 import subprocess
-import systemtest.testcase
-import systemtest.util as util
-import os
 from contextlib import contextmanager
 from random import randrange
 from subprocess import PIPE
 
+import systemtest.testcase
+import systemtest.util as util
+
+import settings
 
 # The output buffer and decurator are used to only print detailed output
 # when something fails. Otherwise there would be way too much.
@@ -674,6 +675,7 @@ def get_settings():
 
 def get_settings_global():
     settings = cmd("obis settings -g get")
+    print(settings)
     return json.loads(settings)
 
 
