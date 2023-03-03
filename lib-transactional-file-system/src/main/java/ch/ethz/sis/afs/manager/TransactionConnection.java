@@ -22,7 +22,7 @@ import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.manager.operation.*;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afs.dto.Lock;
 import ch.ethz.sis.afs.dto.LockType;
 
@@ -47,7 +47,7 @@ public class TransactionConnection implements TransactionalFileSystem {
     }
 
     private LockManager<UUID, String> lockManager;
-    private JSONObjectMapper jsonObjectMapper;
+    private JsonObjectMapper jsonObjectMapper;
     private Transaction transaction;
     private State state;
     private String writeAheadLogRoot;
@@ -58,7 +58,7 @@ public class TransactionConnection implements TransactionalFileSystem {
      * Used only to create new transactions
      */
     TransactionConnection(LockManager<UUID, String> lockManager,
-                          JSONObjectMapper jsonObjectMapper,
+                          JsonObjectMapper jsonObjectMapper,
                           String writeAheadLogRoot,
                           String storageRoot,
                           RecoveredTransactions recoveredTransactions) {
@@ -72,7 +72,7 @@ public class TransactionConnection implements TransactionalFileSystem {
      * Can be used to recover a committed transactions after a crash
      */
     TransactionConnection(LockManager<UUID, String> lockManager,
-                          JSONObjectMapper jsonObjectMapper,
+                          JsonObjectMapper jsonObjectMapper,
                           Transaction transaction) {
         this.lockManager = lockManager;
         this.jsonObjectMapper = jsonObjectMapper;
