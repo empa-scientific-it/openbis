@@ -1,6 +1,6 @@
 # create a source-distribution
 # be sure to bump you version number up!
-python setup.py sdist
+python3 setup.py sdist
 
 # see distributions
 ls -la dist/
