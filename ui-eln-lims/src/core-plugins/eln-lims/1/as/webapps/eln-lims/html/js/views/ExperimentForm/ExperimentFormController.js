@@ -30,6 +30,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 					var id = new ExperimentPermId(experiment.permId);
 					var fetchOptions = new ExperimentFetchOptions();
 					fetchOptions.withProject().withSpace();
+                    fetchOptions.withType();
                     fetchOptions.withSamples().withProperties();
                     fetchOptions.withDataSets().withType();
                     fetchOptions.withDataSets().withProperties();

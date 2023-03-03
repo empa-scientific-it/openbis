@@ -83,8 +83,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			if (_this._allowedToEdit() && toolbarConfig.EDIT) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-				    Util.blockUI();
-					mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
+                    Util.blockUI();
+                    var exp = _this._experimentFormModel.experiment;
+                    var args = encodeURIComponent('["' + exp.identifier + '","' + exp.experimentTypeCode + '"]');
+                    mainController.changeView("showEditExperimentPageFromIdentifier", args);
 				}, "Edit", null, "edit-btn");
 				toolbarModel.push({ component : $editBtn });
 			}
@@ -103,7 +105,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 var maxNumToShow = 10;
                 var $component = $("<div>");
                 var experiment = this._experimentFormModel.v3_experiment;
-                var experimentKindName = ELNDictionary.getExperimentKindName(experiment.identifier.identifier).toLowerCase();
+                var experimentKindName = ELNDictionary.getExperimentKindName(experiment.getType().getCode()).toLowerCase();
                 var samples = experiment.samples;
                 if (samples.length > 0) {
                     var warningText = "The " + experimentKindName + " has " + samples.length + " " 

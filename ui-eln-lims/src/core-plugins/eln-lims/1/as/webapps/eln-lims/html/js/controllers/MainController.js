@@ -634,8 +634,11 @@ function MainController(profile) {
 					break;
 				case "showEditExperimentPageFromIdentifier":
 					var _this = this;
-					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
-						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
+                    var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
+                    var identifier = argsArray[0];
+                    var type = argsArray[1];
+                    this.serverFacade.listExperimentsForIdentifiers([identifier], function(data) {
+                        document.title = "" + ELNDictionary.getExperimentKindName(type) + " " + identifier;
 						_this._showExperimentPage(data.result[0], FormMode.EDIT);
 						//window.scrollTo(0,0);
 					});

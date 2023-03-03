@@ -51,12 +51,12 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	this._showExperimentFromOverviewDropdown = function() {
 		var _this = this;
 		var expDropModel = [];
-		var projectIdentifier = IdentifierUtil.getProjectIdentifier(this._experimentTableModel.project.spaceCode, this._experimentTableModel.project.code);
-		expDropModel = [{value : "OVERVIEW", label : "Show only overview " + ELNDictionary.getExperimentKindName(projectIdentifier, true), selected : this._experimentTableModel.showInProjectOverview },
-		                {value : "ALL", label : "Show all " + ELNDictionary.getExperimentKindName(projectIdentifier, true), selected : !this._experimentTableModel.showInProjectOverview }];
+		var kindName = ELNDictionary.ExperimentsELN;
+		expDropModel = [{value : "OVERVIEW", label : "Show only overview " + kindName, selected : this._experimentTableModel.showInProjectOverview },
+		                {value : "ALL", label : "Show all " + kindName, selected : !this._experimentTableModel.showInProjectOverview }];
 		
 		
-		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " to show");
+		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what " + kindName + " to show");
 		$experimentDropdown.attr("id", "what-experiments-drop-down");
 		
 		$experimentDropdown.change(function() {
