@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent;
 import net.lemnik.eodsql.DataSet;
 
 import org.jmock.Expectations;
@@ -95,6 +96,10 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
     @BeforeMethod
     public void setUpTest()
     {
+        final Properties properties = new Properties();
+        properties.setProperty(JythonEvaluatorSpringComponent.JYTHON_VERSION_KEY, "2.7");
+        new JythonEvaluatorSpringComponent(properties); // set up Jython evaluator factory
+
         context = new Mockery();
         searchService = context.mock(ISearchService.class);
         queryService = context.mock(IDataSourceQueryService.class);
