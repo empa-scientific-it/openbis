@@ -17,10 +17,10 @@ import inspect
 import os
 import os.path
 import re
-import sys
-import time
 import shutil
 import subprocess
+import sys
+import time
 import zipfile
 
 USER=os.environ['USER']
@@ -309,7 +309,13 @@ class LogMonitor():
         Adds a notification condition
         """
         self.conditions.append(condition)
-        
+
+    def getFormattedTime(self, timeSec):
+        if timeSec is None:
+            self.printer.printMsg("Error: Provided time is None!")
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timeSec))
+
+
     def waitUntilEvent(self, condition, startTime = None, delay = 0):
         """
         Waits until an event matches the specified condition. 
@@ -330,6 +336,7 @@ class LogMonitor():
                 while True:
                     actualTime = self.timeProvider.time()
                     if actualTime > finalTime:
+                        self.printer.printMsg(f"Time out detected! start time: {renderedStartTime}, calculated end time: {self.getFormattedTime(finalTime)}, current time: {self.getFormattedTime(actualTime)}, timeout (min): {self.timeOutInMinutes}")
                         raise Exception("Time out after %d minutes for monitoring %s log." 
                                         % (self.timeOutInMinutes, self.logName))
                     line = log.readline()
