@@ -64,11 +64,7 @@ class DownloadPhysical(OpenbisCommand):
         data_set = self.openbis.get_dataset(perm_id)
         files = self.files if self.files is not None else data_set.file_list
         with cd(self.data_mgmt.invocation_path):
-            try:
-                target_folder = data_set.download(files, destination=self.data_mgmt.invocation_path)
-            except Exception as e:
-                print(e)
-                raise e
+            target_folder = data_set.download(files, destination=self.data_mgmt.invocation_path)
 
             if self.skip_integrity_check is not True:
                 invalid_files = validate_checksum(self.openbis, files, data_set.permId,
