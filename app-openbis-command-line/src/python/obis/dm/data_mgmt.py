@@ -229,29 +229,17 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def search_object(self, type_code, space, project, experiment, property_code, property_value,
-                      save):
+    def search_object(self, filters, save):
         """Search for objects in openBIS using filtering criteria.
-        :param type_code: Type of searched object.
-        :param space: Space path to filter object.
-        :param project: Project path to filter object.
-        :param experiment: Experiment path to filter object.
-        :param property_code: Custom property code to search by, property_value must be set as well.
-        :param property_value: Custom property value to search by, property_code must be set as well.
+        :param filters: dictionary of filter parameters
         :param save: File path to save results. If missing, search results will not be saved.
         """
         return
 
     @abc.abstractmethod
-    def search_data_set(self, type_code, space, project, experiment, property_code, property_value,
-                        save):
+    def search_data_set(self, filters, save):
         """Search for datasets in openBIS using filtering criteria.
-        :param type_code: Type of searched object.
-        :param space: Space path to filter object.
-        :param project: Project path to filter object.
-        :param experiment: Experiment path to filter object.
-        :param property_code: Custom property code to search by, property_value must be set as well.
-        :param property_value: Custom property value to search by, property_code must be set as well.
+        :param filters: dictionary of filter parameters
         :param save: File path to save results. If missing, search results will not be saved.
         """
         return
@@ -654,16 +642,12 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         cmd = Upload(self, sample_id, data_set_type, files)
         return cmd.run()
 
-    def search_object(self, type_code, space, project, experiment, property_code, property_value,
-                      save):
-        cmd = Search(self, type_code, space, project, experiment, property_code, property_value,
-                     save)
+    def search_object(self,filters, save):
+        cmd = Search(self, filters, save)
         return cmd.search_samples()
 
-    def search_data_set(self, type_code, space, project, experiment, property_code, property_value,
-                        save):
-        cmd = Search(self, type_code, space, project, experiment, property_code, property_value,
-                     save)
+    def search_data_set(self, filters, save):
+        cmd = Search(self, filters, save)
         return cmd.search_data_sets()
 
     def config(self, category, is_global, is_data_set_property, operation_type, prop=None,

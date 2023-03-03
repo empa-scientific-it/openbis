@@ -279,6 +279,10 @@ _search_params = [
     click.option('-property', 'property_code', default=None, help='Property code'),
     click.option('-property-value', 'property_value', default=None,
                  help='Property value'),
+    click.option('-registration-date', '--registration-date', 'registration_date', default=None,
+                 help='Registration date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
+    click.option('-modification-date', '--modification-date', 'modification_date', default=None,
+                 help='Modification date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
     click.option('-save', '--save', default=None, help='Filename to save results'),
 ]
 
@@ -322,10 +326,11 @@ def data_set_clear(ctx, data_set_settings):
 @data_set.command('search', short_help="Search for datasets using a filtering criteria.")
 @add_params(_search_params)
 @click.pass_context
-def data_set_search(ctx, type_code, space, project, experiment, property_code, property_value,
-                    save):
+def data_set_search(ctx, type_code, space, project, experiment, registration_date,
+                    modification_date, property_code, property_value, save):
     if all(v is None for v in
-           [type_code, space, project, experiment, property_code, property_value]):
+           [type_code, space, project, experiment, registration_date, modification_date,
+            property_code, property_value]):
         click_echo("You must provide at least one filtering criteria!")
         return -1
     if (property_code is None and property_value is not None) or (
@@ -333,19 +338,12 @@ def data_set_search(ctx, type_code, space, project, experiment, property_code, p
         click_echo("Property code and property value need to be specified!")
         return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(_data_set_search, type_code=type_code, space=space,
-               project=project, experiment=experiment, property_code=property_code,
-               property_value=property_value, save=save)
-
-
-@add_params(_search_params)
-@click.pass_context
-def _data_set_search(ctx, type_code, space, project, experiment, property_code, property_value,
-                     save):
+    filters = dict(type_code=type_code, space=space,
+                   project=project, experiment=experiment, property_code=property_code,
+                   registration_date=registration_date, modification_date=modification_date,
+                   property_value=property_value)
     return ctx.obj['runner'].run("data_set_search",
-                                 lambda dm: dm.search_data_set(type_code, space, project,
-                                                               experiment, property_code,
-                                                               property_value, save)),
+                                 lambda dm: dm.search_data_set(filters, save)),
 
 
 # # object: object_id
@@ -387,9 +385,11 @@ def object_clear(ctx, object_settings):
 @object.command('search', short_help="Search for samples using a filtering criteria.")
 @add_params(_search_params)
 @click.pass_context
-def object_search(ctx, type_code, space, project, experiment, property_code, property_value, save):
+def object_search(ctx, type_code, space, project, experiment, registration_date,
+                  modification_date, property_code, property_value, save):
     if all(v is None for v in
-           [type_code, space, project, experiment, property_code, property_value]):
+           [type_code, space, project, experiment, registration_date, modification_date,
+            property_code, property_value]):
         click_echo("You must provide at least one filtering criteria!")
         return -1
     if (property_code is None and property_value is not None) or (
@@ -397,17 +397,12 @@ def object_search(ctx, type_code, space, project, experiment, property_code, pro
         click_echo("Property code and property value need to be specified!")
         return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    ctx.invoke(_object_search, type_code=type_code, space=space,
-               project=project, experiment=experiment, property_code=property_code,
-               property_value=property_value, save=save)
-
-
-@add_params(_search_params)
-@click.pass_context
-def _object_search(ctx, type_code, space, project, experiment, property_code, property_value, save):
+    filters = dict(type_code=type_code, space=space,
+                   project=project, experiment=experiment, property_code=property_code,
+                   registration_date=registration_date, modification_date=modification_date,
+                   property_value=property_value)
     return ctx.obj['runner'].run("object_search",
-                                 lambda dm: dm.search_object(type_code, space, project, experiment,
-                                                             property_code, property_value, save)),
+                                 lambda dm: dm.search_object(filters, save))
 
 
 # # collection: collection_id
@@ -764,7 +759,8 @@ _download_params = [
                  help='An output .CSV file from `obis data_set search` command with the list of' +
                       ' objects to download datasets from'),
     click.option(
-        '-f', '--file', help='File in the data set to download - downloading all if not given.'),
+        '-f', '--file', 'file',
+        help='File in the data set to download - downloading all if not given.'),
     click.option('-s', '--skip_integrity_check', default=False, is_flag=True,
                  help='Flag to skip file integrity check with checksums'),
 ]

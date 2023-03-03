@@ -60,15 +60,21 @@ class DownloadPhysical(OpenbisCommand):
         return CommandResult(returncode=0, output="Download completed.")
 
     def download_dataset(self, perm_id):
+        click_echo(f"Downloading dataset {perm_id}")
         data_set = self.openbis.get_dataset(perm_id)
         files = self.files if self.files is not None else data_set.file_list
         with cd(self.data_mgmt.invocation_path):
-            target_folder = data_set.download(files, destination=self.data_mgmt.invocation_path)
+            try:
+                target_folder = data_set.download(files, destination=self.data_mgmt.invocation_path)
+            except Exception as e:
+                print(e)
+                raise e
+
             if self.skip_integrity_check is not True:
                 invalid_files = validate_checksum(self.openbis, files, data_set.permId,
                                                   target_folder, None)
                 self.redownload_invalid_files_on_demand(invalid_files, target_folder, perm_id)
-                click_echo(f"Files from dataset {perm_id} has been downloaded to {target_folder}")
+        click_echo(f"Files from dataset {perm_id} has been downloaded to {target_folder}")
 
     def redownload_invalid_files_on_demand(self, invalid_files, target_folder, perm_id):
         if len(invalid_files) == 0:

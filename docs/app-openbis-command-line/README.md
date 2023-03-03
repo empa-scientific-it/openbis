@@ -205,6 +205,12 @@ Options:
   -project, --project TEXT        Full project identification code
   -experiment, --experiment TEXT  Full experiment code
   -type, --type TEXT              Type code
+  -registration-date, --registration-date TEXT
+                                  Registration date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
+  -modification-date, --modification-date TEXT
+                                  Modification date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
   -property TEXT                  Property code
   -property-value TEXT            Property value
   -save, --save TEXT              Directory name to save results
@@ -269,7 +275,13 @@ Options:
   -type, --type TEXT              Type code to filter by
   -space, --space TEXT            Space code
   -project, --project TEXT        Full project identification code
-  -experiment, --experiment TEXT  Full experiment code
+  -experiment, --experiment TEXT  Full experiment 
+  -registration-date, --registration-date TEXT
+                                  Registration date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
+  -modification-date, --modification-date TEXT
+                                  Modification date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
   -property TEXT                  Property code
   -property-value TEXT            Property value
   -save, --save TEXT              File name to save results in csv format

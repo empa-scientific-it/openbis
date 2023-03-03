@@ -24,43 +24,38 @@ class Search(OpenbisCommand):
     Command to search data in openBIS.
     """
 
-    def __init__(self, dm, type_code, space, project, experiment, property_code, property_value,
-                 save_path):
+    def __init__(self, dm, filters, save_path):
         """
         :param dm: data management
-        :param type_code: Filter by type code
-        :param space: Filter by space path
-        :param project: Filter by project path
-        :param experiment: Filter by experiment
-        :param property_code: Filter by property_code, needs to be set together with property_value
-        :param property_value: Filter by property_value, needs to be set together with property_code
+        :param filters: Dictionary of filter to be used during search
         :param save_path: Path to save results. If not set, results will not be saved.
         """
-        self.property_value = property_value
-        self.property_code = property_code
-        self.experiment = experiment
-        self.project = project
-        self.space = space
-        self.type_code = type_code
+        self.filters = filters
         self.save_path = save_path
         self.load_global_config(dm)
         super(Search, self).__init__(dm)
 
     def search_samples(self):
         properties = None
-        if self.property_code is not None and self.property_value is not None:
+        if self.filters['property_code'] is not None and self.filters['property_value'] is not None:
             properties = {
-                self.property_code: self.property_value,
+                self.filters['property_code']: self.filters['property_value'],
             }
 
-        search_results = self.openbis.get_samples(
-            space=self.space,
-            project=self.project,  # Not Supported with Project Samples disabled
-            experiment=self.experiment,
-            type=self.type_code,
-            where=properties,
-            props="*"  # Fetch all properties
-        )
+        args = dict(space=self.filters['space'],
+                    project=self.filters['project'],  # Not Supported with Project Samples disabled
+                    experiment=self.filters['experiment'],
+                    type=self.filters['type_code'],
+                    where=properties,
+                    attrs=["parents", "children"],
+                    props="*")  # Fetch all properties
+
+        if self.filters['registration_date'] is not None:
+            args['registrationDate'] = self.filters['registration_date']
+        if self.filters['modification_date'] is not None:
+            args['modificationDate'] = self.filters['modification_date']
+
+        search_results = self.openbis.get_samples(**args)
         click_echo(f"Objects found: {len(search_results)}")
         if self.save_path is not None:
             click_echo(f"Saving search results in {self.save_path}")
@@ -77,20 +72,24 @@ class Search(OpenbisCommand):
                                  output="Configuration fileservice_url needs to be set for download.")
 
         properties = None
-        if self.property_code is not None and self.property_value is not None:
+        if self.filters['property_code'] is not None and self.filters['property_value'] is not None:
             properties = {
-                self.property_code: self.property_value,
+                self.filters['property_code']: self.filters['property_value'],
             }
+        args = dict(space=self.filters['space'],
+                    project=self.filters['project'],  # Not Supported with Project Samples disabled
+                    experiment=self.filters['experiment'],
+                    type=self.filters['type_code'],
+                    where=properties,
+                    attrs=["parents", "children"],
+                    props="*")  # Fetch all properties
 
-        datasets = self.openbis.get_datasets(
-            space=self.space,
-            project=self.project,  # Not Supported with Project Samples disabled
-            experiment=self.experiment,
-            type=self.type_code,
-            where=properties,
-            attrs=["parents", "children"],
-            props="*"  # Fetch all properties
-        )
+        if self.filters['registration_date'] is not None:
+            args['registrationDate'] = self.filters['registration_date']
+        if self.filters['modification_date'] is not None:
+            args['modificationDate'] = self.filters['modification_date']
+
+        datasets = self.openbis.get_datasets(**args)
 
         click_echo(f"Data sets found: {len(datasets)}")
         if self.save_path is not None:
