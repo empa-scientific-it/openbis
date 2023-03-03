@@ -141,9 +141,26 @@ public class VocabularyTermImportHelper extends BasicImportHelper
 
         VocabularyTermUpdate update = new VocabularyTermUpdate();
         update.setVocabularyTermId(termId);
-        update.setLabel(label);
-        update.setDescription(description);
-
+        if (label != null)
+        {
+            if (label.equals("--DELETE--") || label.equals("__DELETE__"))
+            {
+                update.setLabel("");
+            } else if (!label.isEmpty())
+            {
+                update.setLabel(label);
+            }
+        }
+        if (description != null)
+        {
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
+        }
         this.delayedExecutor.updateVocabularyTerm(update);
     }
 

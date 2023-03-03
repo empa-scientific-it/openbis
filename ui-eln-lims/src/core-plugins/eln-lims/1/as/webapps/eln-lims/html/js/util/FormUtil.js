@@ -888,7 +888,8 @@ var FormUtil = new function() {
 		var vocabulary = propertyType.vocabulary;
 		if(vocabulary) {
 			for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
-				if(vocabulary.terms[tIdx].code === termCode) {
+				if(vocabulary.terms[tIdx].code === termCode &&
+				    vocabulary.terms[tIdx].label) {
 					return vocabulary.terms[tIdx].label;
 				}
 			}

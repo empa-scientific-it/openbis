@@ -204,8 +204,26 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
         PropertyTypeUpdate update = new PropertyTypeUpdate();
         update.setTypeId(propertyTypePermId);
-        update.setLabel(propertyLabel);
-        update.setDescription(description);
+        if (propertyLabel != null)
+        {
+            if (propertyLabel.equals("--DELETE--") || propertyLabel.equals("__DELETE__"))
+            {
+                update.setLabel("");
+            } else if (!propertyLabel.isEmpty())
+            {
+                update.setLabel(propertyLabel);
+            }
+        }
+        if (description != null)
+        {
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
+        }
 
         PropertyTypeFetchOptions propertyTypeFetchOptions = new PropertyTypeFetchOptions();
         propertyTypeFetchOptions.withVocabulary();

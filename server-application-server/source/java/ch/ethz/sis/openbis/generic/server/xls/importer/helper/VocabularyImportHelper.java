@@ -121,7 +121,16 @@ public class VocabularyImportHelper extends BasicImportHelper
 
         VocabularyUpdate update = new VocabularyUpdate();
         update.setVocabularyId(vocabularyPermId);
-        update.setDescription(description);
+        if (description != null)
+        {
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
+        }
         delayedExecutor.updateVocabulary(update);
     }
 
