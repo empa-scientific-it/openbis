@@ -113,10 +113,11 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
         // Obtain global criteria
 
         GlobalSearchCriteria globalSearchCriteria = getCriteria(searchableEntity);
+
         if (searchTerm.startsWith("\"") && searchTerm.endsWith("\"")) {
-            globalSearchCriteria.withText().thatContainsExactly(searchTerm.substring(1, searchTerm.length() - 1));
+            globalSearchCriteria.withText().thatMatches(searchTerm.substring(1, searchTerm.length() - 1));
         } else {
-            globalSearchCriteria.withText().thatContains(searchTerm);
+            globalSearchCriteria.withText().thatMatches(searchTerm);
         }
 
         operationLog.info("ADAPTED [FULL TEXT SEARCH] : " + searchableEntity + " [" + searchTerm + "] " + useWildcardSearchMode);
