@@ -129,8 +129,16 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         DataSetTypeUpdate update = new DataSetTypeUpdate();
         EntityTypePermId permId = new EntityTypePermId(code);
         update.setTypeId(permId);
-        update.setDescription(description);
-
+        if (description != null)
+        {
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
+        }
         if (validationScript != null && !validationScript.isEmpty())
         {
             update.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(code, validationScript)));

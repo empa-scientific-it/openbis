@@ -119,7 +119,13 @@ public class ProjectImportHelper extends BasicImportHelper
         update.setProjectId(projectIdentifier);
         if (description != null)
         {
-            update.setDescription(description);
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
         }
 
         // Space is only needed to "MOVE" the project

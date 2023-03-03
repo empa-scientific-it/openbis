@@ -97,7 +97,13 @@ public class SpaceImportHelper extends BasicImportHelper
         update.setSpaceId(new SpacePermId(code));
         if (description != null)
         {
-            update.setDescription(description);
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
         }
 
         delayedExecutor.updateSpace(update);

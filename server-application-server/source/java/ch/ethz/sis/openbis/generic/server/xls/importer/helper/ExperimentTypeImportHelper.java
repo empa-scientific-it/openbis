@@ -130,7 +130,17 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
         ExperimentTypeUpdate update = new ExperimentTypeUpdate();
         EntityTypePermId permId = new EntityTypePermId(code);
         update.setTypeId(permId);
-        update.setDescription(description);
+
+        if (description != null)
+        {
+            if (description.equals("--DELETE--") || description.equals("__DELETE__"))
+            {
+                update.setDescription("");
+            } else if (!description.isEmpty())
+            {
+                update.setDescription(description);
+            }
+        }
 
         if (validationScript != null && !validationScript.isEmpty())
         {
