@@ -23,8 +23,8 @@ dependencies {
     annotationProcessor 'lombok:lombok:1.18.22'
     implementation project(':lib-json'),
             'lombok:lombok:1.18.22'
-    testImplementation 'junit:junit:4.10',
-            project(':server-data-store'),
-            project(':lib-transactional-file-system')
+    testImplementation 'junit:junit:4.10'
+//            project(':server-data-store'),
+//            project(':lib-transactional-file-system')
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }
