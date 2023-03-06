@@ -1,3 +1,7 @@
+evaluationDependsOn(':lib-json')
+evaluationDependsOn(':api-data-store-server-java')
+evaluationDependsOn(':lib-transactional-file-system')
+
 apply plugin: 'java'
 apply plugin: 'application'
 
