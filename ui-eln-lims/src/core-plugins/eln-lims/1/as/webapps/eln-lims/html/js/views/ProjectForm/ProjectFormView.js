@@ -56,7 +56,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var toolbarModel = [];
 		var dropdownOptionsModel = [];
 		if(this._projectFormModel.mode === FormMode.VIEW) {
-			var experimentKindName = ELNDictionary.getExperimentKindName(projectIdentifier);
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
 				var experimentTypes = mainController.profile.getExperimentTypes();
@@ -286,7 +285,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	}
 	
 	this._createExperimentsSection = function(projectIdentifier, hideShowOptionsModel) {
-		var entityKindName = ELNDictionary.getExperimentKindName(projectIdentifier, true);
+		var entityKindName = ELNDictionary.getExperimentsDualName();
 		var $experiments = $("<div>", { id : "project-experiments" });
 		var $experimentsContainer = $("<div>");
 		$experiments.append($("<legend>").append(entityKindName));

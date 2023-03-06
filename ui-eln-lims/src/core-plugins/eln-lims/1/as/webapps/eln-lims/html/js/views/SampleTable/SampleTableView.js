@@ -170,7 +170,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$list.append($batchUpdateOption);
 		
 		if(_this._sampleTableModel.experimentIdentifier) {
-			var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
+            var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experiment.experimentTypeCode, false);
 			var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName, 'id' : 'search-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('Search in ' + expKindName));
 			$searchCollectionOption.click(function() {
 				

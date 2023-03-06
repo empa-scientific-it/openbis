@@ -51,7 +51,7 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	this._showExperimentFromOverviewDropdown = function() {
 		var _this = this;
 		var expDropModel = [];
-		var kindName = ELNDictionary.ExperimentsELN;
+		var kindName = ELNDictionary.getExperimentsDualName();
 		expDropModel = [{value : "OVERVIEW", label : "Show only overview " + kindName, selected : this._experimentTableModel.showInProjectOverview },
 		                {value : "ALL", label : "Show all " + kindName, selected : !this._experimentTableModel.showInProjectOverview }];
 		

@@ -2293,6 +2293,7 @@ function ServerFacade(openbisServer) {
 		v1Sample["identifier"] = (v3Sample.identifier)?v3Sample.identifier.identifier:null;
 		v1Sample["projectCode"] = (v3Sample.project) ? v3Sample.project.code : null;
 		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
+        v1Sample["experimentTypeCode"] = v3Sample.experiment && v3Sample.experiment.type ? v3Sample.experiment.type.code : null;
 		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
 		v1Sample["properties"] = v3Sample.properties;
 
@@ -2630,7 +2631,7 @@ function ServerFacade(openbisServer) {
             fetchOptions.withRegistrator();
             fetchOptions.withModifier();
             fetchOptions.withProject();
-            fetchOptions.withExperiment();
+            fetchOptions.withExperiment().withType();
             if(fechOptions["withProperties"]) {
             		fetchOptions.withProperties();
             }
