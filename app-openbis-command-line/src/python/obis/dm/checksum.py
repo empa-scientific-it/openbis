@@ -51,14 +51,14 @@ def validate_checksum(openbis, files, data_set_id, data_path, metadata_path):
         if dataset_file['checksumCRC32'] is not None and dataset_file['checksumCRC32'] > 0:
             checksum_generator = ChecksumGeneratorCrc32(data_path, metadata_path)
             expected_checksum = dataset_file['checksumCRC32']
+            checksum = checksum_generator.get_checksum(filename)['crc32']
         elif dataset_file['checksumType'] is not None:
             checksum_generator = get_checksum_generator(dataset_file['checksumType'], data_path,
                                                         metadata_path)
             expected_checksum = dataset_file['checksum']
-        if checksum_generator is not None:
             checksum = checksum_generator.get_checksum(filename)['checksum']
-            if checksum != expected_checksum:
-                invalid_files.append(filename)
+        if checksum_generator is not None and checksum != expected_checksum:
+            invalid_files.append(filename)
     return invalid_files
 
 
@@ -84,7 +84,7 @@ class ChecksumGeneratorCrc32(ChecksumGenerator):
             raise CommandException(result)
         fields = result.output.split(" ")
         return {
-            'checksum': ctypes.c_int(int(fields[0])).value,
+            'crc32': ctypes.c_int(int(fields[0])).value,
             'fileLength': int(fields[1]),
             'path': file
         }
