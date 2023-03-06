@@ -1,1 +1,1 @@
-includeFlat 'lib-json', 'lib-transactional-file-system'
+includeFlat 'lib-json', 'lib-transactional-file-system', 'server-data-store'

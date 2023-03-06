@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.afsserver.api;
+package ch.ethz.sis.afsapi.exception;
 
-import lombok.NonNull;
-
-public interface AuthenticationAPI {
-    public String login(@NonNull String userId, @NonNull String password) throws Exception;
-
-    public Boolean isSessionValid() throws Exception;
-
-    public Boolean logout() throws Exception;
+public interface ExceptionTemplateHolder
+{
+    public RuntimeException getInstance(Object... args) throws Exception;
 }

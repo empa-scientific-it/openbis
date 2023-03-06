@@ -9,40 +9,39 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-//import ch.ethz.sis.afs.manager.TransactionConnection;
-//import ch.ethz.sis.afsserver.server.AfsServer;
-//import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
-//import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
-//import ch.ethz.sis.shared.startup.Configuration;
+import ch.ethz.sis.afs.manager.TransactionConnection;
+import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.shared.startup.Configuration;
 
 public class AfsClientTest
 {
     
-//    private static AfsServer<TransactionConnection, ?> afsServer;
+    private static Server<TransactionConnection, ?> afsServer;
 
-//    private static AfsClient afsClient;
+    private static AfsClient afsClient;
 
     @BeforeClass
     public static void classSetUp() throws Exception {
-//        final Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
-//                "src/test/resources/afs-server-config.properties");
-//        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
-//        afsServer = new AfsServer<>(configuration, dummyServerObserver, dummyServerObserver);
-//
-//        final int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
-//        final String httpServerPath = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerPath);
-//        afsClient = new AfsClient(new URI("http", null, "localhost", httpServerPort, httpServerPath, null, null));
+        final Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
+                "src/test/resources/afs-server-config.properties");
+        final DummyServerObserver dummyServerObserver = new DummyServerObserver();
+        afsServer = new Server<>(configuration, dummyServerObserver, dummyServerObserver);
+
+        final int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
+        final String httpServerPath = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
+        afsClient = new AfsClient(new URI("http", null, "localhost", httpServerPort, httpServerPath, null, null));
     }
 
     @AfterClass
     public static void classTearDown() throws Exception {
-//        afsServer.shutdown(true);
+        afsServer.shutdown(true);
     }
 
     @Test
     public void testLogin() throws Exception {
-//        final String token = afsClient.login("test", "test");
-        final String token = "null";
+        final String token = afsClient.login("test", "test");
         assertNotNull(token);
     }
 

@@ -1,5 +1,4 @@
 evaluationDependsOn(':lib-json')
-evaluationDependsOn(':lib-transactional-file-system')
 
 apply plugin: 'java'
 apply plugin: 'application'
@@ -22,9 +21,10 @@ repositories {
 dependencies {
     compileOnly 'lombok:lombok:1.18.22'
     annotationProcessor 'lombok:lombok:1.18.22'
-    implementation project(':lib-transactional-file-system'),
-            project(':lib-json'),
+    implementation project(':lib-json'),
             'lombok:lombok:1.18.22'
-    testImplementation 'junit:junit:4.10'
+    testImplementation 'junit:junit:4.10',
+            project(':server-data-store'),
+            project(':lib-transactional-file-system')
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }

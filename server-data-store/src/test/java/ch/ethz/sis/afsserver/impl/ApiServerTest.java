@@ -17,7 +17,7 @@ package ch.ethz.sis.afsserver.impl;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsserver.ServerClientEnvironmentFS;
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsserver.core.PublicApiTest;
 import ch.ethz.sis.afsserver.server.APIServer;
 import ch.ethz.sis.afsserver.server.Worker;

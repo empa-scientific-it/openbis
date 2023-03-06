@@ -1,16 +1,16 @@
 package ch.ethz.sis.afsclient.client.exception;
 
-import static ch.ethz.sis.afs.api.dto.ExceptionType.ClientDeveloperCodingError;
-import static ch.ethz.sis.afs.api.dto.ExceptionType.CoreDeveloperCodingError;
-import static ch.ethz.sis.afs.api.dto.ExceptionType.UnknownError;
-import static ch.ethz.sis.afs.api.dto.ExceptionType.UserUsageError;
+import static ch.ethz.sis.afsapi.dto.ExceptionType.ClientDeveloperCodingError;
+import static ch.ethz.sis.afsapi.dto.ExceptionType.CoreDeveloperCodingError;
+import static ch.ethz.sis.afsapi.dto.ExceptionType.UnknownError;
+import static ch.ethz.sis.afsapi.dto.ExceptionType.UserUsageError;
 
 import java.util.List;
 
-import ch.ethz.sis.afs.api.dto.ExceptionReason;
-import ch.ethz.sis.afs.api.dto.ExceptionType;
-import ch.ethz.sis.afs.exception.RuntimeExceptionTemplate;
-import ch.ethz.sis.shared.exception.ExceptionTemplateHolder;
+import ch.ethz.sis.afsapi.dto.ExceptionReason;
+import ch.ethz.sis.afsapi.dto.ExceptionType;
+import ch.ethz.sis.afsapi.exception.RuntimeExceptionTemplate;
+import ch.ethz.sis.afsapi.exception.ExceptionTemplateHolder;
 
 public enum ClientExceptions implements ExceptionTemplateHolder {
 

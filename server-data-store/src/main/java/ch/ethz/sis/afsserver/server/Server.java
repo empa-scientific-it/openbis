@@ -20,7 +20,7 @@ import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
-import ch.ethz.sis.shared.json.jackson.JacksonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
 import ch.ethz.sis.shared.log.LogManager;

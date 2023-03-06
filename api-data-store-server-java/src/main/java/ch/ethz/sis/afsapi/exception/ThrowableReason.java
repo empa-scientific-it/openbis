@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ETH Zürich, SIS
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package ch.ethz.sis.afsapi.exception;
 
-package ch.ethz.sis.afsapi.api.dto;
+import java.io.Serializable;
 
-import lombok.*;
+public class ThrowableReason extends Throwable {
+    private Serializable reason;
 
-import java.time.OffsetDateTime;
+    public ThrowableReason(Serializable reason) {
+        this.reason = reason;
+    }
 
-@Value
-@Builder(toBuilder = true)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class File {
-    private String path;
-    private String name;
-    private Boolean directory;
-    private Long size; // Size in bytes
-    private OffsetDateTime lastModifiedTime;
-    private OffsetDateTime creationTime;
-
-    @EqualsAndHashCode.Exclude
-    private OffsetDateTime lastAccessTime;
+    public Serializable getReason() {
+        return reason;
+    }
 }

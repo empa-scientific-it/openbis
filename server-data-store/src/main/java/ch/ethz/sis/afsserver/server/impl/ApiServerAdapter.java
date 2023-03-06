@@ -21,7 +21,7 @@ import ch.ethz.sis.afsserver.server.*;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
@@ -36,13 +36,13 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
     private static final Logger logger = LogManager.getLogger(ApiServerAdapter.class);
 
     private final APIServer<CONNECTION, Request, Response, API> server;
-    private final JSONObjectMapper jsonObjectMapper;
+    private final JsonObjectMapper jsonObjectMapper;
     private final ApiResponseBuilder apiResponseBuilder;
 
 
     public ApiServerAdapter(
             APIServer<CONNECTION, Request, Response, API> server,
-            JSONObjectMapper jsonObjectMapper) {
+            JsonObjectMapper jsonObjectMapper) {
         this.server = server;
         this.jsonObjectMapper = jsonObjectMapper;
         this.apiResponseBuilder = new ApiResponseBuilder();

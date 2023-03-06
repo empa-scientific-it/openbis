@@ -14,15 +14,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import ch.ethz.sis.afsapi.api.PublicApi;
-import ch.ethz.sis.afsapi.api.dto.ApiResponse;
-import ch.ethz.sis.afsapi.api.dto.File;
+import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.ApiResponse;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
 
-public final class AfsClient implements PublicApi
+public final class AfsClient implements PublicAPI
 {
 
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
