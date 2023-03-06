@@ -27,7 +27,8 @@ public class AfsClientTest
         httpServer = new DummyHttpServer(httpServerPort, httpServerPath);
         httpServer.start();
         afsClient = new AfsClient(
-                new URI("http", null, "localhost", httpServerPort, httpServerPath, null, null));
+                new URI("http", null, "localhost", httpServerPort,
+                        httpServerPath, null, null));
     }
 
     @AfterClass
