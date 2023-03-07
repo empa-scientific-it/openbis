@@ -31,7 +31,7 @@ data_files = [
 
 setup(
     name="obis",
-    version="0.4.0rc6",
+    version="0.4.0",
     description="Local data management with assistance from OpenBIS.",
     long_description=long_description,
     long_description_content_type="text/markdown",
