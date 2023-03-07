@@ -158,4 +158,10 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
                         .collect(Collectors.joining("\n")));
     }
 
+    @Override
+    protected String typePermIdToString(final SampleType sampleType)
+    {
+        return sampleType.getPermId().getPermId();
+    }
+
 }

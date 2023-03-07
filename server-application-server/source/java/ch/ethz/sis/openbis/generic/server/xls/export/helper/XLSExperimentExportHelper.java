@@ -116,4 +116,10 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
         return api.getExperiments(sessionToken, experimentPermIds, fetchOptions).values();
     }
 
+    @Override
+    protected String typePermIdToString(final ExperimentType experimentType)
+    {
+        return experimentType.getPermId().getPermId();
+    }
+
 }

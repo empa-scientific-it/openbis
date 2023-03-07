@@ -68,7 +68,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         final String entityTypeName = getEntityTypeName();
         for (final Map.Entry<ENTITY_TYPE, List<ENTITY>> entry : groupedEntities)
         {
-            final String typePermId = entry.getKey().getPermId().toString();
+            final String typePermId = typePermIdToString(entry.getKey());
 
             final ExportableKind typeExportableKind = getTypeExportableKind();
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, exportableKind.toString()));
@@ -185,5 +185,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
     protected abstract Collection<ENTITY> getEntities(final IApplicationServerApi api, final String sessionToken,
             final Collection<String> permIds);
-    
+
+    protected abstract String typePermIdToString(final ENTITY_TYPE entityType);
+
 }

@@ -120,4 +120,10 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
                 : dataSet.getExperiment().getIdentifier().getIdentifier());
     }
 
+    @Override
+    protected String typePermIdToString(final DataSetType dataSetType)
+    {
+        return dataSetType.getPermId().getPermId();
+    }
+
 }
