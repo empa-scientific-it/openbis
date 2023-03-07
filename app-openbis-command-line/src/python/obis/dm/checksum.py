@@ -13,12 +13,11 @@
 #   limitations under the License.
 #
 import abc
-import ctypes
 import hashlib
 import json
 import os
+import zlib
 
-from .command_result import CommandException
 from .utils import run_shell, cd
 
 
@@ -78,14 +77,19 @@ class ChecksumGenerator(metaclass=abc.ABCMeta):
 
 
 class ChecksumGeneratorCrc32(ChecksumGenerator):
+
+    def _crc32(self, file):
+        with open(file, 'rb') as f:
+            computed_hash = 0
+            for chunk in iter(lambda: f.read(65536), b""):
+                computed_hash = zlib.crc32(chunk, computed_hash)
+            return computed_hash & 0xFFFFFFFF
+
     def _get_checksum(self, file):
-        result = run_shell(['cksum', file])
-        if result.failure():
-            raise CommandException(result)
-        fields = result.output.split(" ")
+        result = self._crc32(file)
         return {
-            'crc32': ctypes.c_int(int(fields[0])).value,
-            'fileLength': int(fields[1]),
+            'crc32': result,
+            'fileLength': os.path.getsize(file),
             'path': file
         }
 
