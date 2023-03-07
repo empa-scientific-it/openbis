@@ -1,81 +1,117 @@
 package ch.ethz.sis.afsclient.client;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import java.net.URI;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 public class AfsClientTest
 {
 
     private static DummyHttpServer httpServer;
 
-    private static AfsClient afsClient;
+    private AfsClient afsClient;
+    private static final int HTTP_SERVER_PORT = 8085;
+    private static final String HTTP_SERVER_PATH = "/fileserver";
 
-    private static int httpServerPort;
-
-    private static String httpServerPath;
-
-    @BeforeClass
-    public static void classSetUp() throws Exception
-    {
-        httpServerPort = 8085;
-        httpServerPath = "/fileserver";
-        httpServer = new DummyHttpServer(httpServerPort, httpServerPath);
+    @Before
+    public void setUp() throws Exception {
+        httpServer = new DummyHttpServer(HTTP_SERVER_PORT, HTTP_SERVER_PATH);
         httpServer.start();
         afsClient = new AfsClient(
-                new URI("http", null, "localhost", httpServerPort,
-                        httpServerPath, null, null));
+                new URI("http", null, "localhost", HTTP_SERVER_PORT,
+                        HTTP_SERVER_PATH, null, null));
     }
 
-    @AfterClass
-    public static void classTearDown() throws Exception
-    {
+    @After
+    public void tearDown() {
         httpServer.stop();
     }
 
     @Test
-    public void testLogin() throws Exception
+    public void login_methodIsPost() throws Exception
     {
         final String token = afsClient.login("test", "test");
         assertNotNull(token);
+        assertEquals(token, afsClient.getSessionToken());
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
     }
 
     @Test
-    public void testIsSessionValid()
+    public void isSessionValid_withoutLogin_throwsException() throws Exception
+    {
+        try
+        {
+           afsClient.isSessionValid();
+            fail();
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(), containsString("No session information detected!"));
+        }
+    }
+
+    @Test
+    public void isSessionValid_afterLogin_methodIsGet() throws Exception
+    {
+        afsClient.login("test", "test");
+        httpServer.setNextResponse("{\"result\": true}");
+
+        Boolean result = afsClient.isSessionValid();
+
+        assertTrue(result);
+        assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+    }
+
+    @Test
+    public void logout_withoutLogin_throwsException() throws Exception
+    {
+        try
+        {
+            afsClient.logout();
+            fail();
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(), containsString("No session information detected!"));
+        }
+    }
+
+    @Test
+    public void logout_sessionTokenIsCleared() throws Exception
+    {
+        afsClient.login("test", "test");
+        assertNotNull(afsClient.getSessionToken());
+
+        httpServer.setNextResponse("{\"result\": true}");
+
+        Boolean result = afsClient.logout();
+        assertTrue(result);
+        assertNull(afsClient.getSessionToken());
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+    }
+
+    @Test
+    public void testList() throws Exception
     {
     }
 
     @Test
-    public void testLogout()
+    public void testRead()throws Exception
     {
     }
 
     @Test
-    public void testList()
+    public void testWrite()throws Exception
     {
     }
 
     @Test
-    public void testRead()
+    public void testDelete()throws Exception
     {
     }
 
     @Test
-    public void testWrite()
-    {
-    }
-
-    @Test
-    public void testDelete()
-    {
-    }
-
-    @Test
-    public void testCopy()
+    public void testCopy()throws Exception
     {
     }
 

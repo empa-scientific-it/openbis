@@ -1,6 +1,8 @@
 package ch.ethz.sis.afsclient.client;
 
 import java.io.ByteArrayInputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -8,10 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import ch.ethz.sis.afsapi.api.PublicAPI;
@@ -39,79 +38,109 @@ public final class AfsClient implements PublicAPI
 
     private final JsonObjectMapper jsonObjectMapper;
 
-    public AfsClient(final URI serverUri) {
+    public AfsClient(final URI serverUri)
+    {
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout) {
+    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout)
+    {
         this.maxReadSizeInBytes = maxReadSizeInBytes;
         this.timeout = timeout;
         this.serverUri = serverUri;
         this.jsonObjectMapper = new JacksonObjectMapper();
     }
 
-    public URI getServerUri() {
+    public URI getServerUri()
+    {
         return serverUri;
     }
 
-    public int getMaxReadSizeInBytes() {
+    public int getMaxReadSizeInBytes()
+    {
         return maxReadSizeInBytes;
     }
 
-    public String getSessionToken() {
+    public String getSessionToken()
+    {
         return sessionToken;
     }
 
-    public void setSessionToken(final String sessionToken) {
+    public void setSessionToken(final String sessionToken)
+    {
         this.sessionToken = sessionToken;
     }
 
-    private static String urlEncode(final String s) {
+    private static String urlEncode(final String s)
+    {
         return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 
     @Override
-    public @NonNull String login(@NonNull final String userId, @NonNull final String password) throws Exception {
-        return request("POST", "login", Map.of("userId", "admin", "password", "changeit"));
+    public @NonNull String login(@NonNull final String userId, @NonNull final String password)
+            throws Exception
+    {
+        String result = request("POST", "login", Map.of(),
+                (userId + ":" + password).getBytes());
+        setSessionToken(result);
+        return result;
     }
 
     @Override
-    public @NonNull Boolean isSessionValid() throws Exception {
-        return null;
+    public @NonNull Boolean isSessionValid() throws Exception
+    {
+        if (getSessionToken() == null)
+        {
+            throw new IllegalStateException("No session information detected!");
+        }
+        return request("GET", "isSessionValid", Map.of("sessionToken", getSessionToken()));
     }
 
     @Override
-    public @NonNull Boolean logout() throws Exception {
-        return null;
+    public @NonNull Boolean logout() throws Exception
+    {
+        if (getSessionToken() == null)
+        {
+            throw new IllegalStateException("No session information detected!");
+        }
+//      Boolean result = request("POST", "logout", Map.of(), getSessionToken().getBytes());
+        Boolean result = request("POST", "logout", Map.of("sessionToken", getSessionToken()));
+        setSessionToken(null);
+        return result;
     }
 
     @Override
     public @NonNull List<File> list(@NonNull final String owner, @NonNull final String source,
-            @NonNull final Boolean recursively) throws Exception {
+            @NonNull final Boolean recursively) throws Exception
+    {
         return null;
     }
 
     @Override
-    public byte @NonNull [] read(@NonNull final String owner, @NonNull final String source,
-            @NonNull final Long offset, @NonNull final Integer limit) throws Exception {
+    public @NonNull byte[] read(@NonNull final String owner, @NonNull final String source,
+            @NonNull final Long offset, @NonNull final Integer limit) throws Exception
+    {
         return new byte[0];
     }
 
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception {
+            final byte @NonNull [] md5Hash) throws Exception
+    {
         return null;
     }
 
     @Override
     public @NonNull Boolean delete(@NonNull final String owner, @NonNull final String source)
-            throws Exception {
+            throws Exception
+    {
         return null;
     }
 
     @Override
-    public @NonNull Boolean copy(@NonNull final String sourceOwner, @NonNull final String source, @NonNull final String targetOwner,
+    public @NonNull Boolean copy(@NonNull final String sourceOwner, @NonNull final String source,
+            @NonNull final String targetOwner,
             @NonNull final String target)
             throws Exception
     {
@@ -119,7 +148,8 @@ public final class AfsClient implements PublicAPI
     }
 
     @Override
-    public @NonNull Boolean move(@NonNull final String sourceOwner, @NonNull final String source, @NonNull final String targetOwner,
+    public @NonNull Boolean move(@NonNull final String sourceOwner, @NonNull final String source,
+            @NonNull final String targetOwner,
             @NonNull final String target)
             throws Exception
     {
@@ -127,53 +157,65 @@ public final class AfsClient implements PublicAPI
     }
 
     @Override
-    public void begin(final UUID transactionId) throws Exception {
+    public void begin(final UUID transactionId) throws Exception
+    {
 
     }
 
     @Override
-    public Boolean prepare() throws Exception {
+    public Boolean prepare() throws Exception
+    {
         return null;
     }
 
     @Override
-    public void commit() throws Exception {
+    public void commit() throws Exception
+    {
 
     }
 
     @Override
-    public void rollback() throws Exception {
+    public void rollback() throws Exception
+    {
 
     }
 
     @Override
-    public List<UUID> recover() throws Exception {
+    public List<UUID> recover() throws Exception
+    {
         return null;
     }
 
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
-            @NonNull final Map<String, String> parameters) throws Exception {
+            @NonNull final Map<String, String> parameters) throws Exception
+    {
         return request(httpMethod, apiMethod, parameters, new byte[0]);
     }
 
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
-            @NonNull final Map<String, String> parameters, final byte @NonNull [] body) throws Exception {
-        HttpClient client = HttpClient.newBuilder()
+            @NonNull final Map<String, String> parameters, final byte @NonNull [] body)
+            throws Exception
+    {
+        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
                 .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofMillis(timeout))
-                .build();
+                .connectTimeout(Duration.ofMillis(timeout));
+        Map<String, String> params = parameters;
 
-        final String query = Stream.concat(Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
-                        parameters.entrySet().stream())
+        HttpClient client = clientBuilder.build();
+
+        final String query = Stream.concat(
+                        Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
+                        params.entrySet().stream())
                 .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
                 .reduce((s1, s2) -> s1 + "&" + s2).get();
 
-        final URI uri = new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
-                serverUri.getPath(), query, null);
+        final URI uri =
+                new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
+                        serverUri.getPath(), query, null);
 
-        final HttpRequest.Builder builder = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(uri)
                 .version(HttpClient.Version.HTTP_1_1)
                 .timeout(Duration.ofMillis(timeout))
@@ -181,23 +223,31 @@ public final class AfsClient implements PublicAPI
 
         final HttpRequest request = builder.build();
 
-        final HttpResponse<byte[]> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+        final HttpResponse<byte[]> httpResponse =
+                client.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
         final int statusCode = httpResponse.statusCode();
-        if (statusCode >= 200 && statusCode < 300) {
-            final ApiResponse response = jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
-                    ApiResponse.class);
+        if (statusCode >= 200 && statusCode < 300)
+        {
+            final ApiResponse response =
+                    jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
+                            ApiResponse.class);
 
-            if (response.getError() != null) {
+            if (response.getError() != null)
+            {
                 throw ClientExceptions.API_ERROR.getInstance(response.getError());
-            } else {
+            } else
+            {
                 return (T) response.getResult();
             }
-        } else if (statusCode >= 400 && statusCode < 500) {
+        } else if (statusCode >= 400 && statusCode < 500)
+        {
             throw ClientExceptions.CLIENT_ERROR.getInstance(statusCode);
-        } else if (statusCode >= 500 && statusCode < 600) {
+        } else if (statusCode >= 500 && statusCode < 600)
+        {
             throw ClientExceptions.SERVER_ERROR.getInstance(statusCode);
-        } else {
+        } else
+        {
             throw ClientExceptions.OTHER_ERROR.getInstance(statusCode);
         }
     }

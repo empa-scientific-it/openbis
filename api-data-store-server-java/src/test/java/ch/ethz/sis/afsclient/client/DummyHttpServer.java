@@ -36,6 +36,7 @@ public final class DummyHttpServer
     private static final String DEFAULT_RESPONSE = "{\"result\": \"success\"}";
 
     private String nextResponse = DEFAULT_RESPONSE;
+    private HttpExchange httpExchange;
 
     public DummyHttpServer(int httpServerPort, String httpServerPath) throws IOException
     {
@@ -50,6 +51,7 @@ public final class DummyHttpServer
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                 exchange.getResponseBody().write(response);
                 exchange.close();
+                httpExchange = exchange;
             }
         });
     }
@@ -67,6 +69,10 @@ public final class DummyHttpServer
     public void setNextResponse(String response)
     {
         this.nextResponse = response;
+    }
+
+    public HttpExchange getHttpExchange() {
+        return httpExchange;
     }
 
 }

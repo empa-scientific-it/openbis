@@ -23,6 +23,6 @@ dependencies {
     annotationProcessor 'lombok:lombok:1.18.22'
     implementation project(':lib-json'),
             'lombok:lombok:1.18.22'
-    testImplementation 'junit:junit:4.10'
-    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+    testImplementation 'junit:junit:4.10',
+            'hamcrest:hamcrest-core:1.3'
 }

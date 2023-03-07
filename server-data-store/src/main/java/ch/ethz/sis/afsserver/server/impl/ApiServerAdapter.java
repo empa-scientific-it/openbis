@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.afsserver.server.impl;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import ch.ethz.sis.afsserver.exception.HTTPExceptions;
 import ch.ethz.sis.afsserver.http.*;
 import ch.ethz.sis.afsserver.server.*;
@@ -31,50 +33,56 @@ import java.util.*;
 /*
  * This class is supposed to be called by a TCP or HTTP transport class
  */
-public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
+public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
+{
 
     private static final Logger logger = LogManager.getLogger(ApiServerAdapter.class);
 
     private final APIServer<CONNECTION, Request, Response, API> server;
-    private final JsonObjectMapper jsonObjectMapper;
-    private final ApiResponseBuilder apiResponseBuilder;
 
+    private final JsonObjectMapper jsonObjectMapper;
+
+    private final ApiResponseBuilder apiResponseBuilder;
 
     public ApiServerAdapter(
             APIServer<CONNECTION, Request, Response, API> server,
-            JsonObjectMapper jsonObjectMapper) {
+            JsonObjectMapper jsonObjectMapper)
+    {
         this.server = server;
         this.jsonObjectMapper = jsonObjectMapper;
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
-    public static HttpMethod getHttpMethod(String apiMethod) {
-        HttpMethod httpMethod = null;
-        switch (apiMethod){
-            case "delete":
-                httpMethod = HttpMethod.DELETE;
-                break;
-            case "write":
-                httpMethod = HttpMethod.PUT;
-                break;
+    public static HttpMethod getHttpMethod(String apiMethod)
+    {
+        switch (apiMethod)
+        {
             case "list":
             case "read":
             case "isSessionValid":
-                httpMethod = HttpMethod.GET;
-                break;
-            default:
-                httpMethod = HttpMethod.POST;
+                return HttpMethod.GET; // all parameters from GET methods come on the query string
+            case "write":
+            case "move":
+            case "login":
+            case "logout":
+                return HttpMethod.POST; // all parameters from POST methods come on the body
+            case "delete":
+                return HttpMethod.DELETE; // all parameters from DELETE methods come on the body
         }
-        return httpMethod;
+        throw new UnsupportedOperationException("This line SHOULD NOT be unreachable!");
     }
 
-    public boolean isValidMethod(HttpMethod givenMethod, String apiMethod) {
+    public boolean isValidMethod(HttpMethod givenMethod, String apiMethod)
+    {
         HttpMethod correctMethod = getHttpMethod(apiMethod);
         return correctMethod == givenMethod;
     }
 
-    public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> uriParameters, byte[] requestBody) {
-        try {
+    public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> uriParameters,
+            byte[] requestBody)
+    {
+        try
+        {
             logger.traceAccess(null);
             PerformanceAuditor performanceAuditor = new PerformanceAuditor();
 
@@ -83,22 +91,31 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
             String interactiveSessionKey = null;
             String transactionManagerKey = null;
             Map<String, Object> methodParameters = new HashMap<>();
-            for (Map.Entry<String, List<String>> entry:uriParameters.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : uriParameters.entrySet())
+            {
                 String value = null;
-                if (entry.getValue() != null) {
-                    if (entry.getValue().size() == 1) {
+                if (entry.getValue() != null)
+                {
+                    if (entry.getValue().size() == 1)
+                    {
                         value = entry.getValue().get(0);
-                    } else if (entry.getValue().size() > 1) {
-                        return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause()));
+                    } else if (entry.getValue().size() > 1)
+                    {
+                        return getHTTPResponse(new ApiResponse("1", null,
+                                HTTPExceptions.INVALID_PARAMETERS.getCause()));
                     }
                 }
 
-                try {
-                    switch (entry.getKey()) {
+                try
+                {
+                    switch (entry.getKey())
+                    {
                         case "method":
                             method = value;
-                            if (!isValidMethod(httpMethod, method)) {
-                                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                            if (!isValidMethod(httpMethod, method))
+                            {
+                                return getHTTPResponse(new ApiResponse("1", null,
+                                        HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
                             }
                             break;
                         case "sessionToken":
@@ -129,54 +146,80 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                             methodParameters.put(entry.getKey(), value);
                             break;
                     }
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     logger.catching(e);
-                    return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(), e.getMessage())));
+                    return getHTTPResponse(new ApiResponse("1", null,
+                            HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(),
+                                    e.getMessage())));
                 }
             }
 
-            if (method.equals("write")) {
-                methodParameters.put("data", requestBody);
+            switch (method) {
+                case "write":
+                    methodParameters.put("data", requestBody);
+                    break;
+                case "login":
+                    // userId : password
+                    String[] credentials = new String(requestBody, UTF_8).split(":");
+                    methodParameters.put("userId", credentials[0]);
+                    methodParameters.put("password", credentials[1]);
+                    break;
             }
 
-            ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken, interactiveSessionKey, transactionManagerKey);
-            Response response = server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
+
+            ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken,
+                    interactiveSessionKey, transactionManagerKey);
+            Response response =
+                    server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
             HttpResponse httpResponse = getHTTPResponse(response);
             performanceAuditor.audit(Event.WriteResponse);
             logger.traceExit(performanceAuditor);
             logger.traceExit(httpResponse);
             return httpResponse;
-        } catch (APIServerException e) {
+        } catch (APIServerException e)
+        {
             logger.catching(e);
-            switch (e.getType()) {
+            switch (e.getType())
+            {
                 case MethodNotFound:
                 case IncorrectParameters:
                 case InternalError:
-                    try {
+                    try
+                    {
                         return getHTTPResponse(new ApiResponse("1", null, e.getData()));
-                    } catch (Exception ex) {
+                    } catch (Exception ex)
+                    {
                         logger.catching(ex);
                     }
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.catching(e);
-            try {
-                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(), e.getMessage())));
-            } catch (Exception ex) {
+            try
+            {
+                return getHTTPResponse(new ApiResponse("1", null,
+                        HTTPExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(),
+                                e.getMessage())));
+            } catch (Exception ex)
+            {
                 logger.catching(ex);
             }
         }
         return null; // This should never happen, it would mean an error writing the Unknown error happened.
     }
 
-    private HttpResponse getHTTPResponse(Response response) throws Exception {
+    private HttpResponse getHTTPResponse(Response response) throws Exception
+    {
         boolean error = response.getError() != null;
         String contentType = null;
         byte[] body = null;
-        if (response.getResult() instanceof byte[]) {
+        if (response.getResult() instanceof byte[])
+        {
             contentType = HttpResponse.CONTENT_TYPE_BINARY_DATA;
             body = (byte[]) response.getResult();
-        } else {
+        } else
+        {
             contentType = HttpResponse.CONTENT_TYPE_JSON;
             body = jsonObjectMapper.writeValue(response);
         }
