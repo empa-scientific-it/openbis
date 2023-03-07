@@ -29,7 +29,7 @@ public interface IXLSExportHelper
 
     AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, final int rowNumber,
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting);
 
     IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId);

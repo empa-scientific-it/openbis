@@ -84,19 +84,20 @@ public class XLSExportTest
             "        return \"End date cannot be before start date!\"";
 
     private static final String XLS_EXPORT_DATA_PROVIDER = "xlsExportData";
-    public static final Map<String, Map<String, List<String>>> EXPORT_PROPERTIES =
+    public static final Map<String, Map<String, List<Map<String, String>>>> EXPORT_FIELDS =
             Map.of(
                     DATASET.toString(), Map.of(
-                        "ATTACHMENT", List.of("$ATTACHMENT"),
-                        "RAW_DATA", List.of("$NAME", "NOTES")
+                        "ATTACHMENT", List.of(Map.of(FieldType.PROPERTY.toString(), "$ATTACHMENT")),
+                        "RAW_DATA", List.of(Map.of(FieldType.PROPERTY.toString(), "$NAME"),
+                                    Map.of(FieldType.PROPERTY.toString(), "NOTES"))
                     ),
                     EXPERIMENT.toString(), Map.of(
-                        "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                        "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
+                        "COLLECTION", List.of(Map.of(FieldType.PROPERTY.toString(), "$DEFAULT_OBJECT_TYPE")),
+                        "DEFAULT_EXPERIMENT", List.of(Map.of(FieldType.PROPERTY.toString(), "FINISHED_FLAG"))
                     ),
                     SAMPLE.toString(), Map.of(
                         "DEFAULT", List.of(),
-                        "STORAGE", List.of("$STORAGE.BOX_NUM")
+                        "STORAGE", List.of(Map.of(FieldType.PROPERTY.toString(), "$STORAGE.BOX_NUM"))
                     )
             );
 
@@ -341,7 +342,7 @@ public class XLSExportTest
                                 new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                         ),
                         true,
-                        EXPORT_PROPERTIES,
+                        EXPORT_FIELDS,
                         XLSExport.TextFormatting.PLAIN,
                         List.of()
                 },
@@ -424,7 +425,7 @@ public class XLSExportTest
                                 new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                         ),
                         true,
-                        EXPORT_PROPERTIES,
+                        EXPORT_FIELDS,
                         XLSExport.TextFormatting.PLAIN,
                         List.of()
                 },
@@ -513,7 +514,7 @@ public class XLSExportTest
                                 new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                         ),
                         true,
-                        EXPORT_PROPERTIES,
+                        EXPORT_FIELDS,
                         XLSExport.TextFormatting.PLAIN,
                         List.of()
                 },
@@ -688,7 +689,7 @@ public class XLSExportTest
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
     public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
             final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
-            final boolean exportReferred, final Map<String, Map<String, Collection<String>>> exportProperties,
+            final boolean exportReferred, final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
             final XLSExport.TextFormatting textFormatting, final Collection<String> expectedWarnings) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
@@ -698,7 +699,7 @@ public class XLSExportTest
         try
         {
             final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
-                    api, SESSION_TOKEN, exportablePermIds, exportReferred, exportProperties,
+                    api, SESSION_TOKEN, exportablePermIds, exportReferred, exportFields,
                     textFormatting);
             assertEquals(actualResult.getScripts(), expectedScripts);
             assertEquals(new HashSet<>(actualResult.getWarnings()), new HashSet<>(expectedWarnings));

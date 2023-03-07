@@ -71,11 +71,11 @@ public class XLSExport
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
-            final Map<String, Map<String, Collection<String>>> exportProperties,
+            final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
             final TextFormatting textFormatting) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferredMasterData, exportProperties, textFormatting);
+                exportReferredMasterData, exportFields, textFormatting);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
 
@@ -126,7 +126,8 @@ public class XLSExport
 
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
-            final Map<String, Map<String, Collection<String>>> exportProperties, final TextFormatting textFormatting)
+            final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting)
     {
         if (!isValid(exportablePermIds))
         {
@@ -156,11 +157,11 @@ public class XLSExport
             final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap = exportProperties == null
+            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
                     ? null
-                    : exportProperties.get(exportablePermId.getExportableKind().toString());
+                    : exportFields.get(exportablePermId.getExportableKind().toString());
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
-                    entityTypeExportPropertiesMap, textFormatting);
+                    entityTypeExportFieldsMap, textFormatting);
             rowNumber = additionResult.getRowNumber();
             warnings.addAll(additionResult.getWarnings());
 

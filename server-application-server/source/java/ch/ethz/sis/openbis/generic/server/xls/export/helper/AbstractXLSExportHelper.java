@@ -49,6 +49,10 @@ abstract class AbstractXLSExportHelper implements IXLSExportHelper
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script"};
 
+    protected static final String FIELD_TYPE_KEY = "type";
+
+    protected static final String FIELD_ID_KEY = "id";
+
     final Workbook wb;
     
     final CellStyle normalCellStyle;

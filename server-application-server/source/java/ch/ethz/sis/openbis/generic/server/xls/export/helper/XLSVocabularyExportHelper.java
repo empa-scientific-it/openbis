@@ -43,7 +43,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
+            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting)
     {
         assert permIds.size() == 1;
