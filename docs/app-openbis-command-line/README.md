@@ -1,4 +1,4 @@
-# oBIS
+# openBIS Command Line Tool (oBIS)
 
 oBIS is a command-line tool that makes it possible to handle data sets tracked by OpenBIS,
 where users have complete freedom to structure and manipulate the data as they wish, while retaining
@@ -12,18 +12,19 @@ case, OpenBIS is aware of its existence and the data can be used for provenance 
 
 1. [Prerequisites and installation](#1-prerequisites)
 2. [Installation](#2-installation)
-3. [Usage](#3-usage)
-4. [Work modes](#4-work-modes)
-    1. [Standard Data Store](#41-standard-data-store)
-        1. [Commands](#411-commands)
-        2. [Examples](#412-examples)
-    2. [External Data Store](#42-external-data-store)
-        1. [Settings](#421-settings)
-        2. [Commands](#422-commands)
-        3. [Examples](#423-examples)
-5. [Big Data Link Services](#5-big-data-link-services)
-6. [Rationale for obis](#6-rationale-for-obis)
-7. [Literature](#7-literature)
+3. [Quick start guide](#3-quick-start-guide)
+4. [Usage](#4-usage)
+5. [Work modes](#5-work-modes)
+    1. [Standard Data Store](#51-standard-data-store)
+        1. [Commands](#511-commands)
+        2. [Examples](#512-examples)
+    2. [External Data Store](#52-external-data-store)
+        1. [Settings](#521-settings)
+        2. [Commands](#522-commands)
+        3. [Examples](#523-examples)
+6. [Big Data Link Services](#6-big-data-link-services)
+7. [Rationale for obis](#7-rationale-for-obis)
+8. [Literature](#8-literature)
 
 ## 1. Prerequisites
 
@@ -39,9 +40,38 @@ pip3 install obis
 
 Since `obis` is based on `pybis`, the pip command will also install pybis and all its dependencies.
 
-## 3. Usage
+## 3. Quick start guide
 
-### 3.1 Help is your friend!
+**Configure your openBIS Instance**
+```
+# global settings to be use for all obis repositories
+obis config -g set openbis_url=https://localhost:8888
+obis config -g set user=admin
+```
+**Download Physical Dataset**
+```
+# create a physical (-p) obis repository with a folder name
+obis init -p data1
+cd data1
+# check configuration
+obis config get is_physical
+# download dataset giving a single permId
+obis download 20230228091119011-58
+```
+**Upload Physical Dataset**
+```
+# create a physical (-p) obis repository with a folder name
+obis init -p data1
+cd data1
+# check configuration
+obis config get is_physical
+# upload as many files or folder as you want (-f) to an existing object as type RAW_DATA
+obis upload 20230228133001314-59 RAW_DATA -f your_file_a -f your_file_b
+```
+
+## 4. Usage
+
+### 4.1 Help is your friend!
 
 $ obis --help
 
@@ -89,7 +119,7 @@ Options:
   --help                       Show this message and exit.
 ```
 
-## 4. Work modes
+## 5. Work modes
 
 oBIS command line tool can work in two modes depending on how data is stored:
 
@@ -145,14 +175,14 @@ Some commands like `download` or `upload` will connect to OpenBIS instance. At t
 use username configured in `.obis/config.json` and will ask for password whenever session expires or
 username changes.
 
-## 4.1 Standard Data Store
+## 5.1 Standard Data Store
 
 Standard Data Store mode depicts a workflow where datasets are stored directly in the OpenBIS
 instance. In this mode user can download/upload files to OpenBIS, search for objects/datasets
 fulfilling filtering criteria
 and get/set properties of objects/collections represented by datasets in current repository.
 
-## 4.1.1 Commands
+## 5.1.1 Commands
 
 **collection**
 
@@ -305,7 +335,7 @@ With `upload` command, a new data set of type `data_set_type` will be created un
 object `sample_id`. Files and folders specified with `-f` flag will be uploaded to a newly created
 data set.
 
-### 4.1.2 Examples
+### 5.1.2 Examples
 
 **Create an obis repository to work in Standard Data Store mode**
 
@@ -338,7 +368,7 @@ obis object set '$name'=XYZ
 obis object set children=/TESTID/PROJECT_101/PROJECT_101_EXP_3
 ```
 
-## 4.2 External Data Store
+## 5.2 External Data Store
 
 External Data Store mode allows for orderly management of data in
 conditions that require great flexibility. oBIS makes it possible to track data on a file system,
@@ -353,7 +383,7 @@ git-annex, even large binary artifacts can be tracked efficiently. For communica
 obis uses the openBIS API, which offers the power to register and track all metadata supported by
 openBIS.
 
-### 4.2.1 Settings
+### 5.2.1 Settings
 
 With `get` you retrieve one or more settings. If the `key` is omitted, you retrieve all settings of
 the `type`:
@@ -432,7 +462,7 @@ it comes to integration with other tools.
 }
 ```
 
-## 4.2.2 Commands
+## 5.2.2 Commands
 
 **init**
 
@@ -531,7 +561,7 @@ this `session_name` already exists and it is going to expire soon (according to 
 setting `personal_access_tokens_validity_warning_period`), a new PAT will be created, stored in the
 obis configuration and used for every subsequent request.
 
-### 4.2.3 Examples
+### 5.2.3 Examples
 
 **Create an obis repository and commit to openBIS**
 
@@ -572,7 +602,7 @@ echo content >> example_file
 obis commit -m 'message'
 ```
 
-## 5. Big Data Link Services
+## 6. Big Data Link Services
 
 The Big Data Link Services can be used to download files which are contained in an obis repository.
 The services are included in the installation folder of openBIS,
@@ -580,7 +610,7 @@ under `servers/big_data_link_services`. For how to configure and run them, consu
 the [README.md](https://sissource.ethz.ch/sispub/openbis/blob/master/big_data_link_server/README.md)
 file.
 
-## 6. Rationale for obis
+## 7. Rationale for obis
 
 Data-provenance tracking tools like openBIS make it possible to understand and follow the research
 process. What was studied, what data was acquired and how, how was data analyzed to arrive at final
@@ -609,7 +639,7 @@ Using `git-annex`, even large binary artifacts can be tracked efficiently. For c
 openBIS, `obis` uses the openBIS API, which offers the power to register and track all metadata
 supported by openBIS.
 
-## 7. Literature
+## 8. Literature
 
 V. Korolev, A. Joshi, V. Korolev, M.A. Grasso, A. Joshi, M.A. Grasso, et al., "PROB: A tool for
 tracking provenance and reproducibility of big data experiments", Reproduce '14. HPCA 2014, vol. 11,
