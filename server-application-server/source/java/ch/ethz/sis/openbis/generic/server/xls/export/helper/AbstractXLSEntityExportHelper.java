@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -74,12 +75,13 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
-            if (entityTypeExportFieldsMap == null)
+            final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
+            if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty())
             {
                 // Export all fields in any order
                 final String[] fieldNames = Stream.concat(
                         Stream.of(getAttributeNames(entry.getValue().get(0))),
-                        entry.getKey().getPropertyAssignments().stream()
+                        propertyAssignments.stream()
                                 .map(PropertyAssignment::getPropertyType)
                                 .map(PropertyType::getLabel)
                 ).toArray(String[]::new);
@@ -90,7 +92,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 {
                     final List<String> entityValues = Stream.concat(
                             getAllAttributeValuesStream(entity),
-                            entry.getKey().getPropertyAssignments().stream()
+                            propertyAssignments.stream()
                                     .map(PropertyAssignment::getPropertyType)
                                     .map(getPropertiesMappingFunction(textFormatting, entity.getProperties()))
                     ).collect(Collectors.toList());
@@ -100,12 +102,36 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 }
             } else
             {
-                // Export selected fields in any order
+                // Export selected fields in predefined order
                 final Collection<Map<String, String>> exportFields = entityTypeExportFieldsMap.get(typePermId);
-                final String[] fieldNames = exportFields.stream().map(field -> field.get("id")).toArray(String[]::new);
+                final String[] fieldNames = exportFields.stream().map(field ->
+                {
+                    final String fieldId = field.get(FIELD_ID_KEY);
+                    switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
+                    {
+                        case ATTRIBUTE:
+                        {
+                            return fieldId;
+                        }
+                        case PROPERTY:
+                        {
+                            return propertyAssignments.stream()
+                                    .filter(propertyAssignment -> Objects.equals(
+                                            propertyAssignment.getPropertyType().getCode(), fieldId))
+                                    .findFirst()
+                                    .orElseThrow()
+                                    .getPropertyType()
+                                    .getLabel();
+                        }
+                        default:
+                        {
+                            throw new IllegalArgumentException();
+                        }
+                    }
+                }).toArray(String[]::new);
                 warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, fieldNames));
 
-                final Map<String, PropertyType> codeToPropertyTypeMap = entry.getKey().getPropertyAssignments().stream()
+                final Map<String, PropertyType> codeToPropertyTypeMap = propertyAssignments.stream()
                         .map(PropertyAssignment::getPropertyType)
                         .collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType, (o1, o2) -> o2));
 

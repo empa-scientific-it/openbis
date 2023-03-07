@@ -42,16 +42,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-abstract class AbstractXLSExportHelper implements IXLSExportHelper
+public abstract class AbstractXLSExportHelper implements IXLSExportHelper
 {
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] {"Version", "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script"};
 
-    protected static final String FIELD_TYPE_KEY = "type";
+    public static final String FIELD_TYPE_KEY = "type";
 
-    protected static final String FIELD_ID_KEY = "id";
+    public static final String FIELD_ID_KEY = "id";
 
     final Workbook wb;
     
