@@ -63,7 +63,7 @@ def process(context, parameters):
             # Check if xls_base64 is used for a single XLS
             xls_base64_string = parameters.get('xls_base64', None)
             if xls_base64_string is not None:
-                parameters.set('xls', [ base64.b64decode(xls_base64_string) ])
+                parameters.put('xls', [ base64.b64decode(xls_base64_string) ])
         result = _import(context, parameters)
         if temp is not None:
             FileUtils.deleteDirectory(temp)
