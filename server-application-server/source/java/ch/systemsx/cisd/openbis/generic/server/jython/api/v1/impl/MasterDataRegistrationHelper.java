@@ -17,8 +17,13 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.log4j.Logger;
 
@@ -100,7 +105,7 @@ public class MasterDataRegistrationHelper {
         return result;
     }
 
-    private void gatherScripts(Map<String, String> scripts, File rootFolder, File file) {
+    private static void gatherScripts(Map<String, String> scripts, File rootFolder, File file) {
         if (file.isFile()) {
             String scriptPath = FileUtilities.getRelativeFilePath(rootFolder, file);
             scripts.put(scriptPath, FileUtilities.loadToString(file));
@@ -112,6 +117,53 @@ public class MasterDataRegistrationHelper {
                 gatherScripts(scripts, rootFolder, child);
             }
         }
+    }
+
+    public static Map<String, String> getAllScripts(Path path) {
+        Map<String, String> result = new TreeMap<>();
+        File scriptsFolder = new File(path.toFile(), "scripts");
+        if (scriptsFolder.isDirectory()) {
+            gatherScripts(result, scriptsFolder, scriptsFolder);
+        }
+        return result;
+    }
+
+    public static List<byte[]> getByteArrays(Path path, String findName) {
+        List<byte[]> byteArrays = new ArrayList<>();
+        for (File file : path.toFile().listFiles()) {
+            String name = file.getName();
+            if (name.contains(findName)) {
+                operationLog.info("load master data " + file.getName());
+                byteArrays.add(FileUtilities.loadToByteArray(file));
+            }
+        }
+        return byteArrays;
+    }
+
+    public static void extractToDestination(byte[] zip, String tempPathAsString) throws IOException
+    {
+        // Write temp file
+        Path tempZipPath = Paths.get(tempPathAsString, "temp.zip");
+        Files.write(tempZipPath, zip);
+
+        try (ZipFile zipFile = new ZipFile(tempZipPath.toFile())) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                File entryDestination = new File(tempPathAsString,  entry.getName());
+                if (entry.isDirectory()) {
+                    entryDestination.mkdirs();
+                } else {
+                    entryDestination.getParentFile().mkdirs();
+                    try (InputStream in = zipFile.getInputStream(entry)) {
+                        Files.copy(in, entryDestination.toPath());
+                    }
+                }
+            }
+        }
+
+        // Delete temp file leaving on the folder only the uncompressed content
+        Files.delete(tempZipPath);
     }
 
 }
