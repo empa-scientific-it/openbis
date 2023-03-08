@@ -63,6 +63,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                 return HttpMethod.GET; // all parameters from GET methods come on the query string
             case "write":
             case "move":
+            case "copy":
             case "login":
             case "logout":
                 return HttpMethod.POST; // all parameters from POST methods come on the body
