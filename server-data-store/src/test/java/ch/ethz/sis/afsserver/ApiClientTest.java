@@ -21,9 +21,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.shared.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.*;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
@@ -32,6 +38,7 @@ import ch.ethz.sis.afsserver.server.Server;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.shared.startup.Configuration;
+import org.junit.rules.TemporaryFolder;
 
 public final class ApiClientTest
 {
@@ -42,6 +49,16 @@ public final class ApiClientTest
     private static int httpServerPort;
 
     private static String httpServerPath;
+
+    private static String storageRoot;
+
+    public static final String FILE_A = "A.txt";
+
+    public static final byte[] DATA = "ABCD".getBytes();
+
+    public static final String FILE_B = "B.txt";
+
+    public static String owner = UUID.randomUUID().toString();
 
     @BeforeClass
     public static void classSetUp() throws Exception
@@ -55,25 +72,33 @@ public final class ApiClientTest
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
                 configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
-    }
-
-    @Before
-    public void setUp() throws Exception
-    {
-        afsClient = new AfsClient(
-                new URI("http", null, "localhost", httpServerPort,
-                        httpServerPath, null, null));
-    }
-
-    private String login() throws Exception
-    {
-        return afsClient.login("test", "test");
+        storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
     }
 
     @AfterClass
     public static void classTearDown() throws Exception
     {
         afsServer.shutdown(true);
+    }
+
+    @Before
+    public void setUp() throws Exception
+    {
+        String testDataRoot = IOUtils.getPath(storageRoot, owner.toString());
+        IOUtils.createDirectories(testDataRoot);
+        String testDataFile = IOUtils.getPath(testDataRoot, FILE_A);
+        IOUtils.createFile(testDataFile);
+        IOUtils.write(testDataFile, 0, DATA);
+
+        afsClient = new AfsClient(
+                new URI("http", null, "localhost", httpServerPort,
+                        httpServerPath, null, null));
+    }
+
+    @After
+    public void deleteTestData() throws IOException
+    {
+        IOUtils.delete(storageRoot);
     }
 
     @Test
@@ -126,6 +151,31 @@ public final class ApiClientTest
         final Boolean result = afsClient.logout();
 
         assertTrue(result);
+    }
+
+    @Test
+    public void list_getsDataListFromTemporaryFolder() throws Exception
+    {
+        login();
+
+        List<File> list = afsClient.list(owner, "", Boolean.TRUE);
+        assertEquals(1, list.size());
+        assertEquals(FILE_A, list.get(0).getName());
+    }
+
+    @Test
+    public void read_getsDataFromTemporaryFile() throws Exception {
+        login();
+
+        byte[] bytes = afsClient.read(owner, FILE_A, 0L, DATA.length);
+        assertArrayEquals(DATA, bytes);
+    }
+
+
+
+    private String login() throws Exception
+    {
+        return afsClient.login("test", "test");
     }
 
 }

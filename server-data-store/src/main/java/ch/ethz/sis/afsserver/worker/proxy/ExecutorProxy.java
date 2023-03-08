@@ -64,7 +64,7 @@ public class ExecutorProxy extends AbstractProxy {
     //
 
     public String getPath(String owner, String source) {
-        return IOUtils.PATH_SEPARATOR + owner.toString() + source;
+        return String.join(""+IOUtils.PATH_SEPARATOR, "", owner.toString(), source);
     }
 
     @Override

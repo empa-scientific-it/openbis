@@ -35,7 +35,9 @@ public final class DummyHttpServer
 
     private static final String DEFAULT_RESPONSE = "{\"result\": \"success\"}";
 
-    private String nextResponse = DEFAULT_RESPONSE;
+    private byte[] nextResponse = DEFAULT_RESPONSE.getBytes();
+    private String nextResponseType = "application/json";
+
     private HttpExchange httpExchange;
 
     public DummyHttpServer(int httpServerPort, String httpServerPath) throws IOException
@@ -47,8 +49,10 @@ public final class DummyHttpServer
         {
             public void handle(HttpExchange exchange) throws IOException
             {
-                byte[] response = nextResponse.getBytes();
+                byte[] response = nextResponse;
+                exchange.getResponseHeaders().set("content-type", nextResponseType);
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+
                 exchange.getResponseBody().write(response);
                 exchange.close();
                 httpExchange = exchange;
@@ -68,10 +72,18 @@ public final class DummyHttpServer
 
     public void setNextResponse(String response)
     {
-        this.nextResponse = response;
+        this.nextResponse = response.getBytes();
+        this.nextResponseType = "application/json";
     }
 
-    public HttpExchange getHttpExchange() {
+    public void setNextResponse(byte[] response)
+    {
+        this.nextResponse = response;
+        this.nextResponseType = "application/octet-stream";
+    }
+
+    public HttpExchange getHttpExchange()
+    {
         return httpExchange;
     }
 

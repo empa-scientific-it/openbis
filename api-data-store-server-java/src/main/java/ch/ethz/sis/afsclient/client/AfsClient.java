@@ -21,6 +21,7 @@ import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
 
+
 public final class AfsClient implements PublicAPI
 {
 
@@ -89,22 +90,15 @@ public final class AfsClient implements PublicAPI
     @Override
     public @NonNull Boolean isSessionValid() throws Exception
     {
-        if (getSessionToken() == null)
-        {
-            throw new IllegalStateException("No session information detected!");
-        }
+        validateSessionToken();
         return request("GET", "isSessionValid", Map.of("sessionToken", getSessionToken()));
     }
 
     @Override
     public @NonNull Boolean logout() throws Exception
     {
-        if (getSessionToken() == null)
-        {
-            throw new IllegalStateException("No session information detected!");
-        }
-//      Boolean result = request("POST", "logout", Map.of(), getSessionToken().getBytes());
-        Boolean result = request("POST", "logout", Map.of("sessionToken", getSessionToken()));
+        validateSessionToken();
+        Boolean result = request("POST", "logout", Map.of(), getSessionToken().getBytes());
         setSessionToken(null);
         return result;
     }
@@ -113,14 +107,21 @@ public final class AfsClient implements PublicAPI
     public @NonNull List<File> list(@NonNull final String owner, @NonNull final String source,
             @NonNull final Boolean recursively) throws Exception
     {
-        return null;
+        validateSessionToken();
+        return request("GET", "list",
+                Map.of("owner", owner, "source", source, "recursively",
+                        recursively.toString(), "sessionToken", getSessionToken()));
     }
 
     @Override
     public @NonNull byte[] read(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, @NonNull final Integer limit) throws Exception
     {
-        return new byte[0];
+        validateSessionToken();
+        return request("GET", "read",
+                Map.of("owner", owner, "source", source, "offset",
+                        offset.toString(), "limit", limit.toString(), "sessionToken",
+                        getSessionToken()));
     }
 
     @Override
@@ -229,16 +230,22 @@ public final class AfsClient implements PublicAPI
         final int statusCode = httpResponse.statusCode();
         if (statusCode >= 200 && statusCode < 300)
         {
-            final ApiResponse response =
-                    jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
-                            ApiResponse.class);
+            if (!httpResponse.headers().map().containsKey("content-type"))
+            {
+                throw new IllegalArgumentException(
+                        "Server error HTTP response. Missing content-type");
+            }
+            String content = httpResponse.headers().map().get("content-type").get(0);
 
-            if (response.getError() != null)
+            switch (content)
             {
-                throw ClientExceptions.API_ERROR.getInstance(response.getError());
-            } else
-            {
-                return (T) response.getResult();
+                case "application/json":
+                    return parseJsonResponse(httpResponse);
+                case "application/octet-stream":
+                    return (T) httpResponse.body();
+                default:
+                    throw new IllegalArgumentException(
+                            "Client error HTTP response. Unsupported content-type received.");
             }
         } else if (statusCode >= 400 && statusCode < 500)
         {
@@ -249,6 +256,29 @@ public final class AfsClient implements PublicAPI
         } else
         {
             throw ClientExceptions.OTHER_ERROR.getInstance(statusCode);
+        }
+    }
+
+    private <T> T parseJsonResponse(final HttpResponse<byte[]> httpResponse) throws Exception
+    {
+        final ApiResponse response =
+                jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
+                        ApiResponse.class);
+
+        if (response.getError() != null)
+        {
+            throw ClientExceptions.API_ERROR.getInstance(response.getError());
+        } else
+        {
+            return (T) response.getResult();
+        }
+    }
+
+    private void validateSessionToken()
+    {
+        if (getSessionToken() == null)
+        {
+            throw new IllegalStateException("No session information detected!");
         }
     }
 

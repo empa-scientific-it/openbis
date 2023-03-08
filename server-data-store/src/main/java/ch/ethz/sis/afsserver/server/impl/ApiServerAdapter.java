@@ -156,6 +156,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                 }
             }
 
+            // Process body parameters
             switch (method) {
                 case "write":
                     methodParameters.put("data", requestBody);
@@ -166,8 +167,10 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                     methodParameters.put("userId", credentials[0]);
                     methodParameters.put("password", credentials[1]);
                     break;
+                case "logout":
+                    sessionToken = new String(requestBody, UTF_8);
+                    break;
             }
-
 
             ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken,
                     interactiveSessionKey, transactionManagerKey);

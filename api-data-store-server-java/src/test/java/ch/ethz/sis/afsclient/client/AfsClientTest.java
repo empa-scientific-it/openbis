@@ -14,11 +14,14 @@ public class AfsClientTest
     private static DummyHttpServer httpServer;
 
     private AfsClient afsClient;
+
     private static final int HTTP_SERVER_PORT = 8085;
+
     private static final String HTTP_SERVER_PATH = "/fileserver";
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         httpServer = new DummyHttpServer(HTTP_SERVER_PORT, HTTP_SERVER_PATH);
         httpServer.start();
         afsClient = new AfsClient(
@@ -27,7 +30,8 @@ public class AfsClientTest
     }
 
     @After
-    public void tearDown() {
+    public void tearDown()
+    {
         httpServer.stop();
     }
 
@@ -45,9 +49,10 @@ public class AfsClientTest
     {
         try
         {
-           afsClient.isSessionValid();
+            afsClient.isSessionValid();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException e)
+        {
             assertThat(e.getMessage(), containsString("No session information detected!"));
         }
     }
@@ -71,7 +76,8 @@ public class AfsClientTest
         {
             afsClient.logout();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException e)
+        {
             assertThat(e.getMessage(), containsString("No session information detected!"));
         }
     }
@@ -91,27 +97,42 @@ public class AfsClientTest
     }
 
     @Test
-    public void testList() throws Exception
+    public void list_methodIsGet() throws Exception
+    {
+        login();
+
+        httpServer.setNextResponse("{\"result\": null}");
+        afsClient.list("", "", true);
+
+        assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+    }
+
+    @Test
+    public void read_methodIsGet() throws Exception
+    {
+        login();
+
+        byte[] data = "ABCD".getBytes();
+        httpServer.setNextResponse(data);
+
+        byte[] result = afsClient.read("admin", "/", 0L, 1000);
+
+        assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+        assertArrayEquals(data, result);
+    }
+
+    @Test
+    public void testWrite() throws Exception
     {
     }
 
     @Test
-    public void testRead()throws Exception
+    public void testDelete() throws Exception
     {
     }
 
     @Test
-    public void testWrite()throws Exception
-    {
-    }
-
-    @Test
-    public void testDelete()throws Exception
-    {
-    }
-
-    @Test
-    public void testCopy()throws Exception
+    public void testCopy() throws Exception
     {
     }
 
@@ -143,6 +164,10 @@ public class AfsClientTest
     @Test
     public void testRecover()
     {
+    }
+
+    private void login() throws Exception {
+        afsClient.login("test", "test");
     }
 
 }

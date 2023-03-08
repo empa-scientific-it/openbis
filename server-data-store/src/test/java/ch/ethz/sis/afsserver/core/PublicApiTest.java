@@ -33,27 +33,27 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public abstract class PublicApiTest extends AbstractTest {
+public abstract class PublicApiTest extends AbstractTest
+{
 
     public abstract PublicAPI getPublicAPI() throws Exception;
 
     public static final String ROOT = IOUtils.PATH_SEPARATOR_AS_STRING;
-//    public static final String DIR_A = "A";
-//    public static final String DIR_B = "B";
+
     public static final String FILE_A = "A.txt";
+
     public static final byte[] DATA = "ABCD".getBytes();
+
     public static final String FILE_B = "B.txt";
-//    public static final String DIR_A_PATH = IOUtils.PATH_SEPARATOR + getPath(DIR_A);
-//    public static final String DIR_B_PATH = IOUtils.PATH_SEPARATOR + getPath(DIR_B);
-//    public static final String FILE_A_PATH = getPath(DIR_A_PATH, FILE_A);
-//    public static final String FILE_B_PATH = getPath(DIR_B_PATH, FILE_B);
 
     public String owner = UUID.randomUUID().toString();
 
     @Before
-    public void createTestData() throws IOException {
+    public void createTestData() throws IOException
+    {
         String storageRoot = ServerClientEnvironmentFS.getInstance()
-                .getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
+                .getDefaultServerConfiguration()
+                .getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         String testDataRoot = IOUtils.getPath(storageRoot, owner.toString());
         IOUtils.createDirectories(testDataRoot);
         String testDataFile = IOUtils.getPath(testDataRoot, FILE_A);
@@ -62,43 +62,51 @@ public abstract class PublicApiTest extends AbstractTest {
     }
 
     @After
-    public void deleteTestData() throws IOException {
+    public void deleteTestData() throws IOException
+    {
         String storageRoot = ServerClientEnvironmentFS.getInstance()
-                .getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
+                .getDefaultServerConfiguration()
+                .getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         IOUtils.delete(storageRoot);
         String writeAheadLogRoot = ServerClientEnvironmentFS.getInstance()
-                .getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.writeAheadLogRoot);
+                .getDefaultServerConfiguration()
+                .getStringProperty(AtomicFileSystemServerParameter.writeAheadLogRoot);
         IOUtils.delete(writeAheadLogRoot);
     }
 
     @Test
-    public void list() throws Exception {
+    public void list() throws Exception
+    {
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(1, list.size());
         assertEquals(FILE_A, list.get(0).getName());
     }
 
     @Test
-    public void read() throws Exception {
+    public void read() throws Exception
+    {
         byte[] bytes = getPublicAPI().read(owner, "/" + FILE_A, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test(expected = RuntimeException.class)
-    public void read_big_failure() throws Exception {
+    public void read_big_failure() throws Exception
+    {
         byte[] bytes = getPublicAPI().read(owner, "/" + FILE_A, 0L, Integer.MAX_VALUE);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test
-    public void write() throws Exception {
+    public void write() throws Exception
+    {
         getPublicAPI().write(owner, "/" + FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
         byte[] bytes = getPublicAPI().read(owner, "/" + FILE_B, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test
-    public void delete() throws Exception {
+    public void delete() throws Exception
+    {
         Boolean deleted = getPublicAPI().delete(owner, "/" + FILE_A);
         assertTrue(deleted);
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
@@ -106,14 +114,16 @@ public abstract class PublicApiTest extends AbstractTest {
     }
 
     @Test
-    public void copy() throws Exception {
+    public void copy() throws Exception
+    {
         getPublicAPI().copy(owner, "/" + FILE_A, owner, "/" + FILE_B);
         byte[] bytes = getPublicAPI().read(owner, "/" + FILE_B, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test
-    public void move() throws Exception {
+    public void move() throws Exception
+    {
         getPublicAPI().move(owner, "/" + FILE_A, owner, "/" + FILE_B);
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(1, list.size());
