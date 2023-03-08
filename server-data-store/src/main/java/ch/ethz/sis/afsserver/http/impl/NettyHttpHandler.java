@@ -26,75 +26,96 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
 
-public class NettyHttpHandler extends ChannelInboundHandlerAdapter {
+public class NettyHttpHandler extends ChannelInboundHandlerAdapter
+{
 
     private static final Logger logger = LogManager.getLogger(NettyHttpServer.class);
+
     private static final byte[] NOT_FOUND = "404 NOT FOUND".getBytes();
+
     private static final ByteBuf NOT_FOUND_BUFFER = Unpooled.wrappedBuffer(NOT_FOUND);
+
     private static final Set<HttpMethod> allowedMethods = Set.of(GET, POST, PUT, DELETE);
 
     private final String uri;
+
     private final HttpServerHandler httpServerHandler;
 
-    public NettyHttpHandler(String uri, HttpServerHandler httpServerHandler) {
+    public NettyHttpHandler(String uri, HttpServerHandler httpServerHandler)
+    {
         this.uri = uri;
         this.httpServerHandler = httpServerHandler;
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof FullHttpRequest) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+    {
+        if (msg instanceof FullHttpRequest)
+        {
             final FullHttpRequest request = (FullHttpRequest) msg;
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri(), true);
             if (queryStringDecoder.path().equals(uri) &&
-                    allowedMethods.contains(request.method())) {
+                    allowedMethods.contains(request.method()))
+            {
                 FullHttpResponse response = null;
                 ByteBuf content = request.content();
-                try {
-                    byte[] contentAsArray = (content.hasArray())?content.array():null;
-                    HttpResponse apiResponse = httpServerHandler.process(request.method(), queryStringDecoder.parameters(), contentAsArray);
-                    HttpResponseStatus status = (!apiResponse.isError())?HttpResponseStatus.OK:HttpResponseStatus.BAD_REQUEST;
+                try
+                {
+                    byte[] array = new byte[content.readableBytes()];
+                    content.readBytes(array);
+                    HttpResponse apiResponse = httpServerHandler.process(request.method(),
+                            queryStringDecoder.parameters(), array);
+                    HttpResponseStatus status = (!apiResponse.isError()) ?
+                            HttpResponseStatus.OK :
+                            HttpResponseStatus.BAD_REQUEST;
                     response = getHttpResponse(
                             status,
                             apiResponse.getContentType(),
                             Unpooled.wrappedBuffer(apiResponse.getBody()),
                             apiResponse.getBody().length);
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                } finally {
+                } finally
+                {
                     content.release();
                 }
-            } else {
+            } else
+            {
                 FullHttpResponse response = getHttpResponse(
-                            HttpResponseStatus.NOT_FOUND,
-                            "text/plain",
-                            NOT_FOUND_BUFFER,
-                            NOT_FOUND.length);
+                        HttpResponseStatus.NOT_FOUND,
+                        "text/plain",
+                        NOT_FOUND_BUFFER,
+                        NOT_FOUND.length);
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
-        } else {
+        } else
+        {
             super.channelRead(ctx, msg);
         }
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
+    {
         ctx.flush();
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+    {
         logger.catching(cause);
         byte[] causeBytes = cause.getMessage().getBytes();
         FullHttpResponse response = getHttpResponse(
-                    HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                    "text/plain",
-                    Unpooled.wrappedBuffer(causeBytes),
-                    causeBytes.length
-                    );
+                HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                "text/plain",
+                Unpooled.wrappedBuffer(causeBytes),
+                causeBytes.length
+        );
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -102,7 +123,8 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter {
             HttpResponseStatus status,
             String contentType,
             ByteBuf content,
-            int contentLength) {
+            int contentLength)
+    {
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
                 status,

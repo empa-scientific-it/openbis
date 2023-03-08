@@ -31,77 +31,101 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.concurrent.Future;
 
-public class NettyHttpServer implements HttpServer {
+public class NettyHttpServer implements HttpServer
+{
 
     private static final Logger logger = LogManager.getLogger(NettyHttpServer.class);
 
     private final EventLoopGroup masterGroup;
+
     private final EventLoopGroup slaveGroup;
 
     private ChannelFuture channel;
 
-    public NettyHttpServer() {
+    public NettyHttpServer()
+    {
         masterGroup = new NioEventLoopGroup();
         slaveGroup = new NioEventLoopGroup();
     }
 
-    public void start(int port, int maxContentLength, String uri, HttpServerHandler httpServerHandler) {
+    public void start(int port, int maxContentLength, String uri,
+            HttpServerHandler httpServerHandler)
+    {
         Integer maxQueueLengthForIncomingConnections = 128;
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 shutdown(true);
             }
         });
 
-        try {
+        try
+        {
             final ServerBootstrap bootstrap = new ServerBootstrap()
                     .group(masterGroup, slaveGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                    .childHandler(new ChannelInitializer<SocketChannel>()
+                    {
                         @Override
-                        public void initChannel(final SocketChannel ch) throws Exception {
+                        public void initChannel(final SocketChannel ch) throws Exception
+                        {
                             ch.pipeline().addLast("codec", new HttpServerCodec());
-                            ch.pipeline().addLast("aggregator", new HttpObjectAggregator(maxContentLength));
-                            ch.pipeline().addLast("request", new NettyHttpHandler(uri, httpServerHandler));
+                            ch.pipeline().addLast("aggregator",
+                                    new HttpObjectAggregator(maxContentLength));
+                            ch.pipeline().addLast("request",
+                                    new NettyHttpHandler(uri, httpServerHandler));
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, maxQueueLengthForIncomingConnections)
                     .option(ChannelOption.SO_REUSEADDR, Boolean.TRUE)
                     .childOption(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
             channel = bootstrap.bind(port).sync();
-        } catch (final Exception ex) {
+        } catch (final Exception ex)
+        {
             logger.catching(ex);
         }
     }
 
-    public void shutdown(boolean gracefully) {
-        try {
+    public void shutdown(boolean gracefully)
+    {
+        try
+        {
             channel.channel().close();
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             logger.catching(ex);
         }
 
-        try {
-            if (gracefully) {
+        try
+        {
+            if (gracefully)
+            {
                 Future slaveShutdown = slaveGroup.shutdownGracefully();
                 slaveShutdown.await();
-            } else {
+            } else
+            {
                 slaveGroup.shutdown();
             }
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             logger.catching(ex);
         }
 
-        try {
-            if (gracefully) {
+        try
+        {
+            if (gracefully)
+            {
                 Future masterShutdown = masterGroup.shutdownGracefully();
                 masterShutdown.await();
-            } else {
+            } else
+            {
                 masterGroup.shutdown();
             }
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             logger.catching(ex);
         }
     }

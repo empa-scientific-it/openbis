@@ -15,12 +15,13 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.shared.io.IOUtils;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ExecutorProxy extends AbstractProxy {
 
@@ -68,7 +69,15 @@ public class ExecutorProxy extends AbstractProxy {
 
     @Override
     public List<File> list(String owner, String source, Boolean recursively) throws Exception {
-        return workerContext.getConnection().list(getPath(owner, source), recursively);
+        return workerContext.getConnection().list(getPath(owner, source), recursively)
+                .stream()
+                .map(this::convertToFile)
+                .collect(Collectors.toList());
+    }
+
+    private File convertToFile(ch.ethz.sis.afs.api.dto.File file) {
+        return new File(file.getPath(), file.getName(), file.getDirectory(), file.getSize(),
+                file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
     }
 
     @Override

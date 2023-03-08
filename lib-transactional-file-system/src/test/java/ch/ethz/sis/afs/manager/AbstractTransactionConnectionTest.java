@@ -17,7 +17,7 @@ package ch.ethz.sis.afs.manager;
 
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afs.AFSEnvironment;
 import ch.ethz.sis.afs.AbstractTest;
 import ch.ethz.sis.afs.dto.Transaction;
@@ -38,7 +38,7 @@ import static ch.ethz.sis.shared.io.IOUtils.setFilePermissions;
 
 public abstract class AbstractTransactionConnectionTest extends AbstractTest {
 
-    private JSONObjectMapper jsonObjectMapper;
+    private JsonObjectMapper jsonObjectMapper;
     private LockManager<UUID, String> lockManager;
     private TransactionConnection transaction;
 

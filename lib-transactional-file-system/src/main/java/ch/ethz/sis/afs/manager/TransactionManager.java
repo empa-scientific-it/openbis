@@ -17,7 +17,7 @@ package ch.ethz.sis.afs.manager;
 
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import ch.ethz.sis.afs.dto.Transaction;
@@ -37,12 +37,12 @@ public class TransactionManager {
     private static final Logger logger = LogManager.getLogger(TransactionManager.class);
 
     private LockManager<UUID, String> lockManager;
-    private JSONObjectMapper jsonObjectMapper;
+    private JsonObjectMapper jsonObjectMapper;
     private String writeAheadLogRoot;
     private String storageRoot;
     private RecoveredTransactions recoveredTransactions;
 
-    public TransactionManager(JSONObjectMapper jsonObjectMapper,
+    public TransactionManager(JsonObjectMapper jsonObjectMapper,
                               String writeAheadLogRoot,
                               String storageRoot) throws IOException {
         this.lockManager = new LockManager<>(new PathLockFinder());

@@ -15,12 +15,11 @@
  */
 package ch.ethz.sis.afsserver.core;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.AbstractTest;
 import ch.ethz.sis.afsserver.ServerClientEnvironmentFS;
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
-import ch.ethz.sis.shared.exception.ThrowableReason;
 import ch.ethz.sis.shared.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;

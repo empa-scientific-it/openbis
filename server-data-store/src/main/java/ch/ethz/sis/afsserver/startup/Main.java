@@ -34,7 +34,7 @@ public class Main
     {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
         Configuration configuration = new Configuration(getParameterClasses(),
-                "../server-data-store/src/main/resources/afs-server-config.properties");
+                "../server-data-store/src/main/resources/server-data-store-config.properties");
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
         Server server = new Server(configuration, dummyServerObserver, dummyServerObserver);
         Thread.currentThread().join();

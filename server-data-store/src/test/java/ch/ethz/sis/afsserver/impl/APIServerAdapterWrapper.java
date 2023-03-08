@@ -23,7 +23,7 @@ import ch.ethz.sis.afsserver.server.impl.ApiResponse;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
@@ -40,9 +40,9 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper {
     private static final Logger logger = LogManager.getLogger(APIServerAdapterWrapper.class);
 
     private ApiServerAdapter apiServerAdapter;
-    private JSONObjectMapper jsonObjectMapper;
+    private JsonObjectMapper jsonObjectMapper;
 
-    public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter, JSONObjectMapper jsonObjectMapper) {
+    public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter, JsonObjectMapper jsonObjectMapper) {
         this.apiServerAdapter = apiServerAdapter;
         this.jsonObjectMapper = jsonObjectMapper;
     }

@@ -16,7 +16,7 @@
 package ch.ethz.sis.afs.startup;
 
 import ch.ethz.sis.afs.manager.TransactionManager;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
 import ch.ethz.sis.shared.log.LogManager;
@@ -48,7 +48,7 @@ public class Main
         LogManager.setLogFactory(logFactory);
 
         //
-        JSONObjectMapper jsonObjectMapper =
+        JsonObjectMapper jsonObjectMapper =
                 configuration.getSharableInstance(AtomicFileSystemParameter.jsonObjectMapperClass);
         String writeAheadLogRoot =
                 configuration.getStringProperty(AtomicFileSystemParameter.writeAheadLogRoot);

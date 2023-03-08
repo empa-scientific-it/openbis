@@ -16,7 +16,7 @@
 package ch.ethz.sis.afsserver.worker;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import lombok.NonNull;

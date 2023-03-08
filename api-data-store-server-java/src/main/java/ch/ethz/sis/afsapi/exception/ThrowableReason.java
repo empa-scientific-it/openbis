@@ -1,5 +1,5 @@
 /*
- * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.shared.json;
+package ch.ethz.sis.afsapi.exception;
 
-import java.io.InputStream;
+import java.io.Serializable;
 
-public interface JSONObjectMapper {
-    <T> T readValue(InputStream src, Class<T> valueType) throws Exception;
+public class ThrowableReason extends Throwable {
+    private Serializable reason;
 
-    byte[] writeValue(Object value) throws Exception;
+    public ThrowableReason(Serializable reason) {
+        this.reason = reason;
+    }
 
+    public Serializable getReason() {
+        return reason;
+    }
 }

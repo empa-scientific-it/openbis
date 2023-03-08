@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afs.dto.operation.OperationName;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;

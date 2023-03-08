@@ -1,0 +1,28 @@
+evaluationDependsOn(':lib-json')
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.compilerArgs << '-parameters'
+}
+
+repositories {
+    ivy {
+        ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
+}
+
+dependencies {
+    compileOnly 'lombok:lombok:1.18.22'
+    annotationProcessor 'lombok:lombok:1.18.22'
+    implementation project(':lib-json'),
+            'lombok:lombok:1.18.22'
+    testImplementation 'junit:junit:4.10',
+            'hamcrest:hamcrest-core:1.3'
+}

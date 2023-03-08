@@ -1,0 +1,12 @@
+apply from: '../build/javaproject.gradle'
+
+dependencies {
+    implementation 'fasterxml:jackson-annotations:2.9.10',
+        'fasterxml:jackson-core:2.9.10',
+        'fasterxml:jackson-databind:2.9.10.8',
+        'fasterxml:jackson-datatype-jsr310:2.9.10'
+
+    testImplementation 'testng:testng:6.8-CISD'
+
+    testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
+}

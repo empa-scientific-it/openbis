@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.afsserver.server;
 
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 
 public interface Worker<CONNECTION> extends PublicAPI {

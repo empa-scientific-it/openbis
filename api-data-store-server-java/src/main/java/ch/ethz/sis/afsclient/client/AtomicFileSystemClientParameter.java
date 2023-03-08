@@ -1,5 +1,5 @@
 /*
- * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ * Copyright 2022 ETH Zürich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.shared.json.jackson;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
+package ch.ethz.sis.afsclient.client;
 
-public interface JSONObjectMapper {
+public enum AtomicFileSystemClientParameter {
+    //
+    // Parameters from the AFS Library
+    //
+    jsonObjectMapperClass,
 
-    Charset getCharset();
+    //
+    // Parameters for the HTTP server
+    //
+    httpServerPath,
 
-    void setCharset(Charset charset);
+    httpServerPort,
 
-    <T> T readValue(InputStream src, Class<T> valueType) throws Exception;
-
-    byte[] writeValue(Object value) throws Exception;
-
+    //
+    // Parameters for the API server
+    //
+    maxReadSizeInBytes, // This is the chunk size used by the API, sizes between 1 and 6 megabytes are typical, anything bigger is unlikely to provide performance benefits because we are limited by the http package sizes
 }

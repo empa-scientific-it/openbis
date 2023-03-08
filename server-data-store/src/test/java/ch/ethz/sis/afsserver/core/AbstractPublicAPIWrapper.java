@@ -15,8 +15,8 @@
  */
 package ch.ethz.sis.afsserver.core;
 
-import ch.ethz.sis.afs.api.dto.File;
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import lombok.NonNull;
 
 import java.util.List;
