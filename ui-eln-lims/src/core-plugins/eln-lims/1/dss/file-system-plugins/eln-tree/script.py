@@ -315,7 +315,9 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
 
     listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
+    addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
 
+def addSampleSampleChildNodes(path, samplePermId, response, acceptor, context):
     fetchOptions = SampleFetchOptions()
     fetchOptions.withExperiment()
     fetchOptions.withChildren().withType()
