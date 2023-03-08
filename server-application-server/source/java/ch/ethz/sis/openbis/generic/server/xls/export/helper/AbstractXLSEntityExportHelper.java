@@ -76,7 +76,8 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
             final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
-            if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty())
+            if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
+                    !entityTypeExportFieldsMap.containsKey(typePermId))
             {
                 // Export all fields in any order
                 final String[] fieldNames = Stream.concat(
