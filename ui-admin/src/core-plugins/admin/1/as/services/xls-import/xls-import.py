@@ -48,8 +48,6 @@ def process(context, parameters):
     if method == "import":
         zip = parameters.get('zip', False)
         temp = None
-
-
         if zip: # Zip mode uses xls_base64 for all multiple XLS + script files
             zip_bytes = base64.b64decode(parameters.get('xls_base64'))
             temp = File.createTempFile("temp", Long.toString(System.nanoTime()))
