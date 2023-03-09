@@ -1,6 +1,9 @@
 package ch.ethz.sis.afsclient.client;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
@@ -20,7 +23,6 @@ import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
-
 
 public final class AfsClient implements PublicAPI
 {
@@ -81,8 +83,9 @@ public final class AfsClient implements PublicAPI
     public @NonNull String login(@NonNull final String userId, @NonNull final String password)
             throws Exception
     {
+        Map<String, String> credentials = Map.of("userId", userId, "password", password);
         String result = request("POST", "login", Map.of(),
-                (userId + ":" + password).getBytes());
+                jsonObjectMapper.writeValue(credentials));
         setSessionToken(result);
         return result;
     }
@@ -98,7 +101,8 @@ public final class AfsClient implements PublicAPI
     public @NonNull Boolean logout() throws Exception
     {
         validateSessionToken();
-        Boolean result = request("POST", "logout", Map.of(), getSessionToken().getBytes());
+        Boolean result = request("POST", "logout", Map.of(),
+                jsonObjectMapper.writeValue(Map.of("sessionToken", getSessionToken())));
         setSessionToken(null);
         return result;
     }
@@ -129,14 +133,25 @@ public final class AfsClient implements PublicAPI
             @NonNull final Long offset, final byte @NonNull [] data,
             final byte @NonNull [] md5Hash) throws Exception
     {
-        return null;
+        validateSessionToken();
+        Map<String, Object> parameters =
+                Map.of("owner", owner, "source", source,
+                        "offset", offset, "data", data, "md5Hash", md5Hash,
+                        "sessionToken", getSessionToken());
+
+        return request("POST", "write", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
     public @NonNull Boolean delete(@NonNull final String owner, @NonNull final String source)
             throws Exception
     {
-        return null;
+        validateSessionToken();
+        Map<String, Object> parameters =
+                Map.of("owner", owner, "source", source,
+                        "sessionToken", getSessionToken());
+
+        return request("DELETE", "delete", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
@@ -145,7 +160,13 @@ public final class AfsClient implements PublicAPI
             @NonNull final String target)
             throws Exception
     {
-        return null;
+        validateSessionToken();
+        Map<String, Object> parameters =
+                Map.of("sourceOwner", sourceOwner, "source", source,
+                        "targetOwner", targetOwner, "target", target,
+                        "sessionToken", getSessionToken());
+
+        return request("POST", "copy", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
@@ -154,7 +175,13 @@ public final class AfsClient implements PublicAPI
             @NonNull final String target)
             throws Exception
     {
-        return null;
+        validateSessionToken();
+        Map<String, Object> parameters =
+                Map.of("sourceOwner", sourceOwner, "source", source,
+                        "targetOwner", targetOwner, "target", target,
+                        "sessionToken", getSessionToken());
+
+        return request("POST", "move", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override

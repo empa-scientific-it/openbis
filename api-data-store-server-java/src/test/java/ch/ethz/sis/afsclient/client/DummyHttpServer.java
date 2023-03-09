@@ -22,7 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public final class DummyHttpServer
@@ -36,6 +35,9 @@ public final class DummyHttpServer
     private static final String DEFAULT_RESPONSE = "{\"result\": \"success\"}";
 
     private byte[] nextResponse = DEFAULT_RESPONSE.getBytes();
+
+    private byte[] lastRequestBody = null;
+
     private String nextResponseType = "application/json";
 
     private HttpExchange httpExchange;
@@ -45,18 +47,17 @@ public final class DummyHttpServer
         this.httpServerPort = httpServerPort;
         this.httpServerPath = httpServerPath;
         httpServer = HttpServer.create(new InetSocketAddress(httpServerPort), 0);
-        httpServer.createContext(httpServerPath, new HttpHandler()
+        httpServer.createContext(httpServerPath, exchange ->
         {
-            public void handle(HttpExchange exchange) throws IOException
-            {
-                byte[] response = nextResponse;
-                exchange.getResponseHeaders().set("content-type", nextResponseType);
-                exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+            byte[] response = nextResponse;
+            exchange.getResponseHeaders().set("content-type", nextResponseType);
+            exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
 
-                exchange.getResponseBody().write(response);
-                exchange.close();
-                httpExchange = exchange;
-            }
+            exchange.getResponseBody().write(response);
+            lastRequestBody = exchange.getRequestBody().readAllBytes();
+
+            exchange.close();
+            httpExchange = exchange;
         });
     }
 
@@ -80,6 +81,11 @@ public final class DummyHttpServer
     {
         this.nextResponse = response;
         this.nextResponseType = "application/octet-stream";
+    }
+
+    public byte[] getLastRequestBody()
+    {
+        return lastRequestBody;
     }
 
     public HttpExchange getHttpExchange()

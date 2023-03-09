@@ -15,19 +15,17 @@
  */
 package ch.ethz.sis.afsserver.server.impl;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import ch.ethz.sis.afsserver.exception.HTTPExceptions;
 import ch.ethz.sis.afsserver.http.*;
 import ch.ethz.sis.afsserver.server.*;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
-import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 
 /*
@@ -92,84 +90,107 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
             String interactiveSessionKey = null;
             String transactionManagerKey = null;
             Map<String, Object> methodParameters = new HashMap<>();
-            for (Map.Entry<String, List<String>> entry : uriParameters.entrySet())
+            if (HttpMethod.GET.equals(httpMethod))
             {
-                String value = null;
-                if (entry.getValue() != null)
+                for (Map.Entry<String, List<String>> entry : uriParameters.entrySet())
                 {
-                    if (entry.getValue().size() == 1)
+                    String value = null;
+                    if (entry.getValue() != null)
                     {
-                        value = entry.getValue().get(0);
-                    } else if (entry.getValue().size() > 1)
+                        if (entry.getValue().size() == 1)
+                        {
+                            value = entry.getValue().get(0);
+                        } else if (entry.getValue().size() > 1)
+                        {
+                            return getHTTPResponse(new ApiResponse("1", null,
+                                    HTTPExceptions.INVALID_PARAMETERS.getCause()));
+                        }
+                    }
+
+                    try
+                    {
+                        switch (entry.getKey())
+                        {
+                            case "method":
+                                method = value;
+                                if (!isValidMethod(httpMethod, method))
+                                {
+                                    return getHTTPResponse(new ApiResponse("1", null,
+                                            HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                                }
+                                break;
+                            case "sessionToken":
+                                sessionToken = value;
+                                break;
+                            case "interactiveSessionKey":
+                                interactiveSessionKey = value;
+                                break;
+                            case "transactionManagerKey":
+                                transactionManagerKey = value;
+                                break;
+                            case "transactionId":
+                                methodParameters.put(entry.getKey(), UUID.fromString(value));
+                                break;
+                            case "recursively":
+                                methodParameters.put(entry.getKey(), Boolean.valueOf(value));
+                                break;
+                            case "offset":
+                                methodParameters.put(entry.getKey(), Long.valueOf(value));
+                                break;
+                            case "limit":
+                                methodParameters.put(entry.getKey(), Integer.valueOf(value));
+                                break;
+                            default:
+                                methodParameters.put(entry.getKey(), value);
+                                break;
+                        }
+                    } catch (Exception e)
+                    {
+                        logger.catching(e);
+                        return getHTTPResponse(new ApiResponse("1", null,
+                                HTTPExceptions.INVALID_PARAMETERS.getCause(
+                                        e.getClass().getSimpleName(),
+                                        e.getMessage())));
+                    }
+                }
+            } else if (HttpMethod.POST.equals(httpMethod) || HttpMethod.DELETE.equals(httpMethod))
+            {
+                if (!uriParameters.containsKey("method"))
+                {
+                    return getHTTPResponse(new ApiResponse("1", null,
+                            HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                } else
+                {
+                    List<String> methodParam = uriParameters.get("method");
+                    if (methodParam == null || methodParam.size() != 1)
                     {
                         return getHTTPResponse(new ApiResponse("1", null,
-                                HTTPExceptions.INVALID_PARAMETERS.getCause()));
+                                HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
                     }
+                    method = methodParam.get(0);
                 }
 
-                try
+                if (!isValidMethod(httpMethod, method))
                 {
-                    switch (entry.getKey())
-                    {
-                        case "method":
-                            method = value;
-                            if (!isValidMethod(httpMethod, method))
-                            {
-                                return getHTTPResponse(new ApiResponse("1", null,
-                                        HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
-                            }
-                            break;
-                        case "sessionToken":
-                            sessionToken = value;
-                            break;
-                        case "interactiveSessionKey":
-                            interactiveSessionKey = value;
-                            break;
-                        case "transactionManagerKey":
-                            transactionManagerKey = value;
-                            break;
-                        case "transactionId":
-                            methodParameters.put(entry.getKey(), UUID.fromString(value));
-                            break;
-                        case "recursively":
-                            methodParameters.put(entry.getKey(), Boolean.valueOf(value));
-                            break;
-                        case "offset":
-                            methodParameters.put(entry.getKey(), Long.valueOf(value));
-                            break;
-                        case "limit":
-                            methodParameters.put(entry.getKey(), Integer.valueOf(value));
-                            break;
-                        case "md5Hash":
-                            methodParameters.put(entry.getKey(), IOUtils.decodeBase64(value));
-                            break;
-                        default:
-                            methodParameters.put(entry.getKey(), value);
-                            break;
-                    }
-                } catch (Exception e)
-                {
-                    logger.catching(e);
                     return getHTTPResponse(new ApiResponse("1", null,
-                            HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(),
-                                    e.getMessage())));
+                            HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
                 }
-            }
+                Map<String, Object> bodyParameterMap = readBody(requestBody, HashMap.class);
 
-            // Process body parameters
-            switch (method) {
-                case "write":
-                    methodParameters.put("data", requestBody);
-                    break;
-                case "login":
-                    // userId : password
-                    String[] credentials = new String(requestBody, UTF_8).split(":");
-                    methodParameters.put("userId", credentials[0]);
-                    methodParameters.put("password", credentials[1]);
-                    break;
-                case "logout":
-                    sessionToken = new String(requestBody, UTF_8);
-                    break;
+                for (Map.Entry<String, Object> entry : bodyParameterMap.entrySet())
+                {
+                    if (entry.getKey().equals("sessionToken"))
+                    {
+                        sessionToken = (String) entry.getValue();
+                    } else
+                    {
+                        methodParameters.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            } else
+            {
+                return getHTTPResponse(new ApiResponse("1", null,
+                        HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
             }
 
             ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken,
@@ -211,6 +232,11 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
             }
         }
         return null; // This should never happen, it would mean an error writing the Unknown error happened.
+    }
+
+    private <T> T readBody(byte[] requestBody, Class<T> valueType) throws Exception
+    {
+        return (T) jsonObjectMapper.readValue(new ByteArrayInputStream(requestBody), valueType);
     }
 
     private HttpResponse getHTTPResponse(Response response) throws Exception

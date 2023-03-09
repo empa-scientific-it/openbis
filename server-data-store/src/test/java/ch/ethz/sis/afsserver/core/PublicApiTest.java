@@ -85,29 +85,29 @@ public abstract class PublicApiTest extends AbstractTest
     @Test
     public void read() throws Exception
     {
-        byte[] bytes = getPublicAPI().read(owner, "/" + FILE_A, 0L, DATA.length);
+        byte[] bytes = getPublicAPI().read(owner, FILE_A, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test(expected = RuntimeException.class)
     public void read_big_failure() throws Exception
     {
-        byte[] bytes = getPublicAPI().read(owner, "/" + FILE_A, 0L, Integer.MAX_VALUE);
+        byte[] bytes = getPublicAPI().read(owner, FILE_A, 0L, Integer.MAX_VALUE);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test
     public void write() throws Exception
     {
-        getPublicAPI().write(owner, "/" + FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
-        byte[] bytes = getPublicAPI().read(owner, "/" + FILE_B, 0L, DATA.length);
+        getPublicAPI().write(owner,  FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        byte[] bytes = getPublicAPI().read(owner, FILE_B, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test
     public void delete() throws Exception
     {
-        Boolean deleted = getPublicAPI().delete(owner, "/" + FILE_A);
+        Boolean deleted = getPublicAPI().delete(owner, FILE_A);
         assertTrue(deleted);
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(0, list.size());
@@ -116,15 +116,15 @@ public abstract class PublicApiTest extends AbstractTest
     @Test
     public void copy() throws Exception
     {
-        getPublicAPI().copy(owner, "/" + FILE_A, owner, "/" + FILE_B);
-        byte[] bytes = getPublicAPI().read(owner, "/" + FILE_B, 0L, DATA.length);
+        getPublicAPI().copy(owner, FILE_A, owner, FILE_B);
+        byte[] bytes = getPublicAPI().read(owner, FILE_B, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
     }
 
     @Test
     public void move() throws Exception
     {
-        getPublicAPI().move(owner, "/" + FILE_A, owner, "/" + FILE_B);
+        getPublicAPI().move(owner, FILE_A, owner, FILE_B);
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(1, list.size());
         assertEquals(FILE_B, list.get(0).getName());

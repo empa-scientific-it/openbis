@@ -42,6 +42,7 @@ public class AfsClientTest
         assertNotNull(token);
         assertEquals(token, afsClient.getSessionToken());
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(httpServer.getLastRequestBody().length > 0);
     }
 
     @Test
@@ -67,6 +68,7 @@ public class AfsClientTest
 
         assertTrue(result);
         assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+        assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
     }
 
     @Test
@@ -94,6 +96,7 @@ public class AfsClientTest
         assertTrue(result);
         assertNull(afsClient.getSessionToken());
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(httpServer.getLastRequestBody().length > 0);
     }
 
     @Test
@@ -105,6 +108,7 @@ public class AfsClientTest
         afsClient.list("", "", true);
 
         assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+        assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
     }
 
     @Test
@@ -115,30 +119,63 @@ public class AfsClientTest
         byte[] data = "ABCD".getBytes();
         httpServer.setNextResponse(data);
 
-        byte[] result = afsClient.read("admin", "/", 0L, 1000);
+        byte[] result = afsClient.read("", "", 0L, 1000);
 
         assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
         assertArrayEquals(data, result);
+        assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
     }
 
     @Test
-    public void testWrite() throws Exception
+    public void write_methodIsPost() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        Boolean result = afsClient.write("", "", 0L, new byte[0], new byte[0]);
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertTrue(httpServer.getLastRequestBody().length > 0);
     }
 
     @Test
-    public void testDelete() throws Exception
+    public void delete_methodIsDelete() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        Boolean result = afsClient.delete("", "");
+
+        assertEquals("DELETE", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertTrue(httpServer.getLastRequestBody().length > 0);
     }
 
     @Test
-    public void testCopy() throws Exception
+    public void copy_methodIsPost() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        Boolean result = afsClient.copy("", "", "", "");
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertTrue(httpServer.getLastRequestBody().length > 0);
     }
 
     @Test
-    public void testMove()
+    public void move_methodIsPost() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        Boolean result = afsClient.move("", "", "", "");
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertTrue(httpServer.getLastRequestBody().length > 0);
     }
 
     @Test
@@ -166,7 +203,8 @@ public class AfsClientTest
     {
     }
 
-    private void login() throws Exception {
+    private void login() throws Exception
+    {
         afsClient.login("test", "test");
     }
 
