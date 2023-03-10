@@ -42,9 +42,9 @@ def export(context, parameters):
                     "EXPERIMENT": {
                         "<typePermID>": [
                             {"type": "PROPERTY", "id": "<property code>"},
-                            {"type": "ATTRIBUTE", "id": "<attribute name>"} ,
+                            {"type": "ATTRIBUTE", "id": "<attribute name>"},
                             ...
-                          ] - fields of each experiment type
+                        ] - fields of each experiment type
                             to be exported, if the list is empty no properties will be exported
                             for the experiment type
                     },

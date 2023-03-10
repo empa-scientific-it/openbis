@@ -362,12 +362,19 @@ public class XLSExportTest
                         true,
                         Map.of(
                                 DATASET.toString(), Map.of(
-                                    "ATTACHMENT", List.of("$ATTACHMENT"),
-                                    "RAW_DATA", List.of("$NAME", "NOTES")
+                                    "ATTACHMENT", List.of(
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.name(),
+                                                    FIELD_ID_KEY, "$ATTACHMENT")),
+                                    "RAW_DATA", List.of(
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.name(), FIELD_ID_KEY, "$NAME"),
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.name(), FIELD_ID_KEY, "NOTES")
+                                        )
                                 ),
                                 SAMPLE.toString(), Map.of(
                                     "DEFAULT", List.of(),
-                                    "STORAGE", List.of("$STORAGE.BOX_NUM")
+                                    "STORAGE", List.of(
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.name(),
+                                                    FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
