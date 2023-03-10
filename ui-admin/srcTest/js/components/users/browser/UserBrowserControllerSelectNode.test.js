@@ -33,18 +33,23 @@ async function testSelectNode() {
   })
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
-        id: 'root__user',
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: false,
         selected: false,
         children: []
       },
       {
-        id: 'root__userGroup',
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false,
         children: []
@@ -52,14 +57,23 @@ async function testSelectNode() {
     ]
   })
 
-  await common.controller.expandNode('root__user')
+  await common.controller.expandNode(
+    common.controller.getNodes().find(node =>
+      _.isEqual(node.object, {
+        type: objectType.OVERVIEW,
+        id: objectType.USER
+      })
+    ).id
+  )
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
-        id: 'root__user',
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: true,
         selected: false,
         children: [
@@ -76,8 +90,11 @@ async function testSelectNode() {
         ]
       },
       {
-        id: 'root__userGroup',
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false,
         children: []
@@ -94,18 +111,23 @@ async function testSelectAnotherNode() {
   await common.controller.changeAutoShowSelectedObject()
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
-        id: 'root__user',
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: false,
         selected: false,
         children: []
       },
       {
-        id: 'root__userGroup',
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false,
         children: []
@@ -113,14 +135,23 @@ async function testSelectAnotherNode() {
     ]
   })
 
-  await common.controller.expandNode('root__user')
+  await common.controller.expandNode(
+    common.controller.getNodes().find(node =>
+      _.isEqual(node.object, {
+        type: objectType.OVERVIEW,
+        id: objectType.USER
+      })
+    ).id
+  )
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
-        id: 'root__user',
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: true,
         selected: false,
         children: [
@@ -137,8 +168,11 @@ async function testSelectAnotherNode() {
         ]
       },
       {
-        id: 'root__userGroup',
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false,
         children: []
@@ -157,11 +191,13 @@ async function testSelectAnotherNode() {
   })
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
-        id: 'root__user',
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: true,
         selected: false,
         children: [
@@ -178,8 +214,11 @@ async function testSelectAnotherNode() {
         ]
       },
       {
-        id: 'root__userGroup',
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false,
         children: []
@@ -201,16 +240,23 @@ async function testSelectVirtualNode() {
   })
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: false,
         selected: true,
         children: []
       },
       {
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false,
         children: []

@@ -1,4 +1,5 @@
 import UserBrowserControllerTest from '@srcTest/js/components/users/browser/UserBrowserControllerTest.js'
+import objectType from '@src/js/common/consts/objectType.js'
 import openbis from '@srcTest/js/services/openbis.js'
 import fixture from '@srcTest/js/common/fixture.js'
 
@@ -24,15 +25,22 @@ async function testLoad() {
   await common.controller.load()
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: false,
         selected: false
       },
       {
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false
       }

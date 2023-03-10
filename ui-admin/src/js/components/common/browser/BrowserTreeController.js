@@ -686,7 +686,8 @@ export default class BrowserTreeController {
       sortingId: sortingId,
       customSorting: state.customSortings[loadedNode.id],
       parentId: parentNode.id,
-      parentObject: parentNode.object
+      parentObject: parentNode.object,
+      children: !_.isEmpty(loadedNode.children) ? loadedNode.children : []
     }
   }
 
