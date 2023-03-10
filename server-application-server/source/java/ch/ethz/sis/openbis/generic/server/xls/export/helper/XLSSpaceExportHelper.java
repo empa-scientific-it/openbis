@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 public class XLSSpaceExportHelper extends AbstractXLSExportHelper
 {
@@ -48,12 +50,13 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper
         final Collection<String> warnings = new ArrayList<>();
 
         warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "SPACE"));
-        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "Code", "Description"));
+        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "Code", "Description", "Registrator", "Registration Date"));
 
         for (final Space space : spaces)
         {
             warnings.addAll(addRow(rowNumber++, false, ExportableKind.SPACE, space.getPermId().getPermId(),
-                    space.getCode(), space.getDescription()));
+                    space.getCode(), space.getDescription(), space.getRegistrator().getUserId(),
+                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(space.getRegistrationDate())));
         }
 
         return new AdditionResult(rowNumber + 1, warnings);
