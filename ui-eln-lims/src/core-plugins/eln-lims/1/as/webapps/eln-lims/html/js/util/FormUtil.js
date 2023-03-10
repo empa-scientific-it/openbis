@@ -986,8 +986,8 @@ var FormUtil = new function() {
 	//
 	this._getBoolean2Field = function(id, alt, isRequired) {
 		var $dropdown = this.getDropDownForTerms(id, [
-		    { code : "true", label : "yes" },
-		    { code : "false", label : "no" }
+		    { code : "true", label : "true" },
+		    { code : "false", label : "false" }
 		], alt, isRequired);
 		return $dropdown;
 	}
