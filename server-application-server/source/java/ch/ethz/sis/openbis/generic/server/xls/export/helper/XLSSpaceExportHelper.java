@@ -56,7 +56,7 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper
         {
             warnings.addAll(addRow(rowNumber++, false, ExportableKind.SPACE, space.getPermId().getPermId(),
                     space.getCode(), space.getDescription(), space.getRegistrator().getUserId(),
-                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(space.getRegistrationDate())));
+                    DATE_FORMAT.format(space.getRegistrationDate())));
         }
 
         return new AdditionResult(rowNumber + 1, warnings);

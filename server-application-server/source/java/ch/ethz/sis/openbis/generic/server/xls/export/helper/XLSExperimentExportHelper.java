@@ -41,7 +41,7 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     @Override
     protected String[] getAttributeNames(final Experiment entity)
     {
-        return new String[] { "Identifier", "Code", "Project" };
+        return new String[] { "Identifier", "Code", "Project", "Registrator", "Registration Date", "Modifier", "Modification Date" };
     }
 
     @Override
@@ -91,6 +91,22 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
             {
                 return experiment.getProject().getIdentifier().getIdentifier();
             }
+            case "Registrator":
+            {
+                return experiment.getRegistrator().getUserId();
+            }
+            case "Registration Date":
+            {
+                return DATE_FORMAT.format(experiment.getRegistrationDate());
+            }
+            case "Modifier":
+            {
+                return experiment.getModifier().getUserId();
+            }
+            case "Modification Date":
+            {
+                return DATE_FORMAT.format(experiment.getModificationDate());
+            }
             default:
             {
                 return null;
@@ -101,7 +117,9 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     protected Stream<String> getAllAttributeValuesStream(final Experiment experiment)
     {
         return Stream.of(experiment.getIdentifier().getIdentifier(), experiment.getCode(),
-                experiment.getProject().getIdentifier().getIdentifier());
+                experiment.getProject().getIdentifier().getIdentifier(), experiment.getRegistrator().getUserId(),
+                DATE_FORMAT.format(experiment.getRegistrationDate()), experiment.getModifier().getUserId(),
+                DATE_FORMAT.format(experiment.getModificationDate()));
     }
 
     protected Collection<Experiment> getEntities(final IApplicationServerApi api, final String sessionToken,
@@ -113,6 +131,8 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
         fetchOptions.withProject();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
         return api.getExperiments(sessionToken, experimentPermIds, fetchOptions).values();
     }
 

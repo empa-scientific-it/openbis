@@ -57,10 +57,8 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
         {
             warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, project.getIdentifier().getIdentifier(),
                     project.getIdentifier().getIdentifier(), project.getCode(), project.getDescription(),
-                    project.getSpace().getCode(), project.getRegistrator().getUserId(),
-                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(project.getRegistrationDate()),
-                    project.getModifier().getUserId(),
-                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(project.getModificationDate())));
+                    project.getSpace().getCode(), project.getRegistrator().getUserId(), DATE_FORMAT.format(project.getRegistrationDate()),
+                    project.getModifier().getUserId(), DATE_FORMAT.format(project.getModificationDate())));
         }
 
         return new AdditionResult(rowNumber + 1, warnings);

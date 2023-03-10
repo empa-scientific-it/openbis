@@ -16,6 +16,8 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Function;
@@ -33,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
@@ -65,6 +68,19 @@ class ExperimentExpectations extends Expectations
                 final Space[] spaces = getSpaces();
                 final Project[] projects = getProjects(spaces);
 
+                final Calendar calendar = Calendar.getInstance();
+                calendar.set(2023, Calendar.MARCH, 10, 17, 23, 44);
+                final Date registrationDate = calendar.getTime();
+
+                calendar.set(2023, Calendar.MARCH, 11, 17, 23, 44);
+                final Date modificationDate = calendar.getTime();
+
+                final Person registrator = new Person();
+                registrator.setUserId("system");
+
+                final Person modifier = new Person();
+                modifier.setUserId("test");
+
                 final Experiment[] experiments = new Experiment[3];
 
                 experiments[0] = new Experiment();
@@ -76,6 +92,10 @@ class ExperimentExpectations extends Expectations
                 experiments[0].setType(experimentTypes[0]);
                 experiments[0].setProperty("$NAME", "a".repeat(Short.MAX_VALUE + 1));
                 experiments[0].setProperty("$DEFAULT_OBJECT_TYPE", "EXPERIMENTAL_STEP");
+                experiments[0].setRegistrator(registrator);
+                experiments[0].setModifier(modifier);
+                experiments[0].setRegistrationDate(registrationDate);
+                experiments[0].setModificationDate(modificationDate);
 
                 experiments[1] = new Experiment();
                 experiments[1].setFetchOptions(fetchOptions);
@@ -86,6 +106,10 @@ class ExperimentExpectations extends Expectations
                 experiments[1].setType(experimentTypes[1]);
                 experiments[1].setProperty("$NAME", "Default");
                 experiments[1].setProperty("FINISHED_FLAG", "FALSE");
+                experiments[1].setRegistrator(registrator);
+                experiments[1].setModifier(modifier);
+                experiments[1].setRegistrationDate(registrationDate);
+                experiments[1].setModificationDate(modificationDate);
 
                 experiments[2] = new Experiment();
                 experiments[2].setFetchOptions(fetchOptions);
@@ -96,6 +120,10 @@ class ExperimentExpectations extends Expectations
                 experiments[2].setType(experimentTypes[0]);
                 experiments[2].setProperty("$NAME", "b".repeat(Short.MAX_VALUE + 1));
                 experiments[2].setProperty("$DEFAULT_OBJECT_TYPE", "DEFAULT_SAMPLE");
+                experiments[2].setRegistrator(registrator);
+                experiments[2].setModifier(modifier);
+                experiments[2].setRegistrationDate(registrationDate);
+                experiments[2].setModificationDate(modificationDate);
 
                 return Arrays.stream(experiments).collect(Collectors.toMap(Experiment::getIdentifier,
                         Function.identity(), (experiment1, experiment2) -> experiment2, LinkedHashMap::new));

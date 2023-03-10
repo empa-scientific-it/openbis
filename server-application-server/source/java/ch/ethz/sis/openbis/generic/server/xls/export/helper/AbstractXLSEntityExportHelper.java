@@ -39,7 +39,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder &         IPropertiesHolder,
+public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder & IPropertiesHolder,
         ENTITY_TYPE extends IPermIdHolder & IPropertyAssignmentsHolder> extends AbstractXLSExportHelper
 {
 

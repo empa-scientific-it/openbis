@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -41,6 +42,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 public abstract class AbstractXLSExportHelper implements IXLSExportHelper
 {
@@ -48,6 +50,8 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] {"Version", "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script"};
+
+    protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 
     public static final String FIELD_TYPE_KEY = "type";
 
