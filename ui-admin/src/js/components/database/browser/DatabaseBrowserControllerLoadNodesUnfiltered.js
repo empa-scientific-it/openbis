@@ -20,6 +20,10 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
       await this.addSpacesNode(params, nodes)
       await this.addSamplesNode(params, nodes)
 
+      nodes.forEach(node => {
+        node.expanded = false
+      })
+
       return {
         nodes: nodes
       }
@@ -70,7 +74,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     } else if (node.object.type === DatabaseBrowserCommon.TYPE_SPACES) {
       const spaces = await this.searchSpaces(params)
       const nodes = spaces.objects.map(space => {
-        const spaceNode = DatabaseBrowserCommon.spaceNode(node, space.getCode())
+        const spaceNode = DatabaseBrowserCommon.spaceNode(space.getCode())
         spaceNode.canHaveChildren = true
         return spaceNode
       })
@@ -82,7 +86,6 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
       const projects = await this.searchProjects(params)
       const nodes = projects.objects.map(project => {
         const projectNode = DatabaseBrowserCommon.projectNode(
-          node,
           project.getPermId().getPermId(),
           project.getCode()
         )
@@ -97,7 +100,6 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
       const experiments = await this.searchExperiments(params)
       const nodes = experiments.objects.map(experiment => {
         const experimentNode = DatabaseBrowserCommon.collectionNode(
-          node,
           experiment.getPermId().getPermId(),
           experiment.getCode()
         )
@@ -115,7 +117,6 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
       const samples = await this.searchSamples(params)
       const nodes = samples.objects.map(sample => {
         const sampleNode = DatabaseBrowserCommon.objectNode(
-          node,
           sample.getPermId().getPermId(),
           sample.getCode()
         )
@@ -132,10 +133,7 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     ) {
       const dataSets = await this.searchDataSets(params)
       const nodes = dataSets.objects.map(dataSet => {
-        const dataSetNode = DatabaseBrowserCommon.dataSetNode(
-          node,
-          dataSet.getCode()
-        )
+        const dataSetNode = DatabaseBrowserCommon.dataSetNode(dataSet.getCode())
         dataSetNode.canHaveChildren = true
         return dataSetNode
       })
@@ -160,7 +158,9 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
 
     const fetchOptions = new openbis.SpaceFetchOptions()
     if (!_.isEmpty(node.sortings) && !_.isNil(node.sortingId)) {
-      const sorting = node.sortings[node.sortingId]
+      const sorting = node.sortings.find(
+        sorting => sorting.id === node.sortingId
+      )
       if (!_.isNil(sorting)) {
         fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
       }
@@ -190,13 +190,15 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     const { node, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
-    if (node.parent.object.type === objectType.SPACE) {
-      criteria.withSpace().withCode().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.SPACE) {
+      criteria.withSpace().withCode().thatEquals(node.parentObject.id)
     }
 
     const fetchOptions = new openbis.ProjectFetchOptions()
     if (!_.isEmpty(node.sortings) && !_.isNil(node.sortingId)) {
-      const sorting = node.sortings[node.sortingId]
+      const sorting = node.sortings.find(
+        sorting => sorting.id === node.sortingId
+      )
       if (!_.isNil(sorting)) {
         fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
       }
@@ -237,8 +239,8 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     const { node, offset, limit, childrenIn, childrenNotIn } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
-    if (node.parent.object.type === objectType.PROJECT) {
-      criteria.withProject().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.PROJECT) {
+      criteria.withProject().withPermId().thatEquals(node.parentObject.id)
     }
     if (!_.isEmpty(childrenIn)) {
       const subcriteria = criteria.withSubcriteria()
@@ -257,7 +259,9 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
 
     const fetchOptions = new openbis.ExperimentFetchOptions()
     if (!_.isEmpty(node.sortings) && !_.isNil(node.sortingId)) {
-      const sorting = node.sortings[node.sortingId]
+      const sorting = node.sortings.find(
+        sorting => sorting.id === node.sortingId
+      )
       if (!_.isNil(sorting)) {
         fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
       }
@@ -274,24 +278,24 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     const criteria = new openbis.SampleSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.parent.root) {
+    if (node.parentObject.type === BrowserCommon.rootNode().object.type) {
       criteria.withoutSpace()
       criteria.withoutProject()
       criteria.withoutExperiment()
     }
-    if (node.parent.object.type === objectType.SPACE) {
-      criteria.withSpace().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.SPACE) {
+      criteria.withSpace().withPermId().thatEquals(node.parentObject.id)
       criteria.withoutProject()
     }
-    if (node.parent.object.type === objectType.PROJECT) {
-      criteria.withProject().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.PROJECT) {
+      criteria.withProject().withPermId().thatEquals(node.parentObject.id)
       criteria.withoutExperiment()
     }
-    if (node.parent.object.type === objectType.COLLECTION) {
-      criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.COLLECTION) {
+      criteria.withExperiment().withPermId().thatEquals(node.parentObject.id)
     }
-    if (node.parent.object.type === objectType.OBJECT) {
-      criteria.withParents().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.OBJECT) {
+      criteria.withParents().withPermId().thatEquals(node.parentObject.id)
     }
     if (!_.isEmpty(childrenIn)) {
       const subcriteria = criteria.withSubcriteria()
@@ -310,7 +314,9 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
 
     const fetchOptions = new openbis.SampleFetchOptions()
     if (!_.isEmpty(node.sortings) && !_.isNil(node.sortingId)) {
-      const sorting = node.sortings[node.sortingId]
+      const sorting = node.sortings.find(
+        sorting => sorting.id === node.sortingId
+      )
       if (!_.isNil(sorting)) {
         fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
       }
@@ -327,16 +333,16 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
     const criteria = new openbis.DataSetSearchCriteria()
     criteria.withAndOperator()
 
-    if (node.parent.object.type === objectType.COLLECTION) {
-      criteria.withExperiment().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.COLLECTION) {
+      criteria.withExperiment().withPermId().thatEquals(node.parentObject.id)
       criteria.withoutSample()
     }
-    if (node.parent.object.type === objectType.OBJECT) {
-      criteria.withSample().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.OBJECT) {
+      criteria.withSample().withPermId().thatEquals(node.parentObject.id)
     }
 
-    if (node.parent.object.type === objectType.DATA_SET) {
-      criteria.withParents().withPermId().thatEquals(node.parent.object.id)
+    if (node.parentObject.type === objectType.DATA_SET) {
+      criteria.withParents().withPermId().thatEquals(node.parentObject.id)
     }
     if (!_.isEmpty(childrenIn)) {
       const subcriteria = criteria.withSubcriteria()
@@ -355,7 +361,9 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
 
     const fetchOptions = new openbis.DataSetFetchOptions()
     if (!_.isEmpty(node.sortings) && !_.isNil(node.sortingId)) {
-      const sorting = node.sortings[node.sortingId]
+      const sorting = node.sortings.find(
+        sorting => sorting.id === node.sortingId
+      )
       if (!_.isNil(sorting)) {
         fetchOptions.sortBy()[sorting.sortBy]()[sorting.sortDirection]()
       }
@@ -367,12 +375,13 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
   }
 
   async addSpacesNode(params, nodes) {
-    const { node, sortingIds } = params
+    const { node } = params
 
-    const spacesNode = DatabaseBrowserCommon.spacesFolderNode(node)
+    const spacesNode = DatabaseBrowserCommon.spacesFolderNode()
+    spacesNode.parentId = node.id
+    spacesNode.parentObject = node.object
+    spacesNode.expanded = true
     spacesNode.sortings = DatabaseBrowserCommon.SORTINGS
-    spacesNode.sortingId =
-      sortingIds[spacesNode.id] || DatabaseBrowserCommon.SORT_BY_CODE_ASC
 
     const spaces = await this.searchSpaces({
       node: spacesNode,
@@ -386,12 +395,13 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
   }
 
   async addProjectsNode(params, nodes) {
-    const { node, sortingIds } = params
+    const { node } = params
 
-    const projectsNode = DatabaseBrowserCommon.projectsFolderNode(node)
+    const projectsNode = DatabaseBrowserCommon.projectsFolderNode()
+    projectsNode.parentId = node.id
+    projectsNode.parentObject = node.object
+    projectsNode.expanded = true
     projectsNode.sortings = DatabaseBrowserCommon.SORTINGS
-    projectsNode.sortingId =
-      sortingIds[projectsNode.id] || DatabaseBrowserCommon.SORT_BY_CODE_ASC
 
     const projects = await this.searchProjects({
       node: projectsNode,
@@ -405,12 +415,13 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
   }
 
   async addExperimentsNode(params, nodes) {
-    const { node, sortingIds } = params
+    const { node } = params
 
-    const experimentsNode = DatabaseBrowserCommon.collectionsFolderNode(node)
+    const experimentsNode = DatabaseBrowserCommon.collectionsFolderNode()
+    experimentsNode.parentId = node.id
+    experimentsNode.parentObject = node.object
+    experimentsNode.expanded = true
     experimentsNode.sortings = DatabaseBrowserCommon.SORTINGS
-    experimentsNode.sortingId =
-      sortingIds[experimentsNode.id] || DatabaseBrowserCommon.SORT_BY_CODE_ASC
 
     const experiments = await this.searchExperiments({
       node: experimentsNode,
@@ -424,19 +435,20 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
   }
 
   async addSamplesNode(params, nodes) {
-    const { node, sortingIds } = params
+    const { node } = params
 
     let samplesNode = null
 
     if (node.object.type === objectType.OBJECT) {
-      samplesNode = DatabaseBrowserCommon.objectsChildrenFolderNode(node)
+      samplesNode = DatabaseBrowserCommon.objectsChildrenFolderNode()
     } else {
-      samplesNode = DatabaseBrowserCommon.objectsFolderNode(node)
+      samplesNode = DatabaseBrowserCommon.objectsFolderNode()
     }
 
+    samplesNode.parentId = node.id
+    samplesNode.parentObject = node.object
+    samplesNode.expanded = true
     samplesNode.sortings = DatabaseBrowserCommon.SORTINGS
-    samplesNode.sortingId =
-      sortingIds[samplesNode.id] || DatabaseBrowserCommon.SORT_BY_CODE_ASC
 
     const samples = await this.searchSamples({
       node: samplesNode,
@@ -450,19 +462,20 @@ export default class DatabaseBrowserControllerLoadNodesUnfiltered {
   }
 
   async addDataSetsNode(params, nodes) {
-    const { node, sortingIds } = params
+    const { node } = params
 
     let dataSetsNode = null
 
     if (node.object.type === objectType.DATA_SET) {
-      dataSetsNode = DatabaseBrowserCommon.dataSetsChildrenFolderNode(node)
+      dataSetsNode = DatabaseBrowserCommon.dataSetsChildrenFolderNode()
     } else {
-      dataSetsNode = DatabaseBrowserCommon.dataSetsFolderNode(node)
+      dataSetsNode = DatabaseBrowserCommon.dataSetsFolderNode()
     }
 
+    dataSetsNode.parentId = node.id
+    dataSetsNode.parentObject = node.object
+    dataSetsNode.expanded = true
     dataSetsNode.sortings = DatabaseBrowserCommon.SORTINGS
-    dataSetsNode.sortingId =
-      sortingIds[dataSetsNode.id] || DatabaseBrowserCommon.SORT_BY_CODE_ASC
 
     const dataSets = await this.searchDataSets({
       node: dataSetsNode,

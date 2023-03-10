@@ -2437,7 +2437,7 @@ var FormUtil = new function() {
     }
 
     this.renderBooleanGridFilter = function(params){
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2448,7 +2448,7 @@ var FormUtil = new function() {
     }
 
     this.renderArchivingStatusGridFilter = function(params) {
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2477,7 +2477,7 @@ var FormUtil = new function() {
             })
         }
 
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2488,7 +2488,7 @@ var FormUtil = new function() {
     }
 
     this.renderDateRangeGridFilter = function(params, dataType){
-        return React.createElement(window.NgUiGrid.default.DateRangeField, {
+        return React.createElement(window.NgComponents.default.DateRangeField, {
             variant: "standard",
             value: params.value,
             onChange: params.onChange,
@@ -2623,13 +2623,14 @@ var FormUtil = new function() {
             var doDelete = function(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason) {
                 var toDeleteFinal = function(samplesPermIdsToDelete, reason) {
                     mainController.serverFacade.deleteSamples(samplesPermIdsToDelete, reason, function(response) {
+                        Util.unblockUI()
                         if(response.error) {
                             Util.showError(response.error.message);
                         } else {
                             Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
                             if(updateTree) {
                                 for(var sIdx = 0; sIdx < samplesPermIdsToDelete.length; sIdx++) {
-                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesPermIdsToDelete[sIdx], true);
+                                    mainController.sideMenu.deleteNodeByEntityPermId("SAMPLE", samplesPermIdsToDelete[sIdx], true);
                                 }
                             }
                             callbackToNextViewOnSuccess();

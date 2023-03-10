@@ -6,7 +6,6 @@ import BrowserButtonsAddRemove from '@src/js/components/common/browser/BrowserBu
 import ToolBrowserController from '@src/js/components/tools/browser/ToolBrowserController.js'
 import AppController from '@src/js/components/AppController.js'
 import pages from '@src/js/common/consts/pages.js'
-import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 export class ToolBrowser extends React.Component {
@@ -40,18 +39,8 @@ export class ToolBrowser extends React.Component {
 
     return (
       <BrowserWithOpenbis
-        id={ids.TOOL_BROWSER_ID}
         controller={this.controller}
         renderFooter={this.renderFooter}
-        onSelectedChange={selectedObject => {
-          if (selectedObject) {
-            AppController.getInstance().objectOpen(
-              pages.TOOLS,
-              selectedObject.type,
-              selectedObject.id
-            )
-          }
-        }}
       />
     )
   }

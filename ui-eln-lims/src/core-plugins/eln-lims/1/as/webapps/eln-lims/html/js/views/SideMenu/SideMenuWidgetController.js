@@ -1,4 +1,4 @@
-    /*
+/*
  * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,161 +21,192 @@
  * @this {SideMenuWidgetController}
  * @param {MainController} mainController Used to control view changes.
  */
-function SideMenuWidgetController(mainController) {
-    this._mainController = mainController;
-    this._sideMenuWidgetModel = new SideMenuWidgetModel();
-    this._sideMenuWidgetView = new SideMenuWidgetView(this, this._sideMenuWidgetModel);
-    
-    this._SORT_FIELD_KEY = "side-menu-sort-field";
 
+function SideMenuWidgetController(mainController) {
+    this._mainController = mainController
+    this._sideMenuWidgetModel = new SideMenuWidgetModel()
+    this._sideMenuWidgetView = new SideMenuWidgetView(this, this._sideMenuWidgetModel)
+    this._browserController = new SideMenuWidgetBrowserController()
 
     //
     // External API for real time updates
     //
-    
-    this.getCurrentNodeId = function() {
-    	return (this._sideMenuWidgetModel.selectedNodeData)?this._sideMenuWidgetModel.selectedNodeData.key:null;
-    };
-    
-    this.deleteNodeByEntityPermId = function(key, isMoveToParent) {
-    	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
-        if (node) {
-            if(isMoveToParent) {
-                var parent = node.getParent();
-                this._showNodeView(parent);
-            }
-            node.remove();
+
+    this.getCurrentNodeId = function () {
+        var nodeObject = this._browserController.getSelectedObject()
+
+        if (nodeObject) {
+            var nodeObjectStr = JSON.stringify(nodeObject)
+            return nodeObjectStr
+        } else {
+            return null
         }
-    };
-    
-    this.refreshCurrentNode = function() {
-    	this._refreshNode(this.getCurrentNodeId());
     }
-    
-    this.refreshNode = function(key) {
-    		this._refreshNode(key);
+
+    this.deleteNodeByEntityPermId = function (entityType, entityPermId, isMoveToParent) {
+        var _this = this
+
+        var nodes = this._browserController.getNodes().filter(function (node) {
+            if (node.object) {
+                return entityType === node.object.type && entityPermId === node.object.id
+            } else {
+                return false
+            }
+        })
+
+        nodes.forEach(function (node) {
+            _this._browserController.reloadNode(node.parentId)
+        })
+
+        if (isMoveToParent) {
+            var parentIds = nodes.map(function (node) {
+                return node.parentId
+            })
+
+            while (parentIds.length > 0) {
+                var parentId = parentIds.shift()
+                if (!parentId) {
+                    continue
+                }
+
+                var parent = _this._browserController.getNode(parentId)
+                if (!parent) {
+                    continue
+                }
+
+                if (parent.view && parent.viewData) {
+                    mainController.changeView(parent.view, parent.viewData)
+                    break
+                } else {
+                    parentIds.push(parent.parentId)
+                }
+            }
+        }
     }
-    
-    this.refreshNodeParent = function(key) {
-    	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
-    	if(node) {
-    		var parent = node.getParent();
-    		if(parent) {
-    			this._refreshNode(parent.key);
-    		}
-    	}
+
+    this.refreshCurrentNode = function () {
+        var _this = this
+        var selectedObject = this._browserController.getSelectedObject()
+        if (selectedObject) {
+            var nodes = this._browserController.getNodes()
+            nodes.forEach(function (node) {
+                if (selectedObject.type === node.object.type && selectedObject.id === node.object.id) {
+                    _this._browserController.reloadNode(node.id)
+                }
+            })
+        }
     }
-    
-    this.moveToNodeId = function(uniqueId) {
-    	// Can't be implemented initially, it will be required to keep the whole menu path to know all parents that need to be loaded 
+
+    this.refreshNodeByPermId = function (entityType, entityPermId) {
+        var _this = this
+        var nodes = this._browserController.getNodes()
+        nodes.forEach(function (node) {
+            if (node.object && entityType === node.object.type && entityPermId === node.object.id) {
+                _this._browserController.reloadNode(node.id)
+            }
+        })
     }
-    
+
+    this.refreshNodeParentByPermId = function (entityType, entityPermId) {
+        var _this = this
+        var nodes = this._browserController.getNodes()
+        nodes.forEach(function (node) {
+            if (node.object && entityType === node.object.type && entityPermId === node.object.id) {
+                _this._browserController.reloadNode(node.parentId)
+            }
+        })
+    }
+
+    this.moveToNodeId = function (nodeObjectStr) {
+        var nodeObject = null
+
+        try {
+            nodeObject = JSON.parse(nodeObjectStr)
+        } catch (e) {
+            // do nothing
+        }
+
+        return this._browserController.selectObject(nodeObject)
+    }
+
     //
     // Init method that builds the menu object hierarchy
     //
-    this.init = function($container, initCallback) {
-        var _this = this;
+    this.init = function ($container, initCallback) {
+        var _this = this
 
-        this._mainController.serverFacade.getSetting(this._SORT_FIELD_KEY, function(sortField) {
-            _this._sideMenuWidgetModel.sortField = sortField;
-            _this._sideMenuWidgetModel.$container = $container;
-            
-            _this._sideMenuWidgetView.repaint($container);
-            
-            LayoutManager.addResizeEventHandler(_this.resizeSideMenuBody());
-            
-            initCallback();    
-        });
+        this._mainController.serverFacade.getSetting(this._SORT_FIELD_KEY, function (sortField) {
+            _this._sideMenuWidgetModel.sortField = sortField
+            _this._sideMenuWidgetModel.$container = $container
+
+            _this._sideMenuWidgetView.repaint($container)
+
+            LayoutManager.addResizeEventHandler(_this.resizeSideMenuBody())
+
+            initCallback()
+        })
     }
 
-    this.resizeElement = function($elementBody, percentageOfUsage) {
-        var $elementHead = $("#sideMenuHeader");
-        var sideMenuHeaderHeight = $elementHead.outerHeight();
-        var $elementSortField = $("#sideMenuSortBar");
-        var sideMenuSortFieldHeight = $elementSortField.outerHeight();
-        var height = $( window ).height();
-        var availableHeight = height - sideMenuHeaderHeight - sideMenuSortFieldHeight;
-        $elementBody.css('height', (availableHeight * percentageOfUsage));
+    this.resizeElement = function ($elementBody, percentageOfUsage) {
+        var $elementHead = $("#sideMenuHeader")
+        var sideMenuHeaderHeight = $elementHead.outerHeight()
+        var $elementSortField = $("#sideMenuSortBar")
+        var sideMenuSortFieldHeight = $elementSortField.outerHeight()
+        var height = $(window).height()
+        var availableHeight = height - sideMenuHeaderHeight - sideMenuSortFieldHeight
+        $elementBody.css("height", availableHeight * percentageOfUsage)
     }
 
-    this.resizeSideMenuBody = function() {
-        var _this = this;
-        return function() {
-            var $elementBody = $("#sideMenuBody");
-            var percentageOfUsage = _this._sideMenuWidgetModel.percentageOfUsage;
-            _this.resizeElement($elementBody, percentageOfUsage);
+    this.resizeSideMenuBody = function () {
+        var _this = this
+        return function () {
+            var $elementBody = $("#sideMenuBody")
+            var percentageOfUsage = _this._sideMenuWidgetModel.percentageOfUsage
+            _this.resizeElement($elementBody, percentageOfUsage)
         }
     }
 
-    this.addSubSideMenu = function(subSideMenu) {
+    this.addSubSideMenu = function (subSideMenu) {
         // Remove old from DOM if present
-        var elementId = subSideMenu.attr('id');
-        $("#" + elementId).remove();
+        var elementId = subSideMenu.attr("id")
+        $("#" + elementId).remove()
         // Add new
-        subSideMenu.css("margin-left", "3px");
-        this._sideMenuWidgetModel.subSideMenu = subSideMenu;
-        this._sideMenuWidgetModel.percentageOfUsage = 0.5;
-        $("#sideMenuTopContainer").append(subSideMenu);
-        this.resizeElement($("#sideMenuBody"), 0.5);
-        this.resizeElement(subSideMenu, 0.5);
+        subSideMenu.css("margin-left", "3px")
+        this._sideMenuWidgetModel.subSideMenu = subSideMenu
+        this._sideMenuWidgetModel.percentageOfUsage = 0.5
+        $("#sideMenuTopContainer").append(subSideMenu)
+        this.resizeElement($("#sideMenuBody"), 0.5)
+        this.resizeElement(subSideMenu, 0.5)
     }
 
-    this.removeSubSideMenu = function() {
-        if(this._sideMenuWidgetModel.subSideMenu) {
-            this._sideMenuWidgetModel.subSideMenu.remove();
-            this._sideMenuWidgetModel.percentageOfUsage = 1;
-            this.resizeElement($("#sideMenuBody"), 1);
-            this._sideMenuWidgetModel.subSideMenu = null;
+    this.removeSubSideMenu = function () {
+        if (this._sideMenuWidgetModel.subSideMenu) {
+            this._sideMenuWidgetModel.subSideMenu.remove()
+            this._sideMenuWidgetModel.percentageOfUsage = 1
+            this.resizeElement($("#sideMenuBody"), 1)
+            this._sideMenuWidgetModel.subSideMenu = null
         }
     }
-
-    this._showNodeView = function(node) {
-		if(node.data.view) {
-			var viewData =  node.data.viewData;
-			if(!viewData) {
-				viewData = null;
-			}
-			mainController.changeView(node.data.view, viewData);
-			this._sideMenuWidgetModel.selectedNodeData = {
-				key : node.key,
-				view : node.data.view,
-				viewData : node.data.viewData
-			};
-		}
-    }
-    
-    this._refreshNode = function(key) {
-    	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
-    	if(node) {
-    		node.removeChildren();
-        	node.resetLazy();
-        	node.setExpanded(true);
-    	}
-    }
-
-    //
-    // service calls
-    //
-
-    this.setSortField = function(sortField) {
-        this._sideMenuWidgetModel.sortField = sortField;
-        this._mainController.serverFacade.setSetting(this._SORT_FIELD_KEY, sortField);
-    }
-
 }
 
-function SideMenuWidgetComponent(isSelectable, isTitle, displayName, uniqueId, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {
-    this.isSelectable = isSelectable;
-    this.isTitle = isTitle;
-    this.displayName = displayName;
-    this.uniqueId = uniqueId;
-    this.contextTitle = contextTitle;
-    this.parent = parent;
-    this.newMenuIfSelected = newMenuIfSelected;
-    this.newViewIfSelected = newViewIfSelected;
-    this.newViewIfSelectedData = newViewIfSelectedData;
-}
-
-var naturalSortSideMenuWidgetComponent = function(componentA, componentB){
-  	return naturalSort(componentA.displayName, componentB.displayName);
+function SideMenuWidgetComponent(
+    isSelectable,
+    isTitle,
+    displayName,
+    uniqueId,
+    parent,
+    newMenuIfSelected,
+    newViewIfSelected,
+    newViewIfSelectedData,
+    contextTitle
+) {
+    this.isSelectable = isSelectable
+    this.isTitle = isTitle
+    this.displayName = displayName
+    this.uniqueId = uniqueId
+    this.contextTitle = contextTitle
+    this.parent = parent
+    this.newMenuIfSelected = newMenuIfSelected
+    this.newViewIfSelected = newViewIfSelected
+    this.newViewIfSelectedData = newViewIfSelectedData
 }

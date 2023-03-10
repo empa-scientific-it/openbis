@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import autoBind from 'auto-bind'
 import ResizableWithOpenbis from '@src/js/components/common/resizable/ResizableWithOpenbis.jsx'
@@ -10,39 +11,49 @@ class BrowserWithOpenbis extends React.PureComponent {
     super(props)
     autoBind(this)
 
-    if (!props.id) {
-      throw new Error('Browser id cannot be empty!')
+    if (_.isNil(props.controller)) {
+      throw new Error('Controller cannot be empty!')
     }
+
+    if (_.isNil(props.controller.getId())) {
+      throw new Error('Id cannot be empty!')
+    }
+
+    this.controller = Object.assign(props.controller, {
+      loadSettings: this.loadSettings,
+      onSettingsChange: this.onSettingsChange,
+      onError: this.onError
+    })
   }
 
   render() {
     logger.log(logger.DEBUG, 'BrowserWithOpenbis.render')
 
-    const { id } = this.props
+    const { controller } = this.props
 
     return (
       <ResizableWithOpenbis
-        id={id + '_resizable'}
+        id={controller.getId() + '_resizable'}
         direction={{
           right: true
         }}
       >
-        <Browser
-          {...this.props}
-          loadSettings={this.loadSettings}
-          onSettingsChange={this.onSettingsChange}
-          onError={this.onError}
-        />
+        <Browser {...this.props} />
       </ResizableWithOpenbis>
     )
   }
 
   async loadSettings() {
-    return await AppController.getInstance().getSetting(this.props.id)
+    return await AppController.getInstance().getSetting(
+      this.props.controller.getId()
+    )
   }
 
   async onSettingsChange(settings) {
-    await AppController.getInstance().setSetting(this.props.id, settings)
+    await AppController.getInstance().setSetting(
+      this.props.controller.getId(),
+      settings
+    )
   }
 
   async onError(error) {

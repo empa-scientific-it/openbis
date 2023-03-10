@@ -55,16 +55,15 @@ export default class TypeBrowserControllerLoadNodes {
 
         if (totalCount > TypeBrowserCommon.TOTAL_LOAD_LIMIT) {
           return {
-            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+            nodes: [BrowserCommon.tooManyResultsFound()]
           }
         }
 
         const nodes = []
 
         if (!_.isEmpty(objectTypes.objects)) {
-          const folderNode = TypeBrowserCommon.objectTypesFolderNode(node.id)
+          const folderNode = TypeBrowserCommon.objectTypesFolderNode()
           const typesNodes = this.createNodes(
-            folderNode,
             objectTypes,
             objectType.OBJECT_TYPE
           )
@@ -74,11 +73,8 @@ export default class TypeBrowserControllerLoadNodes {
         }
 
         if (!_.isEmpty(collectionTypes.objects)) {
-          const folderNode = TypeBrowserCommon.collectionTypesFolderNode(
-            node.id
-          )
+          const folderNode = TypeBrowserCommon.collectionTypesFolderNode()
           const typesNodes = this.createNodes(
-            folderNode,
             collectionTypes,
             objectType.COLLECTION_TYPE
           )
@@ -88,9 +84,8 @@ export default class TypeBrowserControllerLoadNodes {
         }
 
         if (!_.isEmpty(dataSetTypes.objects)) {
-          const folderNode = TypeBrowserCommon.dataSetTypesFolderNode(node.id)
+          const folderNode = TypeBrowserCommon.dataSetTypesFolderNode()
           const typesNodes = this.createNodes(
-            folderNode,
             dataSetTypes,
             objectType.DATA_SET_TYPE
           )
@@ -100,9 +95,8 @@ export default class TypeBrowserControllerLoadNodes {
         }
 
         if (!_.isEmpty(materialTypes.objects)) {
-          const folderNode = TypeBrowserCommon.materialTypesFolderNode(node.id)
+          const folderNode = TypeBrowserCommon.materialTypesFolderNode()
           const typesNodes = this.createNodes(
-            folderNode,
             materialTypes,
             objectType.MATERIAL_TYPE
           )
@@ -112,11 +106,8 @@ export default class TypeBrowserControllerLoadNodes {
         }
 
         if (!_.isEmpty(vocabularyTypes.objects)) {
-          const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode(
-            node.id
-          )
+          const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode()
           const typesNodes = this.createNodes(
-            folderNode,
             vocabularyTypes,
             objectType.VOCABULARY_TYPE
           )
@@ -131,12 +122,12 @@ export default class TypeBrowserControllerLoadNodes {
       } else {
         return {
           nodes: [
-            TypeBrowserCommon.objectTypesFolderNode(node.id),
-            TypeBrowserCommon.collectionTypesFolderNode(node.id),
-            TypeBrowserCommon.dataSetTypesFolderNode(node.id),
-            TypeBrowserCommon.materialTypesFolderNode(node.id),
-            TypeBrowserCommon.vocabularyTypesFolderNode(node.id),
-            TypeBrowserCommon.propertyTypesFolderNode(node.id)
+            TypeBrowserCommon.objectTypesFolderNode(),
+            TypeBrowserCommon.collectionTypesFolderNode(),
+            TypeBrowserCommon.dataSetTypesFolderNode(),
+            TypeBrowserCommon.materialTypesFolderNode(),
+            TypeBrowserCommon.vocabularyTypesFolderNode(),
+            TypeBrowserCommon.propertyTypesFolderNode()
           ]
         }
       }
@@ -156,7 +147,7 @@ export default class TypeBrowserControllerLoadNodes {
       }
 
       if (types) {
-        return this.createNodes(node, types, node.object.id)
+        return this.createNodes(types, node.object.id)
       } else {
         return {
           nodes: []
@@ -377,9 +368,8 @@ export default class TypeBrowserControllerLoadNodes {
     }
   }
 
-  createNodes(parent, result, objectType) {
+  createNodes(result, objectType) {
     const nodes = result.objects.map(object => ({
-      id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
         type: objectType,

@@ -163,12 +163,27 @@ function MainController(profile) {
 				
 				LayoutManager.reloadView(this.views);
 			} else {
-				var queryString = Util.queryString();
-				var viewName = queryString.viewName;
-				var viewData = queryString.viewData
-				if(viewName && viewData) {
-					localReference._changeView(viewName, viewData, false, false);
-				}
+				function isEmpty(value) {
+                    return value === null || value === undefined || value === "null" || value === "undefined"
+                }
+
+                var queryString = Util.queryString();
+                var menuUniqueId = queryString.menuUniqueId;
+                var viewName = queryString.viewName;
+                var viewData = queryString.viewData
+
+                if(isEmpty(viewName)){
+                    viewName = null
+                }
+
+                if(isEmpty(viewData)){
+                    viewData = null
+                }
+
+                if(viewName) {
+                    localReference._changeView(viewName, viewData, false, false);
+                    localReference.sideMenu.moveToNodeId(decodeURIComponent(menuUniqueId));
+                }
 			}
 		}
 		
@@ -224,8 +239,9 @@ function MainController(profile) {
                                                         
                                                         LayoutManager.reloadView(localReference.views);
                                                         if(viewName && viewData) {
-                                                            localReference.sideMenu.moveToNodeId(menuUniqueId);
-                                                            localReference.changeView(viewName, viewData);
+                                                            localReference.sideMenu.moveToNodeId(decodeURIComponent(menuUniqueId)).then(function(){
+                                                                localReference.changeView(viewName, viewData);
+                                                            })
                                                         } else {
                                                             localReference.changeView(profile.defaultStartView.page, profile.defaultStartView.args);
                                                         }

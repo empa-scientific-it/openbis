@@ -15,7 +15,7 @@ import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
 import BrowserNodeSetAsRoot from '@src/js/components/common/browser/BrowserNodeSetAsRoot.jsx'
 import BrowserNodeSortings from '@src/js/components/common/browser/BrowserNodeSortings.jsx'
 import BrowserNodeCollapseAll from '@src/js/components/common/browser/BrowserNodeCollapseAll.jsx'
-import Message from '@src/js/components/common/form/Message.jsx'
+import BrowserNodeLoadMore from '@src/js/components/common/browser/BrowserNodeLoadMore.jsx'
 import messages from '@src/js/common/messages.js'
 import util from '@src/js/common/util.js'
 import logger from '@src/js/common/logger.js'
@@ -60,6 +60,7 @@ class BrowserNodeClass extends React.PureComponent {
     autoBind(this)
     this.references = {
       node: React.createRef(),
+      text: React.createRef(),
       loadMore: React.createRef()
     }
   }
@@ -110,16 +111,21 @@ class BrowserNodeClass extends React.PureComponent {
     controller.undoCollapseAllNodes(nodeId)
   }
 
-  handleSetAsRoot(nodeId) {
+  handleSetAsRoot(node) {
     const { controller } = this.props
-    controller.setNodeAsRoot(nodeId)
+    controller.setNodeAsRoot(node.id)
   }
 
   componentDidMount() {
-    this.componentDidUpdate(null)
+    this.componentDidUpdate()
   }
 
   componentDidUpdate() {
+    this.renderDOMNode()
+    this.scrollTo()
+  }
+
+  scrollTo() {
     const {
       node: { object, scrollTo }
     } = this.props
@@ -151,6 +157,17 @@ class BrowserNodeClass extends React.PureComponent {
     scrollTo.clear()
   }
 
+  renderDOMNode() {
+    const renderDOMNode = this.props.node.renderDOM || this.props.renderDOMNode
+
+    if (renderDOMNode && this.references.text.current) {
+      renderDOMNode({
+        container: this.references.text.current,
+        node: this.props.node
+      })
+    }
+  }
+
   render() {
     logger.log(logger.DEBUG, 'BrowserNode.render')
 
@@ -162,7 +179,7 @@ class BrowserNodeClass extends React.PureComponent {
       return (
         <React.Fragment>
           <ListItem
-            ref={this.references['node']}
+            ref={this.references.node}
             button
             selected={node.selected}
             onClick={this.handleClick}
@@ -223,12 +240,20 @@ class BrowserNodeClass extends React.PureComponent {
   renderText(node) {
     logger.log(logger.DEBUG, 'BrowserNode.renderText')
 
-    const { classes } = this.props
-
     let text = null
 
-    if (node.message) {
-      text = <Message type={node.message.type}>{node.message.text}</Message>
+    if (!_.isNil(node.renderDOM)) {
+      text = <div ref={this.references.text}></div>
+    } else if (!_.isNil(node.render)) {
+      text = node.render({
+        node
+      })
+    } else if (!_.isNil(this.props.renderDOMNode)) {
+      text = <div ref={this.references.text}></div>
+    } else if (!_.isNil(this.props.renderNode)) {
+      text = this.props.renderNode({
+        node
+      })
     } else {
       text = node.text
     }
@@ -237,7 +262,7 @@ class BrowserNodeClass extends React.PureComponent {
       <ListItemText
         primary={text}
         classes={{
-          primary: classes.text
+          primary: this.props.classes.text
         }}
       />
     )
@@ -307,7 +332,7 @@ class BrowserNodeClass extends React.PureComponent {
   }
 
   renderNonEmptyChild(child, index) {
-    const { node, level, controller } = this.props
+    const { node, renderNode, renderDOMNode, level, controller } = this.props
 
     return (
       <Draggable
@@ -327,6 +352,8 @@ class BrowserNodeClass extends React.PureComponent {
               key={child.id}
               controller={controller}
               node={child}
+              renderNode={renderNode}
+              renderDOMNode={renderDOMNode}
               level={level + 1}
             />
           </div>
@@ -338,10 +365,10 @@ class BrowserNodeClass extends React.PureComponent {
   renderShowMoreChildren() {
     const { node, level, classes } = this.props
 
-    if (node.children && node.children.length < node.childrenTotalCount) {
+    if (this.hasMoreChildren(node)) {
       return (
         <ListItem
-          ref={this.references['loadMore']}
+          ref={this.references.loadMore}
           button
           onClick={this.handleLoadMore}
           style={{ paddingLeft: (level + 1) * PADDING_PER_LEVEL + 'px' }}
@@ -358,12 +385,13 @@ class BrowserNodeClass extends React.PureComponent {
           </ListItemIcon>
           <ListItemText
             primary={
-              <span>
-                {messages.get(
-                  messages.LOAD_MORE,
-                  node.childrenTotalCount - node.children.length
-                )}
-              </span>
+              <BrowserNodeLoadMore
+                count={
+                  _.isNil(node.childrenLoadRepeatLimitForFullBatch)
+                    ? node.childrenTotalCount - node.childrenLoadOffset
+                    : null
+                }
+              />
             }
             classes={{
               primary: classes.text
@@ -379,7 +407,7 @@ class BrowserNodeClass extends React.PureComponent {
   renderEmptyChildren() {
     const { node, level, classes } = this.props
 
-    if (!node.children || node.children.length === 0) {
+    if (!this.hasChildren(node) && !this.hasMoreChildren(node)) {
       return (
         <ListItem
           button
@@ -406,6 +434,18 @@ class BrowserNodeClass extends React.PureComponent {
     } else {
       return null
     }
+  }
+
+  hasChildren(node) {
+    return !_.isEmpty(node.children)
+  }
+
+  hasMoreChildren(node) {
+    return (
+      !_.isNil(node.childrenLoadOffset) &&
+      !_.isNil(node.childrenLoadLimit) &&
+      node.childrenLoadOffset < node.childrenTotalCount
+    )
   }
 }
 

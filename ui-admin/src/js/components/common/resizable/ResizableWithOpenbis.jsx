@@ -1,74 +1,45 @@
 import _ from 'lodash'
+import autoBind from 'auto-bind'
 import React from 'react'
-import { Resizable } from 're-resizable'
+import Resizable from '@src/js/components/common/resizable/Resizable.jsx'
 import AppController from '@src/js/components/AppController.js'
 import logger from '@src/js/common/logger.js'
 
-class ResizableClass extends React.PureComponent {
+class ResizableWithOpenbis extends React.PureComponent {
   constructor(props) {
     super(props)
-
-    this.state = {
-      width: this.props.width || '25%'
-    }
-
-    this.handleResize = this.handleResize.bind(this)
+    autoBind(this)
   }
 
-  async componentDidMount() {
+  async loadSettings() {
     const { id } = this.props
 
     if (id) {
-      const setting = await AppController.getInstance().getSetting(id)
-
-      if (setting && _.isNumber(setting.width)) {
-        this.setState({
-          width: setting.width
-        })
-      }
+      return await AppController.getInstance().getSetting(id)
+    } else {
+      return null
     }
   }
 
-  handleResize(event, direction, ref) {
-    const width = ref.offsetWidth
-
-    this.setState({
-      width
-    })
-
+  onSettingsChange(settings) {
     const { id } = this.props
 
     if (id) {
-      AppController.getInstance().setSetting(id, { width })
+      AppController.getInstance().setSetting(id, settings)
     }
   }
 
   render() {
-    logger.log(logger.DEBUG, 'Resizable.render')
+    logger.log(logger.DEBUG, 'ResizableWithOpenbis.render')
 
-    const { direction = {}, children } = this.props
-    const { width } = this.state
-
-    const enable = {
-      left: false,
-      top: false,
-      right: false,
-      bottom: false,
-      topRight: false,
-      bottomRight: false,
-      bottomLeft: false,
-      topLeft: false,
-      ...direction
-    }
+    const { direction, width, children } = this.props
 
     return (
       <Resizable
-        size={{
-          width: width,
-          height: '100%'
-        }}
-        enable={enable}
-        onResizeStop={this.handleResize}
+        direction={direction}
+        width={width}
+        loadSettings={this.loadSettings}
+        onSettingsChange={this.onSettingsChange}
       >
         {children}
       </Resizable>
@@ -76,4 +47,4 @@ class ResizableClass extends React.PureComponent {
   }
 }
 
-export default ResizableClass
+export default ResizableWithOpenbis

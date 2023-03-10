@@ -1,13 +1,11 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 
 const TOTAL_LOAD_LIMIT = 500
 const LOAD_LIMIT = 50
 
-function objectTypesFolderNode(parentId) {
+function objectTypesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.OBJECT_TYPE),
     text: messages.get(messages.OBJECT_TYPES),
     object: {
       type: objectType.OVERVIEW,
@@ -18,9 +16,8 @@ function objectTypesFolderNode(parentId) {
   }
 }
 
-function objectTypeNode(parentId, typeCode) {
+function objectTypeNode(typeCode) {
   return {
-    id: BrowserCommon.nodeId(parentId, typeCode),
     text: typeCode,
     object: {
       type: objectType.OBJECT_TYPE,
@@ -29,9 +26,8 @@ function objectTypeNode(parentId, typeCode) {
   }
 }
 
-function collectionTypesFolderNode(parentId) {
+function collectionTypesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.COLLECTION_TYPE),
     text: messages.get(messages.COLLECTION_TYPES),
     object: {
       type: objectType.OVERVIEW,
@@ -42,9 +38,8 @@ function collectionTypesFolderNode(parentId) {
   }
 }
 
-function collectionTypeNode(parentId, typeCode) {
+function collectionTypeNode(typeCode) {
   return {
-    id: BrowserCommon.nodeId(parentId, typeCode),
     text: typeCode,
     object: {
       type: objectType.COLLECTION_TYPE,
@@ -53,9 +48,8 @@ function collectionTypeNode(parentId, typeCode) {
   }
 }
 
-function dataSetTypesFolderNode(parentId) {
+function dataSetTypesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.DATA_SET_TYPE),
     text: messages.get(messages.DATA_SET_TYPES),
     object: {
       type: objectType.OVERVIEW,
@@ -66,9 +60,8 @@ function dataSetTypesFolderNode(parentId) {
   }
 }
 
-function dataSetTypeNode(parentId, typeCode) {
+function dataSetTypeNode(typeCode) {
   return {
-    id: BrowserCommon.nodeId(parentId, typeCode),
     text: typeCode,
     object: {
       type: objectType.DATA_SET_TYPE,
@@ -77,9 +70,8 @@ function dataSetTypeNode(parentId, typeCode) {
   }
 }
 
-function materialTypesFolderNode(parentId) {
+function materialTypesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.MATERIAL_TYPE),
     text: messages.get(messages.MATERIAL_TYPES),
     object: {
       type: objectType.OVERVIEW,
@@ -90,9 +82,8 @@ function materialTypesFolderNode(parentId) {
   }
 }
 
-function materialTypeNode(parentId, typeCode) {
+function materialTypeNode(typeCode) {
   return {
-    id: BrowserCommon.nodeId(parentId, typeCode),
     text: typeCode,
     object: {
       type: objectType.MATERIAL_TYPE,
@@ -101,9 +92,8 @@ function materialTypeNode(parentId, typeCode) {
   }
 }
 
-function vocabularyTypesFolderNode(parentId) {
+function vocabularyTypesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.VOCABULARY_TYPE),
     text: messages.get(messages.VOCABULARY_TYPES),
     object: {
       type: objectType.OVERVIEW,
@@ -114,9 +104,8 @@ function vocabularyTypesFolderNode(parentId) {
   }
 }
 
-function vocabularyTypeNode(parentId, typeCode) {
+function vocabularyTypeNode(typeCode) {
   return {
-    id: BrowserCommon.nodeId(parentId, typeCode),
     text: typeCode,
     object: {
       type: objectType.VOCABULARY_TYPE,
@@ -125,9 +114,8 @@ function vocabularyTypeNode(parentId, typeCode) {
   }
 }
 
-function propertyTypesFolderNode(parentId) {
+function propertyTypesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.PROPERTY_TYPE),
     text: messages.get(messages.PROPERTY_TYPES),
     object: {
       type: objectType.OVERVIEW,

@@ -1,4 +1,3 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import ImportType from '@src/js/components/tools/form/import/ImportType.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
@@ -7,9 +6,8 @@ import objectType from '@src/js/common/consts/objectType.js'
 const TOTAL_LOAD_LIMIT = 500
 const LOAD_LIMIT = 50
 
-function dynamicPropertyPluginsFolderNode(parentId) {
+function dynamicPropertyPluginsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.DYNAMIC_PROPERTY_PLUGIN),
     text: messages.get(messages.DYNAMIC_PROPERTY_PLUGINS),
     object: {
       type: objectType.OVERVIEW,
@@ -20,9 +18,8 @@ function dynamicPropertyPluginsFolderNode(parentId) {
   }
 }
 
-function dynamicPropertyPluginNode(parentId, pluginName) {
+function dynamicPropertyPluginNode(pluginName) {
   return {
-    id: BrowserCommon.nodeId(parentId, pluginName),
     text: pluginName,
     object: {
       type: objectType.DYNAMIC_PROPERTY_PLUGIN,
@@ -31,9 +28,8 @@ function dynamicPropertyPluginNode(parentId, pluginName) {
   }
 }
 
-function entityValidationPluginsFolderNode(parentId) {
+function entityValidationPluginsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.ENTITY_VALIDATION_PLUGIN),
     text: messages.get(messages.ENTITY_VALIDATION_PLUGINS),
     object: {
       type: objectType.OVERVIEW,
@@ -44,9 +40,8 @@ function entityValidationPluginsFolderNode(parentId) {
   }
 }
 
-function entityValidationPluginNode(parentId, pluginName) {
+function entityValidationPluginNode(pluginName) {
   return {
-    id: BrowserCommon.nodeId(parentId, pluginName),
     text: pluginName,
     object: {
       type: objectType.ENTITY_VALIDATION_PLUGIN,
@@ -55,9 +50,8 @@ function entityValidationPluginNode(parentId, pluginName) {
   }
 }
 
-function queriesFolderNode(parentId) {
+function queriesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.QUERY),
     text: messages.get(messages.QUERIES),
     object: {
       type: objectType.OVERVIEW,
@@ -68,9 +62,8 @@ function queriesFolderNode(parentId) {
   }
 }
 
-function queryNode(parentId, queryName) {
+function queryNode(queryName) {
   return {
-    id: BrowserCommon.nodeId(parentId, queryName),
     text: queryName,
     object: {
       type: objectType.QUERY,
@@ -79,9 +72,8 @@ function queryNode(parentId, queryName) {
   }
 }
 
-function historyFolderNode(parentId) {
+function historyFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.HISTORY),
     text: messages.get(messages.HISTORY),
     object: {
       type: objectType.HISTORY,
@@ -92,9 +84,8 @@ function historyFolderNode(parentId) {
   }
 }
 
-function historyDeletionNode(parentId) {
+function historyDeletionNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, openbis.EventType.DELETION),
     text: messages.get(messages.DELETION),
     object: {
       type: objectType.HISTORY,
@@ -103,9 +94,8 @@ function historyDeletionNode(parentId) {
   }
 }
 
-function historyFreezingNode(parentId) {
+function historyFreezingNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, openbis.EventType.FREEZING),
     text: messages.get(messages.FREEZING),
     object: {
       type: objectType.HISTORY,
@@ -114,9 +104,8 @@ function historyFreezingNode(parentId) {
   }
 }
 
-function importFolderNode(parentId) {
+function importFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.IMPORT),
     text: messages.get(messages.IMPORT),
     object: {
       type: objectType.IMPORT,
@@ -127,9 +116,8 @@ function importFolderNode(parentId) {
   }
 }
 
-function importAllNode(parentId) {
+function importAllNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, ImportType.ALL),
     text: messages.get(messages.ALL),
     object: {
       type: objectType.IMPORT,
@@ -138,9 +126,8 @@ function importAllNode(parentId) {
   }
 }
 
-function reportFolderNode(parentId) {
+function reportFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.REPORT),
     text: messages.get(messages.REPORT),
     object: {
       type: objectType.REPORT,
@@ -151,9 +138,8 @@ function reportFolderNode(parentId) {
   }
 }
 
-function activeUsersReportNode(parentId) {
+function activeUsersReportNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.ACTIVE_USERS_REPORT),
     text: messages.get(messages.ACTIVE_USERS_REPORT),
     object: {
       type: objectType.ACTIVE_USERS_REPORT,
@@ -162,9 +148,8 @@ function activeUsersReportNode(parentId) {
   }
 }
 
-function accessFolderNode(parentId) {
+function accessFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.ACCESS),
     text: messages.get(messages.ACCESS),
     object: {
       type: objectType.ACCESS,
@@ -175,9 +160,8 @@ function accessFolderNode(parentId) {
   }
 }
 
-function personalAccessTokensNode(parentId) {
+function personalAccessTokensNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.PERSONAL_ACCESS_TOKEN),
     text: messages.get(messages.PERSONAL_ACCESS_TOKENS),
     object: {
       type: objectType.OVERVIEW,

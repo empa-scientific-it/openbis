@@ -55,8 +55,8 @@ function MoveEntityController(entityType, entityPermId) {
 				Util.showSuccess("Moved successfully", function() { 
 					Util.unblockUI();
 					
-					mainController.sideMenu.refreshNodeParent(entity.getPermId().permId); // Refresh old node parent
-					mainController.sideMenu.refreshNode(moveEntityModel.selected.getPermId().permId); // New node parent
+					mainController.sideMenu.refreshNodeParentByPermId(entityType, entity.getPermId().permId); // Refresh old node parent
+					mainController.sideMenu.refreshNodeByPermId(entityType, moveEntityModel.selected.getPermId().permId); // New node parent
 					
 					switch(entityType) {
 						case "EXPERIMENT":

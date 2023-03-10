@@ -1551,17 +1551,74 @@ function ServerFacade(openbisServer) {
 				} else if(advancedFetchOptions.only) {
 					if(advancedFetchOptions.withSample) {
 						fetchOptions.withSample();
+						if(advancedFetchOptions.withSampleType) {
+							fetchOptions.withSample().withType();
+						}
 						if(advancedFetchOptions.withSampleProperties) {
 							fetchOptions.withSample().withProperties();
 						}
-					}
-					if(advancedFetchOptions.withExperiment) {
-						fetchOptions.withExperiment();
-						if(advancedFetchOptions.withExperimentProperties) {
-							fetchOptions.withExperiment().withProperties();
+						if(advancedFetchOptions.withSampleExperiment) {
+							fetchOptions.withSample().withExperiment();
+							if(advancedFetchOptions.withSampleExperimentType) {
+								fetchOptions.withSample().withExperiment().withType()
+							}
+							if(advancedFetchOptions.withSampleExperimentProperties) {
+								fetchOptions.withSample().withExperiment().withProperties()
+							}
+							if(advancedFetchOptions.withSampleExperimentProject) {
+								fetchOptions.withSample().withExperiment().withProject()
+								if(advancedFetchOptions.withSampleExperimentProjectSpace) {
+									fetchOptions.withSample().withExperiment().withProject().withSpace()
+								}
+							}
+						}
+						if(advancedFetchOptions.withSampleParents) {
+							fetchOptions.withSample().withParents()
+							if(advancedFetchOptions.withSampleParentsType) {
+								fetchOptions.withSample().withParents().withType()
+							}
+							if(advancedFetchOptions.withSampleParentsProperties) {
+								fetchOptions.withSample().withParents().withProperties()
+							}
+							if(advancedFetchOptions.withSampleParentsExperiment) {
+								fetchOptions.withSample().withParents().withExperiment()
+								if(advancedFetchOptions.withSampleParentsExperimentType) {
+									fetchOptions.withSample().withParents().withExperiment().withType()
+								}
+								if(advancedFetchOptions.withSampleParentsExperimentProperties) {
+									fetchOptions.withSample().withParents().withExperiment().withProperties()
+								}
+								if(advancedFetchOptions.withSampleParentsExperimentProject) {
+									fetchOptions.withSample().withParents().withExperiment().withProject()
+									if(advancedFetchOptions.withSampleParentsExperimentProjectSpace) {
+										fetchOptions.withSample().withParents().withExperiment().withProject().withSpace()
+									}
+								}
+							}
+							if(advancedFetchOptions.withSampleParentsParents) {
+								fetchOptions.withSample().withParents().withParents()
+								if(advancedFetchOptions.withSampleParentsParentsExperiment) {
+									fetchOptions.withSample().withParents().withParents().withExperiment()
+								}
+							}
 						}
 					}
 
+					if(advancedFetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+						if(advancedFetchOptions.withExperimentType) {
+							fetchOptions.withExperiment().withType();
+						}
+						if(advancedFetchOptions.withExperimentProperties) {
+							fetchOptions.withExperiment().withProperties();
+						}
+						if(advancedFetchOptions.withExperimentProject) {
+							fetchOptions.withExperiment().withProject();
+							if(advancedFetchOptions.withExperimentProjectSpace) {
+								fetchOptions.withExperiment().withProject().withSpace();
+							}
+						}
+					}
 					if(advancedFetchOptions.withProperties) {
 						fetchOptions.withProperties();
 					}
@@ -1571,16 +1628,43 @@ function ServerFacade(openbisServer) {
 							fetchOptions.withType().withPropertyAssignments().withPropertyType()
 						}
 					}
-					if(advancedFetchOptions.withExperiment) {
-						fetchOptions.withExperiment();
+					if(advancedFetchOptions.withSpace) {
+						fetchOptions.withSpace();
+					}
+					if(advancedFetchOptions.withProject) {
+						fetchOptions.withProject();
+						if(advancedFetchOptions.withProjectSpace) {
+							fetchOptions.withProject().withSpace();
+						}
 					}
 					if(advancedFetchOptions.withParents) {
 						var parentFetchOptions = fetchOptions.withParents();
 						if(advancedFetchOptions.withParentsType) {
 							parentFetchOptions.withType();
 						}
+						if(advancedFetchOptions.withParentsProperties) {
+							parentFetchOptions.withProperties();
+						}
 						if (advancedFetchOptions.withParentsExperiment) {
 							parentFetchOptions.withExperiment();
+							if (advancedFetchOptions.withParentsExperimentType) {
+								parentFetchOptions.withExperiment().withType();
+							}
+							if (advancedFetchOptions.withParentsExperimentProperties) {
+								parentFetchOptions.withExperiment().withProperties();
+							}
+							if (advancedFetchOptions.withParentsExperimentProject) {
+								parentFetchOptions.withExperiment().withProject();
+								if (advancedFetchOptions.withParentsExperimentProjectSpace) {
+									parentFetchOptions.withExperiment().withProject().withSpace();
+								}
+							}
+						}
+						if(advancedFetchOptions.withParentsParents) {
+							parentFetchOptions.withParents();
+							if(advancedFetchOptions.withParentsParentsExperiment) {
+								parentFetchOptions.withParents().withExperiment();
+							}
 						}
 					}
 					if(advancedFetchOptions.withChildren) {
@@ -1647,7 +1731,14 @@ function ServerFacade(openbisServer) {
 					return criteria;
 				}
 
-			    var setCriteriaRules = function(searchCriteria, advancedSearchCriteria) {
+				var setNegate = function(criteria, negate) {
+					if (negate) {
+						criteria.negate()
+					}
+					return criteria;
+				}
+
+                var setCriteriaRules = function(searchCriteria, advancedSearchCriteria) {
                     //Rules
                     var ruleKeys = Object.keys(advancedSearchCriteria.rules);
                     for (var idx = 0; idx < ruleKeys.length; idx++)
@@ -1813,6 +1904,9 @@ function ServerFacade(openbisServer) {
                                                 break;
                                         case "thatContains":
                                                 criteria.withCode().thatContains(attributeValue);
+                                                break;
+                                        case "thatStartsWith":
+                                                criteria.withCode().thatStartsWith(attributeValue);
                                                 break;
                                         case "thatEndsWith":
                                                 criteria.withCode().thatEndsWith(attributeValue);
@@ -2070,6 +2164,8 @@ function ServerFacade(openbisServer) {
                                         break;
                                     case "NULL":
                                         searchCriteria.withoutExperiment();
+                                    case "NOT_NULL":
+                                        searchCriteria.withExperiment();
                                         break;
                                 }
                                 break;
@@ -2111,6 +2207,7 @@ function ServerFacade(openbisServer) {
 			    }
 
 			    searchCriteria = setOperator(searchCriteria, advancedSearchCriteria.logicalOperator);
+                searchCriteria = setNegate(searchCriteria, advancedSearchCriteria.negate);
                 setCriteriaRules(searchCriteria, advancedSearchCriteria);
 
                 // Sub Criteria - ONLY! first level support for the UI Tables OR
@@ -2120,6 +2217,7 @@ function ServerFacade(openbisServer) {
                         var advancedSearchSubCriteria = advancedSearchCriteria.subCriteria[subCriteriaKeys[scdx]];
                         var subCriteria = searchCriteria.withSubcriteria();
                         subCriteria = setOperator(subCriteria, advancedSearchSubCriteria.logicalOperator);
+                        subCriteria = setNegate(subCriteria, advancedSearchSubCriteria.negate);
                         setCriteriaRules(subCriteria, advancedSearchSubCriteria);
                     }
                 }

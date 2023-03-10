@@ -3,12 +3,12 @@ const Webpack = require('webpack')
 const path = require('path')
 
 module.exports = {
-  entry: './src/js/components/common/grid/index.js',
+  entry: './src/js/components/common/index.js',
   output: {
-    path: __dirname + '/build/grid/js',
-    filename: 'Grid.js',
+    path: __dirname + '/build/components/js',
+    filename: 'Components.js',
     libraryTarget: 'var',
-    library: 'NgUiGrid'
+    library: 'NgComponents'
   },
 
   mode: 'production',

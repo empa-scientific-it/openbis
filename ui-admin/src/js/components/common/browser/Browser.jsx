@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import React from 'react'
+import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import { DragDropContext } from 'react-beautiful-dnd'
-import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import FilterField from '@src/js/components/common/form/FilterField.jsx'
 import BrowserRoot from '@src/js/components/common/browser/BrowserRoot.jsx'
 import BrowserNode from '@src/js/components/common/browser/BrowserNode.jsx'
@@ -39,20 +39,24 @@ const styles = theme => ({
 class Browser extends React.PureComponent {
   constructor(props) {
     super(props)
+    autoBind(this)
+
     this.state = {}
-    this.controller = props.controller
-    this.controller.init(new ComponentContext(this))
-    this.handleDragEnd = this.handleDragEnd.bind(this)
+
+    if (_.isNil(this.props.controller)) {
+      throw new Error('Controller cannot be empty!')
+    }
+
+    this.props.controller.attach(this)
   }
 
   async componentDidMount() {
-    await this.controller.load()
+    await this.props.controller.load()
   }
 
   handleDragEnd(result) {
-    const { controller } = this.props
     if (!_.isNil(result.source) && !_.isNil(result.destination)) {
-      controller.changeCustomSorting(
+      this.props.controller.changeCustomSorting(
         result.destination.droppableId,
         result.source.index,
         result.destination.index
@@ -63,8 +67,15 @@ class Browser extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Browser.render')
 
-    const { controller } = this
-    const { renderHeader, renderFooter, classes } = this.props
+    const { controller } = this.props
+    const {
+      renderHeader,
+      renderNode,
+      renderDOMNode,
+      renderFooter,
+      styles = {},
+      classes
+    } = this.props
 
     if (!controller.isLoaded()) {
       return (
@@ -79,19 +90,23 @@ class Browser extends React.PureComponent {
     const filteredTree = controller.getFilteredTree()
 
     return (
-      <div className={classes.browser}>
-        {renderHeader && <div className={classes.header}>{renderHeader()}</div>}
+      <div className={`${classes.browser} ${styles.browser}`}>
+        {renderHeader && (
+          <div className={`${classes.header} ${styles.header}`}>
+            {renderHeader()}
+          </div>
+        )}
         {this.renderFilter()}
         <BrowserRoot
           rootNode={controller.getNodeSetAsRoot()}
           onRootChange={node => {
-            controller.setNodeAsRoot(node)
+            controller.setNodeAsRoot(node.id)
           }}
           onRootClear={() => {
             controller.setNodeAsRoot(null)
           }}
         />
-        <div className={classes.nodes}>
+        <div className={`${classes.nodes} ${styles.nodes}`}>
           {fullTree && (
             <div
               className={
@@ -104,6 +119,8 @@ class Browser extends React.PureComponent {
                 <BrowserNode
                   controller={controller}
                   node={fullTree}
+                  renderNode={renderNode}
+                  renderDOMNode={renderDOMNode}
                   level={-1}
                 />
               </DragDropContext>
@@ -121,6 +138,8 @@ class Browser extends React.PureComponent {
                 <BrowserNode
                   controller={controller}
                   node={filteredTree}
+                  renderNode={renderNode}
+                  renderDOMNode={renderDOMNode}
                   level={-1}
                 />
               </DragDropContext>
@@ -133,8 +152,7 @@ class Browser extends React.PureComponent {
   }
 
   renderFilter() {
-    const { controller } = this
-    const { classes } = this.props
+    const { controller, classes } = this.props
 
     const node = controller.getNodeSetAsRoot() ||
       controller.getRoot() || { canHaveChildren: true }

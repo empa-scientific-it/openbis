@@ -703,7 +703,26 @@ table.downloads {
  .browser-compatible-javascript-link-tree {
  	color: #333;
  }
- 
+
+.browser-node {
+ display: flex
+}
+
+.browser-node-icon {
+ margin: auto;
+ margin-right: 8px;
+}
+
+.browser-node-icon img {
+ margin-left: 0
+}
+
+.browser-node-text {
+ margin-right: 8px;
+ flex: 1 1 auto;
+ white-space: nowrap;
+}
+
  .fancytree-active > span > a {
  	color: #FFFFFF;
  }

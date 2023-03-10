@@ -13,210 +13,182 @@ const TYPE_OBJECT_CHILDREN = 'objectChildren'
 const TYPE_DATA_SETS = 'dataSets'
 const TYPE_DATA_SET_CHILDREN = 'dataSetChildren'
 
-const SORT_BY_CODE_ASC = 'code_asc'
-const SORT_BY_CODE_DESC = 'code_desc'
-const SORT_BY_REGISTRATION_DATE_ASC = 'registration_date_asc'
-const SORT_BY_REGISTRATION_DATE_DESC = 'registration_date_desc'
-
-const SORTINGS = {
-  [SORT_BY_CODE_ASC]: {
+const SORTINGS = [
+  {
+    id: 'code_asc',
     label: messages.get(messages.CODE) + ' ' + messages.get(messages.ASCENDING),
+    default: true,
     sortBy: 'code',
-    sortDirection: 'asc',
-    index: 0
+    sortDirection: 'asc'
   },
-  [SORT_BY_CODE_DESC]: {
+  {
+    id: 'code_desc',
     label:
       messages.get(messages.CODE) + ' ' + messages.get(messages.DESCENDING),
     sortBy: 'code',
-    sortDirection: 'desc',
-    index: 1
+    sortDirection: 'desc'
   },
-  [SORT_BY_REGISTRATION_DATE_ASC]: {
+  {
+    id: 'registration_date_asc',
     label:
       messages.get(messages.REGISTRATION_DATE) +
       ' ' +
       messages.get(messages.ASCENDING),
     sortBy: 'registrationDate',
-    sortDirection: 'asc',
-    index: 2
+    sortDirection: 'asc'
   },
-  [SORT_BY_REGISTRATION_DATE_DESC]: {
+  {
+    id: 'registration_date_desc',
     label:
       messages.get(messages.REGISTRATION_DATE) +
       ' ' +
       messages.get(messages.DESCENDING),
     sortBy: 'registrationDate',
-    sortDirection: 'desc',
-    index: 3
+    sortDirection: 'desc'
   }
-}
+]
 
-function spacesFolderNode(parent) {
+function spacesFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_SPACES),
     text: messages.get(messages.SPACES),
     object: {
       type: TYPE_SPACES,
       id: TYPE_SPACES
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function spaceNode(parent, spaceCode) {
+function spaceNode(spaceCode) {
   return {
-    id: BrowserCommon.nodeId(parent.id, spaceCode),
     text: spaceCode,
     object: {
       type: objectType.SPACE,
       id: spaceCode
     },
-    parent: parent,
     rootable: true
   }
 }
 
-function projectsFolderNode(parent) {
+function projectsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_PROJECTS),
     text: messages.get(messages.PROJECTS),
     object: {
       type: TYPE_PROJECTS,
       id: TYPE_PROJECTS
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function projectNode(parent, projectPermId, projectCode) {
+function projectNode(projectPermId, projectCode) {
   return {
-    id: BrowserCommon.nodeId(parent.id, projectPermId),
     text: projectCode,
     object: {
       type: objectType.PROJECT,
       id: projectPermId
     },
-    parent: parent,
     rootable: true
   }
 }
 
-function collectionsFolderNode(parent) {
+function collectionsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_COLLECTIONS),
     text: messages.get(messages.COLLECTIONS),
     object: {
       type: TYPE_COLLECTIONS,
       id: TYPE_COLLECTIONS
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function collectionNode(parent, collectionPermId, collectionCode) {
+function collectionNode(collectionPermId, collectionCode) {
   return {
-    id: BrowserCommon.nodeId(parent.id, collectionPermId),
     text: collectionCode,
     object: {
       type: objectType.COLLECTION,
       id: collectionPermId
     },
-    parent: parent,
     rootable: true
   }
 }
 
-function objectsFolderNode(parent) {
+function objectsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_OBJECTS),
     text: messages.get(messages.OBJECTS),
     object: {
       type: TYPE_OBJECTS,
       id: TYPE_OBJECTS
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function objectsChildrenFolderNode(parent) {
+function objectsChildrenFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_OBJECT_CHILDREN),
     text: messages.get(messages.CHILDREN),
     object: {
       type: TYPE_OBJECT_CHILDREN,
       id: TYPE_OBJECT_CHILDREN
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function objectNode(parent, objectPermId, objectCode) {
+function objectNode(objectPermId, objectCode) {
   return {
-    id: BrowserCommon.nodeId(parent.id, objectPermId),
     text: objectCode,
     object: {
       type: objectType.OBJECT,
       id: objectPermId
-    },
-    parent: parent
+    }
   }
 }
 
-function dataSetsFolderNode(parent) {
+function dataSetsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_DATA_SETS),
     text: messages.get(messages.DATA_SETS),
     object: {
       type: TYPE_DATA_SETS,
       id: TYPE_DATA_SETS
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function dataSetsChildrenFolderNode(parent) {
+function dataSetsChildrenFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parent.id, TYPE_DATA_SET_CHILDREN),
     text: messages.get(messages.CHILDREN),
     object: {
       type: TYPE_DATA_SET_CHILDREN,
       id: TYPE_DATA_SET_CHILDREN
     },
-    parent: parent,
     canHaveChildren: true,
     childrenLoadLimit: LOAD_LIMIT,
     selectable: false
   }
 }
 
-function dataSetNode(parent, dataSetCode) {
+function dataSetNode(dataSetCode) {
   return {
-    id: BrowserCommon.nodeId(parent.id, dataSetCode),
     text: dataSetCode,
     object: {
       type: objectType.DATA_SET,
       id: dataSetCode
-    },
-    parent: parent
+    }
   }
 }
 
@@ -231,10 +203,6 @@ export default {
   TYPE_DATA_SETS,
   TYPE_DATA_SET_CHILDREN,
   SORTINGS,
-  SORT_BY_CODE_ASC,
-  SORT_BY_CODE_DESC,
-  SORT_BY_REGISTRATION_DATE_ASC,
-  SORT_BY_REGISTRATION_DATE_DESC,
   spacesFolderNode,
   spaceNode,
   projectsFolderNode,
