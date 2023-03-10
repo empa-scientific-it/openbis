@@ -103,14 +103,13 @@ public class XLSExportTest
                     EXPERIMENT.toString(), Map.of(
                         "COLLECTION", List.of(
                                 Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
                                 Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Project"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
-                        "DEFAULT_EXPERIMENT", List.of(
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Project"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG"))
+                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                        FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
+                        "DEFAULT_EXPERIMENT", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                            FIELD_ID_KEY, "FINISHED_FLAG"),
+                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
+                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"))
                     ),
                     SAMPLE.toString(), Map.of(
                         "DEFAULT", List.of(
@@ -139,7 +138,7 @@ public class XLSExportTest
                     )
             );
 
-    private static final List<String> EXPERIMENT_IMPORT_WARNINGS = List.of(
+    private static final List<String> EXPERIMENT_EXPORT_WARNINGS = List.of(
             "Line: 6 Kind: /TEST/TEST/TEST ID: 'COLLECTION' - "
                     + "Value exceeds the maximum size supported by Excel: 32767.",
             "Line: 5 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
@@ -321,7 +320,7 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_IMPORT_WARNINGS
+                        EXPERIMENT_EXPORT_WARNINGS
                 },
                 {
                         "export-experiment.xlsx",
@@ -336,19 +335,23 @@ public class XLSExportTest
                         Map.of(
                                 DATASET.toString(), Map.of(
                                     "ATTACHMENT", List.of(
-                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT")),
-                                    "RAW_DATA", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$NAME"),
-                                                        Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "NOTES"))
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                    FIELD_ID_KEY, "$ATTACHMENT")),
+                                    "RAW_DATA", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "$NAME"),
+                                                        Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                                FIELD_ID_KEY, "NOTES"))
                                 ),
                                 EXPERIMENT.toString(), Map.of(),
                                 SAMPLE.toString(), Map.of(
                                     "DEFAULT", List.of(),
                                     "STORAGE", List.of(
-                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                    FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_IMPORT_WARNINGS
+                        EXPERIMENT_EXPORT_WARNINGS
                 },
                 {
                         "export-experiment.xlsx",
@@ -378,7 +381,7 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_IMPORT_WARNINGS
+                        EXPERIMENT_EXPORT_WARNINGS
                 },
                 {
                         "export-experiment-filtered-properties.xlsx",
@@ -425,15 +428,20 @@ public class XLSExportTest
                         Map.of(
                                 DATASET.toString(), Map.of(
                                     "ATTACHMENT", List.of(
-                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT")),
-                                    "RAW_DATA", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$NAME"),
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "NOTES"))
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                    FIELD_ID_KEY, "$ATTACHMENT")),
+                                    "RAW_DATA", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "$NAME"),
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "NOTES"))
                                 ),
                                 EXPERIMENT.toString(), Map.of(
                                     "COLLECTION", List.of(
-                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                    FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
                                     "DEFAULT_EXPERIMENT", List.of(
-                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG"))
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                    FIELD_ID_KEY, "FINISHED_FLAG"))
                                 ),
                                 SAMPLE.toString(), Map.of()
                         ),
@@ -455,15 +463,19 @@ public class XLSExportTest
                         Map.of(
                                 DATASET.toString(), Map.of(
                                     "ATTACHMENT", List.of(
-                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT")),
-                                    "RAW_DATA", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$NAME"),
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "NOTES"))
+                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                    FIELD_ID_KEY, "$ATTACHMENT")),
+                                    "RAW_DATA", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "$NAME"),
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "NOTES"))
                                 ),
                                 EXPERIMENT.toString(), Map.of(
-                                        "COLLECTION", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY,
-                                                "$DEFAULT_OBJECT_TYPE")),
+                                        "COLLECTION", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
                                         "DEFAULT_EXPERIMENT", List.of(
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG"))
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "FINISHED_FLAG"))
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
@@ -526,15 +538,17 @@ public class XLSExportTest
                         Map.of(
                                 DATASET.toString(), Map.of(),
                                 EXPERIMENT.toString(), Map.of(
-                                        "COLLECTION", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY,
-                                                "$DEFAULT_OBJECT_TYPE")),
+                                        "COLLECTION", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
                                         "DEFAULT_EXPERIMENT", List.of(
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG"))
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "FINISHED_FLAG"))
                                 ),
                                 SAMPLE.toString(), Map.of(
                                         "DEFAULT", List.of(),
                                         "STORAGE", List.of(
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
@@ -553,14 +567,17 @@ public class XLSExportTest
                         Map.of(
                                 EXPERIMENT.toString(), Map.of(
                                         "COLLECTION", List.of(
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
                                         "DEFAULT_EXPERIMENT", List.of(
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG"))
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "FINISHED_FLAG"))
                                 ),
                                 SAMPLE.toString(), Map.of(
                                         "DEFAULT", List.of(),
                                         "STORAGE", List.of(
-                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
+                                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                        FIELD_ID_KEY, "$STORAGE.BOX_NUM"))
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
