@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 public class XLSProjectExportHelper extends AbstractXLSExportHelper
 {
@@ -49,13 +51,16 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
 
         warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, "PROJECT"));
         warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, "Identifier", "Code", "Description",
-                "Space"));
+                "Space", "Registrator", "Registration Date", "Modifier", "Modification Date"));
 
         for (final Project project : projects)
         {
             warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, project.getIdentifier().getIdentifier(),
                     project.getIdentifier().getIdentifier(), project.getCode(), project.getDescription(),
-                    project.getSpace().getCode()));
+                    project.getSpace().getCode(), project.getRegistrator().getUserId(),
+                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(project.getRegistrationDate()),
+                    project.getModifier().getUserId(),
+                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN).format(project.getModificationDate())));
         }
 
         return new AdditionResult(rowNumber + 1, warnings);
