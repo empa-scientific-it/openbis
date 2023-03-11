@@ -72,7 +72,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     protected String[] getAttributeNames(final Sample entity)
     {
         return new String[] { "$", "Identifier", "Code", "Space", "Project", "Experiment",
-                "Auto generate code", "Parents", "Children" };
+                "Auto generate code", "Parents", "Children", "Registrator", "Registration Date", "Modifier", "Modification Date" };
     }
 
     @Override
@@ -89,6 +89,8 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
         fetchOptions.withChildren();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
     }
 
@@ -136,6 +138,22 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
                         .map(child -> child.getIdentifier().getIdentifier())
                         .collect(Collectors.joining("\n"));
             }
+            case "Registrator":
+            {
+                return sample.getRegistrator().getUserId();
+            }
+            case "Registration Date":
+            {
+                return DATE_FORMAT.format(sample.getRegistrationDate());
+            }
+            case "Modifier":
+            {
+                return sample.getModifier().getUserId();
+            }
+            case "Modification Date":
+            {
+                return DATE_FORMAT.format(sample.getModificationDate());
+            }
             default:
             {
                 return null;
@@ -155,7 +173,9 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
                         .collect(Collectors.joining("\n")),
                 sample.getChildren() == null ? "" : sample.getChildren().stream()
                         .map(child -> child.getIdentifier().getIdentifier())
-                        .collect(Collectors.joining("\n")));
+                        .collect(Collectors.joining("\n")), sample.getRegistrator().getUserId(),
+                DATE_FORMAT.format(sample.getRegistrationDate()), sample.getModifier().getUserId(),
+                DATE_FORMAT.format(sample.getModificationDate()));
     }
 
     @Override

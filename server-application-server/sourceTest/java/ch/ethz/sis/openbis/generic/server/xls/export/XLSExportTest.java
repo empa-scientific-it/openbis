@@ -90,26 +90,26 @@ public class XLSExportTest
     public static final Map<String, Map<String, List<Map<String, String>>>> EXPORT_FIELDS =
             Map.of(
                     DATASET.toString(), Map.of(
-                        "ATTACHMENT", List.of(
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Sample"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT")),
-                        "RAW_DATA", List.of(
+                            "ATTACHMENT", List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Sample"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT")),
+                            "RAW_DATA", List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$NAME"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Experiment"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "NOTES"))
                     ),
                     EXPERIMENT.toString(), Map.of(
-                        "COLLECTION", List.of(
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Project"),
-                                Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
-                                        FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
-                        "DEFAULT_EXPERIMENT", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
-                                            FIELD_ID_KEY, "FINISHED_FLAG"),
-                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"))
+                            "COLLECTION", List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Project"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                            FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
+                            "DEFAULT_EXPERIMENT", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
+                                                FIELD_ID_KEY, "FINISHED_FLAG"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"))
                     ),
                     SAMPLE.toString(), Map.of(
                             "DEFAULT", List.of(
