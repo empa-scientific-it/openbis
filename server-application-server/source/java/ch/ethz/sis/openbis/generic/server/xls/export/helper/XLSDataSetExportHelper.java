@@ -49,6 +49,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
         fetchOptions.withExperiment();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
     }
 
@@ -85,7 +87,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     @Override
     protected String[] getAttributeNames(final DataSet dataSet)
     {
-        return new String[] { "Code", dataSet.getSample() != null ? "Sample" : "Experiment" };
+        return new String[] { "Code", dataSet.getSample() != null ? "Sample" : "Experiment", "Registrator", "Registration Date",
+                "Modifier", "Modification Date" };
     }
 
     @Override
@@ -105,6 +108,22 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             {
                 return dataSet.getExperiment().getIdentifier().getIdentifier();
             }
+            case "Registrator":
+            {
+                return dataSet.getRegistrator().getUserId();
+            }
+            case "Registration Date":
+            {
+                return DATE_FORMAT.format(dataSet.getRegistrationDate());
+            }
+            case "Modifier":
+            {
+                return dataSet.getModifier().getUserId();
+            }
+            case "Modification Date":
+            {
+                return DATE_FORMAT.format(dataSet.getModificationDate());
+            }
             default:
             {
                 return null;
@@ -117,7 +136,9 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     {
         return Stream.of(dataSet.getCode(), dataSet.getSample() != null
                 ? dataSet.getSample().getIdentifier().getIdentifier()
-                : dataSet.getExperiment().getIdentifier().getIdentifier());
+                : dataSet.getExperiment().getIdentifier().getIdentifier(),
+                dataSet.getRegistrator().getUserId(), DATE_FORMAT.format(dataSet.getRegistrationDate()),
+                dataSet.getModifier().getUserId(), DATE_FORMAT.format(dataSet.getModificationDate()));
     }
 
     @Override
