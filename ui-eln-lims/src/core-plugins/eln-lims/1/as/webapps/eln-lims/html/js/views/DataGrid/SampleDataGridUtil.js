@@ -62,9 +62,13 @@ var SampleDataGridUtil = new function() {
 			}
 		});
 
-        if(profile.mainMenu.showBarcodes) {
+        if(profile.mainMenu.showBarcodes || true) {
+            var permIdLabel = "PermId";
+            if(profile.mainMenu.showBarcodes) {
+                permIdLabel += " / Default Barcode";
+            }
             columnsFirst.push({
-                label : 'Default Barcode',
+                label : permIdLabel,
                 property : 'permId',
                 filterable: true,
                 sortable : true,

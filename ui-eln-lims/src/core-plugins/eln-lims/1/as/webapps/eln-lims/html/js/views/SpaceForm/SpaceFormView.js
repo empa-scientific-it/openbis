@@ -155,7 +155,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
         $identificationInfo.append($("<legend>").append("Identification Info"));
         if (this._spaceFormModel.mode !== FormMode.CREATE) {
             var space = this._spaceFormModel.v3_space;
-            $identificationInfo.append(FormUtil.getFieldForLabelWithText("PermId", space.getCode()));
+            $identificationInfo.append(FormUtil.getFieldForLabelWithText("PermId / Code", space.getCode()));
             var $registrator = FormUtil.getFieldForLabelWithText("Registrator", space.getRegistrator().userId);
             $identificationInfo.append($registrator);
 
