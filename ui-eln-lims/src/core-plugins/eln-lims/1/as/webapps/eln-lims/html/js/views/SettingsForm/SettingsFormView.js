@@ -92,7 +92,11 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
 			}
 
-            $formColumn.append($("<h2>").append("Group Settings"));
+            if(isNoGroup) {
+                $formColumn.append($("<h2>").append("Non Group Settings"));
+            } else {
+                $formColumn.append($("<h2>").append("Group Settings"));
+            }
 
             if(isNoGroup && profile.isMultiGroup()) {
                 $formColumn.append(FormUtil.getWarningText("These Settings apply to all Spaces that do not belong to any of the groups defined in the user management config file. "));
