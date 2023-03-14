@@ -65,7 +65,7 @@ export default class GridWithOpenbis extends React.PureComponent {
   async exportXLS({
     exportedFilePrefix,
     exportedIds,
-    exportedProperties,
+    exportedFields,
     exportedValues,
     exportedReferredMasterData
   }) {
@@ -79,7 +79,7 @@ export default class GridWithOpenbis extends React.PureComponent {
       'export_referred_master_data',
       exportedReferredMasterData
     )
-    serviceOptions.withParameter('export_properties', exportedProperties)
+    serviceOptions.withParameter('export_fields', exportedFields)
     serviceOptions.withParameter('text_formatting', exportedValues)
 
     const sessionToken = AppController.getInstance().getSessionToken()

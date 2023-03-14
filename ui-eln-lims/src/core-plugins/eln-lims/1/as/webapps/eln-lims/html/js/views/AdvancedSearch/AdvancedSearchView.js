@@ -968,6 +968,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
                 label : 'Name',
                 property : '$NAME',
+                exportableProperty: DataGridExportField.property("$NAME"),
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data) {
@@ -980,6 +981,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             }, {
                 label : 'Identifier',
                 property : 'identifier',
+                exportableProperty: DataGridExportField.identifier(),
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data, grid) {
@@ -1013,6 +1015,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
 				label : 'Code',
 				property : 'code',
+				exportableProperty: DataGridExportField.code(),
 				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				render : function(data, grid) {
@@ -1041,6 +1044,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
+				exportableProperty: DataGridExportField.experiment(),
 				filterable: !isGlobalSearch,
 				sortable : false
 			}]);
@@ -1049,6 +1053,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Archiving status',
                     property : 'status',
+                    exportableProperty: DataGridExportField.archivingStatus(),
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1058,6 +1063,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Present in archive',
                     property : 'presentInArchive',
+                    exportableProperty: DataGridExportField.presentInArchive(),
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1070,6 +1076,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Storage confirmation',
                     property : 'storageConfirmation',
+                    exportableProperty: DataGridExportField.storageConfirmation(),
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1207,7 +1214,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyCode,
-						exportableProperty : propertyCode,
+						exportableProperty : DataGridExportField.property(propertyCode),
 						filterable : !isGlobalSearch,
 						render: renderValue,
 						renderFilter: renderFilter,
@@ -1242,6 +1249,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Registrator',
 				property : 'registrator',
+				exportableProperty : DataGridExportField.registrator(),
 				filterable : !isGlobalSearch,
 				sortable : false
 			});
@@ -1249,6 +1257,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Registration Date',
 				property : 'registrationDate',
+				exportableProperty : DataGridExportField.registrationDate(),
 				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				renderFilter : function(params) {
@@ -1259,6 +1268,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Modifier',
 				property : 'modifier',
+				exportableProperty : DataGridExportField.modifier(),
 				filterable : !isGlobalSearch,
 				sortable : false
 			});
@@ -1266,6 +1276,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Modification Date',
 				property : 'modificationDate',
+				exportableProperty : DataGridExportField.modificationDate(),
 				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				renderFilter : function(params) {
@@ -1277,9 +1288,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             var filterModes = isGlobalSearch ? [] : null
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
 			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, {
-				fileFormat: 'XLS',
+				fileFormat: DataGridExportOptions.XLS_FILE_FORMAT,
 				filePrefix: 'advanced-search',
-				fileContent: 'ENTITIES',
+				fileContent: DataGridExportOptions.ENTITIES_CONTENT,
 			}, 70, filterModes);
 			return dataGrid;
 	}

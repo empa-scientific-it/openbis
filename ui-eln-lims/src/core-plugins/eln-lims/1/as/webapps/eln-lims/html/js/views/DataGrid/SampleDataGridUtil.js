@@ -11,6 +11,7 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Code',
 			property : 'code',
+			exportableProperty: DataGridExportField.code(),
 			filterable: true,
 			sortable : true,
 			render : function(data, grid) {
@@ -50,6 +51,7 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Name',
 			property : '$NAME',
+			exportableProperty: DataGridExportField.property("$NAME"),
 			filterable: true,
 			sortable : true,
 			render : function(data) {
@@ -106,6 +108,7 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Identifier',
 			property : 'identifier',
+			exportableProperty: DataGridExportField.identifier(),
 			filterable : true,
 			sortable : true,
 			render : function(data, grid) {
@@ -195,6 +198,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Space',
 			property : 'default_space',
+			exportableProperty: DataGridExportField.space(),
 			filterable: true,
 			sortable : true
 		});
@@ -203,6 +207,7 @@ var SampleDataGridUtil = new function() {
 			columnsLast.push({
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
+				exportableProperty: DataGridExportField.experiment(),
 				filterable: true,
 				sortable : false
 			});
@@ -212,6 +217,7 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Parents',
                 property : 'parents',
+                exportableProperty: DataGridExportField.parents(),
                 filterable: true,
                 sortable : false,
                 truncate: true,
@@ -229,6 +235,7 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Children',
                 property : 'children',
+                exportableProperty: DataGridExportField.children(),
                 filterable: true,
                 sortable : false,
                 truncate: true,
@@ -314,6 +321,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Registrator',
 			property : 'registrator',
+			exportableProperty: DataGridExportField.registrator(),
 			filterable: true,
 			sortable : false
 		});
@@ -321,6 +329,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			exportableProperty: DataGridExportField.registrationDate(),
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
@@ -331,6 +340,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Modifier',
 			property : 'modifier',
+			exportableProperty: DataGridExportField.modifier(),
 			filterable: true,
 			sortable : false,
 		});
@@ -338,6 +348,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Modification Date',
 			property : 'modificationDate',
+			exportableProperty: DataGridExportField.modificationDate(),
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
@@ -366,9 +377,9 @@ var SampleDataGridUtil = new function() {
 		}
 		
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, {
-			fileFormat: 'XLS',
+			fileFormat: DataGridExportOptions.XLS_FILE_FORMAT,
 			filePrefix: 'objects',
-			fileContent: 'ENTITIES'
+			fileContent: DataGridExportOptions.ENTITIES_CONTENT
 		}, heightPercentage);
 		dataGridController.setId("sample-grid")
 		return dataGridController;
@@ -827,7 +838,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        exportableProperty: propertyType.code,
+                        exportableProperty: DataGridExportField.property(propertyType.code),
                         filterable : true,
                         sortable : false,
                         metadata: {
@@ -855,7 +866,7 @@ var SampleDataGridUtil = new function() {
                         return {
                             label : propertyType.label,
                             property : propertyType.code,
-                            exportableProperty: propertyType.code,
+                            exportableProperty: DataGridExportField.property(propertyType.code),
                             filterable: true,
                             sortable : true,
                             metadata: {
@@ -899,7 +910,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        exportableProperty: propertyType.code,
+                        exportableProperty: DataGridExportField.property(propertyType.code),
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -916,7 +927,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        exportableProperty: propertyType.code,
+                        exportableProperty: DataGridExportField.property(propertyType.code),
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -948,7 +959,7 @@ var SampleDataGridUtil = new function() {
                 propertyColumnsToSort.push({
                     label : propertyType.label,
                     property : propertyType.code,
-                    exportableProperty: propertyType.code,
+                    exportableProperty: DataGridExportField.property(propertyType.code),
                     filterable : true,
                     sortable : propertyType.dataType !== "XML",
                     truncate: true,

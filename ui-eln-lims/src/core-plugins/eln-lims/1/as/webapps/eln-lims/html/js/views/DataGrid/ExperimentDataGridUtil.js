@@ -6,6 +6,7 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Code',
 			property : 'code',
+			exportableProperty: DataGridExportField.code(),
 			sortable : true,
 			render : function(data, grid) {
 				return FormUtil.getFormLink(data.code, "Experiment", data.identifier);
@@ -23,6 +24,7 @@ var ExperimentDataGridUtil = new function() {
         columns.push({
             label : 'Name',
             property : '$NAME',
+            exportableProperty: DataGridExportField.property("$NAME"),
             sortable : true,
             render : function(data) {
                 var nameToUse = "";
@@ -36,6 +38,7 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Identifier',
 			property : 'identifier',
+			exportableProperty: DataGridExportField.identifier(),
 			sortable : true,
 			render : function(data) {
 				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
@@ -60,12 +63,14 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Registrator',
 			property : 'registrator',
+			exportableProperty: DataGridExportField.registrator(),
 			sortable : true
 		});
 		
 		columns.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			exportableProperty: DataGridExportField.registrationDate(),
 			sortable : true,
 			renderFilter : function(params) {
 				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
@@ -78,12 +83,14 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Modifier',
 			property : 'modifier',
+			exportableProperty: DataGridExportField.modifier(),
 			sortable : true
 		});
 
 		columns.push({
 			label : 'Modification Date',
 			property : 'modificationDate',
+			exportableProperty: DataGridExportField.modificationDate(),
 			sortable : true,
 			renderFilter : function(params) {
 				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
@@ -151,9 +158,9 @@ var ExperimentDataGridUtil = new function() {
 		//Create and return a data grid controller
         var configKey = "EXPERIMENT_TABLE";
         var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, {
-            fileFormat: 'XLS',
+            fileFormat: DataGridExportOptions.XLS_FILE_FORMAT,
             filePrefix: 'collections',
-            fileContent: 'ENTITIES'
+            fileContent: DataGridExportOptions.ENTITIES_CONTENT
         }, heightPercentage);
 		dataGridController.setId("experiment-grid")
 		return dataGridController;

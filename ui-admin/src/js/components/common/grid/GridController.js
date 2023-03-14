@@ -1286,15 +1286,15 @@ export default class GridController {
       return exportedRows
     }
 
-    async function _getExportedProperties(exportedRows) {
+    async function _getExportedFields(exportedRows) {
       const { exportOptions } = state
 
-      let exportedProperties = {}
+      let exportedFieldsMap = {}
 
       if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
-        exportedProperties = {}
+        exportedFieldsMap = {}
       } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
-        const exportablePropertyCodes = []
+        const exportableFields = []
 
         // find visible exportable columns for the exported rows
         const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
@@ -1307,31 +1307,30 @@ export default class GridController {
         _this._sortColumns(newAllColumns, newColumnsSorting)
 
         newAllColumns.forEach(column => {
-          if (column.exportableProperty && newColumnsVisibility[column.name]) {
-            exportablePropertyCodes.push(column.exportableProperty)
+          if (column.exportableField && newColumnsVisibility[column.name]) {
+            exportableFields.push(column.exportableField)
           }
         })
 
-        // build exported properties map: { kind: { type: [property_code, ...], ... }, ... }
+        // build exported fields map: { kind: { type: [{ type: "PROPERTY/ATTRIBUTE", id: "propertyCode/attributeCode"}, ...], ... }, ... }
         exportedRows.forEach(exportedRow => {
           const { exportable_kind, type_perm_id } = exportedRow.exportableId
 
           if (exportable_kind && type_perm_id) {
-            let exportedPropertiesForKind = exportedProperties[exportable_kind]
+            let exportedFieldsForKind = exportedFieldsMap[exportable_kind]
 
-            if (!exportedPropertiesForKind) {
-              exportedProperties[exportable_kind] = exportedPropertiesForKind =
-                {}
+            if (!exportedFieldsForKind) {
+              exportedFieldsMap[exportable_kind] = exportedFieldsForKind = {}
             }
 
-            exportedPropertiesForKind[type_perm_id] = exportablePropertyCodes
+            exportedFieldsForKind[type_perm_id] = exportableFields
           }
         })
       } else {
         throw Error('Unsupported columns option: ' + exportOptions.columns)
       }
 
-      return exportedProperties
+      return exportedFieldsMap
     }
 
     try {
@@ -1342,14 +1341,14 @@ export default class GridController {
       })
 
       const exportedRows = await _getExportedRows()
-      const exportedProperties = await _getExportedProperties(exportedRows)
+      const exportedFields = await _getExportedFields(exportedRows)
       const exportedIds = exportedRows.map(row => row.exportableId)
 
       const { sessionToken, exportResult } = await props.exportXLS({
         exportedFilePrefix: exportable.filePrefix,
         exportedFileContent: exportable.fileContent,
         exportedIds: exportedIds,
-        exportedProperties: exportedProperties,
+        exportedFields: exportedFields,
         exportedValues: state.exportOptions.values,
         exportedReferredMasterData:
           exportable.fileContent === GridExportOptions.TYPES_CONTENT &&

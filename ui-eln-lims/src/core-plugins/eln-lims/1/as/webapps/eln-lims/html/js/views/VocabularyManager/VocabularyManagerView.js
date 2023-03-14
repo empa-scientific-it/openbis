@@ -49,6 +49,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		var columns = [ {
 			label : 'Code',
 			property : 'code',
+			exportableProperty : DataGridExportField.code(),
 			render: function(data){
 				return $("<div>").html(data.code)
 			},
@@ -56,6 +57,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		} , {
 			label : 'Description',
 			property : 'description',
+			exportableProperty : DataGridExportField.description(),
 			sortable : true
 		}];
 		
@@ -84,9 +86,9 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, {
-			fileFormat: 'XLS',
+			fileFormat: DataGridExportOptions.XLS_FILE_FORMAT,
 			filePrefix: 'vocabularies',
-			fileContent: 'VOCABULARIES'
+			fileContent: DataGridExportOptions.VOCABULARIES_CONTENT
 		}, 90);
 		dataGrid.setId("vocabulary-grid")
 		dataGrid.init(this._dataGridContainer);
@@ -130,7 +132,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "VOCABULARY_TERMS_TABLE", false, {
-			fileFormat: 'TSV',
+			fileFormat: DataGridExportOptions.TSV_FILE_FORMAT,
 			filePrefix: 'vocabulary-terms-grid'
 		}, 90);
 		dataGrid.setId("vocabulary-terms-table")

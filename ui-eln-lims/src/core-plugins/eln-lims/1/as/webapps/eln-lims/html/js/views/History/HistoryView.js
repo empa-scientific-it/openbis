@@ -120,7 +120,7 @@ function HistoryView(controller, model) {
             false,
             this._model.entity["@type"] + "_HISTORY",
             {
-                fileFormat: 'TSV',
+                fileFormat: DataGridExportOptions.TSV_FILE_FORMAT,
                 filePrefix: 'history'
             },
             false
