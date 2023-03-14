@@ -50,7 +50,23 @@ var ExperimentDataGridUtil = new function() {
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
-
+		columns.push({
+			label : 'PermId',
+			property : 'permId',
+			sortable : true,
+			render : function(data) {
+				return FormUtil.getFormLink(data.permId, "Experiment", data.permId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
         columns.push({
             label : 'Type',
             property : 'type',

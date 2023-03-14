@@ -379,6 +379,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$identificationInfo.append($('<legend>').text("Identification Info"));
         if (this._experimentFormModel.mode !== FormMode.CREATE) {
             $identificationInfo.append(FormUtil.getFieldForLabelWithText("PermId", this._experimentFormModel.experiment.permId));
+            $identificationInfo.append(FormUtil.getFieldForLabelWithText("Identifier", this._experimentFormModel.experiment.identifier));
 		}
 		if (this._experimentFormModel.mode !== FormMode.CREATE) {
 			var spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier);
