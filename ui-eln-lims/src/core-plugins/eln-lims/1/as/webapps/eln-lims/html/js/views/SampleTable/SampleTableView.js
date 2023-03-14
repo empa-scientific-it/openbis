@@ -48,30 +48,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		if(this._sampleTableModel.experimentIdentifier) {
 			var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			var experimentCode = IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
-			var allSampleTypes = FormUtil.getSampleTypesOnDropdowns(experimentSpace);
-			var sampleTypeCodesFound = [];
-			for(var aIdx = 0; aIdx < allSampleTypes.length; aIdx++) {
-				var auxSampleTypeCode = allSampleTypes[aIdx].code;
-				if(experimentCode.indexOf(auxSampleTypeCode) !== -1) {
-					sampleTypeCodesFound.push(auxSampleTypeCode);
-				}
-			}
-			
-			var sampleTypeCode = null;
-			if(sampleTypeCodesFound.length === 1 && profile.isInventorySpace(experimentSpace)) {
-				sampleTypeCode = sampleTypeCodesFound[0];
-			}
-			
+
 			//
-			var mandatorySampleTypeCode = null;
 			if(this._sampleTableModel.experiment && 
 					this._sampleTableModel.experiment.properties &&
 					this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"]) {
-				mandatorySampleTypeCode = this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"];
+				this._sampleTableModel.sampleTypeCodeToUse = this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"];
 			}
 			
-			var sampleTypeCodeToUse = (mandatorySampleTypeCode)?mandatorySampleTypeCode:sampleTypeCode;
-			this._sampleTableModel.sampleTypeCodeToUse = sampleTypeCodeToUse;
+			var sampleTypeCodeToUse = this._sampleTableModel.sampleTypeCodeToUse;
 			
 			//Add Sample Type
 			if(sampleTypeCodeToUse !== null & _this._sampleTableModel.sampleRights.rights.indexOf("CREATE") >= 0) {
