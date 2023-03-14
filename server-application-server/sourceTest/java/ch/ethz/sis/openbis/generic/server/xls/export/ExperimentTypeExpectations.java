@@ -18,7 +18,9 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest.TEST_SCRIPT_CONTENT;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -56,12 +58,17 @@ class ExperimentTypeExpectations extends Expectations
                         (ExperimentTypeFetchOptions) invocation.getParameter(2);
                 final PluginFetchOptions pluginFetchOptions = fetchOptions.withValidationPlugin();
 
+                final Calendar calendar = Calendar.getInstance();
+                calendar.set(2023, Calendar.MARCH, 10, 17, 23, 44);
+                final Date modificationDate = calendar.getTime();
+
                 final ExperimentType experimentType = new ExperimentType();
                 experimentType.setFetchOptions(fetchOptions);
                 experimentType.setPermId(new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT));
                 experimentType.setCode("DEFAULT_EXPERIMENT");
                 experimentType.setDescription("Default experiment");
                 experimentType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
+                experimentType.setModificationDate(modificationDate);
 
                 final Plugin validationPlugin = new Plugin();
                 validationPlugin.setName("test");

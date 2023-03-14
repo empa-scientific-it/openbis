@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,6 +76,8 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
+            final String[] attributeNames = getAttributeNames(entry.getValue().get(0));
+            final Set<String> attributeNameSet = Set.of(attributeNames);
             final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(typePermId) ||
@@ -82,7 +85,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             {
                 // Export all fields in any order
                 final String[] fieldNames = Stream.concat(
-                        Stream.of(getAttributeNames(entry.getValue().get(0))),
+                        Stream.of(attributeNames),
                         propertyAssignments.stream()
                                 .map(PropertyAssignment::getPropertyType)
                                 .map(PropertyType::getLabel)
@@ -106,31 +109,33 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             {
                 // Export selected fields in predefined order
                 final Collection<Map<String, String>> exportFields = entityTypeExportFieldsMap.get(typePermId);
-                final String[] fieldNames = exportFields.stream().map(field ->
-                {
-                    final String fieldId = field.get(FIELD_ID_KEY);
-                    switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
-                    {
-                        case ATTRIBUTE:
+                final String[] fieldNames = exportFields.stream()
+                        .filter(field -> isFieldAcceptable(attributeNameSet, field))
+                        .map(field ->
                         {
-                            return fieldId;
-                        }
-                        case PROPERTY:
-                        {
-                            return propertyAssignments.stream()
-                                    .filter(propertyAssignment -> Objects.equals(
-                                            propertyAssignment.getPropertyType().getCode(), fieldId))
-                                    .findFirst()
-                                    .orElseThrow()
-                                    .getPropertyType()
-                                    .getLabel();
-                        }
-                        default:
-                        {
-                            throw new IllegalArgumentException();
-                        }
-                    }
-                }).toArray(String[]::new);
+                            final String fieldId = field.get(FIELD_ID_KEY);
+                            switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
+                            {
+                                case ATTRIBUTE:
+                                {
+                                    return fieldId;
+                                }
+                                case PROPERTY:
+                                {
+                                    return propertyAssignments.stream()
+                                            .filter(propertyAssignment -> Objects.equals(
+                                                    propertyAssignment.getPropertyType().getCode(), fieldId))
+                                            .findFirst()
+                                            .orElseThrow()
+                                            .getPropertyType()
+                                            .getLabel();
+                                }
+                                default:
+                                {
+                                    throw new IllegalArgumentException();
+                                }
+                            }
+                        }).toArray(String[]::new);
                 warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, fieldNames));
 
                 final Map<String, PropertyType> codeToPropertyTypeMap = propertyAssignments.stream()
@@ -139,25 +144,27 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
                 for (final ENTITY entity : entry.getValue())
                 {
-                    final String[] entityValues = exportFields.stream().map(field ->
-                    {
-                        switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
-                        {
-                            case ATTRIBUTE:
+                    final String[] entityValues = exportFields.stream()
+                            .filter(field -> isFieldAcceptable(attributeNameSet, field))
+                            .map(field ->
                             {
-                                return getAttributeValue(entity, field.get(FIELD_ID_KEY));
-                            }
-                            case PROPERTY:
-                            {
-                                return getPropertiesMappingFunction(textFormatting, entity.getProperties())
-                                        .apply(codeToPropertyTypeMap.get(field.get(FIELD_ID_KEY)));
-                            }
-                            default:
-                            {
-                                throw new IllegalArgumentException();
-                            }
-                        }
-                    }).toArray(String[]::new);
+                                switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
+                                {
+                                    case ATTRIBUTE:
+                                    {
+                                        return getAttributeValue(entity, field.get(FIELD_ID_KEY));
+                                    }
+                                    case PROPERTY:
+                                    {
+                                        return getPropertiesMappingFunction(textFormatting, entity.getProperties())
+                                                .apply(codeToPropertyTypeMap.get(field.get(FIELD_ID_KEY)));
+                                    }
+                                    default:
+                                    {
+                                        throw new IllegalArgumentException();
+                                    }
+                                }
+                            }).toArray(String[]::new);
 
                     warnings.addAll(addRow(rowNumber++, false, exportableKind, getIdentifier(entity), entityValues));
                 }
@@ -167,6 +174,11 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         }
 
         return new AdditionResult(rowNumber, warnings);
+    }
+
+    private static boolean isFieldAcceptable(final Set<String> attributeNameSet, final Map<String, String> field)
+    {
+        return FieldType.valueOf(field.get(FIELD_TYPE_KEY)) != FieldType.ATTRIBUTE || attributeNameSet.contains(field.get(FIELD_ID_KEY));
     }
 
     protected abstract ExportableKind getExportableKind();

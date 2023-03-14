@@ -71,8 +71,8 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     @Override
     protected String[] getAttributeNames(final Sample entity)
     {
-        return new String[] { "$", "Identifier", "Code", "Space", "Project", "Experiment",
-                "Auto generate code", "Parents", "Children", "Registrator", "Registration Date", "Modifier", "Modification Date" };
+        return new String[] {"Identifier", "Code", "Space", "Project", "Experiment",
+                "Parents", "Children", "Registrator", "Registration Date", "Modifier", "Modification Date" };
     }
 
     @Override
@@ -98,10 +98,6 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     {
         switch (attributeId)
         {
-            case "$":
-            {
-                return "";
-            }
             case "Identifier":
             {
                 return sample.getIdentifier().getIdentifier();
@@ -121,10 +117,6 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
             case "Experiment":
             {
                 return sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier() : "";
-            }
-            case "Auto generate code":
-            {
-                return "FALSE";
             }
             case "Parents":
             {
@@ -163,11 +155,10 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
 
     protected Stream<String> getAllAttributeValuesStream(final Sample sample)
     {
-        return Stream.of("", sample.getIdentifier().getIdentifier(), sample.getCode(),
+        return Stream.of(sample.getIdentifier().getIdentifier(), sample.getCode(),
                 sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "",
                 sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "",
                 sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier() : "",
-                "FALSE",
                 sample.getParents() == null ? "" : sample.getParents().stream()
                         .map(parent -> parent.getIdentifier().getIdentifier())
                         .collect(Collectors.joining("\n")),
