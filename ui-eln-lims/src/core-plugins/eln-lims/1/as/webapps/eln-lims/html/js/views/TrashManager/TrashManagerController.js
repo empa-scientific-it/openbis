@@ -20,6 +20,7 @@ function TrashManagerController(mainController) {
 	this._trashManagerView = new TrashManagerView(this, this._trashManagerModel);
 	
 	this.revertDeletions = function(deletionIds) {
+	    Util.blockUINoMessage();
 		mainController.serverFacade.revertDeletions(deletionIds, function() {
             Util.showSuccess("Deletions Reverted.", function() {});
             mainController.changeView('showTrashcanPage', null);
@@ -27,6 +28,7 @@ function TrashManagerController(mainController) {
 	}
 	
     this.deletePermanently = function(deletionIds, forceDeletionOfDependentDeletions) {
+        Util.blockUINoMessage();
         mainController.serverFacade.deletePermanently(deletionIds, forceDeletionOfDependentDeletions, function(data) {
             if(data.error) {
                 Util.showError(data.error.message, null, true, true, false, true);
@@ -38,6 +40,7 @@ function TrashManagerController(mainController) {
     }
 	
 	this.emptyTrash = function() {
+	    Util.blockUINoMessage();
 		var deleteIds = [];
 		
 		for(var delIdx = 0; delIdx < this._trashManagerModel.deletions.length; delIdx++) {
