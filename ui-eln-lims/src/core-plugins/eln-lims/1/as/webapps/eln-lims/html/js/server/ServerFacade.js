@@ -2104,6 +2104,25 @@ function ServerFacade(openbisServer) {
                                 case "ARCHIVING_REQUESTED":
                                     criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
                                     break;
+                                case "SIZE":
+                                    switch(comparisonOperator) {
+                                        case "thatEqualsNumber":
+                                                criteria.withPhysicalData().withSize().thatEquals(giattributeValue);
+                                                break;
+                                        case "thatIsLessThanNumber":
+                                                criteria.withPhysicalData().withSize().thatIsLessThan(attributeValue);
+                                                break;
+                                        case "thatIsLessThanOrEqualToNumber":
+                                                criteria.withPhysicalData().withSize().thatIsLessThanOrEqualTo(attributeValue);
+                                                break;
+                                        case "thatIsGreaterThanNumber":
+                                                criteria.withPhysicalData().withSize().thatIsGreaterThan(attributeValue);
+                                                break;
+                                        case "thatIsGreaterThanOrEqualToNumber":
+                                                criteria.withPhysicalData().withSize().thatIsGreaterThanOrEqualTo(attributeValue);
+                                                break;
+                                    }
+                                    break;
                                 case "PARENTS":
                                     var parentsCriteria = criteria.withParents();
                                     parentsCriteria.withOrOperator();

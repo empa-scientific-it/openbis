@@ -107,52 +107,52 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var _this = this;
 		profile.getHomeSpace(function(HOME_SPACE) {
 
-	    var $nameField = FormUtil.getTextInputField('Name', 'Name', true);
+	    var $nameField = FormUtil.getTextInputField('Name', 'Name', true);
 
-	    var $searchDropdownContainer = $('<div>');
-	    var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to store query",
+	    var $searchDropdownContainer = $('<div>');
+	    var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to store query",
 				true, false, false, false, false);
-	    advancedEntitySearchDropdown.init($searchDropdownContainer);
+	    advancedEntitySearchDropdown.init($searchDropdownContainer);
 			if (HOME_SPACE) {
-		    advancedEntitySearchDropdown.addSelected({
-		      defaultDummyExperiment: true,
+		    advancedEntitySearchDropdown.addSelected({
+		      defaultDummyExperiment: true,
 					space: HOME_SPACE,
 					code: 'QUERIES_COLLECTION',
 					projectCode: 'QUERIES',
 					projectIdentifier: IdentifierUtil.getProjectIdentifier(HOME_SPACE, 'QUERIES'),
-		      identifier: { identifier: IdentifierUtil.getExperimentIdentifier(HOME_SPACE, 'QUERIES', 'QUERIES_COLLECTION') },
-		      permId: { permId: 'permId' },
-		    });
+		      identifier: { identifier: IdentifierUtil.getExperimentIdentifier(HOME_SPACE, 'QUERIES', 'QUERIES_COLLECTION') },
+		      permId: { permId: 'permId' },
+		    });
 			}
 
-	    var $btnSave = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save', 'id' : 'search-query-save-btn' });
-	    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-	    $btnCancel.click(function() {
-	      Util.unblockUI();
-	    });
+	    var $btnSave = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save', 'id' : 'search-query-save-btn' });
+	    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+	    $btnCancel.click(function() {
+	      Util.unblockUI();
+	    });
 
-	    // update existing sample or save new one
-	    if (_this._advancedSearchModel.selcetedSavedSearchIndex > -1) {
-	      Util.blockUI();
-	      _this._advancedSearchController.updateSelectedSample(function() {
-	        Util.unblockUI();
-	      });
-	    } else {
-	      FormUtil.showDialog({
-	        css: {'text-align': 'left'},
-	        title: 'Save search query',
-	        components: [$nameField, $searchDropdownContainer],
-	        buttons: [$btnSave, $btnCancel],
-	        callback: function() {
-	          Util.unblockUI();
-	          Util.blockUI();
-	          _this._advancedSearchController.saveNewSample({
-	            name: $nameField.val(),
-	            experiment: advancedEntitySearchDropdown.getSelected()[0],
-	          }, Util.unblockUI);
-	        },
-	      });
-	    }
+	    // update existing sample or save new one
+	    if (_this._advancedSearchModel.selcetedSavedSearchIndex > -1) {
+	      Util.blockUI();
+	      _this._advancedSearchController.updateSelectedSample(function() {
+	        Util.unblockUI();
+	      });
+	    } else {
+	      FormUtil.showDialog({
+	        css: {'text-align': 'left'},
+	        title: 'Save search query',
+	        components: [$nameField, $searchDropdownContainer],
+	        buttons: [$btnSave, $btnCancel],
+	        callback: function() {
+	          Util.unblockUI();
+	          Util.blockUI();
+	          _this._advancedSearchController.saveNewSample({
+	            name: $nameField.val(),
+	            experiment: advancedEntitySearchDropdown.getSelected()[0],
+	          }, Util.unblockUI);
+	        },
+	      });
+	    }
 
 		});
 	}
@@ -730,6 +730,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         if (ruleName === "ATTR.PRESENT_IN_ARCHIVE" || ruleName === "ATTR.STORAGE_CONFIRMATION") {
             return "BOOLEAN";
         }
+        if (ruleName === "ATTR.SIZE") {
+            return "INTEGER";
+        }
         if (ruleName === "ATTR.STATUS") {
             return "ARCHIVING_STATUS";
         }
@@ -818,6 +821,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.STATUS", label : "Archiving status [ATTR.STATUS]" },
 				         { value : "ATTR.PRESENT_IN_ARCHIVE", label : "Present in archive [ATTR.PRESENT_IN_ARCHIVE]" },
 				         { value : "ATTR.STORAGE_CONFIRMATION", label : "Storage confirmation [ATTR.STORAGE_CONFIRMATION]" },
+				         { value : "ATTR.SIZE", label : "Size [ATTR.SIZE]" },
 //				         { value : "ATTR.METAPROJECT", label : "Tag [ATTR.METAPROJECT]" }, TO-DO Not supported by ELN yet
 				         { value : "ATTR.REGISTRATOR", label : "Registrator [ATTR.REGISTRATOR]" },
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date [ATTR.REGISTRATION_DATE]" },
@@ -1077,6 +1081,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     },
                     render : function(data) {
                         return data.storageConfirmation == true ? "true" : "false"
+                    }
+                });
+                columns.push({
+                    label : 'Storage confirmation',
+                    property : 'storageConfirmation',
+                    filterable: !isGlobalSearch,
+                    sortable : false,
+                    renderFilter : function(params) {
+                        return FormUtil.renderBooleanGridFilter(params);
+                    },
+                    render : function(data) {
+                        return data.storageConfirmation == true ? "true" : "false"
+                    }
+                });
+                columns.push({
+                    label : "Size In Bytes",
+                    property : "size",
+                    isExportable : false,
+                    sortable : false,
+                    render : function(data, grid) {
+                        return data.size;
                     }
                 });
             }
