@@ -37,7 +37,8 @@ class GridExports extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      el: null
+      el: null,
+      importCompatibleError: null
     }
     this.handleOpen = this.handleOpen.bind(this)
     this.handleClose = this.handleClose.bind(this)
@@ -52,12 +53,23 @@ class GridExports extends React.PureComponent {
   }
 
   handleClose() {
+    const { exportOptions, onExportOptionsChange } = this.props
+
     this.setState({
-      el: null
+      el: null,
+      importCompatibleError: null
     })
+
+    if (onExportOptionsChange) {
+      const newExportOptions = {
+        ...exportOptions,
+        importCompatible: null
+      }
+      onExportOptionsChange(newExportOptions)
+    }
   }
 
-  handleChange(event) {
+  async handleChange(event) {
     const { exportOptions, onExportOptionsChange } = this.props
 
     if (onExportOptionsChange) {
@@ -65,15 +77,55 @@ class GridExports extends React.PureComponent {
         ...exportOptions,
         [event.target.name]: event.target.value
       }
-      onExportOptionsChange(newExportOptions)
+
+      if (newExportOptions.importCompatible === true) {
+        newExportOptions.values = GridExportOptions.RICH_TEXT
+      }
+
+      await onExportOptionsChange(newExportOptions)
+
+      this.validate()
     }
   }
 
   handleExport() {
     const { onExport } = this.props
-    this.handleClose()
-    if (onExport) {
-      onExport()
+
+    if (this.validate()) {
+      this.handleClose()
+      if (onExport) {
+        onExport()
+      }
+    }
+  }
+
+  validate() {
+    const { exportable } = this.props
+
+    const isXLSExport =
+      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT
+
+    if (isXLSExport) {
+      const { importCompatible } = this.props.exportOptions
+
+      let importCompatibleError = null
+
+      if (_.isNil(importCompatible) || importCompatible === '') {
+        importCompatibleError = messages.get(
+          messages.VALIDATION_CANNOT_BE_EMPTY,
+          messages.get(messages.IMPORT_COMPATIBLE)
+        )
+      } else {
+        importCompatibleError = null
+      }
+
+      this.setState({
+        importCompatibleError
+      })
+
+      return _.isNil(importCompatibleError)
+    } else {
+      return true
     }
   }
 
@@ -89,7 +141,7 @@ class GridExports extends React.PureComponent {
       multiselectedRows,
       classes
     } = this.props
-    const { el } = this.state
+    const { el, importCompatibleError } = this.state
 
     const rowsOptions = [
       {
@@ -153,16 +205,18 @@ class GridExports extends React.PureComponent {
                   <SelectField
                     label={messages.get(messages.IMPORT_COMPATIBLE)}
                     name='importCompatible'
+                    error={importCompatibleError}
                     mandatory={true}
+                    sort={false}
                     emptyOption={{}}
                     options={[
                       {
                         label: messages.get(messages.YES),
-                        value: GridExportOptions.IMPORT_COMPATIBLE_YES
+                        value: true
                       },
                       {
                         label: messages.get(messages.NO),
-                        value: GridExportOptions.IMPORT_COMPATIBLE_NO
+                        value: false
                       }
                     ]}
                     value={exportOptions.importCompatible}
@@ -215,6 +269,7 @@ class GridExports extends React.PureComponent {
                         value: GridExportOptions.RICH_TEXT
                       }
                     ]}
+                    disabled={exportOptions.importCompatible}
                     value={exportOptions.values}
                     variant='standard'
                     onChange={this.handleChange}
@@ -245,6 +300,7 @@ class GridExports extends React.PureComponent {
                       value: false
                     }
                   ]}
+                  sort={false}
                   value={exportOptions.includeDependencies}
                   variant='standard'
                   onChange={this.handleChange}

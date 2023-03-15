@@ -514,12 +514,11 @@ export default class GridController {
         loaded.exportOptions.values,
         GridExportOptions.VALUES_OPTIONS
       )
+      exportOptions.includeDependencies = this._getBooleanValue(
+        loaded.exportOptions.includeDependencies
+      )
 
-      if (
-        exportOptions.columns !== undefined &&
-        exportOptions.rows !== undefined &&
-        exportOptions.values !== undefined
-      ) {
+      if (_.isEmpty(exportOptions)) {
         settings.exportOptions = exportOptions
       }
     }
@@ -1575,6 +1574,10 @@ export default class GridController {
 
   _getEnumValue(value, allowedValues) {
     return _.includes(allowedValues, value) ? value : undefined
+  }
+
+  _getBooleanValue(value) {
+    return _.isBoolean(value) ? value : undefined
   }
 
   _isEmpty(value) {
