@@ -109,16 +109,18 @@ class GridExports extends React.PureComponent {
       })
     }
 
+    const isXLSExport =
+      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT
+
     const isTSVExport =
       exportable.fileFormat === GridExportOptions.TSV_FILE_FORMAT
 
     const isXLSEntityExport =
-      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
+      isXLSExport &&
       exportable.fileContent === GridExportOptions.ENTITIES_CONTENT
 
     const isXLSTypesExport =
-      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
-      exportable.fileContent === GridExportOptions.TYPES_CONTENT
+      isXLSExport && exportable.fileContent === GridExportOptions.TYPES_CONTENT
 
     return (
       <div className={classes.container}>
@@ -146,27 +148,48 @@ class GridExports extends React.PureComponent {
         >
           <Container square={true} className={classes.popup}>
             <div>
-              {(isTSVExport || isXLSEntityExport) && (
+              {isXLSExport && (
                 <div className={classes.field}>
                   <SelectField
-                    label={messages.get(messages.COLUMNS)}
-                    name='columns'
+                    label={messages.get(messages.IMPORT_COMPATIBLE)}
+                    name='importCompatible'
+                    mandatory={true}
+                    emptyOption={{}}
                     options={[
                       {
-                        label: messages.get(messages.ALL_COLUMNS),
-                        value: GridExportOptions.ALL_COLUMNS
+                        label: messages.get(messages.YES),
+                        value: GridExportOptions.IMPORT_COMPATIBLE_YES
                       },
                       {
-                        label: messages.get(messages.VISIBLE_COLUMNS),
-                        value: GridExportOptions.VISIBLE_COLUMNS
+                        label: messages.get(messages.NO),
+                        value: GridExportOptions.IMPORT_COMPATIBLE_NO
                       }
                     ]}
-                    value={exportOptions.columns}
+                    value={exportOptions.importCompatible}
                     variant='standard'
                     onChange={this.handleChange}
                   />
                 </div>
               )}
+              <div className={classes.field}>
+                <SelectField
+                  label={messages.get(messages.COLUMNS)}
+                  name='columns'
+                  options={[
+                    {
+                      label: messages.get(messages.ALL_COLUMNS),
+                      value: GridExportOptions.ALL_COLUMNS
+                    },
+                    {
+                      label: messages.get(messages.VISIBLE_COLUMNS),
+                      value: GridExportOptions.VISIBLE_COLUMNS
+                    }
+                  ]}
+                  value={exportOptions.columns}
+                  variant='standard'
+                  onChange={this.handleChange}
+                />
+              </div>
               <div className={classes.field}>
                 <SelectField
                   label={messages.get(messages.ROWS)}
