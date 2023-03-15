@@ -285,7 +285,8 @@ function DataGridController(
 			"ids" : parameters.exportedIds,
 			"export_referred_master_data" : parameters.exportedReferredMasterData,
 			"export_fields" : parameters.exportedFields,
-			"text_formatting" : parameters.exportedValues
+			"text_formatting" : parameters.exportedValues,
+			"import_compatible" : parameters.exportedImportCompatible
 		}
 
 		return new Promise(function(resolve, reject){

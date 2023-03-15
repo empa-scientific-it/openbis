@@ -1349,6 +1349,7 @@ export default class GridController {
         exportedIds: exportedIds,
         exportedFields: exportedFields,
         exportedValues: state.exportOptions.values,
+        exportedImportCompatible: state.exportOptions.importCompatible,
         exportedReferredMasterData:
           exportable.fileContent === GridExportOptions.TYPES_CONTENT &&
           state.exportOptions.includeDependencies
