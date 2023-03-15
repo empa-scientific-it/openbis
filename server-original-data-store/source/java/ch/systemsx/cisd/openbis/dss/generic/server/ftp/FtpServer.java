@@ -29,6 +29,7 @@ import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.ProviderMismatchException;
@@ -482,6 +483,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         public OpenBisFileSystemProvider(DSSFileSystemView fileSystemView)
         {
             this.fileSystemView = fileSystemView;
+        }
+
+        @Override
+        public Path readSymbolicLink(Path link) throws IOException
+        {
+            throw new NoSuchFileException("Symbolic links are not supported: " + link);
         }
 
         @Override
