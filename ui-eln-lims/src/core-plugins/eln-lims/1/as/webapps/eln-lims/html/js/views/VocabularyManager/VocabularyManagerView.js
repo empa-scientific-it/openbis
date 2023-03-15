@@ -49,7 +49,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		var columns = [ {
 			label : 'Code',
 			property : 'code',
-			exportableProperty : DataGridExportField.code(),
+			exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.CODE,
 			render: function(data){
 				return $("<div>").html(data.code)
 			},
@@ -57,7 +57,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		} , {
 			label : 'Description',
 			property : 'description',
-			exportableProperty : DataGridExportField.description(),
+			exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.DESCRIPTION,
 			sortable : true
 		}];
 		
@@ -70,7 +70,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 				dataList.push({
 					id: vocabulary.code,
 					exportableId : {
-						exportable_kind: 'VOCABULARY',
+						exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.VOCABULARY,
 						perm_id: vocabulary.code
 					},
 					code : codeDiv,
@@ -86,9 +86,9 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, true, "VOCABULARY_TABLE", false, {
-			fileFormat: DataGridExportOptions.XLS_FILE_FORMAT,
+			fileFormat: DataGridExportOptions.FILE_FORMAT.XLS,
 			filePrefix: 'vocabularies',
-			fileContent: DataGridExportOptions.VOCABULARIES_CONTENT
+			fileContent: DataGridExportOptions.FILE_CONTENT.VOCABULARIES
 		}, 90);
 		dataGrid.setId("vocabulary-grid")
 		dataGrid.init(this._dataGridContainer);
@@ -132,7 +132,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		}
 		
 		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "VOCABULARY_TERMS_TABLE", false, {
-			fileFormat: DataGridExportOptions.TSV_FILE_FORMAT,
+			fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 			filePrefix: 'vocabulary-terms-grid'
 		}, 90);
 		dataGrid.setId("vocabulary-terms-table")

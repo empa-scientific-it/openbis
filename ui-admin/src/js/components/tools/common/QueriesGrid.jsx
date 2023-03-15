@@ -66,7 +66,7 @@ class QueriesGrid extends React.PureComponent {
         ]}
         rows={rows}
         exportable={{
-          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.TSV,
           filePrefix: 'queries'
         }}
         selectable={true}

@@ -94,12 +94,12 @@ class PluginsGrid extends React.PureComponent {
 
     if (pluginType === openbis.PluginType.DYNAMIC_PROPERTY) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'dynamic-property-plugins'
       }
     } else if (pluginType === openbis.PluginType.ENTITY_VALIDATION) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'entity-validation-plugins'
       }
     }

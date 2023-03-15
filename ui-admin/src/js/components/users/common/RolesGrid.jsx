@@ -100,22 +100,22 @@ class RolesGrid extends React.PureComponent {
 
     if (id === ids.ROLES_OF_USERS_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'users-roles'
       }
     } else if (id === ids.ROLES_OF_GROUPS_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'groups-roles'
       }
     } else if (id === ids.ROLES_OF_USER_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'user-roles'
       }
     } else if (id === ids.ROLES_OF_GROUP_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'group-roles'
       }
     }

@@ -113,7 +113,7 @@ class VocabularyTypeForm extends React.PureComponent {
           rows={terms}
           sort='code'
           exportable={{
-            fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+            fileFormat: GridExportOptions.FILE_FORMAT.TSV,
             filePrefix: 'vocabulary-terms'
           }}
           selectable={true}

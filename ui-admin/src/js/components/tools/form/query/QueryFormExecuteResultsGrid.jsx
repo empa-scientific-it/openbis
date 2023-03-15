@@ -20,7 +20,7 @@ class QueryFormExecuteResultsGrid extends React.PureComponent {
         columns={this.getColumns(tableModel)}
         rows={this.getRows(tableModel)}
         exportable={{
-          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.TSV,
           filePrefix: 'query-results'
         }}
         selectable={true}

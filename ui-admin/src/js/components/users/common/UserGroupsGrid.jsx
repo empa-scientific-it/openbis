@@ -40,7 +40,7 @@ export default class GroupsGrid extends React.PureComponent {
         ]}
         rows={rows}
         exportable={{
-          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.TSV,
           filePrefix: 'groups'
         }}
         selectable={true}

@@ -80,9 +80,9 @@ export default class GridController {
         filePath: null
       },
       exportOptions: {
-        columns: GridExportOptions.VISIBLE_COLUMNS,
-        rows: GridExportOptions.CURRENT_PAGE,
-        values: GridExportOptions.RICH_TEXT,
+        columns: GridExportOptions.COLUMNS.VISIBLE,
+        rows: GridExportOptions.ROWS.CURRENT_PAGE,
+        values: GridExportOptions.VALUES.RICH_TEXT,
         includeDependencies: true
       }
     })
@@ -504,21 +504,21 @@ export default class GridController {
 
       exportOptions.columns = this._getEnumValue(
         loaded.exportOptions.columns,
-        GridExportOptions.COLUMNS_OPTIONS
+        Object.values(GridExportOptions.COLUMNS)
       )
       exportOptions.rows = this._getEnumValue(
         loaded.exportOptions.rows,
-        GridExportOptions.ROWS_OPTIONS
+        Object.values(GridExportOptions.ROWS)
       )
       exportOptions.values = this._getEnumValue(
         loaded.exportOptions.values,
-        GridExportOptions.VALUES_OPTIONS
+        Object.values(GridExportOptions.VALUES)
       )
       exportOptions.includeDependencies = this._getBooleanValue(
         loaded.exportOptions.includeDependencies
       )
 
-      if (_.isEmpty(exportOptions)) {
+      if (!_.isEmpty(exportOptions)) {
         settings.exportOptions = exportOptions
       }
     }
@@ -1038,9 +1038,9 @@ export default class GridController {
 
     if (!exportable) {
       return
-    } else if (exportable.fileFormat === GridExportOptions.TSV_FILE_FORMAT) {
+    } else if (exportable.fileFormat === GridExportOptions.FILE_FORMAT.TSV) {
       await this.handleExportTSV(exportable)
-    } else if (exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT) {
+    } else if (exportable.fileFormat === GridExportOptions.FILE_FORMAT.XLS) {
       await this.handleExportXLS(exportable)
     }
   }
@@ -1096,7 +1096,7 @@ export default class GridController {
 
       var exportedRows = []
 
-      if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
+      if (exportOptions.rows === GridExportOptions.ROWS.ALL_PAGES) {
         if (state.local) {
           exportedRows = state.sortedRows
         } else if (props.loadRows) {
@@ -1109,9 +1109,9 @@ export default class GridController {
           })
           exportedRows = loadedResult.rows
         }
-      } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
+      } else if (exportOptions.rows === GridExportOptions.ROWS.CURRENT_PAGE) {
         exportedRows = state.rows
-      } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+      } else if (exportOptions.rows === GridExportOptions.ROWS.SELECTED_ROWS) {
         exportedRows = Object.values(state.multiselectedRows).map(
           selectedRow => selectedRow.data
         )
@@ -1127,9 +1127,9 @@ export default class GridController {
 
       var exportedColumns = []
 
-      if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
+      if (exportOptions.columns === GridExportOptions.COLUMNS.ALL) {
         exportedColumns = _this.getAllColumns()
-      } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
+      } else if (exportOptions.columns === GridExportOptions.COLUMNS.VISIBLE) {
         const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
           await _this._loadColumns(
             exportedRows,
@@ -1172,9 +1172,11 @@ export default class GridController {
             rowValue = specialCharsRemover.value //Removes special HTML Chars
             rowValue = String(rowValue).replace(/\r?\n|\r|\t/g, ' ') //Remove carriage returns and tabs
 
-            if (exportOptions.values === GridExportOptions.RICH_TEXT) {
+            if (exportOptions.values === GridExportOptions.VALUES.RICH_TEXT) {
               // do nothing with the value
-            } else if (exportOptions.values === GridExportOptions.PLAIN_TEXT) {
+            } else if (
+              exportOptions.values === GridExportOptions.VALUES.PLAIN_TEXT
+            ) {
               rowValue = String(rowValue).replace(/<(?:.|\n)*?>/gm, '')
             } else {
               throw Error('Unsupported values option: ' + exportOptions.values)
@@ -1245,7 +1247,7 @@ export default class GridController {
 
       let exportedRows = []
 
-      if (exportOptions.rows === GridExportOptions.ALL_PAGES) {
+      if (exportOptions.rows === GridExportOptions.ROWS.ALL_PAGES) {
         if (state.local) {
           exportedRows = state.sortedRows
         } else if (props.loadRows) {
@@ -1266,9 +1268,9 @@ export default class GridController {
           })
           exportedRows = loadedResult.rows
         }
-      } else if (exportOptions.rows === GridExportOptions.CURRENT_PAGE) {
+      } else if (exportOptions.rows === GridExportOptions.ROWS.CURRENT_PAGE) {
         exportedRows = state.rows
-      } else if (exportOptions.rows === GridExportOptions.SELECTED_ROWS) {
+      } else if (exportOptions.rows === GridExportOptions.ROWS.SELECTED_ROWS) {
         exportedRows = Object.values(state.multiselectedRows).map(
           selectedRow => selectedRow.data
         )
@@ -1290,9 +1292,9 @@ export default class GridController {
 
       let exportedFieldsMap = {}
 
-      if (exportOptions.columns === GridExportOptions.ALL_COLUMNS) {
+      if (exportOptions.columns === GridExportOptions.COLUMNS.ALL) {
         exportedFieldsMap = {}
-      } else if (exportOptions.columns === GridExportOptions.VISIBLE_COLUMNS) {
+      } else if (exportOptions.columns === GridExportOptions.COLUMNS.VISIBLE) {
         const exportableFields = []
 
         // find visible exportable columns for the exported rows
@@ -1359,7 +1361,7 @@ export default class GridController {
         exportedValues: state.exportOptions.values,
         exportedImportCompatible: state.exportOptions.importCompatible,
         exportedReferredMasterData:
-          exportable.fileContent === GridExportOptions.TYPES_CONTENT &&
+          exportable.fileContent === GridExportOptions.FILE_CONTENT.TYPES &&
           state.exportOptions.includeDependencies
       })
 
