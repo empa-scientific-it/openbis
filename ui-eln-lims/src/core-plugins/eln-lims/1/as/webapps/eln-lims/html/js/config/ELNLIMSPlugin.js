@@ -20,11 +20,11 @@ $.extend(ELNLIMSPlugin.prototype, {
 	},
 	/*
 	 * JSON Configuration Extensions
-	 * forcedDisableRTF (Deprecated in favour of Custom Widgets configurable from the Instance Settings on the UI)
-	 * forceMonospaceFont (Deprecated in favour of Custom Widgets configurable from the Instance Settings on the UI)
-	 * experimentTypeDefinitionsExtension
-	 * sampleTypeDefinitionsExtension
-	 * dataSetTypeDefinitionsExtension
+	 * - forcedDisableRTF (Deprecated in favour of Custom Widgets configurable from the Instance Settings on the UI)
+	 * - forceMonospaceFont (Deprecated in favour of Custom Widgets configurable from the Instance Settings on the UI)
+	 * - experimentTypeDefinitionsExtension
+	 * - sampleTypeDefinitionsExtension
+	 * - dataSetTypeDefinitionsExtension
 	 */
 	forcedDisableRTF : ["$NAME"], /* Deprecated */
 	forceMonospaceFont : [],  /* Deprecated */
@@ -41,13 +41,14 @@ $.extend(ELNLIMSPlugin.prototype, {
 	 * First Generation Interceptors:
 	 * ONLY allow to add content in certain portions of the Interface.
 	 * ONLY available for Experiment, Sample and DataSet form views.
-	 *      experimentFormTop
-	 *      experimentFormBottom
-	 *      sampleFormTop
-	 *      sampleFormBottom
-	 *      dataSetFormTop
-	 *      dataSetFormBottom
-	 * These interceptors are easy to use, they allow to add custom components isolating the programmer from the rest of the form.
+	 * - experimentFormTop
+	 * - experimentFormBottom
+	 * - sampleFormTop
+	 * - sampleFormBottom
+	 * - dataSetFormTop
+	 * - dataSetFormBottom
+	 * These interceptors are easy to use.
+	 * They allow to add custom components isolating the programmer from the rest of the form.
 	 */
 	experimentFormTop : function($container, model) {
 
@@ -92,6 +93,8 @@ $.extend(ELNLIMSPlugin.prototype, {
 	 * Allow to intercept the before/after paint events for ALL form views and list views.
 	 * Allow the programmer to change the model before is displayed and any part of the view after.
 	 * Provide for versatility but with the added complexity of dealing with the complete form.
+	 * - beforeViewPaint
+	 * - afterViewPaint
 	 */
 	beforeViewPaint : function(viewType, model, $container) {
 
