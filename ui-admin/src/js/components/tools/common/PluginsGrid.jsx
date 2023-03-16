@@ -4,6 +4,7 @@ import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import EntityKind from '@src/js/components/common/dto/EntityKind.js'
+import date from '@src/js/common/date.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -68,6 +69,11 @@ class PluginsGrid extends React.PureComponent {
             renderValue: ({ value }) => {
               return <UserLink userId={value} />
             }
+          },
+          {
+            name: 'registrationDate',
+            label: messages.get(messages.REGISTRATION_DATE),
+            getValue: ({ row }) => date.format(row.registrationDate.value)
           }
         ]}
         rows={rows}

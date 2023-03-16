@@ -4,6 +4,7 @@ import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.
 import QueryLink from '@src/js/components/common/link/QueryLink.jsx'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import QueryType from '@src/js/components/common/dto/QueryType.js'
+import date from '@src/js/common/date.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -62,6 +63,11 @@ class QueriesGrid extends React.PureComponent {
             renderValue: ({ value }) => {
               return <UserLink userId={value} />
             }
+          },
+          {
+            name: 'registrationDate',
+            label: messages.get(messages.REGISTRATION_DATE),
+            getValue: ({ row }) => date.format(row.registrationDate.value)
           }
         ]}
         rows={rows}

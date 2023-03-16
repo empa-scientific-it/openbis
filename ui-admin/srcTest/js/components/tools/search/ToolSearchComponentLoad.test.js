@@ -80,6 +80,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'registrator',
             label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -124,6 +128,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'registrator',
             label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -167,6 +175,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'registrator',
             label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -230,6 +242,10 @@ async function testLoadWithObjectType(resultsFound) {
         {
           name: 'registrator',
           label: 'Registrator'
+        },
+        {
+          name: 'registrationDate',
+          label: 'Registration Date'
         }
       ],
       rows: resultsFound
