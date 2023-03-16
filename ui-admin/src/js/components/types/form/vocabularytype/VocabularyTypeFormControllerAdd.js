@@ -25,6 +25,10 @@ export default class VocabularyTypeFormControllerAdd {
         visible: false,
         enabled: false
       }),
+      registrationDate: FormUtil.createField({
+        visible: false,
+        enabled: false
+      }),
       original: null
     }
 

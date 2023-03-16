@@ -41,7 +41,9 @@ async function testSort() {
         { name: 'code', sort: null },
         { name: 'label', sort: 'asc' },
         { name: 'description', sort: null },
-        { name: 'official', sort: null }
+        { name: 'official', sort: null },
+        { name: 'registrator', sort: null },
+        { name: 'registrationDate', sort: null }
       ],
       rows: [
         { values: { label: 'Term 1' } },
@@ -65,7 +67,9 @@ async function testSort() {
         { name: 'code', sort: null },
         { name: 'label', sort: 'desc' },
         { name: 'description', sort: null },
-        { name: 'official', sort: null }
+        { name: 'official', sort: null },
+        { name: 'registrator', sort: null },
+        { name: 'registrationDate', sort: null }
       ],
       rows: [
         { values: { label: 'term B' } },

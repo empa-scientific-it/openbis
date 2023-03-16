@@ -5,6 +5,8 @@ import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
 import PropertyTypesGridXMLCell from '@src/js/components/types/common/PropertyTypesGridXMLCell.jsx'
+import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import date from '@src/js/common/date.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -102,6 +104,19 @@ class PropertyTypesGrid extends React.PureComponent {
             renderValue: ({ row }) => {
               return <PropertyTypesGridUsagesCell value={row.usages} />
             }
+          },
+          {
+            name: 'registrator',
+            label: messages.get(messages.REGISTRATOR),
+            getValue: ({ row }) => row.registrator,
+            renderValue: ({ value }) => {
+              return <UserLink userId={value} />
+            }
+          },
+          {
+            name: 'registrationDate',
+            label: messages.get(messages.REGISTRATION_DATE),
+            getValue: ({ row }) => date.format(row.registrationDate)
           }
         ]}
         rows={rows}
