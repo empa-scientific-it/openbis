@@ -2,6 +2,9 @@ function ELNLIMSPlugin() {
 	this.init();
 }
 
+/*
+ * Enum used by the Second Generation Interceptors
+ */
 var ViewType = {
     SPACE_FORM : 0,
     PROJECT_FORM : 1,
@@ -15,8 +18,16 @@ $.extend(ELNLIMSPlugin.prototype, {
 	init: function() {
 	
 	},
-	forcedDisableRTF : ["$NAME"],
-	forceMonospaceFont : [],
+	/*
+	 * JSON Configuration Extensions
+	 * forcedDisableRTF (Deprecated in favour of Custom Widgets configurable from the Instance Settings on the UI)
+	 * forceMonospaceFont (Deprecated in favour of Custom Widgets configurable from the Instance Settings on the UI)
+	 * experimentTypeDefinitionsExtension
+	 * sampleTypeDefinitionsExtension
+	 * dataSetTypeDefinitionsExtension
+	 */
+	forcedDisableRTF : ["$NAME"], /* Deprecated */
+	forceMonospaceFont : [],  /* Deprecated */
 	experimentTypeDefinitionsExtension : {
 
     },
@@ -26,6 +37,18 @@ $.extend(ELNLIMSPlugin.prototype, {
 	dataSetTypeDefinitionsExtension : {
 	
 	},
+	/*
+	 * First Generation Interceptors:
+	 * ONLY allow to add content in certain portions of the Interface.
+	 * ONLY available for Experiment, Sample and DataSet form views.
+	 *      experimentFormTop
+	 *      experimentFormBottom
+	 *      sampleFormTop
+	 *      sampleFormBottom
+	 *      dataSetFormTop
+	 *      dataSetFormBottom
+	 * These interceptors are easy to use, they allow to add custom components isolating the programmer from the rest of the form.
+	 */
 	experimentFormTop : function($container, model) {
 
     },
@@ -44,11 +67,14 @@ $.extend(ELNLIMSPlugin.prototype, {
 	dataSetFormBottom : function($container, model) {
 
 	},
+	/*
+	 * Reserved for internal use and discouraged to use. It is tricky to use properly.
+	 */
 	onSampleSave : function(sample, changesToDo, success, failed) {
         success();
 	},
 	/*
-	 * Format to be used for utilities
+	 * Allows to extend the utilities menu. Format to be used for utilities
 	 * {
      * icon : "fa fa-table",
      * uniqueViewName : "VIEW_NAME_TEST",
@@ -62,7 +88,10 @@ $.extend(ELNLIMSPlugin.prototype, {
 	    return [];
 	},
 	/*
-	 * View events
+	 * Second Generation Interceptors
+	 * Allow to intercept the before/after paint events for ALL form views and list views.
+	 * Allow the programmer to change the model before is displayed and any part of the view after.
+	 * Provide for versatility but with the added complexity of dealing with the complete form.
 	 */
 	beforeViewPaint : function(viewType, model, $container) {
 
