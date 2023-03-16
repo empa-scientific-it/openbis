@@ -44,10 +44,11 @@ var SettingsManagerUtils = new function() {
         }
         var initialGroupSettings = spaceSettings && Object.keys(spaceSettings).length == 2 && spaceSettings["inventorySpaces"] && spaceSettings["inventorySpacesReadOnly"];
         if(!spaceSettingsProperty || initialGroupSettings) { // Provide default empty settings when settings are missing
-            alert("Settings for group " + this.getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
-            spaceSettings = {
-                sampleTypeDefinitionsExtension : []
-            };
+//            alert("Settings for group " + this.getSpaceGroupPrefix(spaceCode) + " missing, please edit and save your settings, until then empty settings will be used.");
+//            spaceSettings = {
+//                sampleTypeDefinitionsExtension : []
+//            };
+            spaceSettings = this._defaultProfile;
         }
 
         var objectTypeCodes = [];
