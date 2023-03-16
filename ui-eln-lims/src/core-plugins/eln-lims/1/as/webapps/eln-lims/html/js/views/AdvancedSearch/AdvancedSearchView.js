@@ -821,7 +821,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.STATUS", label : "Archiving status [ATTR.STATUS]" },
 				         { value : "ATTR.PRESENT_IN_ARCHIVE", label : "Present in archive [ATTR.PRESENT_IN_ARCHIVE]" },
 				         { value : "ATTR.STORAGE_CONFIRMATION", label : "Storage confirmation [ATTR.STORAGE_CONFIRMATION]" },
-				         { value : "ATTR.SIZE", label : "Size [ATTR.SIZE]" },
+				         { value : "ATTR.SIZE", label : "Size (bytes) [ATTR.SIZE]" },
 //				         { value : "ATTR.METAPROJECT", label : "Tag [ATTR.METAPROJECT]" }, TO-DO Not supported by ELN yet
 				         { value : "ATTR.REGISTRATOR", label : "Registrator [ATTR.REGISTRATOR]" },
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date [ATTR.REGISTRATION_DATE]" },
@@ -1096,7 +1096,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     }
                 });
                 columns.push({
-                    label : "Size In Bytes",
+                    label : "Size (bytes)",
                     property : "size",
                     isExportable : false,
                     sortable : false,
