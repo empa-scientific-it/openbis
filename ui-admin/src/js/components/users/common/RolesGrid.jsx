@@ -8,6 +8,7 @@ import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import openbis from '@src/js/services/openbis.js'
 import ids from '@src/js/common/consts/ids.js'
+import date from '@src/js/common/date.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -44,6 +45,8 @@ class RolesGrid extends React.PureComponent {
     } else {
       throw 'Unsupported id: ' + id
     }
+
+    columnNames.push('registrator', 'registrationDate')
 
     const columns = this.getColumns().filter(
       column => columnNames.indexOf(column.name) !== -1
@@ -236,6 +239,20 @@ class RolesGrid extends React.PureComponent {
                 this.compareProjectValue(params))
           )
         }
+      },
+      {
+        name: 'registrator',
+        label: messages.get(messages.REGISTRATOR),
+        getValue: ({ row }) => row.registrator.value,
+        renderValue: ({ value }) => {
+          return <UserLink userId={value} />
+        }
+      },
+      {
+        name: 'registrationDate',
+        label: messages.get(messages.REGISTRATION_DATE),
+        getValue: ({ row }) => date.format(row.registrationDate.value),
+        renderValue: this.renderDefault
       }
     ]
   }

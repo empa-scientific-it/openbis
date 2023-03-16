@@ -109,6 +109,24 @@ async function testLoadExisting() {
         label: 'Description',
         filter: null,
         sort: null
+      },
+      {
+        name: 'registrator',
+        label: 'Registrator',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrationDate',
+        label: 'Registration Date',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'modificationDate',
+        label: 'Modification Date',
+        filter: null,
+        sort: null
       }
     ],
     rows: [
@@ -153,6 +171,18 @@ async function testLoadExisting() {
       {
         name: 'role',
         label: 'Role',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrator',
+        label: 'Registrator',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrationDate',
+        label: 'Registration Date',
         filter: null,
         sort: null
       }

@@ -60,6 +60,14 @@ export default class UserFormControllerRecalculateInheritedRoles {
           role: FormUtil.createField({
             value: _.get(roleDefinition, 'role'),
             enabled: false
+          }),
+          registrator: FormUtil.createField({
+            value: _.get(roleDefinition, 'registrator.userId'),
+            enabled: false
+          }),
+          registrationDate: FormUtil.createField({
+            value: _.get(roleDefinition, 'registrationDate'),
+            enabled: false
           })
         }
 

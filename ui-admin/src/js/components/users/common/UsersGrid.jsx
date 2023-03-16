@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import date from '@src/js/common/date.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -63,6 +64,19 @@ class UsersGrid extends React.PureComponent {
             name: 'active',
             label: messages.get(messages.ACTIVE),
             getValue: ({ row }) => row.active.value
+          },
+          {
+            name: 'registrator',
+            label: messages.get(messages.REGISTRATOR),
+            getValue: ({ row }) => row.registrator.value,
+            renderValue: ({ value }) => {
+              return <UserLink userId={value} />
+            }
+          },
+          {
+            name: 'registrationDate',
+            label: messages.get(messages.REGISTRATION_DATE),
+            getValue: ({ row }) => date.format(row.registrationDate.value)
           }
         ]}
         rows={rows}

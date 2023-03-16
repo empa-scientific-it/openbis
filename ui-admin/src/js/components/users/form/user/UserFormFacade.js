@@ -8,6 +8,7 @@ export default class UserFormFacade {
     fo.withRoleAssignments().withAuthorizationGroup()
     fo.withRoleAssignments().withSpace()
     fo.withRoleAssignments().withProject().withSpace()
+    fo.withRoleAssignments().withRegistrator()
     return openbis.getPersons([id], fo).then(map => {
       return map[userId]
     })
@@ -17,9 +18,11 @@ export default class UserFormFacade {
     const criteria = new openbis.AuthorizationGroupSearchCriteria()
     const fo = new openbis.AuthorizationGroupFetchOptions()
     fo.withUsers()
+    fo.withRegistrator()
     fo.withRoleAssignments().withAuthorizationGroup()
     fo.withRoleAssignments().withSpace()
     fo.withRoleAssignments().withProject().withSpace()
+    fo.withRoleAssignments().withRegistrator()
     return openbis.searchAuthorizationGroups(criteria, fo).then(result => {
       return result.getObjects().filter(group => {
         return group.getUsers().some(user => {
@@ -32,9 +35,11 @@ export default class UserFormFacade {
   async loadGroups() {
     const criteria = new openbis.AuthorizationGroupSearchCriteria()
     const fo = new openbis.AuthorizationGroupFetchOptions()
+    fo.withRegistrator()
     fo.withRoleAssignments().withAuthorizationGroup()
     fo.withRoleAssignments().withSpace()
     fo.withRoleAssignments().withProject().withSpace()
+    fo.withRoleAssignments().withRegistrator()
     return openbis.searchAuthorizationGroups(criteria, fo).then(result => {
       return result.getObjects()
     })

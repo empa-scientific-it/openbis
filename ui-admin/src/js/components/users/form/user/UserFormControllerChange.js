@@ -75,6 +75,20 @@ export default class UserFormControllerChange extends PageControllerChange {
         description: {
           ...newGroup.description,
           value: groupDefinition.description
+        },
+        registrator: {
+          ...newGroup.registrator,
+          value: groupDefinition.registrator
+            ? groupDefinition.registrator.userId
+            : null
+        },
+        registrationDate: {
+          ...newGroup.registrationDate,
+          value: groupDefinition.registrationDate
+        },
+        modificationDate: {
+          ...newGroup.modificationDate,
+          value: groupDefinition.modificationDate
         }
       })
 
