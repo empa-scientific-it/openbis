@@ -77,13 +77,13 @@ $.extend(ELNLIMSPlugin.prototype, {
 	/*
 	 * Allows to extend the utilities menu. Format to be used for utilities
 	 * {
-     * icon : "fa fa-table",
-     * uniqueViewName : "VIEW_NAME_TEST",
-     * label : "Label Test",
-     * paintView : function($header, $content) {
-     *         $header.append($("<h1>").append("Test Header"));
-     *         $content.append($("<p>").append("Test Body"));
-     * }
+	 * icon : "fa fa-table",
+	 * uniqueViewName : "VIEW_NAME_TEST",
+	 * label : "Label Test",
+	 * paintView : function($header, $content) {
+	 *         $header.append($("<h1>").append("Test Header"));
+	 *         $content.append($("<p>").append("Test Body"));
+	 * }
 	 */
 	getExtraUtilities : function() {
 	    return [];
