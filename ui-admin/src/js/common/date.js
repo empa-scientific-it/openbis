@@ -8,7 +8,7 @@ const MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR
 const MILLIS_PER_YEAR = 365 * MILLIS_PER_DAY
 
 function format(value) {
-  if (value === null) {
+  if (_.isNil(value)) {
     return ''
   }
 
@@ -56,13 +56,24 @@ function duration(millis) {
 
 function inRange(value, from, to) {
   if (from || to) {
-    if (value === null || value === undefined) {
+    if (_.isNil(value)) {
       return false
     }
-    if (from && value.getTime() < from.getTime()) {
+
+    var time = null
+
+    if (_.isNumber(value)) {
+      time = value
+    } else if (_.isDate(value)) {
+      time = value.getTime()
+    } else {
       return false
     }
-    if (to && value.getTime() > to.getTime()) {
+
+    if (from && time < from.getTime()) {
+      return false
+    }
+    if (to && time > to.getTime()) {
       return false
     }
   }

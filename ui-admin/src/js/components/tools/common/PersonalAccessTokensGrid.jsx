@@ -2,9 +2,8 @@ import _ from 'lodash'
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
-import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import ServerInformation from '@src/js/components/common/dto/ServerInformation.js'
 import AppController from '@src/js/components/AppController.js'
@@ -41,14 +40,11 @@ class PersonalAccessTokensGrid extends React.PureComponent {
             getValue: ({ row }) => row.hash.value,
             nowrap: true
           },
-          {
+          GridUtil.userColumn({
             name: 'owner',
             label: messages.get(messages.OWNER),
-            getValue: ({ row }) => row.owner.value,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
+            path: 'owner.value'
+          }),
           {
             name: 'sessionName',
             label: messages.get(messages.SESSION_NAME),
@@ -67,8 +63,16 @@ class PersonalAccessTokensGrid extends React.PureComponent {
               }
             }
           },
-          dateColumn('validFromDate', messages.get(messages.VALID_FROM)),
-          dateColumn('validToDate', messages.get(messages.VALID_TO)),
+          GridUtil.dateColumn({
+            name: 'validFromDate',
+            label: messages.get(messages.VALID_FROM),
+            path: 'validFromDate.value.dateObject'
+          }),
+          GridUtil.dateColumn({
+            name: 'validToDate',
+            label: messages.get(messages.VALID_TO),
+            path: 'validToDate.value.dateObject'
+          }),
           {
             name: 'validityPeriod',
             label: messages.get(messages.VALIDITY_PERIOD),
@@ -231,19 +235,15 @@ class PersonalAccessTokensGrid extends React.PureComponent {
             },
             nowrap: true
           },
-          {
-            name: 'registrator',
-            label: messages.get(messages.REGISTRATOR),
-            getValue: ({ row }) => row.registrator.value,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
-          dateColumn(
-            'registrationDate',
-            messages.get(messages.REGISTRATION_DATE)
-          ),
-          dateColumn('accessDate', messages.get(messages.ACCESS_DATE))
+          GridUtil.dateColumn({
+            name: 'accessDate',
+            label: messages.get(messages.ACCESS_DATE),
+            path: 'accessDate.value.dateObject'
+          }),
+          GridUtil.registratorColumn({ path: 'registrator.value' }),
+          GridUtil.registrationDateColumn({
+            path: 'registrationDate.value.dateObject'
+          })
         ]}
         rows={rows}
         sortings={[
@@ -260,32 +260,6 @@ class PersonalAccessTokensGrid extends React.PureComponent {
         onSelectedRowChange={onSelectedRowChange}
       />
     )
-  }
-}
-
-function dateColumn(name, message) {
-  return {
-    name: name,
-    label: message,
-    getValue: ({ row }) => {
-      return date.format(row[name].value ? row[name].value.dateObject : null)
-    },
-    renderFilter: ({ value, onChange }) => {
-      return (
-        <DateRangeField value={value} variant='standard' onChange={onChange} />
-      )
-    },
-    matchesValue: ({ row, value, filter, defaultMatches }) => {
-      if (_.isString(filter)) {
-        return defaultMatches(value, filter)
-      } else {
-        return date.inRange(
-          row[name].value ? row[name].value.dateObject : null,
-          filter.from ? filter.from.dateObject : null,
-          filter.to ? filter.to.dateObject : null
-        )
-      }
-    }
   }
 }
 

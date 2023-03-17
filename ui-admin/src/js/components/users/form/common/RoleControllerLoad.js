@@ -52,6 +52,12 @@ export default class RoleControllerLoad {
       role: FormUtil.createField({
         value: _.get(loadedRole, 'role', null),
         enabled: inheritedFrom === null
+      }),
+      registrator: FormUtil.createField({
+        value: _.get(loadedRole, 'registrator.userId', null)
+      }),
+      registrationDate: FormUtil.createField({
+        value: _.get(loadedRole, 'registrationDate', null)
       })
     }
     role.original = _.cloneDeep(role)

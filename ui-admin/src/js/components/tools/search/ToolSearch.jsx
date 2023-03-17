@@ -115,6 +115,9 @@ class ToolSearch extends React.Component {
           script: FormUtil.createField({ value: _.get(plugin, 'script') }),
           registrator: FormUtil.createField({
             value: _.get(plugin, 'registrator.userId')
+          }),
+          registrationDate: FormUtil.createField({
+            value: _.get(plugin, 'registrationDate')
           })
         }
       })
@@ -158,6 +161,9 @@ class ToolSearch extends React.Component {
         }),
         registrator: FormUtil.createField({
           value: _.get(query, 'registrator.userId')
+        }),
+        registrationDate: FormUtil.createField({
+          value: _.get(query, 'registrationDate')
         })
       }))
 

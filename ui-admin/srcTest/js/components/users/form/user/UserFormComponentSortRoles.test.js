@@ -126,6 +126,14 @@ async function testSortRoles() {
         {
           name: 'role',
           sort: null
+        },
+        {
+          name: 'registrator',
+          sort: null
+        },
+        {
+          name: 'registrationDate',
+          sort: null
         }
       ],
       rows: [
@@ -163,6 +171,14 @@ async function testSortRoles() {
         },
         {
           name: 'role',
+          sort: null
+        },
+        {
+          name: 'registrator',
+          sort: null
+        },
+        {
+          name: 'registrationDate',
           sort: null
         }
       ],
@@ -202,6 +218,14 @@ async function testSortRoles() {
         {
           name: 'role',
           sort: null
+        },
+        {
+          name: 'registrator',
+          sort: null
+        },
+        {
+          name: 'registrationDate',
+          sort: null
         }
       ],
       rows: [
@@ -239,6 +263,14 @@ async function testSortRoles() {
         },
         {
           name: 'role',
+          sort: null
+        },
+        {
+          name: 'registrator',
+          sort: null
+        },
+        {
+          name: 'registrationDate',
           sort: null
         }
       ],
@@ -278,6 +310,14 @@ async function testSortRoles() {
         {
           name: 'role',
           sort: 'asc'
+        },
+        {
+          name: 'registrator',
+          sort: null
+        },
+        {
+          name: 'registrationDate',
+          sort: null
         }
       ],
       rows: [

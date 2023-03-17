@@ -65,6 +65,7 @@ class UserSearch extends React.Component {
 
     const fo = new openbis.PersonFetchOptions()
     fo.withSpace()
+    fo.withRegistrator()
 
     const result = await openbis.searchPersons(
       new openbis.PersonSearchCriteria(),
@@ -80,7 +81,13 @@ class UserSearch extends React.Component {
         lastName: FormUtil.createField({ value: _.get(object, 'lastName') }),
         email: FormUtil.createField({ value: _.get(object, 'email') }),
         space: FormUtil.createField({ value: _.get(object, 'space.code') }),
-        active: FormUtil.createField({ value: _.get(object, 'active') })
+        active: FormUtil.createField({ value: _.get(object, 'active') }),
+        registrator: FormUtil.createField({
+          value: _.get(object, 'registrator.userId')
+        }),
+        registrationDate: FormUtil.createField({
+          value: _.get(object, 'registrationDate')
+        })
       }))
 
     this.setState({
@@ -96,11 +103,13 @@ class UserSearch extends React.Component {
     const userFo = new openbis.PersonFetchOptions()
     userFo.withRoleAssignments().withSpace()
     userFo.withRoleAssignments().withProject().withSpace()
+    userFo.withRoleAssignments().withRegistrator()
 
     const groupFo = new openbis.AuthorizationGroupFetchOptions()
     groupFo.withUsers()
     groupFo.withRoleAssignments().withSpace()
     groupFo.withRoleAssignments().withProject().withSpace()
+    groupFo.withRoleAssignments().withRegistrator()
 
     const [userResult, groupResult] = await Promise.all([
       openbis.searchPersons(new openbis.PersonSearchCriteria(), userFo),
@@ -143,6 +152,12 @@ class UserSearch extends React.Component {
             project: FormUtil.createField({ value: project }),
             role: FormUtil.createField({
               value: _.get(userAssignment, 'role', null)
+            }),
+            registrator: FormUtil.createField({
+              value: _.get(userAssignment, 'registrator.userId')
+            }),
+            registrationDate: FormUtil.createField({
+              value: _.get(userAssignment, 'registrationDate')
             })
           })
         })
@@ -184,6 +199,12 @@ class UserSearch extends React.Component {
             project: FormUtil.createField({ value: project }),
             role: FormUtil.createField({
               value: _.get(groupAssignment, 'role', null)
+            }),
+            registrator: FormUtil.createField({
+              value: _.get(groupAssignment, 'registrator.userId')
+            }),
+            registrationDate: FormUtil.createField({
+              value: _.get(groupAssignment, 'registrationDate')
             })
           })
         })
@@ -200,9 +221,12 @@ class UserSearch extends React.Component {
       return
     }
 
+    const fo = new openbis.AuthorizationGroupFetchOptions()
+    fo.withRegistrator()
+
     const result = await openbis.searchAuthorizationGroups(
       new openbis.AuthorizationGroupSearchCriteria(),
-      new openbis.AuthorizationGroupFetchOptions()
+      fo
     )
 
     const userGroups = util
@@ -212,6 +236,15 @@ class UserSearch extends React.Component {
         code: FormUtil.createField({ value: _.get(object, 'code') }),
         description: FormUtil.createField({
           value: _.get(object, 'description')
+        }),
+        registrator: FormUtil.createField({
+          value: _.get(object, 'registrator.userId')
+        }),
+        registrationDate: FormUtil.createField({
+          value: _.get(object, 'registrationDate')
+        }),
+        modificationDate: FormUtil.createField({
+          value: _.get(object, 'modificationDate')
         })
       }))
 
@@ -228,6 +261,7 @@ class UserSearch extends React.Component {
     const fo = new openbis.AuthorizationGroupFetchOptions()
     fo.withRoleAssignments().withSpace()
     fo.withRoleAssignments().withProject().withSpace()
+    fo.withRoleAssignments().withRegistrator()
 
     const result = await openbis.searchAuthorizationGroups(
       new openbis.AuthorizationGroupSearchCriteria(),
@@ -266,6 +300,12 @@ class UserSearch extends React.Component {
           project: FormUtil.createField({ value: project }),
           role: FormUtil.createField({
             value: _.get(roleAssignment, 'role', null)
+          }),
+          registrator: FormUtil.createField({
+            value: _.get(roleAssignment, 'registrator.userId')
+          }),
+          registrationDate: FormUtil.createField({
+            value: _.get(roleAssignment, 'registrationDate')
           })
         })
       })

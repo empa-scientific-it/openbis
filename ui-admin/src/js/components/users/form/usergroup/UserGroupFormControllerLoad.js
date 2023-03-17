@@ -109,6 +109,12 @@ export default class UserGroupFormControllerLoad extends PageControllerLoad {
       }),
       active: FormUtil.createField({
         value: _.get(loadedUser, 'active', null)
+      }),
+      registrator: FormUtil.createField({
+        value: _.get(loadedUser, 'registrator.userId', null)
+      }),
+      registrationDate: FormUtil.createField({
+        value: _.get(loadedUser, 'registrationDate', null)
       })
     }
     user.original = _.cloneDeep(user)
