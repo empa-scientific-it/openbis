@@ -110,8 +110,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
      * The designated constructor.
      */
     @Autowired
-    public DataStoreServerApi(IEncapsulatedOpenBISService openBISService,
-            IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider)
+    public DataStoreServerApi(IEncapsulatedOpenBISService openBISService, IQueryApiServer apiServer,
+            IPluginTaskInfoProvider infoProvider)
     {
         // NOTE: IShareIdManager and IHierarchicalContentProvider will be lazily created by spring
         this(openBISService, apiServer, infoProvider, new SimpleFreeSpaceProvider(), null, null);
@@ -121,16 +121,17 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             IPluginTaskInfoProvider infoProvider, IFreeSpaceProvider freeSpaceProvider,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
-        this(openBISService, apiServer, infoProvider, null, freeSpaceProvider, shareIdManager, contentProvider);
+        this(openBISService, apiServer, infoProvider, null, freeSpaceProvider, shareIdManager,
+                contentProvider);
     }
 
     /**
      * A constructor for testing.
      */
-    public DataStoreServerApi(IEncapsulatedOpenBISService openBISService,
-            IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider,
-            IStreamRepository streamRepository, IFreeSpaceProvider freeSpaceProvider,
-            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
+    public DataStoreServerApi(IEncapsulatedOpenBISService openBISService, IQueryApiServer apiServer,
+            IPluginTaskInfoProvider infoProvider, IStreamRepository streamRepository,
+            IFreeSpaceProvider freeSpaceProvider, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider contentProvider)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
         // queryApiServer = apiServer;
@@ -143,7 +144,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Override
-    public SearchResult<DataSetFile> searchFiles(String sessionToken, DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
+    public SearchResult<DataSetFile> searchFiles(String sessionToken,
+            DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
     {
         getOpenBISService().checkSession(sessionToken);
 
@@ -162,7 +164,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 DataSetFetchOptions fo = new DataSetFetchOptions();
                 fo.withDataStore();
                 SearchResult<DataSet> searchResult =
-                        as.searchDataSets(sessionToken, (DataSetSearchCriteria) iSearchCriterion, fo);
+                        as.searchDataSets(sessionToken, (DataSetSearchCriteria) iSearchCriterion,
+                                fo);
                 List<DataSet> dataSets = searchResult.getObjects();
                 HashSet<String> codes = new HashSet<String>();
 
@@ -192,7 +195,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         {
             for (String code : resultDataSets)
             {
-                IHierarchicalContent content = getHierarchicalContentProvider(sessionToken).asContent(code);
+                IHierarchicalContent content =
+                        getHierarchicalContentProvider(sessionToken).asContent(code);
                 for (IHierarchicalContentNode node : iterate(content.getRootNode()))
                 {
                     DataSet dataSet = dataSetMap.get(code);
@@ -207,8 +211,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Override
-    public FastDownloadSession createFastDownloadSession(String sessionToken, List<? extends IDataSetFileId> fileIds,
-            FastDownloadSessionOptions options)
+    public FastDownloadSession createFastDownloadSession(String sessionToken,
+            List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options)
     {
         getOpenBISService().checkSession(sessionToken);
         List<IDataSetFileId> files = new ArrayList<>();
@@ -216,10 +220,12 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         {
             String dataSetCode = entry.getKey();
             DataSetPermId dataSetId = new DataSetPermId(dataSetCode);
-            Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, dataSetCode);
+            Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer()
+                    .checkDatasetAccess(sessionToken, dataSetCode);
             if (authorizationStatus.isOK())
             {
-                files.addAll(entry.getValue().stream().map(p -> new DataSetFilePermId(dataSetId, p)).collect(Collectors.toList()));
+                files.addAll(entry.getValue().stream().map(p -> new DataSetFilePermId(dataSetId, p))
+                        .collect(Collectors.toList()));
             }
         }
         return new FastDownloadSession(getDownloadUrl(), sessionToken, files, options);
@@ -227,10 +233,10 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
     private String getDownloadUrl()
     {
-        Properties serviceProperties = (Properties) ServiceProvider.getApplicationContext().getBean("configProperties");
-        return serviceProperties.getProperty("download-url") + "/"
-                + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
-                + FileTransferServerServlet.SERVLET_NAME;
+        Properties serviceProperties =
+                (Properties) ServiceProvider.getApplicationContext().getBean("configProperties");
+        return serviceProperties.getProperty(
+                "download-url") + "/" + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/" + FileTransferServerServlet.SERVLET_NAME;
     }
 
     @Transactional(readOnly = true)
@@ -244,12 +250,14 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         Map<String, Set<String>> filesByDataSet = sortFilesByDataSets(fileIds);
 
         IHierarchicalContentProvider contentProvider = getHierarchicalContentProvider(sessionToken);
-        Map<IHierarchicalContentNode, String> contentNodes = new LinkedHashMap<IHierarchicalContentNode, String>();
+        Map<IHierarchicalContentNode, String> contentNodes =
+                new LinkedHashMap<IHierarchicalContentNode, String>();
         boolean recursive = downloadOptions.isRecursive();
         for (Entry<String, Set<String>> entry : filesByDataSet.entrySet())
         {
             String dataSetCode = entry.getKey();
-            Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, dataSetCode);
+            Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer()
+                    .checkDatasetAccess(sessionToken, dataSetCode);
             if (authorizationStatus.isOK())
             {
                 IHierarchicalContent content = contentProvider.asContent(dataSetCode);
@@ -277,7 +285,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         return new DataSetFileDownloadInputStream(contentNodes);
     }
 
-    private void populate(Map<String, IHierarchicalContentNode> nodesByPath, IHierarchicalContentNode node, Set<String> paths)
+    private void populate(Map<String, IHierarchicalContentNode> nodesByPath,
+            IHierarchicalContentNode node, Set<String> paths)
     {
         if (paths.contains(node.getRelativePath()))
         {
@@ -305,7 +314,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             DataSetFilePermId filePermId = (DataSetFilePermId) fileId;
             if (filePermId.getDataSetId() instanceof DataSetPermId == false)
             {
-                throw new IllegalArgumentException("Unsupported dataSetId: " + filePermId.getDataSetId());
+                throw new IllegalArgumentException(
+                        "Unsupported dataSetId: " + filePermId.getDataSetId());
             }
             String dataSetCode = ((DataSetPermId) filePermId.getDataSetId()).getPermId();
             Set<String> ids = filesByDataSet.get(dataSetCode);
@@ -323,22 +333,23 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     private Iterable<IHierarchicalContentNode> iterate(final IHierarchicalContentNode node)
     {
         return new Iterable<IHierarchicalContentNode>()
+        {
+            @Override
+            public Iterator<IHierarchicalContentNode> iterator()
             {
-                @Override
-                public Iterator<IHierarchicalContentNode> iterator()
-                {
-                    IteratorChain<IHierarchicalContentNode> chain = new IteratorChain<>(Collections.singleton(node).iterator());
+                IteratorChain<IHierarchicalContentNode> chain =
+                        new IteratorChain<>(Collections.singleton(node).iterator());
 
-                    if (node.isDirectory())
+                if (node.isDirectory())
+                {
+                    for (IHierarchicalContentNode child : node.getChildNodes())
                     {
-                        for (IHierarchicalContentNode child : node.getChildNodes())
-                        {
-                            chain.addIterator(iterate(child).iterator());
-                        }
+                        chain.addIterator(iterate(child).iterator());
                     }
-                    return chain;
                 }
-            };
+                return chain;
+            }
+        };
     }
 
     @Override
@@ -362,7 +373,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.PROJECT_USER })
-    public DataSetPermId createUploadedDataSet(String sessionToken, UploadedDataSetCreation creation)
+    public DataSetPermId createUploadedDataSet(String sessionToken,
+            UploadedDataSetCreation creation)
     {
         return createUploadedDataSetExecutor.create(sessionToken, creation);
     }
@@ -370,21 +382,25 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Override
     @Transactional
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
-    public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
+    public List<DataSetPermId> createDataSets(String sessionToken,
+            List<FullDataSetCreation> newDataSets)
     {
         if (PathInfoDataSourceProvider.isDataSourceDefined() == false)
         {
-            throw new IllegalStateException("Pathinfo DB not configured - cannot store dataset file information");
+            throw new IllegalStateException(
+                    "Pathinfo DB not configured - cannot store dataset file information");
         }
         injectDataStoreIdAndCodesIfNeeded(newDataSets);
-        IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
+        IPathsInfoDAO dao =
+                QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
 
         for (int i = 0; i < newDataSets.size(); i++)
         {
             FullDataSetCreation fullDataSetCreation = newDataSets.get(i);
             List<DataSetFileCreation> files = fullDataSetCreation.getFileMetadata();
 
-            long dataSetId = dao.createDataSet(fullDataSetCreation.getMetadataCreation().getCode(), "");
+            long dataSetId =
+                    dao.createDataSet(fullDataSetCreation.getMetadataCreation().getCode(), "");
             String dataSetCode = fullDataSetCreation.getMetadataCreation().getCode();
             PathInfoFeeder feeder = new PathInfoFeeder(dataSetId, dataSetCode, files);
 
@@ -426,8 +442,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 String code = ((DataStorePermId) dsid).getPermId();
                 if (dataStoreCode.equals(code) == false)
                 {
-                    throw new UserFailureException("Data store id specified for creation object with index "
-                            + i + " is '" + code + "' instead of '" + dataStoreCode + "' or undefined.");
+                    throw new UserFailureException(
+                            "Data store id specified for creation object with index " + i + " is '" + code + "' instead of '" + dataStoreCode + "' or undefined.");
                 }
             }
             metadataCreation.setDataStoreId(dataStoreId);
@@ -436,7 +452,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 numberOfPermIdsToGenerate++;
             } else if (StringUtils.isBlank(metadataCreation.getCode()))
             {
-                throw new UserFailureException("Neither code nor auto generating code specified in creation object with index " + i);
+                throw new UserFailureException(
+                        "Neither code nor auto generating code specified in creation object with index " + i);
             } else
             {
                 metadataCreation.setCode(StringUtils.upperCase(metadataCreation.getCode()));
@@ -457,7 +474,9 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         }
     }
 
-    @Override public Object createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
+    @Override
+    public Object createPersonalAccessTokenInvocationHandler(
+            final IPersonalAccessTokenInvocation invocation)
     {
         return new DataStoreServerApiPersonalAccessTokenInvocationHandler(invocation);
     }

@@ -15,20 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.dssapi.v3;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -46,6 +35,7 @@ import org.apache.log4j.Logger;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.filetransfer.Chunk;
 import ch.ethz.sis.filetransfer.DefaultSerializerProvider;
@@ -91,7 +81,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Ds
 
 /**
  * Servlet which provides download service of data set files using the file-transfer protocol.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class FileTransferServerServlet extends HttpServlet
@@ -100,7 +90,8 @@ public class FileTransferServerServlet extends HttpServlet
 
     public static final String SERVLET_NAME = "file-transfer";
 
-    private static final String MAXIMUM_NUMBER_OF_ALLOWED_STREAMS_PROPERTY = "api.v3.fast-download.maximum-number-of-allowed-streams";
+    private static final String MAXIMUM_NUMBER_OF_ALLOWED_STREAMS_PROPERTY =
+            "api.v3.fast-download.maximum-number-of-allowed-streams";
 
     private static final int DEFAULT_MAXIMUM_NUMBER_OF_ALLOWED_STREAMS = 50;
 
@@ -118,24 +109,28 @@ public class FileTransferServerServlet extends HttpServlet
     {
         super.init(servletConfig);
         ServletContext context = servletConfig.getServletContext();
-        ApplicationContext applicationContext = (ApplicationContext) context.getAttribute(DataStoreServer.APPLICATION_CONTEXT_KEY);
+        ApplicationContext applicationContext =
+                (ApplicationContext) context.getAttribute(DataStoreServer.APPLICATION_CONTEXT_KEY);
         DownloadServerConfig config = new DownloadServerConfig();
         ILogger logger = new Log4jBaseFileTransferLogger();
         config.setLogger(logger);
         config.setSessionManager(new IUserSessionManager()
+        {
+            @Override
+            public void validateDuringDownload(IUserSessionId userSessionId)
+                    throws InvalidUserSessionException
             {
-                @Override
-                public void validateDuringDownload(IUserSessionId userSessionId) throws InvalidUserSessionException
-                {
-                }
+            }
 
-                @Override
-                public void validateBeforeDownload(IUserSessionId userSessionId) throws InvalidUserSessionException
-                {
-                }
-            });
+            @Override
+            public void validateBeforeDownload(IUserSessionId userSessionId)
+                    throws InvalidUserSessionException
+            {
+            }
+        });
         Properties properties = applicationContext.getConfigParameters().getProperties();
-        config.setChunkProvider(new DataSetChunkProvider(applicationContext, FileUtils.ONE_MB, logger));
+        config.setChunkProvider(
+                new DataSetChunkProvider(applicationContext, FileUtils.ONE_MB, logger));
         config.setConcurrencyProvider(new ConcurrencyProvider(properties));
         config.setSerializerProvider(new DefaultSerializerProvider(logger));
         downloadServer = new DownloadServer(config);
@@ -145,27 +140,39 @@ public class FileTransferServerServlet extends HttpServlet
     }
 
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
     {
         try
         {
-            Map<String, String[]> parameterMap = request.getParameterMap();
-            String method = request.getParameter(FastDownloadParameter.METHOD_PARAMETER.getParameterName());
-            if (FastDownloadMethod.START_DOWNLOAD_SESSION_METHOD.getMethodName().equals(method))
+            Map<String, String[]> parameterMap = getParams(request);
+            String[] methodParam = parameterMap.getOrDefault(
+                    FastDownloadParameter.METHOD_PARAMETER.getParameterName(), new String[0]);
+            if (methodParam.length == 1)
             {
-                handleStartDownloadSession(parameterMap, response);
-            } else if (FastDownloadMethod.QUEUE_METHOD.getMethodName().equals(method))
-            {
-                handleQueue(parameterMap, response);
-            } else if (FastDownloadMethod.DOWNLOAD_METHOD.getMethodName().equals(method))
-            {
-                handleDownload(parameterMap, response);
-            } else if (FastDownloadMethod.FINISH_DOWNLOAD_SESSION_METHOD.getMethodName().equals(method))
-            {
-                handleFinishDownloadSession(parameterMap, response);
+                String method = methodParam[0];
+                if (FastDownloadMethod.START_DOWNLOAD_SESSION_METHOD.getMethodName().equals(method))
+                {
+                    handleStartDownloadSession(parameterMap, response);
+                } else if (FastDownloadMethod.QUEUE_METHOD.getMethodName().equals(method))
+                {
+                    handleQueue(parameterMap, response);
+                } else if (FastDownloadMethod.DOWNLOAD_METHOD.getMethodName().equals(method))
+                {
+                    handleDownload(parameterMap, response);
+                } else if (FastDownloadMethod.FINISH_DOWNLOAD_SESSION_METHOD.getMethodName()
+                        .equals(method))
+                {
+                    handleFinishDownloadSession(parameterMap, response);
+                } else
+                {
+                    throw new IllegalArgumentException("Unknown method '" + method + "'.");
+                }
             } else
             {
-                throw new IllegalArgumentException("Unknown method '" + method + "'.");
+                throw new IllegalArgumentException(
+                        "There must be a single method defined: '" + Arrays.toString(
+                                methodParam) + "'.");
             }
         } catch (Exception e)
         {
@@ -176,27 +183,63 @@ public class FileTransferServerServlet extends HttpServlet
         }
     }
 
-    private void handleStartDownloadSession(Map<String, String[]> parameterMap, HttpServletResponse response) throws ServletException, IOException
+
+    /**
+     * Helper method to extract parameters from body or query. Body should be in a simple json form
+     * composed of a (key, list) pairs
+     *
+     * @param request received request with params in either body or query
+     * @return map of parameters for further processing
+     * @throws IOException
+     */
+    private Map<String, String[]> getParams(HttpServletRequest request) throws IOException
+    {
+        BufferedReader bodyReader = request.getReader();
+        if (bodyReader.ready())
+        {
+            // there is non-empty body
+            ObjectMapper mapper = new ObjectMapper();
+            HashMap<String, String[]> result = new HashMap<>();
+            HashMap<String, List<String>> params = mapper.readValue(bodyReader, HashMap.class);
+            for (Map.Entry<String, List<String>> entry : params.entrySet())
+            {
+                result.put(entry.getKey(), entry.getValue().toArray(new String[0]));
+            }
+            return result;
+        } else
+        {
+            return request.getParameterMap();
+        }
+    }
+
+    private void handleStartDownloadSession(Map<String, String[]> parameterMap,
+            HttpServletResponse response) throws ServletException, IOException
     {
         IUserSessionId userSessionId = getUserSessionId(parameterMap);
         String sessionToken = userSessionId.getId();
-        List<IDownloadItemId> itemIds = filterByAccessRights(getDownloadItemIds(parameterMap), sessionToken);
-        Integer wishedNumberOfStreams = getInteger(parameterMap, FastDownloadParameter.WISHED_NUMBER_OF_STREAMS_PARAMETER);
+        List<IDownloadItemId> itemIds =
+                filterByAccessRights(getDownloadItemIds(parameterMap), sessionToken);
+        Integer wishedNumberOfStreams =
+                getInteger(parameterMap, FastDownloadParameter.WISHED_NUMBER_OF_STREAMS_PARAMETER);
         DownloadPreferences preferences = new DownloadPreferences(wishedNumberOfStreams);
-        DownloadSession downloadSession = downloadServer.startDownloadSession(userSessionId, itemIds, preferences);
+        DownloadSession downloadSession =
+                downloadServer.startDownloadSession(userSessionId, itemIds, preferences);
         addCleanupAction(sessionToken, downloadSession);
         response.setContentType("application/json");
         JsonGenerator jsonGenerator = jsonFactory.createGenerator(response.getWriter());
         jsonGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField(FastDownloadParameter.DOWNLOAD_SESSION_ID_PARAMETER.getParameterName(),
+        jsonGenerator.writeObjectField(
+                FastDownloadParameter.DOWNLOAD_SESSION_ID_PARAMETER.getParameterName(),
                 downloadSession.getDownloadSessionId().getId());
-        jsonGenerator.writeObjectFieldStart(FastDownloadParameter.RANGES_PARAMETER.getParameterName());
+        jsonGenerator.writeObjectFieldStart(
+                FastDownloadParameter.RANGES_PARAMETER.getParameterName());
         for (Entry<IDownloadItemId, DownloadRange> entry : downloadSession.getRanges().entrySet())
         {
             IDownloadItemId downloadItemId = entry.getKey();
             DownloadRange downloadRange = entry.getValue();
-            jsonGenerator.writeObjectField(downloadItemId.getId(), downloadRange.getStart() + ":" + downloadRange.getEnd());
+            jsonGenerator.writeObjectField(downloadItemId.getId(),
+                    downloadRange.getStart() + ":" + downloadRange.getEnd());
         }
         jsonGenerator.writeEndObject();
         jsonGenerator.writeArrayFieldStart("streamIds");
@@ -213,16 +256,17 @@ public class FileTransferServerServlet extends HttpServlet
     {
         DownloadSessionId downloadSessionId = downloadSession.getDownloadSessionId();
         dataStoreService.addCleanupAction(sessionToken, new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    downloadServer.finishDownloadSession(downloadSessionId);
-                }
-            });
+                downloadServer.finishDownloadSession(downloadSessionId);
+            }
+        });
     }
 
-    private List<IDownloadItemId> filterByAccessRights(List<IDownloadItemId> itemIds, String sessionToken)
+    private List<IDownloadItemId> filterByAccessRights(List<IDownloadItemId> itemIds,
+            String sessionToken)
     {
         List<IDownloadItemId> filteredIds = new ArrayList<>();
         Set<String> alreadyAccessApprovedDataSets = new HashSet<>();
@@ -237,13 +281,15 @@ public class FileTransferServerServlet extends HttpServlet
         return filteredIds;
     }
 
-    private boolean canAccess(Set<String> alreadyAccessApprovedDataSets, String dataSetCode, String sessionToken)
+    private boolean canAccess(Set<String> alreadyAccessApprovedDataSets, String dataSetCode,
+            String sessionToken)
     {
         if (alreadyAccessApprovedDataSets.contains(dataSetCode))
         {
             return true;
         }
-        Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(sessionToken, dataSetCode);
+        Status authorizationStatus = DssSessionAuthorizationHolder.getAuthorizer()
+                .checkDatasetAccess(sessionToken, dataSetCode);
         if (authorizationStatus.isOK() == false)
         {
             return false;
@@ -252,7 +298,8 @@ public class FileTransferServerServlet extends HttpServlet
         return true;
     }
 
-    private void handleQueue(Map<String, String[]> parameterMap, HttpServletResponse response) throws ServletException
+    private void handleQueue(Map<String, String[]> parameterMap, HttpServletResponse response)
+            throws ServletException
     {
         DownloadSessionId downloadSessionId = getDownloadSessionId(parameterMap);
         List<DownloadRange> ranges = new ArrayList<>();
@@ -273,35 +320,45 @@ public class FileTransferServerServlet extends HttpServlet
         downloadServer.queue(downloadSessionId, ranges);
     }
 
-    private void handleDownload(Map<String, String[]> parameterMap, HttpServletResponse response) throws ServletException, IOException
+    private void handleDownload(Map<String, String[]> parameterMap, HttpServletResponse response)
+            throws ServletException, IOException
     {
         DownloadSessionId downloadSessionId = getDownloadSessionId(parameterMap);
         DownloadStreamId streamId = new DownloadStreamId();
         ClassUtils.setFieldValue(streamId, "id",
-                getParameters(parameterMap, FastDownloadParameter.DOWNLOAD_STREAM_ID_PARAMETER).get(0));
-        Integer numberOfChunksOrNull = getInteger(parameterMap, FastDownloadParameter.NUMBER_OF_CHUNKS_PARAMETER);
-        InputStream stream = downloadServer.download(downloadSessionId, streamId, numberOfChunksOrNull);
+                getParameters(parameterMap, FastDownloadParameter.DOWNLOAD_STREAM_ID_PARAMETER).get(
+                        0));
+        Integer numberOfChunksOrNull =
+                getInteger(parameterMap, FastDownloadParameter.NUMBER_OF_CHUNKS_PARAMETER);
+        InputStream stream =
+                downloadServer.download(downloadSessionId, streamId, numberOfChunksOrNull);
         response.setContentType("application/octet-stream");
         IOUtils.copyLarge(stream, response.getOutputStream());
     }
 
-    private void handleFinishDownloadSession(Map<String, String[]> parameterMap, HttpServletResponse response) throws ServletException
+    private void handleFinishDownloadSession(Map<String, String[]> parameterMap,
+            HttpServletResponse response) throws ServletException
     {
         downloadServer.finishDownloadSession(getDownloadSessionId(parameterMap));
     }
 
-    private IUserSessionId getUserSessionId(Map<String, String[]> parameterMap) throws ServletException
+    private IUserSessionId getUserSessionId(Map<String, String[]> parameterMap)
+            throws ServletException
     {
-        return new UserSessionId(getParameters(parameterMap, FastDownloadParameter.USER_SESSION_ID_PARAMETER).get(0));
+        return new UserSessionId(
+                getParameters(parameterMap, FastDownloadParameter.USER_SESSION_ID_PARAMETER).get(
+                        0));
     }
 
-    private List<IDownloadItemId> getDownloadItemIds(Map<String, String[]> parameterMap) throws ServletException
+    private List<IDownloadItemId> getDownloadItemIds(Map<String, String[]> parameterMap)
+            throws ServletException
     {
         return getParameters(parameterMap, FastDownloadParameter.DOWNLOAD_ITEM_IDS_PARAMETER)
                 .stream().map(DownloadItemId::new).collect(Collectors.toList());
     }
 
-    private DownloadSessionId getDownloadSessionId(Map<String, String[]> parameterMap) throws ServletException
+    private DownloadSessionId getDownloadSessionId(Map<String, String[]> parameterMap)
+            throws ServletException
     {
         DownloadSessionId downloadSessionId = new DownloadSessionId();
         ClassUtils.setFieldValue(downloadSessionId, "id", getParameters(parameterMap,
@@ -309,7 +366,8 @@ public class FileTransferServerServlet extends HttpServlet
         return downloadSessionId;
     }
 
-    private List<String> getParameters(Map<String, String[]> parameterMap, FastDownloadParameter parameter) throws ServletException
+    private List<String> getParameters(Map<String, String[]> parameterMap,
+            FastDownloadParameter parameter) throws ServletException
     {
         String parameterName = parameter.getParameterName();
         String[] items = parameterMap.get(parameterName);
@@ -329,7 +387,8 @@ public class FileTransferServerServlet extends HttpServlet
         return result;
     }
 
-    private Integer getInteger(Map<String, String[]> parameterMap, FastDownloadParameter parameter) throws ServletException
+    private Integer getInteger(Map<String, String[]> parameterMap, FastDownloadParameter parameter)
+            throws ServletException
     {
         String parameterName = parameter.getParameterName();
         String[] parameters = parameterMap.get(parameterName);
@@ -342,7 +401,8 @@ public class FileTransferServerServlet extends HttpServlet
             return Integer.valueOf(parameters[0]);
         } catch (NumberFormatException e)
         {
-            throw new ServletException("Parameter '" + parameterName + "' is not an integer: " + parameters[0]);
+            throw new ServletException(
+                    "Parameter '" + parameterName + "' is not an integer: " + parameters[0]);
         }
     }
 
@@ -353,24 +413,30 @@ public class FileTransferServerServlet extends HttpServlet
         private ConcurrencyProvider(Properties properties)
         {
             maximumNumberOfAllowedStreams =
-                    PropertyUtils.getInt(properties, MAXIMUM_NUMBER_OF_ALLOWED_STREAMS_PROPERTY, DEFAULT_MAXIMUM_NUMBER_OF_ALLOWED_STREAMS);
+                    PropertyUtils.getInt(properties, MAXIMUM_NUMBER_OF_ALLOWED_STREAMS_PROPERTY,
+                            DEFAULT_MAXIMUM_NUMBER_OF_ALLOWED_STREAMS);
             operationLog.info("max number of allowed streams: " + maximumNumberOfAllowedStreams);
         }
 
         @Override
-        public int getAllowedNumberOfStreams(IUserSessionId userSessionId, Integer wishedNumberOfStreams, List<DownloadState> downloadStates)
+        public int getAllowedNumberOfStreams(IUserSessionId userSessionId,
+                Integer wishedNumberOfStreams, List<DownloadState> downloadStates)
                 throws DownloadException
         {
-            int currentNumberOfStreams = downloadStates.stream().collect(Collectors.summingInt(DownloadState::getCurrentNumberOfStreams));
+            int currentNumberOfStreams = downloadStates.stream()
+                    .collect(Collectors.summingInt(DownloadState::getCurrentNumberOfStreams));
             int freeNumberOfStreams = maximumNumberOfAllowedStreams - currentNumberOfStreams;
             int allowedNumberOfStreams = freeNumberOfStreams / 2;
             if (wishedNumberOfStreams != null && wishedNumberOfStreams < allowedNumberOfStreams)
             {
                 allowedNumberOfStreams = wishedNumberOfStreams;
             }
-            operationLog.info("current number of streams: " + currentNumberOfStreams + ", wished number of streams: "
-                    + (wishedNumberOfStreams == null ? "unspecified" : wishedNumberOfStreams)
-                    + ", allowed number of streams: " + allowedNumberOfStreams);
+            operationLog.info(
+                    "current number of streams: " + currentNumberOfStreams + ", wished number of streams: "
+                            + (wishedNumberOfStreams == null ?
+                            "unspecified" :
+                            wishedNumberOfStreams)
+                            + ", allowed number of streams: " + allowedNumberOfStreams);
             return allowedNumberOfStreams;
         }
     }
@@ -383,7 +449,8 @@ public class FileTransferServerServlet extends HttpServlet
 
         private long chunkSize;
 
-        private DataSetChunkProvider(ApplicationContext applicationContext, long chunkSize, ILogger logger)
+        private DataSetChunkProvider(ApplicationContext applicationContext, long chunkSize,
+                ILogger logger)
         {
             this.applicationContext = applicationContext;
             this.chunkSize = chunkSize;
@@ -394,7 +461,8 @@ public class FileTransferServerServlet extends HttpServlet
         public Map<IDownloadItemId, List<Chunk>> getChunks(List<IDownloadItemId> itemIds)
                 throws DownloadItemNotFoundException, DownloadException
         {
-            IHierarchicalContentProvider contentProvider = applicationContext.getHierarchicalContentProvider(null);
+            IHierarchicalContentProvider contentProvider =
+                    applicationContext.getHierarchicalContentProvider(null);
             Map<IDownloadItemId, List<Chunk>> result = new HashMap<IDownloadItemId, List<Chunk>>();
             AtomicInteger sequenceNumber = new AtomicInteger(0);
 
@@ -413,7 +481,8 @@ public class FileTransferServerServlet extends HttpServlet
             return result;
         }
 
-        private void addChunks(List<Chunk> chunks, AtomicInteger sequenceNumber, IHierarchicalContentNode node,
+        private void addChunks(List<Chunk> chunks, AtomicInteger sequenceNumber,
+                IHierarchicalContentNode node,
                 IDownloadItemId itemId)
         {
             boolean directory = node.isDirectory();
@@ -430,16 +499,19 @@ public class FileTransferServerServlet extends HttpServlet
                 long fileOffset = 0;
                 do
                 {
-                    int payloadLength = (int) (Math.min(fileOffset + chunkSize, fileSize) - fileOffset);
+                    int payloadLength =
+                            (int) (Math.min(fileOffset + chunkSize, fileSize) - fileOffset);
                     File file = node.tryGetFile();
                     Chunk chunk;
                     if (file != null)
                     {
-                        chunk = new FileChunk(sequenceNumber.getAndIncrement(), itemId, node.getRelativePath(),
+                        chunk = new FileChunk(sequenceNumber.getAndIncrement(), itemId,
+                                node.getRelativePath(),
                                 fileOffset, payloadLength, file.toPath(), logger);
                     } else
                     {
-                        chunk = new InputStreamBasedChunk(sequenceNumber.getAndIncrement(), itemId, node.getRelativePath(),
+                        chunk = new InputStreamBasedChunk(sequenceNumber.getAndIncrement(), itemId,
+                                node.getRelativePath(),
                                 fileOffset, payloadLength, node.getInputStream(), logger);
                     }
                     chunks.add(chunk);
@@ -455,7 +527,8 @@ public class FileTransferServerServlet extends HttpServlet
 
         private ILogger logger;
 
-        public InputStreamBasedChunk(int sequenceNumber, IDownloadItemId downloadItemId, String filePath,
+        public InputStreamBasedChunk(int sequenceNumber, IDownloadItemId downloadItemId,
+                String filePath,
                 long fileOffset, int payloadLength, InputStream inputStream, ILogger logger)
         {
             super(sequenceNumber, downloadItemId, false, filePath, fileOffset, payloadLength);
@@ -475,16 +548,20 @@ public class FileTransferServerServlet extends HttpServlet
                 return new ByteArrayInputStream(outputStream.toByteArray());
             } catch (IOException e)
             {
-                DownloadException downloadException = new DownloadException("Can not get payload for chunk "
-                        + getSequenceNumber() + " staring at " + getFileOffset() + " of " + getFilePath(), e, false);
-                logger.log(InputStreamBasedChunk.class, LogLevel.ERROR, downloadException.getMessage());
+                DownloadException downloadException =
+                        new DownloadException("Can not get payload for chunk "
+                                + getSequenceNumber() + " staring at " + getFileOffset() + " of " + getFilePath(),
+                                e, false);
+                logger.log(InputStreamBasedChunk.class, LogLevel.ERROR,
+                        downloadException.getMessage());
                 throw downloadException;
             }
         }
 
         /**
-         * This is copied from org.apache.commons.io.IOUtils (apache commons io version 2.6). Even though we ship datastore server with
-         * commons-io-2.6.jar the bioformats 5.9.2 has and older version of this library which hasn't the new copyLarge method.
+         * This is copied from org.apache.commons.io.IOUtils (apache commons io version 2.6). Even
+         * though we ship datastore server with commons-io-2.6.jar the bioformats 5.9.2 has and
+         * older version of this library which hasn't the new copyLarge method.
          */
         private long copyLarge(final InputStream input, final OutputStream output,
                 final long length, final byte[] buffer) throws IOException
