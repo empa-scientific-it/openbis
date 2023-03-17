@@ -27,6 +27,12 @@ export default class RoleControllerAdd {
       role: FormUtil.createField({
         visible: false
       }),
+      registrator: FormUtil.createField({
+        visible: false
+      }),
+      registrationDate: FormUtil.createField({
+        visible: false
+      }),
       original: null
     }
 

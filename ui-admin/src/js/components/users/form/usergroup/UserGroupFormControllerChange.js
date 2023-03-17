@@ -84,6 +84,14 @@ export default class UserGroupFormControllerChange extends PageControllerChange 
         active: {
           ...newUser.active,
           value: user.active
+        },
+        registrator: {
+          ...newUser.registrator,
+          value: user.registrator ? user.registrator.userId : null
+        },
+        registrationDate: {
+          ...newUser.registrationDate,
+          value: user.registrationDate
         }
       })
     }

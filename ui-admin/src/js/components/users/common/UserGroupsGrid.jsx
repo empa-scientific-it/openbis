@@ -1,6 +1,7 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -36,7 +37,10 @@ export default class GroupsGrid extends React.PureComponent {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
             getValue: ({ row }) => row.description.value
-          }
+          },
+          GridUtil.registratorColumn({ path: 'registrator.value' }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate.value' }),
+          GridUtil.modificationDateColumn({ path: 'modificationDate.value' })
         ]}
         rows={rows}
         exportable={{

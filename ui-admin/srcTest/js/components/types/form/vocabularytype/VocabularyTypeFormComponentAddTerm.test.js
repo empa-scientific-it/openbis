@@ -21,7 +21,9 @@ async function testAddTerm() {
         { name: 'code', sort: 'asc' },
         { name: 'label', sort: null },
         { name: 'description', sort: null },
-        { name: 'official', sort: null }
+        { name: 'official', sort: null },
+        { name: 'registrator', sort: null },
+        { name: 'registrationDate', sort: null }
       ],
       rows: [
         fixture.TEST_TERM_1_DTO,
@@ -63,7 +65,9 @@ async function testAddTerm() {
         { name: 'code', sort: 'desc' },
         { name: 'label', sort: null },
         { name: 'description', sort: null },
-        { name: 'official', sort: null }
+        { name: 'official', sort: null },
+        { name: 'registrator', sort: null },
+        { name: 'registrationDate', sort: null }
       ],
       rows: [
         {

@@ -16,6 +16,9 @@ export default class UserFormControllerAddGroup {
       id: _.uniqueId('group-'),
       code: FormUtil.createField({}),
       description: FormUtil.createField({}),
+      registrator: FormUtil.createField({}),
+      registrationDate: FormUtil.createField({}),
+      modificationDate: FormUtil.createField({}),
       original: null
     }
 

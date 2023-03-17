@@ -1,4 +1,3 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 

@@ -112,6 +112,11 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
         value: registrator,
         visible: false,
         enabled: false
+      }),
+      registrationDate: FormUtil.createField({
+        value: _.get(loadedTerm, 'registrationDate', null),
+        visible: false,
+        enabled: false
       })
     }
     term.original = _.cloneDeep(term)

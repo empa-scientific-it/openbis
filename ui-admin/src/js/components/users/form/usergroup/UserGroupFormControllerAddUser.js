@@ -20,6 +20,8 @@ export default class UserGroupFormControllerAddUser {
       email: FormUtil.createField({}),
       space: FormUtil.createField({}),
       active: FormUtil.createField({}),
+      registrator: FormUtil.createField({}),
+      registrationDate: FormUtil.createField({}),
       original: null
     }
 

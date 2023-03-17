@@ -5,8 +5,10 @@ export default class UserGroupFormFacade {
     const id = new openbis.AuthorizationGroupPermId(groupCode)
     const fo = new openbis.AuthorizationGroupFetchOptions()
     fo.withUsers().withSpace()
+    fo.withUsers().withRegistrator()
     fo.withRoleAssignments().withSpace()
     fo.withRoleAssignments().withProject().withSpace()
+    fo.withRoleAssignments().withRegistrator()
     return openbis.getAuthorizationGroups([id], fo).then(map => {
       return map[groupCode]
     })
@@ -16,6 +18,7 @@ export default class UserGroupFormFacade {
     const criteria = new openbis.PersonSearchCriteria()
     const fo = new openbis.PersonFetchOptions()
     fo.withSpace()
+    fo.withRegistrator()
     return openbis.searchPersons(criteria, fo).then(result => {
       return result.getObjects()
     })
