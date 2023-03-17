@@ -3,6 +3,7 @@ import { mount } from 'enzyme'
 import AppController from '@src/js/components/AppController.js'
 import ComponentContext from '@srcTest/js/components/common/ComponentContext.js'
 import ThemeProvider from '@srcTest/js/components/common/theme/ThemeProvider.jsx'
+import DatePickerProvider from '@src/js/components/common/date/DatePickerProvider.jsx'
 import openbis from '@srcTest/js/services/openbis.js'
 
 export default class ComponentTest {
@@ -27,7 +28,9 @@ export default class ComponentTest {
 
     const reactWrapper = mount(
       <ThemeProvider>
-        {this.createComponentFn.apply(null, arguments)}
+        <DatePickerProvider>
+          {this.createComponentFn.apply(null, arguments)}
+        </DatePickerProvider>
       </ThemeProvider>,
       {
         attachTo: document.getElementsByTagName('div')[0]
