@@ -12,19 +12,32 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import json
 import os
+import random
+import time
+import urllib.parse
+import zipfile
 from functools import partialmethod
 from pathlib import Path
-from threading import Thread
 from queue import Queue
+from threading import Thread
 from typing import Set, Optional, List
+from urllib.parse import urljoin, quote
+
+import requests
+from pandas import DataFrame
+from requests import Session
 from tabulate import tabulate
-from .openbis_object import OpenBisObject
+
 from .definitions import (
     openbis_definitions,
     get_type_for_entity,
     get_fetchoption_for_entity,
 )
+from .fast_download import FastDownload
+from .openbis_object import OpenBisObject
+from .things import Things
 from .utils import (
     VERBOSE,
     parse_jackson,
@@ -32,16 +45,6 @@ from .utils import (
     extract_code,
     extract_downloadUrl,
 )
-from .things import Things
-import requests
-from requests import Request, Session
-import json
-from pandas import DataFrame
-from urllib.parse import urlparse, urljoin, quote
-import urllib.parse
-import zipfile
-import random
-import time
 
 # needed for Data upload
 PYBIS_PLUGIN = "dataset-uploader-api"
@@ -55,7 +58,7 @@ def signed_to_unsigned(sig_int):
     We display the hex number to match with the classic UI
     """
     if sig_int < 0:
-        sig_int += 2**32
+        sig_int += 2 ** 32
     return "%x" % (sig_int & 0xFFFFFFFF)
 
 
@@ -67,16 +70,16 @@ class DataSet(
     """DataSet are openBIS objects that contain the actual files."""
 
     def __init__(
-        self,
-        openbis_obj,
-        type,
-        data=None,
-        files=None,
-        zipfile=None,
-        folder=None,
-        kind=None,
-        props=None,
-        **kwargs,
+            self,
+            openbis_obj,
+            type,
+            data=None,
+            files=None,
+            zipfile=None,
+            folder=None,
+            kind=None,
+            props=None,
+            **kwargs,
     ):
 
         if kind == "PHYSICAL":
@@ -318,10 +321,10 @@ class DataSet(
         )
 
     def _is_symlink_or_physical(
-        self,
-        what: str,
-        target_dir: str = None,
-        expected_file_list: Optional[List[str]] = None,
+            self,
+            what: str,
+            target_dir: str = None,
+            expected_file_list: Optional[List[str]] = None,
     ):
         if target_dir is None:
             target_dir = os.path.join(self.openbis.download_prefix, self.permId)
@@ -470,14 +473,15 @@ class DataSet(
         )
 
     def download(
-        self,
-        files=None,
-        destination=None,
-        create_default_folders=True,
-        wait_until_finished=True,
-        workers=10,
-        linked_dataset_fileservice_url=None,
-        content_copy_index=0,
+            self,
+            files=None,
+            destination=None,
+            create_default_folders=True,
+            wait_until_finished=True,
+            workers=10,
+            linked_dataset_fileservice_url=None,
+            content_copy_index=0,
+            fast=False
     ):
         """download the files of the dataSet.
 
@@ -501,14 +505,18 @@ class DataSet(
         if "kind" in self.data:  # openBIS 18.6.x DTO
             kind = self.data["kind"]
         elif ("type" in self.data) and (
-            "kind" in self.data["type"]
+                "kind" in self.data["type"]
         ):  # openBIS 16.5.x DTO
             kind = self.data["type"]["kind"]
 
         if kind in ["PHYSICAL", "CONTAINER"]:
-            return self._download_physical(
-                files, destination, create_default_folders, wait_until_finished, workers
-            )
+            if fast is True:
+                return self._download_fast_physical(files, destination, create_default_folders,
+                                                    wait_until_finished)
+            else:
+                return self._download_physical(
+                    files, destination, create_default_folders, wait_until_finished, workers
+                )
         elif kind == "LINK":
             if linked_dataset_fileservice_url is None:
                 raise ValueError(
@@ -525,8 +533,28 @@ class DataSet(
         else:
             raise ValueError(f"Can't download data set of kind {kind}.")
 
+    def _download_fast_physical(
+            self, files, destination, create_default_folders, wait_until_finished
+    ):
+        """Download for data sets of kind PHYSICAL using fast download scheme"""
+
+        if create_default_folders:
+            final_destination = os.path.join(destination, self.permId)
+        else:
+            final_destination = destination
+
+        self.__dict__["download_path"] = final_destination
+
+        download_url = self._get_download_url()
+
+        fast_download = FastDownload(self.openbis.token, download_url, self.permId, files,
+                                     final_destination, create_default_folders, wait_until_finished,
+                                     self.openbis.verify_certificates,
+                                     wished_number_of_streams=4)
+        return fast_download.download()
+
     def _download_physical(
-        self, files, destination, create_default_folders, wait_until_finished, workers
+            self, files, destination, create_default_folders, wait_until_finished, workers
     ):
         """Download for data sets of kind PHYSICAL."""
 
@@ -579,20 +607,20 @@ class DataSet(
             return final_destination
 
     def _download_link(
-        self,
-        files,
-        destination,
-        wait_until_finished,
-        workers,
-        linked_dataset_fileservice_url,
-        content_copy_index,
+            self,
+            files,
+            destination,
+            wait_until_finished,
+            workers,
+            linked_dataset_fileservice_url,
+            content_copy_index,
     ):
         """Download for data sets of kind LINK.
         Requires the microservice server to be running at the given linked_dataset_fileservice_url.
         """
 
         with DataSetDownloadQueue(
-            workers=workers, collect_files_with_wrong_length=True
+                workers=workers, collect_files_with_wrong_length=True
         ) as queue:
 
             if content_copy_index >= len(self.data["linkedData"]["contentCopies"]):
@@ -607,7 +635,7 @@ class DataSet(
                 download_url += "?sessionToken=" + self.openbis.token
                 download_url += "&datasetPermId=" + self.data["permId"]["permId"]
                 download_url += (
-                    "&externalDMSCode=" + content_copy["externalDms"]["code"]
+                        "&externalDMSCode=" + content_copy["externalDms"]["code"]
                 )
                 download_url += "&contentCopyPath=" + content_copy["path"].replace(
                     "/", "%2F"
@@ -678,9 +706,9 @@ class DataSet(
         for filepath in self.file_list:
             quoted_filepath = urllib.parse.quote(filepath, safe="")
             file_links[filepath] = (
-                "/".join([url, "datastore_server", location_part, quoted_filepath])
-                + "?sessionID="
-                + token
+                    "/".join([url, "datastore_server", location_part, quoted_filepath])
+                    + "?sessionID="
+                    + token
             )
 
         return file_links
@@ -814,8 +842,8 @@ class DataSet(
         for prop_name, prop in self.props._property_names.items():
             if prop["mandatory"]:
                 if (
-                    getattr(self.props, prop_name) is None
-                    or getattr(self.props, prop_name) == ""
+                        getattr(self.props, prop_name) is None
+                        or getattr(self.props, prop_name) == ""
                 ):
                     raise ValueError(
                         f"Property '{prop_name}' is mandatory and must not be None"
@@ -941,11 +969,11 @@ class DataSet(
                             os.path.join(dirpath, filename),
                             os.path.join(filename, ".."),
                         ),
-                        os.path.join(realpath[len(head) + 1 :], filename),
+                        os.path.join(realpath[len(head) + 1:], filename),
                     )
 
     def upload_files(
-        self, datastore_url=None, files=None, folder=None, wait_until_finished=False
+            self, datastore_url=None, files=None, folder=None, wait_until_finished=False
     ):
 
         if datastore_url is None:
@@ -1012,14 +1040,14 @@ class DataSet(
                 self.files_in_wsp.append(file_in_wsp)
 
                 upload_url = (
-                    datastore_url
-                    + "/datastore_server/session_workspace_file_upload"
-                    + "?filename="
-                    + url_filename
-                    + "&id=1"
-                    + "&startByte=0&endByte=0"
-                    + "&sessionID="
-                    + self.openbis.token
+                        datastore_url
+                        + "/datastore_server/session_workspace_file_upload"
+                        + "?filename="
+                        + url_filename
+                        + "&id=1"
+                        + "&startByte=0&endByte=0"
+                        + "&sessionID="
+                        + self.openbis.token
                 )
                 queue.put([upload_url, filename, self.openbis.verify_certificates])
 
@@ -1097,12 +1125,12 @@ class ZipBuffer(object):
         self.endByte = 0
         self.filename = filename
         self.upload_url = (
-            host + "/datastore_server/session_workspace_file_upload?"
-            "filename={}"
-            "&id=1"
-            "&startByte={}"
-            "&endByte={}"
-            "&sessionID={}"
+                host + "/datastore_server/session_workspace_file_upload?"
+                       "filename={}"
+                       "&id=1"
+                       "&startByte={}"
+                       "&endByte={}"
+                       "&sessionID={}"
         )
         self.session = Session()
 
