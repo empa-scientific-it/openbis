@@ -91,46 +91,66 @@ public class XLSExportTest
             Map.of(
                     DATASET.toString(), Map.of(
                             "ATTACHMENT", List.of(
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Sample"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.CODE.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.SAMPLE.toString()),
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Registration Date"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Registrator")),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.REGISTRATION_DATE.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.REGISTRATOR.toString())),
 
                             "RAW_DATA", List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$NAME"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Experiment"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "NOTES"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Modifier"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
-                                            "Modification Date"))
+                                            Attribute.EXPERIMENT.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.CODE.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "NOTES"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.MODIFIER.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.MODIFICATION_DATE.toString()))
                     ),
                     EXPERIMENT.toString(), Map.of(
                             "COLLECTION", List.of(
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Project"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.IDENTIFIER.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.PROJECT.toString()),
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
                                             FIELD_ID_KEY, "$DEFAULT_OBJECT_TYPE")),
                             "DEFAULT_EXPERIMENT", List.of(Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(),
                                                 FIELD_ID_KEY, "FINISHED_FLAG"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"))
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.IDENTIFIER.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.CODE.toString()))
                     ),
                     SAMPLE.toString(), Map.of(
                             "DEFAULT", List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Not existing"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Space"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Project"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Experiment")),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.IDENTIFIER.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.CODE.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.SPACE.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.PROJECT.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.EXPERIMENT.toString())),
                             "STORAGE", List.of(
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Code"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Identifier"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.CODE.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.IDENTIFIER.toString()),
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$STORAGE.BOX_NUM"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Parents"),
-                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "Children"))
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.PARENTS.toString()),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY,
+                                            Attribute.CHILDREN.toString()))
                     )
             );
 
@@ -152,12 +172,13 @@ public class XLSExportTest
                         "export-vocabulary.xlsx",
                         Map.of(),
                         VocabularyExpectations.class,
-                        Collections.singletonList(new ExportablePermId(VOCABULARY,
+                        List.of(new ExportablePermId(VOCABULARY,
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type.xlsx",
@@ -166,34 +187,37 @@ public class XLSExportTest
                                 "test-dynamic", TEST_SCRIPT_CONTENT
                         ),
                         SampleTypeExpectations.class,
-                        Collections.singletonList(new ExportablePermId(SAMPLE_TYPE,
+                        List.of(new ExportablePermId(SAMPLE_TYPE,
                                 new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-experiment-type.xlsx",
                         Map.of("test", TEST_SCRIPT_CONTENT),
                         ExperimentTypeExpectations.class,
-                        Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
+                        List.of(new ExportablePermId(EXPERIMENT_TYPE,
                                 new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-type.xlsx",
                         Map.of(),
                         DataSetTypeExpectations.class,
-                        Collections.singletonList(new ExportablePermId(DATASET_TYPE,
+                        List.of(new ExportablePermId(DATASET_TYPE,
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",
@@ -205,7 +229,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",
@@ -217,7 +242,8 @@ public class XLSExportTest
                         false,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-sample-property.xlsx",
@@ -226,56 +252,57 @@ public class XLSExportTest
                                 "test", TEST_SCRIPT_CONTENT
                         ),
                         SampleTypeWithSamplePropertyExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        List.of(new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-bare-sample-property.xlsx",
                         Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithBareSamplePropertyExpectations.class,
-                        Collections.singletonList(
+                        List.of(
                                 new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-omitted-sample-property.xlsx",
                         Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithSamplePropertyExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        List.of(new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         false,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-chained-sample-properties.xlsx",
                         Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithChainedSamplePropertiesExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        List.of(new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-type-with-cyclic-sample-properties.xlsx",
                         Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
                         SampleTypeWithCyclicSamplePropertiesExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
+                        List.of(new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-space.xlsx",
@@ -289,7 +316,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-project.xlsx",
@@ -302,7 +330,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-experiment.xlsx",
@@ -316,7 +345,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_EXPORT_WARNINGS
+                        EXPERIMENT_EXPORT_WARNINGS,
+                        false
                 },
                 {
                         "export-experiment.xlsx",
@@ -347,7 +377,8 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_EXPORT_WARNINGS
+                        EXPERIMENT_EXPORT_WARNINGS,
+                        false
                 },
                 {
                         "export-experiment.xlsx",
@@ -377,7 +408,8 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_EXPORT_WARNINGS
+                        EXPERIMENT_EXPORT_WARNINGS,
+                        false
                 },
                 {
                         "export-experiment-filtered-fields.xlsx",
@@ -391,7 +423,8 @@ public class XLSExportTest
                         true,
                         EXPORT_FIELDS,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample.xlsx",
@@ -407,7 +440,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample.xlsx",
@@ -442,7 +476,8 @@ public class XLSExportTest
                                 SAMPLE.toString(), Map.of()
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample.xlsx",
@@ -479,7 +514,8 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample.xlsx",
@@ -512,7 +548,8 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-sample-filtered-fields.xlsx",
@@ -528,7 +565,8 @@ public class XLSExportTest
                         true,
                         EXPORT_FIELDS,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-rich-text.xlsx",
@@ -542,7 +580,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.RICH,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-plain-text.xlsx",
@@ -556,7 +595,8 @@ public class XLSExportTest
                         true,
                         null,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-plain-text.xlsx",
@@ -585,7 +625,8 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-plain-text.xlsx",
@@ -614,7 +655,8 @@ public class XLSExportTest
                                 )
                         ),
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-filtered-fields.xlsx",
@@ -628,7 +670,8 @@ public class XLSExportTest
                         true,
                         EXPORT_FIELDS,
                         XLSExport.TextFormatting.PLAIN,
-                        List.of()
+                        List.of(),
+                        false
                 },
         };
     }
@@ -802,7 +845,8 @@ public class XLSExportTest
     public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
             final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
             final boolean exportReferred, final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
-            final XLSExport.TextFormatting textFormatting, final Collection<String> expectedWarnings) throws Exception
+            final XLSExport.TextFormatting textFormatting, final Collection<String> expectedWarnings,
+            final boolean compatibleWithImport) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
                 boolean.class).newInstance(api, exportReferred);
@@ -812,7 +856,7 @@ public class XLSExportTest
         {
             final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
                     api, SESSION_TOKEN, exportablePermIds, exportReferred, exportFields,
-                    textFormatting);
+                    textFormatting, compatibleWithImport);
             assertEquals(actualResult.getScripts(), expectedScripts);
             assertEquals(new HashSet<>(actualResult.getWarnings()), new HashSet<>(expectedWarnings));
 

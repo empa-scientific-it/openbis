@@ -72,10 +72,10 @@ public class XLSExport
             final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting) throws IOException
+            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferredMasterData, exportFields, textFormatting);
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
 
@@ -127,7 +127,7 @@ public class XLSExport
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             Collection<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
             final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting)
+            final TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         if (!isValid(exportablePermIds))
         {
