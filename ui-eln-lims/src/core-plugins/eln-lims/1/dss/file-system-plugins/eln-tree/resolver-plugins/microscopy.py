@@ -1,6 +1,3 @@
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
-
 import script
 
 acceptor.hideDataSetType("MICROSCOPY_IMG_CONTAINER")
@@ -9,16 +6,7 @@ acceptor.hideDataSetType("MICROSCOPY_IMG_THUMBNAIL")
 #acceptor.hideSampleType("MICROSCOPY_SAMPLE_TYPE")
 
 def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
-    dataSetSearchCriteria = DataSetSearchCriteria()
-    dataSetSearchCriteria.withOrOperator()
-    dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
-    parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
-    parentsSearchCriteria.withPermId().thatEquals(samplePermId)
-    fetchOptions = DataSetFetchOptions()
-    fetchOptions.withType()
-    fetchOptions.withProperties()
-    fetchOptions.withSample()
-    dataSets = context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
+    dataSets = script.getDataSetsOfSampleAndItsChildren(samplePermId, context)
     for dataSet in dataSets:
         if acceptor.acceptDataSet(dataSet):
             dataSetCode = dataSet.getCode()
