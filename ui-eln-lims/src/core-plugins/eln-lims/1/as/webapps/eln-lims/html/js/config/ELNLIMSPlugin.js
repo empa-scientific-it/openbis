@@ -92,7 +92,7 @@ $.extend(ELNLIMSPlugin.prototype, {
 	 * Event Listeners
 	 * Allow to listen the before/after paint events for ALL form views and list views.
 	 * Allow the programmer to change the model before is displayed and any part of the view after.
-	 * Provide for versatility but with the added complexity of dealing with the complete form.
+	 * Provide versatility but with added complexity of dealing with the complete form.
 	 * - beforeViewPaint
 	 * - afterViewPaint
 	 */
