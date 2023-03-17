@@ -3,7 +3,7 @@ function ELNLIMSPlugin() {
 }
 
 /*
- * Enum used by the Second Generation Interceptors
+ * Enum used by the Event Listeners
  */
 var ViewType = {
     SPACE_FORM : 0,
