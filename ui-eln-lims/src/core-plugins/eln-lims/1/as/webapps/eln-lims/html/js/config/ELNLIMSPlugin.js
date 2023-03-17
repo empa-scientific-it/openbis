@@ -38,7 +38,7 @@ $.extend(ELNLIMSPlugin.prototype, {
 	
 	},
 	/*
-	 * First Generation Interceptors:
+	 * Template Methods:
 	 * ONLY allow to add content in certain portions of the Interface.
 	 * ONLY available for Experiment, Sample and DataSet form views.
 	 * - experimentFormTop
@@ -47,7 +47,7 @@ $.extend(ELNLIMSPlugin.prototype, {
 	 * - sampleFormBottom
 	 * - dataSetFormTop
 	 * - dataSetFormBottom
-	 * These interceptors are easy to use.
+	 * These template methods are easy to use.
 	 * They allow to add custom components isolating the programmer from the rest of the form.
 	 */
 	experimentFormTop : function($container, model) {
@@ -89,8 +89,8 @@ $.extend(ELNLIMSPlugin.prototype, {
 	    return [];
 	},
 	/*
-	 * Second Generation Interceptors
-	 * Allow to intercept the before/after paint events for ALL form views and list views.
+	 * Event Listeners
+	 * Allow to listen the before/after paint events for ALL form views and list views.
 	 * Allow the programmer to change the model before is displayed and any part of the view after.
 	 * Provide for versatility but with the added complexity of dealing with the complete form.
 	 * - beforeViewPaint
