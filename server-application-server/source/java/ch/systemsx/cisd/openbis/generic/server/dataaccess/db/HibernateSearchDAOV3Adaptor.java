@@ -167,8 +167,8 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
             {
                 registrator.setFirstName("Missing");
                 registrator.setLastName("Missing");
-                registrator.setUserId("Missing");
-                registrator.setEmail("Missing");
+                registrator.setUserId("system");
+                registrator.setEmail("");
                 registrator.setActive(false);
             } else {
                 registrator.setFirstName(registratorPersonPE.getFirstName());
