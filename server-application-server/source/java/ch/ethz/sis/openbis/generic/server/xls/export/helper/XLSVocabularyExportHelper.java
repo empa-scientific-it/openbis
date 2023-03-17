@@ -44,7 +44,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
             final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
-            final XLSExport.TextFormatting textFormatting)
+            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         assert permIds.size() == 1;
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.iterator().next());

@@ -15,7 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +29,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 public class XLSProjectExportHelper extends AbstractXLSExportHelper
 {
@@ -44,7 +42,7 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
             final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
-            final XLSExport.TextFormatting textFormatting)
+            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         final Collection<Project> projects = getProjects(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();

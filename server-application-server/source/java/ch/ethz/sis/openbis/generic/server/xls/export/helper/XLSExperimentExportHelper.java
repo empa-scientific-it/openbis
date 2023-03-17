@@ -39,7 +39,7 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     }
 
     @Override
-    protected String[] getAttributeNames(final Experiment entity)
+    protected String[] getAttributeNames(final Experiment entity, final boolean compatibleWithImport)
     {
         return new String[] { "Identifier", "Code", "Project", "Registrator", "Registration Date", "Modifier", "Modification Date" };
     }
@@ -114,7 +114,7 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
         }
     }
 
-    protected Stream<String> getAllAttributeValuesStream(final Experiment experiment)
+    protected Stream<String> getAllAttributeValuesStream(final Experiment experiment, final boolean compatibleWithImport)
     {
         return Stream.of(experiment.getIdentifier().getIdentifier(), experiment.getCode(),
                 experiment.getProject().getIdentifier().getIdentifier(), experiment.getRegistrator().getUserId(),

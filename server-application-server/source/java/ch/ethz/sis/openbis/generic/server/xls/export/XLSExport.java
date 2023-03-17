@@ -24,7 +24,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCAB
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -161,7 +160,7 @@ public class XLSExport
                     ? null
                     : exportFields.get(exportablePermId.getExportableKind().toString());
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
-                    entityTypeExportFieldsMap, textFormatting);
+                    entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
             warnings.addAll(additionResult.getWarnings());
 

@@ -47,7 +47,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
             final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
-            final XLSExport.TextFormatting textFormatting)
+            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         assert permIds.size() == 1;
         final DataSetType dataSetType = getDataSetType(api, sessionToken, permIds.iterator().next());

@@ -53,7 +53,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
             final Collection<String> permIds, int rowNumber,
             final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
-            final XLSExport.TextFormatting textFormatting)
+            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         final Collection<ENTITY> entities = getEntities(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
@@ -76,7 +76,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
-            final String[] attributeNames = getAttributeNames(entry.getValue().get(0));
+            final String[] attributeNames = getAttributeNames(entry.getValue().get(0), compatibleWithImport);
             final Set<String> attributeNameSet = Set.of(attributeNames);
             final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
@@ -96,7 +96,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 for (final ENTITY entity : entry.getValue())
                 {
                     final List<String> entityValues = Stream.concat(
-                            getAllAttributeValuesStream(entity),
+                            getAllAttributeValuesStream(entity, compatibleWithImport),
                             propertyAssignments.stream()
                                     .map(PropertyAssignment::getPropertyType)
                                     .map(getPropertiesMappingFunction(textFormatting, entity.getProperties()))
@@ -191,11 +191,12 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
     protected abstract Function<ENTITY, ENTITY_TYPE> getTypeFunction();
 
-    protected abstract String[] getAttributeNames(final ENTITY entity);
+    protected abstract String[] getAttributeNames(final ENTITY entity, final boolean compatibleWithImport);
 
     protected abstract String getAttributeValue(final ENTITY entity, final String attributeId);
 
-    protected abstract Stream<String> getAllAttributeValuesStream(final ENTITY entity);
+    protected abstract Stream<String> getAllAttributeValuesStream(final ENTITY entity,
+            final boolean compatibleWithImport);
 
     protected abstract Collection<ENTITY> getEntities(final IApplicationServerApi api, final String sessionToken,
             final Collection<String> permIds);

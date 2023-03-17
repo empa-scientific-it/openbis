@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSet, DataSetType>
 {
@@ -36,6 +38,15 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     public XLSDataSetExportHelper(final Workbook wb)
     {
         super(wb);
+    }
+
+    @Override
+    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
+            final Collection<String> permIds, final int rowNumber, final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
+            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
+    {
+        return compatibleWithImport ? new AdditionResult(0, List.of())
+                : super.add(api, sessionToken, wb, permIds, rowNumber, entityTypeExportFieldsMap, textFormatting, false);
     }
 
     @Override
@@ -85,7 +96,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected String[] getAttributeNames(final DataSet dataSet)
+    protected String[] getAttributeNames(final DataSet dataSet, final boolean compatibleWithImport)
     {
         return new String[] { "Code", dataSet.getSample() != null ? "Sample" : "Experiment", "Registrator", "Registration Date",
                 "Modifier", "Modification Date" };
@@ -132,7 +143,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected Stream<String> getAllAttributeValuesStream(final DataSet dataSet)
+    protected Stream<String> getAllAttributeValuesStream(final DataSet dataSet, final boolean compatibleWithImport)
     {
         return Stream.of(dataSet.getCode(), dataSet.getSample() != null
                 ? dataSet.getSample().getIdentifier().getIdentifier()
