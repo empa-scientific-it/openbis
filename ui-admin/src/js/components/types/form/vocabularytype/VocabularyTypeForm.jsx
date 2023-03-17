@@ -5,13 +5,12 @@ import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 import VocabularyTypeFormController from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormController.js'
 import VocabularyTypeFormFacade from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormFacade.js'
 import VocabularyTypeFormParameters from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormParameters.jsx'
 import VocabularyTypeFormButtons from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormButtons.jsx'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
-import date from '@src/js/common/date.js'
 import ids from '@src/js/common/consts/ids.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -37,19 +36,8 @@ const columns = [
     label: messages.get(messages.OFFICIAL),
     getValue: ({ row }) => row.official.value
   },
-  {
-    name: 'registrator',
-    label: messages.get(messages.REGISTRATOR),
-    getValue: ({ row }) => row.registrator.value,
-    renderValue: ({ value }) => {
-      return <UserLink userId={value} />
-    }
-  },
-  {
-    name: 'registrationDate',
-    label: messages.get(messages.REGISTRATION_DATE),
-    getValue: ({ row }) => date.format(row.registrationDate.value)
-  }
+  GridUtil.registratorColumn({ path: 'registrator.value' }),
+  GridUtil.registrationDateColumn({ path: 'registrationDate.value' })
 ]
 
 class VocabularyTypeForm extends React.PureComponent {

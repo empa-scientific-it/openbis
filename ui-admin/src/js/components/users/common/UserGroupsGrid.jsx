@@ -1,9 +1,8 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
-import date from '@src/js/common/date.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -39,24 +38,9 @@ export default class GroupsGrid extends React.PureComponent {
             label: messages.get(messages.DESCRIPTION),
             getValue: ({ row }) => row.description.value
           },
-          {
-            name: 'registrator',
-            label: messages.get(messages.REGISTRATOR),
-            getValue: ({ row }) => row.registrator.value,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
-          {
-            name: 'registrationDate',
-            label: messages.get(messages.REGISTRATION_DATE),
-            getValue: ({ row }) => date.format(row.registrationDate.value)
-          },
-          {
-            name: 'modificationDate',
-            label: messages.get(messages.MODIFICATION_DATE),
-            getValue: ({ row }) => date.format(row.modificationDate.value)
-          }
+          GridUtil.registratorColumn({ path: 'registrator.value' }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate.value' }),
+          GridUtil.modificationDateColumn({ path: 'modificationDate.value' })
         ]}
         rows={rows}
         exportable={{

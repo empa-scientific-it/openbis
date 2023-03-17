@@ -1,9 +1,8 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
-import date from '@src/js/common/date.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -39,24 +38,9 @@ class VocabularyTypesGrid extends React.PureComponent {
             label: messages.get(messages.URL_TEMPLATE),
             getValue: ({ row }) => row.urlTemplate
           },
-          {
-            name: 'registrator',
-            label: messages.get(messages.REGISTRATOR),
-            getValue: ({ row }) => row.registrator,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
-          {
-            name: 'registrationDate',
-            label: messages.get(messages.REGISTRATION_DATE),
-            getValue: ({ row }) => date.format(row.registrationDate)
-          },
-          {
-            name: 'modificationDate',
-            label: messages.get(messages.MODIFICATION_DATE),
-            getValue: ({ row }) => date.format(row.modificationDate)
-          }
+          GridUtil.registratorColumn({ path: 'registrator' }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate' }),
+          GridUtil.modificationDateColumn({ path: 'modificationDate' })
         ]}
         rows={rows}
         sort='code'

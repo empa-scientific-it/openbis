@@ -1,12 +1,11 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
 import PropertyTypesGridXMLCell from '@src/js/components/types/common/PropertyTypesGridXMLCell.jsx'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
-import date from '@src/js/common/date.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -105,19 +104,8 @@ class PropertyTypesGrid extends React.PureComponent {
               return <PropertyTypesGridUsagesCell value={row.usages} />
             }
           },
-          {
-            name: 'registrator',
-            label: messages.get(messages.REGISTRATOR),
-            getValue: ({ row }) => row.registrator,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
-          {
-            name: 'registrationDate',
-            label: messages.get(messages.REGISTRATION_DATE),
-            getValue: ({ row }) => date.format(row.registrationDate)
-          }
+          GridUtil.registratorColumn({ path: 'registrator' }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate' })
         ]}
         rows={rows}
         sort='code'

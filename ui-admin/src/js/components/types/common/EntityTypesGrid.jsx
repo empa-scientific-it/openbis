@@ -1,8 +1,8 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
-import date from '@src/js/common/date.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
@@ -124,11 +124,7 @@ class EntityTypesGrid extends React.PureComponent {
       })
     }
 
-    columns.push({
-      name: 'modificationDate',
-      label: messages.get(messages.MODIFICATION_DATE),
-      getValue: ({ row }) => date.format(row.modificationDate)
-    })
+    columns.push(GridUtil.modificationDateColumn({ path: 'modificationDate' }))
 
     return columns
   }
