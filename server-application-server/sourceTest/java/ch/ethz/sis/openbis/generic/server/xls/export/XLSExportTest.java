@@ -427,6 +427,34 @@ public class XLSExportTest
                         false
                 },
                 {
+                        "export-sample-compatible-with-import.xlsx",
+                        Map.of(),
+                        SampleExpectations.class,
+                        List.of(
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
+                        ),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+//                {
+//                        "export-sample-compatible-with-import.xlsx",
+//                        Map.of(),
+//                        SampleExpectations.class,
+//                        List.of(),
+//                        true,
+//                        null,
+//                        XLSExport.TextFormatting.PLAIN,
+//                        List.of(),
+//                        true
+//                },
+                {
                         "export-sample.xlsx",
                         Map.of(),
                         SampleExpectations.class,

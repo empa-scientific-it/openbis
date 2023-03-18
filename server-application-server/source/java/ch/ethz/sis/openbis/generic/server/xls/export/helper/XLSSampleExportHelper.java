@@ -69,10 +69,16 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     }
 
     @Override
-    protected String[] getAttributeNames(final Sample entity, final boolean compatibleWithImport)
+    protected String[] getAttributeNames(final Sample entity)
     {
-        return new String[] {"Identifier", "Code", "Space", "Project", "Experiment",
+        return new String[] { "Identifier", "Code", "Space", "Project", "Experiment",
                 "Parents", "Children", "Registrator", "Registration Date", "Modifier", "Modification Date" };
+    }
+
+    @Override
+    protected String[] getImportAttributeNames()
+    {
+        return new String[] { "$", "Auto generate codes"};
     }
 
     @Override
@@ -146,6 +152,14 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
             {
                 return DATE_FORMAT.format(sample.getModificationDate());
             }
+            case "$":
+            {
+                return "";
+            }
+            case "Auto generate codes":
+            {
+                return "FALSE";
+            }
             default:
             {
                 return null;
@@ -153,7 +167,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
         }
     }
 
-    protected Stream<String> getAllAttributeValuesStream(final Sample sample, final boolean compatibleWithImport)
+    protected Stream<String> getAttributeValuesStream(final Sample sample)
     {
         return Stream.of(sample.getIdentifier().getIdentifier(), sample.getCode(),
                 sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "",
@@ -167,6 +181,12 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
                         .collect(Collectors.joining("\n")), sample.getRegistrator().getUserId(),
                 DATE_FORMAT.format(sample.getRegistrationDate()), sample.getModifier().getUserId(),
                 DATE_FORMAT.format(sample.getModificationDate()));
+    }
+
+    @Override
+    protected Stream<String> getImportAttributeValuesStream()
+    {
+        return Stream.of("", "FALSE");
     }
 
     @Override

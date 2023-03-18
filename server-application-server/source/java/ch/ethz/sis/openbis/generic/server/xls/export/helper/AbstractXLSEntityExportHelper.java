@@ -18,6 +18,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -76,31 +77,35 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
-            final String[] attributeNames = getAttributeNames(entry.getValue().get(0), compatibleWithImport);
-            final Set<String> attributeNameSet = Set.of(attributeNames);
+            final String[] attributeNames = getAttributeNames(entry.getValue().get(0));
+            final String[] importAttributeNames = compatibleWithImport ? getImportAttributeNames() : new String[0];
+            final Set<String> attributeNameSet = Stream.concat(Arrays.stream(attributeNames), Arrays.stream(importAttributeNames))
+                    .collect(Collectors.toSet());
             final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(typePermId) ||
                     entityTypeExportFieldsMap.get(typePermId).isEmpty())
             {
                 // Export all fields in any order
-                final String[] fieldNames = Stream.concat(
+                final String[] fieldNames = Stream.concat(Stream.concat(
                         Stream.of(attributeNames),
                         propertyAssignments.stream()
                                 .map(PropertyAssignment::getPropertyType)
                                 .map(PropertyType::getLabel)
-                ).toArray(String[]::new);
+                ), Stream.of(importAttributeNames)).toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, fieldNames));
 
                 for (final ENTITY entity : entry.getValue())
                 {
-                    final List<String> entityValues = Stream.concat(
-                            getAllAttributeValuesStream(entity, compatibleWithImport),
+                    final Stream<String> importAttributeValuesStream = compatibleWithImport
+                            ? getImportAttributeValuesStream() : Stream.empty();
+                    final List<String> entityValues = Stream.concat(Stream.concat(
+                            getAttributeValuesStream(entity),
                             propertyAssignments.stream()
                                     .map(PropertyAssignment::getPropertyType)
                                     .map(getPropertiesMappingFunction(textFormatting, entity.getProperties()))
-                    ).collect(Collectors.toList());
+                    ), importAttributeValuesStream).collect(Collectors.toList());
 
                     warnings.addAll(addRow(rowNumber++, false, exportableKind, getIdentifier(entity),
                             entityValues.toArray(String[]::new)));
@@ -191,12 +196,21 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
     protected abstract Function<ENTITY, ENTITY_TYPE> getTypeFunction();
 
-    protected abstract String[] getAttributeNames(final ENTITY entity, final boolean compatibleWithImport);
+    protected abstract String[] getAttributeNames(final ENTITY entity);
+
+    protected String[] getImportAttributeNames()
+    {
+        return new String[0];
+    }
 
     protected abstract String getAttributeValue(final ENTITY entity, final String attributeId);
 
-    protected abstract Stream<String> getAllAttributeValuesStream(final ENTITY entity,
-            final boolean compatibleWithImport);
+    protected abstract Stream<String> getAttributeValuesStream(final ENTITY entity);
+
+    protected  Stream<String> getImportAttributeValuesStream()
+    {
+        return Stream.empty();
+    }
 
     protected abstract Collection<ENTITY> getEntities(final IApplicationServerApi api, final String sessionToken,
             final Collection<String> permIds);

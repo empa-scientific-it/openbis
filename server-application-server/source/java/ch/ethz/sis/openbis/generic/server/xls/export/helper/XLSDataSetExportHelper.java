@@ -96,7 +96,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected String[] getAttributeNames(final DataSet dataSet, final boolean compatibleWithImport)
+    protected String[] getAttributeNames(final DataSet dataSet)
     {
         return new String[] { "Code", dataSet.getSample() != null ? "Sample" : "Experiment", "Registrator", "Registration Date",
                 "Modifier", "Modification Date" };
@@ -143,7 +143,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected Stream<String> getAllAttributeValuesStream(final DataSet dataSet, final boolean compatibleWithImport)
+    protected Stream<String> getAttributeValuesStream(final DataSet dataSet)
     {
         return Stream.of(dataSet.getCode(), dataSet.getSample() != null
                 ? dataSet.getSample().getIdentifier().getIdentifier()
