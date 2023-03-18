@@ -68,9 +68,9 @@ public class XLSExport
     private static final String ZIP_EXTENSION = ".zip";
 
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
-            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
-            final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
@@ -124,8 +124,8 @@ public class XLSExport
     }
 
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
-            Collection<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
-            final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
+            List<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         if (!isValid(exportablePermIds))
@@ -156,7 +156,7 @@ public class XLSExport
             final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
-            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
                     ? null
                     : exportFields.get(exportablePermId.getExportableKind().toString());
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
@@ -188,8 +188,8 @@ public class XLSExport
         return new PrepareWorkbookResult(wb, scripts, warnings);
     }
 
-    private static Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
-            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+    private static List<ExportablePermId> expandReference(final IApplicationServerApi api,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final ExportHelperFactory exportHelperFactory)
     {
         return exportablePermIds.stream().flatMap(exportablePermId ->
@@ -197,7 +197,7 @@ public class XLSExport
             final Stream<ExportablePermId> expandedExportablePermIds = getExpandedExportablePermIds(api, sessionToken,
                     exportablePermId, new HashSet<>(Collections.singletonList(exportablePermId)), exportHelperFactory);
             return Stream.concat(expandedExportablePermIds, Stream.of(exportablePermId));
-        }).collect(Collectors.toCollection(LinkedHashSet::new));
+        }).distinct().collect(Collectors.toList());
     }
 
     private static Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,

@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -28,8 +29,8 @@ public interface IXLSExportHelper
 {
 
     AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, final int rowNumber,
-            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
+            final List<String> permIds, final int rowNumber,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport);
 
     IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId);

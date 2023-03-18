@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -42,8 +43,8 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper
 
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
+            final List<String> permIds, int rowNumber,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         assert permIds.size() == 1;

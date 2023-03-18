@@ -40,8 +40,8 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper
 
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
+            final List<String> permIds, int rowNumber,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         final Collection<Project> projects = getProjects(api, sessionToken, permIds);

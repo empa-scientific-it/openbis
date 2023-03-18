@@ -443,17 +443,23 @@ public class XLSExportTest
                         List.of(),
                         true
                 },
-//                {
-//                        "export-sample-compatible-with-import.xlsx",
-//                        Map.of(),
-//                        SampleExpectations.class,
-//                        List.of(),
-//                        true,
-//                        null,
-//                        XLSExport.TextFormatting.PLAIN,
-//                        List.of(),
-//                        true
-//                },
+                {
+                        "export-sample-filtered-fields-compatible-with-import.xlsx",
+                        Map.of(),
+                        SampleExpectations.class,
+                        List.of(
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
+                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
+                        ),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
                 {
                         "export-sample.xlsx",
                         Map.of(),
@@ -621,6 +627,17 @@ public class XLSExportTest
                         XLSExport.TextFormatting.RICH,
                         List.of(),
                         true
+                },
+                {
+                        "empty.xlsx",
+                        Map.of(),
+                        SampleExpectations.class,
+                        List.of(),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        false
                 },
                 {
                         "export-data-set-rich-text.xlsx",
@@ -897,9 +914,9 @@ public class XLSExportTest
      */
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
     public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
-            final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
-            final boolean exportReferred, final Map<String, Map<String, Collection<Map<String, String>>>> exportFields,
-            final XLSExport.TextFormatting textFormatting, final Collection<String> expectedWarnings,
+            final Class<IApplicationServerApi> expectationsClass, final List<ExportablePermId> exportablePermIds,
+            final boolean exportReferred, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final XLSExport.TextFormatting textFormatting, final List<String> expectedWarnings,
             final boolean compatibleWithImport) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,

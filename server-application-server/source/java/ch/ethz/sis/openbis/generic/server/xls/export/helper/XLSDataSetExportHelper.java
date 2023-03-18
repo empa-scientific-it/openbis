@@ -42,7 +42,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
 
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, final int rowNumber, final Map<String, Collection<Map<String, String>>> entityTypeExportFieldsMap,
+            final List<String> permIds, final int rowNumber, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         return compatibleWithImport ? new AdditionResult(0, List.of())
