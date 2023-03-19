@@ -47,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 public abstract class AbstractXLSExportHelper implements IXLSExportHelper
 {
 
-    protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] {"Version", "Code", "Mandatory",
+    protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
-            "Metadata", "Dynamic script"};
+            "Metadata", "Dynamic script" };
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 
@@ -120,15 +120,20 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
             } else
             {
                 String kindDisplayName = null;
-                if (exportableKind == ExportableKind.SAMPLE) {
+                if (exportableKind == ExportableKind.SAMPLE)
+                {
                     kindDisplayName = "OBJECT";
-                } else if (exportableKind == ExportableKind.SAMPLE_TYPE) {
+                } else if (exportableKind == ExportableKind.SAMPLE_TYPE)
+                {
                     kindDisplayName = "OBJECT_TYPE";
-                } else if (exportableKind == ExportableKind.EXPERIMENT) {
+                } else if (exportableKind == ExportableKind.EXPERIMENT)
+                {
                     kindDisplayName = "COLLECTION";
-                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE) {
+                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE)
+                {
                     kindDisplayName = "COLLECTION_TYPE";
-                } else {
+                } else
+                {
                     kindDisplayName = exportableKind.toString();
                 }
                 warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Value exceeds " +

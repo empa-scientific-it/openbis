@@ -15,6 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SAMPLE;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
@@ -96,42 +105,42 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected String[] getAttributeNames(final DataSet dataSet)
+    protected Attribute[] getAttributes(final DataSet dataSet)
     {
-        return new String[] { "Code", dataSet.getSample() != null ? "Sample" : "Experiment", "Registrator", "Registration Date",
-                "Modifier", "Modification Date" };
+        return new Attribute[] { CODE, dataSet.getSample() != null ? SAMPLE : EXPERIMENT, REGISTRATOR, REGISTRATION_DATE,
+                MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
-    protected String getAttributeValue(final DataSet dataSet, final String attributeId)
+    protected String getAttributeValue(final DataSet dataSet, final Attribute attribute)
     {
-        switch (attributeId)
+        switch (attribute)
         {
-            case "Code":
+            case CODE:
             {
                 return dataSet.getCode();
             }
-            case "Sample":
+            case SAMPLE:
             {
                 return dataSet.getSample().getIdentifier().getIdentifier();
             }
-            case "Experiment":
+            case EXPERIMENT:
             {
                 return dataSet.getExperiment().getIdentifier().getIdentifier();
             }
-            case "Registrator":
+            case REGISTRATOR:
             {
                 return dataSet.getRegistrator().getUserId();
             }
-            case "Registration Date":
+            case REGISTRATION_DATE:
             {
                 return DATE_FORMAT.format(dataSet.getRegistrationDate());
             }
-            case "Modifier":
+            case MODIFIER:
             {
                 return dataSet.getModifier().getUserId();
             }
-            case "Modification Date":
+            case MODIFICATION_DATE:
             {
                 return DATE_FORMAT.format(dataSet.getModificationDate());
             }

@@ -15,6 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.IDENTIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -28,6 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
 public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Experiment, ExperimentType>
@@ -39,9 +48,9 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     }
 
     @Override
-    protected String[] getAttributeNames(final Experiment entity)
+    protected Attribute[] getAttributes(final Experiment entity)
     {
-        return new String[] { "Identifier", "Code", "Project", "Registrator", "Registration Date", "Modifier", "Modification Date" };
+        return new Attribute[] { IDENTIFIER, CODE, PROJECT, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
@@ -75,35 +84,35 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     }
 
     @Override
-    protected String getAttributeValue(final Experiment experiment, final String attributeId)
+    protected String getAttributeValue(final Experiment experiment, final Attribute attribute)
     {
-        switch (attributeId)
+        switch (attribute)
         {
-            case "Identifier":
+            case IDENTIFIER:
             {
                 return experiment.getIdentifier().getIdentifier();
             }
-            case "Code":
+            case CODE:
             {
                 return experiment.getCode();
             }
-            case "Project":
+            case PROJECT:
             {
                 return experiment.getProject().getIdentifier().getIdentifier();
             }
-            case "Registrator":
+            case REGISTRATOR:
             {
                 return experiment.getRegistrator().getUserId();
             }
-            case "Registration Date":
+            case REGISTRATION_DATE:
             {
                 return DATE_FORMAT.format(experiment.getRegistrationDate());
             }
-            case "Modifier":
+            case MODIFIER:
             {
                 return experiment.getModifier().getUserId();
             }
-            case "Modification Date":
+            case MODIFICATION_DATE:
             {
                 return DATE_FORMAT.format(experiment.getModificationDate());
             }

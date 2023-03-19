@@ -20,6 +20,8 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 public enum Attribute
 {
 
+    $("$", true, true),
+
     ARCHIVING_STATUS("Archiving status", false, false),
 
     AUTO_GENERATE_CODES("Auto generate codes", true, true),
@@ -95,8 +97,7 @@ public enum Attribute
         this.requiredForImport = requiredForImport;
     }
 
-    @Override
-    public String toString()
+    public String getName()
     {
         return name;
     }

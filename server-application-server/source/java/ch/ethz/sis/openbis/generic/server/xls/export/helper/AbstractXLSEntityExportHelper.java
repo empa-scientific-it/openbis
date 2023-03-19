@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHol
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertyAssignmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
@@ -77,25 +79,27 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
-            final String[] attributeNames = getAttributeNames(entry.getValue().get(0));
-            final String[] importAttributeNames = compatibleWithImport ? getImportAttributeNames() : new String[0];
-            final Set<String> attributeNameSet = Stream.concat(Stream.of(attributeNames), Stream.of(importAttributeNames))
-                    .collect(Collectors.toSet());
+            final Attribute[] attributes = getAttributes(entry.getValue().get(0));
+            final Attribute[] importAttributes = compatibleWithImport ? getImportAttributes() : new Attribute[0];
+            final Set<Attribute> attributeNameSet = Stream.concat(Stream.of(attributes), Stream.of(importAttributes))
+                    .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
             final List<PropertyAssignment> propertyAssignments = entry.getKey().getPropertyAssignments();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(typePermId) ||
                     entityTypeExportFieldsMap.get(typePermId).isEmpty())
             {
                 // Export all fields in any order
+                // Names
                 final String[] fieldNames = Stream.concat(Stream.concat(
-                        Arrays.stream(attributeNames),
+                        Arrays.stream(attributes).map(Attribute::getName),
                         propertyAssignments.stream()
                                 .map(PropertyAssignment::getPropertyType)
                                 .map(PropertyType::getLabel)
-                ), Arrays.stream(importAttributeNames)).toArray(String[]::new);
+                ), Arrays.stream(importAttributes).map(Attribute::getName)).toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, fieldNames));
 
+                // Values
                 for (final ENTITY entity : entry.getValue())
                 {
                     final Stream<String> importAttributeValuesStream = compatibleWithImport
@@ -113,13 +117,10 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             } else
             {
                 // Export selected fields in predefined order
+                // Names
                 final List<Map<String, String>> selectedExportFields = entityTypeExportFieldsMap.get(typePermId);
-                final List<Map<String, String>> extraExportFieldStream = Arrays.stream(importAttributeNames)
-                        .map(fieldName -> Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(),
-                                FIELD_ID_KEY, fieldName)).collect(Collectors.toList());
 
-                final String[] selectedFieldNames = Stream.concat(selectedExportFields.stream(),
-                                extraExportFieldStream.stream())
+                final String[] selectedFieldNames = selectedExportFields.stream()
                         .filter(field -> isFieldAcceptable(attributeNameSet, field))
                         .map(field ->
                         {
@@ -128,7 +129,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                             {
                                 case ATTRIBUTE:
                                 {
-                                    return fieldId;
+                                    return Attribute.valueOf(fieldId).getName();
                                 }
                                 case PROPERTY:
                                 {
@@ -146,23 +147,30 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                 }
                             }
                         }).toArray(String[]::new);
-                final Set<String> selectedFieldNameSet = Set.of(selectedFieldNames);
-                final Stream<String> importAttributeNamesStream = Arrays.stream(importAttributeNames)
-                        .filter(attributeName -> !selectedFieldNameSet.contains(attributeName));
-
+                final Set<Attribute> selectedAttributes = selectedExportFields.stream()
+                        .filter(map -> map.get(FIELD_TYPE_KEY).equals(FieldType.ATTRIBUTE.toString()))
+                        .map(map -> Attribute.valueOf(map.get(FIELD_ID_KEY)))
+                        .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
+                final Stream<String> importAttributeNamesStream = Arrays.stream(importAttributes)
+                        .filter(attribute -> !selectedAttributes.contains(attribute))
+                        .map(Attribute::getName);
                 final String[] allFieldNames = Stream.concat(Arrays.stream(selectedFieldNames), importAttributeNamesStream)
                         .toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, allFieldNames));
 
+                // Values
                 final Map<String, PropertyType> codeToPropertyTypeMap = propertyAssignments.stream()
                         .map(PropertyAssignment::getPropertyType)
                         .collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType, (o1, o2) -> o2));
+                final List<Map<String, String>> extraExportFields = Arrays.stream(importAttributes)
+                        .map(attribute -> Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(),
+                                FIELD_ID_KEY, attribute.toString())).collect(Collectors.toList());
 
                 for (final ENTITY entity : entry.getValue())
                 {
                     final String[] entityValues = Stream.concat(selectedExportFields.stream(),
-                                    extraExportFieldStream.stream())
+                                    extraExportFields.stream())
                             .filter(field -> isFieldAcceptable(attributeNameSet, field))
                             .map(field ->
                             {
@@ -170,7 +178,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                 {
                                     case ATTRIBUTE:
                                     {
-                                        return getAttributeValue(entity, field.get(FIELD_ID_KEY));
+                                        return getAttributeValue(entity, Attribute.valueOf(field.get(FIELD_ID_KEY)));
                                     }
                                     case PROPERTY:
                                     {
@@ -194,9 +202,10 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         return new AdditionResult(rowNumber, warnings);
     }
 
-    private static boolean isFieldAcceptable(final Set<String> attributeNameSet, final Map<String, String> field)
+    private static boolean isFieldAcceptable(final Set<Attribute> attributeSet, final Map<String, String> field)
     {
-        return FieldType.valueOf(field.get(FIELD_TYPE_KEY)) != FieldType.ATTRIBUTE || attributeNameSet.contains(field.get(FIELD_ID_KEY));
+        return FieldType.valueOf(field.get(FIELD_TYPE_KEY)) != FieldType.ATTRIBUTE ||
+                attributeSet.contains(Attribute.valueOf(field.get(FIELD_ID_KEY)));
     }
 
     protected abstract ExportableKind getExportableKind();
@@ -209,18 +218,18 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
     protected abstract Function<ENTITY, ENTITY_TYPE> getTypeFunction();
 
-    protected abstract String[] getAttributeNames(final ENTITY entity);
+    protected abstract Attribute[] getAttributes(final ENTITY entity);
 
-    protected String[] getImportAttributeNames()
+    protected Attribute[] getImportAttributes()
     {
-        return new String[0];
+        return new Attribute[0];
     }
 
-    protected abstract String getAttributeValue(final ENTITY entity, final String attributeId);
+    protected abstract String getAttributeValue(final ENTITY entity, final Attribute attribute);
 
     protected abstract Stream<String> getAttributeValuesStream(final ENTITY entity);
 
-    protected  Stream<String> getImportAttributeValuesStream()
+    protected Stream<String> getImportAttributeValuesStream()
     {
         return Stream.empty();
     }

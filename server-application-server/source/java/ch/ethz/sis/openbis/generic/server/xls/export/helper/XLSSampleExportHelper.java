@@ -15,6 +15,20 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.$;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODES;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CHILDREN;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.IDENTIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SPACE;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -28,6 +42,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
 public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample, SampleType>
@@ -69,16 +84,16 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     }
 
     @Override
-    protected String[] getAttributeNames(final Sample entity)
+    protected Attribute[] getAttributes(final Sample entity)
     {
-        return new String[] { "Identifier", "Code", "Space", "Project", "Experiment",
-                "Parents", "Children", "Registrator", "Registration Date", "Modifier", "Modification Date" };
+        return new Attribute[] { IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, PARENTS, CHILDREN,
+                REGISTRATOR, REGISTRATION_DATE,MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
-    protected String[] getImportAttributeNames()
+    protected Attribute[] getImportAttributes()
     {
-        return new String[] { "$", "Auto generate codes"};
+        return new Attribute[] { $, AUTO_GENERATE_CODES };
     }
 
     @Override
@@ -100,63 +115,63 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
     }
 
-    protected String getAttributeValue(final Sample sample, final String attributeId)
+    protected String getAttributeValue(final Sample sample, final Attribute attribute)
     {
-        switch (attributeId)
+        switch (attribute)
         {
-            case "Identifier":
+            case IDENTIFIER:
             {
                 return sample.getIdentifier().getIdentifier();
             }
-            case "Code":
+            case CODE:
             {
                 return sample.getCode();
             }
-            case "Space":
+            case SPACE:
             {
                 return sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "";
             }
-            case "Project":
+            case PROJECT:
             {
                 return sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "";
             }
-            case "Experiment":
+            case EXPERIMENT:
             {
                 return sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier() : "";
             }
-            case "Parents":
+            case PARENTS:
             {
                 return sample.getParents() == null ? "" : sample.getParents().stream()
                         .map(parent -> parent.getIdentifier().getIdentifier())
                         .collect(Collectors.joining("\n"));
             }
-            case "Children":
+            case CHILDREN:
             {
                 return sample.getChildren() == null ? "" : sample.getChildren().stream()
                         .map(child -> child.getIdentifier().getIdentifier())
                         .collect(Collectors.joining("\n"));
             }
-            case "Registrator":
+            case REGISTRATOR:
             {
                 return sample.getRegistrator().getUserId();
             }
-            case "Registration Date":
+            case REGISTRATION_DATE:
             {
                 return DATE_FORMAT.format(sample.getRegistrationDate());
             }
-            case "Modifier":
+            case MODIFIER:
             {
                 return sample.getModifier().getUserId();
             }
-            case "Modification Date":
+            case MODIFICATION_DATE:
             {
                 return DATE_FORMAT.format(sample.getModificationDate());
             }
-            case "$":
+            case $:
             {
                 return "";
             }
-            case "Auto generate codes":
+            case AUTO_GENERATE_CODES:
             {
                 return "FALSE";
             }
