@@ -154,7 +154,7 @@ public class DSSFileSystemView implements FileSystemView
     public FtpFile getFile(String path) throws FtpException
     {
         String normalizedPath = normalizePath(path);
-        operationLog.info("path:>" + path + "<, normalized path:>"+normalizedPath+"<");
+        operationLog.debug("path:>" + path + "<, normalized path:>"+normalizedPath+"<");
 
         // this check speeds directory listings in the LFTP console client
         if (workingDirectory != null && workingDirectory.getAbsolutePath().equals(normalizedPath))
