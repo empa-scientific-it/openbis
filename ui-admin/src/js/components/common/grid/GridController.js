@@ -1313,25 +1313,32 @@ export default class GridController {
           }
         })
 
-        // build exported fields map:
-        // - entities:  { kind: { type: [{ type: "PROPERTY/ATTRIBUTE", id: "propertyCode/attributeCode"}, ...], ... }, ... }
-        // - non-entities:  { kind: [{ type: "ATTRIBUTE", id: "attributeCode"}, ...], ... }
+        // build exported fields map: { kind: { type: [{ type: "PROPERTY/ATTRIBUTE", id: "propertyCode/attributeCode"}, ...], ... }, ... }
+
+        const TYPE_KINDS = {
+          [GridExportOptions.EXPORTABLE_KIND.SAMPLE_TYPE]: true,
+          [GridExportOptions.EXPORTABLE_KIND.EXPERIMENT_TYPE]: true,
+          [GridExportOptions.EXPORTABLE_KIND.DATASET_TYPE]: true,
+          [GridExportOptions.EXPORTABLE_KIND.VOCABULARY]: true
+        }
 
         exportedRows.forEach(exportedRow => {
-          const { exportable_kind, type_perm_id } = exportedRow.exportableId
+          let { exportable_kind, type_perm_id } = exportedRow.exportableId
 
           if (!_.isNil(exportable_kind)) {
+            if (TYPE_KINDS[exportable_kind]) {
+              type_perm_id = exportable_kind
+              exportable_kind = 'TYPE'
+            }
+
             let exportedFieldsForKind = exportedFieldsMap[exportable_kind]
 
+            if (_.isNil(exportedFieldsForKind)) {
+              exportedFieldsMap[exportable_kind] = exportedFieldsForKind = {}
+            }
+
             if (!_.isNil(type_perm_id)) {
-              if (_.isNil(exportedFieldsForKind)) {
-                exportedFieldsMap[exportable_kind] = exportedFieldsForKind = {}
-              }
               exportedFieldsForKind[type_perm_id] = exportableFields
-            } else {
-              if (_.isNil(exportedFieldsForKind)) {
-                exportedFieldsMap[exportable_kind] = exportableFields
-              }
             }
           }
         })
