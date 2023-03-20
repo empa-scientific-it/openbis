@@ -45,10 +45,27 @@ class FormUtil {
     }
   }
 
+  getFieldValue(object, path) {
+    const field = !_.isNil(object) ? _.get(object, path, null) : null
+
+    if (!_.isNil(field)) {
+      const value = field.value
+      if (_.isNil(value)) {
+        return null
+      } else if (_.isString(value) && _.isEmpty(value.trim())) {
+        return null
+      } else {
+        return value
+      }
+    } else {
+      return null
+    }
+  }
+
   hasFieldChanged(currentObject, originalObject, path) {
-    const currentValue = _.get(currentObject, path)
-    const originalValue = originalObject ? _.get(originalObject, path) : null
-    return originalValue.value !== currentValue.value
+    const currentValue = this.getFieldValue(currentObject, path)
+    const originalValue = this.getFieldValue(originalObject, path)
+    return originalValue !== currentValue
   }
 
   haveFieldsChanged(currentObject, originalObject, paths) {
