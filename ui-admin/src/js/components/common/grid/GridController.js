@@ -1165,7 +1165,7 @@ export default class GridController {
             operation: 'export',
             exportOptions
           })
-          if (!rowValue) {
+          if (_.isNil(rowValue)) {
             rowValue = ''
           } else {
             var specialCharsRemover = document.createElement('textarea')

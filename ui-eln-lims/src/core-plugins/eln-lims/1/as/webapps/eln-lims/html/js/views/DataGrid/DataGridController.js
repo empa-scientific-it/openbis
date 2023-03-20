@@ -153,6 +153,7 @@ function DataGridController(
                             lastReceivedData: _this.lastReceivedData,
                             lastUsedOptions: _this.lastUsedOptions,
                             container: params.container,
+                            value: params.value
                         })
                     } else {
                         value = params.value

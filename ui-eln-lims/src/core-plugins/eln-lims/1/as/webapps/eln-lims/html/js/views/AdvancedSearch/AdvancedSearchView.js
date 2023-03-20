@@ -1193,11 +1193,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                         renderFilter = function(params){
                             return FormUtil.renderBooleanGridFilter(params);
                         };
-                        renderValue = (function(propertyType){
-                            return function(row, params){
-                                return FormUtil.renderBooleanGridValue(row, params, propertyType)
-                            }
-                        })(propertyType);
+                        renderValue = function(row, params){
+                            return FormUtil.renderBooleanGridValue(params)
+                        };
                         getValue = (function(propertyType) {
                             return function(params) {
                                 return SampleDataGridUtil.getBooleanValue(params, propertyType);

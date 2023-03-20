@@ -845,11 +845,9 @@ var SampleDataGridUtil = new function() {
                         renderFilter : function(params) {
                             return FormUtil.renderBooleanGridFilter(params);
                         },
-                        render : (function(propertyType){
-                            return function(row, params){
-                                return FormUtil.renderBooleanGridValue(row, params, propertyType)
-                            }
-                        })(propertyType)
+                        render : function(row, params){
+                            return FormUtil.renderBooleanGridValue(params)
+                        }
                     };
                 }
                 propertyColumnsToSort.push(getBooleanColumn(propertyType));
@@ -971,16 +969,16 @@ var SampleDataGridUtil = new function() {
 
     this.getBooleanValue = function(params, propertyType) {
         var value = params.row[propertyType.code]
-        if (params.operation === 'export') {
-            if (params.exportOptions.values === 'PLAIN_TEXT' && value !== "true") {
-                value = "false"
-            }
-        } else if (!value) {
-            value = "false";
+
+        if(value === null || value === undefined || (_.isString(value) && value.trim() === "")){
+            return null
+        } else if (value === "true") {
+            return true
+        } else {
+            return false
         }
-        return value;
     }
-    
+
     this.getTerm = function(params, propertyType) {
         var value = params.row[propertyType.code]
         return value ? value : "";

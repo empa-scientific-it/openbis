@@ -2356,9 +2356,12 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderBooleanGridValue = function(row, params, propertyType) {
-        var value = row[propertyType.code]
-        return value ? value : "false";
+    this.renderBooleanGridValue = function(params) {
+        if(params.value === null){
+            return "(empty)"
+        }else{
+            return String(params.value)
+        }
     }
 
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
@@ -2442,7 +2445,7 @@ var FormUtil = new function() {
             variant: 'standard',
             value: params.value,
             emptyOption: {},
-            options: [{value: "true"}, {value: "false"}],
+            options: [{value: "(empty)"}, {value: "true"}, {value: "false"}],
             onChange: params.onChange
         })
     }
