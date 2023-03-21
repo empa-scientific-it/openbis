@@ -481,8 +481,7 @@ class DataSet(
             wait_until_finished=True,
             workers=10,
             linked_dataset_fileservice_url=None,
-            content_copy_index=0,
-            fast=False
+            content_copy_index=0
     ):
         """download the files of the dataSet.
 
@@ -511,7 +510,7 @@ class DataSet(
             kind = self.data["type"]["kind"]
 
         if kind in ["PHYSICAL", "CONTAINER"]:
-            if fast is True:
+            if self.openbis.get_server_information().is_version_greater_than(3, 5):
                 return self._download_fast_physical(files, destination, create_default_folders,
                                                     wait_until_finished)
             else:
