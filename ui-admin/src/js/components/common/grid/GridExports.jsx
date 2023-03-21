@@ -139,6 +139,7 @@ class GridExports extends React.PureComponent {
       disabled,
       multiselectable,
       multiselectedRows,
+      visibleColumns,
       classes
     } = this.props
     const { el, importCompatibleError } = this.state
@@ -315,8 +316,12 @@ class GridExports extends React.PureComponent {
                 label={messages.get(messages.EXPORT)}
                 type='neutral'
                 disabled={
-                  exportOptions.rows === GridExportOptions.ROWS.SELECTED_ROWS &&
-                  _.isEmpty(multiselectedRows)
+                  (exportOptions.columns ===
+                    GridExportOptions.COLUMNS.VISIBLE &&
+                    _.isEmpty(visibleColumns)) ||
+                  (exportOptions.rows ===
+                    GridExportOptions.ROWS.SELECTED_ROWS &&
+                    _.isEmpty(multiselectedRows))
                 }
                 onClick={this.handleExport}
               />
