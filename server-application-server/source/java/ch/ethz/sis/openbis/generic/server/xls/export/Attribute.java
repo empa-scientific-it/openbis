@@ -82,7 +82,9 @@ public enum Attribute
 
     VALIDATION_SCRIPT("Validation Script", true, true),
 
-    VALIDATION_PLUGIN("Validation Plugin", false, false);
+    VALIDATION_PLUGIN("Validation Plugin", false, false),
+
+    VERSION("Version", true, true);
 
     final String name;
 

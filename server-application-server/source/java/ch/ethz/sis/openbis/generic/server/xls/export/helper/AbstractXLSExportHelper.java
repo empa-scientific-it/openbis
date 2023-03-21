@@ -17,10 +17,11 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -148,25 +149,31 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
 
     protected AdditionResult addEntityTypePropertyAssignments(int rowNumber,
             final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
-            final String permId)
+            final String permId, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
+            final boolean compatibleWithImport)
     {
         final Collection<String> warnings = new ArrayList<>(
-                addRow(rowNumber++, true, exportableKind, permId, ENTITY_ASSIGNMENT_COLUMNS));
+                addRow(rowNumber++, true, exportableKind, permId, compatibleWithImport
+                        ? ENTITY_ASSIGNMENT_COLUMNS
+                        : Arrays.copyOfRange(ENTITY_ASSIGNMENT_COLUMNS, 1, ENTITY_ASSIGNMENT_COLUMNS.length)));
         for (final PropertyAssignment propertyAssignment : propertyAssignments)
         {
             final PropertyType propertyType = propertyAssignment.getPropertyType();
             final Plugin plugin = propertyAssignment.getPlugin();
             final Vocabulary vocabulary = propertyType.getVocabulary();
-            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, "1",
-                    propertyType.getCode(),
+
+            final String[] values = { "1", propertyType.getCode(),
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
-                    propertyAssignment.getSection(), propertyType.getLabel(),
-                    getFullDataTypeString(propertyType), String.valueOf(vocabulary != null ? vocabulary.getCode() : ""),
+                    propertyAssignment.getSection(),
+                    propertyType.getLabel(),
+                    getFullDataTypeString(propertyType),
+                    String.valueOf(vocabulary != null ? vocabulary.getCode() : ""),
                     propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
-                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "")
-            );
+                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "" };
+            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId,
+                    compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
         }
         return new AdditionResult(rowNumber, warnings);
     }
@@ -200,13 +207,6 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
         return null;
     }
 
-    protected static Predicate<PropertyType> getPropertiesFilterFunction(final Collection<String> propertiesToInclude)
-    {
-        return propertiesToInclude == null
-                ? propertyType -> true
-                : propertyType -> propertiesToInclude.contains(propertyType.getCode());
-    }
-
     protected static Function<PropertyType, String> getPropertiesMappingFunction(
             final XLSExport.TextFormatting textFormatting, final Map<String, String> properties)
     {
@@ -218,5 +218,21 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
                         : properties.get(propertyType.getCode())
                 : propertyType -> properties.get(propertyType.getCode());
     }
+
+//    protected abstract Attribute[] getAttributes(final HOLDER holder);
+//
+//    protected Attribute[] getImportAttributes()
+//    {
+//        return new Attribute[0];
+//    }
+//
+//    protected abstract String getAttributeValue(final HOLDER holder, final Attribute attribute);
+//
+//    protected abstract Stream<String> getAttributeValuesStream(final HOLDER entity);
+//
+//    protected Stream<String> getImportAttributeValuesStream()
+//    {
+//        return Stream.empty();
+//    }
 
 }

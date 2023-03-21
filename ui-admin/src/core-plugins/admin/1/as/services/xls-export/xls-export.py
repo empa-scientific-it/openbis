@@ -30,13 +30,22 @@ def export(context, parameters):
                 "export_referred_master_data": true | false, - whether to export referred vocabularies and the types of
                         the properties of type sample
                 "export_fields": { - everything in this section is optional
+                    "TYPE": {
+                        "SAMPLE_TYPE": [
+                          {"type": "ATTRIBUTE", "id": "<attribute name>"},
+                          ...
+                        ] - attribute for each type to be exported,
+                            if the list is empty no attributes will be exported
+                            for the given type
+                        ...
+                    },
                     "SAMPLE": {
                         "<typePermID>": [
                           {"type": "PROPERTY", "id": "<property code>"},
-                          {"type": "ATTRIBUTE", "id": "<attribute name>"} ,
+                          {"type": "ATTRIBUTE", "id": "<attribute name>"},
                           ...
                         ] - fields of each sample type
-                            to be exported, if the list is empty no properties will be exported
+                            to be exported, if the list is empty no fields will be exported
                             for the sample type
                     },
                     "EXPERIMENT": {
@@ -45,7 +54,7 @@ def export(context, parameters):
                             {"type": "ATTRIBUTE", "id": "<attribute name>"},
                             ...
                         ] - fields of each experiment type
-                            to be exported, if the list is empty no properties will be exported
+                            to be exported, if the list is empty no fields will be exported
                             for the experiment type
                     },
                     "DATASET": {
@@ -54,7 +63,7 @@ def export(context, parameters):
                           {"type": "ATTRIBUTE", "id": "<attribute name>"} ,
                           ...
                         ] - fields of each data set type
-                            to be exported, if the list is empty no properties will be exported
+                            to be exported, if the list is empty no fields will be exported
                             for the data set type
                     }
                 },

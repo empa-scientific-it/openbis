@@ -69,7 +69,8 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
                     experimentType.getCode(), experimentType.getDescription(), script));
 
             final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId);
+                    experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId,
+                    entityTypeExportFieldsMap, compatibleWithImport);
             warnings.addAll(additionResult.getWarnings());
             rowNumber = additionResult.getRowNumber();
 

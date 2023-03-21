@@ -89,6 +89,14 @@ public class XLSExportTest
 
     public static final Map<String, Map<String, List<Map<String, String>>>> EXPORT_FIELDS =
             Map.of(
+                    "TYPE", Map.of(
+                            SAMPLE_TYPE.toString(), List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "DESCRIPTION"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "AUTO_GENERATE_CODES"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "GENERATED_CODE_PREFIX")
+                            )
+                    ),
                     DATASET.toString(), Map.of(
                             "ATTACHMENT", List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
@@ -173,6 +181,36 @@ public class XLSExportTest
                         false
                 },
                 {
+                        "export-sample-type-filtered-attributes.xlsx",
+                        Map.of(
+                                "test", TEST_SCRIPT_CONTENT,
+                                "test-dynamic", TEST_SCRIPT_CONTENT
+                        ),
+                        SampleTypeExpectations.class,
+                        List.of(new ExportablePermId(SAMPLE_TYPE,
+                                new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        false
+                },
+                {
+                        "export-sample-type-filtered-attributes-compatible-with-import.xlsx",
+                        Map.of(
+                                "test", TEST_SCRIPT_CONTENT,
+                                "test-dynamic", TEST_SCRIPT_CONTENT
+                        ),
+                        SampleTypeExpectations.class,
+                        List.of(new ExportablePermId(SAMPLE_TYPE,
+                                new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
                         "export-experiment-type.xlsx",
                         Map.of("test", TEST_SCRIPT_CONTENT),
                         ExperimentTypeExpectations.class,
@@ -207,7 +245,7 @@ public class XLSExportTest
                         null,
                         XLSExport.TextFormatting.PLAIN,
                         List.of(),
-                        false
+                        true
                 },
                 {
                         "export-sample-type-with-omitted-vocabulary-property.xlsx",

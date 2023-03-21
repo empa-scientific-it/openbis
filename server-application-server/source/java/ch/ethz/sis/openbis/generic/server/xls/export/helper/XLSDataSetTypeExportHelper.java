@@ -69,7 +69,8 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
                     dataSetType.getCode(), dataSetType.getDescription(), script));
 
             final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    dataSetType.getPropertyAssignments(), ExportableKind.DATASET_TYPE, permId);
+                    dataSetType.getPropertyAssignments(), ExportableKind.DATASET_TYPE, permId,
+                    entityTypeExportFieldsMap, compatibleWithImport);
             warnings.addAll(additionResult.getWarnings());
 
             rowNumber = additionResult.getRowNumber();

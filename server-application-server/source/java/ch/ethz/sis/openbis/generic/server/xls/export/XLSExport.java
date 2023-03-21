@@ -67,6 +67,8 @@ public class XLSExport
 
     private static final String ZIP_EXTENSION = ".zip";
 
+    private static final String TYPE_KEY = "TYPE";
+
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
@@ -153,12 +155,14 @@ public class XLSExport
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
             final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
-            final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
+            final ExportableKind exportableKind = exportablePermId.getExportableKind();
+            final IXLSExportHelper helper = exportHelperFactory.getHelper(exportableKind);
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
+
             final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
                     ? null
-                    : exportFields.get(exportablePermId.getExportableKind().toString());
+                    : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) ? TYPE_KEY : exportableKind.toString());
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
