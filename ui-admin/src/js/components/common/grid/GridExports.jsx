@@ -227,6 +227,20 @@ class GridExports extends React.PureComponent {
                   />
                 </div>
               )}
+              {isXLSExport && exportOptions.importCompatible === true && (
+                <div className={classes.field}>
+                  <Message type='info'>
+                    {messages.get(messages.EXPORT_IMPORT_COMPATIBLE_INFO)}
+                  </Message>
+                </div>
+              )}
+              {isXLSExport && exportOptions.importCompatible === false && (
+                <div className={classes.field}>
+                  <Message type='info'>
+                    {messages.get(messages.EXPORT_IMPORT_INCOMPATIBLE_INFO)}
+                  </Message>
+                </div>
+              )}
               <div className={classes.field}>
                 <SelectField
                   label={messages.get(messages.COLUMNS)}
