@@ -38,6 +38,7 @@ class GridExports extends React.PureComponent {
     super(props)
     this.state = {
       el: null,
+      validate: false,
       importCompatibleError: null
     }
     this.handleOpen = this.handleOpen.bind(this)
@@ -57,6 +58,7 @@ class GridExports extends React.PureComponent {
 
     this.setState({
       el: null,
+      validate: false,
       importCompatibleError: null
     })
 
@@ -91,16 +93,23 @@ class GridExports extends React.PureComponent {
   handleExport() {
     const { onExport } = this.props
 
-    if (this.validate()) {
-      this.handleClose()
-      if (onExport) {
-        onExport()
+    this.setState({ validate: true }, () => {
+      if (this.validate()) {
+        this.handleClose()
+        if (onExport) {
+          onExport()
+        }
       }
-    }
+    })
   }
 
   validate() {
     const { exportable } = this.props
+    const { validate } = this.state
+
+    if (!validate) {
+      return true
+    }
 
     const isXLSExport =
       exportable.fileFormat === GridExportOptions.FILE_FORMAT.XLS
