@@ -385,7 +385,7 @@ const messages_en = {
   [keys.EVENT_TYPE]: 'Event Type',
   [keys.EXECUTE]: 'Execute',
   [keys.EXPORT]: 'Export',
-  [keys.EXPORT_PLAIN_TEXT_WARNING]: 'Do not use this file for Batch Update! This file does not contain rich text formatting. If used for Batch Update, all rich text formatting in the updated entries will be lost!',
+  [keys.EXPORT_PLAIN_TEXT_WARNING]: 'All formatting gets lost.',
   [keys.EXPORTS]: 'Exports',
   [keys.FAIL_IF_EXISTS]: 'Fail if exists',
   [keys.FILTER]: 'Filter',
