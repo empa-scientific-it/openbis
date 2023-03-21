@@ -2356,9 +2356,12 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderBooleanGridValue = function(row, params, propertyType) {
-        var value = row[propertyType.code]
-        return value ? value : "false";
+    this.renderBooleanGridValue = function(params) {
+        if(params.value === null){
+            return "(empty)"
+        }else{
+            return String(params.value)
+        }
     }
 
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
@@ -2442,7 +2445,7 @@ var FormUtil = new function() {
             variant: 'standard',
             value: params.value,
             emptyOption: {},
-            options: [{value: "true"}, {value: "false"}],
+            options: [{value: "(empty)"}, {value: "true"}, {value: "false"}],
             onChange: params.onChange
         })
     }
@@ -2508,17 +2511,17 @@ var FormUtil = new function() {
                 }
             }
         }else if(_.isObject(filter)){
-            var filterFrom = filter.from ? filter.from.value : null
-            var filterTo = filter.to ? filter.to.value : null
-            if(filterFrom === null && filterTo === null){
+            var filterFrom = filter.from ? filter.from.dateObject : null
+            var filterTo = filter.to ? filter.to.dateObject : null
+            if((filterFrom === null || filterFrom === undefined) && (filterTo === null || filterTo === undefined)){
                 return true
             }else{
                 var matches = true
                 if(filterFrom){
-                    matches = matches && value >= filter.from.valueString
+                    matches = matches && value >= filter.from.dateString
                 }
                 if(filterTo){
-                    matches = matches && value <= filter.to.valueString
+                    matches = matches && value <= filter.to.dateString
                 }
                 return matches
             }

@@ -1785,15 +1785,12 @@ function ServerFacade(openbisServer) {
                                             }
                                             break;
                                         case "thatEqualsBoolean":
-                                            var validBoolean = getValidBoolean(propertyValue)
-                                            if(validBoolean !== null){
-                                                if (validBoolean) {
+                                            if(propertyValue === "(empty)"){
+                                                criteria.withSubcriteria().negate().withBooleanProperty(propertyName);
+                                            }else{
+                                                var validBoolean = getValidBoolean(propertyValue)
+                                                if(validBoolean !== null){
                                                     criteria.withBooleanProperty(propertyName).thatEquals(validBoolean);
-                                                } else {
-                                                    var propertyCriteria = criteria.withSubcriteria();
-                                                    propertyCriteria.withOrOperator();
-                                                    propertyCriteria.withBooleanProperty(propertyName).thatEquals(false);
-                                                    propertyCriteria.withSubcriteria().negate().withBooleanProperty(propertyName);
                                                 }
                                             }
                                             break;

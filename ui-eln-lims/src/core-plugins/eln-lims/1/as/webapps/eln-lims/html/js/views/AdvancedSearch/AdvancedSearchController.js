@@ -257,20 +257,20 @@ function AdvancedSearchController(mainController, forceSearch) {
                         }else if(field === "registrator"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
                         }else if(field === "registrationDate"){
-                            if(search.from && search.from.value){
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                            if(search.from && search.from.dateObject){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.dateString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if(search.to && search.to.value){
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                            if(search.to && search.to.dateObject){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.dateString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
                         }else if(field === "modifier"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
                         }else if(field === "modificationDate"){
-                            if(search.from && search.from.value){
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                            if(search.from && search.from.dateObject){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.dateString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if(search.to && search.to.value){
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                            if(search.to && search.to.dateObject){
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.dateString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
                         } else if (field === "status") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PHYSICAL_STATUS", value : search };
@@ -287,11 +287,11 @@ function AdvancedSearchController(mainController, forceSearch) {
                             }
 
                             if(dataType === "DATE" || dataType === "TIMESTAMP"){
-                                if(search.from && search.from.value){
-                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                                if(search.from && search.from.dateObject){
+                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.from.dateString, operator: "thatIsLaterThanOrEqualToDate" };
                                 }
-                                if(search.to && search.to.value){
-                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                                if(search.to && search.to.dateObject){
+                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.to.dateString, operator: "thatIsEarlierThanOrEqualToDate" };
                                 }
                             } else {
                                 var operator = null

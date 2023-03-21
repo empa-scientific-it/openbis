@@ -361,7 +361,7 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     @Override
     public int getMinorVersion()
     {
-        return 5;
+        return 6;
     }
 
     @Override

@@ -359,6 +359,18 @@ def getContentNode(permId, context):
     contentNode = content.tryGetNode(splittedId[1]) if len(splittedId) > 1 else content.getRootNode()
     return dataSetCode, contentNode, content
 
+def getDataSetsOfSampleAndItsChildren(samplePermId, context):
+    dataSetSearchCriteria = DataSetSearchCriteria()
+    dataSetSearchCriteria.withOrOperator()
+    dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
+    parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
+    parentsSearchCriteria.withPermId().thatEquals(samplePermId)
+    fetchOptions = DataSetFetchOptions()
+    fetchOptions.withType()
+    fetchOptions.withProperties()
+    fetchOptions.withSample().withType()
+    return context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
+
 def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, acceptor, context):
     fetchOptions = DataSetFetchOptions()
     fetchOptions.withType()

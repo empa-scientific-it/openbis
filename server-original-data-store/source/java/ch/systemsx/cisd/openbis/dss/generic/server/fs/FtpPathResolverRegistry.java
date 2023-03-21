@@ -348,7 +348,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         FtpFile response = cache.getResponse(responseCacheKey);
         if (response != null)
         {
-            operationLog.info("Path " + path + " requested (found in cache).");
+            operationLog.debug("Path " + path + " requested (found in cache).");
             return response;
         }
 
@@ -374,7 +374,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
             }
         } catch (Exception e)
         {
-            operationLog.warn("Resolving " + path + " failed", e);
+            operationLog.warn("Resolving " + path + " failed: " + e);
             response = resolverContext.getResolverContext().createNonExistingFileResponse("Error when retrieving path");
         }
         return convert(response, resolverContext);
