@@ -37,7 +37,7 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 
 DSS_V3 = "/datastore_server/rmi-data-store-server-v3.json"
-REQUEST_RETRIES_COUNT = 5
+REQUEST_RETRIES_COUNT = 3
 DOWNLOAD_RETRIES_COUNT = 3
 
 
@@ -198,6 +198,7 @@ class DownloadThread(Thread):
         self.create_default_folders = create_default_folders
         self.destination = destination
         self.verify_certificates = verify_certificates
+        self.exc = None
 
     def run(self):
         repeated_chunks = {}
@@ -213,7 +214,7 @@ class DownloadThread(Thread):
                 if download_response.ok is True:
                     data = deserialize_chunk(download_response.content)
                     if data['invalid'] is True:
-                        print(f"INVALID {data['invalid_reason']}")
+                        print(f"Invalid checksum received. Retrying package")
                         if data['invalid_reason'] == "PAYLOAD":
                             sequence_number = data['sequence_number']
                             if repeated_chunks.get(sequence_number, 0) >= DOWNLOAD_RETRIES_COUNT:
@@ -231,8 +232,7 @@ class DownloadThread(Thread):
                         self.save_to_file(data)
                         self.counter.remove_value(sequence_number)
             except Exception as e:
-
-                raise ValueError(e)
+                self.exc = e
         return True
 
     def save_to_file(self, deserialized_response):
@@ -322,30 +322,35 @@ class FastDownload:
                                               start_session_params)
         download_session_id = start_download_session['downloadSessionId']
 
-        # Step 3 - Put files into fileserver download queue
+        try:
+            # Step 3 - Put files into fileserver download queue
 
-        ranges = start_download_session['ranges']
-        self._queue_all_files(download_url, download_session_id, ranges)
+            ranges = start_download_session['ranges']
+            self._queue_all_files(download_url, download_session_id, ranges)
 
-        # Step 4 - Download files in chunks
+            # Step 4 - Download files in chunks
 
-        session_stream_ids = list(start_download_session['streamIds'])
+            session_stream_ids = list(start_download_session['streamIds'])
 
-        thread = Thread(target=self._download_step,
-                        args=(download_url, download_session_id, session_stream_ids, ranges))
-        thread.start()
+            exception_list = []
+            thread = Thread(target=self._download_step,
+                            args=(download_url, download_session_id, session_stream_ids, ranges,
+                                  exception_list))
+            thread.start()
 
-        if self.wait_until_finished is True:
-            thread.join()
+            if self.wait_until_finished is True:
+                thread.join()
+                if exception_list:
+                    raise exception_list[0]
+        finally:
+            # Step 5 - Close the session
+            finish_download_session_params = make_fileserver_body_params(
+                method='finishDownloadSession',
+                downloadSessionId=download_session_id)
 
-        # Step 5 - Close the session
-        finish_download_session_params = make_fileserver_body_params(
-            method='finishDownloadSession',
-            downloadSessionId=download_session_id)
-
-        self.session.post(download_url,
-                          data=json.dumps(finish_download_session_params),
-                          verify=self.verify_certificates)
+            self.session.post(download_url,
+                              data=json.dumps(finish_download_session_params),
+                              verify=self.verify_certificates)
 
         return self.destination
 
@@ -388,7 +393,8 @@ class FastDownload:
         queue_chunks(self.session, base_url, download_session_id, chunks,
                      self.verify_certificates)
 
-    def _download_step(self, download_url, download_session_id, session_stream_ids, ranges):
+    def _download_step(self, download_url, download_session_id, session_stream_ids, ranges,
+                       exception_list):
         """
         Perform downloading of chunks in separate threads
         :param download_url: url to use for downloading data
@@ -401,7 +407,7 @@ class FastDownload:
         max_chunk = max(map(lambda x: int(x.split(":")[1]), ranges.values()))
         chunks_to_download = set(range(min_chunk, max_chunk + 1))
 
-        counter = 0
+        counter = 1
         while True:  # each iteration will create threads for streams
             checker = AtomicChecker(chunks_to_download)
             streams = [
@@ -418,7 +424,10 @@ class FastDownload:
                 break
             else:
                 if counter >= DOWNLOAD_RETRIES_COUNT:
-                    raise ValueError(f"Reached maximum retry count:{counter}. Aborting.")
+                    print(f"Reached maximum retry count:{counter}. Aborting.")
+                    exception_list += [
+                        ValueError(f"Reached maximum retry count:{counter}. Aborting.")]
+                    break
                 counter += 1
                 # queue chunks that we
                 queue_chunks(self.session, download_url, download_session_id,
