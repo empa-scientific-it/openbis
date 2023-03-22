@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
+import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
 public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeHelper<SampleType>
 {
@@ -47,6 +48,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeHelper<Sampl
         super(wb);
     }
 
+    @Override
     public SampleType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
     {
         final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
@@ -65,12 +67,14 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeHelper<Sampl
         return iterator.hasNext() ? iterator.next() : null;
     }
 
+    @Override
     protected Attribute[] getAttributes(final SampleType sampleType)
     {
         return new Attribute[] { VERSION, CODE, DESCRIPTION, AUTO_GENERATE_CODES, VALIDATION_SCRIPT,
                 GENERATED_CODE_PREFIX };
     }
 
+    @Override
     protected String getAttributeValue(final SampleType sampleType, final Attribute attribute)
     {
         switch (attribute)
@@ -108,6 +112,12 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeHelper<Sampl
                 return null;
             }
         }
+    }
+
+    @Override
+    protected ExportableKind getExportableKind()
+    {
+        return ExportableKind.SAMPLE_TYPE;
     }
 
 }

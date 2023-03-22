@@ -15,17 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
+
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -33,10 +34,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper<ExperimentType>
+public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeHelper<ExperimentType>
 {
 
     public XLSExperimentTypeExportHelper(final Workbook wb)
@@ -45,43 +46,45 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper<Exper
     }
 
     @Override
-    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final List<String> permIds, int rowNumber,
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
-            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
+    protected Attribute[] getAttributes(final ExperimentType entityType)
     {
-        assert permIds.size() == 1;
-        final ExperimentType experimentType = getExperimentType(api, sessionToken, permIds.iterator().next());
-        final Collection<String> warnings = new ArrayList<>();
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT };
+    }
 
-        if (experimentType != null)
+    @Override
+    protected String getAttributeValue(final ExperimentType experimentType, final Attribute attribute)
+    {
+        switch (attribute)
         {
-            final String permId = experimentType.getPermId().getPermId();
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "EXPERIMENT_TYPE"));
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "Version", "Code",
-                    "Description", "Validation script"));
+            case CODE:
+            {
+                return experimentType.getCode();
+            }
+            case DESCRIPTION:
+            {
+                return experimentType.getDescription();
+            }
+            case VALIDATION_SCRIPT:
+            {
+                final Plugin validationPlugin = experimentType.getValidationPlugin();
+                return validationPlugin != null
+                        ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            final Plugin validationPlugin = experimentType.getValidationPlugin();
-            final String script = validationPlugin != null
-                    ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
-
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, permId, "1",
-                    experimentType.getCode(), experimentType.getDescription(), script));
-
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId,
-                    entityTypeExportFieldsMap, compatibleWithImport);
-            warnings.addAll(additionResult.getWarnings());
-            rowNumber = additionResult.getRowNumber();
-
-            return new AdditionResult(rowNumber + 1, warnings);
-        } else
-        {
-            return new AdditionResult(rowNumber, warnings);
+            }
+            case VERSION:
+            {
+                // TODO: implement
+                return "1";
+            }
+            default:
+            {
+                return null;
+            }
         }
     }
 
-    private ExperimentType getExperimentType(final IApplicationServerApi api, final String sessionToken,
+    @Override
+    public ExperimentType getEntityType(final IApplicationServerApi api, final String sessionToken,
             final String permId)
     {
         final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
@@ -101,10 +104,8 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper<Exper
     }
 
     @Override
-    public ExperimentType getEntityType(final IApplicationServerApi api, final String sessionToken,
-            final String permId)
+    protected ExportableKind getExportableKind()
     {
-        return getExperimentType(api, sessionToken, permId);
+        return ExportableKind.EXPERIMENT_TYPE;
     }
-
 }

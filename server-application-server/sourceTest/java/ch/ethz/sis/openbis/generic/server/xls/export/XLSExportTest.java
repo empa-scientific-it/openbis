@@ -238,6 +238,18 @@ public class XLSExportTest
                         false
                 },
                 {
+                        "export-experiment-type-compatible-with-import.xlsx",
+                        Map.of("test", TEST_SCRIPT_CONTENT),
+                        ExperimentTypeExpectations.class,
+                        List.of(new ExportablePermId(EXPERIMENT_TYPE,
+                                new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
                         "export-data-set-type.xlsx",
                         Map.of(),
                         DataSetTypeExpectations.class,
@@ -248,6 +260,18 @@ public class XLSExportTest
                         XLSExport.TextFormatting.PLAIN,
                         List.of(),
                         false
+                },
+                {
+                        "export-data-set-type-compatible-with-import.xlsx",
+                        Map.of(),
+                        DataSetTypeExpectations.class,
+                        List.of(new ExportablePermId(DATASET_TYPE,
+                                new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
                 },
                 {
                         "export-sample-type-with-vocabulary-property.xlsx",

@@ -15,17 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
+
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -33,10 +34,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper<DataSetType>
+public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeHelper<DataSetType>
 {
 
     public XLSDataSetTypeExportHelper(final Workbook wb)
@@ -45,43 +46,8 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper<DataSetT
     }
 
     @Override
-    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final List<String> permIds, int rowNumber,
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
-            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
-    {
-        assert permIds.size() == 1;
-        final DataSetType dataSetType = getDataSetType(api, sessionToken, permIds.iterator().next());
-        final Collection<String> warnings = new ArrayList<>();
-
-        if (dataSetType != null)
-        {
-            final String permId = dataSetType.getPermId().getPermId();
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATASET_TYPE"));
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "Version", "Code",
-                    "Description", "Validation script"));
-
-            final Plugin validationPlugin = dataSetType.getValidationPlugin();
-            final String script = validationPlugin != null
-                    ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
-
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, permId, "1",
-                    dataSetType.getCode(), dataSetType.getDescription(), script));
-
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    dataSetType.getPropertyAssignments(), ExportableKind.DATASET_TYPE, permId,
-                    entityTypeExportFieldsMap, compatibleWithImport);
-            warnings.addAll(additionResult.getWarnings());
-
-            rowNumber = additionResult.getRowNumber();
-            return new AdditionResult(rowNumber + 1, warnings);
-        } else
-        {
-            return new AdditionResult(rowNumber, warnings);
-        }
-    }
-
-    private DataSetType getDataSetType(final IApplicationServerApi api, final String sessionToken, final String permId)
+    public DataSetType getEntityType(final IApplicationServerApi api, final String sessionToken,
+            final String permId)
     {
         final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
@@ -100,10 +66,47 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper<DataSetT
     }
 
     @Override
-    public DataSetType getEntityType(final IApplicationServerApi api, final String sessionToken,
-            final String permId)
+    protected Attribute[] getAttributes(final DataSetType entityType)
     {
-        return getDataSetType(api, sessionToken, permId);
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT };
+    }
+
+    @Override
+    protected String getAttributeValue(final DataSetType entityType, final Attribute attribute)
+    {
+        switch (attribute)
+        {
+            case CODE:
+            {
+                return entityType.getCode();
+            }
+            case DESCRIPTION:
+            {
+                return entityType.getDescription();
+            }
+            case VALIDATION_SCRIPT:
+            {
+                final Plugin validationPlugin = entityType.getValidationPlugin();
+                return validationPlugin != null
+                        ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
+
+            }
+            case VERSION:
+            {
+                // TODO: implement
+                return "1";
+            }
+            default:
+            {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    protected ExportableKind getExportableKind()
+    {
+        return ExportableKind.DATASET_TYPE;
     }
 
 }
