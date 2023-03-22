@@ -859,7 +859,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			c.createFacadeAndLogin().then(function(facade) {
 				return facade.getServerInformation().then(function(serverInformation) {
 					c.assertTrue(serverInformation != null);
-					c.assertEqual(serverInformation["api-version"], "3.5", "api-version");
+					c.assertEqual(serverInformation["api-version"], "3.6", "api-version");
 					c.assertEqual(serverInformation["project-samples-enabled"], "true", "project-samples-enabled");
 					c.finish();
 				});
