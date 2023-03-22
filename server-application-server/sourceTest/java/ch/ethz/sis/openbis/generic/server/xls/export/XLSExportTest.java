@@ -276,6 +276,19 @@ public class XLSExportTest
                         false
                 },
                 {
+                        "export-sample-type-with-omitted-vocabulary-property-compatible-with-import.xlsx",
+                        Map.of(),
+                        SampleTypeWithVocabularyPropertyExpectations.class,
+                        List.of(
+                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
+                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
+                        false,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
                         "export-sample-type-with-sample-property.xlsx",
                         Map.of(
                                 "date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT,

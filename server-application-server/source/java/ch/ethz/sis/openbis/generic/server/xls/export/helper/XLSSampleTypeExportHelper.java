@@ -83,7 +83,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                     !entityTypeExportFieldsMap.containsKey(ExportableKind.SAMPLE_TYPE.toString()) ||
                     entityTypeExportFieldsMap.get(ExportableKind.SAMPLE_TYPE.toString()).isEmpty())
             {
-                // Export all fields in any order
+                // Export all attributes in any order
                 // Names
                 final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
@@ -96,14 +96,14 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                 warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE_TYPE, permId, values));
             } else
             {
-                // Export selected fields in predefined order
+                // Export selected attributes in predefined order
                 // Names
-                final Set<Attribute> attributeNameSet = Stream.of(possibleAttributes)
+                final Set<Attribute> possibleAttributeNameSet = Stream.of(possibleAttributes)
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
-                final List<Map<String, String>> selectedExportFields = entityTypeExportFieldsMap.get(ExportableKind.SAMPLE_TYPE.toString());
+                final List<Map<String, String>> selectedExportAttributes = entityTypeExportFieldsMap.get(ExportableKind.SAMPLE_TYPE.toString());
 
-                final String[] selectedFieldNames = selectedExportFields.stream()
-                        .filter(field -> AbstractXLSEntityExportHelper.isFieldAcceptable(attributeNameSet, field))
+                final String[] selectedFieldNames = selectedExportAttributes.stream()
+                        .filter(field -> AbstractXLSEntityExportHelper.isFieldAcceptable(possibleAttributeNameSet, field))
                         .map(field ->
                         {
                             if (FieldType.valueOf(field.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
@@ -114,31 +114,33 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                                 throw new IllegalArgumentException();
                             }
                         }).toArray(String[]::new);
-                final Attribute[] requiredAttributes = Arrays.stream(possibleAttributes)
+                final Attribute[] requiredForImportAttributes = Arrays.stream(possibleAttributes)
                         .filter(Attribute::isRequiredForImport)
                         .toArray(Attribute[]::new);
-                final Set<Attribute> selectedAttributes = selectedExportFields.stream()
+                final Set<Attribute> selectedAttributes = selectedExportAttributes.stream()
                         .filter(map -> map.get(FIELD_TYPE_KEY).equals(FieldType.ATTRIBUTE.toString()))
                         .map(map -> Attribute.valueOf(map.get(FIELD_ID_KEY)))
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
-                final Stream<String> importAttributeNamesStream = Arrays.stream(requiredAttributes)
+                final Stream<String> requiredForImportAttributeNamesStream = compatibleWithImport
+                        ? Arrays.stream(requiredForImportAttributes)
                         .filter(attribute -> !selectedAttributes.contains(attribute))
-                        .map(Attribute::getName);
-                final String[] allFieldNames = Stream.concat(Arrays.stream(selectedFieldNames), importAttributeNamesStream)
+                        .map(Attribute::getName)
+                        : Stream.empty();
+                final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedFieldNames), requiredForImportAttributeNamesStream)
                         .toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, permId, allFieldNames));
+                warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, permId, allAttributeNames));
 
                 // Values
-                final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportFields);
-                final List<Map<String, String>> extraExportFields = Arrays.stream(requiredAttributes)
-                        .map(attribute -> Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(),
-                                FIELD_ID_KEY, attribute.toString()))
+                final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportAttributes);
+                final List<Map<String, String>> extraExportFields = compatibleWithImport
+                        ? Arrays.stream(requiredForImportAttributes)
+                        .map(attribute -> Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, attribute.toString()))
                         .filter(map -> !selectedExportFieldSet.contains(map))
-                        .collect(Collectors.toList());
-                final String[] entityValues = Stream.concat(selectedExportFields.stream(),
-                                extraExportFields.stream())
-                        .filter(field -> isFieldAcceptable(attributeNameSet, field))
+                        .collect(Collectors.toList())
+                        : List.of();
+                final String[] entityValues = Stream.concat(selectedExportAttributes.stream(), extraExportFields.stream())
+                        .filter(field -> isFieldAcceptable(possibleAttributeNameSet, field))
                         .map(field ->
                         {
                             if (FieldType.valueOf(field.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
