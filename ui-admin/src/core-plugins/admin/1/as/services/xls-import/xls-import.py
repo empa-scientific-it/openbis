@@ -61,7 +61,6 @@ def process(context, parameters):
                     temp = singleFile
                     tempPath = singleFile.getAbsolutePath()
             byteArrays = MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xls")
-            byteArrays.addAll(MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xlsx"))
             if len(byteArrays) == 0:
                 raise UserFailureException('No .xls or .xlsx fields found. These should be on the root folder of the zip file.')
             parameters.put('xls', byteArrays)
