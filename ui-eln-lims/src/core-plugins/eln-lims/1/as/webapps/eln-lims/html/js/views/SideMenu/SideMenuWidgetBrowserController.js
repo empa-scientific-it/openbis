@@ -433,6 +433,10 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             path.push(this._createExportToZenodoNode())
         }
 
+        if (path.some((pathItem) => !pathItem)) {
+            return []
+        }
+
         var pathFromRoot = [...path]
 
         if (root) {
