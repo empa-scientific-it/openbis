@@ -55,6 +55,11 @@ def process(context, parameters):
             temp.mkdir()
             tempPath = temp.getAbsolutePath()
             MasterDataRegistrationHelper.extractToDestination(zip_bytes, tempPath)
+            if (temp.listFiles().length == 1):
+                File singleFile = temp.listFiles()[0]
+                if (singleFile.isDirectory()):
+                    temp = singleFile
+                    tempPath = singleFile.getAbsolutePath()
             byteArrays = MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xls")
             byteArrays.addAll(MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xlsx"))
             if len(byteArrays) == 0:
