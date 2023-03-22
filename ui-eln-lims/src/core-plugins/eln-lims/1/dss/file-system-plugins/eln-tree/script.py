@@ -31,11 +31,8 @@ class NodeWithEntityType(Node):
         self.permIds.add(permId)
 
 class Acceptor(object):
-    def __init__(self, settings):
+    def __init__(self):
         self.sections = ["Lab Notebook", "Inventory", "Stock"]
-        self.inventorySpaces = settings.inventorySpaces
-        self.mainMenues = settings.mainMenues
-        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
         self.endingsOfHiddenSpaces = []
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
@@ -44,6 +41,11 @@ class Acceptor(object):
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
         self.sampleChildrenHandlers = {}
+
+    def configure(self, settings):
+        self.inventorySpaces = settings.inventorySpaces
+        self.mainMenues = settings.mainMenues
+        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
 
     def assertValidSection(self, section):
         if section not in self.sections:
@@ -117,8 +119,14 @@ class Settings(object):
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
 
+acceptor = Acceptor()
+pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
+for pluginFileName in os.listdir(pluginsFolder):
+    file = "%s/%s" % (pluginsFolder, pluginFileName)
+    execfile(file, {"acceptor":acceptor})
+
 def resolve(subPath, context):
-    acceptor = createAcceptor(context)
+    acceptor.configure(getAllSettings(context))
     if len(subPath) == 0:
         return listSections(acceptor, context)
 
@@ -140,14 +148,6 @@ def resolve(subPath, context):
         return listExperimentContent(subPath, acceptor, context)
     if len(subPath) > 4:
         return listChildren(subPath, acceptor, context)
-
-def createAcceptor(context):
-    acceptor = Acceptor(getAllSettings(context))
-    pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
-    for pluginFileName in os.listdir(pluginsFolder):
-        file = "%s/%s" % (pluginsFolder, pluginFileName)
-        execfile(file, {"acceptor":acceptor})
-    return acceptor
 
 def listSections(acceptor, context):
     response = context.createDirectoryResponse()
