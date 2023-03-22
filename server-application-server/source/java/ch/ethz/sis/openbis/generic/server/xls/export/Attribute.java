@@ -80,9 +80,7 @@ public enum Attribute
 
     URL_TEMPLATE("URL Template", false, false),
 
-    VALIDATION_SCRIPT("Validation Script", true, true),
-
-    VALIDATION_PLUGIN("Validation Plugin", false, false),
+    VALIDATION_SCRIPT("Validation script", true, true),
 
     VERSION("Version", true, true);
 
@@ -102,6 +100,16 @@ public enum Attribute
     public String getName()
     {
         return name;
+    }
+
+    public boolean isImportable()
+    {
+        return importable;
+    }
+
+    public boolean isRequiredForImport()
+    {
+        return requiredForImport;
     }
 
 }

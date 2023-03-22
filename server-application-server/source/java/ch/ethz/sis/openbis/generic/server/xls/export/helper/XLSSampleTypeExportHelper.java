@@ -75,34 +75,30 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
             final String permId = sampleType.getPermId().getPermId();
             warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, permId, "SAMPLE_TYPE"));
 
-            final Attribute[] attributes = getAttributes(sampleType);
-            final Attribute[] importAttributes = compatibleWithImport ? getImportAttributes() : new Attribute[0];
+            final Attribute[] possibleAttributes = getAttributes(sampleType);
+            final Attribute[] importableAttributes = Arrays.stream(possibleAttributes)
+                    .filter(Attribute::isImportable)
+                    .toArray(Attribute[]::new);
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(ExportableKind.SAMPLE_TYPE.toString()) ||
                     entityTypeExportFieldsMap.get(ExportableKind.SAMPLE_TYPE.toString()).isEmpty())
             {
                 // Export all fields in any order
                 // Names
-                final String[] attributeHeaders = Stream.concat(
-                        Arrays.stream(attributes).map(Attribute::getName),
-                        Arrays.stream(importAttributes).map(Attribute::getName)).toArray(String[]::new);
+                final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
+                final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, permId,
-                        compatibleWithImport ? attributeHeaders : Arrays.copyOf(attributeHeaders, attributeHeaders.length - 1)));
+                warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, permId, attributeHeaders));
 
                 // Values
-                final Stream<String> importAttributeValuesStream = compatibleWithImport
-                        ? getImportAttributeValuesStream(sampleType) : Stream.empty();
-                final List<String> entityValues = Stream.concat(getAttributeValuesStream(sampleType), importAttributeValuesStream)
-                        .collect(Collectors.toList());
-
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE_TYPE, permId,
-                        entityValues.toArray(String[]::new)));
+                final String[] values = Arrays.stream(attributes)
+                        .map(attribute -> getAttributeValue(sampleType, attribute)).toArray(String[]::new);
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE_TYPE, permId, values));
             } else
             {
                 // Export selected fields in predefined order
                 // Names
-                final Set<Attribute> attributeNameSet = Stream.concat(Stream.of(attributes), Stream.of(importAttributes))
+                final Set<Attribute> attributeNameSet = Stream.of(possibleAttributes)
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
                 final List<Map<String, String>> selectedExportFields = entityTypeExportFieldsMap.get(ExportableKind.SAMPLE_TYPE.toString());
 
@@ -118,11 +114,14 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                                 throw new IllegalArgumentException();
                             }
                         }).toArray(String[]::new);
+                final Attribute[] requiredAttributes = Arrays.stream(possibleAttributes)
+                        .filter(Attribute::isRequiredForImport)
+                        .toArray(Attribute[]::new);
                 final Set<Attribute> selectedAttributes = selectedExportFields.stream()
                         .filter(map -> map.get(FIELD_TYPE_KEY).equals(FieldType.ATTRIBUTE.toString()))
                         .map(map -> Attribute.valueOf(map.get(FIELD_ID_KEY)))
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
-                final Stream<String> importAttributeNamesStream = Arrays.stream(importAttributes)
+                final Stream<String> importAttributeNamesStream = Arrays.stream(requiredAttributes)
                         .filter(attribute -> !selectedAttributes.contains(attribute))
                         .map(Attribute::getName);
                 final String[] allFieldNames = Stream.concat(Arrays.stream(selectedFieldNames), importAttributeNamesStream)
@@ -132,7 +131,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
 
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportFields);
-                final List<Map<String, String>> extraExportFields = Arrays.stream(importAttributes)
+                final List<Map<String, String>> extraExportFields = Arrays.stream(requiredAttributes)
                         .map(attribute -> Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(),
                                 FIELD_ID_KEY, attribute.toString()))
                         .filter(map -> !selectedExportFieldSet.contains(map))
@@ -193,13 +192,8 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
 
     protected Attribute[] getAttributes(final SampleType sampleType)
     {
-        return new Attribute[] { CODE, DESCRIPTION, VALIDATION_SCRIPT,
-                GENERATED_CODE_PREFIX};
-    }
-
-    protected Attribute[] getImportAttributes()
-    {
-        return new Attribute[] { VERSION, AUTO_GENERATE_CODES };
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, AUTO_GENERATE_CODES, VALIDATION_SCRIPT,
+                GENERATED_CODE_PREFIX };
     }
 
     protected String getAttributeValue(final SampleType sampleType, final Attribute attribute)
@@ -239,22 +233,6 @@ public class XLSSampleTypeExportHelper extends AbstractXLSExportHelper
                 return null;
             }
         }
-    }
-
-    protected Stream<String> getAttributeValuesStream(final SampleType sampleType)
-    {
-        final Plugin validationPlugin = sampleType.getValidationPlugin();
-        final String script = validationPlugin != null
-                ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
-        return Stream.of(sampleType.getCode(), sampleType.getDescription(),
-                String.valueOf(sampleType.isAutoGeneratedCode()).toUpperCase(),
-                script, sampleType.getGeneratedCodePrefix());
-    }
-
-    protected Stream<String> getImportAttributeValuesStream(final SampleType sampleType)
-    {
-        // TODO: implement
-        return Stream.of("1", sampleType.isAutoGeneratedCode().toString().toUpperCase());
     }
 
 }

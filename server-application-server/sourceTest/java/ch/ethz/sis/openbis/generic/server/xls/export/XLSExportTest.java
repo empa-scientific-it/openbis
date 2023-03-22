@@ -181,6 +181,21 @@ public class XLSExportTest
                         false
                 },
                 {
+                        "export-sample-type-compatible-with-import.xlsx",
+                        Map.of(
+                                "test", TEST_SCRIPT_CONTENT,
+                                "test-dynamic", TEST_SCRIPT_CONTENT
+                        ),
+                        SampleTypeExpectations.class,
+                        List.of(new ExportablePermId(SAMPLE_TYPE,
+                                new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
                         "export-sample-type-filtered-attributes.xlsx",
                         Map.of(
                                 "test", TEST_SCRIPT_CONTENT,

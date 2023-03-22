@@ -87,7 +87,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     protected Attribute[] getAttributes(final Sample entity)
     {
         return new Attribute[] { IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, PARENTS, CHILDREN,
-                REGISTRATOR, REGISTRATION_DATE,MODIFIER, MODIFICATION_DATE };
+                REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
