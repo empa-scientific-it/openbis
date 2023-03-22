@@ -45,7 +45,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
-public abstract class AbstractXLSExportHelper implements IXLSExportHelper
+public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> implements IXLSExportHelper<ENTITY_TYPE>
 {
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Mandatory",
@@ -202,7 +202,7 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
     }
 
     @Override
-    public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
+    public ENTITY_TYPE getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
     {
         return null;
     }
@@ -218,21 +218,5 @@ public abstract class AbstractXLSExportHelper implements IXLSExportHelper
                         : properties.get(propertyType.getCode())
                 : propertyType -> properties.get(propertyType.getCode());
     }
-
-//    protected abstract Attribute[] getAttributes(final HOLDER holder);
-//
-//    protected Attribute[] getImportAttributes()
-//    {
-//        return new Attribute[0];
-//    }
-//
-//    protected abstract String getAttributeValue(final HOLDER holder, final Attribute attribute);
-//
-//    protected abstract Stream<String> getAttributeValuesStream(final HOLDER entity);
-//
-//    protected Stream<String> getImportAttributeValuesStream()
-//    {
-//        return Stream.empty();
-//    }
 
 }

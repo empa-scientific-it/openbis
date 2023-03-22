@@ -156,7 +156,7 @@ public class XLSExport
         {
             final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
             final ExportableKind exportableKind = exportablePermId.getExportableKind();
-            final IXLSExportHelper helper = exportHelperFactory.getHelper(exportableKind);
+            final IXLSExportHelper<? extends IEntityType> helper = exportHelperFactory.getHelper(exportableKind);
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
 

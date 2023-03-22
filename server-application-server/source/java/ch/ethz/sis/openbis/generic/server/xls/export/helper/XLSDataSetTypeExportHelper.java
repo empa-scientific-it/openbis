@@ -36,7 +36,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
+public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper<DataSetType>
 {
 
     public XLSDataSetTypeExportHelper(final Workbook wb)
@@ -100,7 +100,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken,
+    public DataSetType getEntityType(final IApplicationServerApi api, final String sessionToken,
             final String permId)
     {
         return getDataSetType(api, sessionToken, permId);

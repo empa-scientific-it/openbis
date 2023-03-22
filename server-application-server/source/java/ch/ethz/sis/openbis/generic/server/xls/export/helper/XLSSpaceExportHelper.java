@@ -24,13 +24,14 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public class XLSSpaceExportHelper extends AbstractXLSExportHelper
+public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
     public XLSSpaceExportHelper(final Workbook wb)

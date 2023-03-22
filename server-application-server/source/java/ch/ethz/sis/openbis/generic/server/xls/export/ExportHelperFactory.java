@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
@@ -66,7 +67,7 @@ public class ExportHelperFactory
         dataSetExportHelper = new XLSDataSetExportHelper(wb);
     }
 
-    IXLSExportHelper getHelper(final ExportableKind exportableKind)
+    IXLSExportHelper<? extends IEntityType> getHelper(final ExportableKind exportableKind)
     {
         switch (exportableKind)
         {

@@ -25,7 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public interface IXLSExportHelper
+public interface IXLSExportHelper<ENTITY_TYPE extends IEntityType>
 {
 
     AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
@@ -33,7 +33,7 @@ public interface IXLSExportHelper
             final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport);
 
-    IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId);
+    ENTITY_TYPE getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId);
 
     class AdditionResult
     {
