@@ -56,6 +56,9 @@ def process(context, parameters):
             tempPath = temp.getAbsolutePath()
             MasterDataRegistrationHelper.extractToDestination(zip_bytes, tempPath)
             byteArrays = MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xls")
+            byteArrays.addAll(MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xlsx"))
+            if len(byteArrays) == 0:
+                raise UserFailureException('No .xls or .xlsx fields found. These should be on the root folder of the zip file.')
             parameters.put('xls', byteArrays)
             allScripts = MasterDataRegistrationHelper.getAllScripts(Path.of(tempPath))
             parameters.put('scripts', allScripts)
