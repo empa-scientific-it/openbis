@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.poi.hssf.util.HSSFColor;
@@ -41,7 +42,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
@@ -84,6 +87,12 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         
         errorCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
         errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    }
+
+    protected static boolean isFieldAcceptable(final Set<Attribute> attributeSet, final Map<String, String> field)
+    {
+        return FieldType.valueOf(field.get(FIELD_TYPE_KEY)) != FieldType.ATTRIBUTE ||
+                attributeSet.contains(Attribute.valueOf(field.get(FIELD_ID_KEY)));
     }
 
     protected String mapToJSON(final Map<?, ?> map)

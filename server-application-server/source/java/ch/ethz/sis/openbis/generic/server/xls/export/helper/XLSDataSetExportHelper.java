@@ -152,16 +152,6 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected Stream<String> getAttributeValuesStream(final DataSet dataSet)
-    {
-        return Stream.of(dataSet.getCode(), dataSet.getSample() != null
-                ? dataSet.getSample().getIdentifier().getIdentifier()
-                : dataSet.getExperiment().getIdentifier().getIdentifier(),
-                dataSet.getRegistrator().getUserId(), DATE_FORMAT.format(dataSet.getRegistrationDate()),
-                dataSet.getModifier().getUserId(), DATE_FORMAT.format(dataSet.getModificationDate()));
-    }
-
-    @Override
     protected String typePermIdToString(final DataSetType dataSetType)
     {
         return dataSetType.getPermId().getPermId();

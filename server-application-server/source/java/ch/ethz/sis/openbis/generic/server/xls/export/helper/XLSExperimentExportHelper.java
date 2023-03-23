@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -121,14 +120,6 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
                 return null;
             }
         }
-    }
-
-    protected Stream<String> getAttributeValuesStream(final Experiment experiment)
-    {
-        return Stream.of(experiment.getIdentifier().getIdentifier(), experiment.getCode(),
-                experiment.getProject().getIdentifier().getIdentifier(), experiment.getRegistrator().getUserId(),
-                DATE_FORMAT.format(experiment.getRegistrationDate()), experiment.getModifier().getUserId(),
-                DATE_FORMAT.format(experiment.getModificationDate()));
     }
 
     protected Collection<Experiment> getEntities(final IApplicationServerApi api, final String sessionToken,

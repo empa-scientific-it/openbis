@@ -17,8 +17,6 @@
 
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEntityExportHelper.isFieldAcceptable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +36,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
@@ -52,8 +51,11 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
             final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
-        assert permIds.size() == 1;
-        final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.iterator().next());
+        if (permIds.size() != 1)
+        {
+            throw new UserFailureException("For entity type export number of permIds should be equal to 1.");
+        }
+        final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
 
         if (entityType != null)
@@ -63,39 +65,37 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
             warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
 
             final Attribute[] possibleAttributes = getAttributes(entityType);
-            final Attribute[] importableAttributes = Arrays.stream(possibleAttributes)
-                    .filter(Attribute::isImportable)
-                    .toArray(Attribute[]::new);
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(exportableKind.toString()) ||
                     entityTypeExportFieldsMap.get(exportableKind.toString()).isEmpty())
             {
                 // Export all attributes in any order
-                // Names
+                // Headers
+                final Attribute[] importableAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isImportable)
+                        .toArray(Attribute[]::new);
                 final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
 
                 // Values
-                final String[] values = Arrays.stream(attributes)
-                        .map(attribute -> getAttributeValue(entityType, attribute)).toArray(String[]::new);
+                final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(entityType, attribute)).toArray(String[]::new);
                 warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
             } else
             {
                 // Export selected attributes in predefined order
-                // Names
+                // Headers
                 final Set<Attribute> possibleAttributeNameSet = Stream.of(possibleAttributes)
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
                 final List<Map<String, String>> selectedExportAttributes = entityTypeExportFieldsMap.get(exportableKind.toString());
 
-                final String[] selectedFieldNames = selectedExportAttributes.stream()
-                        .filter(field -> AbstractXLSEntityExportHelper.isFieldAcceptable(possibleAttributeNameSet, field))
-                        .map(field ->
+                final String[] selectedAttributeHeaders = selectedExportAttributes.stream()
+                        .filter(attribute -> AbstractXLSExportHelper.isFieldAcceptable(possibleAttributeNameSet, attribute))
+                        .map(attribute ->
                         {
-                            if (FieldType.valueOf(field.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
+                            if (FieldType.valueOf(attribute.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
                             {
-                                return Attribute.valueOf(field.get(FIELD_ID_KEY)).getName();
+                                return Attribute.valueOf(attribute.get(FIELD_ID_KEY)).getName();
                             } else
                             {
                                 throw new IllegalArgumentException();
@@ -108,12 +108,12 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
                         .filter(map -> map.get(FIELD_TYPE_KEY).equals(FieldType.ATTRIBUTE.toString()))
                         .map(map -> Attribute.valueOf(map.get(FIELD_ID_KEY)))
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
-                final Stream<String> requiredForImportAttributeNamesStream = compatibleWithImport
+                final Stream<String> requiredForImportAttributeNameStream = compatibleWithImport
                         ? Arrays.stream(requiredForImportAttributes)
                         .filter(attribute -> !selectedAttributes.contains(attribute))
                         .map(Attribute::getName)
                         : Stream.empty();
-                final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedFieldNames), requiredForImportAttributeNamesStream)
+                final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedAttributeHeaders), requiredForImportAttributeNameStream)
                         .toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, allAttributeNames));

@@ -86,14 +86,8 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     @Override
     protected Attribute[] getAttributes(final Sample entity)
     {
-        return new Attribute[] { IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, PARENTS, CHILDREN,
+        return new Attribute[] { $, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, AUTO_GENERATE_CODES, PARENTS, CHILDREN,
                 REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
-    }
-
-    @Override
-    protected Attribute[] getImportAttributes()
-    {
-        return new Attribute[] { $, AUTO_GENERATE_CODES };
     }
 
     @Override
@@ -180,28 +174,6 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
                 return null;
             }
         }
-    }
-
-    protected Stream<String> getAttributeValuesStream(final Sample sample)
-    {
-        return Stream.of(sample.getIdentifier().getIdentifier(), sample.getCode(),
-                sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "",
-                sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "",
-                sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier() : "",
-                sample.getParents() == null ? "" : sample.getParents().stream()
-                        .map(parent -> parent.getIdentifier().getIdentifier())
-                        .collect(Collectors.joining("\n")),
-                sample.getChildren() == null ? "" : sample.getChildren().stream()
-                        .map(child -> child.getIdentifier().getIdentifier())
-                        .collect(Collectors.joining("\n")), sample.getRegistrator().getUserId(),
-                DATE_FORMAT.format(sample.getRegistrationDate()), sample.getModifier().getUserId(),
-                DATE_FORMAT.format(sample.getModificationDate()));
-    }
-
-    @Override
-    protected Stream<String> getImportAttributeValuesStream()
-    {
-        return Stream.of("", "FALSE");
     }
 
     @Override

@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
@@ -48,7 +49,7 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
         final Collection<Space> spaces = getSpaces(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
 
-        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "SPACE"));
+        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, ExportableKind.SPACE.toString()));
         warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, "Code", "Description", "Registrator", "Registration Date"));
 
         for (final Space space : spaces)
