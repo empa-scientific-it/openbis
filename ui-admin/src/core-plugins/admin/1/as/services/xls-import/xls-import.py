@@ -62,7 +62,7 @@ def process(context, parameters):
                     tempPath = singleFile.getAbsolutePath()
             byteArrays = MasterDataRegistrationHelper.getByteArrays(Path.of(tempPath), ".xls")
             if len(byteArrays) == 0:
-                raise UserFailureException('No .xls or .xlsx fields found. These should be on the root folder of the zip file.')
+                raise UserFailureException('No .xls or .xlsx files found on the root folder of the zip file. This error could be caused by the way the zip file was generated.')
             parameters.put('xls', byteArrays)
             allScripts = MasterDataRegistrationHelper.getAllScripts(Path.of(tempPath))
             parameters.put('scripts', allScripts)
