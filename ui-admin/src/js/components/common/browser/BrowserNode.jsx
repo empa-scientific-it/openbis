@@ -28,12 +28,16 @@ const styles = theme => ({
     paddingBottom: theme.spacing(1),
     '&:hover $options': {
       visibility: 'visible'
+    },
+    '&:hover $textContainer': {
+      overflow: 'hidden'
     }
   },
   icon: {
     margin: '-2px 4px -2px 8px',
     minWidth: '24px'
   },
+  textContainer: {},
   text: {
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.fontSize
@@ -262,6 +266,7 @@ class BrowserNodeClass extends React.PureComponent {
       <ListItemText
         primary={text}
         classes={{
+          root: this.props.classes.textContainer,
           primary: this.props.classes.text
         }}
       />
