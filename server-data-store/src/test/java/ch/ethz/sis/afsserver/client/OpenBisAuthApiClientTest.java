@@ -91,7 +91,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         {
             ThrowableReason reason = (ThrowableReason) e.getCause();
             String message = ((ExceptionReason) reason.getReason()).getMessage();
-            System.out.println(message);
             assertTrue(message.matches(
                     "(?s).*Session .* don't have rights \\[Read\\] over .*to perform the operation List(?s).*"));
         }
@@ -111,7 +110,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         {
             ThrowableReason reason = (ThrowableReason) e.getCause();
             String message = ((ExceptionReason) reason.getReason()).getMessage();
-            System.out.println(message);
             assertTrue(message.matches("(?s).*Session .* doesn't exist(?s).*"));
         }
     }
@@ -131,7 +129,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         {
             ThrowableReason reason = (ThrowableReason) e.getCause();
             String message = ((ExceptionReason) reason.getReason()).getMessage();
-            System.out.println(message);
             assertTrue(message.matches(
                     "(?s).*Session .* don't have rights \\[Write\\] over .* to perform the operation Write(?s).*"));
         }
@@ -155,7 +152,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         {
             ThrowableReason reason = (ThrowableReason) e.getCause();
             String message = ((ExceptionReason) reason.getReason()).getMessage();
-            System.out.println(message);
             assertTrue(message.matches(
                     "(?s).*Session .* don't have rights \\[(Write|Read), (Write|Read)\\] over .* to perform the operation Move(?s).*"));
         }

@@ -276,7 +276,9 @@ public final class AfsClient implements PublicAPI
             }
         } else if (statusCode >= 400 && statusCode < 500)
         {
-            throw ClientExceptions.CLIENT_ERROR.getInstance(statusCode);
+            // jsonObjectMapper can't deserialize immutable lists sent in the error message.
+            String res = new String(httpResponse.body(), StandardCharsets.UTF_8);
+            throw ClientExceptions.API_ERROR.getInstance(res);
         } else if (statusCode >= 500 && statusCode < 600)
         {
             throw ClientExceptions.SERVER_ERROR.getInstance(statusCode);
