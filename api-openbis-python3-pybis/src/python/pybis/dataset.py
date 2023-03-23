@@ -950,11 +950,11 @@ class DataSet(
 
     def _upload_v3(self, data_stores):
         upload_id = str(uuid.uuid4())
-
+        datastore_url = data_stores["downloadUrl"][0]
         # for uploading phyiscal data, we first upload it to the session workspace
         self.upload_files_v3(
             upload_id=upload_id,
-            datastore_url=data_stores["downloadUrl"][0],
+            datastore_url=datastore_url,
             files=self.files,
             folder="",
             wait_until_finished=True,
@@ -986,6 +986,7 @@ class DataSet(
                 "@id": "4",
                 "permId": self.sample.permId
             }
+        # TODO: check if this part is needed
         parent_ids = self.parents
         if parent_ids is None:
             parent_ids = []
@@ -1003,7 +1004,8 @@ class DataSet(
             "params": [self.openbis.token, param]
         }
 
-        resp = self.openbis._post_request(self.openbis.dss_v3, request)
+        resp = self.openbis._post_request_full_url(urljoin(datastore_url, self.openbis.dss_v3),
+                                                   request)
         if "permId" in resp:
             permId = resp["permId"]
             if permId is None or permId == "":
@@ -1200,6 +1202,7 @@ class DataSetUploadQueue:
     """Structure for uploading files to OpenBIS in separate threads.
     It works as a queue where each item is a single file upload. It allows to upload files using v1
     and v3 api. V3 api uses multipart schema for file upload, whereas V1 api makes sue of the body"""
+
     def __init__(self, workers=20, multipart=False):
         # maximum files to be uploaded at once
         self.upload_queue = Queue()
@@ -1313,6 +1316,7 @@ class ZipBuffer(object):
 
 class DataSetDownloadQueue:
     """Special queue structure for multithreaded downloading files using V1 API."""
+
     def __init__(self, workers=20, collect_files_with_wrong_length=False):
         self.collect_files_with_wrong_length = collect_files_with_wrong_length
         # maximum files to be downloaded at once
