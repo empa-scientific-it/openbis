@@ -95,6 +95,13 @@ public class XLSExportTest
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "DESCRIPTION"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "AUTO_GENERATE_CODES"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "GENERATED_CODE_PREFIX")
+                            ),
+                            SPACE.toString(), List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "REGISTRATOR")
+                            ),
+                            VOCABULARY_TYPE.toString(), List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE")
                             )
                     ),
                     DATASET.toString(), Map.of(
@@ -164,6 +171,42 @@ public class XLSExportTest
                         XLSExport.TextFormatting.PLAIN,
                         List.of(),
                         false
+                },
+                {
+                        "export-vocabulary.xlsx",
+                        Map.of(),
+                        VocabularyExpectations.class,
+                        List.of(new ExportablePermId(VOCABULARY_TYPE,
+                                new VocabularyPermId("ANTIBODY.DETECTION"))),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
+                        "export-vocabulary-filtered-attributes.xlsx",
+                        Map.of(),
+                        VocabularyExpectations.class,
+                        List.of(new ExportablePermId(VOCABULARY_TYPE,
+                                new VocabularyPermId("ANTIBODY.DETECTION"))),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        false
+                },
+                {
+                        "export-vocabulary-filtered-attributes-compatible-with-import.xlsx",
+                        Map.of(),
+                        VocabularyExpectations.class,
+                        List.of(new ExportablePermId(VOCABULARY_TYPE,
+                                new VocabularyPermId("ANTIBODY.DETECTION"))),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
                 },
                 {
                         "export-sample-type.xlsx",
@@ -385,6 +428,51 @@ public class XLSExportTest
                         XLSExport.TextFormatting.PLAIN,
                         List.of(),
                         false
+                },
+                {
+                        "export-space-compatible-with-import.xlsx",
+                        Map.of(),
+                        SpaceExpectations.class,
+                        List.of(
+                                new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
+                                new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
+                                new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
+                        ),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
+                        "export-space-filtered-attributes.xlsx",
+                        Map.of(),
+                        SpaceExpectations.class,
+                        List.of(
+                                new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
+                                new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
+                                new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
+                        ),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        false
+                },
+                {
+                        "export-space-compatible-with-import.xlsx",
+                        Map.of(),
+                        SpaceExpectations.class,
+                        List.of(
+                                new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
+                                new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
+                                new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
+                        ),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
                 },
                 {
                         "export-project.xlsx",

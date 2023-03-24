@@ -115,6 +115,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 // Export selected fields in predefined order
                 // Headers
                 final Set<Attribute> possibleAttributeNameSet = Stream.of(possibleAttributes)
+                        .filter(attribute -> !compatibleWithImport || attribute.isImportable())
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
                 final List<Map<String, String>> selectedExportFields = entityTypeExportFieldsMap.get(typePermId);
 

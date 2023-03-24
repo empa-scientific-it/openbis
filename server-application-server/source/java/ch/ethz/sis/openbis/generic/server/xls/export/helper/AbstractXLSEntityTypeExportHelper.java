@@ -86,6 +86,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                 // Export selected attributes in predefined order
                 // Headers
                 final Set<Attribute> possibleAttributeNameSet = Stream.of(possibleAttributes)
+                        .filter(attribute -> !compatibleWithImport || attribute.isImportable())
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
                 final List<Map<String, String>> selectedExportAttributes = entityTypeExportFieldsMap.get(exportableKind.toString());
 
