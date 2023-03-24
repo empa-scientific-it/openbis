@@ -293,6 +293,8 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             {
                 private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
                         SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
+                private Set<Integer> subStatiForDebugLogging = new HashSet<>(Arrays.asList(
+                        SftpConstants.SSH_FX_EOF));
 
                 @Override
                 public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
@@ -306,6 +308,9 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                     if (subStatiForErrorLogging.contains(subStatus))
                     {
                         operationLog.error(logMessage, e);
+                    } else if (subStatiForDebugLogging.contains(subStatus))
+                    {
+                        operationLog.debug(logMessage + ": " + e);
                     } else
                     {
                         operationLog.warn(logMessage + ": " + e);
