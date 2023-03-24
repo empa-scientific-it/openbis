@@ -24,7 +24,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE_TYPE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
 import static org.testng.Assert.assertEquals;
@@ -157,7 +157,7 @@ public class XLSExportTest
                         "export-vocabulary.xlsx",
                         Map.of(),
                         VocabularyExpectations.class,
-                        List.of(new ExportablePermId(VOCABULARY,
+                        List.of(new ExportablePermId(VOCABULARY_TYPE,
                                 new VocabularyPermId("ANTIBODY.DETECTION"))),
                         true,
                         null,
@@ -847,14 +847,14 @@ public class XLSExportTest
                         new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3"))
                 ),
                 List.of(
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V3"))
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V1")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V2")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V3"))
                 ),
                 List.of(
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V4")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V5")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V6"))
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V4")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V5")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V6"))
                 ),
                 List.of(
                         new ExportablePermId(SPACE, new ObjectPermId("SP1")),
@@ -892,7 +892,7 @@ public class XLSExportTest
 
         for (final Collection<ExportablePermId> group : reorderedPermIds)
         {
-            if (group.iterator().next().getExportableKind() == VOCABULARY)
+            if (group.iterator().next().getExportableKind() == VOCABULARY_TYPE)
             {
                 assertFalse(nonVocabularyFound, "All vocabularies should be at the beginning.");
             } else
@@ -915,9 +915,9 @@ public class XLSExportTest
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")),
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")),
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3")),
-                new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
-                new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
-                new ExportablePermId(VOCABULARY, new ObjectPermId("V3")),
+                new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V1")),
+                new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V2")),
+                new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V3")),
                 new ExportablePermId(SPACE, new ObjectPermId("SP1")),
                 new ExportablePermId(SPACE, new ObjectPermId("SP2")),
                 new ExportablePermId(SPACE, new ObjectPermId("SP3")),

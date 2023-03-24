@@ -32,15 +32,17 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
-public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
+public abstract class AbstractXLSPermIdHolderExportHelper<HOLDER extends IPermIdHolder> extends AbstractXLSExportHelper<IEntityType>
 {
-    public AbstractXLSEntityTypeHelper(final Workbook wb)
+    public AbstractXLSPermIdHolderExportHelper(final Workbook wb)
     {
         super(wb);
     }
@@ -55,16 +57,16 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
         {
             throw new UserFailureException("For entity type export number of permIds should be equal to 1.");
         }
-        final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.get(0));
+        final HOLDER permIdHolder = getPermIdHolder(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
 
-        if (entityType != null)
+        if (permIdHolder != null)
         {
-            final String permId = entityType.getPermId().toString();
+            final String permId = permIdHolder.getPermId().toString();
             final ExportableKind exportableKind = getExportableKind();
             warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
 
-            final Attribute[] possibleAttributes = getAttributes(entityType);
+            final Attribute[] possibleAttributes = getAttributes(permIdHolder);
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(exportableKind.toString()) ||
                     entityTypeExportFieldsMap.get(exportableKind.toString()).isEmpty())
@@ -79,7 +81,7 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
                 warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
 
                 // Values
-                final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(entityType, attribute)).toArray(String[]::new);
+                final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(permIdHolder, attribute)).toArray(String[]::new);
                 warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
             } else
             {
@@ -132,7 +134,7 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
                         {
                             if (FieldType.valueOf(field.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
                             {
-                                return getAttributeValue(entityType, Attribute.valueOf(field.get(FIELD_ID_KEY)));
+                                return getAttributeValue(permIdHolder, Attribute.valueOf(field.get(FIELD_ID_KEY)));
                             } else
                             {
                                 throw new IllegalArgumentException();
@@ -142,12 +144,6 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
                 warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, entityValues));
             }
 
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    entityType.getPropertyAssignments(), exportableKind, permId,
-                    entityTypeExportFieldsMap, compatibleWithImport);
-            warnings.addAll(additionResult.getWarnings());
-            rowNumber = additionResult.getRowNumber();
-
             return new AdditionResult(rowNumber + 1, warnings);
         } else
         {
@@ -155,10 +151,12 @@ public abstract class AbstractXLSEntityTypeHelper<ENTITY_TYPE extends IEntityTyp
         }
     }
 
-    protected abstract Attribute[] getAttributes(final ENTITY_TYPE entityType);
+    protected abstract Attribute[] getAttributes(final HOLDER entityType);
 
-    protected abstract String getAttributeValue(final ENTITY_TYPE entityType, final Attribute attribute);
+    protected abstract String getAttributeValue(final HOLDER entityType, final Attribute attribute);
     
     protected abstract ExportableKind getExportableKind();
+
+    protected abstract HOLDER getPermIdHolder(final IApplicationServerApi api, final String sessionToken, final String permId);
 
 }

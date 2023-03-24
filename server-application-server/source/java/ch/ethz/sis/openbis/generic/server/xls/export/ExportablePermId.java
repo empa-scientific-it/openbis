@@ -65,7 +65,7 @@ public class ExportablePermId
             {
                 return new EntityTypePermId(permId, DATA_SET);
             }
-            case VOCABULARY:
+            case VOCABULARY_TYPE:
             {
                 return new VocabularyPermId(permId);
             }

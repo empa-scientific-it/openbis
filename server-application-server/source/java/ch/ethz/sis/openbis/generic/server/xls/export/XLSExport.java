@@ -19,7 +19,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DAT
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -223,7 +222,7 @@ public class XLSExport
                             {
                                 case CONTROLLEDVOCABULARY:
                                 {
-                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY,
+                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY_TYPE,
                                             propertyType.getVocabulary().getPermId()));
                                 }
                                 case SAMPLE:
@@ -317,7 +316,7 @@ public class XLSExport
         // Adding vocabularies first
         for (final Collection<ExportablePermId> group : exportablePermIds)
         {
-            if (group.iterator().next().getExportableKind() == VOCABULARY)
+            if (group.iterator().next().getExportableKind() == VOCABULARY_TYPE)
             {
                 result.add(group);
             }
@@ -326,7 +325,7 @@ public class XLSExport
         // Adding other items
         for (final Collection<ExportablePermId> group : exportablePermIds)
         {
-            if (group.iterator().next().getExportableKind() != VOCABULARY)
+            if (group.iterator().next().getExportableKind() != VOCABULARY_TYPE)
             {
                 result.add(group);
             }
@@ -360,7 +359,7 @@ public class XLSExport
                             ((EntityTypePermId) exportablePermId.getPermId()).getEntityKind() == DATA_SET;
                     break;
                 }
-                case VOCABULARY:
+                case VOCABULARY_TYPE:
                 {
                     isValid = exportablePermId.getPermId() instanceof VocabularyPermId;
                     break;

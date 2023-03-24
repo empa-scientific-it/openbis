@@ -37,7 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAs
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
-public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeHelper<ExperimentType>
+public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHelper<ExperimentType>
 {
 
     public XLSExperimentTypeExportHelper(final Workbook wb)

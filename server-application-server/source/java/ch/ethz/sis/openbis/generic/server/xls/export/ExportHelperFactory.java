@@ -83,7 +83,7 @@ public class ExportHelperFactory
             {
                 return dataSetTypeExportHelper;
             }
-            case VOCABULARY:
+            case VOCABULARY_TYPE:
             {
                 return vocabularyExportHelper;
             }

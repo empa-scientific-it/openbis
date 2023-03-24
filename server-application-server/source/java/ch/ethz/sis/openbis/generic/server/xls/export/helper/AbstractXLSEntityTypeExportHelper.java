@@ -1,27 +1,27 @@
 /*
- * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *  Copyright ETH 2023 Zürich, Scientific IT Services
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
  */
+
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,21 +32,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
-public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
+public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
-
-    public XLSVocabularyExportHelper(final Workbook wb)
+    public AbstractXLSEntityTypeExportHelper(final Workbook wb)
     {
         super(wb);
     }
@@ -61,16 +55,16 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         {
             throw new UserFailureException("For entity type export number of permIds should be equal to 1.");
         }
-        final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.get(0));
+        final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
 
-        if (vocabulary != null)
+        if (entityType != null)
         {
-            final String permId = vocabulary.getPermId().toString();
+            final String permId = entityType.getPermId().toString();
             final ExportableKind exportableKind = getExportableKind();
             warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
 
-            final Attribute[] possibleAttributes = getAttributes(vocabulary);
+            final Attribute[] possibleAttributes = getAttributes(entityType);
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(exportableKind.toString()) ||
                     entityTypeExportFieldsMap.get(exportableKind.toString()).isEmpty())
@@ -85,7 +79,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
 
                 // Values
-                final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(vocabulary, attribute)).toArray(String[]::new);
+                final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(entityType, attribute)).toArray(String[]::new);
                 warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
             } else
             {
@@ -138,7 +132,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                         {
                             if (FieldType.valueOf(field.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
                             {
-                                return getAttributeValue(vocabulary, Attribute.valueOf(field.get(FIELD_ID_KEY)));
+                                return getAttributeValue(entityType, Attribute.valueOf(field.get(FIELD_ID_KEY)));
                             } else
                             {
                                 throw new IllegalArgumentException();
@@ -148,15 +142,11 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, entityValues));
             }
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId,
-                    "Version", "Code", "Label", "Description"));
-
-            for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
-            {
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE,
-                        permId, "1", vocabularyTerm.getCode(),
-                        vocabularyTerm.getLabel(), vocabularyTerm.getDescription()));
-            }
+            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
+                    entityType.getPropertyAssignments(), exportableKind, permId,
+                    entityTypeExportFieldsMap, compatibleWithImport);
+            warnings.addAll(additionResult.getWarnings());
+            rowNumber = additionResult.getRowNumber();
 
             return new AdditionResult(rowNumber + 1, warnings);
         } else
@@ -165,51 +155,10 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         }
     }
 
-    protected Attribute[] getAttributes(final Vocabulary vocabulary)
-    {
-        return new Attribute[] { Attribute.VERSION, Attribute.CODE, Attribute.DESCRIPTION };
-    }
+    protected abstract Attribute[] getAttributes(final ENTITY_TYPE entityType);
 
-    protected String getAttributeValue(final Vocabulary vocabulary, final Attribute attribute)
-    {
-        switch (attribute)
-        {
-            case VERSION:
-            {
-                // TODO: implement
-                return "1";
-            }
-            case CODE:
-            {
-                return vocabulary.getCode();
-            }
-            case DESCRIPTION:
-            {
-                return vocabulary.getDescription();
-            }
-            default:
-            {
-                return null;
-            }
-        }
-    }
-
-    protected ExportableKind getExportableKind()
-    {
-        return ExportableKind.VOCABULARY_TYPE;
-    }
-
-    private Vocabulary getVocabulary(final IApplicationServerApi api, final String sessionToken, final String permId)
-    {
-        final VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
-        fetchOptions.withTerms();
-        final Map<IVocabularyId, Vocabulary> vocabularies = api.getVocabularies(sessionToken,
-                Collections.singletonList(new VocabularyPermId(permId)), fetchOptions);
-
-        assert vocabularies.size() <= 1;
-
-        final Iterator<Vocabulary> iterator = vocabularies.values().iterator();
-        return iterator.hasNext() ? iterator.next() : null;
-    }
+    protected abstract String getAttributeValue(final ENTITY_TYPE entityType, final Attribute attribute);
+    
+    protected abstract ExportableKind getExportableKind();
 
 }
