@@ -69,7 +69,10 @@ public class XLSExportData
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "AUTO_GENERATE_CODES"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "GENERATED_CODE_PREFIX")
                             ),
-                            // TODO: add experiment and dataset types here as well!!!!!!!!
+                            EXPERIMENT_TYPE.toString(), List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "DESCRIPTION"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE")
+                            ),
                             PROJECT.toString(), List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "IDENTIFIER"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
@@ -92,7 +95,6 @@ public class XLSExportData
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$ATTACHMENT"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "REGISTRATION_DATE"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "REGISTRATOR")),
-
                             "RAW_DATA", List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "$NAME"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "EXPERIMENT"),
@@ -249,6 +251,18 @@ public class XLSExportData
                                     false
                             },
                             {
+                                    "export-experiment-type-filtered-attributes.xlsx",
+                                    Map.of("test", TEST_SCRIPT_CONTENT),
+                                    ExperimentTypeExpectations.class,
+                                    List.of(new ExportablePermId(EXPERIMENT_TYPE,
+                                            new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
+                                    true,
+                                    EXPORT_FIELDS,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
                                     "export-experiment-type-compatible-with-import.xlsx",
                                     Map.of("test", TEST_SCRIPT_CONTENT),
                                     ExperimentTypeExpectations.class,
@@ -256,6 +270,18 @@ public class XLSExportData
                                             new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
                                     true,
                                     null,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    true
+                            },
+                            {
+                                    "export-experiment-type-filtered-attributes-compatible-with-import.xlsx",
+                                    Map.of("test", TEST_SCRIPT_CONTENT),
+                                    ExperimentTypeExpectations.class,
+                                    List.of(new ExportablePermId(EXPERIMENT_TYPE,
+                                            new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
+                                    true,
+                                    EXPORT_FIELDS,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
                                     true
