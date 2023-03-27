@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest.DATE_RANGE_VALIDATION_SCRIPT_CONTENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExportData.DATE_RANGE_VALIDATION_SCRIPT_CONTENT;
 
 import java.util.Arrays;
 import java.util.Collections;
