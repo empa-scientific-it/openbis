@@ -73,6 +73,10 @@ public class XLSExportData
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "DESCRIPTION"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE")
                             ),
+                            DATASET_TYPE.toString(), List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "DESCRIPTION"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE")
+                            ),
                             PROJECT.toString(), List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "IDENTIFIER"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
@@ -299,6 +303,18 @@ public class XLSExportData
                                     false
                             },
                             {
+                                    "export-data-set-type-filtered-attributes.xlsx",
+                                    Map.of(),
+                                    DataSetTypeExpectations.class,
+                                    List.of(new ExportablePermId(DATASET_TYPE,
+                                            new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
+                                    true,
+                                    EXPORT_FIELDS,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
                                     "export-data-set-type-compatible-with-import.xlsx",
                                     Map.of(),
                                     DataSetTypeExpectations.class,
@@ -306,6 +322,18 @@ public class XLSExportData
                                             new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
                                     true,
                                     null,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    true
+                            },
+                            {
+                                    "export-data-set-type-filtered-attributes-compatible-with-import.xlsx",
+                                    Map.of(),
+                                    DataSetTypeExpectations.class,
+                                    List.of(new ExportablePermId(DATASET_TYPE,
+                                            new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
+                                    true,
+                                    EXPORT_FIELDS,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
                                     true
