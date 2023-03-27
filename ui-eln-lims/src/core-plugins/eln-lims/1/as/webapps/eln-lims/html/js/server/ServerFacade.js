@@ -2123,13 +2123,13 @@ function ServerFacade(openbisServer) {
                                 case "PARENTS":
                                     var parentsCriteria = criteria.withParents();
                                     parentsCriteria.withOrOperator();
-                                    parentsCriteria.withCode().thatContains(attributeValue);
+                                    parentsCriteria.withIdentifier().thatContains(attributeValue);
                                     parentsCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                                 case "CHILDREN":
                                     var childrenCriteria = criteria.withChildren();
                                     childrenCriteria.withOrOperator();
-                                    childrenCriteria.withCode().thatContains(attributeValue);
+                                    childrenCriteria.withIdentifier().thatContains(attributeValue);
                                     childrenCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                             }
