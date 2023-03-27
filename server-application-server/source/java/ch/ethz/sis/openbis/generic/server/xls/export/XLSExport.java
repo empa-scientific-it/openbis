@@ -19,6 +19,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DAT
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
@@ -162,7 +163,7 @@ public class XLSExport
 
             final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
                     ? null
-                    : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE
+                    : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
                             ? TYPE_KEY : exportableKind.toString());
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);

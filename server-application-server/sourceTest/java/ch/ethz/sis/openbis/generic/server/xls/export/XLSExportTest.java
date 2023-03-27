@@ -96,6 +96,13 @@ public class XLSExportTest
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "AUTO_GENERATE_CODES"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "GENERATED_CODE_PREFIX")
                             ),
+                            PROJECT.toString(), List.of(
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "IDENTIFIER"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "SPACE"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "REGISTRATION_DATE"),
+                                    Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "REGISTRATOR")
+                            ),
                             SPACE.toString(), List.of(
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
                                     Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "REGISTRATOR")
@@ -487,6 +494,48 @@ public class XLSExportTest
                         XLSExport.TextFormatting.PLAIN,
                         List.of(),
                         false
+                },
+                {
+                        "export-project-compatible-with-import.xlsx",
+                        Map.of(),
+                        ProjectExpectations.class,
+                        List.of(
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
+                        ),
+                        true,
+                        null,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
+                },
+                {
+                        "export-project-filtered-attributes.xlsx",
+                        Map.of(),
+                        ProjectExpectations.class,
+                        List.of(
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
+                        ),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        false
+                },
+                {
+                        "export-project-filtered-attributes-compatible-with-import.xlsx",
+                        Map.of(),
+                        ProjectExpectations.class,
+                        List.of(
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
+                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
+                        ),
+                        true,
+                        EXPORT_FIELDS,
+                        XLSExport.TextFormatting.PLAIN,
+                        List.of(),
+                        true
                 },
                 {
                         "export-experiment.xlsx",

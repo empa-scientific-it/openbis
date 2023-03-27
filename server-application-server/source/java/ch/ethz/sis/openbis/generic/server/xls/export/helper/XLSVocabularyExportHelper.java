@@ -70,7 +70,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
             final ExportableKind exportableKind = getExportableKind();
             warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
 
-            final Attribute[] possibleAttributes = getAttributes(vocabulary);
+            final Attribute[] possibleAttributes = getAttributes();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
                     !entityTypeExportFieldsMap.containsKey(exportableKind.toString()) ||
                     entityTypeExportFieldsMap.get(exportableKind.toString()).isEmpty())
@@ -166,7 +166,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         }
     }
 
-    protected Attribute[] getAttributes(final Vocabulary vocabulary)
+    protected Attribute[] getAttributes()
     {
         return new Attribute[] { Attribute.VERSION, Attribute.CODE, Attribute.DESCRIPTION };
     }
