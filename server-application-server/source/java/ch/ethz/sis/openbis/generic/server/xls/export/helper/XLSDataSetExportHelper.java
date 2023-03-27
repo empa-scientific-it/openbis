@@ -15,13 +15,18 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.ARCHIVING_STATUS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CHILDREN;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PRESENT_IN_ARCHIVE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.STORAGE_CONFIRMATION;
 
 import java.util.Collection;
 import java.util.List;
@@ -107,8 +112,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     @Override
     protected Attribute[] getAttributes(final DataSet dataSet)
     {
-        return new Attribute[] { CODE, dataSet.getSample() != null ? SAMPLE : EXPERIMENT, REGISTRATOR, REGISTRATION_DATE,
-                MODIFIER, MODIFICATION_DATE };
+        return new Attribute[] { CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION, dataSet.getSample() != null ? SAMPLE : EXPERIMENT,
+                PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
@@ -116,6 +121,18 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     {
         switch (attribute)
         {
+            case ARCHIVING_STATUS:
+            {
+                return dataSet.getPhysicalData().isArchivingRequested().toString().toUpperCase();
+            }
+            case PRESENT_IN_ARCHIVE:
+            {
+                return dataSet.getPhysicalData().isPresentInArchive().toString().toUpperCase();
+            }
+            case STORAGE_CONFIRMATION:
+            {
+                return dataSet.getPhysicalData().isStorageConfirmation().toString().toUpperCase();
+            }
             case CODE:
             {
                 return dataSet.getCode();
@@ -143,6 +160,18 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             case MODIFICATION_DATE:
             {
                 return DATE_FORMAT.format(dataSet.getModificationDate());
+            }
+            case PARENTS:
+            {
+                return dataSet.getParents() == null ? "" : dataSet.getParents().stream()
+                        .map(DataSet::getCode)
+                        .collect(Collectors.joining("\n"));
+            }
+            case CHILDREN:
+            {
+                return dataSet.getChildren() == null ? "" : dataSet.getChildren().stream()
+                        .map(DataSet::getCode)
+                        .collect(Collectors.joining("\n"));
             }
             default:
             {

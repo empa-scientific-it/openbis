@@ -28,6 +28,7 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -66,6 +67,9 @@ class DataSetExpectations extends Expectations
             {
                 final DataSetFetchOptions fetchOptions = (DataSetFetchOptions) invocation.getParameter(2);
                 final DataSetType[] dataSetTypes = getDataSetTypes(fetchOptions.withType());
+                fetchOptions.withPhysicalData();
+                fetchOptions.withParents();
+                fetchOptions.withChildren();
 
                 final Sample[] samples = new Sample[2];
 
@@ -91,12 +95,29 @@ class DataSetExpectations extends Expectations
                 final Person modifier = new Person();
                 modifier.setUserId("test");
 
+                final PhysicalData[] physicalData = new PhysicalData[3];
+                physicalData[0] = new PhysicalData();
+                physicalData[0].setArchivingRequested(false);
+                physicalData[0].setPresentInArchive(true);
+                physicalData[0].setStorageConfirmation(true);
+
+                physicalData[1] = new PhysicalData();
+                physicalData[1].setArchivingRequested(true);
+                physicalData[1].setPresentInArchive(false);
+                physicalData[1].setStorageConfirmation(false);
+
+                physicalData[2] = new PhysicalData();
+                physicalData[2].setArchivingRequested(true);
+                physicalData[2].setPresentInArchive(true);
+                physicalData[2].setStorageConfirmation(false);
+
                 final DataSet[] dataSets = new DataSet[3];
 
                 dataSets[0] = new DataSet();
                 dataSets[0].setFetchOptions(fetchOptions);
                 dataSets[0].setPermId(new DataSetPermId("200001010000000-0001"));
                 dataSets[0].setCode("TEST_1");
+                dataSets[0].setPhysicalData(physicalData[0]);
                 dataSets[0].setType(dataSetTypes[1]);
                 dataSets[0].setExperiment(experiment);
                 dataSets[0].setProperty("$NAME", "<b>Test 1</b>");
@@ -110,6 +131,7 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setFetchOptions(fetchOptions);
                 dataSets[1].setPermId(new DataSetPermId("200001010000000-0002"));
                 dataSets[1].setCode("TEST_2");
+                dataSets[1].setPhysicalData(physicalData[1]);
                 dataSets[1].setSample(samples[0]);
                 dataSets[1].setType(dataSetTypes[0]);
                 dataSets[1].setProperty("$NAME", "<i>Test 2</i>");
@@ -118,11 +140,13 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setModifier(modifier);
                 dataSets[1].setRegistrationDate(registrationDate);
                 dataSets[1].setModificationDate(modificationDate);
+                dataSets[1].setParents(List.of(dataSets[0]));
 
                 dataSets[2] = new DataSet();
                 dataSets[2].setFetchOptions(fetchOptions);
                 dataSets[2].setPermId(new DataSetPermId("200001010000000-0003"));
                 dataSets[2].setCode("TEST_3");
+                dataSets[2].setPhysicalData(physicalData[2]);
                 dataSets[2].setSample(samples[1]);
                 dataSets[2].setType(dataSetTypes[0]);
                 dataSets[2].setProperty("$NAME", "Test 3");
@@ -131,6 +155,9 @@ class DataSetExpectations extends Expectations
                 dataSets[2].setModifier(modifier);
                 dataSets[2].setRegistrationDate(registrationDate);
                 dataSets[2].setModificationDate(modificationDate);
+                dataSets[2].setParents(List.of(dataSets[0]));
+
+                dataSets[0].setChildren(List.of(dataSets[1], dataSets[2]));
 
                 return Arrays.stream(dataSets).collect(Collectors.toMap(DataSet::getPermId,
                         Function.identity(), (dataSet1, dataSet2) -> dataSet2, LinkedHashMap::new));
