@@ -163,11 +163,20 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
             Long registratorId =registratorIdByRecordIdentifierMap.get(matchingEntity.getIdentifier());
             PersonPE registratorPersonPE = registratorsById.get(registratorId);
             Person registrator = new Person();
-            registrator.setFirstName(registratorPersonPE.getFirstName());
-            registrator.setLastName(registratorPersonPE.getLastName());
-            registrator.setUserId(registratorPersonPE.getUserId());
-            registrator.setEmail(registratorPersonPE.getEmail());
-            registrator.setActive(registratorPersonPE.isActive());
+            if (registratorPersonPE == null)
+            {
+                registrator.setFirstName("Missing");
+                registrator.setLastName("Missing");
+                registrator.setUserId("system");
+                registrator.setEmail("");
+                registrator.setActive(false);
+            } else {
+                registrator.setFirstName(registratorPersonPE.getFirstName());
+                registrator.setLastName(registratorPersonPE.getLastName());
+                registrator.setUserId(registratorPersonPE.getUserId());
+                registrator.setEmail(registratorPersonPE.getEmail());
+                registrator.setActive(registratorPersonPE.isActive());
+            }
             matchingEntity.setRegistrator(registrator);
         }
 

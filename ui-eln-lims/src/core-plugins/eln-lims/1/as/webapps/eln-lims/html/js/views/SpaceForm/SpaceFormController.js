@@ -110,7 +110,7 @@ function SpaceFormController(mainController, mode, isInventory, space) {
         var spaceCode = this._spaceFormModel.space;
         this._mainController.serverFacade.deleteSpace(spaceCode, reason, function(updated) {
             Util.showSuccess("Space Deleted");
-            mainController.sideMenu.deleteNodeByEntityPermId(spaceCode, true);
+            mainController.sideMenu.deleteNodeByEntityPermId("SPACE", spaceCode, true);
             if (updated) {
                 Util.reloadApplication("Application will be reloaded because the settings have changed.");
             }

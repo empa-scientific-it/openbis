@@ -48,12 +48,12 @@ class Message extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Message.render')
 
-    const { classes, children, type } = this.props
+    const { classes, styles = {}, children, type } = this.props
 
     return (
       <Typography
         component='div'
-        className={util.classNames(classes.message, classes[type])}
+        className={util.classNames(classes.message, classes[type], styles.root)}
       >
         {this.renderIcon(type)}
         {children}

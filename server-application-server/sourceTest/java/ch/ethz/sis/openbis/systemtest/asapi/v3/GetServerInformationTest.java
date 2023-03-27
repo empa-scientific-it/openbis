@@ -39,7 +39,7 @@ public class GetServerInformationTest extends AbstractTest
 
         // Then
         assertEquals(result.size(), 13);
-        assertEquals(result.get("api-version"), "3.5");
+        assertEquals(result.get("api-version"), "3.6");
         assertEquals(result.get("archiving-configured"), "false");
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
         assertEquals(result.get("authentication-service.switch-aai.link"), null);

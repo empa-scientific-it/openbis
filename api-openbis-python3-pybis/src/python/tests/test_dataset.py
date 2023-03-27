@@ -12,15 +12,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from pybis.things import Things
-
-import json
-import random
-import re
 import os
+import re
+import time
 
 import pytest
-import time
+from pybis.things import Things
 
 
 def test_get_datasets(space):
@@ -83,11 +80,11 @@ def test_create_delete_dataset(space):
     assert dataset_by_permId.registrationDate is not None
     # check date format: 2019-03-22 11:36:40
     assert (
-        re.search(
-            r"^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}$",
-            dataset_by_permId.registrationDate,
-        )
-        is not None
+            re.search(
+                r"^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}$",
+                dataset_by_permId.registrationDate,
+            )
+            is not None
     )
 
     # delete datasets
@@ -125,6 +122,7 @@ def test_create_dataset_with_code(space):
 
     dataset.delete("dataset creation test on {}".format(timestamp))
 
+
 def test_things_initialization(space):
     data_frame_result = [1, 2, 3]
     objects_result = [4, 5, 6]
@@ -136,9 +134,9 @@ def test_things_initialization(space):
         return objects_result
 
     things = Things(
-        openbis_obj = None,
-        entity = 'dataset',
-        identifier_name = 'permId',
+        openbis_obj=None,
+        entity='dataset',
+        identifier_name='permId',
         start_with=0,
         count=10,
         totalCount=10,
@@ -155,3 +153,59 @@ def test_things_initialization(space):
 
     assert things.is_df_initialised()
     assert things.is_objects_initialised()
+
+
+def test_create_new_dataset_v1(space):
+    """Create dataset and upload file using upload scheme from before 3.6 api version"""
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    # It is a hack to force old way of upload for testing.
+    openbis_instance.get_server_information()._info["api-version"] = "3.5"
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["original/testfile"]
+
+
+def test_create_new_dataset_v3_single_file(space):
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["original/testfile"]
+
+
+def test_create_new_dataset_v3_directory(space):
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir")
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["testdir/testfile"]
+

@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import DatabaseBrowserCommon from '@src/js/components/database/browser/DatabaseBrowserCommon.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
@@ -8,19 +7,13 @@ export default class DatabaseBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { root, object } = params
 
-    const rootNode = BrowserCommon.rootNode()
-
     let path = []
 
     if (object.type === objectType.SPACE) {
       const space = await this.searchSpace(object.id)
       if (space) {
-        const spacesFolderNode =
-          DatabaseBrowserCommon.spacesFolderNode(rootNode)
-        const spaceNode = DatabaseBrowserCommon.spaceNode(
-          spacesFolderNode,
-          object.id
-        )
+        const spacesFolderNode = DatabaseBrowserCommon.spacesFolderNode()
+        const spaceNode = DatabaseBrowserCommon.spaceNode(object.id)
         path = [spacesFolderNode, spaceNode]
       }
     } else if (object.type === objectType.PROJECT) {
@@ -33,11 +26,8 @@ export default class DatabaseBrowserControllerLoadNodePath {
           }
         })
         if (!_.isEmpty(spacePath)) {
-          const spaceNode = spacePath[spacePath.length - 1]
-          const projectsFolderNode =
-            DatabaseBrowserCommon.projectsFolderNode(spaceNode)
+          const projectsFolderNode = DatabaseBrowserCommon.projectsFolderNode()
           const projectNode = DatabaseBrowserCommon.projectNode(
-            projectsFolderNode,
             project.getPermId().getPermId(),
             project.getCode()
           )
@@ -54,11 +44,9 @@ export default class DatabaseBrowserControllerLoadNodePath {
           }
         })
         if (!_.isEmpty(projectPath)) {
-          const projectNode = projectPath[projectPath.length - 1]
           const experimentsFolderNode =
-            DatabaseBrowserCommon.collectionsFolderNode(projectNode)
+            DatabaseBrowserCommon.collectionsFolderNode()
           const experimentNode = DatabaseBrowserCommon.collectionNode(
-            experimentsFolderNode,
             experiment.getPermId().getPermId(),
             experiment.getCode()
           )
@@ -105,11 +93,8 @@ export default class DatabaseBrowserControllerLoadNodePath {
         }
 
         if (sharedSample || !_.isEmpty(path)) {
-          const lastNode = sharedSample ? rootNode : path[path.length - 1]
-          const samplesFolderNode =
-            DatabaseBrowserCommon.objectsFolderNode(lastNode)
+          const samplesFolderNode = DatabaseBrowserCommon.objectsFolderNode()
           const sampleNode = DatabaseBrowserCommon.objectNode(
-            samplesFolderNode,
             sample.getPermId().getPermId(),
             sample.getCode()
           )
@@ -142,11 +127,8 @@ export default class DatabaseBrowserControllerLoadNodePath {
         }
 
         if (!_.isEmpty(path)) {
-          const lastNode = path[path.length - 1]
-          const dataSetsFolderNode =
-            DatabaseBrowserCommon.dataSetsFolderNode(lastNode)
+          const dataSetsFolderNode = DatabaseBrowserCommon.dataSetsFolderNode()
           const dataSetNode = DatabaseBrowserCommon.dataSetNode(
-            dataSetsFolderNode,
             dataSet.getCode()
           )
           path = [...path, dataSetsFolderNode, dataSetNode]

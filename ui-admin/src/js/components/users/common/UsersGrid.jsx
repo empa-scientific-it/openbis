@@ -4,7 +4,7 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
@@ -30,14 +30,11 @@ class UsersGrid extends React.PureComponent {
         header={messages.get(messages.USERS)}
         sort='userId'
         columns={[
-          {
+          GridUtil.userColumn({
             name: 'userId',
             label: messages.get(messages.USER_ID),
-            getValue: ({ row }) => row.userId.value,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
+            path: 'userId.value'
+          }),
           {
             name: 'firstName',
             label: messages.get(messages.FIRST_NAME),
@@ -63,7 +60,9 @@ class UsersGrid extends React.PureComponent {
             name: 'active',
             label: messages.get(messages.ACTIVE),
             getValue: ({ row }) => row.active.value
-          }
+          },
+          GridUtil.registratorColumn({ path: 'registrator.value' }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate.value' })
         ]}
         rows={rows}
         exportable={{

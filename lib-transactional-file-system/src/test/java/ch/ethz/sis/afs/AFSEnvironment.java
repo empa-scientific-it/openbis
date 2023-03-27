@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.afs;
 
-import ch.ethz.sis.shared.json.jackson.JacksonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.ethz.sis.shared.log.log4j2.Log4J2LogFactory;
 import ch.ethz.sis.afs.startup.AtomicFileSystemParameter;

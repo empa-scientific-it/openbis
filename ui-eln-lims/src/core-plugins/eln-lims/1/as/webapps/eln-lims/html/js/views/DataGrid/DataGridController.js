@@ -40,7 +40,7 @@ function DataGridController(
         let $element = $("<div>")
 
         ReactDOM.render(
-            React.createElement(window.NgUiGrid.default.Loading, {
+            React.createElement(window.NgComponents.default.Loading, {
                 loading: true,
             }),
             $element.get(0)
@@ -57,12 +57,12 @@ function DataGridController(
 
     this._init = function ($container, extraOptions) {
         var GridElement = React.createElement(
-            window.NgUiGrid.default.ThemeProvider,
+            window.NgComponents.default.ThemeProvider,
             {},
             React.createElement(
-                window.NgUiGrid.default.DatePickerProvider,
+                window.NgComponents.default.DatePickerProvider,
                 {},
-                React.createElement(window.NgUiGrid.default.Grid, {
+                React.createElement(window.NgComponents.default.Grid, {
                     controllerRef: function (controller) {
                         _this.controller = controller
                     },
@@ -153,6 +153,7 @@ function DataGridController(
                             lastReceivedData: _this.lastReceivedData,
                             lastUsedOptions: _this.lastUsedOptions,
                             container: params.container,
+                            value: params.value
                         })
                     } else {
                         value = params.value

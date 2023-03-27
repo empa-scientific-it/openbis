@@ -14,6 +14,9 @@ export default class UserBrowserControllerTest {
 
     this.context = new ComponentContext()
     this.controller = new UserBrowserController()
-    this.controller.init(this.context)
+    this.controller.loadSettings = function () {
+      return {}
+    }
+    this.controller.onSettingsChange = function () {}
   }
 }

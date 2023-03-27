@@ -20,61 +20,68 @@ import ch.ethz.sis.afsserver.http.*;
 import ch.ethz.sis.afsserver.server.*;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
-import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 
 /*
  * This class is supposed to be called by a TCP or HTTP transport class
  */
-public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
+public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
+{
 
     private static final Logger logger = LogManager.getLogger(ApiServerAdapter.class);
 
     private final APIServer<CONNECTION, Request, Response, API> server;
-    private final JSONObjectMapper jsonObjectMapper;
-    private final ApiResponseBuilder apiResponseBuilder;
 
+    private final JsonObjectMapper jsonObjectMapper;
+
+    private final ApiResponseBuilder apiResponseBuilder;
 
     public ApiServerAdapter(
             APIServer<CONNECTION, Request, Response, API> server,
-            JSONObjectMapper jsonObjectMapper) {
+            JsonObjectMapper jsonObjectMapper)
+    {
         this.server = server;
         this.jsonObjectMapper = jsonObjectMapper;
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
-    public static HttpMethod getHttpMethod(String apiMethod) {
-        HttpMethod httpMethod = null;
-        switch (apiMethod){
-            case "delete":
-                httpMethod = HttpMethod.DELETE;
-                break;
-            case "write":
-                httpMethod = HttpMethod.PUT;
-                break;
+    public static HttpMethod getHttpMethod(String apiMethod)
+    {
+        switch (apiMethod)
+        {
             case "list":
             case "read":
             case "isSessionValid":
-                httpMethod = HttpMethod.GET;
-                break;
-            default:
-                httpMethod = HttpMethod.POST;
+                return HttpMethod.GET; // all parameters from GET methods come on the query string
+            case "write":
+            case "move":
+            case "copy":
+            case "login":
+            case "logout":
+                return HttpMethod.POST; // all parameters from POST methods come on the body
+            case "delete":
+                return HttpMethod.DELETE; // all parameters from DELETE methods come on the body
         }
-        return httpMethod;
+        throw new UnsupportedOperationException("This line SHOULD NOT be unreachable!");
     }
 
-    public boolean isValidMethod(HttpMethod givenMethod, String apiMethod) {
+    public boolean isValidMethod(HttpMethod givenMethod, String apiMethod)
+    {
         HttpMethod correctMethod = getHttpMethod(apiMethod);
         return correctMethod == givenMethod;
     }
 
-    public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> uriParameters, byte[] requestBody) {
-        try {
+    public HttpResponse process(HttpMethod httpMethod, Map<String, List<String>> uriParameters,
+            byte[] requestBody)
+    {
+        try
+        {
             logger.traceAccess(null);
             PerformanceAuditor performanceAuditor = new PerformanceAuditor();
 
@@ -83,100 +90,166 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
             String interactiveSessionKey = null;
             String transactionManagerKey = null;
             Map<String, Object> methodParameters = new HashMap<>();
-            for (Map.Entry<String, List<String>> entry:uriParameters.entrySet()) {
-                String value = null;
-                if (entry.getValue() != null) {
-                    if (entry.getValue().size() == 1) {
-                        value = entry.getValue().get(0);
-                    } else if (entry.getValue().size() > 1) {
-                        return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause()));
+            if (HttpMethod.GET.equals(httpMethod))
+            {
+                for (Map.Entry<String, List<String>> entry : uriParameters.entrySet())
+                {
+                    String value = null;
+                    if (entry.getValue() != null)
+                    {
+                        if (entry.getValue().size() == 1)
+                        {
+                            value = entry.getValue().get(0);
+                        } else if (entry.getValue().size() > 1)
+                        {
+                            return getHTTPResponse(new ApiResponse("1", null,
+                                    HTTPExceptions.INVALID_PARAMETERS.getCause()));
+                        }
+                    }
+
+                    try
+                    {
+                        switch (entry.getKey())
+                        {
+                            case "method":
+                                method = value;
+                                if (!isValidMethod(httpMethod, method))
+                                {
+                                    return getHTTPResponse(new ApiResponse("1", null,
+                                            HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                                }
+                                break;
+                            case "sessionToken":
+                                sessionToken = value;
+                                break;
+                            case "interactiveSessionKey":
+                                interactiveSessionKey = value;
+                                break;
+                            case "transactionManagerKey":
+                                transactionManagerKey = value;
+                                break;
+                            case "transactionId":
+                                methodParameters.put(entry.getKey(), UUID.fromString(value));
+                                break;
+                            case "recursively":
+                                methodParameters.put(entry.getKey(), Boolean.valueOf(value));
+                                break;
+                            case "offset":
+                                methodParameters.put(entry.getKey(), Long.valueOf(value));
+                                break;
+                            case "limit":
+                                methodParameters.put(entry.getKey(), Integer.valueOf(value));
+                                break;
+                            default:
+                                methodParameters.put(entry.getKey(), value);
+                                break;
+                        }
+                    } catch (Exception e)
+                    {
+                        logger.catching(e);
+                        return getHTTPResponse(new ApiResponse("1", null,
+                                HTTPExceptions.INVALID_PARAMETERS.getCause(
+                                        e.getClass().getSimpleName(),
+                                        e.getMessage())));
                     }
                 }
-
-                try {
-                    switch (entry.getKey()) {
-                        case "method":
-                            method = value;
-                            if (!isValidMethod(httpMethod, method)) {
-                                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
-                            }
-                            break;
-                        case "sessionToken":
-                            sessionToken = value;
-                            break;
-                        case "interactiveSessionKey":
-                            interactiveSessionKey = value;
-                            break;
-                        case "transactionManagerKey":
-                            transactionManagerKey = value;
-                            break;
-                        case "transactionId":
-                            methodParameters.put(entry.getKey(), UUID.fromString(value));
-                            break;
-                        case "recursively":
-                            methodParameters.put(entry.getKey(), Boolean.valueOf(value));
-                            break;
-                        case "offset":
-                            methodParameters.put(entry.getKey(), Long.valueOf(value));
-                            break;
-                        case "limit":
-                            methodParameters.put(entry.getKey(), Integer.valueOf(value));
-                            break;
-                        case "md5Hash":
-                            methodParameters.put(entry.getKey(), IOUtils.decodeBase64(value));
-                            break;
-                        default:
-                            methodParameters.put(entry.getKey(), value);
-                            break;
+            } else if (HttpMethod.POST.equals(httpMethod) || HttpMethod.DELETE.equals(httpMethod))
+            {
+                if (!uriParameters.containsKey("method"))
+                {
+                    return getHTTPResponse(new ApiResponse("1", null,
+                            HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                } else
+                {
+                    List<String> methodParam = uriParameters.get("method");
+                    if (methodParam == null || methodParam.size() != 1)
+                    {
+                        return getHTTPResponse(new ApiResponse("1", null,
+                                HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
                     }
-                } catch (Exception e) {
-                    logger.catching(e);
-                    return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(), e.getMessage())));
+                    method = methodParam.get(0);
                 }
+
+                if (!isValidMethod(httpMethod, method))
+                {
+                    return getHTTPResponse(new ApiResponse("1", null,
+                            HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                }
+                Map<String, Object> bodyParameterMap = readBody(requestBody, HashMap.class);
+
+                for (Map.Entry<String, Object> entry : bodyParameterMap.entrySet())
+                {
+                    if (entry.getKey().equals("sessionToken"))
+                    {
+                        sessionToken = (String) entry.getValue();
+                    } else
+                    {
+                        methodParameters.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            } else
+            {
+                return getHTTPResponse(new ApiResponse("1", null,
+                        HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
             }
 
-            if (method.equals("write")) {
-                methodParameters.put("data", requestBody);
-            }
-
-            ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken, interactiveSessionKey, transactionManagerKey);
-            Response response = server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
+            ApiRequest apiRequest = new ApiRequest("1", method, methodParameters, sessionToken,
+                    interactiveSessionKey, transactionManagerKey);
+            Response response =
+                    server.processOperation(apiRequest, apiResponseBuilder, performanceAuditor);
             HttpResponse httpResponse = getHTTPResponse(response);
             performanceAuditor.audit(Event.WriteResponse);
             logger.traceExit(performanceAuditor);
             logger.traceExit(httpResponse);
             return httpResponse;
-        } catch (APIServerException e) {
+        } catch (APIServerException e)
+        {
             logger.catching(e);
-            switch (e.getType()) {
+            switch (e.getType())
+            {
                 case MethodNotFound:
                 case IncorrectParameters:
                 case InternalError:
-                    try {
+                    try
+                    {
                         return getHTTPResponse(new ApiResponse("1", null, e.getData()));
-                    } catch (Exception ex) {
+                    } catch (Exception ex)
+                    {
                         logger.catching(ex);
                     }
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.catching(e);
-            try {
-                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(), e.getMessage())));
-            } catch (Exception ex) {
+            try
+            {
+                return getHTTPResponse(new ApiResponse("1", null,
+                        HTTPExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(),
+                                e.getMessage())));
+            } catch (Exception ex)
+            {
                 logger.catching(ex);
             }
         }
         return null; // This should never happen, it would mean an error writing the Unknown error happened.
     }
 
-    private HttpResponse getHTTPResponse(Response response) throws Exception {
+    private <T> T readBody(byte[] requestBody, Class<T> valueType) throws Exception
+    {
+        return (T) jsonObjectMapper.readValue(new ByteArrayInputStream(requestBody), valueType);
+    }
+
+    private HttpResponse getHTTPResponse(Response response) throws Exception
+    {
         boolean error = response.getError() != null;
         String contentType = null;
         byte[] body = null;
-        if (response.getResult() instanceof byte[]) {
+        if (response.getResult() instanceof byte[])
+        {
             contentType = HttpResponse.CONTENT_TYPE_BINARY_DATA;
             body = (byte[]) response.getResult();
-        } else {
+        } else
+        {
             contentType = HttpResponse.CONTENT_TYPE_JSON;
             body = jsonObjectMapper.writeValue(response);
         }

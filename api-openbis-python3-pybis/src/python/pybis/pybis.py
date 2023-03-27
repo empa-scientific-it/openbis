@@ -979,6 +979,7 @@ class Openbis:
         self.as_v3 = "/openbis/openbis/rmi-application-server-v3.json"
         self.as_v1 = "/openbis/openbis/rmi-general-information-v1.json"
         self.reg_v1 = "/openbis/openbis/rmi-query-v1.json"
+        self.dss_v3 = "/datastore_server/rmi-data-store-server-v3.json"
         self.verify_certificates = verify_certificates
         if not verify_certificates:
             urllib3.disable_warnings()
@@ -4300,7 +4301,7 @@ class Openbis:
             fetch_options["propertyAssignments"] = get_fetchoption_for_entity(
                 "propertyAssignments"
             )
-            if self.get_server_information().api_version > "3.3":
+            if self.get_server_information().is_version_greater_than(3, 3):
                 fetch_options["validationPlugin"] = get_fetchoption_for_entity("plugin")
 
         request = {
@@ -5411,6 +5412,12 @@ class ServerInformation:
 
     def is_openbis_1806(self):
         return (self.get_major_version() == 3) and (self.get_minor_version() >= 5)
+
+    def is_version_greater_than(self, major: int, minor: int):
+        """Checks if server api version is greater than provided"""
+        current_major = self.get_major_version()
+        current_minor = self.get_minor_version()
+        return (current_major == major and current_minor > minor) or current_major > major
 
     def _repr_html_(self):
         html = """

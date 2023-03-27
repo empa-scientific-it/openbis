@@ -113,13 +113,13 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 					
 					var isInventory = profile.isInventorySpace(space);
 					if(!isInventory) {
-						mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+						mainController.sideMenu.refreshNodeParentByPermId("DATASET", _this._dataSetFormModel.dataSet.code);
 					}
 //				}, 3000);
 			}
 		});
 	}
-	
+
 	this._showError = function(errorMessage) {
 		Util.blockUI();
 		Util.showUserError(errorMessage, function() { Util.unblockUI(); });
@@ -140,36 +140,36 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 				this._showError("No Data Set Type specified.");
 				return;
 			}
-			
+
 			if(Uploader.uploadsInProgress()) {
 				this._showError("Please wait the upload to finish.");
 				return;
 			}
 		}
-		
+
 		Util.blockUI();
 		var _this = this;
-		
+
 		//
 		// Metadata Submit and Creation (Step 2)
 		//
 		var metadata = this._dataSetFormModel.dataSet.properties;
-			
+
 		var isZipDirectoryUpload = profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
 		if(isZipDirectoryUpload === null) {
 			isZipDirectoryUpload = $("#isZipDirectoryUpload"+":checked").val() === "on";
 		}
-		
+
 		var folderName = $('#folderName').val();
 		if(!folderName) {
 			folderName = 'DEFAULT';
 		}
-		
+
 		var method = null;
 		var space = null;
 		var sampleIdentifier = null;
 		var experimentIdentifier = null;
-		
+
 		if(this._dataSetFormModel.isExperiment()) {
 			experimentIdentifier = this._dataSetFormModel.entity.identifier.identifier;
 			space = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
@@ -177,7 +177,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 			sampleIdentifier = this._dataSetFormModel.entity.identifier;
 			space = IdentifierUtil.getSpaceCodeFromIdentifier(sampleIdentifier);
 		}
-		
+
 		var isInventory = profile.isInventorySpace(space);
 		var dataSetTypeCode = null;
 		var dataSetCode = null;
@@ -189,16 +189,16 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 			dataSetCode = this._dataSetFormModel.dataSet.code;
 			dataSetTypeCode = this._dataSetFormModel.dataSet.dataSetTypeCode;
 		}
-		
+
 		var dataSetParents = [];
-		
+
 		if(this._dataSetFormModel.datasetParentsComponent) {
 			var dataSetParentObjects = this._dataSetFormModel.datasetParentsComponent.getSelected();
 			for(var oIdx = 0; oIdx < dataSetParentObjects.length; oIdx++) {
 				dataSetParents.push(dataSetParentObjects[oIdx].permId.permId)
 			}
 		}
-		
+
 		var parameters = {
 				//API Method
 				"method" : method,
@@ -216,7 +216,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 				//For Moving files
 				"sessionID" : mainController.serverFacade.openbisServer.getSession()
 		};
-			
+
 		if(profile.allDataStores.length > 0) {
 			mainController.serverFacade.createReportFromAggregationService(profile.allDataStores[0].code, parameters, function(response) {
 				if(response.error) { //Error Case 1
@@ -239,7 +239,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 							mainController.changeView('showViewDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 						}
 					}
-					
+
 					setTimeout(function() {
 						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
 							Util.showSuccess("DataSet Created.", callbackOk);
@@ -249,7 +249,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
 							Util.showSuccess("DataSet Updated.", callbackOk);
 							if(!isInventory) {
-								mainController.sideMenu.refreshNodeParent(_this._dataSetFormModel.dataSet.code);
+								mainController.sideMenu.refreshNodeParentByPermId("DATASET", _this._dataSetFormModel.dataSet.code);
 							}
 						}
 					}, 3000);

@@ -26,20 +26,21 @@ var LayoutManager = {
 	thirdColumn : null,
 	isResizingColumn : false,
 	isLoadingView : false,
+    settings: null,
 	_init : function(isFirstTime) {
 		var _this = this;
-		
+
 		if(this.body === null) {
 			this.body = $(document.body);
 			this.body.css({
 				"overflow" : "hidden"
 			});
 		}
-		
+
 		if(this.mainContainer === null) {
 			this.mainContainer = $("#mainContainer");
 		}
-		
+
 		if(isFirstTime) {
 			if(this.firstColumn !== null) {
 				this.firstColumn.resizable("destroy");
@@ -47,35 +48,34 @@ var LayoutManager = {
 				this.firstColumn.remove();
 				this.firstColumn = null;
 			}
-			
+
 			if(this.secondColumn !== null) {
 				this.secondColumn.resizable("destroy");
 				this.secondColumn.children().detach();
 				this.secondColumn.remove();
 				this.secondColumn = null;
-				
+
 				this.secondColumnHeader = null;
 				this.secondColumnContent = null;
 			}
-			
+
 			if(this.thirdColumn !== null) {
 				this.thirdColumn.children().detach();
 				this.thirdColumn.remove();
 				this.thirdColumn = null;
 			}
 		}
-		
+
 		if(this.firstColumn == null) {
 			this.firstColumn = $("<div>");
 			this.firstColumn.css({
 				"display" : "none",
-				"overflow-x" : "hidden",
-				"overflow-y" : "hidden",
+				"overflow" : "visible", //To show the dropdowns
 				"padding" : "0",
 				"float" : "left"
 			});
 		}
-		
+
 		if(this.secondColumn == null) {
 			this.secondColumn = $("<div>");
 			this.secondColumn.css({
@@ -96,13 +96,13 @@ var LayoutManager = {
 				"overflow-x" : "auto",
 				"overflow-y" : "auto"
 			});
-			
+
 			this.secondColumn.append(this.secondColumnHeader);
 			this.secondColumn.append(this.secondColumnContent);
 			$(this.secondColumnHeader).on( "DOMNodeInserted", this.secondColumnContentResize);
 			$(this.secondColumnHeader).on( "DOMNodeRemoved", this.secondColumnContentResize);
 		}
-		
+
 		if(this.thirdColumn == null) {
 			this.thirdColumn = $("<div>");
 			this.thirdColumn.css({
@@ -113,15 +113,15 @@ var LayoutManager = {
 				"float" : "left"
 			});
 		}
-		
+
 		if (isFirstTime) {
 			//Attach created components
 			this.mainContainer.append(this.firstColumn).append(this.secondColumn).append(this.thirdColumn);
-			
-			// 
+
+			//
 			// Columns drag functionality
 			//
-			
+
 			// Only usable in Desktop and tablet
 
 			// Moving to the right +x
@@ -141,9 +141,10 @@ var LayoutManager = {
 					var widthChange = ui.size.width - ui.originalSize.width;
 					_this.secondColumn.css('width', _this.secondColumn.width() + (-1 * widthChange) - 1);
 					_this.isResizingColumn = false;
+					_this._saveSettings()
 				}
 			});
-			
+
 			// Only usable in Desktop mode
 
 			// Moving to the right +x
@@ -163,157 +164,177 @@ var LayoutManager = {
 					var widthChange = ui.size.width - ui.originalSize.width;
 					_this.thirdColumn.css('width', _this.thirdColumn.width() + (-1 * widthChange) - 1);
 					_this.isResizingColumn = false;
+					_this._saveSettings()
 				}
 			});
 		}
 	},
 	_setDesktopLayout : function(view, isFirstTime) {
-		var width = $( window ).width();
-		var height = $( window ).height();
-		var headerHeight = 0;
-		
-		var firstColumnWidth = width * 0.25;
-		if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
-			firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
-		}
-		
-		if(isFirstTime) {
-			this.firstColumn.append(view.menu);
-		}
-		
-		this.firstColumn.css({
-				"display" : "block",
-				"height" : height,
-				"width" : firstColumnWidth
-		});
-		
-		var thirdColumnWidth = (width - this.firstColumn.width()) * 0.34 - 1
-		if(thirdColumnWidth > LayoutManager.MAX_THIRD_COLUMN_WIDTH) {
-			thirdColumnWidth = LayoutManager.MAX_THIRD_COLUMN_WIDTH;
-		}
-		
-		var secondColumWidth;
-		if (view.auxContent) {
-			secondColumWidth = width - this.firstColumn.width() - thirdColumnWidth - 1;
-		} else {
-			secondColumWidth = width - this.firstColumn.width() - 1;
-		}
-		
-		this.secondColumn.css({
-			"display" : "block",
-			"width" : secondColumWidth
-		});
-		
-		
-		if (view.header) {
-			headerHeight = this.MIN_HEADER_HEIGHT;
-			if(isFirstTime) {
-				this.secondColumnHeader.append(view.header);
-			}
-			this.secondColumnHeader.css({
-				display : "block",
-				"min-height" : headerHeight,
-				"height" : "auto"
-			});
-		} else {
-			this.secondColumnHeader.css({ display : "none" });
-		}
+        var _this = this
 
-		if (view.content) {
-			this.secondColumnContent.css({
-				display : "block",
-				height : height - headerHeight
-			});
-			
-			if(isFirstTime) {
-				this.secondColumnContent.append(view.content);
-			}
-		} else {
-			this.secondColumnContent.css({ display : "none" });
-		}
-		
+        var settings = _this._loadSettings()
+        var width = $( window ).width();
+        var height = $( window ).height();
+        var headerHeight = 0;
 
-		if (view.auxContent) {
-			this.thirdColumn.css({
-				"display" : "block",
-				"height" : height,
-				"width" : thirdColumnWidth
-			});
-			
-			if(isFirstTime) {
-				this.thirdColumn.append(view.auxContent);
-			}
-		} else {
-			this.thirdColumn.css({ 
-				"display" : "none",
-				"width" : "0%"
-			});
-		}
-	},
-	_setTabletLayout : function(view, isFirstTime) {
-		var width = $( window ).width();
-		var height = $( window ).height();
-		var headerHeight = 0;
+        var firstColumnWidth = settings.firstColumnWidth;
+        if(!firstColumnWidth){
+            firstColumnWidth = width * 0.25
+            if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
+                firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
+            }
+        }
 
-		var firstColumnWidth = width * 0.25;
-		if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
-			firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
-		}
-		
-		if(isFirstTime) {
-			this.firstColumn.append(view.menu);
-		}
-		
-		this.firstColumn.css({
-				display : "block",
-				height : height,
-				"width" : firstColumnWidth
-		});
-		
-		this.secondColumn.css({
-			display : "block",
-			"width" : width - this.firstColumn.width() - 1
-		});
+        if(isFirstTime) {
+            _this.firstColumn.append(view.menu);
+        }
 
-		if (view.header) {
-			headerHeight = this.MIN_HEADER_HEIGHT;
-			if(isFirstTime) {
-				this.secondColumnHeader.append(view.header);
-			}
-			this.secondColumnHeader.css({
-				display : "block",
-				"min-height" : headerHeight,
-				"height" : "auto"
-			});
-		} else {
-			this.secondColumnHeader.css({ display : "none" });
-		}
+        _this.firstColumn.css({
+                "display" : "block",
+                "height" : height,
+                "width" : firstColumnWidth
+        });
 
-		if (view.content) {
-			this.secondColumnContent.css({
-				display : "block",
-				height : height - headerHeight
-			});
-			
-			if(isFirstTime) {
-				this.secondColumnContent.append(view.content);
-			}
-		} else {
-			this.secondColumnContent.css({ display : "none" });
-		}
-		
+        mainController.serverFacade.getSetting("eln-layout-first-column-width", function (widthStr) {
+            _this.firstColumn
+        })
 
-		if (view.auxContent) {
-			if(isFirstTime) {
-				this.secondColumnContent.append(view.auxContent);
-			}
-		}
-		this.thirdColumn.css({ display : "none" });
-	},
+        var thirdColumnWidth = settings.thirdColumnWidth;
+        if(!thirdColumnWidth){
+            thirdColumnWidth = (width - _this.firstColumn.width()) * 0.34 - 1
+            if(thirdColumnWidth > LayoutManager.MAX_THIRD_COLUMN_WIDTH) {
+                thirdColumnWidth = LayoutManager.MAX_THIRD_COLUMN_WIDTH;
+            }
+        }
+
+        var secondColumWidth;
+        if (view.auxContent) {
+            secondColumWidth = width - _this.firstColumn.width() - thirdColumnWidth - 1;
+        } else {
+            secondColumWidth = width - _this.firstColumn.width() - 1;
+        }
+
+        _this.secondColumn.css({
+            "display" : "block",
+            "width" : secondColumWidth
+        });
+
+
+        if (view.header) {
+            headerHeight = _this.MIN_HEADER_HEIGHT;
+            if(isFirstTime) {
+                _this.secondColumnHeader.append(view.header);
+            }
+            _this.secondColumnHeader.css({
+                display : "block",
+                "min-height" : headerHeight,
+                "height" : "auto"
+            });
+        } else {
+            _this.secondColumnHeader.css({ display : "none" });
+        }
+
+        if (view.content) {
+            _this.secondColumnContent.css({
+                display : "block",
+                height : height - headerHeight
+            });
+
+            if(isFirstTime) {
+                _this.secondColumnContent.append(view.content);
+            }
+        } else {
+            _this.secondColumnContent.css({ display : "none" });
+        }
+
+
+        if (view.auxContent) {
+            _this.thirdColumn.css({
+                "display" : "block",
+                "height" : height,
+                "width" : thirdColumnWidth
+            });
+
+            if(isFirstTime) {
+                _this.thirdColumn.append(view.auxContent);
+            }
+        } else {
+            _this.thirdColumn.css({
+                "display" : "none",
+                "width" : "0%"
+            });
+        }
+    },
+    _setTabletLayout : function(view, isFirstTime) {
+        var _this = this
+
+        var settings = _this._loadSettings()
+        var width = $( window ).width();
+        var height = $( window ).height();
+        var headerHeight = 0;
+
+        var firstColumnWidth = settings.firstColumnWidth;
+        if(!firstColumnWidth){
+            firstColumnWidth = width * 0.25;
+            if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
+                firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
+            }
+        }
+
+        if(isFirstTime) {
+            _this.firstColumn.append(view.menu);
+        }
+
+        _this.firstColumn.css({
+                display : "block",
+                height : height,
+                "width" : firstColumnWidth
+        });
+
+        _this.secondColumn.css({
+            display : "block",
+            "width" : width - _this.firstColumn.width() - 1
+        });
+
+        if (view.header) {
+            headerHeight = _this.MIN_HEADER_HEIGHT;
+            if(isFirstTime) {
+                _this.secondColumnHeader.append(view.header);
+            }
+            _this.secondColumnHeader.css({
+                display : "block",
+                "min-height" : headerHeight,
+                "height" : "auto"
+            });
+        } else {
+            _this.secondColumnHeader.css({ display : "none" });
+        }
+
+        if (view.content) {
+            _this.secondColumnContent.css({
+                display : "block",
+                height : height - headerHeight
+            });
+
+            if(isFirstTime) {
+                _this.secondColumnContent.append(view.content);
+            }
+        } else {
+            _this.secondColumnContent.css({ display : "none" });
+        }
+
+
+        if (view.auxContent) {
+            if(isFirstTime) {
+                _this.secondColumnContent.append(view.auxContent);
+            }
+        }
+        _this.thirdColumn.css({ display : "none" });
+    },
 	_setMobileLayout : function(view, isFirstTime) {
 		var width = $( window ).width();
 		var height = $( window ).height();
-		
+
 		//
 		// Set screen size
 		//
@@ -325,7 +346,7 @@ var LayoutManager = {
 		});
 		this.secondColumn.css({ display : "none" });
 		this.thirdColumn.css({ display : "none" });
-		
+
 		//
 		// Attach available views
 		//
@@ -340,12 +361,12 @@ var LayoutManager = {
 				"min-height" : this.MIN_HEADER_HEIGHT,
 				"height" : "auto"
 			});
-			
+
 			if(isFirstTime) {
 				this.firstColumn.append(view.header);
 			}
 		}
-		
+
 		if(view.content) {
 			if(isFirstTime) {
 				this.firstColumn.append(view.content);
@@ -407,14 +428,14 @@ var LayoutManager = {
 		this.isLoadingView = true;
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true || forceFirstTime === undefined;
-		
+
 		// sideMenuBody scroll fix
 		var firstColumnScroll = null;
 		if(this.FOUND_SIZE >= this.TABLET_SIZE) {
-			firstColumnScroll = $("#sideMenuBody").scrollTop();
+			firstColumnScroll = $(".sideMenuNodes").scrollTop();
 		}
 		//
-		
+
 		var width = $( window ).width();
 //		if (width > this.DESKTOP_SIZE) {
 //			if (this.FOUND_SIZE !== this.DESKTOP_SIZE) {
@@ -433,7 +454,7 @@ var LayoutManager = {
 				this.FOUND_SIZE = this.MOBILE_SIZE;
 			}
 		}
-		
+
 		this._init(isFirstTime);
 		if (this.FOUND_SIZE === this.DESKTOP_SIZE) {
 			this._setDesktopLayout(view, isFirstTime);
@@ -442,13 +463,13 @@ var LayoutManager = {
 		} else if (this.FOUND_SIZE === this.MOBILE_SIZE) {
 			this._setMobileLayout(view, isFirstTime);
 		}
-		
+
 		// sideMenuBody scroll fix
 		if(this.FOUND_SIZE >= this.TABLET_SIZE && firstColumnScroll) {
-			$("#sideMenuBody").scrollTop(firstColumnScroll);
+			$(".sideMenuNodes").scrollTop(firstColumnScroll);
 		}
 		//
-		
+
 		this.triggerResizeEventHandlers();
 		this.isLoadingView = false;
 	},
@@ -471,7 +492,33 @@ var LayoutManager = {
 		if(this.canReload()) {
 			this.reloadView(view, forceFirstTime);
 		}
-	}
+	},
+    _saveSettings(){
+        var _this = this
+
+        _this.settings = {
+            firstColumnWidth : _this.firstColumn.width(),
+            thirdColumnWidth : _this.thirdColumn.width()
+        }
+
+        mainController.serverFacade.setSetting('eln-layout', JSON.stringify(_this.settings))
+    },
+    _loadSettings(){
+        var _this = this
+
+        if(!_this.settings){
+            mainController.serverFacade.getSetting('eln-layout', function(settingsStr){
+                if(settingsStr){
+                    _this.settings = JSON.parse(settingsStr)
+                    if(mainController && mainController.views) {
+                        LayoutManager.resize(mainController.views, true);
+                    }
+                }
+            })
+        }
+
+        return _this.settings || {}
+    }
 }
 
 $(window).resize(function() {

@@ -139,7 +139,7 @@ You may also use permId directly:
 
 ```python
 pat = o.get_or_create_personal_access_token(sessionName="Project A")
-o.set_token(pat.permId, save_token=True)
+o.set_token(pat.permId, save_token=True) 
 ```
 
 **Note:** If there is an existing PAT with the same _sessionName_ which is still valid and the validity is within the warning period (defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.

@@ -1,4 +1,4 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
+import _ from 'lodash'
 import UserBrowserControllerTest from '@srcTest/js/components/users/browser/UserBrowserControllerTest.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import openbis from '@srcTest/js/services/openbis.js'
@@ -21,19 +21,31 @@ async function testExpandAndCollapseNode() {
 
   await common.controller.load()
   await common.controller.expandNode(
-    BrowserCommon.nodeId(BrowserCommon.rootNode().id, objectType.USER_GROUP)
+    common.controller.getNodes().find(node =>
+      _.isEqual(node.object, {
+        type: objectType.OVERVIEW,
+        id: objectType.USER_GROUP
+      })
+    ).id
   )
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: false,
         selected: false
       },
       {
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: true,
         selected: false
       }
@@ -41,19 +53,31 @@ async function testExpandAndCollapseNode() {
   })
 
   await common.controller.collapseNode(
-    BrowserCommon.nodeId(BrowserCommon.rootNode().id, objectType.USER_GROUP)
+    common.controller.getNodes().find(node =>
+      _.isEqual(node.object, {
+        type: objectType.OVERVIEW,
+        id: objectType.USER_GROUP
+      })
+    ).id
   )
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
         text: 'Users',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER
+        },
         expanded: false,
         selected: false
       },
       {
         text: 'Groups',
+        object: {
+          type: objectType.OVERVIEW,
+          id: objectType.USER_GROUP
+        },
         expanded: false,
         selected: false
       }

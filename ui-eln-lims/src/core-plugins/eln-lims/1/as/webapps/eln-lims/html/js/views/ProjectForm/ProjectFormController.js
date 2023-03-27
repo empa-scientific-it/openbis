@@ -143,11 +143,12 @@ function ProjectFormController(mainController, mode, project) {
                 Util.showInfo(text);
             } else {
                 mainController.serverFacade.deleteProjects([_this._projectFormModel.project.id], reason, function(data) {
+                    Util.unblockUI()
                     if(data.error) {
                         Util.showError(data.error.message);
                     } else {
                         Util.showSuccess("Project Deleted");
-                        mainController.sideMenu.deleteNodeByEntityPermId(_this._projectFormModel.project.permId, true);
+                        mainController.sideMenu.deleteNodeByEntityPermId("PROJECT", _this._projectFormModel.project.permId, true);
                     }
                 });
             }

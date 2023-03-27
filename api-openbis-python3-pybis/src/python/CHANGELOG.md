@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.4
+
+- Changes to internal implementation of data set download/upload to use OpenBIS V3 API 
+
 ## Changes with pybis-1.35.3
 
 - Modified set_token() method to accept PersonalAccessToken object

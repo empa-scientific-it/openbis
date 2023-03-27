@@ -46,6 +46,10 @@ module.exports = {
         use: ['style-loader', 'css-loader']
       },
       {
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
+        type: 'asset',
+      },
+      {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
         loader: 'url-loader',
         options: {

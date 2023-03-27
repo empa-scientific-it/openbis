@@ -1,5 +1,6 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import PluginLink from '@src/js/components/common/link/PluginLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -122,6 +123,8 @@ class EntityTypesGrid extends React.PureComponent {
         getValue: ({ row }) => row.disallowDeletion
       })
     }
+
+    columns.push(GridUtil.modificationDateColumn({ path: 'modificationDate' }))
 
     return columns
   }

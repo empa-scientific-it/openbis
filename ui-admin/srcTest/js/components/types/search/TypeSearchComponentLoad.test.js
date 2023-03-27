@@ -87,6 +87,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'subcodeUnique',
             label: 'Unique Subcodes'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
@@ -115,6 +119,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'validationPlugin',
             label: 'Validation Plugin'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
@@ -152,6 +160,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'disallowDeletion',
             label: 'Disallow Deletion'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
@@ -180,6 +192,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'validationPlugin',
             label: 'Validation Plugin'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
@@ -205,6 +221,18 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'urlTemplate',
             label: 'URL Template'
+          },
+          {
+            name: 'registrator',
+            label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
@@ -258,6 +286,14 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'usages',
             label: 'Usages'
+          },
+          {
+            name: 'registrator',
+            label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -327,6 +363,10 @@ async function testLoadWithObjectType(resultsFound) {
         {
           name: 'subcodeUnique',
           label: 'Unique Subcodes'
+        },
+        {
+          name: 'modificationDate',
+          label: 'Modification Date'
         }
       ],
       rows: resultsFound

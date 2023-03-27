@@ -318,7 +318,31 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     {
         try
         {
-            final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
+
+            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
+
+            if (person == null)
+            {
+                operationLog.warn("Ignoring a personal access token session (" + patSession
+                        + ") because the session's owner was not found in the openBIS database.");
+                return null;
+            }
+
+            Principal principal = null;
+            try
+            {
+                principal = authenticationService.getPrincipal(patSession.getOwnerId());
+            } catch (Exception ex1) {
+                try
+                {
+                    if (authenticationService.supportsAuthenticatingByEmail())
+                    {
+                        principal = authenticationService.getPrincipal(person.getEmail());
+                    }
+                } catch (Exception ex2) {
+                    operationLog.warn(ex2);
+                }
+            }
 
             if (principal == null)
             {
@@ -328,15 +352,6 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             } else
             {
                 principal.setAuthenticated(true);
-            }
-
-            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
-
-            if (person == null)
-            {
-                operationLog.warn("Ignoring a personal access token session (" + patSession
-                        + ") because the session's owner was not found in the openBIS database.");
-                return null;
             }
 
             final Session session = sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),

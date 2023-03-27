@@ -2356,9 +2356,12 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderBooleanGridValue = function(row, params, propertyType) {
-        var value = row[propertyType.code]
-        return value ? value : "false";
+    this.renderBooleanGridValue = function(params) {
+        if(params.value === null){
+            return "(empty)"
+        }else{
+            return String(params.value)
+        }
     }
 
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
@@ -2437,18 +2440,18 @@ var FormUtil = new function() {
     }
 
     this.renderBooleanGridFilter = function(params){
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
             emptyOption: {},
-            options: [{value: "true"}, {value: "false"}],
+            options: [{value: "(empty)"}, {value: "true"}, {value: "false"}],
             onChange: params.onChange
         })
     }
 
     this.renderArchivingStatusGridFilter = function(params) {
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2477,7 +2480,7 @@ var FormUtil = new function() {
             })
         }
 
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2488,7 +2491,7 @@ var FormUtil = new function() {
     }
 
     this.renderDateRangeGridFilter = function(params, dataType){
-        return React.createElement(window.NgUiGrid.default.DateRangeField, {
+        return React.createElement(window.NgComponents.default.DateRangeField, {
             variant: "standard",
             value: params.value,
             onChange: params.onChange,
@@ -2508,17 +2511,17 @@ var FormUtil = new function() {
                 }
             }
         }else if(_.isObject(filter)){
-            var filterFrom = filter.from ? filter.from.value : null
-            var filterTo = filter.to ? filter.to.value : null
-            if(filterFrom === null && filterTo === null){
+            var filterFrom = filter.from ? filter.from.dateObject : null
+            var filterTo = filter.to ? filter.to.dateObject : null
+            if((filterFrom === null || filterFrom === undefined) && (filterTo === null || filterTo === undefined)){
                 return true
             }else{
                 var matches = true
                 if(filterFrom){
-                    matches = matches && value >= filter.from.valueString
+                    matches = matches && value >= filter.from.dateString
                 }
                 if(filterTo){
-                    matches = matches && value <= filter.to.valueString
+                    matches = matches && value <= filter.to.dateString
                 }
                 return matches
             }
@@ -2623,13 +2626,14 @@ var FormUtil = new function() {
             var doDelete = function(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason) {
                 var toDeleteFinal = function(samplesPermIdsToDelete, reason) {
                     mainController.serverFacade.deleteSamples(samplesPermIdsToDelete, reason, function(response) {
+                        Util.unblockUI()
                         if(response.error) {
                             Util.showError(response.error.message);
                         } else {
                             Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
                             if(updateTree) {
                                 for(var sIdx = 0; sIdx < samplesPermIdsToDelete.length; sIdx++) {
-                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesPermIdsToDelete[sIdx], true);
+                                    mainController.sideMenu.deleteNodeByEntityPermId("SAMPLE", samplesPermIdsToDelete[sIdx], true);
                                 }
                             }
                             callbackToNextViewOnSuccess();

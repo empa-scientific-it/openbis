@@ -29,6 +29,7 @@ import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.ProviderMismatchException;
@@ -292,6 +293,8 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             {
                 private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
                         SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
+                private Set<Integer> subStatiForDebugLogging = new HashSet<>(Arrays.asList(
+                        SftpConstants.SSH_FX_EOF));
 
                 @Override
                 public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
@@ -305,6 +308,9 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                     if (subStatiForErrorLogging.contains(subStatus))
                     {
                         operationLog.error(logMessage, e);
+                    } else if (subStatiForDebugLogging.contains(subStatus))
+                    {
+                        operationLog.debug(logMessage + ": " + e);
                     } else
                     {
                         operationLog.warn(logMessage + ": " + e);
@@ -482,6 +488,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         public OpenBisFileSystemProvider(DSSFileSystemView fileSystemView)
         {
             this.fileSystemView = fileSystemView;
+        }
+
+        @Override
+        public Path readSymbolicLink(Path link) throws IOException
+        {
+            throw new NoSuchFileException("Symbolic links are not supported: " + link);
         }
 
         @Override

@@ -1,4 +1,3 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import TypeBrowserCommon from '@src/js/components/types/browser/TypeBrowserCommon.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
@@ -7,76 +6,53 @@ export default class TypeBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { object } = params
 
-    const rootNode = BrowserCommon.rootNode()
-
     if (object.type === objectType.OVERVIEW) {
       if (object.id === objectType.OBJECT_TYPE) {
-        return [TypeBrowserCommon.objectTypesFolderNode(rootNode.id)]
+        return [TypeBrowserCommon.objectTypesFolderNode()]
       } else if (object.id === objectType.COLLECTION_TYPE) {
-        return [TypeBrowserCommon.collectionTypesFolderNode(rootNode.id)]
+        return [TypeBrowserCommon.collectionTypesFolderNode()]
       } else if (object.id === objectType.DATA_SET_TYPE) {
-        return [TypeBrowserCommon.dataSetTypesFolderNode(rootNode.id)]
+        return [TypeBrowserCommon.dataSetTypesFolderNode()]
       } else if (object.id === objectType.MATERIAL_TYPE) {
-        return [TypeBrowserCommon.materialTypesFolderNode(rootNode.id)]
+        return [TypeBrowserCommon.materialTypesFolderNode()]
       } else if (object.id === objectType.VOCABULARY_TYPE) {
-        return [TypeBrowserCommon.vocabularyTypesFolderNode(rootNode.id)]
+        return [TypeBrowserCommon.vocabularyTypesFolderNode()]
       } else if (object.id === objectType.PROPERTY_TYPE) {
-        return [TypeBrowserCommon.propertyTypesFolderNode(rootNode.id)]
+        return [TypeBrowserCommon.propertyTypesFolderNode()]
       }
     } else if (object.type === objectType.OBJECT_TYPE) {
       const type = await this.searchObjectType(object.id)
       if (type) {
-        const folderNode = TypeBrowserCommon.objectTypesFolderNode(rootNode.id)
-        const typeNode = TypeBrowserCommon.objectTypeNode(
-          folderNode.id,
-          object.id
-        )
+        const folderNode = TypeBrowserCommon.objectTypesFolderNode()
+        const typeNode = TypeBrowserCommon.objectTypeNode(object.id)
         return [folderNode, typeNode]
       }
     } else if (object.type === objectType.COLLECTION_TYPE) {
       const type = await this.searchCollectionType(object.id)
       if (type) {
-        const folderNode = TypeBrowserCommon.collectionTypesFolderNode(
-          rootNode.id
-        )
-        const typeNode = TypeBrowserCommon.collectionTypeNode(
-          folderNode.id,
-          object.id
-        )
+        const folderNode = TypeBrowserCommon.collectionTypesFolderNode()
+        const typeNode = TypeBrowserCommon.collectionTypeNode(object.id)
         return [folderNode, typeNode]
       }
     } else if (object.type === objectType.DATA_SET_TYPE) {
       const type = await this.searchDataSetType(object.id)
       if (type) {
-        const folderNode = TypeBrowserCommon.dataSetTypesFolderNode(rootNode.id)
-        const typeNode = TypeBrowserCommon.dataSetTypeNode(
-          folderNode.id,
-          object.id
-        )
+        const folderNode = TypeBrowserCommon.dataSetTypesFolderNode()
+        const typeNode = TypeBrowserCommon.dataSetTypeNode(object.id)
         return [folderNode, typeNode]
       }
     } else if (object.type === objectType.MATERIAL_TYPE) {
       const type = await this.searchMaterialType(object.id)
       if (type) {
-        const folderNode = TypeBrowserCommon.materialTypesFolderNode(
-          rootNode.id
-        )
-        const typeNode = TypeBrowserCommon.materialTypeNode(
-          folderNode.id,
-          object.id
-        )
+        const folderNode = TypeBrowserCommon.materialTypesFolderNode()
+        const typeNode = TypeBrowserCommon.materialTypeNode(object.id)
         return [folderNode, typeNode]
       }
     } else if (object.type === objectType.VOCABULARY_TYPE) {
       const type = await this.searchVocabularyType(object.id)
       if (type) {
-        const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode(
-          rootNode.id
-        )
-        const typeNode = TypeBrowserCommon.vocabularyTypeNode(
-          folderNode.id,
-          object.id
-        )
+        const folderNode = TypeBrowserCommon.vocabularyTypesFolderNode()
+        const typeNode = TypeBrowserCommon.vocabularyTypeNode(object.id)
         return [folderNode, typeNode]
       }
     }

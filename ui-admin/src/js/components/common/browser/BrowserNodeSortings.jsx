@@ -125,13 +125,10 @@ class BrowserNodeSortings extends React.PureComponent {
     let options = []
 
     if (!_.isEmpty(node.sortings)) {
-      const sortings = Object.entries(node.sortings)
-        .map(([id, sorting]) => ({
-          value: id,
-          label: sorting.label,
-          index: sorting.index
-        }))
-        .sort(sorting => sorting.index)
+      const sortings = node.sortings.map(sorting => ({
+        value: sorting.id,
+        label: sorting.label
+      }))
       options = [...sortings]
     }
 

@@ -6,7 +6,6 @@ import BrowserButtonsAddRemove from '@src/js/components/common/browser/BrowserBu
 import UserBrowserController from '@src/js/components/users/browser/UserBrowserController.js'
 import AppController from '@src/js/components/AppController.js'
 import pages from '@src/js/common/consts/pages.js'
-import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 export class UserBrowser extends React.Component {
@@ -40,18 +39,8 @@ export class UserBrowser extends React.Component {
 
     return (
       <BrowserWithOpenbis
-        id={ids.USER_BROWSER_ID}
         controller={this.controller}
         renderFooter={this.renderFooter}
-        onSelectedChange={selectedObject => {
-          if (selectedObject) {
-            AppController.getInstance().objectOpen(
-              pages.USERS,
-              selectedObject.type,
-              selectedObject.id
-            )
-          }
-        }}
       />
     )
   }

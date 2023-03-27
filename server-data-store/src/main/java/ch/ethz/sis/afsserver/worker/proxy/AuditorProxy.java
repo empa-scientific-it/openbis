@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import lombok.NonNull;

@@ -42,18 +42,16 @@ export default class ToolBrowserControllerLoadNodes {
 
         if (totalCount > ToolBrowserCommon.TOTAL_LOAD_LIMIT) {
           return {
-            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+            nodes: [BrowserCommon.tooManyResultsFound()]
           }
         }
 
         const nodes = []
 
         if (!_.isEmpty(dynamicPropertyPlugins.objects)) {
-          const folderNode = ToolBrowserCommon.dynamicPropertyPluginsFolderNode(
-            node.id
-          )
+          const folderNode =
+            ToolBrowserCommon.dynamicPropertyPluginsFolderNode()
           const pluginsNodes = this.createNodes(
-            folderNode,
             dynamicPropertyPlugins,
             objectType.DYNAMIC_PROPERTY_PLUGIN
           )
@@ -64,9 +62,8 @@ export default class ToolBrowserControllerLoadNodes {
 
         if (!_.isEmpty(entityValidationPlugins.objects)) {
           const folderNode =
-            ToolBrowserCommon.entityValidationPluginsFolderNode(node.id)
+            ToolBrowserCommon.entityValidationPluginsFolderNode()
           const pluginsNodes = this.createNodes(
-            folderNode,
             entityValidationPlugins,
             objectType.ENTITY_VALIDATION_PLUGIN
           )
@@ -76,12 +73,8 @@ export default class ToolBrowserControllerLoadNodes {
         }
 
         if (!_.isEmpty(queries.objects)) {
-          const folderNode = ToolBrowserCommon.queriesFolderNode(node.id)
-          const queriesNodes = this.createNodes(
-            folderNode,
-            queries,
-            objectType.QUERY
-          )
+          const folderNode = ToolBrowserCommon.queriesFolderNode()
+          const queriesNodes = this.createNodes(queries, objectType.QUERY)
           folderNode.children = queriesNodes
           folderNode.expanded = true
           nodes.push(folderNode)
@@ -92,11 +85,11 @@ export default class ToolBrowserControllerLoadNodes {
         }
       } else {
         const nodes = []
-        nodes.push(ToolBrowserCommon.dynamicPropertyPluginsFolderNode(node.id))
-        nodes.push(ToolBrowserCommon.entityValidationPluginsFolderNode(node.id))
-        nodes.push(ToolBrowserCommon.queriesFolderNode(node.id))
-        nodes.push(ToolBrowserCommon.historyFolderNode(node.id))
-        nodes.push(ToolBrowserCommon.importFolderNode(node.id))
+        nodes.push(ToolBrowserCommon.dynamicPropertyPluginsFolderNode())
+        nodes.push(ToolBrowserCommon.entityValidationPluginsFolderNode())
+        nodes.push(ToolBrowserCommon.queriesFolderNode())
+        nodes.push(ToolBrowserCommon.historyFolderNode())
+        nodes.push(ToolBrowserCommon.importFolderNode())
 
         const personalAccessTokensEnabled =
           AppController.getInstance().getServerInformation(
@@ -104,10 +97,10 @@ export default class ToolBrowserControllerLoadNodes {
           )
 
         if ('true'.equalsIgnoreCase(personalAccessTokensEnabled)) {
-          nodes.push(ToolBrowserCommon.accessFolderNode(node.id))
+          nodes.push(ToolBrowserCommon.accessFolderNode())
         }
 
-        nodes.push(ToolBrowserCommon.reportFolderNode(node.id))
+        nodes.push(ToolBrowserCommon.reportFolderNode())
 
         return {
           nodes: nodes
@@ -125,26 +118,26 @@ export default class ToolBrowserControllerLoadNodes {
       }
 
       if (objects) {
-        return this.createNodes(node, objects, node.object.id)
+        return this.createNodes(objects, node.object.id)
       }
     } else if (node.object.type === objectType.HISTORY) {
       return {
         nodes: [
-          ToolBrowserCommon.historyDeletionNode(node.id),
-          ToolBrowserCommon.historyFreezingNode(node.id)
+          ToolBrowserCommon.historyDeletionNode(),
+          ToolBrowserCommon.historyFreezingNode()
         ]
       }
     } else if (node.object.type === objectType.IMPORT) {
       return {
-        nodes: [ToolBrowserCommon.importAllNode(node.id)]
+        nodes: [ToolBrowserCommon.importAllNode()]
       }
     } else if (node.object.type === objectType.ACCESS) {
       return {
-        nodes: [ToolBrowserCommon.personalAccessTokensNode(node.id)]
+        nodes: [ToolBrowserCommon.personalAccessTokensNode()]
       }
     } else if (node.object.type === objectType.REPORT) {
       return {
-        nodes: [ToolBrowserCommon.activeUsersReportNode(node.id)]
+        nodes: [ToolBrowserCommon.activeUsersReportNode()]
       }
     }
 
@@ -265,9 +258,8 @@ export default class ToolBrowserControllerLoadNodes {
     }
   }
 
-  createNodes(parent, result, objectType) {
+  createNodes(result, objectType) {
     const nodes = result.objects.map(object => ({
-      id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
         type: objectType,

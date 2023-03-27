@@ -16,7 +16,10 @@ export default class TypeBrowserControllerTest {
 
     this.context = new ComponentContext()
     this.controller = new TypeBrowserController()
-    this.controller.init(this.context)
+    this.controller.loadSettings = function () {
+      return {}
+    }
+    this.controller.onSettingsChange = function () {}
 
     openbis.mockSearchSampleTypes([
       fixture.TEST_SAMPLE_TYPE_DTO,

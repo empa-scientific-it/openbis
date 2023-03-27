@@ -14,7 +14,8 @@ repositories {
 
 dependencies {
     annotationProcessor 'lombok:lombok:1.18.22'
-    implementation 'lombok:lombok:1.18.22',
+    implementation  project(':lib-json'),
+                    'lombok:lombok:1.18.22',
                     'log4j:log4j-api:2.10.0',
                     'log4j:log4j-core:2.10.0',
                     'fasterxml:jackson-annotations:2.9.10',

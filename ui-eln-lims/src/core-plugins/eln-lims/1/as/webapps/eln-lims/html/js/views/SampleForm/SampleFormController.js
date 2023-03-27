@@ -467,7 +467,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					if(_this._sampleFormModel.mode === FormMode.CREATE) {
 						mainController.sideMenu.refreshCurrentNode();
 					} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
-						mainController.sideMenu.refreshNodeParent(_this._sampleFormModel.sample.permId);
+						mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._sampleFormModel.sample.permId);
 					}
 				}
 				

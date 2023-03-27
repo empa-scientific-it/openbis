@@ -88,6 +88,18 @@ async function testLoadExisting() {
         label: 'Official',
         filter: null,
         sort: null
+      },
+      {
+        name: 'registrator',
+        label: 'Registrator',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrationDate',
+        label: 'Registration Date',
+        filter: null,
+        sort: null
       }
     ],
     rows: fixture.TEST_VOCABULARY_DTO.terms.map(term => ({

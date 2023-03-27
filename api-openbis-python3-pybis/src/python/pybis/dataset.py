@@ -12,19 +12,33 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import json
 import os
+import random
+import time
+import urllib.parse
+import uuid
+import zipfile
 from functools import partialmethod
 from pathlib import Path
-from threading import Thread
 from queue import Queue
+from threading import Thread
 from typing import Set, Optional, List
+from urllib.parse import urljoin, quote
+
+import requests
+from pandas import DataFrame
+from requests import Session
 from tabulate import tabulate
-from .openbis_object import OpenBisObject
+
 from .definitions import (
     openbis_definitions,
     get_type_for_entity,
     get_fetchoption_for_entity,
 )
+from .fast_download import FastDownload
+from .openbis_object import OpenBisObject
+from .things import Things
 from .utils import (
     VERBOSE,
     parse_jackson,
@@ -32,16 +46,6 @@ from .utils import (
     extract_code,
     extract_downloadUrl,
 )
-from .things import Things
-import requests
-from requests import Request, Session
-import json
-from pandas import DataFrame
-from urllib.parse import urlparse, urljoin, quote
-import urllib.parse
-import zipfile
-import random
-import time
 
 # needed for Data upload
 PYBIS_PLUGIN = "dataset-uploader-api"
@@ -55,7 +59,7 @@ def signed_to_unsigned(sig_int):
     We display the hex number to match with the classic UI
     """
     if sig_int < 0:
-        sig_int += 2**32
+        sig_int += 2 ** 32
     return "%x" % (sig_int & 0xFFFFFFFF)
 
 
@@ -67,16 +71,16 @@ class DataSet(
     """DataSet are openBIS objects that contain the actual files."""
 
     def __init__(
-        self,
-        openbis_obj,
-        type,
-        data=None,
-        files=None,
-        zipfile=None,
-        folder=None,
-        kind=None,
-        props=None,
-        **kwargs,
+            self,
+            openbis_obj,
+            type,
+            data=None,
+            files=None,
+            zipfile=None,
+            folder=None,
+            kind=None,
+            props=None,
+            **kwargs,
     ):
 
         if kind == "PHYSICAL":
@@ -318,10 +322,10 @@ class DataSet(
         )
 
     def _is_symlink_or_physical(
-        self,
-        what: str,
-        target_dir: str = None,
-        expected_file_list: Optional[List[str]] = None,
+            self,
+            what: str,
+            target_dir: str = None,
+            expected_file_list: Optional[List[str]] = None,
     ):
         if target_dir is None:
             target_dir = os.path.join(self.openbis.download_prefix, self.permId)
@@ -470,14 +474,14 @@ class DataSet(
         )
 
     def download(
-        self,
-        files=None,
-        destination=None,
-        create_default_folders=True,
-        wait_until_finished=True,
-        workers=10,
-        linked_dataset_fileservice_url=None,
-        content_copy_index=0,
+            self,
+            files=None,
+            destination=None,
+            create_default_folders=True,
+            wait_until_finished=True,
+            workers=10,
+            linked_dataset_fileservice_url=None,
+            content_copy_index=0
     ):
         """download the files of the dataSet.
 
@@ -501,14 +505,18 @@ class DataSet(
         if "kind" in self.data:  # openBIS 18.6.x DTO
             kind = self.data["kind"]
         elif ("type" in self.data) and (
-            "kind" in self.data["type"]
+                "kind" in self.data["type"]
         ):  # openBIS 16.5.x DTO
             kind = self.data["type"]["kind"]
 
         if kind in ["PHYSICAL", "CONTAINER"]:
-            return self._download_physical(
-                files, destination, create_default_folders, wait_until_finished, workers
-            )
+            if self.openbis.get_server_information().is_version_greater_than(3, 5):
+                return self._download_fast_physical(files, destination, create_default_folders,
+                                                    wait_until_finished)
+            else:
+                return self._download_physical(
+                    files, destination, create_default_folders, wait_until_finished, workers
+                )
         elif kind == "LINK":
             if linked_dataset_fileservice_url is None:
                 raise ValueError(
@@ -525,8 +533,28 @@ class DataSet(
         else:
             raise ValueError(f"Can't download data set of kind {kind}.")
 
+    def _download_fast_physical(
+            self, files, destination, create_default_folders, wait_until_finished
+    ):
+        """Download for data sets of kind PHYSICAL using fast download scheme"""
+
+        if create_default_folders:
+            final_destination = os.path.join(destination, self.permId)
+        else:
+            final_destination = destination
+
+        self.__dict__["download_path"] = final_destination
+
+        download_url = self._get_download_url()
+
+        fast_download = FastDownload(self.openbis.token, download_url, self.permId, files,
+                                     final_destination, create_default_folders, wait_until_finished,
+                                     self.openbis.verify_certificates,
+                                     wished_number_of_streams=4)
+        return fast_download.download()
+
     def _download_physical(
-        self, files, destination, create_default_folders, wait_until_finished, workers
+            self, files, destination, create_default_folders, wait_until_finished, workers
     ):
         """Download for data sets of kind PHYSICAL."""
 
@@ -579,20 +607,20 @@ class DataSet(
             return final_destination
 
     def _download_link(
-        self,
-        files,
-        destination,
-        wait_until_finished,
-        workers,
-        linked_dataset_fileservice_url,
-        content_copy_index,
+            self,
+            files,
+            destination,
+            wait_until_finished,
+            workers,
+            linked_dataset_fileservice_url,
+            content_copy_index,
     ):
         """Download for data sets of kind LINK.
         Requires the microservice server to be running at the given linked_dataset_fileservice_url.
         """
 
         with DataSetDownloadQueue(
-            workers=workers, collect_files_with_wrong_length=True
+                workers=workers, collect_files_with_wrong_length=True
         ) as queue:
 
             if content_copy_index >= len(self.data["linkedData"]["contentCopies"]):
@@ -607,7 +635,7 @@ class DataSet(
                 download_url += "?sessionToken=" + self.openbis.token
                 download_url += "&datasetPermId=" + self.data["permId"]["permId"]
                 download_url += (
-                    "&externalDMSCode=" + content_copy["externalDms"]["code"]
+                        "&externalDMSCode=" + content_copy["externalDms"]["code"]
                 )
                 download_url += "&contentCopyPath=" + content_copy["path"].replace(
                     "/", "%2F"
@@ -678,9 +706,9 @@ class DataSet(
         for filepath in self.file_list:
             quoted_filepath = urllib.parse.quote(filepath, safe="")
             file_links[filepath] = (
-                "/".join([url, "datastore_server", location_part, quoted_filepath])
-                + "?sessionID="
-                + token
+                    "/".join([url, "datastore_server", location_part, quoted_filepath])
+                    + "?sessionID="
+                    + token
             )
 
         return file_links
@@ -814,15 +842,15 @@ class DataSet(
         for prop_name, prop in self.props._property_names.items():
             if prop["mandatory"]:
                 if (
-                    getattr(self.props, prop_name) is None
-                    or getattr(self.props, prop_name) == ""
+                        getattr(self.props, prop_name) is None
+                        or getattr(self.props, prop_name) == ""
                 ):
                     raise ValueError(
                         f"Property '{prop_name}' is mandatory and must not be None"
                     )
 
         if self.is_new:
-            datastores = self.openbis.get_datastores()
+            data_stores = self.openbis.get_datastores()
 
             if self.sample is None and self.experiment is None:
                 raise ValueError(
@@ -834,46 +862,10 @@ class DataSet(
                     raise ValueError(
                         "Cannot register a dataset without a file. Please provide at least one file"
                     )
+                if self.openbis.get_server_information().is_version_greater_than(3, 5):
+                    return self._upload_v3(data_stores)
 
-                # for uploading phyiscal data, we first upload it to the session workspace
-                self.upload_files(
-                    datastore_url=datastores["downloadUrl"][0],
-                    files=self.files,
-                    folder="",
-                    wait_until_finished=True,
-                )
-
-                # activate the ingestion plugin, as soon as the data is uploaded
-                # this will actually register the dataset in the datastore and the AS
-                request = self._generate_plugin_request(
-                    dss=datastores["code"][0],
-                    permId=permId,
-                )
-                resp = self.openbis._post_request(self.openbis.reg_v1, request)
-                if resp["rows"][0][0]["value"] == "OK":
-                    permId = resp["rows"][0][2]["value"]
-                    if permId is None or permId == "":
-                        self.__dict__["is_new"] = False
-                        if VERBOSE:
-                            print(
-                                "DataSet successfully created. Because you connected to an openBIS version older than 16.05.04, you cannot update the object."
-                            )
-                    else:
-                        new_dataset_data = self.openbis.get_dataset(
-                            permId, only_data=True
-                        )
-                        self._set_data(new_dataset_data)
-                        if VERBOSE:
-                            print("DataSet successfully created.")
-                        return self
-                else:
-                    import json
-
-                    print(json.dumps(request))
-                    raise ValueError(
-                        "Error while creating the DataSet: "
-                        + resp["rows"][0][1]["value"]
-                    )
+                return self._upload_v1(permId, data_stores)
             # CONTAINER
             else:
                 if self.files is not None and len(self.files) > 0:
@@ -891,7 +883,7 @@ class DataSet(
                     request["params"][1][0]["autoGeneratedCode"] = False
 
                 props = self.p._all_props()
-                DSpermId = datastores["code"][0]
+                DSpermId = data_stores["code"][0]
                 request["params"][1][0]["properties"] = props
                 request["params"][1][0]["dataStoreId"] = {
                     "permId": DSpermId,
@@ -907,7 +899,7 @@ class DataSet(
                 self._set_data(new_dataset_data)
                 return self
 
-        # updating the DataSEt
+        # updating the DataSET
         else:
             request = self._up_attrs()
             props = self.p._all_props()
@@ -916,6 +908,126 @@ class DataSet(
             self.openbis._post_request(self.openbis.as_v3, request)
             if VERBOSE:
                 print("DataSet successfully updated.")
+
+    def _upload_v1(self, permId, datastores):
+        # for uploading phyiscal data, we first upload it to the session workspace
+        self.upload_files_v1(
+            datastore_url=datastores["downloadUrl"][0],
+            files=self.files,
+            folder="",
+            wait_until_finished=True,
+        )
+
+        # activate the ingestion plugin, as soon as the data is uploaded
+        # this will actually register the dataset in the datastore and the AS
+        request = self._generate_plugin_request(
+            dss=datastores["code"][0],
+            permId=permId,
+        )
+        resp = self.openbis._post_request(self.openbis.reg_v1, request)
+        if resp["rows"][0][0]["value"] == "OK":
+            permId = resp["rows"][0][2]["value"]
+            if permId is None or permId == "":
+                self.__dict__["is_new"] = False
+                if VERBOSE:
+                    print(
+                        "DataSet successfully created. Because you connected to an openBIS version older than 16.05.04, you cannot update the object."
+                    )
+            else:
+                new_dataset_data = self.openbis.get_dataset(
+                    permId, only_data=True
+                )
+                self._set_data(new_dataset_data)
+                if VERBOSE:
+                    print("DataSet successfully created.")
+                return self
+        else:
+            print(json.dumps(request))
+            raise ValueError(
+                "Error while creating the DataSet: "
+                + resp["rows"][0][1]["value"]
+            )
+
+    def _upload_v3(self, data_stores):
+        upload_id = str(uuid.uuid4())
+        datastore_url = data_stores["downloadUrl"][0]
+        # for uploading phyiscal data, we first upload it to the session workspace
+        self.upload_files_v3(
+            upload_id=upload_id,
+            datastore_url=datastore_url,
+            files=self.files,
+            folder="",
+            wait_until_finished=True,
+        )
+
+        param = {
+            "@type": "dss.dto.dataset.create.UploadedDataSetCreation",
+            "@id": "1",
+            "typeId": {
+                "@type": "as.dto.entitytype.id.EntityTypePermId",
+                "@id": "2",
+                "permId": self.type.code,
+                "entityKind": "DATA_SET"},
+
+            "properties": self.props.all_nonempty(),
+            "parentIds": [],
+            "uploadId": upload_id
+        }
+
+        if self.experiment is not None:
+            param["experimentId"] = {
+                "@type": "as.dto.experiment.id.ExperimentIdentifier",
+                "@id": "3",
+                "identifier": self.experiment.identifier
+            }
+        if self.sample is not None:
+            param["sampleId"] = {
+                "@type": "as.dto.sample.id.SamplePermId",
+                "@id": "4",
+                "permId": self.sample.permId
+            }
+        # TODO: check if this part is needed
+        parent_ids = self.parents
+        if parent_ids is None:
+            parent_ids = []
+        counter = 5
+        for parent_id in parent_ids:
+            param["parentIds"] += {
+                "@type": "as.dto.dataset.id.DataSetPermId",
+                "@id": str(counter),
+                "permId": parent_id
+            }
+            counter += 1
+
+        request = {
+            "method": "createUploadedDataSet",
+            "params": [self.openbis.token, param]
+        }
+
+        resp = self.openbis._post_request_full_url(urljoin(datastore_url, self.openbis.dss_v3),
+                                                   request)
+        if "permId" in resp:
+            permId = resp["permId"]
+            if permId is None or permId == "":
+                self.__dict__["is_new"] = False
+                if VERBOSE:
+                    print(
+                        "DataSet successfully created. Because you connected to an openBIS version older than 16.05.04, you cannot update the object."
+                    )
+            else:
+                new_dataset_data = self.openbis.get_dataset(
+                    permId, only_data=True
+                )
+                self._set_data(new_dataset_data)
+                if VERBOSE:
+                    print("DataSet successfully created.")
+                return self
+        else:
+            print(json.dumps(request))
+            raise ValueError(
+                "Error while creating the DataSet: "
+                + resp["rows"][0][1]["value"]
+            )
 
     def zipit(self, file_or_folder, zipf):
         """Takes a directory or a file, and a zipfile instance. For every file that is encountered,
@@ -941,16 +1053,15 @@ class DataSet(
                             os.path.join(dirpath, filename),
                             os.path.join(filename, ".."),
                         ),
-                        os.path.join(realpath[len(head) + 1 :], filename),
+                        os.path.join(realpath[len(head) + 1:], filename),
                     )
 
-    def upload_files(
-        self, datastore_url=None, files=None, folder=None, wait_until_finished=False
+    def upload_files_v1(
+            self, datastore_url=None, files=None, folder=None, wait_until_finished=False
     ):
 
         if datastore_url is None:
             datastore_url = self.openbis._get_dss_url()
-
         if files is None:
             raise ValueError("Please provide a filename.")
 
@@ -1012,14 +1123,14 @@ class DataSet(
                 self.files_in_wsp.append(file_in_wsp)
 
                 upload_url = (
-                    datastore_url
-                    + "/datastore_server/session_workspace_file_upload"
-                    + "?filename="
-                    + url_filename
-                    + "&id=1"
-                    + "&startByte=0&endByte=0"
-                    + "&sessionID="
-                    + self.openbis.token
+                        datastore_url
+                        + "/datastore_server/session_workspace_file_upload"
+                        + "?filename="
+                        + url_filename
+                        + "&id=1"
+                        + "&startByte=0&endByte=0"
+                        + "&sessionID="
+                        + self.openbis.token
                 )
                 queue.put([upload_url, filename, self.openbis.verify_certificates])
 
@@ -1030,12 +1141,73 @@ class DataSet(
             # return files with full path in session workspace
             return self.files_in_wsp
 
+    def upload_files_v3(
+            self, upload_id, datastore_url=None, files=None, folder=None, wait_until_finished=False
+    ):
+        if datastore_url is None:
+            datastore_url = self.openbis._get_dss_url()
+        if files is None:
+            raise ValueError("Please provide a filename.")
+
+        if folder is None:
+            # create a unique foldername
+            folder = time.strftime("%Y-%m-%d_%H-%M-%S")
+
+        if isinstance(files, str):
+            files = [files]
+
+        # define a queue to handle the upload threads
+        with DataSetUploadQueue(multipart=True) as queue:
+
+            real_files = []
+            for filename in files:
+                if os.path.isdir(filename):
+                    pardir = os.path.join(filename, os.pardir)
+                    for root, dirs, files in os.walk(os.path.expanduser(filename)):
+                        path = os.path.relpath(root, pardir)
+                        for file in files:
+                            real_files.append((path, os.path.join(root, file)))
+                else:
+                    real_files.append(("", os.path.join(filename)))
+
+            # compose the upload-URL and put URL and filename in the upload queue
+            files_in_wsp = []
+            for directory, filename in real_files:
+                file_in_wsp = os.path.join(folder, os.path.basename(filename))
+                files_in_wsp += [file_in_wsp]
+
+                fol = os.path.join(folder, directory)
+
+                upload_url = (
+                        datastore_url + "/datastore_server/store_share_file_upload"
+                                        "?dataSetType={}"
+                                        "&folderPath={}"
+                                        "&ignoreFilePath={}"
+                                        "&uploadID={}"
+                                        "&sessionID={}"
+                ).format(self.type.code, fol, False, upload_id, self.openbis.token)
+                queue.put(
+                    [upload_url, filename,
+                     self.openbis.verify_certificates])
+
+            # wait until all files have uploaded
+            if wait_until_finished:
+                queue.join()
+
+            # return files with full path in session workspace
+            return files_in_wsp
+
 
 class DataSetUploadQueue:
-    def __init__(self, workers=20):
+    """Structure for uploading files to OpenBIS in separate threads.
+    It works as a queue where each item is a single file upload. It allows to upload files using v1
+    and v3 api. V3 api uses multipart schema for file upload, whereas V1 api makes sue of the body"""
+
+    def __init__(self, workers=20, multipart=False):
         # maximum files to be uploaded at once
         self.upload_queue = Queue()
         self.workers = workers
+        self.multipart = multipart
 
         # define number of threads and start them
         for t in range(workers):
@@ -1069,17 +1241,22 @@ class DataSetUploadQueue:
                 break
             upload_url, filename, verify_certificates = queue_item
 
-            filesize = os.path.getsize(filename)
+            file_size = os.path.getsize(filename)
 
-            # upload the file to our DSS session workspace
-            with open(filename, "rb") as f:
-                resp = requests.post(upload_url, data=f, verify=verify_certificates)
+            if self.multipart is True:
+                file = {filename: open(filename, "rb")}
+                resp = requests.post(upload_url, files=file, verify=verify_certificates)
                 resp.raise_for_status()
-                data = resp.json()
-                if filesize != int(data["size"]):
-                    raise ValueError(
-                        f'size of file uploaded: {filesize} != data received: {int(data["size"])}'
-                    )
+            else:
+                # upload the file to our DSS session workspace
+                with open(filename, "rb") as f:
+                    resp = requests.post(upload_url, data=f, verify=verify_certificates)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    if file_size != int(data["size"]):
+                        raise ValueError(
+                            f'size of file uploaded: {file_size} != data received: {int(data["size"])}'
+                        )
 
             # Tell the queue that we are done
             self.upload_queue.task_done()
@@ -1089,6 +1266,7 @@ class ZipBuffer(object):
     """A file-like object for zipfile.ZipFile to write into.
     zipfile invokes the write method to store its zipped content.
     We will send this content directly to the session_workspace as a POST request.
+    Used by V1 API only.
     """
 
     def __init__(self, openbis_obj, host, filename):
@@ -1097,12 +1275,12 @@ class ZipBuffer(object):
         self.endByte = 0
         self.filename = filename
         self.upload_url = (
-            host + "/datastore_server/session_workspace_file_upload?"
-            "filename={}"
-            "&id=1"
-            "&startByte={}"
-            "&endByte={}"
-            "&sessionID={}"
+                host + "/datastore_server/session_workspace_file_upload?"
+                       "filename={}"
+                       "&id=1"
+                       "&startByte={}"
+                       "&endByte={}"
+                       "&sessionID={}"
         )
         self.session = Session()
 
@@ -1137,6 +1315,8 @@ class ZipBuffer(object):
 
 
 class DataSetDownloadQueue:
+    """Special queue structure for multithreaded downloading files using V1 API."""
+
     def __init__(self, workers=20, collect_files_with_wrong_length=False):
         self.collect_files_with_wrong_length = collect_files_with_wrong_length
         # maximum files to be downloaded at once

@@ -70,6 +70,14 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'active',
             label: 'Active'
+          },
+          {
+            name: 'registrator',
+            label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -120,6 +128,14 @@ async function testLoadWithSearchText(resultsFound) {
           {
             label: 'Role',
             name: 'role'
+          },
+          {
+            name: 'registrator',
+            label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -184,6 +200,18 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'description',
             label: 'Description'
+          },
+          {
+            name: 'registrator',
+            label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
@@ -216,6 +244,14 @@ async function testLoadWithSearchText(resultsFound) {
           {
             label: 'Role',
             name: 'role'
+          },
+          {
+            name: 'registrator',
+            label: 'Registrator'
+          },
+          {
+            name: 'registrationDate',
+            label: 'Registration Date'
           }
         ],
         rows: [
@@ -298,6 +334,14 @@ async function testLoadWithObjectType(resultsFound) {
         {
           name: 'active',
           label: 'Active'
+        },
+        {
+          name: 'registrator',
+          label: 'Registrator'
+        },
+        {
+          name: 'registrationDate',
+          label: 'Registration Date'
         }
       ],
       rows: resultsFound
@@ -360,6 +404,14 @@ async function testLoadWithObjectType(resultsFound) {
         {
           label: 'Role',
           name: 'role'
+        },
+        {
+          name: 'registrator',
+          label: 'Registrator'
+        },
+        {
+          name: 'registrationDate',
+          label: 'Registration Date'
         }
       ],
       rows: resultsFound

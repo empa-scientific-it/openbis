@@ -31,11 +31,8 @@ class NodeWithEntityType(Node):
         self.permIds.add(permId)
 
 class Acceptor(object):
-    def __init__(self, settings):
+    def __init__(self):
         self.sections = ["Lab Notebook", "Inventory", "Stock"]
-        self.inventorySpaces = settings.inventorySpaces
-        self.mainMenues = settings.mainMenues
-        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
         self.endingsOfHiddenSpaces = []
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
@@ -44,6 +41,11 @@ class Acceptor(object):
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
         self.sampleChildrenHandlers = {}
+
+    def configure(self, settings):
+        self.inventorySpaces = settings.inventorySpaces
+        self.mainMenues = settings.mainMenues
+        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
 
     def assertValidSection(self, section):
         if section not in self.sections:
@@ -117,8 +119,14 @@ class Settings(object):
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
 
+acceptor = Acceptor()
+pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
+for pluginFileName in os.listdir(pluginsFolder):
+    file = "%s/%s" % (pluginsFolder, pluginFileName)
+    execfile(file, {"acceptor":acceptor})
+
 def resolve(subPath, context):
-    acceptor = createAcceptor(context)
+    acceptor.configure(getAllSettings(context))
     if len(subPath) == 0:
         return listSections(acceptor, context)
 
@@ -140,14 +148,6 @@ def resolve(subPath, context):
         return listExperimentContent(subPath, acceptor, context)
     if len(subPath) > 4:
         return listChildren(subPath, acceptor, context)
-
-def createAcceptor(context):
-    acceptor = Acceptor(getAllSettings(context))
-    pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
-    for pluginFileName in os.listdir(pluginsFolder):
-        file = "%s/%s" % (pluginsFolder, pluginFileName)
-        execfile(file, {"acceptor":acceptor})
-    return acceptor
 
 def listSections(acceptor, context):
     response = context.createDirectoryResponse()
@@ -315,7 +315,9 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
 
     listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
+    addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
 
+def addSampleSampleChildNodes(path, samplePermId, response, acceptor, context):
     fetchOptions = SampleFetchOptions()
     fetchOptions.withExperiment()
     fetchOptions.withChildren().withType()
@@ -356,6 +358,18 @@ def getContentNode(permId, context):
     content = context.getContentProvider().asContent(dataSetCode)
     contentNode = content.tryGetNode(splittedId[1]) if len(splittedId) > 1 else content.getRootNode()
     return dataSetCode, contentNode, content
+
+def getDataSetsOfSampleAndItsChildren(samplePermId, context):
+    dataSetSearchCriteria = DataSetSearchCriteria()
+    dataSetSearchCriteria.withOrOperator()
+    dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
+    parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
+    parentsSearchCriteria.withPermId().thatEquals(samplePermId)
+    fetchOptions = DataSetFetchOptions()
+    fetchOptions.withType()
+    fetchOptions.withProperties()
+    fetchOptions.withSample().withType()
+    return context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
 
 def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, acceptor, context):
     fetchOptions = DataSetFetchOptions()

@@ -1,13 +1,11 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import messages from '@src/js/common/messages.js'
 
 const TOTAL_LOAD_LIMIT = 500
 const LOAD_LIMIT = 50
 
-function groupsFolderNode(parentId) {
+function groupsFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.USER_GROUP),
     text: messages.get(messages.GROUPS),
     object: {
       type: objectType.OVERVIEW,
@@ -18,9 +16,8 @@ function groupsFolderNode(parentId) {
   }
 }
 
-function groupNode(parentId, groupCode) {
+function groupNode(groupCode) {
   return {
-    id: BrowserCommon.nodeId(parentId, groupCode),
     text: groupCode,
     object: {
       type: objectType.USER_GROUP,
@@ -29,9 +26,8 @@ function groupNode(parentId, groupCode) {
   }
 }
 
-function usersFolderNode(parentId) {
+function usersFolderNode() {
   return {
-    id: BrowserCommon.nodeId(parentId, objectType.USER),
     text: messages.get(messages.USERS),
     object: {
       type: objectType.OVERVIEW,
@@ -42,9 +38,8 @@ function usersFolderNode(parentId) {
   }
 }
 
-function userNode(parentId, userId) {
+function userNode(userId) {
   return {
-    id: BrowserCommon.nodeId(parentId, userId),
     text: userId,
     object: {
       type: objectType.USER,

@@ -15,7 +15,6 @@ async function testLoad() {
   await common.controller.load()
 
   expect(common.controller.getTree()).toMatchObject({
-    id: 'root',
     children: [
       {
         text: 'Object Types',

@@ -1,4 +1,3 @@
-import BrowserCommon from '@src/js/components/common/browser/BrowserCommon.js'
 import UserBrowserCommon from '@src/js/components/users/browser/UserBrowserCommon.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
@@ -7,26 +6,24 @@ export default class UserBrowserControllerLoadNodePath {
   async doLoadNodePath(params) {
     const { object } = params
 
-    const rootNode = BrowserCommon.rootNode()
-
     if (object.type === objectType.OVERVIEW) {
       if (object.id === objectType.USER) {
-        return [UserBrowserCommon.usersFolderNode(rootNode.id)]
+        return [UserBrowserCommon.usersFolderNode()]
       } else if (object.id === objectType.USER_GROUP) {
-        return [UserBrowserCommon.groupsFolderNode(rootNode.id)]
+        return [UserBrowserCommon.groupsFolderNode()]
       }
     } else if (object.type === objectType.USER) {
       const user = await this.searchUser(object.id)
       if (user) {
-        const folderNode = UserBrowserCommon.usersFolderNode(rootNode.id)
-        const userNode = UserBrowserCommon.userNode(folderNode.id, object.id)
+        const folderNode = UserBrowserCommon.usersFolderNode()
+        const userNode = UserBrowserCommon.userNode(object.id)
         return [folderNode, userNode]
       }
     } else if (object.type === objectType.USER_GROUP) {
       const group = await this.searchGroup(object.id)
       if (group) {
-        const folderNode = UserBrowserCommon.groupsFolderNode(rootNode.id)
-        const groupNode = UserBrowserCommon.groupNode(folderNode.id, object.id)
+        const folderNode = UserBrowserCommon.groupsFolderNode()
+        const groupNode = UserBrowserCommon.groupNode(object.id)
         return [folderNode, groupNode]
       }
     }

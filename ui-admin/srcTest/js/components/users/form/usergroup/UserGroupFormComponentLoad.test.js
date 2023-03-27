@@ -120,6 +120,18 @@ async function testLoadExisting() {
         label: 'Active',
         filter: null,
         sort: null
+      },
+      {
+        name: 'registrator',
+        label: 'Registrator',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrationDate',
+        label: 'Registration Date',
+        filter: null,
+        sort: null
       }
     ],
     rows: [inactiveUser, mySpaceUser, testSpaceUser].map(user => ({
@@ -158,6 +170,18 @@ async function testLoadExisting() {
       {
         name: 'role',
         label: 'Role',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrator',
+        label: 'Registrator',
+        filter: null,
+        sort: null
+      },
+      {
+        name: 'registrationDate',
+        label: 'Registration Date',
         filter: null,
         sort: null
       }

@@ -57,7 +57,7 @@ function MoveSampleController(samplePermIdOrIds, successAction) {
                         if (_this._moveSampleModel.successAction) { 
                             //Delete Samples from current experiment menu
                             _this._moveSampleModel.samples.forEach(function(sample) {
-                                mainController.sideMenu.deleteNodeByEntityPermId(sample.permId, true);
+                                mainController.sideMenu.deleteNodeByEntityPermId("SAMPLE", sample.permId, true);
                             });
                             
                             //Add Experiment to the menu if new
@@ -72,7 +72,7 @@ function MoveSampleController(samplePermIdOrIds, successAction) {
                             }
 
                             //Refresh Experiment where sample was moved
-                            mainController.sideMenu.refreshNodeParent(_this._moveSampleModel.samples[0].permId);
+                            mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._moveSampleModel.samples[0].permId);
 
                             _this._moveSampleModel.successAction();
                         } 

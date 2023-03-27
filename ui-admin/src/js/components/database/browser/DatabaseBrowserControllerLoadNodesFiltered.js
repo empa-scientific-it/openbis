@@ -63,34 +63,27 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
     if (totalCount > DatabaseBrowserCommon.TOTAL_LOAD_LIMIT) {
       return {
-        nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+        nodes: [BrowserCommon.tooManyResultsFound()]
       }
     }
 
     const result = {
-      nodes: []
+      nodes: [],
+      totalCount: totalCount
     }
 
     if (node.internalRoot) {
       const root = BrowserCommon.rootNode()
-      root.children = await this.doLoadFilteredNodes({
-        ...params,
-        node: root
-      })
       result.nodes.push(root)
     } else if (node.root) {
       if (!_.isEmpty(entities.spaces)) {
-        const spacesNode = this.createSpacesNode(
-          Object.values(entities.spaces),
-          node
-        )
+        const spacesNode = this.createSpacesNode(Object.values(entities.spaces))
         result.nodes.push(spacesNode)
       }
 
       if (!_.isEmpty(entities.sharedSamples)) {
         const sharedSamplesNode = this.createSamplesNode(
-          Object.values(entities.sharedSamples),
-          node
+          Object.values(entities.sharedSamples)
         )
         result.nodes.push(sharedSamplesNode)
       }
@@ -99,8 +92,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
       if (!_.isEmpty(nodeEntity.projects)) {
         const projectsNode = this.createProjectsNode(
-          Object.values(nodeEntity.projects),
-          node
+          Object.values(nodeEntity.projects)
         )
         result.nodes.push(projectsNode)
       }
@@ -117,8 +109,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
       if (!_.isEmpty(nodeEntity.experiments)) {
         const experimentsNode = this.createExperimentsNode(
-          Object.values(nodeEntity.experiments),
-          node
+          Object.values(nodeEntity.experiments)
         )
         result.nodes.push(experimentsNode)
       }
@@ -141,8 +132,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
       }
       if (!_.isEmpty(nodeEntity.dataSets)) {
         const dataSetsNode = this.createDataSetsNode(
-          Object.values(nodeEntity.dataSets),
-          node
+          Object.values(nodeEntity.dataSets)
         )
         result.nodes.push(dataSetsNode)
       }
@@ -150,7 +140,6 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
     if (loadedCount < totalCount) {
       const loadMoreNode = BrowserCommon.loadMoreResults(
-        node.id,
         totalCount - loadedCount
       )
       loadMoreNode.onClick = () => {
@@ -175,7 +164,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     }
 
     const criteria = new openbis.SpaceSearchCriteria()
-    criteria.withCode().thatContains(filter)
+    criteria.withCode().thatStartsWith(filter)
     const fetchOptions = new openbis.SpaceFetchOptions()
     fetchOptions.sortBy().code().asc()
     fetchOptions.from(offset)
@@ -190,7 +179,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ProjectSearchCriteria()
-    criteria.withCode().thatContains(filter)
+    criteria.withCode().thatStartsWith(filter)
 
     if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
@@ -215,7 +204,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.ExperimentSearchCriteria()
-    criteria.withCode().thatContains(filter)
+    criteria.withCode().thatStartsWith(filter)
 
     if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
@@ -242,7 +231,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.SampleSearchCriteria()
-    criteria.withCode().thatContains(filter)
+    criteria.withCode().thatStartsWith(filter)
 
     if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
@@ -293,7 +282,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     const { node, filter, offset, limit } = params
 
     const criteria = new openbis.DataSetSearchCriteria()
-    criteria.withCode().thatContains(filter)
+    criteria.withCode().thatStartsWith(filter)
 
     if (node && !node.root) {
       if (node.object.type === objectType.SPACE) {
@@ -469,15 +458,15 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     }
   }
 
-  createSpacesNode(spaces, parent) {
-    const spacesNode = DatabaseBrowserCommon.spacesFolderNode(parent)
+  createSpacesNode(spaces) {
+    const spacesNode = DatabaseBrowserCommon.spacesFolderNode()
     spacesNode.children = { nodes: [] }
     spacesNode.expanded = true
 
     spaces.sort((s1, s2) => compare(s1.code, s2.code))
 
     spaces.forEach(space => {
-      const spaceNode = DatabaseBrowserCommon.spaceNode(spacesNode, space.code)
+      const spaceNode = DatabaseBrowserCommon.spaceNode(space.code)
       spaceNode.children = { nodes: [] }
       spaceNode.expanded = true
 
@@ -485,8 +474,7 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
       if (!_.isEmpty(space.projects)) {
         const projectsNode = this.createProjectsNode(
-          Object.values(space.projects),
-          spaceNode
+          Object.values(space.projects)
         )
         spaceNode.canHaveChildren = true
         spaceNode.children.nodes.push(projectsNode)
@@ -505,8 +493,8 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     return spacesNode
   }
 
-  createProjectsNode(projects, parent) {
-    const projectsNode = DatabaseBrowserCommon.projectsFolderNode(parent)
+  createProjectsNode(projects) {
+    const projectsNode = DatabaseBrowserCommon.projectsFolderNode()
     projectsNode.children = { nodes: [] }
     projectsNode.expanded = true
 
@@ -514,7 +502,6 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
     projects.forEach(project => {
       const projectNode = DatabaseBrowserCommon.projectNode(
-        projectsNode,
         project.permId,
         project.code
       )
@@ -545,8 +532,8 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     return projectsNode
   }
 
-  createExperimentsNode(experiments, parent) {
-    const experimentsNode = DatabaseBrowserCommon.collectionsFolderNode(parent)
+  createExperimentsNode(experiments) {
+    const experimentsNode = DatabaseBrowserCommon.collectionsFolderNode()
     experimentsNode.children = { nodes: [] }
     experimentsNode.expanded = true
 
@@ -554,7 +541,6 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
     experiments.forEach(experiment => {
       const experimentNode = DatabaseBrowserCommon.collectionNode(
-        experimentsNode,
         experiment.permId,
         experiment.code
       )
@@ -585,8 +571,8 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     return experimentsNode
   }
 
-  createSamplesNode(samples, parent) {
-    const samplesNode = DatabaseBrowserCommon.objectsFolderNode(parent)
+  createSamplesNode(samples) {
+    const samplesNode = DatabaseBrowserCommon.objectsFolderNode()
     samplesNode.children = { nodes: [] }
     samplesNode.expanded = true
 
@@ -594,7 +580,6 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
 
     samples.forEach(sample => {
       const sampleNode = DatabaseBrowserCommon.objectNode(
-        samplesNode,
         sample.permId,
         sample.code
       )
@@ -616,18 +601,15 @@ export default class DatabaseBrowserControllerLoadNodesFiltered {
     return samplesNode
   }
 
-  createDataSetsNode(dataSets, parent) {
-    const dataSetsNode = DatabaseBrowserCommon.dataSetsFolderNode(parent)
+  createDataSetsNode(dataSets) {
+    const dataSetsNode = DatabaseBrowserCommon.dataSetsFolderNode()
     dataSetsNode.children = { nodes: [] }
     dataSetsNode.expanded = true
 
     dataSets.sort((d1, d2) => compare(d1.code, d2.code))
 
     dataSets.forEach(dataSet => {
-      const dataSetNode = DatabaseBrowserCommon.dataSetNode(
-        dataSetsNode,
-        dataSet.code
-      )
+      const dataSetNode = DatabaseBrowserCommon.dataSetNode(dataSet.code)
       dataSetNode.children = { nodes: [] }
       dataSetNode.expanded = true
 

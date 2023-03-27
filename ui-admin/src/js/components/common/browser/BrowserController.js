@@ -1,44 +1,67 @@
 import _ from 'lodash'
 import autoBind from 'auto-bind'
-import ComponentContextNamespaced from '@src/js/components/common/ComponentContextNamespaced.js'
+import ComponentController from '@src/js/components/common/ComponentController.js'
 import BrowserTreeController from '@src/js/components/common/browser/BrowserTreeController.js'
 import util from '@src/js/common/util.js'
 
-export default class BrowserController {
-  async doLoadNodePath() {
+export default class BrowserController extends ComponentController {
+  async loadNodePath(params) {
+    throw 'Method not implemented'
+  }
+
+  async loadNodes(params) {
+    throw 'Method not implemented'
+  }
+
+  async loadSettings() {
+    throw 'Method not implemented'
+  }
+
+  async onSettingsChange(settings) {
+    throw 'Method not implemented'
+  }
+
+  onSelectedChange(params) {
+    throw 'Method not implemented'
+  }
+
+  onError(error) {
     throw 'Method not implemented'
   }
 
   async _doLoadNodePath(params) {
     try {
-      return await this.doLoadNodePath(params)
+      return await this.loadNodePath(params)
     } catch (error) {
       this._onError(error)
     }
   }
 
-  async doLoadNodes() {
-    throw 'Method not implemented'
-  }
-
   async _doLoadNodes(params) {
     try {
-      return await this.doLoadNodes(params)
+      return await this.loadNodes(params)
     } catch (error) {
       this._onError(error)
     }
   }
 
   constructor() {
+    super()
     autoBind(this)
 
     const controller = this
 
     class FullTreeController extends BrowserTreeController {
-      async doLoadNodePath(params) {
+      getState() {
+        return controller.getState('fullTree')
+      }
+      async setState(state) {
+        return controller.setState(state, 'fullTree')
+      }
+      async loadNodePath(params) {
         return controller._doLoadNodePath(params)
       }
-      async doLoadNodes(params) {
+      async loadNodes(params) {
         const loadResult = await controller._doLoadNodes({
           ...params,
           filter: null
@@ -64,14 +87,32 @@ export default class BrowserController {
 
         return loadResult
       }
+      async loadSettings() {
+        return controller.settings.fullTree
+      }
+      onSettingsChange(settings) {
+        controller.settings.fullTree = settings
+        controller._saveSettings()
+      }
+      onSelectedChange(params) {
+        if (controller._getTreeController() === this) {
+          controller.onSelectedChange(params)
+        }
+      }
     }
 
     class FilteredTreeController extends BrowserTreeController {
-      async doLoadNodePath(params) {
+      getState() {
+        return controller.getState('filteredTree')
+      }
+      async setState(state) {
+        return controller.setState(state, 'filteredTree')
+      }
+      async loadNodePath(params) {
         return controller._doLoadNodePath(params)
       }
-      async doLoadNodes(params) {
-        const { filter } = controller.context.getState()
+      async loadNodes(params) {
+        const { filter } = controller.getState()
 
         const loadResult = await controller._doLoadNodes({
           ...params,
@@ -81,9 +122,10 @@ export default class BrowserController {
         function modifyNodes(loadResult) {
           if (!_.isEmpty(loadResult) && !_.isEmpty(loadResult.nodes)) {
             loadResult.nodes.forEach(node => {
-              node.sortings = {}
-              node.sortingId = null
+              delete node.sortings
+              delete node.sortingId
               node.draggable = false
+              node.rootable = false
               if (!_.isEmpty(node.children)) {
                 modifyNodes(node.children)
               }
@@ -95,16 +137,20 @@ export default class BrowserController {
 
         return loadResult
       }
+      async loadSettings() {
+        // do nothing
+      }
+      onSettingsChange(settings) {
+        // do nothing
+      }
+      onSelectedChange(params) {
+        if (controller._getTreeController() === this) {
+          controller.onSelectedChange(params)
+        }
+      }
     }
 
-    this.settings = {}
-    this.fullTreeController = new FullTreeController()
-    this.filteredTreeController = new FilteredTreeController()
-    this.lastFilterTimeoutId = null
-  }
-
-  async init(context) {
-    context.initState({
+    this.setState({
       loaded: false,
       loading: false,
       nodeSetAsRoot: null,
@@ -112,50 +158,34 @@ export default class BrowserController {
       autoShowSelectedObject: true
     })
 
-    this.fullTreeController.init(
-      new ComponentContextNamespaced(context, 'fullTree', originalProps => ({
-        loadSettings: () => {
-          return this.settings.fullTree
-        },
-        onSettingsChange: settings => {
-          this.settings.fullTree = settings
-          this._saveSettings()
-        },
-        onSelectedChange: originalProps.onSelectedChange
-      }))
-    )
-
-    this.filteredTreeController.init(
-      new ComponentContextNamespaced(context, 'filteredTree', () => ({}))
-    )
-
-    this.context = context
+    this.settings = {}
+    this.fullTreeController = new FullTreeController()
+    this.filteredTreeController = new FilteredTreeController()
+    this.lastFilterTimeoutId = null
   }
 
   async load() {
-    await this.context.setState({
+    await this.setState({
       loading: true
     })
 
     this.settings = await this._loadSettings()
 
     if (!_.isEmpty(this.settings)) {
-      this.context.setState(state => {
+      this.setState(state => {
         const newState = { ...state }
         _.merge(newState, this.settings.common)
         return newState
       })
     }
 
-    let { nodeSetAsRoot } = this.context.getState()
+    let { nodeSetAsRoot } = this.getState()
 
     if (nodeSetAsRoot) {
       const nodeSetAsRootPath = await this._doLoadNodePath({
         object: nodeSetAsRoot.object
       })
-      if (!_.isEmpty(nodeSetAsRootPath)) {
-        nodeSetAsRoot.path = nodeSetAsRootPath
-      } else {
+      if (_.isEmpty(nodeSetAsRootPath)) {
         nodeSetAsRoot = null
       }
     }
@@ -167,7 +197,7 @@ export default class BrowserController {
 
     await this.showSelectedObject()
 
-    await this.context.setState({
+    await this.setState({
       loaded: true,
       loading: false,
       nodeSetAsRoot
@@ -180,6 +210,10 @@ export default class BrowserController {
     await this._getTreeController().loadNode(nodeId, offset, limit, append)
   }
 
+  async reloadNode(nodeId) {
+    await this._getTreeController().loadNode(nodeId, 0, null, false)
+  }
+
   async filterChange(newFilter) {
     await this._setFilter(newFilter, 500)
   }
@@ -189,7 +223,7 @@ export default class BrowserController {
   }
 
   async _setFilter(newFilter, silentPeriod) {
-    await this.context.setState({
+    await this.setState({
       filter: newFilter,
       loading: true
     })
@@ -239,34 +273,61 @@ export default class BrowserController {
     return this._getTreeController().canUndoCollapseAllNodes(nodeId)
   }
 
-  async setNodeAsRoot(node) {
+  async setNodeAsRoot(nodeId) {
     let nodeSetAsRoot = null
 
-    if (node) {
-      const path = await this._doLoadNodePath({
-        object: node.object
-      })
+    if (!_.isNil(nodeId)) {
+      const currentRoot = this.getNodeSetAsRoot()
 
-      nodeSetAsRoot = {
-        id: node.id,
-        object: node.object,
-        text: node.text,
-        message: node.message,
-        path: path,
-        parent: node.parent
-          ? {
-              id: node.parent.id,
-              object: node.parent.object
+      if (!_.isNil(currentRoot)) {
+        const pathIndex = currentRoot.path.findIndex(pathNode =>
+          _.isEqual(pathNode.id, nodeId)
+        )
+
+        if (pathIndex !== -1) {
+          // new root selected from the existing root path
+
+          nodeSetAsRoot = {
+            ...currentRoot.path[pathIndex],
+            path: currentRoot.path.slice(0, pathIndex + 1)
+          }
+        }
+      }
+
+      if (_.isNil(nodeSetAsRoot)) {
+        let root = this._getTreeController().getRoot()
+        let node = this._getTreeController().getNode(nodeId)
+        let path = []
+
+        if (node) {
+          while (!_.isNil(node) && node !== root) {
+            path.unshift({
+              ...node
+            })
+            node = this._getTreeController().getNode(node.parentId)
+          }
+
+          if (!_.isEmpty(path)) {
+            // new root selected in the browser with an existing root path prepended
+
+            if (!_.isNil(currentRoot)) {
+              path.unshift(...currentRoot.path)
             }
-          : null,
-        canHaveChildren: true
+
+            nodeSetAsRoot = {
+              ...path[path.length - 1],
+              path
+            }
+          }
+        }
       }
     }
 
-    await this.context.setState({
+    await this.setState({
       nodeSetAsRoot,
       loaded: false
     })
+
     await this._saveSettings()
     await this.load()
   }
@@ -278,10 +339,10 @@ export default class BrowserController {
   }
 
   async changeAutoShowSelectedObject() {
-    let { autoShowSelectedObject } = this.context.getState()
+    let { autoShowSelectedObject } = this.getState()
 
     autoShowSelectedObject = !autoShowSelectedObject
-    await this.context.setState({
+    await this.setState({
       autoShowSelectedObject
     })
 
@@ -291,7 +352,7 @@ export default class BrowserController {
   }
 
   async showSelectedObject() {
-    const { autoShowSelectedObject } = this.context.getState()
+    const { autoShowSelectedObject } = this.getState()
     if (autoShowSelectedObject) {
       await this._getTreeController().showSelectedObject(
         this.isFullTreeVisible()
@@ -316,12 +377,12 @@ export default class BrowserController {
   }
 
   isLoaded() {
-    const { loaded } = this.context.getState()
+    const { loaded } = this.getState()
     return loaded
   }
 
   isLoading() {
-    const { loading } = this.context.getState()
+    const { loading } = this.getState()
     return loading
   }
 
@@ -334,8 +395,16 @@ export default class BrowserController {
   }
 
   getNodeSetAsRoot() {
-    const { nodeSetAsRoot } = this.context.getState()
+    const { nodeSetAsRoot } = this.getState()
     return nodeSetAsRoot
+  }
+
+  getNode(nodeId) {
+    return this._getTreeController().getNode(nodeId)
+  }
+
+  getNodes() {
+    return this._getTreeController().getNodes()
   }
 
   getSelectedObject() {
@@ -343,7 +412,7 @@ export default class BrowserController {
   }
 
   isAutoShowSelectedObject() {
-    const { autoShowSelectedObject } = this.context.getState()
+    const { autoShowSelectedObject } = this.getState()
     return autoShowSelectedObject
   }
 
@@ -368,12 +437,12 @@ export default class BrowserController {
   }
 
   getFilter() {
-    const { filter } = this.context.getState()
+    const { filter } = this.getState()
     return filter
   }
 
   _getTreeController() {
-    const { filter } = this.context.getState()
+    const { filter } = this.getState()
     if (util.trim(filter)) {
       return this.filteredTreeController
     } else {
@@ -382,13 +451,7 @@ export default class BrowserController {
   }
 
   async _loadSettings() {
-    const props = this.context.getProps()
-
-    if (!props.loadSettings) {
-      return {}
-    }
-
-    const loaded = await props.loadSettings()
+    const loaded = await this.loadSettings()
 
     if (!loaded || !_.isObject(loaded)) {
       return {}
@@ -402,10 +465,6 @@ export default class BrowserController {
 
     if (_.isObject(loaded.common)) {
       const common = {}
-
-      if (_.isObject(loaded.common.nodeSetAsRoot)) {
-        common.nodeSetAsRoot = loaded.common.nodeSetAsRoot
-      }
 
       if (_.isBoolean(loaded.common.autoShowSelectedObject)) {
         common.autoShowSelectedObject = loaded.common.autoShowSelectedObject
@@ -426,29 +485,21 @@ export default class BrowserController {
   }
 
   async _saveSettings() {
-    const { onSettingsChange } = this.context.getProps()
+    const state = this.getState()
 
-    if (onSettingsChange) {
-      const state = this.context.getState()
-
-      const settings = {
-        common: {
-          nodeSetAsRoot: state.nodeSetAsRoot,
-          autoShowSelectedObject: state.autoShowSelectedObject
-        },
-        fullTree: this.settings.fullTree || {},
-        filteredTree: this.settings.filteredTree || {}
-      }
-
-      await onSettingsChange(settings)
+    const settings = {
+      common: {
+        autoShowSelectedObject: state.autoShowSelectedObject
+      },
+      fullTree: this.settings.fullTree || {},
+      filteredTree: this.settings.filteredTree || {}
     }
+
+    await this.onSettingsChange(settings)
   }
 
   _onError(error) {
-    const { onError } = this.context.getProps()
-    if (onError) {
-      onError(error)
-    }
+    this.onError(error)
     throw error
   }
 }

@@ -26,31 +26,23 @@ export default class UserBrowserControllerLoadNodes {
 
         if (totalCount > UserBrowserCommon.TOTAL_LOAD_LIMIT) {
           return {
-            nodes: [BrowserCommon.tooManyResultsFound(node.id)]
+            nodes: [BrowserCommon.tooManyResultsFound()]
           }
         }
 
         const nodes = []
 
         if (!_.isEmpty(users.objects)) {
-          const folderNode = UserBrowserCommon.usersFolderNode(node.id)
-          const usersNodes = this.createNodes(
-            folderNode,
-            users,
-            objectType.USER
-          )
+          const folderNode = UserBrowserCommon.usersFolderNode()
+          const usersNodes = this.createNodes(users, objectType.USER)
           folderNode.children = usersNodes
           folderNode.expanded = true
           nodes.push(folderNode)
         }
 
         if (!_.isEmpty(groups.objects)) {
-          const folderNode = UserBrowserCommon.groupsFolderNode(node.id)
-          const groupsNodes = this.createNodes(
-            folderNode,
-            groups,
-            objectType.USER_GROUP
-          )
+          const folderNode = UserBrowserCommon.groupsFolderNode()
+          const groupsNodes = this.createNodes(groups, objectType.USER_GROUP)
           folderNode.children = groupsNodes
           folderNode.expanded = true
           nodes.push(folderNode)
@@ -62,8 +54,8 @@ export default class UserBrowserControllerLoadNodes {
       } else {
         return {
           nodes: [
-            UserBrowserCommon.usersFolderNode(node.id),
-            UserBrowserCommon.groupsFolderNode(node.id)
+            UserBrowserCommon.usersFolderNode(),
+            UserBrowserCommon.groupsFolderNode()
           ]
         }
       }
@@ -76,7 +68,7 @@ export default class UserBrowserControllerLoadNodes {
         objects = await this.searchGroups(params)
       }
 
-      return this.createNodes(node, objects, node.object.id)
+      return this.createNodes(objects, node.object.id)
     }
 
     return {
@@ -171,9 +163,8 @@ export default class UserBrowserControllerLoadNodes {
     }
   }
 
-  createNodes(parent, result, objectType) {
+  createNodes(result, objectType) {
     const nodes = result.objects.map(object => ({
-      id: BrowserCommon.nodeId(parent.id, object.id),
       text: object.text,
       object: {
         type: objectType,
