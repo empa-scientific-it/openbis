@@ -369,7 +369,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     {
         assertDataSetNotStoredProcess(DATA_SET_CODE);
 
-        assertNoOriginalMarkerFileExists();
+        assertOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
@@ -1005,8 +1005,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         assertDataSetNotStoredProcess(DATA_SET_CODE);
 
-        // no recovery is triggered - files are moved to the faulty paths/marker file is deleted
-        assertNoOriginalMarkerFileExists();
+        assertOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
         assertDirEmpty(precommitDirectory);
