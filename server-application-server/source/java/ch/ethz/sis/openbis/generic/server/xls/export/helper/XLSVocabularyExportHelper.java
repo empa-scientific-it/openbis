@@ -41,14 +41,23 @@ import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
+    protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
+
     public XLSVocabularyExportHelper(final Workbook wb)
     {
         super(wb);
+    }
+
+    public static void setAllVersions(final Map<String, Integer> allVersions)
+    {
+        XLSVocabularyExportHelper.allVersions = allVersions;
     }
 
     @Override
@@ -155,8 +164,12 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
             for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
             {
                 warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE,
-                        permId, "1", vocabularyTerm.getCode(),
-                        vocabularyTerm.getLabel(), vocabularyTerm.getDescription()));
+                        permId,
+                        String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, vocabularyTerm.getCode(),
+                                vocabulary.getCode())),
+                        vocabularyTerm.getCode(),
+                        vocabularyTerm.getLabel(),
+                        vocabularyTerm.getDescription()));
             }
 
             return new AdditionResult(rowNumber + 1, warnings);
@@ -177,8 +190,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         {
             case VERSION:
             {
-                // TODO: implement
-                return "1";
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, null, vocabulary.getCode()));
             }
             case CODE:
             {

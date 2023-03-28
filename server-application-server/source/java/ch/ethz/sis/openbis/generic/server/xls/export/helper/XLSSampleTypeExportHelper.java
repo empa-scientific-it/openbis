@@ -38,6 +38,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper<SampleType>
 {
@@ -99,8 +101,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
             }
             case VERSION:
             {
-                // TODO: implement
-                return "1";
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.SAMPLE_TYPE, null, sampleType.getCode()));
             }
             case AUTO_GENERATE_CODES:
             {

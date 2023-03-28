@@ -36,6 +36,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelper<DataSetType>
 {
@@ -72,29 +74,27 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
     }
 
     @Override
-    protected String getAttributeValue(final DataSetType entityType, final Attribute attribute)
+    protected String getAttributeValue(final DataSetType dataSetType, final Attribute attribute)
     {
         switch (attribute)
         {
             case CODE:
             {
-                return entityType.getCode();
+                return dataSetType.getCode();
             }
             case DESCRIPTION:
             {
-                return entityType.getDescription();
+                return dataSetType.getDescription();
             }
             case VALIDATION_SCRIPT:
             {
-                final Plugin validationPlugin = entityType.getValidationPlugin();
-                return validationPlugin != null
-                        ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
+                final Plugin validationPlugin = dataSetType.getValidationPlugin();
+                return validationPlugin != null ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
             }
             case VERSION:
             {
-                // TODO: implement
-                return "1";
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.DATASET_TYPE, null, dataSetType.getCode()));
             }
             default:
             {

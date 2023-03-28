@@ -36,6 +36,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHelper<ExperimentType>
 {
@@ -73,8 +75,7 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
             }
             case VERSION:
             {
-                // TODO: implement
-                return "1";
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.EXPERIMENT_TYPE, null, experimentType.getCode()));
             }
             default:
             {

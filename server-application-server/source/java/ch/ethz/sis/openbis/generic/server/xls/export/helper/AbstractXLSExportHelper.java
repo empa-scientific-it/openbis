@@ -156,60 +156,6 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         return warnings;
     }
 
-    protected AdditionResult addEntityTypePropertyAssignments(int rowNumber,
-            final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
-            final String permId, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
-            final boolean compatibleWithImport)
-    {
-        final Collection<String> warnings = new ArrayList<>(
-                addRow(rowNumber++, true, exportableKind, permId, compatibleWithImport
-                        ? ENTITY_ASSIGNMENT_COLUMNS
-                        : Arrays.copyOfRange(ENTITY_ASSIGNMENT_COLUMNS, 1, ENTITY_ASSIGNMENT_COLUMNS.length)));
-        for (final PropertyAssignment propertyAssignment : propertyAssignments)
-        {
-            final PropertyType propertyType = propertyAssignment.getPropertyType();
-            final Plugin plugin = propertyAssignment.getPlugin();
-            final Vocabulary vocabulary = propertyType.getVocabulary();
-
-            final String[] values = { "1", propertyType.getCode(),
-                    String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
-                    String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
-                    propertyAssignment.getSection(),
-                    propertyType.getLabel(),
-                    getFullDataTypeString(propertyType),
-                    String.valueOf(vocabulary != null ? vocabulary.getCode() : ""),
-                    propertyType.getDescription(),
-                    mapToJSON(propertyType.getMetaData()),
-                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "" };
-            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId,
-                    compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
-        }
-        return new AdditionResult(rowNumber, warnings);
-    }
-
-    private String getFullDataTypeString(final PropertyType propertyType)
-    {
-        final String dataTypeString = String.valueOf(propertyType.getDataType());
-        switch (propertyType.getDataType())
-        {
-            case SAMPLE:
-            {
-                return dataTypeString +
-                        ((propertyType.getSampleType() != null) ? ':' + propertyType.getSampleType().getCode() : "");
-            }
-            case MATERIAL:
-            {
-                return dataTypeString +
-                        ((propertyType.getMaterialType() != null)
-                                ? ':' + propertyType.getMaterialType().getCode() : "");
-            }
-            default:
-            {
-                return dataTypeString;
-            }
-        }
-    }
-
     @Override
     public ENTITY_TYPE getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
     {

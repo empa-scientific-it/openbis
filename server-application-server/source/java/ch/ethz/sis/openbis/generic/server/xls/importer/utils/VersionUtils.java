@@ -15,10 +15,32 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 
+import java.util.Collections;
 import java.util.Map;
+
+import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.handler.VersionInfoHandler;
 
 public class VersionUtils
 {
+
+    public static Map<String, Integer> loadAllVersions() {
+        final ImportOptions importOptions = new ImportOptions();
+        importOptions.setIgnoreVersioning(false);
+        return Collections.unmodifiableMap(VersionInfoHandler.loadAllVersions(importOptions));
+    }
+
+    public static int getStoredVersion(final Map<String, Integer> versions, final ImportTypes importType, final String vocabularyCodeOrNull,
+            final String typeCode)
+    {
+        String importTypeAsString = importType.getType();
+        if (importType == ImportTypes.VOCABULARY_TERM) {
+            importTypeAsString += "-" + vocabularyCodeOrNull;
+        }
+        return versions.getOrDefault(VersionUtils.getKey(importTypeAsString, typeCode), 0);
+    }
+
     public static Integer getStoredVersion(Map<String, Integer> versions, String prefix, String creationCode)
     {
         String key = getKey(prefix, creationCode);
@@ -44,7 +66,7 @@ public class VersionUtils
         }
     }
 
-    private static String getKey(String prefix, String creationCode)
+    public static String getKey(String prefix, String creationCode)
     {
         String key = String.format("%s-%s", prefix, creationCode);
         return key.toUpperCase();

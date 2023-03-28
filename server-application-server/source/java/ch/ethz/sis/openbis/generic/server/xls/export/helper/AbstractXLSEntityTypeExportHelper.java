@@ -32,17 +32,31 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
+
+    protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
+
     public AbstractXLSEntityTypeExportHelper(final Workbook wb)
     {
         super(wb);
+    }
+
+    public static void setAllVersions(final Map<String, Integer> allVersions)
+    {
+        AbstractXLSEntityTypeExportHelper.allVersions = allVersions;
     }
 
     @Override
@@ -156,10 +170,66 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
         }
     }
 
+    protected AdditionResult addEntityTypePropertyAssignments(int rowNumber,
+            final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
+            final String permId, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
+            final boolean compatibleWithImport)
+    {
+        final Collection<String> warnings = new ArrayList<>(
+                addRow(rowNumber++, true, exportableKind, permId, compatibleWithImport
+                        ? ENTITY_ASSIGNMENT_COLUMNS
+                        : Arrays.copyOfRange(ENTITY_ASSIGNMENT_COLUMNS, 1, ENTITY_ASSIGNMENT_COLUMNS.length)));
+        for (final PropertyAssignment propertyAssignment : propertyAssignments)
+        {
+            final PropertyType propertyType = propertyAssignment.getPropertyType();
+            final Plugin plugin = propertyAssignment.getPlugin();
+            final Vocabulary vocabulary = propertyType.getVocabulary();
+
+            final String[] values = {
+                    String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.PROPERTY_TYPE, null, propertyType.getCode())),
+                    propertyType.getCode(),
+                    String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
+                    String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
+                    propertyAssignment.getSection(),
+                    propertyType.getLabel(),
+                    getFullDataTypeString(propertyType),
+                    String.valueOf(vocabulary != null ? vocabulary.getCode() : ""),
+                    propertyType.getDescription(),
+                    mapToJSON(propertyType.getMetaData()),
+                    plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "" };
+            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId,
+                    compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
+        }
+        return new AdditionResult(rowNumber, warnings);
+    }
+
+    private String getFullDataTypeString(final PropertyType propertyType)
+    {
+        final String dataTypeString = String.valueOf(propertyType.getDataType());
+        switch (propertyType.getDataType())
+        {
+            case SAMPLE:
+            {
+                return dataTypeString +
+                        ((propertyType.getSampleType() != null) ? ':' + propertyType.getSampleType().getCode() : "");
+            }
+            case MATERIAL:
+            {
+                return dataTypeString +
+                        ((propertyType.getMaterialType() != null)
+                                ? ':' + propertyType.getMaterialType().getCode() : "");
+            }
+            default:
+            {
+                return dataTypeString;
+            }
+        }
+    }
+
     protected abstract Attribute[] getAttributes(final ENTITY_TYPE entityType);
 
     protected abstract String getAttributeValue(final ENTITY_TYPE entityType, final Attribute attribute);
-    
+
     protected abstract ExportableKind getExportableKind();
 
 }
