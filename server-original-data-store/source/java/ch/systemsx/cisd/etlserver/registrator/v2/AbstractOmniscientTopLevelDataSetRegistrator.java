@@ -383,8 +383,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         {
                             return true;
                         }
-                        return state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
-                                incomingDataSetFileOrIsFinishedFile);
+                        return didOperationSucceed ? state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
+                                incomingDataSetFileOrIsFinishedFile) : true;
                     }
                 };
         } else
