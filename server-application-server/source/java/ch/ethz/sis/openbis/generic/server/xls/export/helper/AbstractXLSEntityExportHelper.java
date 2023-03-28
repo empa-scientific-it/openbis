@@ -91,7 +91,9 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 // Headers
                 final Attribute[] importableAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isImportable)
                         .toArray(Attribute[]::new);
-                final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
+                final Attribute[] defaultPossibleAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isIncludeInDefaultList)
+                        .toArray(Attribute[]::new);
+                final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
 
                 final String[] fieldHeaders = Stream.concat(
                         Arrays.stream(attributes).map(Attribute::getName),

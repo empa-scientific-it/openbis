@@ -20,69 +20,69 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 public enum Attribute
 {
 
-    $("$", true, true),
+    $("$", true, true, false),
 
-    ARCHIVING_STATUS("Archiving status", false, false),
+    ARCHIVING_STATUS("Archiving status", false, false, true),
 
-    AUTO_GENERATE_CODES("Auto generate codes", true, true),
+    AUTO_GENERATE_CODES("Auto generate codes", true, true, false),
 
-    CHILDREN("Children", true, false),
+    CHILDREN("Children", true, false, true),
 
-    CODE("Code", true, true),
+    CODE("Code", true, true, true),
 
-    DESCRIPTION("Description", true, true),
+    DESCRIPTION("Description", true, true, true),
 
-    DISALLOW_DELETION("Disallow Deletion", false, false),
+    DISALLOW_DELETION("Disallow Deletion", false, false, true),
 
-    EXPERIMENT("Experiment", true, false),
+    EXPERIMENT("Experiment", true, false, true),
 
-    GENERATE_CODES("Generate Codes", false, false),
+    GENERATE_CODES("Generate Codes", false, false, true),
 
-    GENERATED_CODE_PREFIX("Generated code prefix", true, true),
+    GENERATED_CODE_PREFIX("Generated code prefix", true, true, true),
 
-    IDENTIFIER("Identifier", true, true),
+    IDENTIFIER("Identifier", true, true, true),
 
-    LABEL("Label", true, true),
+    LABEL("Label", true, true, true),
 
-    MAIN_DATA_SET_PATH("Main Data Set Path", false, false),
+    MAIN_DATA_SET_PATH("Main Data Set Path", false, false, true),
 
-    MAIN_DATA_SET_PATTERN("Main Data Set Pattern", false, false),
+    MAIN_DATA_SET_PATTERN("Main Data Set Pattern", false, false, true),
 
-    MODIFICATION_DATE("Modification Date", false, false),
+    MODIFICATION_DATE("Modification Date", false, false, true),
 
-    MODIFIER("Modifier", false, false),
+    MODIFIER("Modifier", false, false, true),
 
-    ONTOLOGY_ID("Ontology ID", true, false),
+    ONTOLOGY_ID("Ontology ID", true, false, true),
 
-    ONTOLOGY_VERSION("Ontology Version", true, false),
+    ONTOLOGY_VERSION("Ontology Version", true, false, true),
 
-    ONTOLOGY_ANNOTATION_ID("Ontology Annotation Id", true, false),
+    ONTOLOGY_ANNOTATION_ID("Ontology Annotation Id", true, false, true),
 
-    PARENTS("Parents", true, false),
+    PARENTS("Parents", true, false, true),
 
-    PERM_ID("PermId", false, false),
+    PERM_ID("PermId", false, false, true),
 
-    PRESENT_IN_ARCHIVE("Present in archive", true, false),
+    PRESENT_IN_ARCHIVE("Present in archive", true, false, true),
 
-    PROJECT("Project", true, true),
+    PROJECT("Project", true, true, true),
 
-    REGISTRATION_DATE("Registration Date", false, false),
+    REGISTRATION_DATE("Registration Date", false, false, true),
 
-    REGISTRATOR("Registrator", false, false),
+    REGISTRATOR("Registrator", false, false, true),
 
-    SAMPLE("Sample", false, false),
+    SAMPLE("Sample", false, false, true),
 
-    SPACE("Space", true, true),
+    SPACE("Space", true, true, true),
 
-    STORAGE_CONFIRMATION("Storage confirmation", false, false),
+    STORAGE_CONFIRMATION("Storage confirmation", false, false, true),
 
-    UNIQUE_SUBCODES("Unique Subcodes", false, false),
+    UNIQUE_SUBCODES("Unique Subcodes", false, false, true),
 
-    URL_TEMPLATE("URL Template", false, false),
+    URL_TEMPLATE("URL Template", false, false, true),
 
-    VALIDATION_SCRIPT("Validation script", true, true),
+    VALIDATION_SCRIPT("Validation script", true, true, true),
 
-    VERSION("Version", true, true);
+    VERSION("Version", true, true, false);
 
     final String name;
 
@@ -90,11 +90,14 @@ public enum Attribute
 
     final boolean requiredForImport;
 
-    Attribute(final String name, final boolean importable, final boolean requiredForImport)
+    final boolean includeInDefaultList;
+
+    Attribute(final String name, final boolean importable, final boolean requiredForImport, final boolean includeInDefaultList)
     {
         this.name = name;
         this.importable = importable;
         this.requiredForImport = requiredForImport;
+        this.includeInDefaultList = includeInDefaultList;
     }
 
     public String getName()
@@ -112,4 +115,8 @@ public enum Attribute
         return requiredForImport;
     }
 
+    public boolean isIncludeInDefaultList()
+    {
+        return includeInDefaultList;
+    }
 }
