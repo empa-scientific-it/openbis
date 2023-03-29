@@ -12,15 +12,17 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from .property import PropertyHolder
+from collections import defaultdict
+
 from .attribute import AttrHolder
-from .utils import VERBOSE
 from .definitions import (
     get_definition_for_entity,
     get_type_for_entity,
     get_method_for_entity,
 )
-from collections import defaultdict
+from .property import PropertyHolder
+from .property_reformatter import PropertyReformatter
+from .utils import VERBOSE
 
 
 class OpenBisObject:
@@ -39,6 +41,7 @@ class OpenBisObject:
         self.__dict__["type"] = type
         self.__dict__["p"] = PropertyHolder(openbis_obj, type)
         self.__dict__["a"] = AttrHolder(openbis_obj, self._entity, type)
+        self.__dict__["formatter"] = PropertyReformatter(openbis_obj)
 
         # existing OpenBIS object
         if data is not None:
@@ -196,7 +199,7 @@ class OpenBisObject:
                             f"Property '{prop_name}' is mandatory and must not be None"
                         )
 
-            props = self.p._all_props()
+            props = self.formatter.format(self.p._all_props())
 
         # NEW
         if self.is_new:

@@ -13,9 +13,9 @@
 #   limitations under the License.
 #
 from .attribute import AttrHolder
-from .definitions import openbis_definitions
 from .openbis_object import OpenBisObject
 from .property import PropertyHolder
+from .property_reformatter import PropertyReformatter
 from .utils import VERBOSE
 
 
@@ -23,7 +23,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
     """A Sample (new: Object) is one of the most commonly used entities in openBIS."""
 
     def __init__(
-        self, openbis_obj, type, project=None, data=None, props=None, attrs=None, **kwargs
+            self, openbis_obj, type, project=None, data=None, props=None, attrs=None, **kwargs
     ):
         self.__dict__["openbis"] = openbis_obj
         self.__dict__["type"] = type
@@ -31,6 +31,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
         self.__dict__["p"] = ph
         self.__dict__["props"] = ph
         self.__dict__["a"] = AttrHolder(openbis_obj, "sample", type)
+        self.__dict__["formatter"] = PropertyReformatter(openbis_obj)
 
         if data is not None:
             self._set_data(data)
@@ -227,8 +228,8 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                 for prop_name, prop in self.props._property_names.items():
                     if prop["mandatory"]:
                         if (
-                            getattr(self.props, prop_name) is None
-                            or getattr(self.props, prop_name) == ""
+                                getattr(self.props, prop_name) is None
+                                or getattr(self.props, prop_name) == ""
                         ):
                             raise ValueError(
                                 f"Property '{prop_name}' is mandatory and must not be None"
@@ -236,6 +237,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
 
             sampleProject = self.project.code if self.project else None
             sampleExperiment = self.experiment.code if self.experiment else None
+            properties = PropertyReformatter(self.openbis).format(self.props())
 
             request = {
                 "method": "createReportFromAggregationService",
@@ -250,7 +252,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                         "sampleExperiment": sampleExperiment,
                         "sampleCode": self.code,
                         "sampleType": self.type.code,
-                        "sampleProperties": self.props(),
+                        "sampleProperties": properties,
                         "sampleParents": self.parents,
                         "sampleParentsNew": None,
                         "sampleChildrenNew": self.children,
