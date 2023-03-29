@@ -24,7 +24,9 @@ public enum Attribute
 
     ARCHIVING_STATUS("Archiving status", false, false, true),
 
-    AUTO_GENERATE_CODES("Auto generate codes", true, true, false),
+    AUTO_GENERATE_CODES("Auto generate codes", true, true, true),
+
+    AUTO_GENERATE_CODE("Auto generate code", true, true, false),
 
     CHILDREN("Children", true, false, true),
 

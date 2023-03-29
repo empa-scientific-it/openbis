@@ -16,7 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.$;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODES;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CHILDREN;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -86,7 +85,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     @Override
     protected Attribute[] getAttributes(final Sample entity)
     {
-        return new Attribute[] { $, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, AUTO_GENERATE_CODES, PARENTS, CHILDREN,
+        return new Attribute[] { $, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, AUTO_GENERATE_CODE, PARENTS, CHILDREN,
                 REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
@@ -165,7 +164,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
             {
                 return "";
             }
-            case AUTO_GENERATE_CODES:
+            case AUTO_GENERATE_CODE:
             {
                 return "FALSE";
             }

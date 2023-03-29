@@ -183,7 +183,7 @@ public class XLSExportData
                                     false
                             },
                             {
-                                    "export-vocabulary.xlsx",
+                                    "export-vocabulary-compatible-with-import.xlsx",
                                     Map.of(),
                                     VocabularyExpectations.class,
                                     List.of(new ExportablePermId(VOCABULARY_TYPE,
@@ -375,7 +375,7 @@ public class XLSExportData
                                     true
                             },
                             {
-                                    "export-sample-type-with-vocabulary-property.xlsx",
+                                    "export-sample-type-with-vocabulary-property-compatible-with-import.xlsx",
                                     Map.of(),
                                     SampleTypeWithVocabularyPropertyExpectations.class,
                                     List.of(

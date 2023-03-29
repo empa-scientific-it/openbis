@@ -87,7 +87,9 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                 // Headers
                 final Attribute[] importableAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isImportable)
                         .toArray(Attribute[]::new);
-                final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
+                final Attribute[] defaultPossibleAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isIncludeInDefaultList)
+                        .toArray(Attribute[]::new);
+                final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));

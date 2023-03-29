@@ -48,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
+    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Label", "Description" };
+
     protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
 
     public XLSVocabularyExportHelper(final Workbook wb)
@@ -88,7 +90,9 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 // Headers
                 final Attribute[] importableAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isImportable)
                         .toArray(Attribute[]::new);
-                final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
+                final Attribute[] defaultPossibleAttributes = Arrays.stream(possibleAttributes).filter(Attribute::isIncludeInDefaultList)
+                        .toArray(Attribute[]::new);
+                final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
                 warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
@@ -158,18 +162,21 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, entityValues));
             }
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId,
-                    "Version", "Code", "Label", "Description"));
+
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, compatibleWithImport
+                    ? VOCABULARY_ASSIGNMENT_COLUMNS
+                    : Arrays.copyOfRange(VOCABULARY_ASSIGNMENT_COLUMNS, 1, VOCABULARY_ASSIGNMENT_COLUMNS.length)));
 
             for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
             {
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE,
-                        permId,
+                final String[] values = {
                         String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, vocabularyTerm.getCode(),
                                 vocabulary.getCode())),
                         vocabularyTerm.getCode(),
                         vocabularyTerm.getLabel(),
-                        vocabularyTerm.getDescription()));
+                        vocabularyTerm.getDescription() };
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId,
+                        compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
             }
 
             return new AdditionResult(rowNumber + 1, warnings);
