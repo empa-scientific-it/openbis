@@ -894,6 +894,21 @@ public class XLSExportData
                                     false
                             },
                             {
+                                    "empty.xlsx",
+                                    Map.of(),
+                                    DataSetExpectations.class,
+                                    List.of(
+                                            new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
+                                            new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
+                                            new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
+                                    ),
+                                    true,
+                                    EXPORT_FIELDS,
+                                    XLSExport.TextFormatting.RICH,
+                                    List.of(),
+                                    true
+                            },
+                            {
                                     "export-data-set-rich-text.xlsx",
                                     Map.of(),
                                     DataSetExpectations.class,
