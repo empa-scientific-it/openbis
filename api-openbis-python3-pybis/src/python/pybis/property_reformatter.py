@@ -45,12 +45,9 @@ class PropertyReformatter:
 
         for key, value in properties.items():
             property_type = self.openbis.get_property_type(key)
-            match property_type.dataType:
-                case 'TIMESTAMP':
-                    properties[key] = self._format_timestamp(value)
-                case _:
-                    pass
-
+            if property_type.dataType == 'TIMESTAMP':
+                properties[key] = self._format_timestamp(value)
+                
         return properties
 
     def _format_timestamp(self, value):
