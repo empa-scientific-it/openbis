@@ -21,7 +21,7 @@ def export(context, parameters):
                 "file_name": "<file name>", - prefix of the file name to be exported
                 "ids": [
                     {
-                        "exportable_kind": "<SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY |
+                        "exportable_kind": "<SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY_TYPE |
                 SPACE | PROJECT | SAMPLE | EXPERIMENT | DATASET>", - entity kind to export
                         "perm_id": "<permID>" - permId of the exportable
                     },
@@ -31,12 +31,11 @@ def export(context, parameters):
                         the properties of type sample
                 "export_fields": { - everything in this section is optional
                     "TYPE": {
-                        "SAMPLE_TYPE": [
+                        "<SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY_TYPE | SPACE | PROJECT>": [
                           {"type": "ATTRIBUTE", "id": "<attribute name>"},
                           ...
-                        ] - attribute for each type to be exported,
-                            if the list is empty no attributes will be exported
-                            for the given type
+                        ] - attribute for each type and entity without types to be exported,
+                            if the list is empty no attributes will be exported for the given one
                         ...
                     },
                     "SAMPLE": {
@@ -69,6 +68,7 @@ def export(context, parameters):
                 },
                 "text_formatting": "<PLAIN, RICH>" - if PLAIN, XML tags will be removed from all properties
                     of type MULTILINE_VARCHAR
+                "compatible_with_import": true | false - whether this export is intended to be used for import
             }
         :return: Openbis's execute operations result string. Contains either the error message or the exported file name
             in the session workspace.
@@ -96,9 +96,10 @@ def export(context, parameters):
         session_token = context.getSessionToken()
         api = context.getApplicationService()
         text_formatting = XLSExport.TextFormatting.valueOf(parameters.get("text_formatting"))
+        compatible_with_import = parameters.get("compatible_with_import")
         xls_import_result = XLSExport.export(file_name, api, session_token, vocabularies,
                                              parameters.get("export_referred_master_data"), export_fields,
-                                             text_formatting)
+                                             text_formatting, compatible_with_import)
     except Exception as e:
         return {"status": "error", "message": str(e)}
     return {"status": "OK", "result": {
