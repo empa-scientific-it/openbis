@@ -22,7 +22,7 @@ import pybis
 from .. import config as dm_config
 from ..command_result import CommandException
 from ..command_result import CommandResult
-from ..utils import complete_openbis_config
+from ..utils import complete_openbis_config, OperationType
 
 
 class OpenbisCommand(object):
@@ -225,8 +225,7 @@ class OpenbisCommand(object):
         # ask user
         hostname = self.ask_for_hostname(socket.gethostname())
         # store
-        self.data_mgmt.config('config', True, False,
-                              prop='hostname', value=hostname, set=True)
+        self.data_mgmt.config('config', True, False, OperationType.SET, prop='hostname', value=hostname)
         return hostname
 
     def ask_for_hostname(self, hostname):
