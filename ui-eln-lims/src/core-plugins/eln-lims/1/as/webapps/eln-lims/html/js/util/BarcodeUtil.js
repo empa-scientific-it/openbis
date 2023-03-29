@@ -30,6 +30,11 @@ var BarcodeUtil = new function() {
         }
     }
 
+    this.readSample = function(barcodeReaderInput) {
+        barcodeReader = barcodeReaderInput;
+        readSample();
+    }
+
     var barcodeReaderEventListener = function(action) {
         return function(event) {
             if(!barcodeTimeout) {
