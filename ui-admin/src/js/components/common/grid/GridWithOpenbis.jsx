@@ -82,7 +82,7 @@ export default class GridWithOpenbis extends React.PureComponent {
     )
     serviceOptions.withParameter('export_fields', exportedFields)
     serviceOptions.withParameter('text_formatting', exportedValues)
-    serviceOptions.withParameter('import_compatible', exportedImportCompatible)
+    serviceOptions.withParameter('compatible_with_import', exportedImportCompatible)
 
     const sessionToken = AppController.getInstance().getSessionToken()
     const exportResult = await openbis.executeService(serviceId, serviceOptions)

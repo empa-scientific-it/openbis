@@ -1,3 +1,3 @@
 var DataGridExportOptions = new (function () {
-    Object.assign(this, window.NgUiGrid.default.GridExportOptions)
+    Object.assign(this, window.NgComponents.default.GridExportOptions)
 })()

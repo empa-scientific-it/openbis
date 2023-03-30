@@ -205,7 +205,7 @@ class TypeSearch extends React.Component {
       .map(object => ({
         id: object.code,
         exportableId: {
-          exportable_kind: GridExportOptions.EXPORTABLE_KIND.VOCABULARY,
+          exportable_kind: GridExportOptions.EXPORTABLE_KIND.VOCABULARY_TYPE,
           perm_id: object.getPermId().getPermId()
         },
         code: object.code,

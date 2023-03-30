@@ -70,7 +70,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 				dataList.push({
 					id: vocabulary.code,
 					exportableId : {
-						exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.VOCABULARY,
+						exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.VOCABULARY_TYPE,
 						perm_id: vocabulary.code
 					},
 					code : codeDiv,
