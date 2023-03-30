@@ -84,6 +84,8 @@ public class SingleSignOnServlet extends AbstractServlet
 
     public static final String DEFAULT_REDIRECT_URL = "webapp/eln-lims";
 
+    private static final String SINGLE_SIGN_ON_ENABLED_PROPERTY = "single-sign-on.enabled";
+
     private static final String SINGLE_SIGN_ON_REDIRECT_URL_TEMPLATE_PROPERTY = "single-sign-on.redirect-url-template";
 
     private static final String DEFAULT_SINGLE_SIGN_ON_REDIRECT_URL_TEMPLATE = "https://${host}/openbis/webapp/eln-lims";
@@ -103,9 +105,12 @@ public class SingleSignOnServlet extends AbstractServlet
 
     private Template template;
 
+    private boolean enabled;
+
     @Override
     protected void initServletContext(ServletContext servletContext)
     {
+        enabled = Boolean.parseBoolean(configurer.getResolvedProps().getProperty(SINGLE_SIGN_ON_ENABLED_PROPERTY, Boolean.toString(Boolean.FALSE)));
         template = new Template(configurer.getResolvedProps().getProperty(SINGLE_SIGN_ON_REDIRECT_URL_TEMPLATE_PROPERTY,
                 DEFAULT_SINGLE_SIGN_ON_REDIRECT_URL_TEMPLATE));
         template.createFreshCopy().bind("host", ""); // Check that template contains '${host}'
@@ -116,6 +121,10 @@ public class SingleSignOnServlet extends AbstractServlet
     protected void respondToRequest(HttpServletRequest request, HttpServletResponse response) throws Exception, IOException
     {
         operationLog.info("handle sso event");
+        if (!enabled) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         removeStaleSessions();
         String sessionId = getHeader(request, SESSION_ID_KEY, DEFAULT_SESSION_ID_KEY);
         synchronized (this)
