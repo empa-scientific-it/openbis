@@ -1581,7 +1581,7 @@ function MainController(profile) {
 								}
 								
 								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, {
-									fileFormat: 'TSV',
+									fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 									filePrefix: 'search-' + searchDomainLabel
 								}, 90);
 								localReference.currentView = dataGrid;
@@ -1712,7 +1712,7 @@ function MainController(profile) {
 									}
 									
 									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, {
-										fileFormat: 'TSV',
+										fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 										filePrefix: 'search-' + searchDomainLabel
 									}, 90);
 									localReference.currentView = dataGrid;
@@ -1888,7 +1888,7 @@ function MainController(profile) {
 			}
 			
 			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, {
-				fileFormat: 'TSV',
+				fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 				filePrefix: 'search'
 			}, 90);
 			localReference.currentView = dataGrid;

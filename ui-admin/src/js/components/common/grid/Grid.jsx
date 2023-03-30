@@ -238,6 +238,8 @@ class Grid extends React.PureComponent {
       return null
     }
 
+    const visibleColumns = this.controller.getVisibleColumns()
+
     return (
       <GridExports
         id={id}
@@ -246,6 +248,7 @@ class Grid extends React.PureComponent {
         exportOptions={exportOptions}
         multiselectable={multiselectable}
         multiselectedRows={multiselectedRows}
+        visibleColumns={visibleColumns}
         onExport={this.controller.handleExport}
         onExportOptionsChange={this.controller.handleExportOptionsChange}
       />

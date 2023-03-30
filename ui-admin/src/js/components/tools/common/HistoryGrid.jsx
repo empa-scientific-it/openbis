@@ -225,12 +225,12 @@ class HistoryGrid extends React.PureComponent {
 
     if (eventType === openbis.EventType.DELETION) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'deletion-history'
       }
     } else if (eventType === openbis.EventType.FREEZING) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'freezing-history'
       }
     }

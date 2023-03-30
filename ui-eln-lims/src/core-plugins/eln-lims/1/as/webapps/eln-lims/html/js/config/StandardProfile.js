@@ -413,7 +413,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						}
 						
 						var orderSummary = new DataGridController(repTitle, columns, [], null, getDataRows, null, false, "ORDER_SUMMARY", false, {
-							fileFormat: 'TSV',
+							fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 							filePrefix: 'order-summary'
 						}, 30);
 						orderSummary.init(orderSummaryContainer);

@@ -253,7 +253,7 @@ class PersonalAccessTokensGrid extends React.PureComponent {
         ]}
         selectable={true}
         exportable={{
-          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.TSV,
           filePrefix: 'personal-access-tokens'
         }}
         selectedRowId={selectedRowId}

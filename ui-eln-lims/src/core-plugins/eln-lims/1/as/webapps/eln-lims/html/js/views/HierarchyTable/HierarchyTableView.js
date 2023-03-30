@@ -167,7 +167,7 @@ function HierarchyTableView(controller, model) {
 		}
 		
 		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, this._model.entity["@type"] + "_HIERARCHY_TABLE", false, {
-			fileFormat: 'TSV',
+			fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 			filePrefix: 'hierarchy'
 		}, 90);
 		this._dataGrid.init(this._container);

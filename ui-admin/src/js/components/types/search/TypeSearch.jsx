@@ -75,7 +75,7 @@ class TypeSearch extends React.Component {
       .map(object => ({
         id: _.get(object, 'code'),
         exportableId: {
-          exportable_kind: 'SAMPLE_TYPE',
+          exportable_kind: GridExportOptions.EXPORTABLE_KIND.SAMPLE_TYPE,
           perm_id: object.getPermId().getPermId()
         },
         code: _.get(object, 'code'),
@@ -110,7 +110,7 @@ class TypeSearch extends React.Component {
       .map(object => ({
         id: _.get(object, 'code'),
         exportableId: {
-          exportable_kind: 'EXPERIMENT_TYPE',
+          exportable_kind: GridExportOptions.EXPORTABLE_KIND.EXPERIMENT_TYPE,
           perm_id: object.getPermId().getPermId()
         },
         code: _.get(object, 'code'),
@@ -142,7 +142,7 @@ class TypeSearch extends React.Component {
       .map(object => ({
         id: _.get(object, 'code'),
         exportableId: {
-          exportable_kind: 'DATASET_TYPE',
+          exportable_kind: GridExportOptions.EXPORTABLE_KIND.DATASET_TYPE,
           perm_id: object.getPermId().getPermId()
         },
         code: _.get(object, 'code'),
@@ -205,7 +205,7 @@ class TypeSearch extends React.Component {
       .map(object => ({
         id: object.code,
         exportableId: {
-          exportable_kind: 'VOCABULARY',
+          exportable_kind: GridExportOptions.EXPORTABLE_KIND.VOCABULARY,
           perm_id: object.getPermId().getPermId()
         },
         code: object.code,
@@ -413,9 +413,9 @@ class TypeSearch extends React.Component {
             kind={openbis.EntityKind.SAMPLE}
             rows={this.state.objectTypes}
             exportable={{
-              fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+              fileFormat: GridExportOptions.FILE_FORMAT.XLS,
               filePrefix: 'object-types',
-              fileContent: GridExportOptions.TYPES_CONTENT
+              fileContent: GridExportOptions.FILE_CONTENT.TYPES
             }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.OBJECT_TYPE
@@ -443,9 +443,9 @@ class TypeSearch extends React.Component {
             kind={openbis.EntityKind.EXPERIMENT}
             rows={this.state.collectionTypes}
             exportable={{
-              fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+              fileFormat: GridExportOptions.FILE_FORMAT.XLS,
               filePrefix: 'collection-types',
-              fileContent: GridExportOptions.TYPES_CONTENT
+              fileContent: GridExportOptions.FILE_CONTENT.TYPES
             }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.COLLECTION_TYPE
@@ -471,9 +471,9 @@ class TypeSearch extends React.Component {
             kind={openbis.EntityKind.DATA_SET}
             rows={this.state.dataSetTypes}
             exportable={{
-              fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+              fileFormat: GridExportOptions.FILE_FORMAT.XLS,
               filePrefix: 'data-set-types',
-              fileContent: GridExportOptions.TYPES_CONTENT
+              fileContent: GridExportOptions.FILE_CONTENT.TYPES
             }}
             onSelectedRowChange={this.handleSelectedRowChange(
               objectTypes.DATA_SET_TYPE
@@ -501,7 +501,7 @@ class TypeSearch extends React.Component {
             kind={openbis.EntityKind.MATERIAL}
             rows={this.state.materialTypes}
             exportable={{
-              fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+              fileFormat: GridExportOptions.FILE_FORMAT.TSV,
               filePrefix: 'material-types'
             }}
             onSelectedRowChange={this.handleSelectedRowChange(

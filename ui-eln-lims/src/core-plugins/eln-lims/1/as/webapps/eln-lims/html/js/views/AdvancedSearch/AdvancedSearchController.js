@@ -121,11 +121,11 @@ function AdvancedSearchController(mainController, forceSearch) {
 						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
 
 						if(rowData.entityKind === "Sample"){
-							entityExportableKind = "SAMPLE"
+							entityExportableKind = DataGridExportOptions.EXPORTABLE_KIND.SAMPLE
 						}else if(rowData.entityKind === "Experiment"){
-							entityExportableKind = "EXPERIMENT"
+							entityExportableKind = DataGridExportOptions.EXPORTABLE_KIND.EXPERIMENT
 						}else if(rowData.entityKind === "DataSet"){
-							entityExportableKind = "DATASET"
+							entityExportableKind = DataGridExportOptions.EXPORTABLE_KIND.DATASET
 						}
 					}
 

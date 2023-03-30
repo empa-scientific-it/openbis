@@ -23,6 +23,7 @@ class VocabularyTypesGrid extends React.PureComponent {
           {
             name: 'code',
             label: messages.get(messages.CODE),
+            exportableField: GridExportOptions.EXPORTABLE_FIELD.CODE,
             getValue: ({ row }) => row.code,
             renderValue: ({ row }) => {
               return <VocabularyTypeLink vocabularyCode={row.code} />
@@ -31,11 +32,13 @@ class VocabularyTypesGrid extends React.PureComponent {
           {
             name: 'description',
             label: messages.get(messages.DESCRIPTION),
+            exportableField: GridExportOptions.EXPORTABLE_FIELD.DESCRIPTION,
             getValue: ({ row }) => row.description
           },
           {
             name: 'urlTemplate',
             label: messages.get(messages.URL_TEMPLATE),
+            exportableField: GridExportOptions.EXPORTABLE_FIELD.URL_TEMPLATE,
             getValue: ({ row }) => row.urlTemplate
           },
           GridUtil.registratorColumn({ path: 'registrator' }),
@@ -45,9 +48,9 @@ class VocabularyTypesGrid extends React.PureComponent {
         rows={rows}
         sort='code'
         exportable={{
-          fileFormat: GridExportOptions.XLS_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.XLS,
           filePrefix: 'vocabulary-types',
-          fileContent: GridExportOptions.VOCABULARIES_CONTENT
+          fileContent: GridExportOptions.FILE_CONTENT.VOCABULARIES
         }}
         selectable={true}
         selectedRowId={selectedRowId}

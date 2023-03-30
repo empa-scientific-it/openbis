@@ -195,7 +195,7 @@ function DataGridController(
                         index === columns.length - 1),
                 configurable: !column.hide && !column.canNotBeHidden,
                 exportable: column.isExportable,
-                exportableProperty: column.exportableProperty,
+                exportableField: column.exportableProperty,
                 truncate: column.truncate,
                 metadata: column.metadata,
             }
@@ -285,8 +285,9 @@ function DataGridController(
 			"file_name" : parameters.exportedFilePrefix,
 			"ids" : parameters.exportedIds,
 			"export_referred_master_data" : parameters.exportedReferredMasterData,
-			"export_properties" : parameters.exportedProperties,
-			"text_formatting" : parameters.exportedValues
+			"export_fields" : parameters.exportedFields,
+			"text_formatting" : parameters.exportedValues,
+			"import_compatible" : parameters.exportedImportCompatible
 		}
 
 		return new Promise(function(resolve, reject){

@@ -110,7 +110,7 @@ class PropertyTypesGrid extends React.PureComponent {
         rows={rows}
         sort='code'
         exportable={{
-          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.TSV,
           filePrefix: 'property-types'
         }}
         selectable={true}

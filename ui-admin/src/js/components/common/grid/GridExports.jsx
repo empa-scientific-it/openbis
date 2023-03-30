@@ -37,7 +37,9 @@ class GridExports extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      el: null
+      el: null,
+      validate: false,
+      importCompatibleError: null
     }
     this.handleOpen = this.handleOpen.bind(this)
     this.handleClose = this.handleClose.bind(this)
@@ -52,12 +54,24 @@ class GridExports extends React.PureComponent {
   }
 
   handleClose() {
+    const { exportOptions, onExportOptionsChange } = this.props
+
     this.setState({
-      el: null
+      el: null,
+      validate: false,
+      importCompatibleError: null
     })
+
+    if (onExportOptionsChange) {
+      const newExportOptions = {
+        ...exportOptions,
+        importCompatible: null
+      }
+      onExportOptionsChange(newExportOptions)
+    }
   }
 
-  handleChange(event) {
+  async handleChange(event) {
     const { exportOptions, onExportOptionsChange } = this.props
 
     if (onExportOptionsChange) {
@@ -65,15 +79,62 @@ class GridExports extends React.PureComponent {
         ...exportOptions,
         [event.target.name]: event.target.value
       }
-      onExportOptionsChange(newExportOptions)
+
+      if (newExportOptions.importCompatible === true) {
+        newExportOptions.values = GridExportOptions.VALUES.RICH_TEXT
+      }
+
+      await onExportOptionsChange(newExportOptions)
+
+      this.validate()
     }
   }
 
   handleExport() {
     const { onExport } = this.props
-    this.handleClose()
-    if (onExport) {
-      onExport()
+
+    this.setState({ validate: true }, () => {
+      if (this.validate()) {
+        this.handleClose()
+        if (onExport) {
+          onExport()
+        }
+      }
+    })
+  }
+
+  validate() {
+    const { exportable } = this.props
+    const { validate } = this.state
+
+    if (!validate) {
+      return true
+    }
+
+    const isXLSExport =
+      exportable.fileFormat === GridExportOptions.FILE_FORMAT.XLS
+
+    if (isXLSExport) {
+      const { importCompatible } = this.props.exportOptions
+
+      let importCompatibleError = null
+
+      if (_.isNil(importCompatible) || importCompatible === '') {
+        importCompatibleError = messages.get(
+          messages.VALIDATION_CANNOT_BE_EMPTY,
+          messages.get(messages.IMPORT_COMPATIBLE)
+        )
+      } else {
+        importCompatibleError = null
+      }
+
+      this.setState({
+        importCompatibleError
+      })
+
+      return _.isNil(importCompatibleError)
+    } else {
+      return true
     }
   }
 
@@ -87,38 +148,42 @@ class GridExports extends React.PureComponent {
       disabled,
       multiselectable,
       multiselectedRows,
+      visibleColumns,
       classes
     } = this.props
-    const { el } = this.state
+    const { el, importCompatibleError } = this.state
 
     const rowsOptions = [
       {
         label: messages.get(messages.ALL_PAGES),
-        value: GridExportOptions.ALL_PAGES
+        value: GridExportOptions.ROWS.ALL_PAGES
       },
       {
         label: messages.get(messages.CURRENT_PAGE),
-        value: GridExportOptions.CURRENT_PAGE
+        value: GridExportOptions.ROWS.CURRENT_PAGE
       }
     ]
 
     if (multiselectable) {
       rowsOptions.push({
         label: messages.get(messages.SELECTED_ROWS),
-        value: GridExportOptions.SELECTED_ROWS
+        value: GridExportOptions.ROWS.SELECTED_ROWS
       })
     }
 
+    const isXLSExport =
+      exportable.fileFormat === GridExportOptions.FILE_FORMAT.XLS
+
     const isTSVExport =
-      exportable.fileFormat === GridExportOptions.TSV_FILE_FORMAT
+      exportable.fileFormat === GridExportOptions.FILE_FORMAT.TSV
 
     const isXLSEntityExport =
-      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
-      exportable.fileContent === GridExportOptions.ENTITIES_CONTENT
+      isXLSExport &&
+      exportable.fileContent === GridExportOptions.FILE_CONTENT.ENTITIES
 
     const isXLSTypesExport =
-      exportable.fileFormat === GridExportOptions.XLS_FILE_FORMAT &&
-      exportable.fileContent === GridExportOptions.TYPES_CONTENT
+      isXLSExport &&
+      exportable.fileContent === GridExportOptions.FILE_CONTENT.TYPES
 
     return (
       <div className={classes.container}>
@@ -146,27 +211,64 @@ class GridExports extends React.PureComponent {
         >
           <Container square={true} className={classes.popup}>
             <div>
-              {(isTSVExport || isXLSEntityExport) && (
+              {isXLSExport && (
                 <div className={classes.field}>
                   <SelectField
-                    label={messages.get(messages.COLUMNS)}
-                    name='columns'
+                    label={messages.get(messages.IMPORT_COMPATIBLE)}
+                    name='importCompatible'
+                    error={importCompatibleError}
+                    mandatory={true}
+                    sort={false}
+                    emptyOption={{}}
                     options={[
                       {
-                        label: messages.get(messages.ALL_COLUMNS),
-                        value: GridExportOptions.ALL_COLUMNS
+                        label: messages.get(messages.YES),
+                        value: true
                       },
                       {
-                        label: messages.get(messages.VISIBLE_COLUMNS),
-                        value: GridExportOptions.VISIBLE_COLUMNS
+                        label: messages.get(messages.NO),
+                        value: false
                       }
                     ]}
-                    value={exportOptions.columns}
+                    value={exportOptions.importCompatible}
                     variant='standard'
                     onChange={this.handleChange}
                   />
                 </div>
               )}
+              {isXLSExport && exportOptions.importCompatible === true && (
+                <div className={classes.field}>
+                  <Message type='info'>
+                    {messages.get(messages.EXPORT_IMPORT_COMPATIBLE_INFO)}
+                  </Message>
+                </div>
+              )}
+              {isXLSExport && exportOptions.importCompatible === false && (
+                <div className={classes.field}>
+                  <Message type='info'>
+                    {messages.get(messages.EXPORT_IMPORT_INCOMPATIBLE_INFO)}
+                  </Message>
+                </div>
+              )}
+              <div className={classes.field}>
+                <SelectField
+                  label={messages.get(messages.COLUMNS)}
+                  name='columns'
+                  options={[
+                    {
+                      label: messages.get(messages.ALL_COLUMNS),
+                      value: GridExportOptions.COLUMNS.ALL
+                    },
+                    {
+                      label: messages.get(messages.VISIBLE_COLUMNS),
+                      value: GridExportOptions.COLUMNS.VISIBLE
+                    }
+                  ]}
+                  value={exportOptions.columns}
+                  variant='standard'
+                  onChange={this.handleChange}
+                />
+              </div>
               <div className={classes.field}>
                 <SelectField
                   label={messages.get(messages.ROWS)}
@@ -185,13 +287,14 @@ class GridExports extends React.PureComponent {
                     options={[
                       {
                         label: messages.get(messages.PLAIN_TEXT),
-                        value: GridExportOptions.PLAIN_TEXT
+                        value: GridExportOptions.VALUES.PLAIN_TEXT
                       },
                       {
                         label: messages.get(messages.RICH_TEXT),
-                        value: GridExportOptions.RICH_TEXT
+                        value: GridExportOptions.VALUES.RICH_TEXT
                       }
                     ]}
+                    disabled={exportOptions.importCompatible}
                     value={exportOptions.values}
                     variant='standard'
                     onChange={this.handleChange}
@@ -199,7 +302,8 @@ class GridExports extends React.PureComponent {
                 </div>
               )}
               {(isTSVExport || isXLSEntityExport) &&
-                exportOptions.values === GridExportOptions.PLAIN_TEXT && (
+                exportOptions.values ===
+                  GridExportOptions.VALUES.PLAIN_TEXT && (
                   <div className={classes.field}>
                     <Message type='warning'>
                       {messages.get(messages.EXPORT_PLAIN_TEXT_WARNING)}
@@ -222,6 +326,7 @@ class GridExports extends React.PureComponent {
                       value: false
                     }
                   ]}
+                  sort={false}
                   value={exportOptions.includeDependencies}
                   variant='standard'
                   onChange={this.handleChange}
@@ -234,8 +339,12 @@ class GridExports extends React.PureComponent {
                 label={messages.get(messages.EXPORT)}
                 type='neutral'
                 disabled={
-                  exportOptions.rows === GridExportOptions.SELECTED_ROWS &&
-                  _.isEmpty(multiselectedRows)
+                  (exportOptions.columns ===
+                    GridExportOptions.COLUMNS.VISIBLE &&
+                    _.isEmpty(visibleColumns)) ||
+                  (exportOptions.rows ===
+                    GridExportOptions.ROWS.SELECTED_ROWS &&
+                    _.isEmpty(multiselectedRows))
                 }
                 onClick={this.handleExport}
               />

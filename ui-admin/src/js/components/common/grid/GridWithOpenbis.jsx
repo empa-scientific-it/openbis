@@ -65,9 +65,10 @@ export default class GridWithOpenbis extends React.PureComponent {
   async exportXLS({
     exportedFilePrefix,
     exportedIds,
-    exportedProperties,
+    exportedFields,
     exportedValues,
-    exportedReferredMasterData
+    exportedReferredMasterData,
+    exportedImportCompatible
   }) {
     const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
 
@@ -79,8 +80,9 @@ export default class GridWithOpenbis extends React.PureComponent {
       'export_referred_master_data',
       exportedReferredMasterData
     )
-    serviceOptions.withParameter('export_properties', exportedProperties)
+    serviceOptions.withParameter('export_fields', exportedFields)
     serviceOptions.withParameter('text_formatting', exportedValues)
+    serviceOptions.withParameter('import_compatible', exportedImportCompatible)
 
     const sessionToken = AppController.getInstance().getSessionToken()
     const exportResult = await openbis.executeService(serviceId, serviceOptions)

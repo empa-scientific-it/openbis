@@ -146,7 +146,7 @@ function StorageListView(storageListController, storageListModel) {
 		}
 
 		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET", isMultiselectable, {
-			fileFormat: 'TSV',
+			fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
 			filePrefix: 'storage'
 		}, 60);
 
