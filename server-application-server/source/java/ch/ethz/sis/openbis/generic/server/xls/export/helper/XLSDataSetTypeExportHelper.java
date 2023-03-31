@@ -17,6 +17,10 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DISALLOW_DELETION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATH;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATTERN;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
 
@@ -70,7 +74,8 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
     @Override
     protected Attribute[] getAttributes(final DataSetType entityType)
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT };
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT, MAIN_DATA_SET_PATTERN, MAIN_DATA_SET_PATH, DISALLOW_DELETION,
+                MODIFICATION_DATE };
     }
 
     @Override
@@ -78,6 +83,10 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
     {
         switch (attribute)
         {
+            case VERSION:
+            {
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.DATASET_TYPE, null, dataSetType.getCode()));
+            }
             case CODE:
             {
                 return dataSetType.getCode();
@@ -92,9 +101,21 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
                 return validationPlugin != null ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
             }
-            case VERSION:
+            case MAIN_DATA_SET_PATTERN:
             {
-                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.DATASET_TYPE, null, dataSetType.getCode()));
+                return dataSetType.getMainDataSetPattern();
+            }
+            case MAIN_DATA_SET_PATH:
+            {
+                return dataSetType.getMainDataSetPath();
+            }
+            case DISALLOW_DELETION:
+            {
+                return dataSetType.isDisallowDeletion().toString().toUpperCase();
+            }
+            case MODIFICATION_DATE:
+            {
+                return DATE_FORMAT.format(dataSetType.getModificationDate());
             }
             default:
             {
