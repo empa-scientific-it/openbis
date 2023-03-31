@@ -76,6 +76,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
+        fetchOptions.withPhysicalData();
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
     }
 
