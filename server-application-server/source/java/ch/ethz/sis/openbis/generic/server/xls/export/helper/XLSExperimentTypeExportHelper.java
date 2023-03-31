@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
 
@@ -50,7 +51,7 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
     @Override
     protected Attribute[] getAttributes(final ExperimentType entityType)
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT };
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT, MODIFICATION_DATE };
     }
 
     @Override
@@ -76,6 +77,10 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
             case VERSION:
             {
                 return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.EXPERIMENT_TYPE, null, experimentType.getCode()));
+            }
+            case MODIFICATION_DATE:
+            {
+                return DATE_FORMAT.format(experimentType.getModificationDate());
             }
             default:
             {

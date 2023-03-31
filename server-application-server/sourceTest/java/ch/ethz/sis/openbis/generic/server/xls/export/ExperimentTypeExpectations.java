@@ -59,7 +59,7 @@ class ExperimentTypeExpectations extends Expectations
                 final PluginFetchOptions pluginFetchOptions = fetchOptions.withValidationPlugin();
 
                 final Calendar calendar = Calendar.getInstance();
-                calendar.set(2023, Calendar.MARCH, 10, 17, 23, 44);
+                calendar.set(2023, Calendar.MARCH, 11, 17, 23, 44);
                 final Date modificationDate = calendar.getTime();
 
                 final ExperimentType experimentType = new ExperimentType();
