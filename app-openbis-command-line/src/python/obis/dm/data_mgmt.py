@@ -71,7 +71,8 @@ def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_conf
             repository_type = Type.LINK
 
     if repository_type == Type.PHYSICAL:
-        return PhysicalDataMgmt(settings_resolver, None, None, openbis, log, data_path,
+        complete_openbis_config(openbis_config, settings_resolver)
+        return PhysicalDataMgmt(settings_resolver, openbis_config, None, openbis, log, data_path,
                                 metadata_path, invocation_path)
     else:
         complete_git_config(git_config)
@@ -229,17 +230,19 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def search_object(self, filters, save):
+    def search_object(self, filters, recursive, save):
         """Search for objects in openBIS using filtering criteria.
         :param filters: dictionary of filter parameters
+        :param recursive: Flag indicating if search should include children recursively
         :param save: File path to save results. If missing, search results will not be saved.
         """
         return
 
     @abc.abstractmethod
-    def search_data_set(self, filters, save):
+    def search_data_set(self, filters, recursive, save):
         """Search for datasets in openBIS using filtering criteria.
         :param filters: dictionary of filter parameters
+        :param recursive: Flag indicating if search should include children recursively
         :param save: File path to save results. If missing, search results will not be saved.
         """
         return
@@ -642,12 +645,12 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         cmd = Upload(self, sample_id, data_set_type, files)
         return cmd.run()
 
-    def search_object(self,filters, save):
-        cmd = Search(self, filters, save)
+    def search_object(self, filters, recursive, save):
+        cmd = Search(self, filters, recursive, save)
         return cmd.search_samples()
 
-    def search_data_set(self, filters, save):
-        cmd = Search(self, filters, save)
+    def search_data_set(self, filters, recursive, save):
+        cmd = Search(self, filters, recursive, save)
         return cmd.search_data_sets()
 
     def config(self, category, is_global, is_data_set_property, operation_type, prop=None,

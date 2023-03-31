@@ -154,7 +154,8 @@ class OpenbisCommand(object):
     def login(self):
         """ Restore session token if available. """
         if 'config' in self.config_dict.keys():
-            if 'openbis_token' in self.config_dict['config'].keys():
+            if 'openbis_token' in self.config_dict['config'].keys() and \
+                    self.config_dict['config']['openbis_token'] is not None:
                 self.openbis.set_token(self.config_dict['config']['openbis_token'], True)
         """ Checks for valid session and asks user for password
         if login is needed. """
@@ -225,7 +226,8 @@ class OpenbisCommand(object):
         # ask user
         hostname = self.ask_for_hostname(socket.gethostname())
         # store
-        self.data_mgmt.config('config', True, False, OperationType.SET, prop='hostname', value=hostname)
+        self.data_mgmt.config('config', True, False, OperationType.SET, prop='hostname',
+                              value=hostname)
         return hostname
 
     def ask_for_hostname(self, hostname):

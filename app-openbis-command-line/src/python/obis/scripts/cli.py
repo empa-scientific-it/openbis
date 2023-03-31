@@ -217,14 +217,14 @@ def _clear(ctx, settings):
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Get global or local.')
 @click.pass_context
 def settings(ctx, is_global):
-    """ Get all settings.
-    """
+    """ External Data Store: Get all settings. """
     ctx.obj['is_global'] = is_global
 
 
 @settings.command('get')
 @click.pass_context
 def settings_get(ctx):
+    """ External Data Store: Get setting. """
     runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     settings = runner.get_settings()
     settings_str = json.dumps(settings, indent=4, sort_keys=True)
@@ -237,8 +237,7 @@ def settings_get(ctx):
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
 @click.pass_context
 def repository(ctx, is_global):
-    """ Get/set settings related to the repository.
-    """
+    """ External Data Store: Get/set settings related to the repository. """
     runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.obj['is_global'] = is_global
     ctx.obj['runner'] = runner
@@ -249,6 +248,7 @@ def repository(ctx, is_global):
 @click.argument('settings', type=SettingsSet(), nargs=-1)
 @click.pass_context
 def repository_set(ctx, settings):
+    """ External Data Store: Set settings related to the repository. """
     return ctx.obj['runner'].run("repository_set", lambda dm: _set(ctx, settings))
 
 
@@ -256,6 +256,7 @@ def repository_set(ctx, settings):
 @click.argument('settings', type=SettingsGet(), nargs=-1)
 @click.pass_context
 def repository_get(ctx, settings):
+    """ External Data Store: Get settings related to the repository. """
     return ctx.obj['runner'].run("repository_get", lambda dm: _get(ctx, settings))
 
 
@@ -263,6 +264,7 @@ def repository_get(ctx, settings):
 @click.argument('settings', type=SettingsClear(), nargs=-1)
 @click.pass_context
 def repository_clear(ctx, settings):
+    """ External Data Store: Clear settings related to the repository. """
     return ctx.obj['runner'].run("repository_clear", lambda dm: _clear(ctx, settings))
 
 
@@ -275,6 +277,8 @@ _search_params = [
     click.option('-space', '--space', default=None, help='Space code'),
     click.option('-project', '--project', default=None, help='Full project identification code'),
     click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
+    click.option('-object', '--object', 'object_code', default=None,
+                 help='Object identification information, it can be permId or identifier'),
     click.option('-type', '--type', 'type_code', default=None, help='Type code'),
     click.option('-property', 'property_code', default=None, help='Property code'),
     click.option('-property-value', 'property_value', default=None,
@@ -284,6 +288,8 @@ _search_params = [
     click.option('-modification-date', '--modification-date', 'modification_date', default=None,
                  help='Modification date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
     click.option('-save', '--save', default=None, help='Filename to save results'),
+    click.option('-r', '--recursive', 'recursive', is_flag=True, default=False,
+                 help='Search data recursively'),
 ]
 
 
@@ -293,8 +299,7 @@ _search_params = [
               help='Configure data set property.')
 @click.pass_context
 def data_set(ctx, is_global, is_data_set_property):
-    """ Get/set settings related to the data set.
-    """
+    """ External Data Store: Get/set settings related to the data set. """
     runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.obj['is_global'] = is_global
     ctx.obj['is_data_set_property'] = is_data_set_property
@@ -306,6 +311,7 @@ def data_set(ctx, is_global, is_data_set_property):
 @click.argument('data_set_settings', type=SettingsSet(), nargs=-1)
 @click.pass_context
 def data_set_set(ctx, data_set_settings):
+    """ External Data Store: Set settings related to the data set. """
     return ctx.obj['runner'].run("data_set_set", lambda dm: _set(ctx, data_set_settings))
 
 
@@ -313,6 +319,7 @@ def data_set_set(ctx, data_set_settings):
 @click.argument('data_set_settings', type=SettingsGet(), nargs=-1)
 @click.pass_context
 def data_set_get(ctx, data_set_settings):
+    """ External Data Store: Get settings related to the data set. """
     return ctx.obj['runner'].run("data_set_get", lambda dm: _get(ctx, data_set_settings))
 
 
@@ -320,6 +327,7 @@ def data_set_get(ctx, data_set_settings):
 @click.argument('data_set_settings', type=SettingsClear(), nargs=-1)
 @click.pass_context
 def data_set_clear(ctx, data_set_settings):
+    """ External Data Store: Clear settings related to the data set. """
     return ctx.obj['runner'].run("data_set_clear", lambda dm: _clear(ctx, data_set_settings))
 
 
@@ -327,10 +335,13 @@ def data_set_clear(ctx, data_set_settings):
 @add_params(_search_params)
 @click.pass_context
 def data_set_search(ctx, type_code, space, project, experiment, registration_date,
-                    modification_date, property_code, property_value, save):
-    if all(v is None for v in
-           [type_code, space, project, experiment, registration_date, modification_date,
-            property_code, property_value]):
+                    modification_date, object_code, property_code, property_value, save, recursive):
+    """Standard Data Store: Search data sets given the filtering criteria or object identifier.
+    Results of this command can be used in `obis download`."""
+    filtering_arguments = [type_code, space, project, experiment, registration_date,
+                           modification_date,
+                           property_code, property_value]
+    if all(v is None for v in filtering_arguments + [object_code]):
         click_echo("You must provide at least one filtering criteria!")
         return -1
     if (property_code is None and property_value is not None) or (
@@ -338,12 +349,17 @@ def data_set_search(ctx, type_code, space, project, experiment, registration_dat
         click_echo("Property code and property value need to be specified!")
         return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    filters = dict(type_code=type_code, space=space,
-                   project=project, experiment=experiment, property_code=property_code,
-                   registration_date=registration_date, modification_date=modification_date,
-                   property_value=property_value)
+    if object_code is not None:
+        if any(v is not None for v in filtering_arguments):
+            click_echo("Object parameter detected! Other filtering arguments will be omitted!")
+        filters = dict(object_code=object_code)
+    else:
+        filters = dict(type_code=type_code, space=space,
+                       project=project, experiment=experiment, property_code=property_code,
+                       registration_date=registration_date, modification_date=modification_date,
+                       property_value=property_value)
     return ctx.obj['runner'].run("data_set_search",
-                                 lambda dm: dm.search_data_set(filters, save)),
+                                 lambda dm: dm.search_data_set(filters, recursive, save)),
 
 
 # # object: object_id
@@ -353,7 +369,9 @@ def data_set_search(ctx, type_code, space, project, experiment, registration_dat
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
 @click.pass_context
 def object(ctx, is_global):
-    """ Get/set settings related to the object.
+    """ External Data Store: Get/set properties related to the object.
+
+    Standard Data Store: Get/set properties of objects connected to downloaded datasets.
     """
     runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.obj['is_global'] = is_global
@@ -365,6 +383,10 @@ def object(ctx, is_global):
 @click.argument('object_settings', type=SettingsSet(), nargs=-1)
 @click.pass_context
 def object_set(ctx, object_settings):
+    """ External Data Store: Set properties related to the object.
+
+    Standard Data Store: Set property to all objects connected to downloaded datasets.
+    """
     return ctx.obj['runner'].run("object_set", lambda dm: _set(ctx, object_settings))
 
 
@@ -372,6 +394,10 @@ def object_set(ctx, object_settings):
 @click.argument('object_settings', type=SettingsGet(), nargs=-1)
 @click.pass_context
 def object_get(ctx, object_settings):
+    """ External Data Store: Set properties related to the object.
+
+    Standard Data Store: Get given properties of all objects connected to downloaded datasets.
+    """
     return ctx.obj['runner'].run("object_get", lambda dm: _get(ctx, object_settings))
 
 
@@ -379,6 +405,7 @@ def object_get(ctx, object_settings):
 @click.argument('object_settings', type=SettingsClear(), nargs=-1)
 @click.pass_context
 def object_clear(ctx, object_settings):
+    """ External Data Store: Clear properties related to the object. """
     return ctx.obj['runner'].run("object_clear", lambda dm: _clear(ctx, object_settings))
 
 
@@ -386,10 +413,11 @@ def object_clear(ctx, object_settings):
 @add_params(_search_params)
 @click.pass_context
 def object_search(ctx, type_code, space, project, experiment, registration_date,
-                  modification_date, property_code, property_value, save):
-    if all(v is None for v in
-           [type_code, space, project, experiment, registration_date, modification_date,
-            property_code, property_value]):
+                  modification_date, object_code, property_code, property_value, save, recursive):
+    """Standard Data Store: Search for objects using a filtering criteria or object identifier."""
+    filtering_arguments = [type_code, space, project, experiment, registration_date,
+                           modification_date, property_code, property_value]
+    if all(v is None for v in filtering_arguments + [object_code]):
         click_echo("You must provide at least one filtering criteria!")
         return -1
     if (property_code is None and property_value is not None) or (
@@ -397,12 +425,17 @@ def object_search(ctx, type_code, space, project, experiment, registration_date,
         click_echo("Property code and property value need to be specified!")
         return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    filters = dict(type_code=type_code, space=space,
-                   project=project, experiment=experiment, property_code=property_code,
-                   registration_date=registration_date, modification_date=modification_date,
-                   property_value=property_value)
+    if object_code is not None:
+        if any(v is not None for v in filtering_arguments):
+            click_echo("Object parameter detected! Other filtering arguments will be omitted!")
+        filters = dict(object_code=object_code)
+    else:
+        filters = dict(type_code=type_code, space=space,
+                       project=project, experiment=experiment, property_code=property_code,
+                       registration_date=registration_date, modification_date=modification_date,
+                       property_value=property_value)
     return ctx.obj['runner'].run("object_search",
-                                 lambda dm: dm.search_object(filters, save))
+                                 lambda dm: dm.search_object(filters, recursive, save))
 
 
 # # collection: collection_id
@@ -412,7 +445,9 @@ def object_search(ctx, type_code, space, project, experiment, registration_date,
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
 @click.pass_context
 def collection(ctx, is_global):
-    """ Get/set settings related to the collection.
+    """ External Data Store: Get/set settings related to the collection.
+
+    Standard Data Store: Get/set properties of all collections connected to downloaded datasets.
     """
     runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.obj['is_global'] = is_global
@@ -424,6 +459,10 @@ def collection(ctx, is_global):
 @click.argument('settings', type=SettingsSet(), nargs=-1)
 @click.pass_context
 def collection_set(ctx, settings):
+    """ External Data Store: Set settings related to the collection.
+
+    Standard Data Store: Set given properties of all collections connected to downloaded datasets.
+    """
     return ctx.obj['runner'].run("collection_set", lambda dm: _set(ctx, settings))
 
 
@@ -431,6 +470,10 @@ def collection_set(ctx, settings):
 @click.argument('settings', type=SettingsGet(), nargs=-1)
 @click.pass_context
 def collection_get(ctx, settings):
+    """ External Data Store: Get settings related to the collection.
+
+    Standard Data Store: Get given properties of all collections connected to downloaded datasets.
+    """
     return ctx.obj['runner'].run("collection_get", lambda dm: _get(ctx, settings))
 
 
@@ -438,6 +481,7 @@ def collection_get(ctx, settings):
 @click.argument('settings', type=SettingsClear(), nargs=-1)
 @click.pass_context
 def collection_clear(ctx, settings):
+    """External Data Store: Clear settings related to the collection."""
     return ctx.obj['runner'].run("collection_clear", lambda dm: _clear(ctx, settings))
 
 
@@ -448,7 +492,9 @@ def collection_clear(ctx, settings):
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
 @click.pass_context
 def config(ctx, is_global):
-    """ Get/set configurations.
+    """External Data Store: Get/set configurations.
+
+    Standard Data Store: Get/set configurations.
     """
     if is_global is True:
         runner = DataMgmtRunner(ctx.obj, halt_on_error_log=False, is_physical=True)
@@ -463,6 +509,10 @@ def config(ctx, is_global):
 @click.argument('settings', type=SettingsSet(), nargs=-1)
 @click.pass_context
 def config_set(ctx, settings):
+    """External Data Store: Set configurations.
+
+    Standard Data Store: Set configurations.
+    """
     return ctx.obj['runner'].run("config_set", lambda dm: _set(ctx, settings))
 
 
@@ -470,6 +520,10 @@ def config_set(ctx, settings):
 @click.argument('settings', type=SettingsGet(), nargs=-1)
 @click.pass_context
 def config_get(ctx, settings):
+    """External Data Store: Get configurations.
+
+    Standard Data Store: Get configurations.
+    """
     return ctx.obj['runner'].run("config_get", lambda dm: _get(ctx, settings))
 
 
@@ -477,6 +531,8 @@ def config_get(ctx, settings):
 @click.argument('settings', type=SettingsClear(), nargs=-1)
 @click.pass_context
 def config_clear(ctx, settings):
+    """External Data Store: Clear configurations.
+    """
     return ctx.obj['runner'].run("config_clear", lambda dm: _clear(ctx, settings))
 
 
@@ -500,6 +556,8 @@ _commit_params = [
 @click.pass_context
 @add_params(_commit_params)
 def repository_commit(ctx, msg, auto_add, ignore_missing_parent, repository):
+    """External Data Store: Commit the repository to git and inform openBIS.
+    """
     return ctx.obj['runner'].run("commit",
                                  lambda dm: dm.commit(msg, auto_add, ignore_missing_parent),
                                  repository)
@@ -509,6 +567,8 @@ def repository_commit(ctx, msg, auto_add, ignore_missing_parent, repository):
 @click.pass_context
 @add_params(_commit_params)
 def commit(ctx, msg, auto_add, ignore_missing_parent, repository):
+    """External Data Store: Commit the repository to git and inform openBIS.
+    """
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_commit, msg=msg, auto_add=auto_add,
                ignore_missing_parent=ignore_missing_parent, repository=repository)
@@ -529,19 +589,27 @@ _init_params = [
 @click.pass_context
 @add_params(_init_params)
 def repository_init(ctx, repository_path, description):
+    """External Data Store: Initialize the folder as a data repository.
+    """
     return init_data_impl(ctx, repository_path, description)
 
 
 _init_params_physical = \
     _init_params + \
     [click.option('-p', '--physical', 'is_physical', default=False, is_flag=True,
-                  help='If parent data set is missing, ignore it.')]
+                  help='Initialize folder for Standard Data Store data handling.')]
 
 
 @cli.command(short_help="Initialize the folder as a data repository.")
 @click.pass_context
 @add_params(_init_params_physical)
 def init(ctx, repository_path, description, is_physical):
+    """External Data Store: Initialize the folder as a data repository for External Data Store
+    data handling.
+
+    Standard Data Store: Initialize the folder as a data repository for Standard Data Store
+    data handling.
+    """
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False, is_physical=is_physical)
     ctx.invoke(repository_init, repository_path=repository_path, description=description)
 
@@ -560,6 +628,7 @@ _init_analysis_params += _init_params
 @click.pass_context
 @add_params(_init_analysis_params)
 def repository_init_analysis(ctx, parent, repository_path, description):
+    """External Data Store: Initialize the folder as an analysis folder."""
     return init_analysis_impl(ctx, parent, repository_path, description)
 
 
@@ -567,6 +636,7 @@ def repository_init_analysis(ctx, parent, repository_path, description):
 @click.pass_context
 @add_params(_init_analysis_params)
 def init_analysis(ctx, parent, repository_path, description):
+    """External Data Store: Initialize the folder as an analysis folder."""
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_init_analysis, parent=parent,
                repository_path=repository_path, description=description)
@@ -585,6 +655,7 @@ _status_params = [
 @click.pass_context
 @add_params(_status_params)
 def repository_status(ctx, repository):
+    """External Data Store: Show the state of the obis repository."""
     return ctx.obj['runner'].run("repository_status", lambda dm: dm.status(), repository)
 
 
@@ -592,6 +663,7 @@ def repository_status(ctx, repository):
 @click.pass_context
 @add_params(_status_params)
 def status(ctx, repository):
+    """External Data Store: Show the state of the obis repository."""
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_status, repository=repository)
 
@@ -616,6 +688,7 @@ def _repository_sync(dm, ignore_missing_parent):
 @click.pass_context
 @add_params(_sync_params)
 def repository_sync(ctx, ignore_missing_parent, repository):
+    """External Data Store: Sync the repository with openBIS."""
     return ctx.obj['runner'].run("sync", lambda dm: _repository_sync(dm, ignore_missing_parent),
                                  repository)
 
@@ -624,6 +697,7 @@ def repository_sync(ctx, ignore_missing_parent, repository):
 @click.pass_context
 @add_params(_sync_params)
 def sync(ctx, ignore_missing_parent, repository):
+    """External Data Store: Sync the repository with openBIS."""
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_sync,
                ignore_missing_parent=ignore_missing_parent, repository=repository)
@@ -706,6 +780,7 @@ _addref_params = [
 @click.pass_context
 @add_params(_addref_params)
 def repository_addref(ctx, repository):
+    """Used for External Data Store only."""
     return ctx.obj['runner'].run("addref", lambda dm: dm.addref(), repository)
 
 
@@ -713,6 +788,7 @@ def repository_addref(ctx, repository):
 @click.pass_context
 @add_params(_addref_params)
 def addref(ctx, repository):
+    """Used for External Data Store only."""
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_addref, repository=repository)
 
@@ -733,6 +809,7 @@ _removeref_params = [
 @click.pass_context
 @add_params(_removeref_params)
 def repository_removeref(ctx, data_set_id, repository):
+    """Used for External Data Store only."""
     if data_set_id is not None and repository is not None:
         click_echo("Only provide the data_set id OR the repository.")
         return -1
@@ -744,6 +821,7 @@ def repository_removeref(ctx, data_set_id, repository):
 @click.pass_context
 @add_params(_removeref_params)
 def removeref(ctx, data_set_id, repository):
+    """Used for External Data Store only."""
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.invoke(repository_removeref, data_set_id=data_set_id,
                repository=repository)

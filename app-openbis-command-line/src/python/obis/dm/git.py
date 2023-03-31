@@ -17,12 +17,14 @@ import shutil
 
 from .checksum import ChecksumGeneratorCrc32, ChecksumGeneratorGitAnnex
 from .utils import run_shell
+from ..scripts.click_util import click_echo
 
 
 class GitWrapper(object):
     """A wrapper on commands to git and git annex."""
 
-    def __init__(self, git_path=None, git_annex_path=None, find_git=None, data_path=None, metadata_path=None, invocation_path=None):
+    def __init__(self, git_path=None, git_annex_path=None, find_git=None, data_path=None,
+                 metadata_path=None, invocation_path=None):
         self.git_path = git_path
         self.git_annex_path = git_annex_path
         self.data_path = data_path
@@ -39,17 +41,20 @@ class GitWrapper(object):
         cmd += params
         return run_shell(cmd, strip_leading_whitespace=strip_leading_whitespace)
 
-
     def can_run(self):
         """Return true if the perquisites are satisfied to run (git and git annex)"""
         if self.git_path is None:
+            click_echo('No git path found!')
             return False
         if self.git_annex_path is None:
+            click_echo('No git-annex path found!')
             return False
         if self._git(['help']).failure():
+            click_echo('Can not run git!')
             # git help should have a returncode of 0
             return False
         if self._git(['annex', 'help']).failure():
+            click_echo('Can not run git-annex!')
             # git help should have a returncode of 0
             return False
         result = run_shell([self.git_path, 'annex', 'version'])
@@ -60,7 +65,7 @@ class GitWrapper(object):
                 try:
                     self.annex_major_version = int(self.annex_version.split(".")[0])
                 except Exception as e:
-                    print("Invalid git-annex version line:",result.output)
+                    print("Invalid git-annex version line:", result.output)
                     return False
         return True
 
@@ -199,9 +204,11 @@ class GitRepoFileInfo(object):
     def cksum(self, files, git_annex_hash_as_checksum=False):
 
         if git_annex_hash_as_checksum == False:
-            checksum_generator = ChecksumGeneratorCrc32(self.git_wrapper.data_path, self.git_wrapper.metadata_path)
+            checksum_generator = ChecksumGeneratorCrc32(self.git_wrapper.data_path,
+                                                        self.git_wrapper.metadata_path)
         else:
-            checksum_generator = ChecksumGeneratorGitAnnex(self.git_wrapper.data_path, self.git_wrapper.metadata_path)
+            checksum_generator = ChecksumGeneratorGitAnnex(self.git_wrapper.data_path,
+                                                           self.git_wrapper.metadata_path)
 
         checksums = []
 

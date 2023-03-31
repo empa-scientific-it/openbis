@@ -1,3 +1,9 @@
+# New in version 0.4.2
+
+* Added filtering by object in object and data_set search commands
+* Added recursive search to object and data_set search commands
+* Updated documentation regarding authentication
+
 # New in version 0.4.1
 
 * Fixed parameters for determine_hostname method in addref functionality 
