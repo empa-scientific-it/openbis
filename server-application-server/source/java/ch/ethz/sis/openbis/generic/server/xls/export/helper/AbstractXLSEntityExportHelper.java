@@ -137,7 +137,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                     return propertyTypes.stream()
                                             .filter(propertyType -> Objects.equals(propertyType.getCode(), fieldId))
                                             .findFirst()
-                                            .orElseThrow()
+                                            .orElseThrow(() -> new IllegalArgumentException("Property type not found for id: " + fieldId))
                                             .getLabel();
                                 }
                                 default:
