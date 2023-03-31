@@ -15,6 +15,10 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchC
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSetKind
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import PhysicalDataSet
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataStore
 from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
 class NodeWithEntityType(Node):
@@ -233,8 +237,8 @@ def listChildren(subPath, acceptor, context):
     permId = node.getPermId()
     if nodeType == "DATASET":
         response = None
-        for permId in node.permIds:
-            dataSetCode, contentNode, content = getContentNode(permId, context)
+        contentNodes = getContentNodes(node.permIds, context)
+        for dataSetCode, contentNode, content in contentNodes:
             if contentNode.isDirectory():
                 if response is None:
                     response = context.createDirectoryResponse()
@@ -352,6 +356,49 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
                 else:
                     response.addFile(nodeName, childNode)
 
+def addDataSetFileNodesFor(path, dataSets, response, acceptor, context):
+    contentNodes = asContentNodes(dataSets, context)
+    for dataSetCode, contentNode, _ in contentNodes:
+        addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
+
+def getContentNodes(permIds, context):
+    ids = []
+    paths = []
+    for permId in permIds:
+        splittedId = permId.split("::")
+        ids.append(DataSetPermId(splittedId[0]))
+        paths.append(splittedId[1] if len(splittedId) > 1 else None)
+
+    fetchOptions = DataSetFetchOptions()
+    fetchOptions.withDataStore()
+    fetchOptions.withPhysicalData()
+    dataSets = context.getApi().getDataSets(context.getSessionToken(), ids, fetchOptions).values()
+    return asContentNodes(dataSets, context, paths)
+
+def asContentNodes(dataSets, context, paths=None):
+    result = []
+    contentProvider = context.getContentProvider()
+    for i in range(len(dataSets)):
+        dataSet = dataSets[i]
+        dataSetCode = dataSet.getCode()
+        dataStore = DataStore()
+        dataStore.setCode(dataSet.getDataStore().getCode())
+        dataStore.setHostUrl(dataSet.getDataStore().getDownloadUrl())
+        kind = dataSet.getKind()
+        if kind == DataSetKind.PHYSICAL:
+            physicalData = dataSet.getPhysicalData()
+            physicalDataSet = PhysicalDataSet()
+            physicalDataSet.setCode(dataSetCode)
+            physicalDataSet.setLocation(physicalData.getLocation())
+            physicalDataSet.setDataStore(dataStore)
+            physicalDataSet.setShareId(physicalData.getShareId())
+            content = contentProvider.asContentWithoutModifyingAccessTimestamp(physicalDataSet)
+            contentNode = content.getRootNode() if paths is None or paths[i] is None else content.tryGetNode(paths[i])
+            result.append((dataSetCode, contentNode, content))
+        else:
+            raise Exception("Not supported data set kind: %s" % kind)
+    return result
+
 def getContentNode(permId, context):
     splittedId = permId.split("::")
     dataSetCode = splittedId[0]
@@ -366,6 +413,8 @@ def getDataSetsOfSampleAndItsChildren(samplePermId, context):
     parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
     parentsSearchCriteria.withPermId().thatEquals(samplePermId)
     fetchOptions = DataSetFetchOptions()
+    fetchOptions.withDataStore()
+    fetchOptions.withPhysicalData()
     fetchOptions.withType()
     fetchOptions.withProperties()
     fetchOptions.withSample().withType()
