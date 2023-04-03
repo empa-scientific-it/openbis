@@ -29,6 +29,8 @@ public class AfsClientTest
         afsClient = new AfsClient(
                 new URI("http", null, "localhost", HTTP_SERVER_PORT,
                         HTTP_SERVER_PATH, null, null));
+        afsClient.setTransactionManagerKey("TransactionManagerKey");
+        afsClient.setInteractiveSessionKey("InteractiveSessionKey");
     }
 
     @After
