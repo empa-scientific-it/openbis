@@ -149,10 +149,49 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             "logoutBtn"
         )
 
+        var barcodeReaderBtn = FormUtil.getButtonWithIcon(
+            "glyphicon-barcode",
+            function () {
+                var $input = $("<input>", { type : "file", accept : "image/*" });
+                $input.click();
+                $input.change(function(event) {
+//                            const hints = new Map();
+//                            const formats = [ZXing.BarcodeFormat.QR_CODE /*, ...*/];
+//                            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+//                            const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+                            const codeReader = new ZXing.BrowserMultiFormatReader();
+                            const fileReader = new FileReader();
+                            fileReader.readAsArrayBuffer(event.target.files[0]);
+                            fileReader.onloadend = (evt) => {
+                                if (evt.target.readyState === FileReader.DONE) {
+                                    var img = null;
+                                        img = Images.decodeArrayBuffer(evt.target.result, function(event) {
+                                            img.videoWidth = 0; // Bugfix so ZXing decodes the image instead throwing an exception
+                                            var result = codeReader.decode(img);
+                                            if(result && result.text) {
+                                                BarcodeUtil.readSample(result.text);
+                                            } else {
+                                                Util.showError("Failed to read barcode");
+                                            }
+                                        });
+                                }
+                            }
+                })
+            },
+            null,
+            null,
+            "barcodeReaderBtn"
+        )
+
         var $searchForm = $("<form>", { onsubmit: "return false;" })
             .append(logoutButton)
             .append(searchElement)
-            .append(dropDownSearch)
+            .append(dropDownSearch);
+
+        if(profile.mainMenu.showBarcodes) {
+            $searchForm.append(barcodeReaderBtn);
+        }
+
         $searchForm.css("width", "100%")
         $searchForm.css("display", "flex")
 
@@ -243,4 +282,34 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         ReactDOM.render(BrowserElement, this._sideMenuWidgetModel.menuDOMBody.get(0))
     }
+}
+
+var Images = {};
+Images.decodeArrayBuffer = function(buffer, onLoad) {
+    var mime;
+    var a = new Uint8Array(buffer);
+    var nb = a.length;
+    if (nb < 4)
+        return null;
+    var b0 = a[0];
+    var b1 = a[1];
+    var b2 = a[2];
+    var b3 = a[3];
+    if (b0 == 0x89 && b1 == 0x50 && b2 == 0x4E && b3 == 0x47)
+        mime = 'image/png';
+    else if (b0 == 0xff && b1 == 0xd8)
+        mime = 'image/jpeg';
+    else if (b0 == 0x47 && b1 == 0x49 && b2 == 0x46)
+        mime = 'image/gif';
+    else
+        return null;
+    var binary = "";
+    for (var i = 0; i < nb; i++)
+        binary += String.fromCharCode(a[i]);
+    var base64 = window.btoa(binary);
+    var image = new Image();
+    image.onload = onLoad;
+    image.src = 'data:' + mime + ';base64,' + base64;
+    image.Uint8Array = a;
+    return image;
 }

@@ -7,11 +7,10 @@ acceptor.hideDataSetType("MICROSCOPY_IMG_THUMBNAIL")
 
 def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
     dataSets = script.getDataSetsOfSampleAndItsChildren(samplePermId, context)
+    filteredDataSets = []
     for dataSet in dataSets:
         if acceptor.acceptDataSet(dataSet):
-            dataSetCode = dataSet.getCode()
-            content = context.getContentProvider().asContent(dataSetCode)
-            contentNode = content.getRootNode()
-            script.addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
+            filteredDataSets.append(dataSet)
+    script.addDataSetFileNodesFor(path, filteredDataSets, response, acceptor, context)
 
 acceptor.sampleChildrenHandlers["MICROSCOPY_EXPERIMENT"] = addSampleChildNodes

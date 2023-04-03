@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 
 import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.*;
 
@@ -179,28 +181,61 @@ public class AfsClientTest
     }
 
     @Test
-    public void testBegin()
+    public void begin_methodIsPost() throws Exception
     {
+        login();
+
+        UUID transactionId = UUID.randomUUID();
+
+        httpServer.setNextResponse("{\"result\": null}");
+        afsClient.begin(transactionId);
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
     }
 
     @Test
-    public void testPrepare()
+    public void prepare_methodIsPost() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        Boolean result = afsClient.prepare();
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
     }
 
     @Test
-    public void testCommit()
+    public void commit_methodIsPost() throws Exception
     {
+        login();
+        httpServer.setNextResponse("{\"result\": null}");
+
+        afsClient.commit();
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
     }
 
     @Test
-    public void testRollback()
+    public void rollback_methodIsPost() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": null}");
+
+        afsClient.rollback();
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
     }
 
     @Test
-    public void testRecover()
+    public void recover_methodIsPost() throws Exception
     {
+        login();
+
+        httpServer.setNextResponse("{\"result\": null}");
+
+        List<UUID> result = afsClient.recover();
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertNull(result);
     }
 
     private void login() throws Exception

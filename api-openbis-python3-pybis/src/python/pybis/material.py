@@ -15,6 +15,7 @@
 from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
 from .property import PropertyHolder
+from .property_reformatter import PropertyReformatter
 from .utils import VERBOSE
 
 
@@ -25,8 +26,11 @@ class Material(OpenBisObject):
         self.__dict__["entity"] = "material"
         self.__dict__["openbis"] = openbis_obj
         self.__dict__["type"] = type
-        self.__dict__["p"] = PropertyHolder(openbis_obj, type)
+        ph = PropertyHolder(openbis_obj, type)
+        self.__dict__["p"] = ph
+        self.__dict__["props"] = ph
         self.__dict__["a"] = AttrHolder(openbis_obj, "material", type)
+        self.__dict__["formatter"] = PropertyReformatter(openbis_obj)
 
         if data is not None:
             self._set_data(data)
@@ -53,7 +57,7 @@ class Material(OpenBisObject):
                         f"Property '{prop_name}' is mandatory and must not be None"
                     )
 
-        props = self.p._all_props()
+        props = self.formatter.format(self.p._all_props())
 
         if self.is_new:
             request = self._new_attrs()

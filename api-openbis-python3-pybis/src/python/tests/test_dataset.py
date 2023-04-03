@@ -12,9 +12,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import datetime
 import os
 import re
 import time
+import uuid
 
 import pytest
 from pybis.things import Things
@@ -209,3 +211,49 @@ def test_create_new_dataset_v3_directory(space):
     assert dataset.permId is not None
     assert dataset.file_list == ["testdir/testfile"]
 
+
+def test_dataset_property_in_isoformat_date(space):
+    o = space.openbis
+
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+
+    # Create custom TIMESTAMP property type
+    property_type_code = "test_property_type_" + timestamp + "_" + str(uuid.uuid4())
+    pt_date = o.new_property_type(
+        code=property_type_code,
+        label='custom property of data type timestamp',
+        description='custom property created in unit test',
+        dataType='TIMESTAMP',
+    )
+    pt_date.save()
+
+    # Create new dataset type
+    type_code = "test_dataset_type_" + timestamp + "_" + str(uuid.uuid4())
+    dataset_type = o.new_dataset_type(code=type_code)
+    dataset_type.save()
+
+    # Assign created property to new dataset type
+    dataset_type.assign_property(property_type_code)
+
+    # Create new dataset with timestamp property in non-supported format
+    timestamp_property = datetime.datetime.now().isoformat()
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    dataset = o.new_dataset(
+        type=type_code,
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={property_type_code: timestamp_property},
+    )
+    dataset.save()
+
+    # New dataset case
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None
+
+    # Update dataset case
+    dataset.p[property_type_code] = timestamp_property
+    dataset.save()
+
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None

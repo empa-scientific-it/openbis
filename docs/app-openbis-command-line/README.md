@@ -22,9 +22,12 @@ case, OpenBIS is aware of its existence and the data can be used for provenance 
         1. [Settings](#521-settings)
         2. [Commands](#522-commands)
         3. [Examples](#523-examples)
-6. [Big Data Link Services](#6-big-data-link-services)
-7. [Rationale for obis](#7-rationale-for-obis)
-8. [Literature](#8-literature)
+6. [Authentication](#6-authentication)
+   1. [Login](#61-login)
+   2. [Personal Access Token](#62-personal-access-token)
+7. [Big Data Link Services](#7-big-data-link-services)
+8. [Rationale for obis](#8-rationale-for-obis)
+9. [Literature](#9-literature)
 
 ## 1. Prerequisites
 
@@ -166,7 +169,7 @@ Here is a short summary of which commands are available in given modes:
 | settings clear   |          ❌          |          ✅          |
 | status           |          ❌          |          ✅          |
 | sync             |          ❌          |          ✅          |
-| token            |          ❌          |          ✅          |
+| token            |          ✅          |          ✅          |
 | upload           |          ✅          |          ❌          |
 
 **Login**
@@ -234,6 +237,7 @@ Options:
   -space, --space TEXT            Space code
   -project, --project TEXT        Full project identification code
   -experiment, --experiment TEXT  Full experiment code
+  -object, --object TEXT          Object identification information, it can be permId or identifier
   -type, --type TEXT              Type code
   -registration-date, --registration-date TEXT
                                   Registration date, it can be in the format
@@ -244,12 +248,16 @@ Options:
   -property TEXT                  Property code
   -property-value TEXT            Property value
   -save, --save TEXT              Directory name to save results
+  -r, --recursive                 Search data recursively
 ```
 
 With `data_set search` command, obis connects to a configured OpenBIS instance and searches for all
-data sets that fulfill given filtering criteria.
-At least one filtering criteria must be specified. Search results can be downloaded by
-using `save` option.
+data sets that fulfill given filtering criteria or by using object identification string.
+At least one search option must be specified. 
+
+Search results can be downloaded into a file by using `save` option.
+
+Recursive option enables searching for datasets of children samples or datasets
 
 *Note: Filtering by `-project` may not work when `Project Samples` are disabled in OpenBIS
 configuration.*
@@ -306,6 +314,7 @@ Options:
   -space, --space TEXT            Space code
   -project, --project TEXT        Full project identification code
   -experiment, --experiment TEXT  Full experiment 
+  -object, --object TEXT          Object identification information, it can be permId or identifier
   -registration-date, --registration-date TEXT
                                   Registration date, it can be in the format
                                   "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
@@ -315,12 +324,16 @@ Options:
   -property TEXT                  Property code
   -property-value TEXT            Property value
   -save, --save TEXT              File name to save results in csv format
+  -r, --recursive                 Search data recursively
 ```
 
 With `object search` command, obis connects to a configured OpenBIS instance and searches for all
-objects/samples that fulfill given filtering criteria.
-At least one filtering criteria must be specified. Search results can be downloaded int a file by
-using `-save` option.
+objects/samples that fulfill given filtering criteria or by using object identification string.
+At least one search option must be specified. 
+
+Search results can be downloaded into a file by using `save` option.
+
+Recursive option enables searching for datasets of children samples or datasets
 
 *Note: Filtering by `-project` may not work when `Project Samples` are disabled in OpenBIS
 configuration.*
@@ -550,6 +563,7 @@ was moved or copied without using the `move` or `copy` commands.
 
 **token**
 
+
 ```
 obis token get <session_name> [--validity-days] [--validity-weeks] [--validity-months]
 ```
@@ -602,7 +616,24 @@ echo content >> example_file
 obis commit -m 'message'
 ```
 
-## 6. Big Data Link Services
+## 6. Authentication
+
+There are 2 ways to perform user authentication against OpenBIS.
+
+### 6.1. Login
+Obis, internally, stores a session token which is used to connect with OpenBIS. Whenever this token 
+is invalidated, obis will ask user to provide credentials to log into OpenBIS again.   
+
+
+### 6.2. Personal Access Token
+Session token is short-lived and its interactive generation makes it unfeasible for usage in automatic 
+scripts. An alternative way to authorize is to generate personal access token (PAT), which can be 
+configured to last for a long periods of time.
+
+PAT generation is explained in depth in `token` command section.
+
+
+## 7. Big Data Link Services
 
 The Big Data Link Services can be used to download files which are contained in an obis repository.
 The services are included in the installation folder of openBIS,
@@ -610,7 +641,7 @@ under `servers/big_data_link_services`. For how to configure and run them, consu
 the [README.md](https://sissource.ethz.ch/sispub/openbis/blob/master/big_data_link_server/README.md)
 file.
 
-## 7. Rationale for obis
+## 8. Rationale for obis
 
 Data-provenance tracking tools like openBIS make it possible to understand and follow the research
 process. What was studied, what data was acquired and how, how was data analyzed to arrive at final
@@ -639,7 +670,7 @@ Using `git-annex`, even large binary artifacts can be tracked efficiently. For c
 openBIS, `obis` uses the openBIS API, which offers the power to register and track all metadata
 supported by openBIS.
 
-## 8. Literature
+## 9. Literature
 
 V. Korolev, A. Joshi, V. Korolev, M.A. Grasso, A. Joshi, M.A. Grasso, et al., "PROB: A tool for
 tracking provenance and reproducibility of big data experiments", Reproduce '14. HPCA 2014, vol. 11,

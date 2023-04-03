@@ -1,6 +1,7 @@
 ## Changes with pybis-1.35.4
 
-- Changes to internal implementation of data set download/upload to use OpenBIS V3 API 
+- Changes to internal implementation of data set download/upload to use OpenBIS V3 API
+- Added TIMESTAMP property reformatting to fit formats supported by OpenBIS
 
 ## Changes with pybis-1.35.3
 

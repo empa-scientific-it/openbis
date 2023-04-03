@@ -1110,9 +1110,19 @@ public class SearchSampleTest extends AbstractSampleTest
     @Test
     public void testSearchWithContainerWithPermId()
     {
-        SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withContainer().withPermId().thatEquals("200811050924274-994");
-        testSearch(TEST_USER, criteria, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+        final SampleSearchCriteria criteria1 = new SampleSearchCriteria();
+        criteria1.withContainer().withPermId().thatEquals("200811050924274-994");
+        testSearch(TEST_USER, criteria1, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+
+        // Not existing sample permID as a container.
+        final SampleSearchCriteria criteria2 = new SampleSearchCriteria();
+        criteria2.withContainer().withPermId().thatEquals("200811050924274-000");
+        testSearch(TEST_USER, criteria2);
+
+        // Existing sample permID which is not a container.
+        final SampleSearchCriteria criteria3 = new SampleSearchCriteria();
+        criteria3.withContainer().withPermId().thatEquals("200811050925507-1000");
+        testSearch(TEST_USER, criteria3);
     }
 
     @Test

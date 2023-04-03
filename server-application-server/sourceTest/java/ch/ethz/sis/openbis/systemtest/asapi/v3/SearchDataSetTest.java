@@ -21,9 +21,11 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DatePropertySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
@@ -154,6 +156,26 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void test()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        //        criteria.withContainer();
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withContainers();
+        List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+
+        dataSets.stream().filter(dataSet -> dataSet.getContainers() != null && !dataSet.getContainers().isEmpty()).forEach(dataSet ->
+                System.out.printf("Code: %s. PermId: %s. Containers permId: %s\n", dataSet.getCode(), dataSet.getPermId(),
+                        dataSet.getContainers().stream().map(DataSet::getPermId).map(ObjectPermId::getPermId).collect(Collectors.joining(", ")))
+        );
+
+//        System.out.println(dataSets);
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testSearchWithContainer()
     {
         final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
@@ -166,9 +188,27 @@ public class SearchDataSetTest extends AbstractDataSetTest
     @Test
     public void testSearchWithContainerWithPermId()
     {
-        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
-        criteria.withContainer().withPermId().thatEquals("20110509092359990-10");
-        testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
+        final DataSetSearchCriteria criteria1 = new DataSetSearchCriteria();
+        criteria1.withContainer().withPermId().thatEquals("20110509092359990-10");
+        testSearch(TEST_USER, criteria1, "20110509092359990-11", "20110509092359990-12");
+
+        final DataSetSearchCriteria criteria2 = new DataSetSearchCriteria();
+        criteria2.withContainer().withPermId().thatEquals("CONTAINER_3A");
+        testSearch(TEST_USER, criteria2, "COMPONENT_3A", "COMPONENT_3AB");
+
+        final DataSetSearchCriteria criteria3 = new DataSetSearchCriteria();
+        criteria3.withContainer().withPermId().thatEquals("CONTAINER_3B");
+        testSearch(TEST_USER, criteria3, "COMPONENT_3AX", "COMPONENT_3AB");
+
+        // Not existing data set permID as a container.
+        final DataSetSearchCriteria criteria4 = new DataSetSearchCriteria();
+        criteria4.withContainer().withPermId().thatEquals("20110509092359990-000");
+        testSearch(TEST_USER, criteria4);
+
+        // Existing data set permID which is not as a container.
+        final DataSetSearchCriteria criteria5 = new DataSetSearchCriteria();
+        criteria5.withContainer().withPermId().thatEquals("COMPONENT_3AB");
+        testSearch(TEST_USER, criteria5);
     }
 
     @Test

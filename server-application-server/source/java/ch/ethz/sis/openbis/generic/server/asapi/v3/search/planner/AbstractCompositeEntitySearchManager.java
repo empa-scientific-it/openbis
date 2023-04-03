@@ -175,7 +175,7 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
                             ? Collections.singleton(containerCriteriaIntermediateResults) : Collections.emptySet(),
                     nestedCriteriaIntermediateResults);
         } else if (mainCriteria.isEmpty() && parentRelationshipsCriteria.isEmpty()
-                && childRelationshipsCriteria.isEmpty() && nestedCriteria.isEmpty())
+                && childRelationshipsCriteria.isEmpty() && nestedCriteria.isEmpty() && containerCriteria.isEmpty())
         {
             // If we don't have results and criteria are empty, return all.
             results = getAllIds(userId, authorisationInformation, idsColumnName, tableMapper, null);
