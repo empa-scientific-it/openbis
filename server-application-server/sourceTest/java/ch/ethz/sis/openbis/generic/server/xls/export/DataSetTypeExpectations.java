@@ -16,7 +16,9 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -38,6 +40,11 @@ class DataSetTypeExpectations extends Expectations
 
     public DataSetTypeExpectations(final IApplicationServerApi api, final boolean exportReferred)
     {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.set(2023, Calendar.MARCH, 10, 17, 23, 44);
+
+        final Date modificationDate = calendar.getTime();
+
         allowing(api).getDataSetTypes(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         Collections.singletonList(
                                 new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET)))),
@@ -58,6 +65,10 @@ class DataSetTypeExpectations extends Expectations
                 dataSetType.setCode("ATTACHMENT");
                 dataSetType.setDescription("Attachment");
                 dataSetType.setPropertyAssignments(getPropertyAssignments(fetchOptions));
+                dataSetType.setMainDataSetPattern(".*\\.jpg");
+                dataSetType.setMainDataSetPath("original/images/");
+                dataSetType.setDisallowDeletion(false);
+                dataSetType.setModificationDate(modificationDate);
 
                 return Collections.singletonMap(new EntityTypePermId("ATTACHMENT"), dataSetType);
             }

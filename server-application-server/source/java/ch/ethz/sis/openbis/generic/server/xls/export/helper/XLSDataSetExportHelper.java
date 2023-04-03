@@ -22,6 +22,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PERM_ID;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PRESENT_IN_ARCHIVE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
@@ -76,6 +77,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
+        fetchOptions.withPhysicalData();
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
     }
 
@@ -112,8 +114,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     @Override
     protected Attribute[] getAttributes(final DataSet dataSet)
     {
-        return new Attribute[] { CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION, dataSet.getSample() != null ? SAMPLE : EXPERIMENT,
-                PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
+        return new Attribute[] { PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION,
+                dataSet.getSample() != null ? SAMPLE : EXPERIMENT, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
@@ -121,6 +123,10 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     {
         switch (attribute)
         {
+            case PERM_ID:
+            {
+                return dataSet.getPermId().getPermId();
+            }
             case ARCHIVING_STATUS:
             {
                 return dataSet.getPhysicalData().isArchivingRequested().toString().toUpperCase();

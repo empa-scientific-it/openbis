@@ -24,6 +24,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.IDENTIFIER
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PERM_ID;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PROJECT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
@@ -85,7 +86,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     @Override
     protected Attribute[] getAttributes(final Sample entity)
     {
-        return new Attribute[] { $, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, AUTO_GENERATE_CODE, PARENTS, CHILDREN,
+        return new Attribute[] { $, PERM_ID, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, AUTO_GENERATE_CODE, PARENTS, CHILDREN,
                 REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
@@ -112,6 +113,10 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     {
         switch (attribute)
         {
+            case PERM_ID:
+            {
+                return sample.getPermId().getPermId();
+            }
             case IDENTIFIER:
             {
                 return sample.getIdentifier().getIdentifier();

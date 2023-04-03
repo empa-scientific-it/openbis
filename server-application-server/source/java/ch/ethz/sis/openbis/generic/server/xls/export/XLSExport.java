@@ -173,7 +173,7 @@ public class XLSExport
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
                     exportablePermId.getPermId().getPermId());
 
-            if (entityType != null)
+            if (exportReferredMasterData && entityType != null)
             {
                 final Plugin validationPlugin = entityType.getValidationPlugin();
                 if (validationPlugin != null && validationPlugin.getScript() != null)

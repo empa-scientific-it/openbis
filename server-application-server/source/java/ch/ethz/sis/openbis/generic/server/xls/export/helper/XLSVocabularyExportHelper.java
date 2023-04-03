@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -115,7 +117,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                         {
                             if (FieldType.valueOf(attribute.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
                             {
-                                return Attribute.valueOf(attribute.get(FIELD_ID_KEY)).getName();
+                                return valueOf(attribute.get(FIELD_ID_KEY)).getName();
                             } else
                             {
                                 throw new IllegalArgumentException();
@@ -126,7 +128,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                         .toArray(Attribute[]::new);
                 final Set<Attribute> selectedAttributes = selectedExportAttributes.stream()
                         .filter(map -> map.get(FIELD_TYPE_KEY).equals(FieldType.ATTRIBUTE.toString()))
-                        .map(map -> Attribute.valueOf(map.get(FIELD_ID_KEY)))
+                        .map(map -> valueOf(map.get(FIELD_ID_KEY)))
                         .collect(Collectors.toCollection(() -> EnumSet.noneOf(Attribute.class)));
                 final Stream<String> requiredForImportAttributeNameStream = compatibleWithImport
                         ? Arrays.stream(requiredForImportAttributes)
@@ -152,7 +154,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                         {
                             if (FieldType.valueOf(field.get(FIELD_TYPE_KEY)) == FieldType.ATTRIBUTE)
                             {
-                                return getAttributeValue(vocabulary, Attribute.valueOf(field.get(FIELD_ID_KEY)));
+                                return getAttributeValue(vocabulary, valueOf(field.get(FIELD_ID_KEY)));
                             } else
                             {
                                 throw new IllegalArgumentException();
@@ -188,7 +190,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
 
     protected Attribute[] getAttributes()
     {
-        return new Attribute[] { Attribute.VERSION, Attribute.CODE, Attribute.DESCRIPTION };
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
     }
 
     protected String getAttributeValue(final Vocabulary vocabulary, final Attribute attribute)
@@ -206,6 +208,18 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
             case DESCRIPTION:
             {
                 return vocabulary.getDescription();
+            }
+            case REGISTRATOR:
+            {
+                return vocabulary.getRegistrator().getUserId();
+            }
+            case REGISTRATION_DATE:
+            {
+                return DATE_FORMAT.format(vocabulary.getRegistrationDate());
+            }
+            case MODIFICATION_DATE:
+            {
+                return DATE_FORMAT.format(vocabulary.getModificationDate());
             }
             default:
             {
