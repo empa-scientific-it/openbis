@@ -42,14 +42,17 @@ var BarcodeUtil = new function() {
         mainController.changeView("showBlancPage");
         var content = mainController.currentView.content;
         content.empty();
-        var $video = $("<video>", { id : "video", width : "100%", height : "100%" });
-        content.append($("<h1>").text("Camera:"));
         content.append(FormUtil.getButtonWithIcon("glyphicon-minus-sign", function() {
             if(codeReader != null) {
                 codeReader.reset();
                 codeReader = null;
             }
-        }, "Cancel Barcode Reading"));
+            // On cancel go back to previews view
+            mainController.backButtonLogic();
+            mainController.backButtonLogic();
+        }));
+        content.append($("<legend>").text("Read Barcode:"));
+        var $video = $("<video>", { id : "video", width : "100%", height : "100%" });
         content.append($video);
 
         // Starts the camera reading code
@@ -64,6 +67,9 @@ var BarcodeUtil = new function() {
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             Util.showError("Failed to read barcode");
+                            // On cancel go back to previews view
+                            mainController.backButtonLogic();
+                            mainController.backButtonLogic();
                         }
                     });
         });
