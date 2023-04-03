@@ -204,7 +204,7 @@ class DataSetExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("NAME");
+                propertyType.setCode("$NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);
@@ -223,7 +223,7 @@ class DataSetExpectations extends Expectations
             private PropertyAssignment getAttachmentPropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("ATTACHMENT");
+                propertyType.setCode("$ATTACHMENT");
                 propertyType.setLabel("Attachment");
                 propertyType.setDescription("Attachment");
                 propertyType.setDataType(DataType.VARCHAR);

@@ -173,7 +173,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     private static String getProperty(final Map<String, String> properties, final PropertyType propertyType)
     {
-        return properties.get((propertyType.isManagedInternally() ? INTERNAL_PROPERTY_PREFIX : "") + propertyType.getCode());
+        return properties.get(propertyType.getCode());
     }
 
 }

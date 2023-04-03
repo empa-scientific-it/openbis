@@ -135,14 +135,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                 case PROPERTY:
                                 {
                                     return propertyTypes.stream()
-                                            .filter(propertyType ->
-                                            {
-                                                final String code = propertyType.getCode();
-                                                return fieldId.startsWith(INTERNAL_PROPERTY_PREFIX)
-                                                        ? propertyType.isManagedInternally() &&
-                                                                Objects.equals(code, fieldId.substring(INTERNAL_PROPERTY_PREFIX.length()))
-                                                        : !propertyType.isManagedInternally() && Objects.equals(code, fieldId);
-                                            })
+                                            .filter(propertyType -> Objects.equals(propertyType.getCode(), fieldId))
                                             .findFirst()
                                             .orElseThrow(() -> new IllegalArgumentException("Property type not found for id: " + fieldId))
                                             .getLabel();
@@ -172,9 +165,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportFields);
                 final Map<String, PropertyType> codeToPropertyTypeMap = propertyTypes.stream()
-                        .collect(Collectors.toMap(propertyType -> (propertyType.isManagedInternally() ? INTERNAL_PROPERTY_PREFIX : "")
-                                        + propertyType.getCode(),
-                                propertyType -> propertyType, (o1, o2) -> o2));
+                        .collect(Collectors.toMap(PropertyType::getCode, propertyType -> propertyType, (o1, o2) -> o2));
                 final List<Map<String, String>> extraExportFields = compatibleWithImport
                         ? Arrays.stream(requiredForImportAttributes)
                         .map(attribute -> Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, attribute.toString()))
