@@ -37,6 +37,10 @@ public final class AfsClient implements PublicAPI
 
     private String sessionToken;
 
+    private String interactiveSessionKey;
+
+    private String transactionManagerKey;
+
     private final URI serverUri;
 
     private final JsonObjectMapper jsonObjectMapper;
@@ -72,6 +76,26 @@ public final class AfsClient implements PublicAPI
     public void setSessionToken(final String sessionToken)
     {
         this.sessionToken = sessionToken;
+    }
+
+    public String getInteractiveSessionKey()
+    {
+        return interactiveSessionKey;
+    }
+
+    public void setInteractiveSessionKey(String interactiveSessionKey)
+    {
+        this.interactiveSessionKey = interactiveSessionKey;
+    }
+
+    public String getTransactionManagerKey()
+    {
+        return transactionManagerKey;
+    }
+
+    public void setTransactionManagerKey(String transactionManagerKey)
+    {
+        this.transactionManagerKey = transactionManagerKey;
     }
 
     private static String urlEncode(final String s)
@@ -189,8 +213,9 @@ public final class AfsClient implements PublicAPI
     {
         validateSessionToken();
         Map<String, Object> parameters =
-                Map.of("transactionId", transactionId,
-                        "sessionToken", getSessionToken());
+                Map.of("transactionId", transactionId.toString(),
+                        "sessionToken", getSessionToken(),
+                        "interactiveSessionKey", getInteractiveSessionKey());
         request("POST", "begin", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
@@ -198,28 +223,38 @@ public final class AfsClient implements PublicAPI
     public Boolean prepare() throws Exception
     {
         validateSessionToken();
-        return request("POST", "prepare", Map.of());
+        Map<String, Object> parameters =
+                Map.of("interactiveSessionKey", getInteractiveSessionKey(),
+                        "transactionManagerKey", getTransactionManagerKey());
+        return request("POST", "prepare", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
     public void commit() throws Exception
     {
         validateSessionToken();
-        request("POST", "commit", Map.of());
+        Map<String, Object> parameters =
+                Map.of("interactiveSessionKey", getInteractiveSessionKey());
+        request("POST", "commit", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
     public void rollback() throws Exception
     {
         validateSessionToken();
-        request("POST", "rollback", Map.of());
+        Map<String, Object> parameters =
+                Map.of("interactiveSessionKey", getInteractiveSessionKey());
+        request("POST", "rollback", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
     public List<UUID> recover() throws Exception
     {
         validateSessionToken();
-        return request("POST", "recover", Map.of());
+        Map<String, Object> parameters =
+                Map.of("interactiveSessionKey", getInteractiveSessionKey(),
+                        "transactionManagerKey", getTransactionManagerKey());
+        return request("POST", "recover", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
