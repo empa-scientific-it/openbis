@@ -72,6 +72,7 @@ var SampleDataGridUtil = new function() {
             columnsFirst.push({
                 label : permIdLabel,
                 property : 'permId',
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
                 filterable: true,
                 sortable : true,
                 render : function(data, grid) {

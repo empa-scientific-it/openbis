@@ -56,6 +56,7 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'PermId',
 			property : 'permId',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
 			sortable : true,
 			render : function(data) {
 				return FormUtil.getFormLink(data.permId, "Experiment", data.permId);
