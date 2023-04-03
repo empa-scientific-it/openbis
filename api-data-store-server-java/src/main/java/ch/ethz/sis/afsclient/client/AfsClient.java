@@ -187,31 +187,39 @@ public final class AfsClient implements PublicAPI
     @Override
     public void begin(final UUID transactionId) throws Exception
     {
-
+        validateSessionToken();
+        Map<String, Object> parameters =
+                Map.of("transactionId", transactionId,
+                        "sessionToken", getSessionToken());
+        request("POST", "begin", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
     @Override
     public Boolean prepare() throws Exception
     {
-        return null;
+        validateSessionToken();
+        return request("POST", "prepare", Map.of());
     }
 
     @Override
     public void commit() throws Exception
     {
-
+        validateSessionToken();
+        request("POST", "commit", Map.of());
     }
 
     @Override
     public void rollback() throws Exception
     {
-
+        validateSessionToken();
+        request("POST", "rollback", Map.of());
     }
 
     @Override
     public List<UUID> recover() throws Exception
     {
-        return null;
+        validateSessionToken();
+        return request("POST", "recover", Map.of());
     }
 
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
