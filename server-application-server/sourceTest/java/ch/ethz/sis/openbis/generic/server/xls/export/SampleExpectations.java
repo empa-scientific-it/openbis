@@ -219,10 +219,11 @@ class SampleExpectations extends Expectations
             private PropertyAssignment getBoxesCountPropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$STORAGE.BOX_NUM");
+                propertyType.setCode("STORAGE.BOX_NUM");
                 propertyType.setLabel("Number of Boxes");
                 propertyType.setDescription("Number of Boxes");
                 propertyType.setDataType(DataType.INTEGER);
+                propertyType.setManagedInternally(true);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());
@@ -237,10 +238,11 @@ class SampleExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);
+                propertyType.setManagedInternally(true);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());

@@ -82,10 +82,11 @@ class DataSetTypeExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         propertyAssignmentFetchOptions);
-                propertyAssignments[0].getPropertyType().setCode("$NAME");
+                propertyAssignments[0].getPropertyType().setCode("NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
+                propertyAssignments[0].getPropertyType().setManagedInternally(true);
                 propertyAssignments[0].getPropertyType().setLabel("Name");
                 propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
                 propertyAssignments[0].getPropertyType().setDescription("Name");
@@ -96,6 +97,7 @@ class DataSetTypeExpectations extends Expectations
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
                 propertyAssignments[1].setSection("Comments");
+                propertyAssignments[1].getPropertyType().setManagedInternally(false);
                 propertyAssignments[1].getPropertyType().setLabel("Notes");
                 propertyAssignments[1].getPropertyType().setDataType(DataType.MULTILINE_VARCHAR);
                 propertyAssignments[1].getPropertyType().setDescription("Notes");
@@ -104,9 +106,10 @@ class DataSetTypeExpectations extends Expectations
 
                 propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
                         propertyAssignmentFetchOptions);
-                propertyAssignments[2].getPropertyType().setCode("$XMLCOMMENTS");
+                propertyAssignments[2].getPropertyType().setCode("XMLCOMMENTS");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(false);
+                propertyAssignments[2].getPropertyType().setManagedInternally(true);
                 propertyAssignments[2].getPropertyType().setLabel("Comments List");
                 propertyAssignments[2].getPropertyType().setDataType(DataType.XML);
                 propertyAssignments[2].getPropertyType().setDescription("Comments log");

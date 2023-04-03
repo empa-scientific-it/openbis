@@ -144,6 +144,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");
+        propertyAssignments[0].getPropertyType().setManagedInternally(true);
         propertyAssignments[0].getPropertyType().setLabel("Name");
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("Name");
@@ -153,6 +154,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[1].setMandatory(true);
         propertyAssignments[1].setShowInEditView(true);
         propertyAssignments[1].setSection("General info");
+        propertyAssignments[1].getPropertyType().setManagedInternally(false);
         propertyAssignments[1].getPropertyType().setLabel("Address");
         propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[1].getPropertyType().setDescription("Address");
@@ -170,6 +172,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");
+        propertyAssignments[0].getPropertyType().setManagedInternally(false);
         propertyAssignments[0].getPropertyType().setLabel("First name");
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("First name");
@@ -179,6 +182,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[1].setMandatory(true);
         propertyAssignments[1].setShowInEditView(true);
         propertyAssignments[1].setSection("General info");
+        propertyAssignments[1].getPropertyType().setManagedInternally(false);
         propertyAssignments[1].getPropertyType().setLabel("Last name");
         propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[1].getPropertyType().setDescription("Last name");
@@ -188,6 +192,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[2].setMandatory(false);
         propertyAssignments[2].setShowInEditView(true);
         propertyAssignments[2].setSection("General info");
+        propertyAssignments[2].getPropertyType().setManagedInternally(false);
         propertyAssignments[2].getPropertyType().setLabel("Department");
         propertyAssignments[2].getPropertyType().setDataType(DataType.SAMPLE);
         final SampleType sampleType = new SampleType();
@@ -207,10 +212,11 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[5];
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(propertyAssignmentFetchOptions);
-        propertyAssignments[0].getPropertyType().setCode("$NAME");
+        propertyAssignments[0].getPropertyType().setCode("NAME");
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");
+        propertyAssignments[0].getPropertyType().setManagedInternally(true);
         propertyAssignments[0].getPropertyType().setLabel("Name");
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("Name");
@@ -220,6 +226,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[1].setMandatory(true);
         propertyAssignments[1].setShowInEditView(true);
         propertyAssignments[1].setSection("General info");
+        propertyAssignments[1].getPropertyType().setManagedInternally(false);
         propertyAssignments[1].getPropertyType().setLabel("Open");
         propertyAssignments[1].getPropertyType().setDataType(DataType.BOOLEAN);
         propertyAssignments[1].getPropertyType().setDescription("Marks the program open for assignment");
@@ -229,6 +236,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[2].setMandatory(true);
         propertyAssignments[2].setShowInEditView(true);
         propertyAssignments[2].setSection("General info");
+        propertyAssignments[2].getPropertyType().setManagedInternally(false);
         propertyAssignments[2].getPropertyType().setLabel("Start date");
         propertyAssignments[2].getPropertyType().setDataType(DataType.TIMESTAMP);
         propertyAssignments[2].getPropertyType().setDescription("Start date");
@@ -238,6 +246,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[3].setMandatory(true);
         propertyAssignments[3].setShowInEditView(true);
         propertyAssignments[3].setSection("General info");
+        propertyAssignments[3].getPropertyType().setManagedInternally(false);
         propertyAssignments[3].getPropertyType().setLabel("End date");
         propertyAssignments[3].getPropertyType().setDataType(DataType.TIMESTAMP);
         propertyAssignments[3].getPropertyType().setDescription("End date");
@@ -247,6 +256,7 @@ class SampleTypeWithChainedSamplePropertiesExpectations extends Expectations
         propertyAssignments[4].setMandatory(false);
         propertyAssignments[4].setShowInEditView(true);
         propertyAssignments[4].setSection("General info");
+        propertyAssignments[4].getPropertyType().setManagedInternally(false);
         propertyAssignments[4].getPropertyType().setLabel("Teacher");
         propertyAssignments[4].getPropertyType().setDataType(DataType.SAMPLE);
         final SampleType sampleType = new SampleType();

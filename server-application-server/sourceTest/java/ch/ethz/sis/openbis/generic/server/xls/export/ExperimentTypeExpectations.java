@@ -86,20 +86,22 @@ class ExperimentTypeExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[0].getPropertyType().setCode("$NAME");
+                propertyAssignments[0].getPropertyType().setCode("NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
+                propertyAssignments[0].getPropertyType().setManagedInternally(true);
                 propertyAssignments[0].getPropertyType().setLabel("Name");
                 propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
                 propertyAssignments[0].getPropertyType().setDescription("Name");
 
                 propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[1].getPropertyType().setCode("$DEFAULT_OBJECT_TYPE");
+                propertyAssignments[1].getPropertyType().setCode("DEFAULT_OBJECT_TYPE");
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
                 propertyAssignments[1].setSection("General info");
+                propertyAssignments[1].getPropertyType().setManagedInternally(true);
                 propertyAssignments[1].getPropertyType().setLabel("Default object type");
                 propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
                 propertyAssignments[1].getPropertyType().setDescription(
@@ -110,6 +112,7 @@ class ExperimentTypeExpectations extends Expectations
                 propertyAssignments[2].getPropertyType().setCode("NOTES");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(true);
+                propertyAssignments[2].getPropertyType().setManagedInternally(false);
                 propertyAssignments[2].getPropertyType().setLabel("Notes");
                 propertyAssignments[2].getPropertyType().setDataType(DataType.MULTILINE_VARCHAR);
                 propertyAssignments[2].getPropertyType().setDescription("Notes");
@@ -118,9 +121,10 @@ class ExperimentTypeExpectations extends Expectations
 
                 propertyAssignments[3] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[3].getPropertyType().setCode("$XMLCOMMENTS");
+                propertyAssignments[3].getPropertyType().setCode("XMLCOMMENTS");
                 propertyAssignments[3].setMandatory(false);
                 propertyAssignments[3].setShowInEditView(false);
+                propertyAssignments[3].getPropertyType().setManagedInternally(true);
                 propertyAssignments[3].getPropertyType().setLabel("Comments List");
                 propertyAssignments[3].getPropertyType().setDataType(DataType.XML);
                 propertyAssignments[3].getPropertyType().setDescription("Comments log");

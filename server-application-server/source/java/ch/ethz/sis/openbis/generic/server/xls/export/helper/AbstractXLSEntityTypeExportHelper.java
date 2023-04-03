@@ -187,9 +187,10 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             final Plugin plugin = propertyAssignment.getPlugin();
             final Vocabulary vocabulary = propertyType.getVocabulary();
 
+            final String code = (propertyType.isManagedInternally() ? INTERNAL_PROPERTY_PREFIX : "") + propertyType.getCode();
             final String[] values = {
-                    String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.PROPERTY_TYPE, null, propertyType.getCode())),
-                    propertyType.getCode(),
+                    String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.PROPERTY_TYPE, null, code)),
+                    code,
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
                     propertyAssignment.getSection(),

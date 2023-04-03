@@ -204,10 +204,11 @@ class DataSetExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);
+                propertyType.setManagedInternally(true);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());
@@ -222,10 +223,11 @@ class DataSetExpectations extends Expectations
             private PropertyAssignment getAttachmentPropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$ATTACHMENT");
+                propertyType.setCode("ATTACHMENT");
                 propertyType.setLabel("Attachment");
                 propertyType.setDescription("Attachment");
                 propertyType.setDataType(DataType.VARCHAR);
+                propertyType.setManagedInternally(true);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());
@@ -244,6 +246,7 @@ class DataSetExpectations extends Expectations
                 propertyType.setLabel("Notes");
                 propertyType.setDescription("Notes");
                 propertyType.setDataType(DataType.MULTILINE_VARCHAR);
+                propertyType.setManagedInternally(false);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());

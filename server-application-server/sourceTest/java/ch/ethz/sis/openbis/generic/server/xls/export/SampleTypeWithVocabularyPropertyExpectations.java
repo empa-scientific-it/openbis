@@ -179,20 +179,22 @@ class SampleTypeWithVocabularyPropertyExpectations extends Expectations
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                 fetchOptions.withPropertyAssignments());
-        propertyAssignments[0].getPropertyType().setCode("$NAME");
+        propertyAssignments[0].getPropertyType().setCode("NAME");
         propertyAssignments[0].setMandatory(false);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");
+        propertyAssignments[0].getPropertyType().setManagedInternally(true);
         propertyAssignments[0].getPropertyType().setLabel("Name");
         propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[0].getPropertyType().setDescription("Name");
 
         propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
                 fetchOptions.withPropertyAssignments());
-        propertyAssignments[1].getPropertyType().setCode("$BARCODE");
+        propertyAssignments[1].getPropertyType().setCode("BARCODE");
         propertyAssignments[1].setMandatory(false);
         propertyAssignments[1].setShowInEditView(false);
         propertyAssignments[1].setSection("General info");
+        propertyAssignments[1].getPropertyType().setManagedInternally(true);
         propertyAssignments[1].getPropertyType().setLabel("Custom Barcode");
         propertyAssignments[1].getPropertyType().setDataType(DataType.VARCHAR);
         propertyAssignments[1].getPropertyType().setDescription("Custom Barcode");
@@ -203,6 +205,7 @@ class SampleTypeWithVocabularyPropertyExpectations extends Expectations
         propertyAssignments[2].setMandatory(false);
         propertyAssignments[2].setShowInEditView(true);
         propertyAssignments[2].setSection("General info");
+        propertyAssignments[2].getPropertyType().setManagedInternally(false);
         propertyAssignments[2].getPropertyType().setLabel("Antibody host");
         propertyAssignments[2].getPropertyType().setDataType(DataType.CONTROLLEDVOCABULARY);
         final Vocabulary vocabulary = new Vocabulary();

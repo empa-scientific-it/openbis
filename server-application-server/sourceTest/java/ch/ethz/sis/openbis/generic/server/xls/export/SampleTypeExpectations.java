@@ -100,20 +100,22 @@ class SampleTypeExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[0].getPropertyType().setCode("$NAME");
+                propertyAssignments[0].getPropertyType().setCode("NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
+                propertyAssignments[0].getPropertyType().setManagedInternally(true);
                 propertyAssignments[0].getPropertyType().setLabel("Name");
                 propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
                 propertyAssignments[0].getPropertyType().setDescription("Name");
 
                 propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[1].getPropertyType().setCode("$DOCUMENT");
+                propertyAssignments[1].getPropertyType().setCode("DOCUMENT");
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
                 propertyAssignments[1].setSection("General info");
+                propertyAssignments[1].getPropertyType().setManagedInternally(true);
                 propertyAssignments[1].getPropertyType().setLabel("Document");
                 propertyAssignments[1].getPropertyType().setDataType(DataType.MULTILINE_VARCHAR);
                 propertyAssignments[1].getPropertyType().setDescription("Document");
@@ -122,9 +124,10 @@ class SampleTypeExpectations extends Expectations
 
                 propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[2].getPropertyType().setCode("$ANNOTATIONS_STATE");
+                propertyAssignments[2].getPropertyType().setCode("ANNOTATIONS_STATE");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(false);
+                propertyAssignments[2].getPropertyType().setManagedInternally(true);
                 propertyAssignments[2].getPropertyType().setLabel("Annotations State");
                 propertyAssignments[2].getPropertyType().setDataType(DataType.XML);
                 propertyAssignments[2].getPropertyType().setDescription("Annotations State");

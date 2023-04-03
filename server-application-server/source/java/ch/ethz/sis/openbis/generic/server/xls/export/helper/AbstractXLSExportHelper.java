@@ -17,9 +17,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,11 +35,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
@@ -60,6 +55,8 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     public static final String FIELD_TYPE_KEY = "type";
 
     public static final String FIELD_ID_KEY = "id";
+
+    protected static final String INTERNAL_PROPERTY_PREFIX = "$";
 
     final Workbook wb;
     
@@ -167,11 +164,16 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
                 ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
-                        ? properties.get(propertyType.getCode()) != null
+                        ? getProperty(properties, propertyType) != null
                                 ? properties.get(propertyType.getCode()).replaceAll("<[^>]+>", "")
                                 : null
-                        : properties.get(propertyType.getCode())
-                : propertyType -> properties.get(propertyType.getCode());
+                        : getProperty(properties, propertyType)
+                : propertyType -> getProperty(properties, propertyType);
+    }
+
+    private static String getProperty(final Map<String, String> properties, final PropertyType propertyType)
+    {
+        return properties.get((propertyType.isManagedInternally() ? INTERNAL_PROPERTY_PREFIX : "") + propertyType.getCode());
     }
 
 }

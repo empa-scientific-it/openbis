@@ -198,10 +198,11 @@ class ExperimentExpectations extends Expectations
             private PropertyAssignment getNamePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$NAME");
+                propertyType.setCode("NAME");
                 propertyType.setLabel("Name");
                 propertyType.setDescription("Name");
                 propertyType.setDataType(DataType.VARCHAR);
+                propertyType.setManagedInternally(true);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());
@@ -216,10 +217,11 @@ class ExperimentExpectations extends Expectations
             private PropertyAssignment getDefaultObjectTypePropertyAssignment()
             {
                 final PropertyType propertyType = new PropertyType();
-                propertyType.setCode("$DEFAULT_OBJECT_TYPE");
+                propertyType.setCode("DEFAULT_OBJECT_TYPE");
                 propertyType.setLabel("Default object type");
                 propertyType.setDescription("Enter the code of the object type for which the collection is used");
                 propertyType.setDataType(DataType.VARCHAR);
+                propertyType.setManagedInternally(true);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());
@@ -238,6 +240,7 @@ class ExperimentExpectations extends Expectations
                 propertyType.setLabel("Experiment completed");
                 propertyType.setDescription("Marks the experiment as finished");
                 propertyType.setDataType(DataType.BOOLEAN);
+                propertyType.setManagedInternally(false);
 
                 final PropertyAssignment propertyAssignment = new PropertyAssignment();
                 propertyAssignment.setFetchOptions(getPropertyAssignmentFetchOptions());
