@@ -1,5 +1,5 @@
 /** Default owner/source */
-const owner = "";
+const owner = "demo-sample";
 const source = "";
 const HTTP_SERVER_URI = "/fileserver";
 
@@ -46,7 +46,9 @@ function createDeleteButton(row, filePath) {
 function dfs(tree, map, path, acc) {
 	for(const [key, val] of Object.entries(tree).sort(([a1,a2],[b1,b2]) => a1>b1 ? 1:-1)) {
 		var newPath = path + '/' + key;
-		acc.push(map[newPath]);
+		if(newPath in map) {
+			acc.push(map[newPath]);
+		}
 		dfs(val, map, newPath, acc);
 	}
 	return acc;
@@ -76,10 +78,14 @@ function generateTable(files) {
 	map = {};
 	files.forEach(file => map[file[1]['path']] = file[1]);
 	files = dfs(tree, map, '', []);
+	files.forEach(file => {
+		file.owner = owner;
+		file.path = file.path.slice(owner.length + 1);
+	});
 	
 
 	// column names for the list of files
-	const columns = ["name", "path", "directory", "size", "creationTime", "lastAccessTime", "lastModifiedTime"];
+	const columns = ["name", "owner", "path", "directory", "size", "creationTime", "lastAccessTime", "lastModifiedTime"];
 	const mytable = document.getElementById("html-data-table");
 
 	let headRow = document.createElement("tr");
@@ -105,8 +111,8 @@ function generateTable(files) {
 		});
 		if (file['directory'] !== true) {
 			createOpenButton(newRow, file['path'], file['size']);
-			createDeleteButton(newRow, file['path']);
 		}
+		createDeleteButton(newRow, file['path']);
 		mytable.appendChild(newRow);
 	}
 
@@ -123,7 +129,7 @@ function displayReturnedFiles(data)
 		alert("Could not retrieve data.");
 		return;
 	}
-
+	
 	var results = data.result[1];
 
 	// Restrict the display to 50 samples
@@ -137,24 +143,27 @@ function displayReturnedFiles(data)
  */
 function showEntries()
 {
-	$("#html-data-table tr").remove(); 
+	let table = document.getElementById("html-data-table");
+	while (table.firstChild) {
+		table.firstChild.remove()
+	}
 	datastoreServer.list(owner, source, "true", displayReturnedFiles);
 }
 
 
 /** validation for write */
 function isWriteValid() {
-	return $('#fpath').val() != '' && $('#foffset').val() != '';
+	return document.getElementById("fpath").value != '' && document.getElementById("foffset").value != '';
 }
 
 /** validation for copy */
 function isCopyValid() {
-	return $('#copy-from-path').val() != '' && $('#copy-to-path').val() != '';
+	return document.getElementById("copy-from-path").value != '' && document.getElementById("copy-to-path").value != '';
 }
 
 /** validation for move */
 function isMoveValid() {
-	return $('#move-from-path').val() != '' && $('#move-to-path').val() != '';
+	return document.getElementById("move-from-path").value != '' && document.getElementById('move-to-path').value != '';
 }
 
 
@@ -162,48 +171,57 @@ function enterApp(data)
 {
 	if(data.result == null){
 		alert("Login or password incorrect");
-		$("#username").focus();
+		document.getElementById("username").focus();
 		return;
 	}
 
-	$("#login-form-div").hide();
-	$("#main").show();
-
-	$('#openbis-logo').height(30);
+	document.getElementById("login-form-div").style.display = "none";
+	document.getElementById("main").style.display = "block";
+	document.getElementById("openbis-logo").style.height = "30px";
 
 	showEntries();
 }
 
-$(document).ready(function() {
+
+window.onload = function() {
 	new dssClientLoginPage(datastoreServer, enterApp).configure();
 
-	$('#list-button').click(function() { 
+	document.getElementById("list-button").onclick = function() {
 		showEntries();
-	});
+	}
 
-	$('#write-submit').click(function() { 
+	document.getElementById("write-submit").onclick = function() { 
 		if(isWriteValid()) {
-			datastoreServer.write(owner, $('#fpath').val(), parseInt($('#foffset').val()), $('#write-text').val(), (responseData => {
+			datastoreServer.write(owner, 
+				document.getElementById("fpath").value.trim(),
+				parseInt(document.getElementById("foffset").value.trim()), 
+				document.getElementById("write-text").value.trim(),
+				(_ => {
 				showEntries();
 			}));
 		}
-	});
+	};
 
-	$('#copy-submit').click(function() { 
+	document.getElementById("copy-submit").onclick = function() { 
 		if(isCopyValid()) {
-			datastoreServer.copy(owner, $('#copy-from-path').val(), owner, $('#copy-to-path').val(), (responseData => {
+			datastoreServer.copy(owner, document.getElementById("copy-from-path").value.trim(), owner, document.getElementById("copy-to-path").value.trim(),
+			 (_ => {
 				showEntries();
 			}));
 		}
 		
-	});
+	};
 
-	$('#move-submit').click(function() { 
+	document.getElementById("move-submit").onclick = function() { 
 		if(isMoveValid()) {
-			datastoreServer.move(owner, $('#move-from-path').val(), owner, $('#move-to-path').val(), (responseData => {
+			datastoreServer.move(owner, 
+				document.getElementById("move-from-path").value.trim(), 
+				owner, 
+				document.getElementById("move-to-path").value.trim(), 
+				(_ => {
 				showEntries();
 			}));
 		}
-	});
+	};
+}
 
-});

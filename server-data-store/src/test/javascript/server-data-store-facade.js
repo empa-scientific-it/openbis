@@ -4,10 +4,6 @@
  * ======================================================
  */
 
-if(typeof $ == 'undefined'){
-	alert('Loading of openbis.js failed - jquery.js is missing');
-}
-
 function _datastoreInternal(datastoreUrlOrNull, httpServerUri){
 	this.init(datastoreUrlOrNull, httpServerUri);
 }
@@ -48,59 +44,27 @@ _datastoreInternal.prototype.getUrlForMethod = function(method) {
 _datastoreInternal.prototype.jsonRequestData = function(params) {
 	return JSON.stringify(params);
 }
- 
-_datastoreInternal.prototype.ajaxRequest = function(settings) {
-	settings.processData = false;
-	settings.jsonp = false;
-	settings.data = this.jsonRequestData(settings.data);
-	settings.success = this.ajaxRequestSuccess(settings.success);
-	// we call the same settings.success function for backward compatibility
-	settings.error = this.ajaxRequestError(settings.success);
-	$.ajax(settings)
-}
 
-_datastoreInternal.prototype.ajaxRequestWithQueryParams = function(settings) {
-	settings.processData = false;
-	settings.jsonp = false;
-	settings.data = jQuery.param( settings.data );
-	settings.success = this.ajaxRequestSuccess(settings.success);
-	// we call the same settings.success function for backward compatibility
-	settings.error = this.ajaxRequestError(settings.success);
-	$.ajax(settings)
-}
-
-_datastoreInternal.prototype.responseInterceptor = function(response, action) {
-	action(response);
-}
-
-_datastoreInternal.prototype.ajaxRequestSuccess = function(action){
-	var openbisObj = this;
-	return function(response){
-		if(response.error){
-			openbisObj.log("Request failed: " + JSON.stringify(response.error));
-		}
-		
-		openbisObj.responseInterceptor(response, function() {
-			if(action){
-				action(response);
-			}
-		});
+_datastoreInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data, callback) {
+	const xhr = new XMLHttpRequest();
+	xhr.open(httpMethod, url);
+	xhr.setRequestHeader("Content-Type", contentType);
+	xhr.onreadystatechange = function() {
+	  if (xhr.readyState === XMLHttpRequest.DONE) {
+		callback(xhr.responseText);
+	  }
 	};
-}
+	xhr.send(JSON.stringify(data));
+  }
 
-_datastoreInternal.prototype.ajaxRequestError = function(action){
-	var openbisObj = this;
-	return function(xhr, status, error){
-		openbisObj.log("Request failed: " + error);
-		
-		var response = { "error" : "Request failed: " + error };
-		openbisObj.responseInterceptor(response, function() {
-			if(action){
-				action(response);
-			}
-		});
-	};
-}
+  _datastoreInternal.prototype.buildGetUrl = function(queryParams) {
+	const queryString = Object.keys(queryParams)
+	  .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`)
+	  .join('&');
+	return `${this.datastoreUrl}?${queryString}`;
+  }
+
+
 
 // Functions for working with cookies (see http://www.quirksmode.org/js/cookies.html)
 
@@ -161,6 +125,17 @@ _datastoreInternal.prototype.parseUri = function(str) {
 }
 
 
+/** Helper method for checking response from DSS server */
+function parseJsonResponse(rawResponse, action) {
+	let response = JSON.parse(rawResponse);
+	if(response.error){
+		alert(response.error[1].message);
+	}else{
+		action(response);
+	}
+}
+
+
 
 /**
  * ===============
@@ -173,17 +148,6 @@ _datastoreInternal.prototype.parseUri = function(str) {
 function datastore(datastoreUrlOrNull, httpServerUri) {
 	this._internal = new _datastoreInternal(datastoreUrlOrNull, httpServerUri);
 }
-
-/**
- * Intercepts responses so clients can handle generic errors like session timeouts with a
- * single handler.
- * 
- * @method
- */
-datastore.prototype.setResponseInterceptor = function(responseInterceptor) {
-	this._internal.responseInterceptor = responseInterceptor;
-}
-
 
 
 /**
@@ -199,25 +163,27 @@ datastore.prototype.setResponseInterceptor = function(responseInterceptor) {
  */
 datastore.prototype.login = function(userId, userPassword, action) {
 	var datastoreObj = this
-	this._internal.ajaxRequest({
-        type: "POST",
-		dataType: "json",
-		url: this._internal.getUrlForMethod("login"),
-        data: {
-            "userId": userId,
-            "password": userPassword
-        },
-		success: 
-			function(loginResponse) {
-				if(loginResponse.error){
-					alert("Login failed: " + loginResponse.error.message);
-				}else{
-					datastoreObj._internal.sessionToken = loginResponse.result;
-					datastoreObj.rememberSession();
-                    action(loginResponse);
-				}
+	const data = {
+		"userId": userId,
+		"password": userPassword
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("login"),
+		data,
+		function(loginResponse) {
+			let response = JSON.parse(loginResponse);
+			if(response.error){
+				alert("Login failed: " + response.error.message);
+			}else{
+				datastoreObj._internal.sessionToken = response.result;
+				datastoreObj.rememberSession();
+				action(response);
 			}
-	 });
+		}
+	);
+
 }
 
 /**
@@ -271,14 +237,14 @@ datastore.prototype.getSession = function(){
  */
 datastore.prototype.isSessionValid = function(action) {
 	if(this.getSession()){
-		this._internal.ajaxRequest({
-			type: "GET",
-			dataType: "json",
-			url: this._internal.getUrlForMethod("isSessionValid"),
-			data: { "sessionToken" : this.getSession()
-					},
-			success: action
-		});
+		const data = { "sessionToken" : this.getSession() }
+		this._internal.sendHttpRequest(
+			"GET",
+			"application/json",
+			this._internal.getUrlForMethod("isSessionValid"),
+			data,
+			(response) => parseJsonResponse(response, action)
+		);
 	}else{
 		action({ result : false })
 	}
@@ -306,14 +272,14 @@ datastore.prototype.logout = function(action) {
 	this.forgetSession();
 	
 	if(this.getSession()){
-		this._internal.ajaxRequest({
-			type: "POST",
-			dataType: "json",
-			url: this._internal.getUrlForMethod("logout"),
-			data: { "sessionToken" : this.getSession()
-				  },
-			success: action
-		});
+		const data ={ "sessionToken" : this.getSession() };
+		this._internal.sendHttpRequest(
+			"POST",
+			"application/json",
+			this._internal.getUrlForMethod("logout"),
+			data,
+			(response) => parseJsonResponse(response, action)
+		);
 	}else if(action){
 		action({ result : null });
 	}
@@ -330,18 +296,20 @@ datastore.prototype.logout = function(action) {
  * List files in the DSS for given owner and source
  */
 datastore.prototype.list = function(owner, source, recursively, action){
-	this._internal.ajaxRequestWithQueryParams({
-		type: "GET",
-		dataType: "json",
-		url: this._internal.getUrlForMethod("list"),
-		data: {
-				"owner" :  owner,
-				"source":  source,
-				"recursively":  recursively,
-				"sessionToken" :  this.getSession()
-		},
-		success: action
-	});
+	const data = {
+		"method": "list",
+		"owner" :  owner,
+		"source":  source,
+		"recursively":  recursively,
+		"sessionToken" :  this.getSession()
+	};
+	this._internal.sendHttpRequest(
+		"GET",
+		"application/json",
+		this._internal.buildGetUrl(data),
+		{},
+		(response) => parseJsonResponse(response, action)
+	);
 }
 
 /**
@@ -353,19 +321,21 @@ datastore.prototype.list = function(owner, source, recursively, action){
  * @param {*} action post-processing action
  */
 datastore.prototype.read = function(owner, source, offset, limit, action){
-	this._internal.ajaxRequestWithQueryParams({
-		type: "GET",
-		dataType: "text",
-		url: this._internal.getUrlForMethod("read"),
-		data: {
-				"owner" : owner,
-				"source": source,
-				"offset":  offset,
-				"limit":  limit,
-				"sessionToken" : this.getSession()
-		},
-		success: action
-	});
+	const data = {
+		"method": "read",
+		"owner" :  owner,
+		"source":  source,
+		"offset":  offset,
+		"limit":  limit,
+		"sessionToken" : this.getSession()
+	};
+	this._internal.sendHttpRequest(
+		"GET",
+		"text",
+		this._internal.buildGetUrl(data),
+		{},
+		(response) => action(response)
+	);
 }
 
 /** Helper function to encode string into byte array */
@@ -393,20 +363,21 @@ function convertToBin(md5hash) {
  */
 datastore.prototype.write = function(owner, source, offset, data, action){
 	let md5Hash = md5(data).toUpperCase();
-	this._internal.ajaxRequest({
-		type: "POST",
-		dataType: "json",
-		url: this._internal.getUrlForMethod("write"),
-		data: {
-				"owner" : ["java.lang.String", owner],
-				"source": ["java.lang.String", source],
-				"offset": [ "java.lang.Long", offset ],
-				"data":  [ "[B", data.encodeHex() ],
-				"md5Hash":  [ "[B", convertToBin(md5Hash)],
-				"sessionToken" : ["java.lang.String", this.getSession()]
-		},
-		success: action
-	});
+	const body = {
+		"owner" : ["java.lang.String", owner],
+		"source": ["java.lang.String", source],
+		"offset": [ "java.lang.Long", offset ],
+		"data":  [ "[B", data.encodeHex() ],
+		"md5Hash":  [ "[B", convertToBin(md5Hash)],
+		"sessionToken" : ["java.lang.String", this.getSession()]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("write"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
 }
 
 /**
@@ -416,55 +387,59 @@ datastore.prototype.write = function(owner, source, offset, data, action){
  * @param {*} action post-processing action 
  */
 datastore.prototype.delete = function(owner, source, action){
-	this._internal.ajaxRequest({
-		type: "DELETE",
-		dataType: "json",
-		url: this._internal.getUrlForMethod("delete"),
-		data: {
-				"owner" : ["java.lang.String", owner],
-				"source": ["java.lang.String", source],
-				"sessionToken" : ["java.lang.String", this.getSession()]
-		},
-		success: action
-	});
+	const body = {
+		"owner" : ["java.lang.String", owner],
+		"source": ["java.lang.String", source],
+		"sessionToken" : ["java.lang.String", this.getSession()]
+	};
+	this._internal.sendHttpRequest(
+		"DELETE",
+		"application/json",
+		this._internal.getUrlForMethod("delete"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
 }
 
 /**
  * Copy file within DSS
  */
 datastore.prototype.copy = function(sourceOwner, source, targetOwner, target, action){
-	this._internal.ajaxRequest({
-		type: "POST",
-		dataType: "json",
-		url: this._internal.getUrlForMethod("copy"),
-		data: {
-				"sourceOwner" : ["java.lang.String", sourceOwner],
-				"source": ["java.lang.String", source],
-				"targetOwner": ["java.lang.String", targetOwner],
-				"target": ["java.lang.String", target],
-				"sessionToken" : ["java.lang.String", this.getSession()]
-		},
-		success: action
-	});
+	const body = {
+		"sourceOwner" : ["java.lang.String", sourceOwner],
+		"source": ["java.lang.String", source],
+		"targetOwner": ["java.lang.String", targetOwner],
+		"target": ["java.lang.String", target],
+		"sessionToken" : ["java.lang.String", this.getSession()]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("copy"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
 }
 
 /** 
  * Move file within DSS
  */
 datastore.prototype.move = function(sourceOwner, source, targetOwner, target, action){
-	this._internal.ajaxRequest({
-		type: "POST",
-		dataType: "json",
-		url: this._internal.getUrlForMethod("move"),
-		data: {
-				"sourceOwner" : ["java.lang.String", sourceOwner],
-				"source": ["java.lang.String", source],
-				"targetOwner": ["java.lang.String", targetOwner],
-				"target": ["java.lang.String", target],
-				"sessionToken" : ["java.lang.String", this.getSession()]
-		},
-		success: action
-	});
+	const body = {
+		"sourceOwner" : ["java.lang.String", sourceOwner],
+		"source": ["java.lang.String", source],
+		"targetOwner": ["java.lang.String", targetOwner],
+		"target": ["java.lang.String", target],
+		"sessionToken" : ["java.lang.String", this.getSession()]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("move"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
+	
 }
 
 

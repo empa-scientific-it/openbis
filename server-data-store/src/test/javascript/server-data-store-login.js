@@ -20,7 +20,6 @@
  * element is made visible.
  *
  * @module datastore-login
- * @requires jquery
  */
 
 
@@ -42,41 +41,45 @@ function dssClientLoginPage(datastore, onLogin)
 dssClientLoginPage.prototype.configure = function(){
 	var loginPage = this;
 	
-	$('#main').hide();
+	document.getElementById("main").style.display = "none";
 	
-	var username = $("#username").value;
+	var username = document.getElementById("username").value;
 	if(username == null || username.length==0) {
-		$("#username").focus();
+		document.getElementById("username").focus();
 	} else {
-		$("#login-button").focus();
+		document.getElementById("login-button").focus();
 	}
-	
-	$('#logout-button').click(function() { 
+
+	document.getElementById("logout-button").onclick = function() { 
 		loginPage.datastore.logout(function(data) { 
-			$("#login-form-div").show();
-			$("#main").hide();
-			$("#username").focus();
+			document.getElementById("login-form-div").style.display = "block";
+			document.getElementById("main").style.display = "none";
+			document.getElementById("openbis-logo").style.height = "100px";
+			document.getElementById("username").focus();
 		});
 		
-	});
+	};
 	
-	$('#login-form').submit(function() {
-		 loginPage.datastore.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { 
-			$("#username").val('');
-			$("#password").val('')
+	
+	document.getElementById("login-form").onsubmit = function() {
+		 loginPage.datastore.login(document.getElementById("username").value.trim(), 
+		 document.getElementById("password").value.trim(), 
+		 function(data) { 
+			document.getElementById("username").value = '';
+			document.getElementById("password").value = '';
 			loginPage.onLogin(data); 
 		})
-	});
+	};
 	
 	loginPage.datastore.ifRestoredSessionActive(function(data) { loginPage.onLogin(data) });
 	
-		// Make the ENTER key the default button
-	$("login-form input").keypress(function (e) {
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-			$('button[type=submit].default').click();
-			return false;
-		} else {
-			return true;
-		}
-	});
+
+	document.onkeydown=function(evt){
+        var keyCode = evt ? (evt.which ? evt.which : evt.keyCode) : event.keyCode;
+        if(keyCode == 13)
+        {
+			document.getElementById("login-form").submit();
+        }
+    }
+	
 }
