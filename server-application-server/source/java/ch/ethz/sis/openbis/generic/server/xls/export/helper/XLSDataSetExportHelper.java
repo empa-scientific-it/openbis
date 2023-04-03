@@ -30,6 +30,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.STORAGE_CONFIRMATION;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -43,6 +44,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
@@ -153,19 +155,23 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             }
             case REGISTRATOR:
             {
-                return dataSet.getRegistrator().getUserId();
+                final Person registrator = dataSet.getRegistrator();
+                return registrator != null ? registrator.getUserId() : null;
             }
             case REGISTRATION_DATE:
             {
-                return DATE_FORMAT.format(dataSet.getRegistrationDate());
+                final Date registrationDate = dataSet.getRegistrationDate();
+                return registrationDate != null ? DATE_FORMAT.format(registrationDate) : null;
             }
             case MODIFIER:
             {
-                return dataSet.getModifier().getUserId();
+                final Person modifier = dataSet.getModifier();
+                return modifier != null ? modifier.getUserId() : null;
             }
             case MODIFICATION_DATE:
             {
-                return DATE_FORMAT.format(dataSet.getModificationDate());
+                final Date modificationDate = dataSet.getModificationDate();
+                return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
             }
             case PARENTS:
             {

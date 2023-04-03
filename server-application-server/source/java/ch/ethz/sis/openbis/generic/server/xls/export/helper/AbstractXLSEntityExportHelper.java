@@ -123,22 +123,22 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
                 final String[] selectedFieldHeaders = selectedExportFields.stream()
                         .filter(field -> isFieldAcceptable(possibleAttributeNameSet, field))
-                        .map(field ->
+                        .flatMap(field ->
                         {
                             final String fieldId = field.get(FIELD_ID_KEY);
                             switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
                             {
                                 case ATTRIBUTE:
                                 {
-                                    return Attribute.valueOf(fieldId).getName();
+                                    return Stream.of(Attribute.valueOf(fieldId).getName());
                                 }
                                 case PROPERTY:
                                 {
                                     return propertyTypes.stream()
                                             .filter(propertyType -> Objects.equals(propertyType.getCode(), fieldId))
                                             .findFirst()
-                                            .orElseThrow(() -> new IllegalArgumentException("Property type not found for id: " + fieldId))
-                                            .getLabel();
+                                            .stream()
+                                            .map(PropertyType::getLabel);
                                 }
                                 default:
                                 {
@@ -157,10 +157,10 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                         ? Arrays.stream(requiredForImportAttributes).filter(attribute -> !selectedAttributes.contains(attribute))
                         .map(Attribute::getName)
                         : Stream.empty();
-                final String[] allFieldNames = Stream.concat(Arrays.stream(selectedFieldHeaders), requiredForImportAttributeNameStream)
+                final String[] allFieldHeaders = Stream.concat(Arrays.stream(selectedFieldHeaders), requiredForImportAttributeNameStream)
                         .toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, allFieldNames));
+                warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, allFieldHeaders));
 
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportFields);
@@ -178,19 +178,21 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                     final String[] entityValues = Stream.concat(selectedExportFields.stream(),
                                     extraExportFields.stream())
                             .filter(field -> isFieldAcceptable(possibleAttributeNameSet, field))
-                            .map(field ->
+                            .flatMap(field ->
                             {
                                 final String fieldId = field.get(FIELD_ID_KEY);
                                 switch (FieldType.valueOf(field.get(FIELD_TYPE_KEY)))
                                 {
                                     case ATTRIBUTE:
                                     {
-                                        return getAttributeValue(entity, Attribute.valueOf(fieldId));
+                                        return Stream.of(getAttributeValue(entity, Attribute.valueOf(fieldId)));
                                     }
                                     case PROPERTY:
                                     {
-                                        return getPropertiesMappingFunction(textFormatting, entity.getProperties())
-                                                .apply(codeToPropertyTypeMap.get(fieldId));
+                                        final PropertyType propertyType = codeToPropertyTypeMap.get(fieldId);
+                                        return propertyType != null
+                                                ? Stream.of(getPropertiesMappingFunction(textFormatting, entity.getProperties()).apply(propertyType))
+                                                : Stream.of();
                                     }
                                     default:
                                     {

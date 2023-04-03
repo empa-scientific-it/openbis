@@ -681,6 +681,36 @@ public class XLSExportData
                                     false
                             },
                             {
+                                    "export-experiment-filtered-fields.xlsx",
+                                    Map.of(),
+                                    ExperimentExpectations.class,
+                                    List.of(
+                                            new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
+                                            new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
+                                            new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
+                                    ),
+                                    true,
+                                    Map.of(
+                                            EXPERIMENT.toString(), Map.of(
+                                                    "COLLECTION", List.of(
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "IDENTIFIER"),
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "PROJECT"),
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY,
+                                                                    "$DEFAULT_OBJECT_TYPE"),
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG")),
+                                                    "DEFAULT_EXPERIMENT", List.of(
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY, "FINISHED_FLAG"),
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "IDENTIFIER"),
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.ATTRIBUTE.toString(), FIELD_ID_KEY, "CODE"),
+                                                            Map.of(FIELD_TYPE_KEY, FieldType.PROPERTY.toString(), FIELD_ID_KEY,
+                                                                    "$DEFAULT_OBJECT_TYPE"))
+                                            )
+                                    ),
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
                                     "export-sample-compatible-with-import.xlsx",
                                     Map.of(),
                                     SampleExpectations.class,

@@ -25,6 +25,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATI
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,6 +37,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
@@ -102,23 +105,28 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
             }
             case PROJECT:
             {
-                return experiment.getProject().getIdentifier().getIdentifier();
+                final Project project = experiment.getProject();
+                return project != null ? project.getIdentifier().getIdentifier() : null;
             }
             case REGISTRATOR:
             {
-                return experiment.getRegistrator().getUserId();
+                final Person registrator = experiment.getRegistrator();
+                return registrator != null ? registrator.getUserId() : null;
             }
             case REGISTRATION_DATE:
             {
-                return DATE_FORMAT.format(experiment.getRegistrationDate());
+                final Date registrationDate = experiment.getRegistrationDate();
+                return registrationDate != null ? DATE_FORMAT.format(registrationDate) : null;
             }
             case MODIFIER:
             {
-                return experiment.getModifier().getUserId();
+                final Person modifier = experiment.getModifier();
+                return modifier != null ? modifier.getUserId() : null;
             }
             case MODIFICATION_DATE:
             {
-                return DATE_FORMAT.format(experiment.getModificationDate());
+                final Date modificationDate = experiment.getModificationDate();
+                return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
             }
             default:
             {

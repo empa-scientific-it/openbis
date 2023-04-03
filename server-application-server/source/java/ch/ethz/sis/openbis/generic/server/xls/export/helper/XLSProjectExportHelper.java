@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -30,9 +31,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
@@ -171,23 +174,28 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
             }
             case SPACE:
             {
-                return project.getSpace().getCode();
+                final Space space = project.getSpace();
+                return space != null ? space.getCode() : null;
             }
             case REGISTRATOR:
             {
-                return project.getRegistrator().getUserId();
+                final Person registrator = project.getRegistrator();
+                return registrator != null ? registrator.getUserId() : null;
             }
             case REGISTRATION_DATE:
             {
-                return DATE_FORMAT.format(project.getRegistrationDate());
+                final Date registrationDate = project.getRegistrationDate();
+                return registrationDate != null ? DATE_FORMAT.format(registrationDate) : null;
             }
             case MODIFIER:
             {
-                return project.getModifier().getUserId();
+                final Person modifier = project.getModifier();
+                return modifier != null ? modifier.getUserId() : null;
             }
             case MODIFICATION_DATE:
             {
-                return DATE_FORMAT.format(project.getModificationDate());
+                final Date modificationDate = project.getModificationDate();
+                return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
             }
             default:
             {

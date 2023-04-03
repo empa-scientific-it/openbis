@@ -31,6 +31,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATO
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SPACE;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -151,19 +153,23 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
             }
             case REGISTRATOR:
             {
-                return sample.getRegistrator().getUserId();
+                final Person registrator = sample.getRegistrator();
+                return registrator != null ? registrator.getUserId() : null;
             }
             case REGISTRATION_DATE:
             {
-                return DATE_FORMAT.format(sample.getRegistrationDate());
+                final Date registrationDate = sample.getRegistrationDate();
+                return registrationDate != null ?DATE_FORMAT.format(registrationDate) : null;
             }
             case MODIFIER:
             {
-                return sample.getModifier().getUserId();
+                final Person modifier = sample.getModifier();
+                return modifier != null ? modifier.getUserId() : null;
             }
             case MODIFICATION_DATE:
             {
-                return DATE_FORMAT.format(sample.getModificationDate());
+                final Date modificationDate = sample.getModificationDate();
+                return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
             }
             case $:
             {
