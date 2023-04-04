@@ -29,7 +29,14 @@ function registratorColumn(params) {
 function dateColumn(params) {
   return {
     ...params,
-    getValue: ({ row }) => _.get(row, params.path),
+    getValue: ({ row, operation }) => {
+      const value = _.get(row, params.path)
+      if (operation === 'export') {
+        return date.format(value)
+      } else {
+        return value
+      }
+    },
     renderValue: ({ value }) => date.format(value),
     renderFilter: ({ value, onChange }) => {
       return (
