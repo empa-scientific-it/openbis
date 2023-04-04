@@ -171,7 +171,7 @@ class SampleTypeWithSamplePropertyExpectations extends Expectations
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                 fetchOptions.withPropertyAssignments());
-        propertyAssignments[0].getPropertyType().setCode("NAME");
+        propertyAssignments[0].getPropertyType().setCode("$NAME");
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");

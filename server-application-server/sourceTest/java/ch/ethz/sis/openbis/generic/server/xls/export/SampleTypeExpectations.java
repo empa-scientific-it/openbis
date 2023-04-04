@@ -100,7 +100,7 @@ class SampleTypeExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[0].getPropertyType().setCode("NAME");
+                propertyAssignments[0].getPropertyType().setCode("$NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
@@ -111,7 +111,7 @@ class SampleTypeExpectations extends Expectations
 
                 propertyAssignments[1] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[1].getPropertyType().setCode("DOCUMENT");
+                propertyAssignments[1].getPropertyType().setCode("$DOCUMENT");
                 propertyAssignments[1].setMandatory(false);
                 propertyAssignments[1].setShowInEditView(true);
                 propertyAssignments[1].setSection("General info");
@@ -124,7 +124,7 @@ class SampleTypeExpectations extends Expectations
 
                 propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
                         fetchOptions.withPropertyAssignments());
-                propertyAssignments[2].getPropertyType().setCode("ANNOTATIONS_STATE");
+                propertyAssignments[2].getPropertyType().setCode("$ANNOTATIONS_STATE");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(false);
                 propertyAssignments[2].getPropertyType().setManagedInternally(true);

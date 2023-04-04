@@ -28,6 +28,7 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -100,16 +101,19 @@ class DataSetExpectations extends Expectations
                 physicalData[0].setArchivingRequested(false);
                 physicalData[0].setPresentInArchive(true);
                 physicalData[0].setStorageConfirmation(true);
+                physicalData[0].setStatus(ArchivingStatus.AVAILABLE);
 
                 physicalData[1] = new PhysicalData();
                 physicalData[1].setArchivingRequested(true);
                 physicalData[1].setPresentInArchive(false);
                 physicalData[1].setStorageConfirmation(false);
+                physicalData[1].setStatus(ArchivingStatus.AVAILABLE);
 
                 physicalData[2] = new PhysicalData();
                 physicalData[2].setArchivingRequested(true);
                 physicalData[2].setPresentInArchive(true);
                 physicalData[2].setStorageConfirmation(false);
+                physicalData[2].setStatus(ArchivingStatus.ARCHIVED);
 
                 final DataSet[] dataSets = new DataSet[3];
 

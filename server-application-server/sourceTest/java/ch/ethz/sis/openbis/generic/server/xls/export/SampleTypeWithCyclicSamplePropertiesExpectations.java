@@ -139,7 +139,7 @@ class SampleTypeWithCyclicSamplePropertiesExpectations extends Expectations
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(propertyAssignmentFetchOptions);
-        propertyAssignments[0].getPropertyType().setCode("NAME");
+        propertyAssignments[0].getPropertyType().setCode("$NAME");
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");
@@ -223,7 +223,7 @@ class SampleTypeWithCyclicSamplePropertiesExpectations extends Expectations
         final PropertyAssignment[] propertyAssignments = new PropertyAssignment[5];
 
         propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(propertyAssignmentFetchOptions);
-        propertyAssignments[0].getPropertyType().setCode("NAME");
+        propertyAssignments[0].getPropertyType().setCode("$NAME");
         propertyAssignments[0].setMandatory(true);
         propertyAssignments[0].setShowInEditView(true);
         propertyAssignments[0].setSection("General info");

@@ -82,7 +82,7 @@ class DataSetTypeExpectations extends Expectations
 
                 propertyAssignments[0] = PropertyAssignmentFactory.createPropertyAssignment(
                         propertyAssignmentFetchOptions);
-                propertyAssignments[0].getPropertyType().setCode("NAME");
+                propertyAssignments[0].getPropertyType().setCode("$NAME");
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
@@ -106,7 +106,7 @@ class DataSetTypeExpectations extends Expectations
 
                 propertyAssignments[2] = PropertyAssignmentFactory.createPropertyAssignment(
                         propertyAssignmentFetchOptions);
-                propertyAssignments[2].getPropertyType().setCode("XMLCOMMENTS");
+                propertyAssignments[2].getPropertyType().setCode("$XMLCOMMENTS");
                 propertyAssignments[2].setMandatory(false);
                 propertyAssignments[2].setShowInEditView(false);
                 propertyAssignments[2].getPropertyType().setManagedInternally(true);

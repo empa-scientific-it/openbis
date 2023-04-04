@@ -161,7 +161,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
 
             final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
                     entityType.getPropertyAssignments(), exportableKind, permId,
-                    entityTypeExportFieldsMap, compatibleWithImport);
+                    compatibleWithImport);
             warnings.addAll(additionResult.getWarnings());
             rowNumber = additionResult.getRowNumber();
 
@@ -174,8 +174,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
 
     protected AdditionResult addEntityTypePropertyAssignments(int rowNumber,
             final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
-            final String permId, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
-            final boolean compatibleWithImport)
+            final String permId, final boolean compatibleWithImport)
     {
         final Collection<String> warnings = new ArrayList<>(
                 addRow(rowNumber++, true, exportableKind, permId, compatibleWithImport
@@ -187,7 +186,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             final Plugin plugin = propertyAssignment.getPlugin();
             final Vocabulary vocabulary = propertyType.getVocabulary();
 
-            final String code = (propertyType.isManagedInternally() ? INTERNAL_PROPERTY_PREFIX : "") + propertyType.getCode();
+            final String code = propertyType.getCode();
             final String[] values = {
                     String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.PROPERTY_TYPE, null, code)),
                     code,
