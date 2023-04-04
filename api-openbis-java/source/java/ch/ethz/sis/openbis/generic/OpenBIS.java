@@ -529,7 +529,7 @@ public class OpenBIS {
         return asFacade.getRights(sessionToken, ids, fetchOptions);
     }
 
-    public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions) {
+    public Map<ISpaceId, Space> getSpaces(List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions) {
         return asFacade.getSpaces(sessionToken, spaceIds, fetchOptions);
     }
 
