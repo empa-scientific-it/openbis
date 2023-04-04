@@ -133,7 +133,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             }
             case ARCHIVING_STATUS:
             {
-                return dataSet.getPhysicalData().isArchivingRequested().toString().toUpperCase();
+                return dataSet.getPhysicalData().getStatus().toString();
             }
             case PRESENT_IN_ARCHIVE:
             {
