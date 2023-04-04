@@ -12,7 +12,7 @@ module.exports = {
 
   devServer: {
     host: '0.0.0.0',
-    port: 8124,
+    port: 9999,
     https: false,
     proxy: {
       '/openbis': {
@@ -23,7 +23,7 @@ module.exports = {
       }
     },
     devMiddleware: {
-      publicPath: '/ng-ui-path/'
+      publicPath: '/admin/'
     },
     static: {
       directory: './src/js'
