@@ -178,7 +178,9 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
             final Collection<String> permIds)
     {
         final List<SpacePermId> spacePermIds = permIds.stream().map(SpacePermId::new).collect(Collectors.toList());
-        return api.getSpaces(sessionToken, spacePermIds, new SpaceFetchOptions()).values();
+        final SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
+        fetchOptions.withRegistrator();
+        return api.getSpaces(sessionToken, spacePermIds, fetchOptions).values();
     }
 
 }

@@ -237,6 +237,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
     {
         final VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
         fetchOptions.withTerms();
+        fetchOptions.withRegistrator();
         final Map<IVocabularyId, Vocabulary> vocabularies = api.getVocabularies(sessionToken,
                 Collections.singletonList(new VocabularyPermId(permId)), fetchOptions);
 

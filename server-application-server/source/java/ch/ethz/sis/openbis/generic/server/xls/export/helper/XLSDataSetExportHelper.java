@@ -80,6 +80,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
         fetchOptions.withPhysicalData();
+        fetchOptions.withParents();
+        fetchOptions.withChildren();
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
     }
 

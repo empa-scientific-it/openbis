@@ -211,6 +211,8 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
                 .collect(Collectors.toList());
         final ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
         fetchOptions.withSpace();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
         return api.getProjects(sessionToken, projectPermIds, fetchOptions).values();
     }
 
