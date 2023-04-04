@@ -51,6 +51,8 @@ var BarcodeUtil = new function() {
             mainController.backButtonLogic();
             mainController.backButtonLogic();
         }));
+        var $videoCameraSelection = $("<select>", { id: "videoCameraSelect", style : "margin-left: 4px;"});
+        content.append($videoCameraSelection);
         content.append($("<legend>").text("Read Barcode:"));
         var $video = $("<video>", { id : "video", width : "100%", height : "100%" });
         content.append($video);
@@ -60,7 +62,8 @@ var BarcodeUtil = new function() {
                 codeReader.listVideoInputDevices().then((videoInputDevices) => {
                     const sourceSelect = document.getElementById('sourceSelect');
                     selectedDeviceId = videoInputDevices[0].deviceId;
-                    codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+
+                    var decodeFromVideoDeviceCallback = (result, err) => {
                         if(result && result.text) {
                             codeReader.reset();
                             BarcodeUtil.readSample(result.text);
@@ -71,7 +74,24 @@ var BarcodeUtil = new function() {
                             mainController.backButtonLogic();
                             mainController.backButtonLogic();
                         }
-                    });
+                    };
+
+                    if(videoInputDevices.length > 1) {
+                        videoInputDevices.forEach((element) => {
+                            var option = $("<option>", { value: element.deviceId }).text(element.label);
+                            $videoCameraSelection.append(option);
+                        });
+
+                        $videoCameraSelection.change(function(event) {
+                            //Stop
+                            codeReader.reset();
+                            //Start
+                            selectedDeviceId = $(this).val();
+                            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', decodeFromVideoDeviceCallback);
+                        });
+                    }
+
+                    codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', decodeFromVideoDeviceCallback);
         });
     }
 
