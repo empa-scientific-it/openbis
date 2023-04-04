@@ -1150,7 +1150,7 @@ export default class GridController {
     function _exportTSV(rows, columns) {
       const { exportOptions } = state
 
-      const headers = columns.map(column => column.name)
+      const headers = columns.map(column => !_.isEmpty(column.label) ? column.label : column.name)
 
       const arrayOfRowArrays = []
       arrayOfRowArrays.push(headers)
