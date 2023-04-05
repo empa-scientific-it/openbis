@@ -151,32 +151,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         var barcodeReaderBtn = FormUtil.getButtonWithIcon(
             "glyphicon-barcode",
-            function () {
-                var $input = $("<input>", { type : "file", accept : "image/*" });
-                $input.click();
-                $input.change(function(event) {
-//                            const hints = new Map();
-//                            const formats = [ZXing.BarcodeFormat.QR_CODE /*, ...*/];
-//                            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
-//                            const codeReader = new ZXing.BrowserMultiFormatReader(hints);
-                            const codeReader = new ZXing.BrowserMultiFormatReader();
-                            const fileReader = new FileReader();
-                            fileReader.readAsArrayBuffer(event.target.files[0]);
-                            fileReader.onloadend = (evt) => {
-                                if (evt.target.readyState === FileReader.DONE) {
-                                    var img = null;
-                                        img = Images.decodeArrayBuffer(evt.target.result, function(event) {
-                                            img.videoWidth = 0; // Bugfix so ZXing decodes the image instead throwing an exception
-                                            var result = codeReader.decode(img);
-                                            if(result && result.text) {
-                                                BarcodeUtil.readSample(result.text);
-                                            } else {
-                                                Util.showError("Failed to read barcode");
-                                            }
-                                        });
-                                }
-                            }
-                })
+            function() {
+                BarcodeUtil.readBarcodeFromCamera();
             },
             null,
             null,

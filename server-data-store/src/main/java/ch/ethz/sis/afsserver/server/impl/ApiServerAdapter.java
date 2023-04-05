@@ -64,6 +64,11 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
             case "copy":
             case "login":
             case "logout":
+            case "begin":
+            case "prepare":
+            case "commit":
+            case "rollback":
+            case "recover":
                 return HttpMethod.POST; // all parameters from POST methods come on the body
             case "delete":
                 return HttpMethod.DELETE; // all parameters from DELETE methods come on the body
@@ -179,12 +184,23 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
 
                 for (Map.Entry<String, Object> entry : bodyParameterMap.entrySet())
                 {
-                    if (entry.getKey().equals("sessionToken"))
+                    switch (entry.getKey())
                     {
-                        sessionToken = (String) entry.getValue();
-                    } else
-                    {
-                        methodParameters.put(entry.getKey(), entry.getValue());
+                        case "sessionToken":
+                            sessionToken = (String) entry.getValue();
+                            break;
+                        case "interactiveSessionKey":
+                            interactiveSessionKey = (String) entry.getValue();
+                            break;
+                        case "transactionManagerKey":
+                            transactionManagerKey = (String) entry.getValue();
+                            break;
+                        case "transactionId":
+                            methodParameters.put(entry.getKey(),
+                                    UUID.fromString((String) entry.getValue()));
+                            break;
+                        default:
+                            methodParameters.put(entry.getKey(), entry.getValue());
                     }
                 }
             } else

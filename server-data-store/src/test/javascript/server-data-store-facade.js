@@ -443,10 +443,87 @@ datastore.prototype.move = function(sourceOwner, source, targetOwner, target, ac
 }
 
 
+/**
+ * ==================================================================================
+ * ch.ethz.sis.afsapi.api.TwoPhaseTransactionAPI methods
+ * ==================================================================================
+ */
+
+datastore.prototype.begin = function(transactionId, interactiveSessionKey, action){
+	const body = {
+		"transactionId" : ["java.lang.String", transactionId],
+		"sessionToken" : ["java.lang.String", this.getSession()],
+		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("begin"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
+	
+}
+
+datastore.prototype.prepare = function(interactiveSessionKey, transactionManagerKey, action){
+	const body = {
+		"sessionToken" : ["java.lang.String", this.getSession()],
+		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey],
+		"transactionManagerKey": ["java.lang.String", transactionManagerKey]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("prepare"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
+	
+}
+
+datastore.prototype.commit = function(interactiveSessionKey, action){
+	const body = {
+		"sessionToken" : ["java.lang.String", this.getSession()],
+		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey],
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("commit"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
+	
+}
 
 
+datastore.prototype.rollback = function(interactiveSessionKey, action){
+	const body = {
+		"sessionToken" : ["java.lang.String", this.getSession()],
+		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("rollback"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
+}
 
-
-
-
+datastore.prototype.recover = function(interactiveSessionKey, transactionManagerKey, action){
+	const body = {
+		"sessionToken" : ["java.lang.String", this.getSession()],
+		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey],
+		"transactionManagerKey": ["java.lang.String", transactionManagerKey]
+	};
+	this._internal.sendHttpRequest(
+		"POST",
+		"application/json",
+		this._internal.getUrlForMethod("recover"),
+		body,
+		(response) => parseJsonResponse(response, action)
+	);
+	
+}
 
