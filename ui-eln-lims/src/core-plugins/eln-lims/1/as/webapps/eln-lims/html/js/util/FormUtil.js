@@ -1026,10 +1026,12 @@ var FormUtil = new function() {
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(alt));
 		$component.append($("<option>").attr('value', '').text('(empty)'));
-
+        var $options = [];
 		for(var i = 0; i < terms.length; i++) {
-			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
+		    var $option = $("<option>", { value : terms[i].code }).text(terms[i].label);
+			$options.push($option);
 		}
+		$component.append($options);
 		Select2Manager.add($component);
 		return $component;
 	}
