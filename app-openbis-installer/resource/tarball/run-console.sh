@@ -84,4 +84,4 @@ else
   readAdminPassword
 fi
 
-java -Djava.util.logging.config.file=$BASE/jul.config -DADMIN_PASSWORD=$ADMIN_PASSWORD -DCONSOLE=true -Dmerge.props.to.installation.vars=true -cp $BASE/openBIS-installer.jar com.izforge.izpack.installer.bootstrap.Installer -options-auto $BASE/console.properties
+java -Djava.awt.headless=true -Djava.util.logging.config.file=$BASE/jul.config -DADMIN_PASSWORD=$ADMIN_PASSWORD -DCONSOLE=true -Dmerge.props.to.installation.vars=true -cp $BASE/openBIS-installer.jar com.izforge.izpack.installer.bootstrap.Installer -options-auto $BASE/console.properties

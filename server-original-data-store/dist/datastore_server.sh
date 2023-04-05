@@ -165,7 +165,7 @@ JAVA_VERSION_OPTS=""
 if [[ "$version" != "1.8" ]]; then
     JAVA_VERSION_OPTS="--add-exports java.xml/jdk.xml.internal=ALL-UNNAMED"
 fi
-COMMON_OPTIONS="${JAVA_OPTS} ${JAVA_MEM_OPTS} $JAVA_VERSION_OPTS -Dnative.libpath=$LIB_FOLDER/native -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
+COMMON_OPTIONS="${JAVA_OPTS} ${JAVA_MEM_OPTS} $JAVA_VERSION_OPTS -Djava.awt.headless=true -Dnative.libpath=$LIB_FOLDER/native -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 
 
 # ensure that we ignore a possible prefix "--" for any command 
