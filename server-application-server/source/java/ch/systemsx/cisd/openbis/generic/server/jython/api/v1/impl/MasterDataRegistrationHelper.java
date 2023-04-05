@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -151,12 +152,15 @@ public class MasterDataRegistrationHelper {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 File entryDestination = new File(tempPathAsString,  entry.getName());
-                if (entry.isDirectory()) {
+                if (entry.isDirectory())
+                {
                     entryDestination.mkdirs();
-                } else {
+                } else
+                {
                     entryDestination.getParentFile().mkdirs();
-                    try (InputStream in = zipFile.getInputStream(entry)) {
-                        Files.copy(in, entryDestination.toPath());
+                    try (InputStream in = zipFile.getInputStream(entry))
+                    {
+                        Files.copy(in, entryDestination.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
