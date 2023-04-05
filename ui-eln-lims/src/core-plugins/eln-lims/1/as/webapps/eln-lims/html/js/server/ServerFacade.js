@@ -3071,21 +3071,21 @@ function ServerFacade(openbisServer) {
 			switch (searchKind) {
 				case "ALL": {
                     freeTexts.forEach(function(freeText){
-                        searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+                        searchCriteria.withText().thatMatches(freeText.toString().toLowerCase().trim());
                     })
                     break;
                 }
 
                 case "ALL_PARTIAL": {
                     freeTexts.forEach(function(freeText){
-                        searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+                        searchCriteria.withText().thatContains(freeText.toString().toLowerCase().trim());
                     })
                     break;
                 }
 
                 case "ALL_PREFIX": {
                     freeTexts.forEach(function(freeText){
-                        searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
+                        searchCriteria.withText().thatStartsWith(freeText.toString().toLowerCase().trim());
                     })
                     break;
                 }
