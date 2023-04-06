@@ -332,9 +332,9 @@ export default class BrowserController extends ComponentController {
     await this.load()
   }
 
-  async selectObject(nodeObject) {
-    await this.fullTreeController.selectObject(nodeObject)
-    await this.filteredTreeController.selectObject(nodeObject)
+  async selectObject(nodeObject, event) {
+    await this.fullTreeController.selectObject(nodeObject, event)
+    await this.filteredTreeController.selectObject(nodeObject, event)
     await this.showSelectedObject()
   }
 

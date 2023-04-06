@@ -126,7 +126,7 @@ function SideMenuWidgetController(mainController) {
             // do nothing
         }
 
-        return this._browserController.selectObject(nodeObject)
+        return this._browserController.selectObject(nodeObject, { ignore: true })
     }
 
     //

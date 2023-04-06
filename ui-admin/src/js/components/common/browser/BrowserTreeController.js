@@ -965,7 +965,7 @@ export default class BrowserTreeController {
     return !_.isNil(undoCollapseAll)
   }
 
-  async selectObject(nodeObject) {
+  async selectObject(nodeObject, event) {
     const state = this.getState()
 
     const newState = { ...state }
@@ -976,7 +976,11 @@ export default class BrowserTreeController {
       _.isEqual(node.object, nodeObject)
     )
 
-    this.onSelectedChange({ object: nodeObject, nodes: selectedNodes })
+    this.onSelectedChange({
+      object: nodeObject,
+      nodes: selectedNodes,
+      event: event
+    })
   }
 
   async _doSelectObject(state, nodeObject) {

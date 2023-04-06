@@ -638,6 +638,12 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     }
 
     onSelectedChange(params) {
+        var event = params.event
+
+        if (event && event.ignore) {
+            return
+        }
+
         var node = params.nodes.length > 0 ? params.nodes[0] : null
 
         function isEmpty(value) {
