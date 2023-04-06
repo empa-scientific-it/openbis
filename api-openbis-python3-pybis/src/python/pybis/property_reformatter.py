@@ -51,6 +51,8 @@ class PropertyReformatter:
         return properties
 
     def _format_timestamp(self, value):
+        if value is None:
+            return value
         if is_of_openbis_supported_date_format(value):
             return value
         timestamp = pd.to_datetime(value)
