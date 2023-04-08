@@ -1003,21 +1003,26 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
-
+        long t0 = System.currentTimeMillis();
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
+        operationLog.info("TRY GET PROPERTIES OF SAMPLE: " + (System.currentTimeMillis()-t0)+" after loaded "+sampleIdentifier);
         SamplePE sample = sampleBO.getSample();
         if (sample == null)
         {
             return null;
         }
         Set<SamplePropertyPE> properties = sample.getProperties();
+        operationLog.info("TRY GET PROPERTIES OF SAMPLE: " + (System.currentTimeMillis()-t0)+" after getProps of  "+sampleIdentifier);
         HibernateUtils.initialize(properties);
-        return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
+        operationLog.info("TRY GET PROPERTIES OF SAMPLE: " + (System.currentTimeMillis()-t0)+" after init props of  "+sampleIdentifier);
+        IEntityProperty[] result = EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
                 new HashMap<MaterialTypePE, MaterialType>(), new HashMap<PropertyTypePE, PropertyType>(),
                 managedPropertyEvaluatorFactory,
                 new SamplePropertyAccessValidator(session, getDAOFactory()));
+        operationLog.info("TRY GET PROPERTIES OF SAMPLE: " + (System.currentTimeMillis()-t0)+" after translated props of  "+sampleIdentifier);
+        return result;
     }
 
     @Override
