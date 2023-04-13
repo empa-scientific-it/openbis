@@ -42,7 +42,6 @@ import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
