@@ -45,7 +45,6 @@ import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
@@ -72,7 +71,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
     {
         if (permIds.size() != 1)
         {
-            throw new UserFailureException("For entity type export number of permIds should be equal to 1.");
+            throw new IllegalArgumentException("For entity type export number of permIds should be equal to 1.");
         }
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();

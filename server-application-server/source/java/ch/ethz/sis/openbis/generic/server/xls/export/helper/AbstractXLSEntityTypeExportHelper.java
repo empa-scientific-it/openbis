@@ -67,7 +67,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
     {
         if (permIds.size() != 1)
         {
-            throw new UserFailureException("For entity type export number of permIds should be equal to 1.");
+            throw new IllegalArgumentException("For entity type export number of permIds should be equal to 1.");
         }
         final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
