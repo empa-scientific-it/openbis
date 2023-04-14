@@ -757,7 +757,7 @@ var FormUtil = new function() {
 	//
 	// Get Field with container to obtain a correct layout
 	//
-	this.getFieldForComponentWithLabel = function($component, label, postComponent, isInline) {
+	this.getFieldForComponentWithLabel = function($component, label, postComponent, isInline, $info) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -768,13 +768,9 @@ var FormUtil = new function() {
 		
 		var labelText = "";
 		if(label) {
-			labelText = label + requiredText + ":";
-		}
-		var labelColumnClass = ""
-		if(!isInline) {
-			labelColumnClass = this.labelColumnClass;
-		}
-		var $controlLabel = $('<label>', { class : 'control-label' }).html(labelText);
+            labelText = label + requiredText;
+        }
+        var $controlLabel = this.createLabel(labelText, $info);
 		
 		var controlColumnClass = ""
 		if(!isInline) {
@@ -804,8 +800,32 @@ var FormUtil = new function() {
 			return $fieldset;
 		}
 	}
-	
-	this.createPropertyField = function(propertyType, propertyValue) {
+
+    this.createLabel = function(label, $info) {
+        var $controlLabel = $('<label>', {class : 'control-label' });
+        
+        if(label) {
+            if ($info) {
+                var $line = $("<div>");
+                $line.append(label);
+                $infoIcon = $("<span>", { 'class' : 'glyphicon glyphicon-info-sign', 'style' : 'padding:2px' });
+                $infoIcon.tooltipster({
+                    content: $info,
+                    theme: 'tooltipster-shadow',
+                    interactive: true
+                });
+                $line.append($infoIcon);
+                $line.append(":");
+                $controlLabel.append($line);
+            } else
+            {
+                $controlLabel.text(label + ":");
+            }
+        }
+        return $controlLabel;
+    }
+
+    this.createPropertyField = function(propertyType, propertyValue, $info) {
 	    var isLink = propertyType.dataType === "HYPERLINK";
 	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
@@ -816,23 +836,19 @@ var FormUtil = new function() {
 			    isLink = true;
 			}
 		}
-		return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel);
+        return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel, $info);
 	}
 	
 	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
 		return this._createField(false, label, text, id, postComponent, cssForText);
 	}
 	
-	this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel) {
+    this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel, $info) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		
-		var $controlLabel = $('<label>', {class : 'control-label' });
-		
-		if(label) {
-			$controlLabel.text(label + ":");
-		}
+        var $controlLabel = this.createLabel(label, $info);
 		
 		var $controls = $('<div>', {class : 'controls' });
 		

@@ -679,6 +679,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 		    var propertyType = propertyTypeGroup.propertyTypes[j];
 			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
+            var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(this._sampleFormModel.sample.propertyTypesSemanticAnnotations[propertyTypeV3.code]);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
@@ -720,17 +721,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                             if (customWidget === 'Spreadsheet') {
                                 var $jexcelContainer = $("<div>");
                                 JExcelEditorManager.createField($jexcelContainer, this._sampleFormModel.mode, propertyType.code, this._sampleFormModel.sample);
-                                $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
+                                $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label, null, null, semanticAnnotations);
                             } else if (customWidget === 'Word Processor') {
                                 var $component = FormUtil.getFieldForPropertyType(propertyType, value);
                                 $component = FormUtil.activateRichTextProperties($component, undefined, propertyType, value, true);
-                                $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+                                $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
                             }
                         } else if(propertyType.dataType === "SAMPLE") {
                             var $component = new SampleField(false, '', false, value, true);
-                            $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+                            $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
                         } else { // The base case paints the property value as a label
-                            $controlGroup = FormUtil.createPropertyField(propertyType, value);
+                            $controlGroup = FormUtil.createPropertyField(propertyType, value, semanticAnnotations);
                         }
 					} else {
 						continue;
@@ -811,7 +812,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						$component.change(changeEvent(propertyType));
 					}
 
-					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+                    $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
 				}
 				$fieldset.append($controlGroup);
 			}
@@ -830,6 +831,23 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		return false;
 	}
+	
+    this._renderPropertyTypeSemanticAnnotations = function(annotations) {
+        if (annotations && annotations.length > 0) {
+            var $group = $("<div>", {class : "form-group"});
+            $group.append($("<label>", {class : "control-label"}).text("Semantic Annotations:"));
+            var $lines = $("<div>", {class : "controls" });
+            var _this = this;
+            annotations.forEach(function(annotation) {
+                $lines.append(_this._renderSemanticAnnotation(annotation.getPredicateAccessionId(),
+                        annotation.getPredicateOntologyId(),
+                        annotation.getPredicateOntologyVersion()));
+            });
+            $group.append($lines);
+            return $group;
+        }
+        return null;
+    }
 
 	this._createIdentificationInfoSection = function(hideShowOptionsModel, sampleType, entityPath) {
 		hideShowOptionsModel.push({
@@ -927,21 +945,29 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             var $controls = $("<div>", {class : "controls" });
             var _this = this;
             this._sampleFormModel.sample.semanticAnnotations.forEach(function(annotation) {
-                var $line = $("<div>");
-                $line.append(_this.asHyperLinkOrText(annotation.getDescriptorAccessionId()));
-                $line.append(" (Ontology: ");
-                $line.append(_this.asHyperLinkOrText(annotation.getDescriptorOntologyId()));
-                $line.append(", Version: ");
-                $line.append(_this.asHyperLinkOrText(annotation.getDescriptorOntologyVersion()));
-                $line.append(")");
-                $controls.append($line);
+                $controls.append(_this._renderSemanticAnnotation(annotation.getDescriptorAccessionId(),
+                        annotation.getDescriptorOntologyId(),
+                        annotation.getDescriptorOntologyVersion()));
             });
             $group.append($controls);
             $fieldset.append($("<div>").append($group));
         }
     }
 
-    this.asHyperLinkOrText = function(text) {
+    this._renderSemanticAnnotation = function(accessionId, ontologyId, ontologyVersion) {
+        var $line = $("<div>");
+        $line.append(this._asHyperLinkOrText(accessionId));
+        $line.append(" (Ontology: ");
+        $line.append(this._asHyperLinkOrText(ontologyId));
+        if (ontologyVersion && ontologyVersion.length > 0) {
+            $line.append(", Version: ");
+            $line.append(this._asHyperLinkOrText(ontologyVersion));
+        }
+        $line.append(")");
+        return $line;
+    }
+
+    this._asHyperLinkOrText = function(text) {
         return text.startsWith("http") ? FormUtil.asHyperlink(text) : text;
     }
 

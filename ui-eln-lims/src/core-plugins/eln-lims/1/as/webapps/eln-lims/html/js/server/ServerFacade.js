@@ -2410,6 +2410,17 @@ function ServerFacade(openbisServer) {
         v1Sample["experimentTypeCode"] = v3Sample.experiment && v3Sample.experiment.type ? v3Sample.experiment.type.code : null;
 		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
         v1Sample["semanticAnnotations"] = (v3Sample.type)?v3Sample.type.semanticAnnotations:null;
+        if (v3Sample.type && v3Sample.type.propertyAssignments) {
+            v1Sample["propertyTypesSemanticAnnotations"] = {}
+            v3Sample.type.propertyAssignments.forEach(function(assignment) {
+                var propertyType = assignment.getPropertyType();
+                var annotations = [].concat(assignment.getSemanticAnnotations());
+                if (propertyType && propertyType.getSemanticAnnotations()) {
+                    annotations = annotations.concat(propertyType.getSemanticAnnotations());
+                }
+                v1Sample["propertyTypesSemanticAnnotations"][propertyType.getCode()] = annotations;
+            });
+        }
 		v1Sample["properties"] = v3Sample.properties;
 
 		v1Sample["registrationDetails"] = {};
@@ -2742,7 +2753,12 @@ function ServerFacade(openbisServer) {
             //
             var fetchOptions = new SampleFetchOptions();
             fetchOptions.withSpace();
-            fetchOptions.withType().withSemanticAnnotations();
+            fetchOptions.withType();
+            if (fechOptions["withSemanticAnnotations"]) {
+                fetchOptions.withType().withSemanticAnnotations();
+                fetchOptions.withType().withPropertyAssignments().withSemanticAnnotations();
+                fetchOptions.withType().withPropertyAssignments().withPropertyType().withSemanticAnnotations();
+            }
             fetchOptions.withRegistrator();
             fetchOptions.withModifier();
             fetchOptions.withProject();
@@ -2803,6 +2819,7 @@ function ServerFacade(openbisServer) {
 			"samplePermId" : samplePermId,
 			"withProperties" : true,
 			"withParents" : true,
+            "withSemanticAnnotations" : true,
 			"withChildren" : true
 		}, callbackFunction);
 	}
@@ -2899,6 +2916,7 @@ function ServerFacade(openbisServer) {
 				"withProperties" : true,
 				"withParents" : true,
 				"withChildren" : true,
+                "withSemanticAnnotations" : true,
 				"sampleIdentifier" : sampleIdentifier
 			}, function(samples) {
 				samples.forEach(function(sample) {
