@@ -675,11 +675,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$legend.remove();
 		}
 
+		var showSemanticAnnotations = profile.showSemanticAnnotations;
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 		    var propertyType = propertyTypeGroup.propertyTypes[j];
 			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
-            var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(this._sampleFormModel.sample.propertyTypesSemanticAnnotations[propertyTypeV3.code]);
+            if (this._sampleFormModel.sample.propertyTypesSemanticAnnotations) {
+                var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(this._sampleFormModel.sample.propertyTypesSemanticAnnotations[propertyTypeV3.code]);
+            }
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;

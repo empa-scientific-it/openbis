@@ -2754,7 +2754,7 @@ function ServerFacade(openbisServer) {
             var fetchOptions = new SampleFetchOptions();
             fetchOptions.withSpace();
             fetchOptions.withType();
-            if (fechOptions["withSemanticAnnotations"]) {
+            if (fechOptions["withSemanticAnnotations"] && profile.showSemanticAnnotations != false) {
                 fetchOptions.withType().withSemanticAnnotations();
                 fetchOptions.withType().withPropertyAssignments().withSemanticAnnotations();
                 fetchOptions.withType().withPropertyAssignments().withPropertyType().withSemanticAnnotations();

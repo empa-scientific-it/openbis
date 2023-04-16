@@ -236,11 +236,11 @@ function SettingsManager(serverFacade) {
      	    }
 
              // Miscellaneous
-             var miscellaneousFields = ["hideSectionsByDefault", "showDatasetArchivingButton"]
+             var miscellaneousFields = ["hideSectionsByDefault", "showSemanticAnnotations", "showDatasetArchivingButton"]
              for(var miscellaneousField of miscellaneousFields) {
                 if(isMergeGroup && targetProfile[miscellaneousField] != undefined) { // Merge found values
                     targetProfile[miscellaneousField] = targetProfile[miscellaneousField] || settings[miscellaneousField];
-                } else { // Replaces or sets value
+                } else if (settings[miscellaneousField] != undefined) { // Replaces or sets value
      	            targetProfile[miscellaneousField] = settings[miscellaneousField];
      	        }
      	    }

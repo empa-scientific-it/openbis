@@ -129,6 +129,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             mainMenu : this._mainMenuItemsTableModel.getValues(),
             sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
             showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
+            showSemanticAnnotations : this._miscellaneousTableModel.getValues()["Show Semantic Annotations"],
             hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
             inventorySpaces : this._inventorySpacesTableModel.getValues(),
             inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues()
@@ -556,6 +557,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			label : "Show Dataset archiving button",
 			enabled : this._profileToEdit.showDatasetArchivingButton
 		});
+        tableModel.addRow({
+            label : "Show Semantic Annotations",
+            enabled : this._profileToEdit.showSemanticAnnotations
+        });
 		tableModel.addRow({
 			label : "Hide sections by default",
 			enabled : this._profileToEdit.hideSectionsByDefault

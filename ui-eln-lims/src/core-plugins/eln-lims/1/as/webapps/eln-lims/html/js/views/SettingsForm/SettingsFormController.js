@@ -39,6 +39,9 @@ function SettingsFormController(mainController, settingsSample, mode) {
                 newProfile["inventorySpacesReadOnly"] = profile.inventorySpacesReadOnlyPostFixes;
                 profileToEdit = newProfile;
             }
+            if (!("showSemanticAnnotations" in profileToEdit)) {
+                profileToEdit["showSemanticAnnotations"] = profile.showSemanticAnnotations;
+            }
 
             require(["as/dto/sample/id/SampleIdentifier"], function(SampleIdentifier) {
 				var sampId = new SampleIdentifier(settingsSample.identifier);
