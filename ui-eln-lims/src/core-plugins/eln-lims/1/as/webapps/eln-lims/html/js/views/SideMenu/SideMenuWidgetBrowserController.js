@@ -2876,11 +2876,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             view: viewToUse,
             viewData: encodeURIComponent('["' + experiment.getIdentifier().getIdentifier() + '",false]'),
         }
-        if (
-            experiment.getType().getCode() === "COLLECTION" ||
-            experiment.getType().getCode() === "MATERIALS" ||
-            experiment.getType().getCode() === "METHODS"
-        ) {
+        if (!this._isExperimentWithChildren(experiment)) {
             experimentResult.icon = "fa fa-table"
         }
 
@@ -3087,7 +3083,10 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     }
 
     _isExperimentWithChildren(experiment) {
-        return experiment.getType().getCode() !== "COLLECTION"
+        var isInventoryCollectionExperiment = experiment.getType().getCode() === "COLLECTION" ||
+                                    experiment.getType().getCode() === "MATERIALS" ||
+                                    experiment.getType().getCode() === "METHODS";
+        return !isInventoryCollectionExperiment;
     }
 
     _isExperimentSample(sample) {
