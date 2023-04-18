@@ -99,11 +99,11 @@ var BarcodeUtil = new function() {
                 var $input = $("<input>", { type : "file", accept : "image/*" });
                 $input.click();
                 $input.change(function(event) {
-//                            const hints = new Map();
-//                            const formats = [ZXing.BarcodeFormat.QR_CODE /*, ...*/];
-//                            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
-//                            const codeReader = new ZXing.BrowserMultiFormatReader(hints);
-                            const codeReader = new ZXing.BrowserMultiFormatReader();
+                            const hints = new Map();
+                            const formats = [ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128  /*, ...*/];
+                            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+                            const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+//                            const codeReader = new ZXing.BrowserMultiFormatReader();
                             const fileReader = new FileReader();
                             fileReader.readAsArrayBuffer(event.target.files[0]);
                             fileReader.onloadend = (evt) => {
