@@ -38,7 +38,7 @@ public class VersionUtils
         if (importType == ImportTypes.VOCABULARY_TERM) {
             importTypeAsString += "-" + vocabularyCodeOrNull;
         }
-        return versions.getOrDefault(VersionUtils.getKey(importTypeAsString, typeCode), 0);
+        return versions.getOrDefault(VersionUtils.getKey(importTypeAsString, typeCode), 1);
     }
 
     public static Integer getStoredVersion(Map<String, Integer> versions, String prefix, String creationCode)
