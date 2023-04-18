@@ -196,8 +196,8 @@ def process(transaction):
 
 
 def getContactsEmailAddresses(transaction):
-    emailString = getThreadProperties(transaction)["mail.addresses.dropbox-errors"]
-    return re.split("[,;]", emailString)
+    emailString = getThreadProperties(transaction).get("mail.addresses.dropbox-errors")
+    return re.split("[,;]", emailString) if emailString is not None else []
 
 
 def reportIssue(transaction, errorMessage, emailAddress):
