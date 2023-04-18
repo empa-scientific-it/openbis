@@ -20,27 +20,31 @@ function TrashManagerController(mainController) {
 	this._trashManagerView = new TrashManagerView(this, this._trashManagerModel);
 	
 	this.revertDeletions = function(deletionIds) {
-	    Util.blockUINoMessage();
+	    Util.blockUI();
 		mainController.serverFacade.revertDeletions(deletionIds, function() {
-            Util.showSuccess("Deletions Reverted.", function() {});
-            mainController.changeView('showTrashcanPage', null);
+            Util.showSuccess("Deletions Reverted.", function() {
+                Util.unblockUI();
+                mainController.changeView('showTrashcanPage', null);
+            });
 		});
 	}
 	
     this.deletePermanently = function(deletionIds, forceDeletionOfDependentDeletions) {
-        Util.blockUINoMessage();
+        Util.blockUI();
         mainController.serverFacade.deletePermanently(deletionIds, forceDeletionOfDependentDeletions, function(data) {
             if(data.error) {
                 Util.showError(data.error.message, null, true, true, false, true);
             } else {
-                Util.showSuccess("Permanently Deleted.");
-                mainController.changeView('showTrashcanPage', null);
+                Util.showSuccess("Permanently Deleted.", function() {
+                    Util.unblockUI();
+                    mainController.changeView('showTrashcanPage', null);
+                });
             }
         });
     }
 	
 	this.emptyTrash = function() {
-	    Util.blockUINoMessage();
+	    Util.blockUI();
 		var deleteIds = [];
 		
 		for(var delIdx = 0; delIdx < this._trashManagerModel.deletions.length; delIdx++) {
@@ -52,8 +56,10 @@ function TrashManagerController(mainController) {
             if(data.error) {
                 Util.showError(data.error.message, null, true, true, false, true);
             } else {
-                Util.showSuccess("Trashcan cleaned.");
-                mainController.changeView('showTrashcanPage', null);
+                Util.showSuccess("Trashcan cleaned.", function() {
+                    Util.unblockUI();
+                    mainController.changeView('showTrashcanPage', null);
+                });
             }
 		});
 	}

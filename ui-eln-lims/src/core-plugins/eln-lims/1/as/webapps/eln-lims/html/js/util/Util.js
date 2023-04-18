@@ -153,7 +153,7 @@ var Util = new function() {
 		Util.showError(errorMessage, function() {Util.unblockUI();}, undefined, isUserFailureException || isAuthorizationException);
 	}
 	
-	this.showWarning = function(text, okCallback) {
+	this.showWarning = function(text, okCallback, notUnblockOnAccept) {
 		var css = {
 				'text-align' : 'left',
 				'top' : '15%',
@@ -169,7 +169,9 @@ var Util = new function() {
 		
 		$("#warningAccept").on("click", function(event) {
 			okCallback();
-			Util.unblockUI();
+			if(!notUnblockOnAccept) {
+			    Util.unblockUI();
+			}
 		});
 		
 		$("#warningCancel").on("click", function(event) { 

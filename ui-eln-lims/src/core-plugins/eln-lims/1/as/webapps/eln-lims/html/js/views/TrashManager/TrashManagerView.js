@@ -32,7 +32,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		deleteAllBtn.click(function() {
 			Util.showWarning(deleteMessageMany, function() {
 				_this._trashManagerController.emptyTrash();
-			});
+			}, true);
 		});
 		
 		$header.append($("<h1>").append("Trashcan"));
@@ -104,7 +104,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				$removeOption.click(function(e) {
 					Util.showWarning(deleteMessageOne, function() {
 						_this._trashManagerController.deletePermanently([data.entity.id], false);
-					});
+					}, true);
 				});
 				$list.append($removeOption);
 				
@@ -113,7 +113,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
                 $removeIncludedOption.click(function(e) {
                     Util.showWarning(deleteMessageOne, function() {
                         _this._trashManagerController.deletePermanently([data.entity.id], true);
-                    });
+                    }, true);
                 });
                 $list.append($removeIncludedOption);
                 
