@@ -3083,9 +3083,12 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     }
 
     _isExperimentWithChildren(experiment) {
+        var experimentIdentifier = experiment.getIdentifier().getIdentifier();
+        var experimentSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
+        var isInventorySpace = profile.isInventorySpace(experimentSpaceCode);
+
         var isInventoryCollectionExperiment = experiment.getType().getCode() === "COLLECTION" ||
-                                    experiment.getType().getCode() === "MATERIALS" ||
-                                    experiment.getType().getCode() === "METHODS";
+                                    isInventorySpace;
         return !isInventoryCollectionExperiment;
     }
 
