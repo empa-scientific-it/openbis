@@ -2104,7 +2104,7 @@ function ServerFacade(openbisServer) {
                                 case "SIZE":
                                     switch(comparisonOperator) {
                                         case "thatEqualsNumber":
-                                                criteria.withPhysicalData().withSize().thatEquals(giattributeValue);
+                                                criteria.withPhysicalData().withSize().thatEquals(attributeValue);
                                                 break;
                                         case "thatIsLessThanNumber":
                                                 criteria.withPhysicalData().withSize().thatIsLessThan(attributeValue);
