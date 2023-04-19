@@ -236,14 +236,20 @@ function SettingsManager(serverFacade) {
      	    }
 
              // Miscellaneous
-             var miscellaneousFields = ["hideSectionsByDefault", "showSemanticAnnotations", "showDatasetArchivingButton"]
+             var miscellaneousFields = [{name: "hideSectionsByDefault", defaultValue: true},
+                                        {name: "showSemanticAnnotations", defaultValue: true},
+                                        {name: "showDatasetArchivingButton", defaultValue: false}];
+             var defaultValues = [];
              for(var miscellaneousField of miscellaneousFields) {
-                if(isMergeGroup && targetProfile[miscellaneousField] != undefined) { // Merge found values
-                    targetProfile[miscellaneousField] = targetProfile[miscellaneousField] || settings[miscellaneousField];
-                } else if (settings[miscellaneousField] != undefined) { // Replaces or sets value
-     	            targetProfile[miscellaneousField] = settings[miscellaneousField];
-     	        }
-     	    }
+                 var name = miscellaneousField.name;
+                if(isMergeGroup && targetProfile[name] != undefined) { // Merge found values
+                    targetProfile[miscellaneousField] = targetProfile[name] || settings[name];
+                } else if (settings[name] != undefined) { // Replaces or sets value
+                    targetProfile[name] = settings[name];
+                } else {
+                    targetProfile[name] = miscellaneousField.defaultValue;
+                }
+            }
 
              // Forced Disable RTF
              if(isMergeGroup) { // Merge found values
