@@ -164,6 +164,9 @@ class ToolSearch extends React.Component {
         }),
         registrationDate: FormUtil.createField({
           value: _.get(query, 'registrationDate')
+        }),
+        modificationDate: FormUtil.createField({
+          value: _.get(query, 'modificationDate')
         })
       }))
 

@@ -56,7 +56,8 @@ class QueriesGrid extends React.PureComponent {
             getValue: ({ row }) => row.publicFlag.value
           },
           GridUtil.registratorColumn({ path: 'registrator.value' }),
-          GridUtil.registrationDateColumn({ path: 'registrationDate.value' })
+          GridUtil.registrationDateColumn({ path: 'registrationDate.value' }),
+          GridUtil.modificationDateColumn({ path: 'modificationDate.value' })
         ]}
         rows={rows}
         exportable={{
