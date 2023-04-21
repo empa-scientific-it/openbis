@@ -144,7 +144,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.modifier = (entity.modifier)?entity.modifier.userId:null;
 					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
 					rowData.$object = entity;
-					rowData.id = rowData.permId
+					rowData.id = (rowData.entityKind || "") + rowData.permId
 
 					if(entityExportableKind && entity.permId){
 						rowData.exportableId = {
