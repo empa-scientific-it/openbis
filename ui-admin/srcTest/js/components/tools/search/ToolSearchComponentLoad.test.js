@@ -179,6 +179,10 @@ async function testLoadWithSearchText(resultsFound) {
           {
             name: 'registrationDate',
             label: 'Registration Date'
+          },
+          {
+            name: 'modificationDate',
+            label: 'Modification Date'
           }
         ],
         rows: [
