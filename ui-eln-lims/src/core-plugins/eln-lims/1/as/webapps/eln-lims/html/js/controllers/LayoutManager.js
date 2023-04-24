@@ -42,7 +42,7 @@ var LayoutManager = {
 		}
 
 		if(isFirstTime) {
-			if(this.firstColumn !== null) {
+			if(this.firstColumn !== null && (this.FOUND_SIZE === MOBILE_SIZE)) {
 				this.firstColumn.resizable("destroy");
 				this.firstColumn.children().detach();
 				this.firstColumn.remove();
@@ -116,7 +116,10 @@ var LayoutManager = {
 
 		if (isFirstTime) {
 			//Attach created components
-			this.mainContainer.append(this.firstColumn).append(this.secondColumn).append(this.thirdColumn);
+			if($("#sideMenuTopContainer").length !== 1) {
+			    this.mainContainer.append(this.firstColumn);
+			}
+			this.mainContainer.append(this.secondColumn).append(this.thirdColumn);
 
 			//
 			// Columns drag functionality
@@ -131,6 +134,7 @@ var LayoutManager = {
 			// Moving to the left -x
 			// Remove size to the first column -x
 			// Add size to the second column -1 * -x
+			if($("#sideMenuTopContainer").length !== 1) {
 			this.firstColumn.resizable({
 				handles : 'e',
 				ghost : true,
@@ -144,6 +148,7 @@ var LayoutManager = {
 					_this._saveSettings()
 				}
 			});
+            }
 
 			// Only usable in Desktop mode
 
@@ -281,7 +286,7 @@ var LayoutManager = {
             }
         }
 
-        if(isFirstTime) {
+        if($("#sideMenuTopContainer").length !== 1) {
             _this.firstColumn.append(view.menu);
         }
 
