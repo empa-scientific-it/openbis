@@ -675,14 +675,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$legend.remove();
 		}
 
-		var showSemanticAnnotations = profile.showSemanticAnnotations;
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 		    var propertyType = propertyTypeGroup.propertyTypes[j];
 			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
-            if (this._sampleFormModel.sample.propertyTypesSemanticAnnotations) {
-                var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(this._sampleFormModel.sample.propertyTypesSemanticAnnotations[propertyTypeV3.code]);
-            }
+            var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(propertyType.code);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
@@ -835,7 +832,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		return false;
 	}
 	
-    this._renderPropertyTypeSemanticAnnotations = function(annotations) {
+    this._renderPropertyTypeSemanticAnnotations = function(propertyTypeCode) {
+        var annotations = this._getAllSemanticAnnotations(propertyTypeCode);
         if (annotations && annotations.length > 0) {
             var $group = $("<div>", {class : "form-group"});
             $group.append($("<label>", {class : "control-label"}).text("Semantic Annotations:"));
@@ -848,6 +846,36 @@ function SampleFormView(sampleFormController, sampleFormModel) {
             });
             $group.append($lines);
             return $group;
+        }
+        return null;
+    }
+
+    this._getAllSemanticAnnotations = function(propertyTypeCode) {
+        // Using a dict because the same property type annotations appear for the assignments if not
+        // overloaded
+        var semanticAnnotations = {};
+        var propertyAssignment = this._getPropertyAssignment(propertyTypeCode);
+        if (propertyAssignment) {
+            [propertyAssignment.semanticAnnotations, propertyAssignment.propertyType.semanticAnnotations].forEach(function(annotations) {
+                if (annotations) {
+                    annotations.forEach(function(annotation) {
+                        semanticAnnotations[annotation.permId.permId] = annotation; 
+                    });
+                }
+            });
+        }
+        return Object.values(semanticAnnotations);
+    }
+
+    this._getPropertyAssignment = function(propertyTypeCode) {
+        if (this._sampleFormModel.sampleType && this._sampleFormModel.sampleType.propertyAssignments) {
+            var propertyAssignments = this._sampleFormModel.sampleType.propertyAssignments;
+            for (var i = 0; i < propertyAssignments.length; i++) {
+                var propertyAssignment = propertyAssignments[i];
+                if (propertyAssignment.propertyType.code === propertyTypeCode) {
+                    return propertyAssignment;
+                }
+            }
         }
         return null;
     }
@@ -942,12 +970,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 
     this._appendSemanticAnnotions = function($fieldset) {
-        if (this._sampleFormModel.sample.semanticAnnotations && this._sampleFormModel.sample.semanticAnnotations.length > 0) {
+        if (this._sampleFormModel.sampleType.semanticAnnotations && this._sampleFormModel.sampleType.semanticAnnotations.length > 0) {
             var $group = $("<div>", {class : "form-group"});
             $group.append($("<label>", {class : "control-label"}).text("Semantic Annotations:"));
             var $controls = $("<div>", {class : "controls" });
             var _this = this;
-            this._sampleFormModel.sample.semanticAnnotations.forEach(function(annotation) {
+            this._sampleFormModel.sampleType.semanticAnnotations.forEach(function(annotation) {
                 $controls.append(_this._renderSemanticAnnotation(annotation.getDescriptorAccessionId(),
                         annotation.getDescriptorOntologyId(),
                         annotation.getDescriptorOntologyVersion()));
