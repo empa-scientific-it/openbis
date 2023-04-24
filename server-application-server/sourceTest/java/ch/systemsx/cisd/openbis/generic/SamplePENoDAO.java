@@ -29,33 +29,33 @@ import java.util.Set;
  * This abstraction allows them to avoid using the introduced DAO behaving as naively as before introducing it.
  */
 public class SamplePENoDAO extends SamplePE {
-    @Override
-    protected Set<SampleRelationshipPE> getSampleChildRelationships() {
-        if (childRelationships == null) {
-            childRelationships = new HashSet<>();
-        }
-        return childRelationships;
-    }
-
-    @Override
-    protected Set<SampleRelationshipPE> getSampleParentRelationships() {
-        if(parentRelationships == null) {
-            parentRelationships = new HashSet<>();
-        }
-        return parentRelationships;
-    }
-
-    @Override
-    public void addChildRelationship(final SampleRelationshipPE relationship)
-    {
-        relationship.setParentSample(this);
-        getSampleChildRelationships().add(relationship);
-    }
-
-    @Override
-    public void addParentRelationship(final SampleRelationshipPE relationship)
-    {
-        relationship.setChildSample(this);
-        getSampleParentRelationships().add(relationship);
-    }
+//    @Override
+//    protected Set<SampleRelationshipPE> getSampleChildRelationships() {
+//        if (childRelationships == null) {
+//            childRelationships = new HashSet<>();
+//        }
+//        return childRelationships;
+//    }
+//
+//    @Override
+//    protected Set<SampleRelationshipPE> getSampleParentRelationships() {
+//        if(parentRelationships == null) {
+//            parentRelationships = new HashSet<>();
+//        }
+//        return parentRelationships;
+//    }
+//
+//    @Override
+//    public void addChildRelationship(final SampleRelationshipPE relationship)
+//    {
+//        relationship.setParentSample(this);
+//        getSampleChildRelationships().add(relationship);
+//    }
+//
+//    @Override
+//    public void addParentRelationship(final SampleRelationshipPE relationship)
+//    {
+//        relationship.setChildSample(this);
+//        getSampleParentRelationships().add(relationship);
+//    }
 }
