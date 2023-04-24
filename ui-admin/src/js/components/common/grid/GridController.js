@@ -1150,7 +1150,9 @@ export default class GridController {
     function _exportTSV(rows, columns) {
       const { exportOptions } = state
 
-      const headers = columns.map(column => !_.isEmpty(column.label) ? column.label : column.name)
+      const headers = columns.map(column =>
+        !_.isEmpty(column.label) ? column.label : column.name
+      )
 
       const arrayOfRowArrays = []
       arrayOfRowArrays.push(headers)
@@ -1288,30 +1290,43 @@ export default class GridController {
     }
 
     async function _getExportedFields(exportedRows) {
-      const { exportOptions } = state
+      const { exportOptions, pageSize } = state
 
-      let exportedFieldsMap = {}
+      let result = {}
 
       if (exportOptions.columns === GridExportOptions.COLUMNS.ALL) {
-        exportedFieldsMap = {}
+        result = {}
       } else if (exportOptions.columns === GridExportOptions.COLUMNS.VISIBLE) {
-        const exportableFields = []
+        const exportableFieldsMap = {}
+        const exportableFieldsList = []
 
-        // find visible exportable columns for the exported rows
-        const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
-          await _this._loadColumns(
-            exportedRows,
-            state.columnsVisibility,
-            state.columnsSorting
-          )
+        // find visible exportable columns for the exported rows (do it page by page to get exactly the same columns as if it was done in the UI by a user)
+        const exportedRowsPages = _.chunk(exportedRows, pageSize)
+        for (
+          let pageIndex = 0;
+          pageIndex < exportedRowsPages.length;
+          pageIndex++
+        ) {
+          const { newAllColumns, newColumnsVisibility, newColumnsSorting } =
+            await _this._loadColumns(
+              exportedRowsPages[pageIndex],
+              state.columnsVisibility,
+              state.columnsSorting
+            )
 
-        _this._sortColumns(newAllColumns, newColumnsSorting)
+          _this._sortColumns(newAllColumns, newColumnsSorting)
 
-        newAllColumns.forEach(column => {
-          if (column.exportableField && newColumnsVisibility[column.name]) {
-            exportableFields.push(column.exportableField)
-          }
-        })
+          newAllColumns.forEach(column => {
+            if (
+              !exportableFieldsMap[column.name] &&
+              column.exportableField &&
+              newColumnsVisibility[column.name]
+            ) {
+              exportableFieldsMap[column.name] = true
+              exportableFieldsList.push(column.exportableField)
+            }
+          })
+        }
 
         // build exported fields map: { kind: { type: [{ type: "PROPERTY/ATTRIBUTE", id: "propertyCode/attributeCode"}, ...], ... }, ... }
 
@@ -1331,14 +1346,14 @@ export default class GridController {
               exportable_kind = 'TYPE'
             }
 
-            let exportedFieldsForKind = exportedFieldsMap[exportable_kind]
+            let exportedFieldsForKind = result[exportable_kind]
 
             if (_.isNil(exportedFieldsForKind)) {
-              exportedFieldsMap[exportable_kind] = exportedFieldsForKind = {}
+              result[exportable_kind] = exportedFieldsForKind = {}
             }
 
             if (!_.isNil(type_perm_id)) {
-              exportedFieldsForKind[type_perm_id] = exportableFields
+              exportedFieldsForKind[type_perm_id] = exportableFieldsList
             }
           }
         })
@@ -1346,7 +1361,7 @@ export default class GridController {
         throw Error('Unsupported columns option: ' + exportOptions.columns)
       }
 
-      return exportedFieldsMap
+      return result
     }
 
     try {
