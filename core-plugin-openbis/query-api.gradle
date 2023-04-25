@@ -114,6 +114,7 @@ task apiV3Jar(type: Jar) {
         include "ch/systemsx/cisd/common/shared/basic/**/*.class"
         include "ch/systemsx/cisd/openbis/common/api/**/*.class"
         exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
+        include "ch/ethz/sis/openbis/generic/*.class"
         include "ch/ethz/sis/openbis/generic/asapi/v3/**/*.class"
         include "ch/ethz/sis/openbis/generic/dssapi/v3/**/*.class"
         include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
