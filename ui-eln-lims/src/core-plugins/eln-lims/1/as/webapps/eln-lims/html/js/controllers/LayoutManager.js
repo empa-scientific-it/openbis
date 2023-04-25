@@ -42,7 +42,7 @@ var LayoutManager = {
 		}
 
 		if(isFirstTime) {
-			if(this.firstColumn !== null && (this.FOUND_SIZE === MOBILE_SIZE)) {
+			if(this.firstColumn !== null && (this.FOUND_SIZE === this.MOBILE_SIZE)) {
 				this.firstColumn.resizable("destroy");
 				this.firstColumn.children().detach();
 				this.firstColumn.remove();
