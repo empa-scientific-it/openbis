@@ -11,8 +11,37 @@
 
 commit_regex='(SSDM-[0-9]+:|merge|rebase)'
 error_msg="Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:')"
+error_project_mix="Aborting commit. UI and non-UI projects should be committed separately."
+
+ui_projects="^ui-admin|ui-eln-lims"
+
+ui=false
+ui_example=""
+non_ui=false
+non_ui_example=""
+for file in $(git diff-index --cached --name-only HEAD); do
+	if  echo "$file" | grep -Eq "$ui_projects"
+	then
+		ui=true
+        ui_example="$file"
+	else
+		non_ui=true
+        non_ui_example="$file"
+	fi
+	
+	if "$non_ui" && "$ui"
+	then
+		echo "$error_project_mix" >&2
+        echo "UI file:    " "$ui_example" >&2
+        echo "Non-UI file:" "$non_ui_example" >&2
+        exit 1
+	fi
+done
+
 
 if ! grep -iqE "$commit_regex" "$1"; then
     echo "$error_msg" >&2
     exit 1
 fi
+
+
