@@ -58,7 +58,10 @@ var BarcodeUtil = new function() {
         content.append($video);
 
         // Starts the camera reading code
-        codeReader = new ZXing.BrowserMultiFormatReader();
+        const hints = new Map();
+        const formats = [ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128  /*, ...*/];
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+        const codeReader = new ZXing.BrowserMultiFormatReader(hints);
                 codeReader.listVideoInputDevices().then((videoInputDevices) => {
                     const sourceSelect = document.getElementById('sourceSelect');
                     selectedDeviceId = videoInputDevices[0].deviceId;
