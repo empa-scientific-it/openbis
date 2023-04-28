@@ -8,7 +8,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome",
-      "url": "http://localhost:8124/ng-ui-path/",
+      "url": "http://127.0.0.1:9999/admin/",
       "webRoot": "${workspaceFolder}"
     },
     {
