@@ -933,7 +933,7 @@ var FormUtil = new function() {
 			$component = this._getNumberInputField(propertyType.code, propertyType.description, '1', propertyType.mandatory);
 		} else if (propertyType.dataType === "MATERIAL") {
 			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
+		} else if (["MULTILINE_VARCHAR", "JSON"].includes(propertyType.dataType)) {
 			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 			if(profile.isForcedMonospaceFont(propertyType)) {
 				$component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
@@ -945,8 +945,10 @@ var FormUtil = new function() {
 		} else if (propertyType.dataType === "DATE") {
 			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory, true, timestampValue);
 		} else if (propertyType.dataType === "VARCHAR") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "XML") {
+            $component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+        } else if (['ARRAY_STRING', 'ARRAY_INTEGER', 'ARRAY_REAL', 'ARRAY_TIMESTAMP'].includes(propertyType.dataType)) {
+            $component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+        } else if (propertyType.dataType === "XML") {
 			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "SAMPLE") {
 		    var sampleTypeCode = propertyType.sampleTypeCode;

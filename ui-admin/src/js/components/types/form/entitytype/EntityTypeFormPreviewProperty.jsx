@@ -282,7 +282,12 @@ class EntityTypeFormPreviewProperty extends React.PureComponent {
       dataType === openbis.DataType.HYPERLINK ||
       dataType === openbis.DataType.TIMESTAMP ||
       dataType === openbis.DataType.DATE ||
-      dataType === openbis.DataType.XML
+      dataType === openbis.DataType.XML ||
+      dataType === openbis.DataType.ARRAY_STRING ||
+      dataType === openbis.DataType.ARRAY_INTEGER ||
+      dataType === openbis.DataType.ARRAY_REAL ||
+      dataType === openbis.DataType.ARRAY_TIMESTAMP ||
+      dataType === openbis.DataType.JSON
     ) {
       return this.renderVarcharProperty()
     } else if (
