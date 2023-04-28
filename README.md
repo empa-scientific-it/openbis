@@ -1,5 +1,5 @@
 
-!["openBIS"](./docs/readme/openbis-logo.png "openBIS")
+!["openBIS"](./docs/logos/openbis-logo.png "openBIS")
 
 # Repository organization
 
