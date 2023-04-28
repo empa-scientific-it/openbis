@@ -15,7 +15,10 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 
 import org.hibernate.Session;
 
@@ -55,23 +58,25 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 /**
  * The unique {@link IEntityPropertiesConverter} implementation.
  * <p>
- * This implementation caches as much as possible to avoid redundant database requests. This also means that this class should not be reused. Creating
- * a new instance each time this class is needed should be preferred.
+ * This implementation caches as much as possible to avoid redundant database requests. This also
+ * means that this class should not be reused. Creating a new instance each time this class is
+ * needed should be preferred.
  * </p>
- * 
+ *
  * @author Christian Ribeaud
  */
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
-    private static final IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType> EXTENDED_ETPT_KEY_EXTRACTOR =
+    private static final IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>
+            EXTENDED_ETPT_KEY_EXTRACTOR =
             new IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>()
+            {
+                @Override
+                public PropertyTypePE getKey(ExtendedEntityTypePropertyType etpt)
                 {
-                    @Override
-                    public PropertyTypePE getKey(ExtendedEntityTypePropertyType etpt)
-                    {
-                        return etpt.getEntityTypePropertyTypePE().getPropertyType();
-                    }
-                };
+                    return etpt.getEntityTypePropertyTypePE().getPropertyType();
+                }
+            };
 
     private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
             "Value of mandatory property '%s' not specified.";
@@ -92,7 +97,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             new TableMap<String, PropertyTypePE>(
                     KeyExtractorFactory.getPropertyTypeByCodeKeyExtractor());
 
-    private Map<String /* Entity type code */, TableMap<PropertyTypePE, ExtendedEntityTypePropertyType>> entityTypePropertyTypesByEntityTypeAndPropertyType =
+    private Map<String /* Entity type code */, TableMap<PropertyTypePE, ExtendedEntityTypePropertyType>>
+            entityTypePropertyTypesByEntityTypeAndPropertyType =
             new HashMap<String, TableMap<PropertyTypePE, ExtendedEntityTypePropertyType>>();
 
     private final ComplexPropertyValueHelper complexPropertyValueHelper;
@@ -126,7 +132,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         this.entityKind = entityKind;
         this.propertyValueValidator = propertyValueValidator;
         this.placeholderCreator = placeholderCreator;
-        this.complexPropertyValueHelper = new ComplexPropertyValueHelper(daoFactory, null, entityInfoProvider);
+        this.complexPropertyValueHelper =
+                new ComplexPropertyValueHelper(daoFactory, null, entityInfoProvider);
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
@@ -273,7 +280,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final String validatedValue =
                     propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
 
-            return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE, validatedValue);
+            return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
+                    validatedValue);
         }
         return null;
     }
@@ -375,7 +383,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     private <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> propertyValues,
-                                                                       EntityTypePE entityTypePE, List<EntityTypePropertyTypePE> assignedProperties)
+            EntityTypePE entityTypePE, List<EntityTypePropertyTypePE> assignedProperties)
     {
         assert propertyValues != null;
         if (assignedProperties == null || assignedProperties.size() == 0)
@@ -386,11 +394,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         List<EntityTypePropertyTypePE> mandatoryAssignedProperties = new ArrayList<>(0);
         for (EntityTypePropertyTypePE etpt : assignedProperties)
         {
-            if (etpt.isMandatory()) {
+            if (etpt.isMandatory())
+            {
                 mandatoryAssignedProperties.add(etpt);
             }
         }
-        if (mandatoryAssignedProperties.isEmpty()) {
+        if (mandatoryAssignedProperties.isEmpty())
+        {
             return;
         }
 
@@ -446,7 +456,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         if (validatedValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
         {
             // save errors as strings
-            entityProperty.setUntypedValue(validatedValue, null, null, null);
+            entityProperty.setUntypedValue(validatedValue, null, null, null, null, null, null, null,
+                    null);
         } else
         {
             final VocabularyTermPE vocabularyTerm =
@@ -454,7 +465,18 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final MaterialPE material =
                     complexPropertyValueHelper.tryGetMaterial(validatedValue, propertyType);
             SamplePE sample = complexPropertyValueHelper.tryGetSample(validatedValue, propertyType);
-            entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material, sample);
+            final Long[] integerArray =
+                    complexPropertyValueHelper.tryGetIntegerArray(validatedValue, propertyType);
+            final Double[] realArray =
+                    complexPropertyValueHelper.tryGetRealArray(validatedValue, propertyType);
+            final String[] stringArray =
+                    complexPropertyValueHelper.tryGetStringArray(validatedValue, propertyType);
+            final Date[] timestampArray =
+                    complexPropertyValueHelper.tryGetTimestampArray(validatedValue, propertyType);
+            final String jsonValue =
+                    complexPropertyValueHelper.tryGetJsonValue(validatedValue, propertyType);
+            entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material, sample,
+                    integerArray, realArray, stringArray, timestampArray, jsonValue);
         }
     }
 
@@ -488,9 +510,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                         ? ((EntityPropertyWithSampleDataTypePE) newProperty).getSampleValue()
                         : null;
                 existingProperty.setUntypedValue(newProperty.getValue(),
-                        newProperty.getVocabularyTerm(), newProperty.getMaterialValue(), sample);
+                        newProperty.getVocabularyTerm(), newProperty.getMaterialValue(), sample,
+                        newProperty.getIntegerArrayValue(), newProperty.getRealArrayValue(),
+                        newProperty.getStringArrayValue(),
+                        newProperty.getTimestampArrayValue(), newProperty.getJsonValue());
 
-                if (false == existingPropertyValues.get(existingProperty).equals(newProperty.tryGetUntypedValue()))
+                if (false == existingPropertyValues.get(existingProperty)
+                        .equals(newProperty.tryGetUntypedValue()))
                 {
                     existingProperty.setAuthor(author);
                     // TODO: create modified property history entry
@@ -505,7 +531,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
-    private static <T extends EntityPropertyPE> Set<T> findDeletedProperties(Collection<T> oldProperties,
+    private static <T extends EntityPropertyPE> Set<T> findDeletedProperties(
+            Collection<T> oldProperties,
             List<IEntityProperty> newProperties)
     {
         Set<String> newPropertiesCodes = new HashSet<String>();
@@ -521,7 +548,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
         for (T old : oldProperties)
         {
-            if (newPropertiesCodes.contains(old.getEntityTypePropertyType().getPropertyType().getCode()) == false)
+            if (newPropertiesCodes.contains(
+                    old.getEntityTypePropertyType().getPropertyType().getCode()) == false)
             {
                 deletedProperties.add(old);
             }
@@ -530,7 +558,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     /**
-     * Update the value of a managed property, assuming the managedProperty already has the updated value.
+     * Update the value of a managed property, assuming the managedProperty already has the updated
+     * value.
      */
     @Override
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
@@ -546,7 +575,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(managedProperty.getValue(), null, null, null);
+            existingProperty.setUntypedValue(managedProperty.getValue(), null, null, null, null,
+                    null, null, null, null);
             existingProperty.setAuthor(author);
         }
         return set;
@@ -653,7 +683,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             if (inputWidgetDescriptions.isEmpty()
                     || propertyValue == null
                     || propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
-                    || propertyValue.startsWith(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX) == false)
+                    || propertyValue.startsWith(
+                    BasicConstant.MANAGED_PROPERTY_JSON_PREFIX) == false)
             {
                 return propertyValue;
             }
@@ -661,7 +692,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 List<?> readValue =
                         new ObjectMapper().readValue(propertyValue
-                                .substring(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX.length()),
+                                        .substring(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX.length()),
                                 List.class);
                 ManagedProperty managedProperty = new ManagedProperty();
                 IPerson person = PersonTranslator.translateToIPerson(personPE);
@@ -706,12 +737,14 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         private IEntityInformationProvider entityInfoProvider;
 
         /**
-         * @param customSessionProviderOrNull Provider of custom session that should be used for accessing DB instead of default one. If null the
-         *            standard way of getting the session should be used.
+         * @param customSessionProviderOrNull Provider of custom session that should be used for
+         *                                    accessing DB instead of default one. If null the
+         *                                    standard way of getting the session should be used.
          * @param entityInfoProvider
          */
         public ComplexPropertyValueHelper(IDAOFactory daoFactory,
-                IHibernateSessionProvider customSessionProviderOrNull, IEntityInformationProvider entityInfoProvider)
+                IHibernateSessionProvider customSessionProviderOrNull,
+                IEntityInformationProvider entityInfoProvider)
         {
             this.daoFactory = daoFactory;
             this.customSessionProviderOrNull = customSessionProviderOrNull;
@@ -731,13 +764,15 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 samplePermId = entityInfoProvider.getSamplePermId(value);
                 if (samplePermId == null)
                 {
-                    throw UserFailureException.fromTemplate("No sample could be found for identifier %s.", value);
+                    throw UserFailureException.fromTemplate(
+                            "No sample could be found for identifier %s.", value);
                 }
             }
             List<SamplePE> samples = sampleDAO.listByPermID(Collections.singleton(samplePermId));
             if (samples.isEmpty())
             {
-                throw UserFailureException.fromTemplate("No sample could be found for perm id %s.", value);
+                throw UserFailureException.fromTemplate("No sample could be found for perm id %s.",
+                        value);
             }
             return samples.get(0);
         }
@@ -796,6 +831,88 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     "Incorrect value '%s' for a controlled vocabulary set '%s'.", value,
                     vocabulary.getCode());
         }
+
+        private static final String SEPARATOR = ",";
+
+        public Long[] tryGetIntegerArray(final String value, final PropertyTypePE propertyType)
+        {
+            DataTypeCode code = propertyType.getType().getCode();
+            if (code != DataTypeCode.ARRAY_INTEGER)
+            {
+                return null;
+            }
+            if (value == null || value.isBlank())
+            {
+                return null;
+            }
+            return Arrays.stream(value.split(SEPARATOR))
+                    .map(x -> Long.parseLong(x.trim()))
+                    .toArray(Long[]::new);
+        }
+
+        public Double[] tryGetRealArray(final String value, final PropertyTypePE propertyType)
+        {
+            DataTypeCode code = propertyType.getType().getCode();
+            if (code != DataTypeCode.ARRAY_REAL)
+            {
+                return null;
+            }
+            if (value == null || value.isBlank())
+            {
+                return null;
+            }
+            return Arrays.stream(value.split(SEPARATOR))
+                    .map(x -> Double.parseDouble(x.trim()))
+                    .toArray(Double[]::new);
+        }
+
+        public String[] tryGetStringArray(final String value, final PropertyTypePE propertyType)
+        {
+            DataTypeCode code = propertyType.getType().getCode();
+            if (code != DataTypeCode.ARRAY_STRING)
+            {
+                return null;
+            }
+            if (value == null || value.isBlank())
+            {
+                return null;
+            }
+            return Arrays.stream(value.split(SEPARATOR))
+                    .map(String::trim)
+                    .toArray(String[]::new);
+        }
+
+        public Date[] tryGetTimestampArray(final String value, final PropertyTypePE propertyType)
+        {
+            DataTypeCode code = propertyType.getType().getCode();
+            if (code != DataTypeCode.ARRAY_TIMESTAMP)
+            {
+                return null;
+            }
+            SimpleDateFormat format=new SimpleDateFormat("y-M-d HH:mm:ss");
+            return Arrays.stream(value.split(SEPARATOR))
+                    .map(x -> parseDateFromString(x, format))
+                    .toArray(Date[]::new);
+        }
+
+        private Date parseDateFromString(String date, final SimpleDateFormat format) {
+            try {
+                return format.parse(date);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Wrong date format:" + date, e);
+            }
+        }
+
+        public String tryGetJsonValue(final String value, final PropertyTypePE propertyType)
+        {
+            DataTypeCode code = propertyType.getType().getCode();
+            if (code != DataTypeCode.JSON)
+            {
+                return null;
+            }
+            return value;
+        }
+
     }
 
 }

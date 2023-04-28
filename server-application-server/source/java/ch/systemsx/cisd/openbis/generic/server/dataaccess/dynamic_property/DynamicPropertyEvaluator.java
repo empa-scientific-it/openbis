@@ -15,12 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -54,8 +49,9 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdap
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
- * Default implementation of {@link IDynamicPropertyEvaluator}. For efficient evaluation of properties a cache of compiled script is used internally.
- * 
+ * Default implementation of {@link IDynamicPropertyEvaluator}. For efficient evaluation of
+ * properties a cache of compiled script is used internally.
+ *
  * @author Piotr Buczek
  */
 public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
@@ -109,7 +105,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             case SAMPLE:
                 propertyTypeQuery =
                         session.createQuery(
-                                "SELECT sample.sampleType.sampleTypePropertyTypesInternal FROM SamplePE sample WHERE sample = :sample")
+                                        "SELECT sample.sampleType.sampleTypePropertyTypesInternal FROM SamplePE sample WHERE sample = :sample")
                                 .setParameter("sample", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
@@ -117,9 +113,10 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 {
                     propertyQuery =
                             session.createQuery(
-                                    "SELECT property FROM SamplePropertyPE property WHERE " +
-                                            "property.entity = :sample AND property.entityTypePropertyType IN (:types)")
-                                    .setParameter("sample", entity).setParameterList("types", allPropertyTypes);
+                                            "SELECT property FROM SamplePropertyPE property WHERE " +
+                                                    "property.entity = :sample AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("sample", entity)
+                                    .setParameterList("types", allPropertyTypes);
                     existingProperties = propertyQuery.list();
                 } else
                 {
@@ -129,7 +126,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             case DATA_SET:
                 propertyTypeQuery =
                         session.createQuery(
-                                "SELECT data.dataSetType.dataSetTypePropertyTypesInternal FROM DataPE data WHERE data = :data")
+                                        "SELECT data.dataSetType.dataSetTypePropertyTypesInternal FROM DataPE data WHERE data = :data")
                                 .setParameter("data", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
@@ -137,9 +134,10 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 {
                     propertyQuery =
                             session.createQuery(
-                                    "SELECT property FROM DataSetPropertyPE property WHERE " +
-                                            "property.entity = :data AND property.entityTypePropertyType IN (:types)")
-                                    .setParameter("data", entity).setParameterList("types", allPropertyTypes);
+                                            "SELECT property FROM DataSetPropertyPE property WHERE " +
+                                                    "property.entity = :data AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("data", entity)
+                                    .setParameterList("types", allPropertyTypes);
                     existingProperties = propertyQuery.list();
                 } else
                 {
@@ -149,7 +147,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             case EXPERIMENT:
                 propertyTypeQuery =
                         session.createQuery(
-                                "SELECT experiment.experimentType.experimentTypePropertyTypesInternal FROM ExperimentPE experiment WHERE experiment = :experiment")
+                                        "SELECT experiment.experimentType.experimentTypePropertyTypesInternal FROM ExperimentPE experiment WHERE experiment = :experiment")
                                 .setParameter("experiment", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
@@ -157,9 +155,10 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 {
                     propertyQuery =
                             session.createQuery(
-                                    "SELECT property FROM ExperimentPropertyPE property WHERE " +
-                                            "property.entity = :experiment AND property.entityTypePropertyType IN (:types)")
-                                    .setParameter("experiment", entity).setParameterList("types", allPropertyTypes);
+                                            "SELECT property FROM ExperimentPropertyPE property WHERE " +
+                                                    "property.entity = :experiment AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("experiment", entity)
+                                    .setParameterList("types", allPropertyTypes);
                     existingProperties = propertyQuery.list();
                 } else
                 {
@@ -170,7 +169,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             case MATERIAL:
                 propertyTypeQuery =
                         session.createQuery(
-                                "SELECT material.materialType.materialTypePropertyTypesInternal FROM MaterialPE material WHERE material = :material")
+                                        "SELECT material.materialType.materialTypePropertyTypesInternal FROM MaterialPE material WHERE material = :material")
                                 .setParameter("material", entity);
                 allPropertyTypes = propertyTypeQuery.list();
 
@@ -178,9 +177,10 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 {
                     propertyQuery =
                             session.createQuery(
-                                    "SELECT property FROM MaterialPropertyPE property WHERE " +
-                                            "property.entity = :material AND property.entityTypePropertyType IN (:types)")
-                                    .setParameter("material", entity).setParameterList("types", allPropertyTypes);
+                                            "SELECT property FROM MaterialPropertyPE property WHERE " +
+                                                    "property.entity = :material AND property.entityTypePropertyType IN (:types)")
+                                    .setParameter("material", entity)
+                                    .setParameterList("types", allPropertyTypes);
                     existingProperties = propertyQuery.list();
                 } else
                 {
@@ -216,7 +216,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                         prop = new MaterialPropertyPE();
                         break;
                     default:
-                        throw new IllegalArgumentException(etpt.getEntityType().getEntityKind().toString());
+                        throw new IllegalArgumentException(
+                                etpt.getEntityType().getEntityKind().toString());
                 }
                 prop.setValue(BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE);
                 prop.setEntityTypePropertyType(etpt);
@@ -239,12 +240,18 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 MaterialPE materialOrNull = null;
                 SamplePE sampleOrNull = null;
                 VocabularyTermPE termOrNull = null;
+                Long[] integerArrayOrNull = null;
+                Double[] realArrayOrNull = null;
+                String[] stringArrayOrNull = null;
+                Date[] timestampArrayOrNull = null;
+                String jsonValueOrNull = null;
                 if (dynamicValue == null)
                 {
                     propertiesToRemove.add(property);
                 } else if (dynamicValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
                 {
-                    property.setUntypedValue(dynamicValue, null, null, null);
+                    property.setUntypedValue(dynamicValue, null, null, null, null, null, null, null,
+                            null);
                 } else
                 {
                     try
@@ -263,8 +270,33 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                                 break;
                             case SAMPLE:
                                 sampleOrNull =
-                                entityPropertiesConverter.tryGetSample(dynamicValue,
-                                        etpt.getPropertyType());
+                                        entityPropertiesConverter.tryGetSample(dynamicValue,
+                                                etpt.getPropertyType());
+                                break;
+                            case ARRAY_INTEGER:
+                                integerArrayOrNull =
+                                        entityPropertiesConverter.tryGetIntegerArray(dynamicValue,
+                                                etpt.getPropertyType());
+                                break;
+                            case ARRAY_REAL:
+                                realArrayOrNull =
+                                        entityPropertiesConverter.tryGetRealArray(dynamicValue,
+                                                etpt.getPropertyType());
+                                break;
+                            case ARRAY_STRING:
+                                stringArrayOrNull =
+                                        entityPropertiesConverter.tryGetStringArray(dynamicValue,
+                                                etpt.getPropertyType());
+                                break;
+                            case ARRAY_TIMESTAMP:
+                                timestampArrayOrNull =
+                                        entityPropertiesConverter.tryGetTimestampArray(dynamicValue,
+                                                etpt.getPropertyType());
+                                break;
+                            case JSON:
+                                jsonValueOrNull =
+                                        entityPropertiesConverter.tryGetJsonValue(dynamicValue,
+                                                etpt.getPropertyType());
                                 break;
                             default:
                                 valueOrNull = dynamicValue;
@@ -273,7 +305,9 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     {
                         valueOrNull = errorPropertyValue(ex.getMessage());
                     }
-                    property.setUntypedValue(valueOrNull, termOrNull, materialOrNull, sampleOrNull);
+                    property.setUntypedValue(valueOrNull, termOrNull, materialOrNull, sampleOrNull,
+                            integerArrayOrNull, realArrayOrNull, stringArrayOrNull,
+                            timestampArrayOrNull, jsonValueOrNull);
                     if (session.contains(property) == false)
                     {
                         session.persist(property);
@@ -386,10 +420,35 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         {
             return complexPropertyValueHelper.tryGetSample(value, propertyType);
         }
-        
+
         public VocabularyTermPE tryGetVocabularyTerm(String value, PropertyTypePE propertyType)
         {
             return complexPropertyValueHelper.tryGetVocabularyTerm(value, propertyType);
+        }
+
+        public Long[] tryGetIntegerArray(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetIntegerArray(value, propertyType);
+        }
+
+        public Double[] tryGetRealArray(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetRealArray(value, propertyType);
+        }
+
+        public String[] tryGetStringArray(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetStringArray(value, propertyType);
+        }
+
+        public Date[] tryGetTimestampArray(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetTimestampArray(value, propertyType);
+        }
+
+        public String tryGetJsonValue(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetJsonValue(value, propertyType);
         }
     }
 }

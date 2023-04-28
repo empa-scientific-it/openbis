@@ -22,6 +22,8 @@ import javax.persistence.MappedSuperclass;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
+import java.util.Date;
+
 @MappedSuperclass
 public abstract class EntityPropertyWithSampleDataTypePE extends EntityPropertyPE
 {
@@ -53,18 +55,24 @@ public abstract class EntityPropertyWithSampleDataTypePE extends EntityPropertyP
 
     @Override
     public final void setUntypedValue(final String valueOrNull,
-            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull, SamplePE sampleOrNull)
+            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull,
+            SamplePE sampleOrNull, Long[] integerArrayOrNull, Double[] realArrayOrNull,
+            String[] stringArrayOrNull, Date[] timestampArrayOrNull, String jsonOrNull)
     {
         assert valueOrNull != null || vocabularyTermOrNull != null
-                || materialOrNull != null || sampleOrNull != null : 
-                    "Either value, vocabulary term, material or sample should not be null.";
+                || materialOrNull != null || sampleOrNull != null || integerArrayOrNull != null
+                || realArrayOrNull != null || stringArrayOrNull != null || timestampArrayOrNull != null
+                || jsonOrNull != null :
+                "Either value, array value, json vocabulary term, material or sample should not be null.";
         if (sampleOrNull != null)
         {
             setSampleValue(sampleOrNull);
         } else
         {
             setSampleValue(null);
-            super.setUntypedValue(valueOrNull, vocabularyTermOrNull, materialOrNull, sampleOrNull);
+            super.setUntypedValue(valueOrNull, vocabularyTermOrNull, materialOrNull, sampleOrNull,
+                    integerArrayOrNull, realArrayOrNull, stringArrayOrNull, timestampArrayOrNull,
+                    jsonOrNull);
         }
     }
 

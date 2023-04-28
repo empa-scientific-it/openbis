@@ -15,14 +15,18 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Date;
+
 /**
  * Holds the untyped property value.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface IUntypedValueSetter
 {
     /** Internally sets the untyped property value. */
     public void setUntypedValue(final String valueOrNull,
-            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull, SamplePE sampleOrNull);
+            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull,
+            SamplePE sampleOrNull, Long[] integerArrayOrNull, Double[] realArrayOrNull,
+            String[] stringArrayOrNull, Date[] timestampArrayOrNull, String jsonOrNull);
 }

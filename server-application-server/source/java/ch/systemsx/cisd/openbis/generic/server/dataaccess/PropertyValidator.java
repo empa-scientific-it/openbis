@@ -52,6 +52,11 @@ public final class PropertyValidator implements IPropertyValueValidator
         map.put(DataTypeCode.MATERIAL, new MaterialValidator());
         map.put(DataTypeCode.XML, new XmlValidator());
         map.put(DataTypeCode.SAMPLE, new SampleValidator());
+        map.put(DataTypeCode.JSON, new JsonValidator());
+        map.put(DataTypeCode.ARRAY_STRING, new ArrayValidator());
+        map.put(DataTypeCode.ARRAY_INTEGER, new ArrayValidator());
+        map.put(DataTypeCode.ARRAY_REAL, new ArrayValidator());
+        map.put(DataTypeCode.ARRAY_TIMESTAMP, new ArrayValidator());
         return map;
     }
 
@@ -89,6 +94,12 @@ public final class PropertyValidator implements IPropertyValueValidator
             case XML:
                 ((XmlValidator) dataTypeValidator).setXmlSchema(propertyType.getSchema());
                 ((XmlValidator) dataTypeValidator).setPropertyTypeLabel(propertyType.getLabel());
+                break;
+            case ARRAY_STRING:
+            case ARRAY_INTEGER:
+            case ARRAY_REAL:
+            case ARRAY_TIMESTAMP:
+                ((ArrayValidator) dataTypeValidator).setArrayType(entityDataType);
                 break;
             default:
                 break;
@@ -128,6 +139,56 @@ public final class PropertyValidator implements IPropertyValueValidator
                 // Is well formed permId?
             }
 
+            return value;
+        }
+    }
+
+    private final static class JsonValidator implements IDataTypeValidator
+    {
+        @Override
+        public String validate(String value) throws UserFailureException {
+            assert value != null : "Unspecified value.";
+
+            if (StringUtils.isBlank(value))
+            {
+                return null;
+            }
+
+            //TODO: implement validation for json
+            System.out.println("||> validate json:" + value);
+            return value;
+        }
+    }
+
+    private final static class ArrayValidator implements IDataTypeValidator
+    {
+        DataTypeCode arrayType;
+
+        public void setArrayType(DataTypeCode arrayType)
+        {
+            this.arrayType = arrayType;
+        }
+
+        @Override
+        public String validate(String value) throws UserFailureException {
+            assert value != null : "Unspecified value.";
+
+            if (StringUtils.isBlank(value))
+            {
+                return null;
+            }
+            System.out.println("||> validate array:" + arrayType + " " + value);
+            //TODO: implement validation for array
+            switch (arrayType) {
+                case ARRAY_INTEGER:
+                    break;
+                case ARRAY_REAL:
+                    break;
+                case ARRAY_STRING:
+                    break;
+                case ARRAY_TIMESTAMP:
+                    break;
+            }
             return value;
         }
     }

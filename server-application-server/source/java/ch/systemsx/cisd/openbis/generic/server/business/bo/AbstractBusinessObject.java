@@ -691,10 +691,35 @@ abstract class AbstractBusinessObject implements IDAOFactory
         {
             return value;
         }
+        value = property.getJsonValue();
+        if (value != null)
+        {
+            return value;
+        }
         MaterialPE materialValue = property.getMaterialValue();
         if (materialValue != null)
         {
             return materialValue;
+        }
+        Long[] integerArrayValue = property.getIntegerArrayValue();
+        if (integerArrayValue != null)
+        {
+            return integerArrayValue;
+        }
+        Double[] realArrayValue = property.getRealArrayValue();
+        if (realArrayValue != null)
+        {
+            return realArrayValue;
+        }
+        String[] stringArrayValue = property.getStringArrayValue();
+        if (stringArrayValue != null)
+        {
+            return stringArrayValue;
+        }
+        Date[] timestampArrayValue = property.getTimestampArrayValue();
+        if (timestampArrayValue != null)
+        {
+            return timestampArrayValue;
         }
         return property.getVocabularyTerm();
     }

@@ -15,18 +15,13 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
+import java.util.stream.Stream;
 
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
+import javax.persistence.*;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.types.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -44,12 +39,17 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Persistence entity representing entity property.
- * 
+ *
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
-@TypeDefs({ @TypeDef(name = "transactiontimestamp", typeClass = DbTimestampType.class) })
+@TypeDefs({ @TypeDef(name = "transaction_timestamp", typeClass = DbTimestampType.class),
+        @TypeDef(name = "long_array_type", typeClass = LongArrayType.class),
+        @TypeDef(name = "double_array_type", typeClass = DoubleArrayType.class),
+        @TypeDef(name = "string_array_type", typeClass = StringArrayType.class),
+        @TypeDef(name = "timestamp_array_type", typeClass = TimestampArrayType.class),
+        @TypeDef(name = "json_string_type", typeClass = JsonStringType.class)})
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IUntypedValueSetter, IEntityPropertyHolder
 {
@@ -65,6 +65,16 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
      */
     private String value;
 
+    private Long[] integerArrayValue;
+
+    private Double[] realArrayValue;
+
+    private Date[] timestampArrayValue;
+
+    private String[] stringArrayValue;
+
+    private String jsonValue;
+
     /**
      * The vocabulary term.
      * <p>
@@ -74,7 +84,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private VocabularyTermPE vocabularyTerm;
 
     /**
-     * If the property is of MATERIAL, this field is not <code>null</code> and {@link #value} and {@link #vocabularyTerm} fields are set to
+     * If the property is of MATERIAL, this field is not <code>null</code> and {@link #value} and
+     * {@link #vocabularyTerm} fields are set to
      * <code>null</code>.
      */
     private MaterialPE material;
@@ -116,6 +127,17 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.value = value;
     }
 
+    private void clearValues() {
+        this.value = null;
+        this.material = null;
+        this.vocabularyTerm = null;
+        this.integerArrayValue = null;
+        this.stringArrayValue = null;
+        this.realArrayValue = null;
+        this.timestampArrayValue = null;
+        this.jsonValue = null;
+    }
+
     @Column(name = ColumnNames.VALUE_COLUMN)
     public String getValue()
     {
@@ -146,18 +168,82 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.material = material;
     }
 
+    @Column(name = ColumnNames.INTEGER_ARRAY_VALUE_COLUMN, columnDefinition = "long_value[]")
+    @Type(type = "long_array_type")
+    public Long[] getIntegerArrayValue()
+    {
+        return integerArrayValue;
+    }
+
+    public void setIntegerArrayValue(final Long[] values)
+    {
+        this.integerArrayValue = values;
+    }
+
+
+    public void setRealArrayValue(final Double[] values)
+    {
+        this.realArrayValue = values;
+    }
+
+    @Column(name = ColumnNames.REAL_ARRAY_VALUE_COLUMN)
+    @Type(type = "double_array_type")
+    public Double[] getRealArrayValue()
+    {
+        return realArrayValue;
+    }
+
+    public void setTimestampArrayValue(final Date[] values)
+    {
+        this.timestampArrayValue = values;
+    }
+
+    @Column(name = ColumnNames.TIMESTAMP_ARRAY_VALUE_COLUMN)
+    @Type(type = "timestamp_array_type")
+    public Date[] getTimestampArrayValue()
+    {
+        return timestampArrayValue;
+    }
+
+    public void setStringArrayValue(final String[] values)
+    {
+        this.stringArrayValue = values;
+    }
+
+    @Column(name = ColumnNames.STRING_ARRAY_VALUE_COLUMN)
+    @Type(type = "string_array_type")
+    public String[] getStringArrayValue()
+    {
+        return stringArrayValue;
+    }
+
+    @Column(name = ColumnNames.JSON_VALUE_COLUMN)
+    @Type(type = "json_string_type")
+    public String getJsonValue()
+    {
+        return jsonValue;
+    }
+
+    public void setJsonValue(String jsonValue)
+    {
+        this.jsonValue = jsonValue;
+    }
+
     //
     // IUntypedValueSetter
     //
 
     @Override
     public void setUntypedValue(final String valueOrNull,
-            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull, SamplePE sampleOrNull)
+            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull,
+            SamplePE sampleOrNull, Long[] integerArrayOrNull, Double[] realArrayOrNull,
+            String[] stringArrayOrNull, Date[] timestampArrayOrNull, String jsonOrNull)
     {
-        assert valueOrNull != null || vocabularyTermOrNull != null || materialOrNull != null : "Either value, vocabulary term or material should not be null.";
-        setVocabularyTerm(null);
-        setMaterialValue(null);
-        setValue(null);
+        assert valueOrNull != null || vocabularyTermOrNull != null || materialOrNull != null
+                || integerArrayOrNull != null || realArrayOrNull != null
+                || stringArrayOrNull != null || timestampArrayOrNull != null
+                || jsonOrNull != null : "Either value, array value, json, vocabulary term or material should not be null.";
+        clearValues();
         if (vocabularyTermOrNull != null)
         {
             assert materialOrNull == null;
@@ -165,6 +251,16 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         } else if (materialOrNull != null)
         {
             setMaterialValue(materialOrNull);
+        }else if (integerArrayOrNull != null) {
+            setIntegerArrayValue(integerArrayOrNull);
+        } else if (realArrayOrNull != null) {
+            setRealArrayValue(realArrayOrNull);
+        }else if (stringArrayOrNull != null) {
+            setStringArrayValue(stringArrayOrNull);
+        }else if (timestampArrayOrNull != null) {
+            setTimestampArrayValue(timestampArrayOrNull);
+        }else if (jsonOrNull != null) {
+            setJsonValue(jsonOrNull);
         } else
         {
             setValue(valueOrNull);
@@ -173,7 +269,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    @Type(type = "transactiontimestamp")
+    @Type(type = "transaction_timestamp")
     public Date getModificationDate()
     {
         return modificationDate;
@@ -199,7 +295,9 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     /**
      * Sets the <var>entity</var> of this property.
      * <p>
-     * <i>Do not use directly, instead, call {@link IEntityPropertiesHolder#addProperty(EntityPropertyPE)} with <code>this</code> object!</i>
+     * <i>Do not use directly, instead, call
+     * {@link IEntityPropertiesHolder#addProperty(EntityPropertyPE)} with <code>this</code>
+     * object!</i>
      */
     void setEntity(final IEntityPropertiesHolder entity)
     {
@@ -238,8 +336,29 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             return createMaterialIdentifier(getMaterialValue()).print();
         } else
         {
+            if (this.integerArrayValue != null)
+            {
+                return convertArrayToString(this.integerArrayValue);
+            }
+            if (getRealArrayValue() != null)
+                return convertArrayToString(this.realArrayValue);
+            if (getTimestampArrayValue() != null)
+                return convertArrayToString(this.timestampArrayValue);
+            if (getStringArrayValue() != null)
+                return convertArrayToString(this.stringArrayValue);
+            if (getJsonValue() != null)
+                return getJsonValue();
             return getValue();
         }
+    }
+
+    private String convertArrayToString(Object[] array) {
+        if (array == null || array.length == 0)
+            return "";
+        return Stream.of(array)
+                .map(String::valueOf)
+                .reduce((x, y) -> x + ", " + y)
+                .get();
     }
 
     private static MaterialIdentifier createMaterialIdentifier(MaterialPE material)
