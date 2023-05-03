@@ -34,8 +34,6 @@ from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 
-from ch.ethz.sis import PlasmapperConnector
-
 import json
 import time
 import subprocess
@@ -73,7 +71,6 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleT
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetTypeFetchOptions
 
 #Plasmapper server used
-PLASMAPPER_BASE_URL = "http://wishart.biology.ualberta.ca"
 OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
 def getConfigParameterAsString(propertyKey):
 	properties = DataStoreServer.getConfigParameters().getProperties();
@@ -574,22 +571,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	else: #CASE - 3: One file only
 		temFile = File(tempDir + "/" + folderName + "/" + fileNames.get(0));
-		if 	temFile.getName().endswith(".fasta") and dataSetType == "SEQ_FILE" and PLASMAPPER_BASE_URL != None:
-			futureSVG = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"));
-			futureHTML = File(tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html"));
-			try:
-				PlasmapperConnector.createPlasmidDataSet(
-					PLASMAPPER_BASE_URL,
-					tempDir + "/" + folderName + "/" + temFile.getName(),
-					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".svg"),
-					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".gb"),
-					tempDir + "/" + folderName + "/generated/" + temFile.getName().replace(".fasta", ".html")
-				);
-			except:
-				raise UserFailureException("Plasmapper service unavailable, try to upload your dataset later."); 
-			tr.moveFile(temFile.getParentFile().getAbsolutePath(), dataSet);
-		else:
-			tr.moveFile(temFile.getAbsolutePath(), dataSet);
+		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	#Clean Files from workspace
 	for fileName in fileNames:
 		dss_component.deleteSessionWorkspaceFile(parameters.get("sessionID"), fileName);
