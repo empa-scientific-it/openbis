@@ -1727,12 +1727,15 @@ function ServerFacade(openbisServer) {
                     })
                 }
 
-				var setOperator = function(criteria, operator) {
+                var setOperator = function(criteria, operator, negated) {
 					//Operator
 					if (!operator) {
 						operator = "AND";
 					}
 					criteria.withOperator(operator);
+                    if (negated) {
+                        criteria.negate();
+                    }
 					return criteria;
 				}
 
@@ -1748,6 +1751,7 @@ function ServerFacade(openbisServer) {
                     var ruleKeys = Object.keys(advancedSearchCriteria.rules);
                     for (var idx = 0; idx < ruleKeys.length; idx++)
                     {
+                        var negated = advancedSearchCriteria.rules[ruleKeys[idx]].negate == true;
                         var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
                         var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
                         var fieldNameType = null;
@@ -1893,7 +1897,7 @@ function ServerFacade(openbisServer) {
                             }
                         }
 
-                        var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
+                        var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator, negated) {
                             switch(attributeName) {
                                 //Used by all entities
                                 case "CODE":
@@ -2039,8 +2043,7 @@ function ServerFacade(openbisServer) {
                                         case "thatContains":
                                                 criteria.withType().withCode().thatContains(attributeValue);
                                                 break;
-                                    }
-                                    break;
+                                    }                                    break;
                                 //Only Sample
                                 case "SPACE":
                                     if(!comparisonOperator) {
@@ -2181,7 +2184,7 @@ function ServerFacade(openbisServer) {
                                         setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
                                         break;
                                     case "ATTR":
-                                        setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator, negated);
                                         break;
                                     case "NULL":
                                         searchCriteria.withoutExperiment();
@@ -2223,6 +2226,13 @@ function ServerFacade(openbisServer) {
                                         break;
                                 }
                                 break;
+                        }
+                        if (negated) {
+                            var subcriteria = searchCriteria.criteria;
+                            var wrapperCriteria = new EntitySearchCriteria();
+                            wrapperCriteria.negate();
+                            wrapperCriteria.criteria.push(subcriteria[subcriteria.length - 1]);
+                            subcriteria[subcriteria.length - 1] = wrapperCriteria;
                         }
                     }
 			    }
