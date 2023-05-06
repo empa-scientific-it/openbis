@@ -412,6 +412,9 @@ def getDataSetsOfSampleAndItsChildren(samplePermId, context):
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
     parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
     parentsSearchCriteria.withPermId().thatEquals(samplePermId)
+    return getDataSets(dataSetSearchCriteria, context)
+
+def getDataSets(dataSetSearchCriteria, context):
     fetchOptions = DataSetFetchOptions()
     fetchOptions.withDataStore()
     fetchOptions.withPhysicalData()

@@ -1,4 +1,9 @@
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria
+
 import script
+
 
 def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
     dataSets = script.getDataSetsOfSampleAndItsChildren(samplePermId, context)
@@ -9,7 +14,7 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     script.addDataSetFileNodesFor(path, filteredDataSets, response, acceptor, context)
 
 def addSampleChildNodesWithPlates(path, samplePermId, sampleType, response, acceptor, context):
-    dataSets = script.getDataSetsOfSampleAndItsChildren(samplePermId, context)
+    dataSets = getDataSetsOfSampleAndItsDescendants(samplePermId, context)
     filteredDataSets = []
     for dataSet in dataSets:
         sampleTypeCode = dataSet.getSample().getType().getCode()
@@ -17,6 +22,26 @@ def addSampleChildNodesWithPlates(path, samplePermId, sampleType, response, acce
             filteredDataSets.append(dataSet)
     script.addDataSetFileNodesFor(path, filteredDataSets, response, acceptor, context)
     script.addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
+
+def getDataSetsOfSampleAndItsDescendants(samplePermId, context):
+    samplePermIds = []
+    gatherAllDescendants(samplePermIds, samplePermId, context)
+    dataSetSearchCriteria = DataSetSearchCriteria()
+    dataSetSearchCriteria.withOrOperator()
+    for id in samplePermIds:
+        dataSetSearchCriteria.withSample().withPermId().thatEquals(id)
+    return script.getDataSets(dataSetSearchCriteria, context)
+
+def gatherAllDescendants(samplePermIds, samplePermId, context):
+    samplePermIds.append(samplePermId)
+    id = SamplePermId(samplePermId)
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withChildren().withType()
+    children = context.getApi().getSamples(context.getSessionToken(), [id], fetchOptions)[id].getChildren()
+    for child in children:
+        sampleTypeCode = child.getType().getCode()
+        if not sampleTypeCode.endswith("_WELL"):
+            gatherAllDescendants(samplePermIds, child.getPermId().getPermId(), context)
 
 for t in ["FACS_ARIA", "INFLUX", "MOFLO_XDP", "S3E", "SONY_SH800S", "SONY_MA900"]:
     acceptor.hideSampleType("%s_SPECIMEN" % t)
