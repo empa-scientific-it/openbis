@@ -626,10 +626,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
     this._getNegationOperatorDropdownComponent = function(uuid) {
         var _this = this;
-//        var negationOperatorOptions = [{value : "Non", label : "", selected : true },
-//                                       {value : "NOT", label : "NOT"}];
-//        var $dropDownComponent = FormUtil.getDropdown(negationOperatorOptions, "Select Operator");
-//        return $dropDownComponent;
         var $checkbox = $('<input>', {'type' : 'checkbox'})
         $checkbox.change(function() {
             _this._advancedSearchModel.criteria.rules[uuid].negate = $checkbox.is(":checked");
