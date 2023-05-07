@@ -6,7 +6,7 @@ import script
 
 
 def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
-    dataSets = getDataSetsOfSampleAndItsDescendants(samplePermId, context)
+    dataSets = getDataSetsOfSampleAndItsDescendants(samplePermId, False, context)
     filteredDataSets = []
     for dataSet in dataSets:
         if acceptor.acceptDataSet(dataSet):
@@ -14,7 +14,7 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     script.addDataSetFileNodesFor(path, filteredDataSets, response, acceptor, context)
 
 def addSampleChildNodesWithPlates(path, samplePermId, sampleType, response, acceptor, context):
-    dataSets = getDataSetsOfSampleAndItsDescendants(samplePermId, context)
+    dataSets = getDataSetsOfSampleAndItsDescendants(samplePermId, True, context)
     filteredDataSets = []
     for dataSet in dataSets:
         sampleTypeCode = dataSet.getSample().getType().getCode()
@@ -23,16 +23,16 @@ def addSampleChildNodesWithPlates(path, samplePermId, sampleType, response, acce
     script.addDataSetFileNodesFor(path, filteredDataSets, response, acceptor, context)
     script.addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
 
-def getDataSetsOfSampleAndItsDescendants(samplePermId, context):
+def getDataSetsOfSampleAndItsDescendants(samplePermId, supressWells, context):
     samplePermIds = []
-    gatherAllDescendants(samplePermIds, samplePermId, context)
+    gatherAllDescendants(samplePermIds, samplePermId, supressWells, context)
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withOrOperator()
     for id in samplePermIds:
         dataSetSearchCriteria.withSample().withPermId().thatEquals(id)
     return script.getDataSets(dataSetSearchCriteria, context)
 
-def gatherAllDescendants(samplePermIds, samplePermId, context):
+def gatherAllDescendants(samplePermIds, samplePermId, supressWells, context):
     samplePermIds.append(samplePermId)
     id = SamplePermId(samplePermId)
     fetchOptions = SampleFetchOptions()
@@ -40,8 +40,8 @@ def gatherAllDescendants(samplePermIds, samplePermId, context):
     children = context.getApi().getSamples(context.getSessionToken(), [id], fetchOptions)[id].getChildren()
     for child in children:
         sampleTypeCode = child.getType().getCode()
-        if not sampleTypeCode.endswith("_WELL"):
-            gatherAllDescendants(samplePermIds, child.getPermId().getPermId(), context)
+        if not supressWells or not sampleTypeCode.endswith("_WELL"):
+            gatherAllDescendants(samplePermIds, child.getPermId().getPermId(), supressWells, context)
 
 for t in ["FACS_ARIA", "INFLUX", "MOFLO_XDP", "S3E", "SONY_SH800S", "SONY_MA900"]:
     acceptor.hideSampleType("%s_SPECIMEN" % t)
