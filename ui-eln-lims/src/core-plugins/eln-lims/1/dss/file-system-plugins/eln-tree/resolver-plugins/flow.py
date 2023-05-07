@@ -6,7 +6,7 @@ import script
 
 
 def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
-    dataSets = script.getDataSetsOfSampleAndItsChildren(samplePermId, context)
+    dataSets = getDataSetsOfSampleAndItsDescendants(samplePermId, context)
     filteredDataSets = []
     for dataSet in dataSets:
         if acceptor.acceptDataSet(dataSet):
