@@ -152,7 +152,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var barcodeReaderBtn = FormUtil.getButtonWithIcon(
             "glyphicon-barcode",
             function() {
-                BarcodeUtil.readBarcodeFromCamera();
+                BarcodeUtil.readBarcodeFromScannerOrCamera();
             },
             null,
             null,

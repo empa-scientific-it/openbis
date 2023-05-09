@@ -30,31 +30,79 @@ var BarcodeUtil = new function() {
         }
     }
 
+    this.readBarcodeFromScannerOrCamera = function($container) {
+        if(!$container) {
+            mainController.changeView("showBlancPage");
+            var content = mainController.currentView.content;
+            content.empty();
+            $container = content;
+        }
+
+		var $form = $("<div>");
+
+        var $toggleSwitch = $("<fieldset>");
+            $toggleSwitch.append($("<legend>").text("Device"));
+
+
+
+        var $device = $("<div>", { class : "switch-toggle switch-candy-blue" });
+        var $scannerInput = $("<input>", { id : "scanner", name : "device", type : "radio", checked: "checked" });
+        $device.append($scannerInput);
+        $device.append($("<label>", { for : "scanner", onclick : "" }).append("Scanner"));
+        var $cameraInput = $("<input>", { id : "camera", name : "device", type : "radio" });
+        $device.append($cameraInput);
+        $device.append($("<label>", { for : "camera",  onclick : "" }).append("Camera"));
+        $device.append($("<a>"));
+
+        $toggleSwitch.append($device);
+
+        $form.append($("<legend>").text("Read Barcode: "));
+
+        var $cameraContainer = $("<div>");
+
+        $form.append($toggleSwitch);
+        $form.append($cameraContainer);
+
+        var onDeviceChange = function() {
+            var isScanner = $scannerInput.is(":checked");
+            if(isScanner) {
+                _this.enableAutomaticBarcodeReading();
+                _this.disableBarcodeReadingFromCamera();
+                $cameraContainer.empty();
+            }
+            var isCamera = $cameraInput.is(":checked");
+            if(isCamera) {
+                _this.disableAutomaticBarcodeReading();
+                _this.enableBarcodeReadingFromCamera($cameraContainer);
+            }
+        }
+
+        $cameraInput.change(onDeviceChange);
+        $scannerInput.change(onDeviceChange);
+
+        $container.append($form);
+
+        onDeviceChange(); // Enable default device
+    }
+
     var codeReader = null;
 
-    this.readBarcodeFromCamera = function() {
+    this.disableBarcodeReadingFromCamera = function() {
         if(codeReader != null) {
             codeReader.reset();
             codeReader = null;
         }
+    }
+
+    this.enableBarcodeReadingFromCamera = function($container) {
+        _this.disableBarcodeReadingFromCamera();
 
         // Steals the main controller to show the video feed and a cancel button
-        mainController.changeView("showBlancPage");
-        var content = mainController.currentView.content;
-        content.empty();
-        content.append(FormUtil.getButtonWithIcon("glyphicon-minus-sign", function() {
-            if(codeReader != null) {
-                codeReader.reset();
-                codeReader = null;
-            }
-            // On cancel go back to previews view
-            mainController.backButtonLogic();
-            mainController.backButtonLogic();
-        }));
+        var content = $container;
         var $videoCameraSelection = $("<select>", { id: "videoCameraSelect", style : "margin-left: 4px;"});
         content.append($videoCameraSelection);
-        content.append($("<legend>").text("Read Barcode:"));
-        var $video = $("<video>", { id : "video", width : "100%", height : "100%" });
+        content.append($("<legend>").append("Camera: ").append($videoCameraSelection));
+        var $video = $("<video>", { id : "video", width : "50%", height : "50%", style : "display: block; margin: 0 auto;" });
         content.append($video);
 
         // Starts the camera reading code
@@ -73,9 +121,8 @@ var BarcodeUtil = new function() {
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             Util.showError("Failed to read barcode");
-                            // On cancel go back to previews view
-                            mainController.backButtonLogic();
-                            mainController.backButtonLogic();
+                            _this.disableBarcodeReadingFromCamera();
+                            $container.empty();
                         }
                     };
 
