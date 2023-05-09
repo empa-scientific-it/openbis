@@ -67,14 +67,19 @@ var BarcodeUtil = new function() {
             var isScanner = $scannerInput.is(":checked");
             if(isScanner) {
                 _this.enableAutomaticBarcodeReading();
-                _this.disableBarcodeReadingFromCamera();
+                _this.disableAutomaticBarcodeReadingFromCamera();
                 $cameraContainer.empty();
             }
             var isCamera = $cameraInput.is(":checked");
             if(isCamera) {
                 _this.disableAutomaticBarcodeReading();
-                _this.enableBarcodeReadingFromCamera($cameraContainer);
+                _this.enableAutomaticBarcodeReadingFromCamera($cameraContainer);
             }
+        }
+
+        mainController.currentView.finalize = function() {
+            _this.disableAutomaticBarcodeReading();
+            _this.disableAutomaticBarcodeReadingFromCamera();
         }
 
         $cameraInput.change(onDeviceChange);
@@ -87,15 +92,15 @@ var BarcodeUtil = new function() {
 
     var codeReader = null;
 
-    this.disableBarcodeReadingFromCamera = function() {
+    this.disableAutomaticBarcodeReadingFromCamera = function() {
         if(codeReader != null) {
             codeReader.reset();
             codeReader = null;
         }
     }
 
-    this.enableBarcodeReadingFromCamera = function($container) {
-        _this.disableBarcodeReadingFromCamera();
+    this.enableAutomaticBarcodeReadingFromCamera = function($container) {
+        _this.disableAutomaticBarcodeReadingFromCamera();
 
         // Steals the main controller to show the video feed and a cancel button
         var content = $container;
@@ -121,7 +126,7 @@ var BarcodeUtil = new function() {
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             Util.showError("Failed to read barcode");
-                            _this.disableBarcodeReadingFromCamera();
+                            _this.disableAutomaticBarcodeReadingFromCamera();
                             $container.empty();
                         }
                     };
