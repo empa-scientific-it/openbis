@@ -62,7 +62,6 @@ public class TimestampArrayType implements UserType
         Array array = rs.getArray(names[0]);
         if (array != null)
         {
-            System.out.println("||> ARRAY_TIMESTAMPS:" + array);
             Object[] values = (Object[]) array.getArray();
             return Arrays.stream(values)
                     .map(Object::toString)

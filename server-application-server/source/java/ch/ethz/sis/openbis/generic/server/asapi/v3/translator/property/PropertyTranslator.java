@@ -15,12 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,24 +30,29 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuth
 /**
  * @author pkupczyk
  */
-public abstract class PropertyTranslator extends AbstractCachingTranslator<Long, ObjectHolder<Map<String, String>>, PropertyFetchOptions>
+public abstract class PropertyTranslator extends
+        AbstractCachingTranslator<Long, ObjectHolder<Map<String, String>>, PropertyFetchOptions>
         implements IPropertyTranslator
 {
     @Autowired
     private ISampleAuthorizationValidator sampleAuthorizationValidator;
 
     @Override
-    protected ObjectHolder<Map<String, String>> createObject(TranslationContext context, Long objectId, PropertyFetchOptions fetchOptions)
+    protected ObjectHolder<Map<String, String>> createObject(TranslationContext context,
+            Long objectId, PropertyFetchOptions fetchOptions)
     {
         return new ObjectHolder<Map<String, String>>();
     }
 
     @Override
-    protected Object getObjectsRelations(TranslationContext context, Collection<Long> objectIds, PropertyFetchOptions fetchOptions)
+    protected Object getObjectsRelations(TranslationContext context, Collection<Long> objectIds,
+            PropertyFetchOptions fetchOptions)
     {
         List<PropertyRecord> records = loadProperties(objectIds);
-        Set<Long> visibaleSamples = sampleAuthorizationValidator.validate(context.getSession().tryGetPerson(),
-                records.stream().filter(r -> r.sample_id != null).map(r -> r.sample_id).collect(Collectors.toSet()));
+        Set<Long> visibaleSamples =
+                sampleAuthorizationValidator.validate(context.getSession().tryGetPerson(),
+                        records.stream().filter(r -> r.sample_id != null).map(r -> r.sample_id)
+                                .collect(Collectors.toSet()));
 
         Map<Long, Map<String, String>> properties = new HashMap<Long, Map<String, String>>();
         for (PropertyRecord record : records)
@@ -68,8 +70,9 @@ public abstract class PropertyTranslator extends AbstractCachingTranslator<Long,
                 objectProperties.put(record.propertyCode, record.propertyValue);
             } else if (record.materialPropertyValueCode != null)
             {
-                objectProperties.put(record.propertyCode, record.materialPropertyValueCode + " (" + record.materialPropertyValueTypeCode
-                        + ")");
+                objectProperties.put(record.propertyCode,
+                        record.materialPropertyValueCode + " (" + record.materialPropertyValueTypeCode
+                                + ")");
             } else if (record.vocabularyPropertyValue != null)
             {
                 objectProperties.put(record.propertyCode, record.vocabularyPropertyValue);
@@ -79,6 +82,25 @@ public abstract class PropertyTranslator extends AbstractCachingTranslator<Long,
                 {
                     objectProperties.put(record.propertyCode, record.sample_perm_id);
                 }
+            } else if (record.integerArrayPropertyValue != null)
+            {
+                objectProperties.put(record.propertyCode,
+                        convertArrayToString(record.integerArrayPropertyValue));
+            } else if (record.realArrayPropertyValue != null)
+            {
+                objectProperties.put(record.propertyCode,
+                        convertArrayToString(record.realArrayPropertyValue));
+            } else if (record.stringArrayPropertyValue != null)
+            {
+                objectProperties.put(record.propertyCode,
+                        convertArrayToString(record.stringArrayPropertyValue));
+            } else if (record.timestampArrayPropertyValue != null)
+            {
+                objectProperties.put(record.propertyCode,
+                        convertArrayToString(record.timestampArrayPropertyValue));
+            } else if (record.jsonPropertyValue != null)
+            {
+                objectProperties.put(record.propertyCode, record.jsonPropertyValue);
             } else
             {
                 // SAMPLE property with deleted sample. Thus, nothing is put to objectProperties
@@ -88,9 +110,17 @@ public abstract class PropertyTranslator extends AbstractCachingTranslator<Long,
         return properties;
     }
 
+    private String convertArrayToString(String[] array)
+    {
+        return Stream.of(array)
+                .reduce((x, y) -> x + ", " + y)
+                .get();
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    protected void updateObject(TranslationContext context, Long objectId, ObjectHolder<Map<String, String>> result, Object relations,
+    protected void updateObject(TranslationContext context, Long objectId,
+            ObjectHolder<Map<String, String>> result, Object relations,
             PropertyFetchOptions fetchOptions)
     {
         Map<Long, Map<String, String>> properties = (Map<Long, Map<String, String>>) relations;

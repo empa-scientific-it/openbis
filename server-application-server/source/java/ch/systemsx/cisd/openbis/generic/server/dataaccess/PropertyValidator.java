@@ -153,9 +153,7 @@ public final class PropertyValidator implements IPropertyValueValidator
             {
                 return null;
             }
-
             //TODO: implement validation for json
-            System.out.println("||> validate json:" + value);
             return value;
         }
     }
@@ -177,18 +175,7 @@ public final class PropertyValidator implements IPropertyValueValidator
             {
                 return null;
             }
-            System.out.println("||> validate array:" + arrayType + " " + value);
-            //TODO: implement validation for array
-            switch (arrayType) {
-                case ARRAY_INTEGER:
-                    break;
-                case ARRAY_REAL:
-                    break;
-                case ARRAY_STRING:
-                    break;
-                case ARRAY_TIMESTAMP:
-                    break;
-            }
+            //TODO: implement validation for array types
             return value;
         }
     }

@@ -15,12 +15,13 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
 import javax.persistence.*;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -168,7 +169,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.material = material;
     }
 
-    @Column(name = ColumnNames.INTEGER_ARRAY_VALUE_COLUMN, columnDefinition = "long_value[]")
+    @Column(name = ColumnNames.INTEGER_ARRAY_VALUE_COLUMN)
     @Type(type = "long_array_type")
     public Long[] getIntegerArrayValue()
     {
@@ -343,13 +344,23 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
             if (getRealArrayValue() != null)
                 return convertArrayToString(this.realArrayValue);
             if (getTimestampArrayValue() != null)
-                return convertArrayToString(this.timestampArrayValue);
+                return convertTimestampArrayToString(this.timestampArrayValue);
             if (getStringArrayValue() != null)
                 return convertArrayToString(this.stringArrayValue);
             if (getJsonValue() != null)
                 return getJsonValue();
             return getValue();
         }
+    }
+
+    private String convertTimestampArrayToString(Date[] array) {
+        if (array == null || array.length == 0)
+            return "";
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+        return Stream.of(array)
+                .map(dateFormat::format)
+                .reduce((x, y) -> x + ", " + y)
+                .get();
     }
 
     private String convertArrayToString(Object[] array) {

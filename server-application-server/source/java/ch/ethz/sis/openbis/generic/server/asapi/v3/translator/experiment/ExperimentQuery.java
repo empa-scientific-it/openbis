@@ -25,6 +25,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyA
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.SamplePropertyRecord;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.HistoryPropertyRecordDataObjectBinding;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.PropertyRecordDataObjectBinding;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.Select;
 
@@ -68,7 +70,12 @@ public interface ExperimentQuery extends ObjectQuery
                     + "p.value as propertyValue, m.code as materialPropertyValueCode, mt.code as materialPropertyValueTypeCode, "
                     + "s.perm_id as sample_perm_id, s.id as sample_id, "
                     + "cvt.code as vocabularyPropertyValue, "
-                    + "cv.code as vocabularyPropertyValueTypeCode "
+                    + "cv.code as vocabularyPropertyValueTypeCode, "
+                    + "p.integer_array_value as integerArrayPropertyValue, "
+                    + "p.real_array_value as realArrayPropertyValue, "
+                    + "p.string_array_value as stringArrayPropertyValue, "
+                    + "p.timestamp_array_value as timestampArrayPropertyValue, "
+                    + "p.json_value as jsonPropertyValue "
                     + "from experiment_properties p "
                     + "left join samples s on p.samp_prop_id = s.id "
                     + "left join materials m on p.mate_prop_id = m.id "
@@ -77,7 +84,8 @@ public interface ExperimentQuery extends ObjectQuery
                     + "left join material_types mt on m.maty_id = mt.id "
                     + "join experiment_type_property_types etpt on p.etpt_id = etpt.id "
                     + "join property_types pt on etpt.prty_id = pt.id "
-                    + "where p.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    + "where p.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class },
+            resultSetBinding = PropertyRecordDataObjectBinding.class, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet experimentIds);
 
     // PropertyQueryGenerator was used to generate this query
@@ -101,11 +109,17 @@ public interface ExperimentQuery extends ObjectQuery
 
     // PropertyQueryGenerator was used to generate this query
     @Select(sql =
-            "select ph.id as id, ph.expe_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.sample as samplePropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo "
+            "select ph.id as id, ph.expe_id as objectId, ph.pers_id_author as authorId, case pt.is_managed_internally when FALSE then pt.code else '$' || pt.code end as propertyCode, ph.value as propertyValue, ph.material as materialPropertyValue, ph.sample as samplePropertyValue, ph.vocabulary_term as vocabularyPropertyValue, ph.valid_from_timestamp as validFrom, ph.valid_until_timestamp as validTo, "
+                    + "ph.integer_array_value as integerArrayPropertyValue, "
+                    + "ph.real_array_value as realArrayPropertyValue, "
+                    + "ph.string_array_value as stringArrayPropertyValue, "
+                    + "ph.timestamp_array_value as timestampArrayPropertyValue, "
+                    + "ph.json_value as jsonPropertyValue "
                     + "from experiment_properties_history ph "
                     + "join experiment_type_property_types etpt on ph.etpt_id = etpt.id "
                     + "join property_types pt on etpt.prty_id = pt.id "
-                    + "where ph.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+                    + "where ph.expe_id = any(?{1})", parameterBindings = { LongSetMapper.class },
+            resultSetBinding = HistoryPropertyRecordDataObjectBinding.class, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet experimentIds);
 
     public static final String RELATIONSHIP_HISTORY_QUERY =

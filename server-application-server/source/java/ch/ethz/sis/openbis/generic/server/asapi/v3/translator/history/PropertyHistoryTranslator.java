@@ -15,16 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.history;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -83,6 +74,11 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
                 currentPropertyRecord.propertyCode = currentProperty.propertyCode;
                 currentPropertyRecord.propertyValue = currentProperty.propertyValue;
                 currentPropertyRecord.samplePropertyValue = currentProperty.sample_perm_id;
+                currentPropertyRecord.integerArrayPropertyValue = currentProperty.integerArrayPropertyValue;
+                currentPropertyRecord.realArrayPropertyValue = currentProperty.realArrayPropertyValue;
+                currentPropertyRecord.stringArrayPropertyValue = currentProperty.stringArrayPropertyValue;
+                currentPropertyRecord.timestampArrayPropertyValue = currentProperty.timestampArrayPropertyValue;
+                currentPropertyRecord.jsonPropertyValue = currentProperty.jsonPropertyValue;
 
                 if (currentProperty.vocabularyPropertyValue != null && currentProperty.vocabularyPropertyValueTypeCode != null)
                 {
@@ -187,7 +183,22 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
         } else if (record.samplePropertyValue != null)
         {
             entry.setPropertyValue(record.samplePropertyValue);
-        } else
+        }else if (record.integerArrayPropertyValue != null)
+        {
+            entry.setPropertyValue(convertArrayToString(record.integerArrayPropertyValue));
+        } else if (record.realArrayPropertyValue != null)
+        {
+            entry.setPropertyValue(convertArrayToString(record.realArrayPropertyValue));
+        } else if (record.stringArrayPropertyValue != null)
+        {
+            entry.setPropertyValue(convertArrayToString(record.stringArrayPropertyValue));
+        } else if (record.timestampArrayPropertyValue != null)
+        {
+            entry.setPropertyValue(convertArrayToString(record.timestampArrayPropertyValue));
+        } else if (record.jsonPropertyValue != null)
+        {
+            entry.setPropertyValue(record.jsonPropertyValue);
+        }  else
         {
             throw new IllegalArgumentException("Unexpected property history entry with all values null");
         }
@@ -198,6 +209,10 @@ public abstract class PropertyHistoryTranslator extends AbstractCachingTranslato
             entry.getFetchOptions().withAuthorUsing(fetchOptions.withAuthor());
         }
         return entry;
+    }
+
+    private String convertArrayToString(String[] array) {
+        return Arrays.stream(array).reduce((a,b) -> a + ", " + b).get();
     }
 
 }

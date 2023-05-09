@@ -33,6 +33,12 @@ public class HistoryPropertyRecord extends HistoryRecord
 
     public String vocabularyPropertyValue;
 
+    public String[] integerArrayPropertyValue;
+    public String[] realArrayPropertyValue;
+    public String[] stringArrayPropertyValue;
+    public String[] timestampArrayPropertyValue;
+    public String jsonPropertyValue;
+
     public String getPropertyCode()
     {
         return propertyCode;
