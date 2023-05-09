@@ -30,12 +30,26 @@ var BarcodeUtil = new function() {
         }
     }
 
-    this.readBarcodeFromScannerOrCamera = function($container) {
+    this.readBarcodeFromScannerOrCamera = function($container, action) {
         if(!$container) {
             mainController.changeView("showBlancPage");
             var content = mainController.currentView.content;
             content.empty();
             $container = content;
+        }
+
+        if(!action) {
+            action = function(barcode, error) {
+                if(barcode) {
+                    BarcodeUtil.readSample(function(sample) {
+                        mainController.changeView('showViewSamplePageFromPermId', sample.permId.permId);
+                    });
+                }
+                if(error) {
+                    _this.disableAutomaticBarcodeReadingFromCamera();
+                    $container.empty();
+                }
+            };
         }
 
 		var $form = $("<div>");
@@ -66,14 +80,14 @@ var BarcodeUtil = new function() {
         var onDeviceChange = function() {
             var isScanner = $scannerInput.is(":checked");
             if(isScanner) {
-                _this.enableAutomaticBarcodeReading();
+                _this.enableAutomaticBarcodeReading(action);
                 _this.disableAutomaticBarcodeReadingFromCamera();
                 $cameraContainer.empty();
             }
             var isCamera = $cameraInput.is(":checked");
             if(isCamera) {
                 _this.disableAutomaticBarcodeReading();
-                _this.enableAutomaticBarcodeReadingFromCamera($cameraContainer);
+                _this.enableAutomaticBarcodeReadingFromCamera($cameraContainer, action);
             }
         }
 
@@ -99,7 +113,7 @@ var BarcodeUtil = new function() {
         }
     }
 
-    this.enableAutomaticBarcodeReadingFromCamera = function($container) {
+    this.enableAutomaticBarcodeReadingFromCamera = function($container, action) {
         _this.disableAutomaticBarcodeReadingFromCamera();
 
         // Steals the main controller to show the video feed and a cancel button
@@ -121,13 +135,11 @@ var BarcodeUtil = new function() {
 
                     var decodeFromVideoDeviceCallback = (result, err) => {
                         if(result && result.text) {
-                            codeReader.reset();
-                            BarcodeUtil.readSample(result.text);
+                            action(result.text, null);
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             Util.showError("Failed to read barcode");
-                            _this.disableAutomaticBarcodeReadingFromCamera();
-                            $container.empty();
+                            action(null, err);
                         }
                     };
 
@@ -189,7 +201,7 @@ var BarcodeUtil = new function() {
             if(!barcodeTimeout) {
                   barcodeTimeout = true;
                   var timeoutFunc = function() {
-                      readSample(action);
+                      action(barcodeReader, null);
                       // reset
                       barcodeTimeout = false;
                       barcodeReader = "";
@@ -208,8 +220,9 @@ var BarcodeUtil = new function() {
 
     var barcodeReaderGlobalEventListener = barcodeReaderEventListener();
 
-    this.enableAutomaticBarcodeReading = function() {
+    this.enableAutomaticBarcodeReading = function(action) {
         if(profile.mainMenu.showBarcodes) {
+            barcodeReaderGlobalEventListener = barcodeReaderEventListener(action);
             document.addEventListener('keyup', barcodeReaderGlobalEventListener);
         }
     }
