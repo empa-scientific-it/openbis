@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from java.nio.file import NoSuchFileException
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
@@ -123,6 +124,9 @@ class Settings(object):
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
 
+settings = None
+settingsExpirationTimestamp = None
+
 acceptor = Acceptor()
 pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
 for pluginFileName in os.listdir(pluginsFolder):
@@ -130,7 +134,12 @@ for pluginFileName in os.listdir(pluginsFolder):
     execfile(file, {"acceptor":acceptor})
 
 def resolve(subPath, context):
-    acceptor.configure(getAllSettings(context))
+    global settings, settingsExpirationTimestamp
+    if settings is None or time.time() > settingsExpirationTimestamp:
+        settings = getAllSettings(context)
+        settingsExpirationTimestamp = time.time() + 60
+
+    acceptor.configure(settings)
     if len(subPath) == 0:
         return listSections(acceptor, context)
 
@@ -295,7 +304,8 @@ def addExperimentNodes(section, space, project, response, acceptor, context):
 def addExperimentChildNodes(path, experimentPermId, experimentType, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
-    listDataSets(path, dataSetSearchCriteria, False, response, acceptor, context)
+    dataSetSearchCriteria.withoutSample()
+    listDataSets(path, dataSetSearchCriteria, response, acceptor, context)
 
     sampleSearchCriteria = SampleSearchCriteria()
     sampleSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
@@ -318,7 +328,7 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
 
-    listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
+    listDataSets(path, dataSetSearchCriteria, response, acceptor, context)
     addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
 
 def addSampleSampleChildNodes(path, samplePermId, response, acceptor, context):
@@ -423,7 +433,7 @@ def getDataSets(dataSetSearchCriteria, context):
     fetchOptions.withSample().withType()
     return context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
 
-def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, acceptor, context):
+def listDataSets(path, dataSetSearchCriteria, response, acceptor, context):
     fetchOptions = DataSetFetchOptions()
     fetchOptions.withType()
     fetchOptions.withProperties()
@@ -431,9 +441,7 @@ def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, accept
     dataSets = context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
     entitiesByName = {}
     for dataSet in dataSets:
-        sample = dataSet.getSample()
-        if ((assignedToSample and sample is not None) or (not assignedToSample and sample is None)) \
-                and acceptor.acceptDataSet(dataSet):
+        if acceptor.acceptDataSet(dataSet):
             gatherEntity(entitiesByName, dataSet)
     addNodes("DATASET", entitiesByName, path, response, context)
 
