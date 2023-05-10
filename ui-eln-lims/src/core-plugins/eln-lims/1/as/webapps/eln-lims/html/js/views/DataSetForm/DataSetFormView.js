@@ -22,7 +22,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $container = views.content;
         mainController.profile.beforeViewPaint(ViewType.DATASET_FORM, this._dataSetFormModel, $container);
 		var _this = this;
-		var dataSetTypeDefinitionsExtension = profile.dataSetTypeDefinitionsExtension[_this._dataSetFormModel.dataSet.dataSetTypeCode];
+        var dataSetTypeDefinitionsExtension = profile.dataSetTypeDefinitionsExtension[this._getTypeCode()];
 
 		//Clean and prepare container
 		var $wrapper = $('<form>', { 'id' : 'mainDataSetForm', 'role' : 'form'});
@@ -36,18 +36,17 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		//
 		// Title
 		//
-
-		var nameLabel = FormUtil.getDataSetName(this._dataSetFormModel.dataSet.code, this._dataSetFormModel.dataSet.properties)
 		var titleText = null;
-
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			titleText = 'Create Dataset';
-		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-			titleText = 'Update Dataset: ' + nameLabel;
-		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			titleText = 'Dataset: ' + nameLabel;
+		} else {
+		    var nameLabel = FormUtil.getDataSetName(this._dataSetFormModel.dataSetV3.code, this._dataSetFormModel.dataSetV3.properties)
+            if(this._dataSetFormModel.mode === FormMode.EDIT) {
+                titleText = 'Update Dataset: ' + nameLabel;
+            } else if(this._dataSetFormModel.mode === FormMode.VIEW) {
+                titleText = 'Dataset: ' + nameLabel;
+            }
 		}
-		
 		var $title = $('<div>');
 		$title.append($("<h2>").append(titleText));
 		
@@ -57,12 +56,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var toolbarModel = [];
 		var dropdownOptionsModel = [];
 		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
-			var toolbarConfig = profile.getDataSetTypeToolbarConfiguration(_this._dataSetFormModel.dataSet.dataSetTypeCode);
+			var toolbarConfig = profile.getDataSetTypeToolbarConfiguration(this._getTypeCode());
 			if (_this._allowedToEdit()) {
 				//Edit Button
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 				    Util.blockUI();
-					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSetV3.code);
 				}, "Edit", null, "dataset-edit-btn");
 				if(toolbarConfig.EDIT) {
 					toolbarModel.push({ component : $editBtn });
@@ -77,7 +76,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                     dropdownOptionsModel.push({
                         label : "Move",
                         action : function() {
-                                var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSet.code);
+                                var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSetV3.code);
                                 moveEntityController.init();
                         }
                     });
@@ -104,7 +103,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				dropdownOptionsModel.push({
                     label : "Hierarchy Table",
                     action : function() {
-                        mainController.changeView('showDatasetHierarchyTablePage', _this._dataSetFormModel.dataSet.code);
+                        mainController.changeView('showDatasetHierarchyTablePage', _this._dataSetFormModel.dataSetV3.code);
                     }
                 });
 			}
@@ -113,14 +112,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
             if(toolbarConfig.EXPORT_METADATA) {
                 dropdownOptionsModel.push({
                     label : "Export Metadata",
-                    action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], true)
+                    action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], true)
                 });
             }
 
 			if(toolbarConfig.EXPORT_ALL) {
 				dropdownOptionsModel.push({
                     label : "Export Metadata & Data",
-                    action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], false)
+                    action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], false)
                 });
 			}
 
@@ -177,7 +176,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                 dropdownOptionsModel.push({
                     label : "New Jupyter notebook",
                     action : function () {
-                        var jupyterNotebook = new JupyterNotebookController(_this._dataSetFormModel.dataSet);
+                        var jupyterNotebook = new JupyterNotebookController(_this._dataSetFormModel.dataSetV3);
                         jupyterNotebook.init();
                     }
                 });
@@ -206,7 +205,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                 dropdownOptionsModel.push({
                     label : "History",
                     action : function() {
-                        mainController.changeView('showDatasetHistoryPage', _this._dataSetFormModel.dataSet.code);
+                        mainController.changeView('showDatasetHistoryPage', _this._dataSetFormModel.dataSetV3.code);
                     }
                 });
             }
@@ -234,10 +233,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 
 			// Toolbar extension
 			if(dataSetTypeDefinitionsExtension && dataSetTypeDefinitionsExtension.extraToolbar) {
-				toolbarModel = toolbarModel.concat(dataSetTypeDefinitionsExtension.extraToolbar(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSet));
+				toolbarModel = toolbarModel.concat(dataSetTypeDefinitionsExtension.extraToolbar(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
 			}
             if(dataSetTypeDefinitionsExtension && dataSetTypeDefinitionsExtension.extraToolbarDropdown) {
-                dropdownOptionsModel = dropdownOptionsModel.concat(dataSetTypeDefinitionsExtension.extraToolbarDropdown(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSet));
+                dropdownOptionsModel = dropdownOptionsModel.concat(dataSetTypeDefinitionsExtension.extraToolbarDropdown(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
             }
 
 			FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, "DATA-SET-VIEW");
@@ -370,12 +369,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				});
 			}
 		} else {
-			var dataSetType = _this._dataSetFormController._getDataSetType(this._dataSetFormModel.dataSet.dataSetTypeCode);
+			var dataSetType = _this._dataSetFormController._getDataSetType(this._getTypeCode());
 			this._repaintMetadata(dataSetType);
 		}
 		
 		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.entity, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, true);
+			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.entity, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSetV3], false, true);
 			dataSetViewer.init();
 		}
         mainController.profile.afterViewPaint(ViewType.DATASET_FORM, this._dataSetFormModel, $container);
@@ -458,7 +457,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if (!this._dataSetFormModel.isMini) {
 			$dataSetTypeFieldSet.append($('<legend>').text('Identification Info'));
 			if (this._dataSetFormModel.mode !== FormMode.CREATE) {
-                $dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText("PermId", this._dataSetFormModel.dataSet.code));
+                $dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText("PermId", this._dataSetFormModel.dataSetV3.code));
             }
 		}
 		var $dataSetTypeSelector = null;
@@ -488,9 +487,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		} else {
 			$dataSetTypeFieldSet.append(FormUtil.getFieldForComponentWithLabel(this._createEntityPath(), "Path"));
-			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Data Set Type', this._dataSetFormModel.dataSet.dataSetTypeCode, "CODE");
+			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Data Set Type', this._getTypeCode(), "CODE");
 			$dataSetTypeFieldSet.append($dataSetTypeLabel);
-			var $dataSetCodeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
+			var $dataSetCodeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSetV3.code, null);
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
 		}
 		
@@ -509,13 +508,18 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			}
 			
 		} else if (!this._dataSetFormModel.isMini) {
-			var dataSetType = this._dataSetFormModel.dataSet.dataSetTypeCode;
-			var parentsEditingDisabled = profile.dataSetTypeDefinitionsExtension[dataSetType] && profile.dataSetTypeDefinitionsExtension[dataSetType]["DATASET_PARENTS_DISABLED"]
+                var dataSetType = this._getTypeCode();
+                var parentsEditingDisabled = profile.dataSetTypeDefinitionsExtension[dataSetType] && profile.dataSetTypeDefinitionsExtension[dataSetType]["DATASET_PARENTS_DISABLED"]
 			if (!parentsEditingDisabled) {
 				this._dataSetFormModel.datasetParentsComponent = new AdvancedEntitySearchDropdown(true, false, "Search parents to add",
 						false, false, true, false, false);
 				this._dataSetFormModel.datasetParentsComponent.init($dataSetParentsCodeLabel);
-				this._dataSetFormModel.datasetParentsComponent.addSelectedDataSets(this._dataSetFormModel.dataSet.parentCodes);
+				var parentCodes;
+				if (this._dataSetFormModel.dataSetV3)
+				{
+    				parentCodes = this._dataSetFormModel.dataSetV3.parents.map(dataset => dataset.permId.permId);
+				}
+				this._dataSetFormModel.datasetParentsComponent.addSelectedDataSets(parentCodes);
 			}
 		}
 		
@@ -600,18 +604,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		// Registration and modification info
 		//
 		if (this._dataSetFormModel.mode !== FormMode.CREATE) {
-			var registrationDetails = this._dataSetFormModel.dataSet.registrationDetails;
-			
-			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", _this._dataSetFormModel.dataSetV3.registrator.userId);
 			$dataSetTypeFieldSet.append($registrator);
 			
-			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)))
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(_this._dataSetFormModel.dataSetV3.registrationDate)))
 			$dataSetTypeFieldSet.append($registationDate);
 			
-			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", _this._dataSetFormModel.dataSetV3.modifier.userId);
 			$dataSetTypeFieldSet.append($modifier);
 			
-			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
+			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(_this._dataSetFormModel.dataSetV3.modificationDate)));
 			$dataSetTypeFieldSet.append($modificationDate);
 		}
 		$dataSetTypeFieldSet.hide();
@@ -641,7 +643,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._dataSetFormModel.entity.identifier);
 			sampleIdentifier = this._dataSetFormModel.entity.identifier;
 		}
-		var datasetCodeAndPermId = this._dataSetFormModel.dataSet.code;
+		var datasetCodeAndPermId = this._getTypeCode();
 		return FormUtil.getFormPath(spaceCode, projectCode, experimentCode, null, null, sampleCode, 
 				sampleIdentifier, datasetCodeAndPermId);
 	}
@@ -743,7 +745,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				profile.fixV1PropertyTypeVocabulary(propertyType);
 				var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(dataSetTypeV3, propertyType.code);
-				FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._dataSetFormModel.dataSet);
+				FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._dataSetFormModel.dataSetV3);
 				
 				if(!propertyType.showInEditViews && (this._dataSetFormController.mode === FormMode.EDIT || this._dataSetFormController.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 					continue;
@@ -774,11 +776,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					
 					var value = "";
 					if(this._dataSetFormModel.mode !== FormMode.CREATE) {
-						value = this._dataSetFormModel.dataSet.properties[propertyType.code];
+						value = this._dataSetFormModel.dataSetV3.properties[propertyType.code];
 						if(!value && propertyType.code.charAt(0) === '$') {
-							value = this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
-							this._dataSetFormModel.dataSet.properties[propertyType.code] = value;
-							delete this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
+							value = this._dataSetFormModel.dataSetV3.properties[propertyType.code.substr(1)];
+							this._dataSetFormModel.dataSetV3.properties[propertyType.code] = value;
+							delete this._dataSetFormModel.dataSetV3.properties[propertyType.code.substr(1)];
 						}
 					}
 					
@@ -789,7 +791,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                             if(customWidget && !forceDisableRTF) {
                                 if (customWidget === 'Spreadsheet') {
                                     var $jexcelContainer = $("<div>");
-                                    JExcelEditorManager.createField($jexcelContainer, this._dataSetFormModel.mode, propertyType.code, this._dataSetFormModel.dataSet);
+                                    JExcelEditorManager.createField($jexcelContainer, this._dataSetFormModel.mode, propertyType.code, this._dataSetFormModel.dataSetV3);
                                     $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
                                     $fieldset.append($controlGroup);
                                 } else if (customWidget === 'Word Processor') {
@@ -828,20 +830,20 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 								_this._dataSetFormModel.isFormDirty = true;
 								var field = $(this);
 								if(propertyType.dataType === "BOOLEAN") {
-									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
+								    _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(FormUtil.getBooleanValue(field)));
 								} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
                                     var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
                                     if(!isValidValue.isValid) {
                                         Util.showUserError(isValidValue.error);
                                     } else {
-                                        _this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+                                        _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(timeValue));
                                     }
 								} else {
 									if(newValue !== undefined && newValue !== null) {
-										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+									    _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(newValue));
 									} else {
-										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+									    _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(field.val()));
 									}
 								}
 							}
@@ -880,7 +882,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                 case 'Spreadsheet':
                                     if(propertyType.dataType === "XML") {
                                         var $jexcelContainer = $("<div>");
-                                        JExcelEditorManager.createField($jexcelContainer, this._dataSetFormModel.mode, propertyType.code, this._dataSetFormModel.dataSet);
+                                        JExcelEditorManager.createField($jexcelContainer, this._dataSetFormModel.mode, propertyType.code, this._dataSetFormModel.dataSetV3);
                                         $component = $jexcelContainer;
                                     } else {
                                         alert("Spreadsheet only works with XML data type.");
@@ -1009,5 +1011,18 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
         var dataSet = this._dataSetFormModel.dataSetV3;
         return dataSet.frozen == false && dataSet.type.disallowDeletion == false 
             && this._dataSetFormModel.rights.rights.indexOf("DELETE") >= 0;
+	}
+
+	this._getTypeCode = function() {
+	    if(this._dataSetFormModel.dataSetV3) {
+	        return this._dataSetFormModel.dataSetV3.getType().getCode();
+	    }
+	}
+
+	this._setDataSetProperty = function(key, val) {
+	    if(!this._dataSetFormModel.dataSetV3) {
+            this._dataSetFormModel.dataSetV3 = { properties : {} };
+        }
+        this._dataSetFormModel.dataSetV3.properties[key] = val;
 	}
 }

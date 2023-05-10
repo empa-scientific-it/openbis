@@ -16,7 +16,7 @@
 
 function DataSetFormController(parentController, mode, entity, dataSet, isMini, dataSetV3) {
 	this._parentController = parentController;
-	this._dataSetFormModel = new DataSetFormModel(mode, entity, dataSet, isMini, dataSetV3);
+	this._dataSetFormModel = new DataSetFormModel(mode, entity, isMini, dataSetV3);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
 	this.init = function(views) {
@@ -38,7 +38,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 						_this._dataSetFormModel.isAutoUpload = (value === "true");
 						
 						if(mode !== FormMode.CREATE) {
-							var datasetPermId = dataSet.code;
+							var datasetPermId = dataSetV3.code;
 							require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
 								function(DataSetPermId, DataSetFetchOptions) {
 									var ids = [new DataSetPermId(datasetPermId)];
@@ -70,7 +70,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	}
 	
 	this._addCommentsWidget = function($container) {
-		var commentsController = new CommentsController(this._dataSetFormModel.dataSet, this._dataSetFormModel.mode, this._dataSetFormModel);
+		var commentsController = new CommentsController(this._dataSetFormModel.dataSetV3, this._dataSetFormModel.mode, this._dataSetFormModel);
 		if(this._dataSetFormModel.mode !== FormMode.VIEW || 
 			this._dataSetFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
 			commentsController.init($container);
@@ -92,7 +92,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	this.deleteDataSet = function(reason) {
 		var _this = this;
 		Util.blockUI();
-		mainController.serverFacade.deleteDataSets([this._dataSetFormModel.dataSet.code], reason, function(data) {
+		mainController.serverFacade.deleteDataSets([this._dataSetFormModel.dataSetV3.code], reason, function(data) {
 			if(data.error) {
 				Util.showError(data.error.message);
 			} else {
@@ -113,7 +113,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 					
 					var isInventory = profile.isInventorySpace(space);
 					if(!isInventory) {
-						mainController.sideMenu.refreshNodeParentByPermId("DATASET", _this._dataSetFormModel.dataSet.code);
+						mainController.sideMenu.refreshNodeParentByPermId("DATASET", _this._dataSetFormModel.dataSetV3.code);
 					}
 //				}, 3000);
 			}
@@ -153,7 +153,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		//
 		// Metadata Submit and Creation (Step 2)
 		//
-		var metadata = this._dataSetFormModel.dataSet.properties;
+		var metadata = this._dataSetFormModel.dataSetV3 ? this._dataSetFormModel.dataSetV3.properties : {};
 
 		var isZipDirectoryUpload = profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
 		if(isZipDirectoryUpload === null) {
@@ -186,8 +186,8 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 			dataSetTypeCode = $('#DATASET_TYPE').val();
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
 			method = "updateDataSet";
-			dataSetCode = this._dataSetFormModel.dataSet.code;
-			dataSetTypeCode = this._dataSetFormModel.dataSet.dataSetTypeCode;
+			dataSetCode = this._dataSetFormModel.dataSetV3.code;
+			dataSetTypeCode = this._dataSetFormModel.dataSetV3.getType().getCode();
 		}
 
 		var dataSetParents = [];
@@ -236,7 +236,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 								mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
 							}
 						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
-							mainController.changeView('showViewDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+							mainController.changeView('showViewDataSetPageFromPermId', _this._dataSetFormModel.dataSetV3.code);
 						}
 					}
 
@@ -249,7 +249,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
 							Util.showSuccess("DataSet Updated.", callbackOk);
 							if(!isInventory) {
-								mainController.sideMenu.refreshNodeParentByPermId("DATASET", _this._dataSetFormModel.dataSet.code);
+								mainController.sideMenu.refreshNodeParentByPermId("DATASET", _this._dataSetFormModel.dataSetV3.code);
 							}
 						}
 					}, 3000);
@@ -326,9 +326,9 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 
 	this._reloadView = function() {
 		if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			mainController.changeView('showViewDataSetPageFromPermId', this._dataSetFormModel.dataSet.code);
+			mainController.changeView('showViewDataSetPageFromPermId', this._dataSetFormModel.dataSetV3.code);
 		} else {
-			mainController.changeView('showEditDataSetPageFromPermId', this._dataSetFormModel.dataSet.code);
+			mainController.changeView('showEditDataSetPageFromPermId', this._dataSetFormModel.dataSetV3.code);
 		}
 	}
 
