@@ -180,18 +180,24 @@ def listSpaces(section, acceptor, context):
 def assertValidSpace(space, context):
     if space != space.upper():
         raise NoSuchFileException("Space '%s' contains lower case characters." % space)
-    fetchOptions = SpaceFetchOptions()
-    id = SpacePermId(space)
-    if context.getApi().getSpaces(context.getSessionToken(), [id], fetchOptions).isEmpty():
-        raise NoSuchFileException("Unknown space '%s'." % space)
+    key = "Space:%s" % space
+    if context.getCache().getAccess(key) != True:
+        fetchOptions = SpaceFetchOptions()
+        id = SpacePermId(space)
+        if context.getApi().getSpaces(context.getSessionToken(), [id], fetchOptions).isEmpty():
+            raise NoSuchFileException("Unknown space '%s'." % space)
+        context.getCache().putAccess(key, True)
 
 def assertValidProject(space, project, context):
     if project != project.upper():
         raise NoSuchFileException("Project '%s' contains lower case characters." % project)
-    fetchOptions = ProjectFetchOptions()
-    id = ProjectIdentifier(space, project)
-    if context.getApi().getProjects(context.getSessionToken(), [id], fetchOptions).isEmpty():
-        raise NoSuchFileException("Unknown project '%s'." % id)
+    key = "Project:/%s/%s" % (space, project)
+    if context.getCache().getAccess(key) != True:
+        fetchOptions = ProjectFetchOptions()
+        id = ProjectIdentifier(space, project)
+        if context.getApi().getProjects(context.getSessionToken(), [id], fetchOptions).isEmpty():
+            raise NoSuchFileException("Unknown project '%s'." % id)
+        context.getCache().putAccess(key, True)
 
 def getAllSettings(context):
     criteria = SampleSearchCriteria()
