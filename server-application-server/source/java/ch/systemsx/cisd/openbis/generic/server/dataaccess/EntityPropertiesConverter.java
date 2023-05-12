@@ -889,7 +889,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            SimpleDateFormat format=new SimpleDateFormat("y-M-d HH:mm:ss");
+            SimpleDateFormat format=new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
             return Arrays.stream(value.split(SEPARATOR))
                     .map(x -> parseDateFromString(x, format))
                     .toArray(Date[]::new);

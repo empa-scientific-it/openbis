@@ -17,6 +17,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.types;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
@@ -72,7 +73,7 @@ public class TimestampArrayType implements UserType
     }
 
     private Date parseDate(String date) {
-        SimpleDateFormat format=new SimpleDateFormat("y-M-d HH:mm:ss");
+        SimpleDateFormat format=new SimpleDateFormat(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN);
         try{
             return format.parse(date);
         } catch (Exception e) {

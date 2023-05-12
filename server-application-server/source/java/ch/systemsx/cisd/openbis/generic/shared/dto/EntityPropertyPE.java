@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import javax.persistence.*;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -356,7 +357,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private String convertTimestampArrayToString(Date[] array) {
         if (array == null || array.length == 0)
             return "";
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+        DateFormat dateFormat = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
         return Stream.of(array)
                 .map(dateFormat::format)
                 .reduce((x, y) -> x + ", " + y)

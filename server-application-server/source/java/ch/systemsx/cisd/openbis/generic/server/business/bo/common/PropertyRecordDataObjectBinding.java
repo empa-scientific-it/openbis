@@ -18,12 +18,15 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import net.lemnik.eodsql.EoDException;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 public class PropertyRecordDataObjectBinding
@@ -48,7 +51,7 @@ public class PropertyRecordDataObjectBinding
         into.integerArrayPropertyValue = convertToStringArray(row.getArray("integerArrayPropertyValue"));
         into.realArrayPropertyValue = convertToStringArray(row.getArray("realArrayPropertyValue"));
         into.stringArrayPropertyValue = convertToStringArray(row.getArray("stringArrayPropertyValue"));
-        into.timestampArrayPropertyValue = convertToStringArray(row.getArray("timestampArrayPropertyValue"));
+        into.timestampArrayPropertyValue = convertTimestampsToString(row.getArray("timestampArrayPropertyValue"));
         into.jsonPropertyValue = row.getString("jsonPropertyValue");
     }
 
@@ -61,4 +64,24 @@ public class PropertyRecordDataObjectBinding
         }
         return null;
     }
+
+    private String[] convertTimestampsToString(Array array) throws SQLException {
+        if(array != null) {
+            Object[] values = (Object[]) array.getArray();
+            return Arrays.stream(values)
+                    .map(Object::toString)
+                    .map(this::parseDate)
+                    .toArray(String[]::new);
+        }
+        return null;
+    }
+
+    private String parseDate(String date) {
+        // Dates saved in DB are in different format
+        DateTimeFormatter formatFrom = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX");
+        ZonedDateTime time = ZonedDateTime.parse(date, formatFrom);
+        DateTimeFormatter formatTo = DateTimeFormatter.ofPattern(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN);
+        return  time.format(formatTo);
+    }
+
 }
