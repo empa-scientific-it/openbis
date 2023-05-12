@@ -41,16 +41,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /*
@@ -643,6 +649,203 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
             materialProperties = new HashMap<String, Material>();
         }
         materialProperties.put(propertyName, propertyValue);
+    }
+
+    @Override
+    public Long getIntegerProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : Long.parseLong(propertyValue);
+    }
+
+    @Override
+    public void setIntegerProperty(String propertyName, Long propertyValue)
+    {
+        setProperty(propertyName, Objects.toString(propertyValue, null));
+    }
+
+    @Override
+    public String getVarcharProperty(String propertyName)
+    {
+        return getProperty(propertyName);
+    }
+
+    @Override
+    public void setVarcharProperty(String propertyName, String propertyValue)
+    {
+        setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public String getMultilineVarcharProperty(String propertyName)
+    {
+        return getProperty(propertyName);
+    }
+
+    @Override
+    public void setMultilineVarcharProperty(String propertyName, String propertyValue)
+    {
+        setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public Double getRealProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : Double.parseDouble(propertyValue);
+    }
+
+    @Override
+    public void setRealProperty(String propertyName, Double propertyValue)
+    {
+        setProperty(propertyName, Objects.toString(propertyValue, null));
+    }
+
+    @Override
+    public ZonedDateTime getTimestampProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return propertyValue == null ? null : ZonedDateTime.parse(getProperty(propertyName));
+    }
+
+    @Override
+    public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)
+    {
+        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ"));
+        setProperty(propertyName, value);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : Boolean.parseBoolean(propertyValue);
+    }
+
+    @Override
+    public void setBooleanProperty(String propertyName, Boolean propertyValue)
+    {
+        setProperty(propertyName, Objects.toString(propertyValue, null));
+    }
+
+    @Override
+    public String getHyperlinkProperty(String propertyName)
+    {
+        return getProperty(propertyName);
+    }
+
+    @Override
+    public void setHyperlinkProperty(String propertyName, String propertyValue)
+    {
+        setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public String getXmlProperty(String propertyName)
+    {
+        return getProperty(propertyName);
+    }
+
+    @Override
+    public void setXmlProperty(String propertyName, String propertyValue)
+    {
+        setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public String getControlledVocabularyProperty(String propertyName)
+    {
+        return getProperty(propertyName);
+    }
+
+    @Override
+    public void setControlledVocabularyProperty(String propertyName, String propertyValue)
+    {
+        setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public SamplePermId getSampleProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : new SamplePermId(propertyValue);
+    }
+
+    @Override
+    public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+    {
+        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());
+    }
+
+    @Override
+    public Long[] getIntegerArrayProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
+    }
+
+    @Override
+    public void setIntegerArrayProperty(String propertyName, Long[] propertyValue)
+    {
+        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + ", " + b).get());
+    }
+
+    @Override
+    public Double[] getRealArrayProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
+    }
+
+    @Override
+    public void setRealArrayProperty(String propertyName, Double[] propertyValue)
+    {
+        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + ", " + b).get());
+    }
+
+    @Override
+    public String[] getStringArrayProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
+    }
+
+    @Override
+    public void setStringArrayProperty(String propertyName, String[] propertyValue)
+    {
+        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).reduce((a,b) -> a + ", " + b).get());
+    }
+
+    @Override
+    public ZonedDateTime[] getTimestampArrayProperty(String propertyName)
+    {
+        String propertyValue = getProperty(propertyName);
+        return propertyValue == null ? null : Arrays.stream(propertyValue.split(","))
+             .map(String::trim)
+             .map(ZonedDateTime::parse)
+             .toArray(ZonedDateTime[]::new);
+    }
+
+    @Override
+    public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)
+    {
+        String value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
+                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
+                 .reduce((a,b) -> a + ", " + b)
+                 .get();
+        setProperty(propertyName, value);
+    }
+
+    @Override
+    public String getJsonProperty(String propertyName)
+    {
+        return getProperty(propertyName);
+    }
+
+    @Override
+    public void setJsonProperty(String propertyName, String propertyValue)
+    {
+        setProperty(propertyName, propertyValue);
     }
 
     // Method automatically generated with DtoGenerator

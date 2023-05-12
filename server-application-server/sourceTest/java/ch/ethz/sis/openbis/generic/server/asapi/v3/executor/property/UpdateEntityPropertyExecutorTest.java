@@ -15,13 +15,10 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
@@ -158,6 +155,189 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 {
                     return propertiesMap;
                 }
+
+                @Override
+                public Boolean getBooleanProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setBooleanProperty(String propertyName, Boolean propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getControlledVocabularyProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setControlledVocabularyProperty(String propertyName,
+                        String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public SamplePermId getSampleProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getHyperlinkProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setHyperlinkProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getXmlProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setXmlProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Long getIntegerProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setIntegerProperty(String propertyName, Long propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getVarcharProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setVarcharProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getMultilineVarcharProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultilineVarcharProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Double getRealProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setRealProperty(String propertyName, Double propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public ZonedDateTime getTimestampProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Long[] getIntegerArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setIntegerArrayProperty(String propertyName, Long[] propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Double[] getRealArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setRealArrayProperty(String propertyName, Double[] propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String[] getStringArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setStringArrayProperty(String propertyName, String[] propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public ZonedDateTime[] getTimestampArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setTimestampArrayProperty(String propertyName,
+                        ZonedDateTime[] propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String getJsonProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setJsonProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
             };
         MapBatch<IPropertiesHolder, IEntityInformationWithPropertiesHolder> batch =
                 new MapBatch<>(0, 0, 1, Collections.singletonMap(holder, entity), 1);

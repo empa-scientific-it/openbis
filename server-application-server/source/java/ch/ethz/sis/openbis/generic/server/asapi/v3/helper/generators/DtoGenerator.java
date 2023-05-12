@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.time.Year;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -327,7 +328,7 @@ public class DtoGenerator
     public void generateDTO() throws FileNotFoundException
     {
         generateDTO(
-                "../api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
+                "/home/alaskowski/openbis/api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
                         "\\.", "/") + "/" + className
                         + ".java");
     }
@@ -335,7 +336,7 @@ public class DtoGenerator
     public void generateDTOJS() throws FileNotFoundException
     {
         generateDTOJS(
-                "../test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className + ".js");
+                "/home/alaskowski/openbis/api-openbis-javascript/src/v3/as/dto/" + className.toLowerCase() + "/" + className + ".js");
     }
 
     private void generateDTO(String file) throws FileNotFoundException
@@ -395,7 +396,7 @@ public class DtoGenerator
     public void generateFetchOptions() throws FileNotFoundException
     {
         generateFetchOptions(
-                "../api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
+                "/home/alaskowski/openbis/api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
                         "\\.", "/")
                         + "/fetchoptions/" + className + "FetchOptions.java");
     }
@@ -403,7 +404,7 @@ public class DtoGenerator
     public void generateFetchOptionsJS() throws FileNotFoundException
     {
         generateFetchOptionsJS(
-                "../test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
+                "/home/alaskowski/openbis/test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
                         + "FetchOptions.js");
     }
 
@@ -462,7 +463,7 @@ public class DtoGenerator
     private void printHeaders()
     {
         print("/*");
-        print(" * Copyright 2014 ETH Zuerich, CISD");
+        print(" * Copyright ETH 2014 - " + Year.now().getValue() +" Zürich, Scientific IT Services");
         print(" *");
         print(" * Licensed under the Apache License, Version 2.0 (the \"License\");");
         print(" * you may not use this file except in compliance with the License.");
