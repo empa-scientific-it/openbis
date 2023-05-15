@@ -70,6 +70,7 @@ var BarcodeUtil = new function() {
 
         codeReader = new ZXing.BrowserMultiFormatReader();
                         codeReader.listVideoInputDevices().then((videoInputDevices) => {
+                            // Add cameras to devices
                             for(var cIdx = 0; cIdx < videoInputDevices.length; cIdx++) {
                                 var $cameraInput = $("<input>", { id : "camera-" + (cIdx+1), name : "device", type : "radio", value : videoInputDevices[cIdx].deviceId });
                                         $device.append($cameraInput);
@@ -79,6 +80,18 @@ var BarcodeUtil = new function() {
 
                             $device.append($("<a>"));
                             _this.disableAutomaticBarcodeReadingFromCamera();
+
+                            // Enable last used device
+                            mainController.serverFacade.getSetting("barcode-reader-device", function(selectedDeviceIndex) {
+                                for(var dIdx = 0; dIdx < deviceInputs.length; dIdx++) {
+                                    if(dIdx === selectedDeviceIndex) {
+                                        deviceInputs[dIdx][0]['checked'] =  true;
+                                    } else {
+                                        deviceInputs[dIdx][0]['checked'] =  false;
+                                    }
+                                }
+                                $device.trigger("change");
+                            });
                         });
         $toggleSwitch.append($device);
 
@@ -98,6 +111,7 @@ var BarcodeUtil = new function() {
                 _this.enableAutomaticBarcodeReading(action);
                 _this.disableAutomaticBarcodeReadingFromCamera();
                 $cameraContainer.empty();
+                mainController.serverFacade.setSetting("barcode-reader-device", 0);
             }
 
             for(var dIdx = 1; dIdx < deviceInputs.length; dIdx++) {
@@ -107,6 +121,7 @@ var BarcodeUtil = new function() {
                     isScanner = false;
                     _this.disableAutomaticBarcodeReading();
                     _this.enableAutomaticBarcodeReadingFromCamera(deviceInputs[dIdx][0].value, $cameraContainer, action);
+                    mainController.serverFacade.setSetting("barcode-reader-device", dIdx);
                 }
             }
         }
@@ -122,7 +137,7 @@ var BarcodeUtil = new function() {
 
         $container.append($form);
 
-        onDeviceChange(); // Enable default device
+        //onDeviceChange(); // Enable default device
     }
 
     var codeReader = null;
