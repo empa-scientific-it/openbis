@@ -63,7 +63,7 @@ var BarcodeUtil = new function() {
         var deviceInputs = [];
 
         var $device = $("<div>", { class : "switch-toggle switch-candy-blue" });
-        var $scannerInput = $("<input>", { id : "scanner", name : "device", type : "radio", checked: "checked" });
+        var $scannerInput = $("<input>", { id : "scanner", name : "device", type : "radio" });
         $device.append($scannerInput);
         deviceInputs.push($scannerInput);
         $device.append($("<label>", { for : "scanner", onclick : "" }).append("Scanner"));
@@ -87,7 +87,7 @@ var BarcodeUtil = new function() {
                                     selectedDeviceIndex = 0;
                                 }
                                 for(var dIdx = 0; dIdx < deviceInputs.length; dIdx++) {
-                                    if(dIdx === selectedDeviceIndex) {
+                                    if("" + dIdx === "" + selectedDeviceIndex) {
                                         deviceInputs[dIdx][0]['checked'] =  true;
                                     } else {
                                         deviceInputs[dIdx][0]['checked'] =  false;
@@ -100,7 +100,7 @@ var BarcodeUtil = new function() {
 
         var $cameraContainer = $("<div>");
 
-        $cameraContainer.append($toggleSwitch);
+        $form.append($toggleSwitch);
         $form.append($cameraContainer);
 
         var onDeviceChange = function() {
