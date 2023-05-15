@@ -183,8 +183,7 @@ ALTER TABLE DATA_SET_PROPERTIES_HISTORY ADD CONSTRAINT DSPRH_CK CHECK
 
 
 
-DROP VIEW sample_history_view;
-CREATE VIEW sample_history_view AS (
+CREATE OR REPLACE VIEW sample_history_view AS (
   SELECT
     2*id as id,
     main_samp_id,
@@ -244,8 +243,7 @@ UNION
     SAMPLE_PROPERTIES_HISTORY;
 
 
-DROP VIEW data_set_history_view;
-CREATE VIEW data_set_history_view AS (
+CREATE OR REPLACE VIEW data_set_history_view AS (
   SELECT
     3*id as id,
     main_data_id,
@@ -352,8 +350,7 @@ UNION
   WHERE
     valid_until_timestamp IS NOT NULL);
 
-DROP VIEW experiment_history_view;
-CREATE VIEW experiment_history_view AS (
+CREATE OR REPLACE VIEW experiment_history_view AS (
   SELECT
     2*id as id,
     main_expe_id,
