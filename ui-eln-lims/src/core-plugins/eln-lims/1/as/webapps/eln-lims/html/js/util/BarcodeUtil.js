@@ -44,7 +44,7 @@ var BarcodeUtil = new function() {
         if(!action) {
             action = function(barcode, error) {
                 if(barcode) {
-                    BarcodeUtil.readSample(function(sample) {
+                    readSample(function(sample) {
                         mainController.changeView('showViewSamplePageFromPermId', sample.permId.permId);
                     });
                 }
