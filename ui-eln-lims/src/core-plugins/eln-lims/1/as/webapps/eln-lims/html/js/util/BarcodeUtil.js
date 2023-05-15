@@ -97,7 +97,7 @@ var BarcodeUtil = new function() {
 
         var $cameraContainer = $("<div>");
 
-        $form.append($toggleSwitch);
+        $cameraContainer.append($toggleSwitch);
         $form.append($cameraContainer);
 
         var onDeviceChange = function() {
@@ -151,9 +151,14 @@ var BarcodeUtil = new function() {
 
     this.enableAutomaticBarcodeReadingFromCamera = function(cameraDeviceId, $container, action) {
         _this.disableAutomaticBarcodeReadingFromCamera();
-        var content = $container;
-        var $video = $("<video>", { id : "video", width : "50%", height : "50%", style : "display: block; margin: 0 auto;" });
-        content.append($video);
+        var $video = $("<video>", { id : "video" });
+        $video.css({
+            display: "block", // centering
+            margin: "0 auto", // centering
+            width : "40%",
+            height : "40%"
+        });
+        $container.append($video);
 
         // Starts the camera reading code
         const hints = new Map();
