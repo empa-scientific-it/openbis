@@ -25,6 +25,7 @@ import org.hibernate.usertype.UserType;
 import java.io.Serializable;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -73,7 +74,7 @@ public class TimestampArrayType implements UserType
     }
 
     private Date parseDate(String date) {
-        SimpleDateFormat format=new SimpleDateFormat(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN);
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX");
         try{
             return format.parse(date);
         } catch (Exception e) {
