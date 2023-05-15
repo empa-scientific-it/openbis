@@ -33,7 +33,7 @@ var BarcodeUtil = new function() {
         }
     }
 
-    this.readBarcodeFromScannerOrCamera = function(title, $container, action) {
+    this.readBarcodeFromScannerOrCamera = function($container, action) {
         if(!$container) {
             mainController.changeView("showBlancPage");
             var content = mainController.currentView.content;
@@ -58,24 +58,29 @@ var BarcodeUtil = new function() {
 		var $form = $("<div>");
 
         var $toggleSwitch = $("<fieldset>");
-            $toggleSwitch.append($("<legend>").text("Device"));
+            $toggleSwitch.append($("<legend>").text("Read Barcode from Device"));
 
-
+        var deviceInputs = [];
 
         var $device = $("<div>", { class : "switch-toggle switch-candy-blue" });
         var $scannerInput = $("<input>", { id : "scanner", name : "device", type : "radio", checked: "checked" });
         $device.append($scannerInput);
+        deviceInputs.push($scannerInput);
         $device.append($("<label>", { for : "scanner", onclick : "" }).append("Scanner"));
-        var $cameraInput = $("<input>", { id : "camera", name : "device", type : "radio" });
-        $device.append($cameraInput);
-        $device.append($("<label>", { for : "camera",  onclick : "" }).append("Camera"));
-        $device.append($("<a>"));
 
+        codeReader = new ZXing.BrowserMultiFormatReader();
+                        codeReader.listVideoInputDevices().then((videoInputDevices) => {
+                            for(var cIdx = 0; cIdx < videoInputDevices.length; cIdx++) {
+                                var $cameraInput = $("<input>", { id : "camera-" + (cIdx+1), name : "device", type : "radio", value : videoInputDevices[cIdx].deviceId });
+                                        $device.append($cameraInput);
+                                        deviceInputs.push($cameraInput);
+                                        $device.append($("<label>", { for : "camera-" + (cIdx+1),  onclick : "" }).append(videoInputDevices[cIdx].label));
+                            }
+
+                            $device.append($("<a>"));
+                            _this.disableAutomaticBarcodeReadingFromCamera();
+                        });
         $toggleSwitch.append($device);
-
-        if(title) {
-            $form.append($("<legend>").text(title)); // "Read Barcode "
-        }
 
         var $cameraContainer = $("<div>");
 
@@ -83,7 +88,10 @@ var BarcodeUtil = new function() {
         $form.append($cameraContainer);
 
         var onDeviceChange = function() {
-            var isScanner = $scannerInput.is(":checked");
+            _this.disableAutomaticBarcodeReading();
+            _this.disableAutomaticBarcodeReadingFromCamera();
+
+            var isScanner = deviceInputs[0].is(":checked");
             if(isScanner) {
                 isCamera = false;
                 isScanner = true;
@@ -91,12 +99,15 @@ var BarcodeUtil = new function() {
                 _this.disableAutomaticBarcodeReadingFromCamera();
                 $cameraContainer.empty();
             }
-            var isCamera = $cameraInput.is(":checked");
-            if(isCamera) {
-                isCamera = true;
-                isScanner = false;
-                _this.disableAutomaticBarcodeReading();
-                _this.enableAutomaticBarcodeReadingFromCamera($cameraContainer, action);
+
+            for(var dIdx = 1; dIdx < deviceInputs.length; dIdx++) {
+                var isCamera = deviceInputs[dIdx].is(":checked");
+                if(isCamera) {
+                    isCamera = true;
+                    isScanner = false;
+                    _this.disableAutomaticBarcodeReading();
+                    _this.enableAutomaticBarcodeReadingFromCamera(deviceInputs[dIdx][0].value, $cameraContainer, action);
+                }
             }
         }
 
@@ -107,8 +118,7 @@ var BarcodeUtil = new function() {
             isScanner = false;
         }
 
-        $cameraInput.change(onDeviceChange);
-        $scannerInput.change(onDeviceChange);
+        $device.change(onDeviceChange);
 
         $container.append($form);
 
@@ -124,14 +134,9 @@ var BarcodeUtil = new function() {
         }
     }
 
-    this.enableAutomaticBarcodeReadingFromCamera = function($container, action) {
+    this.enableAutomaticBarcodeReadingFromCamera = function(cameraDeviceId, $container, action) {
         _this.disableAutomaticBarcodeReadingFromCamera();
-
-        // Steals the main controller to show the video feed and a cancel button
         var content = $container;
-        var $videoCameraSelection = $("<select>", { id: "videoCameraSelect", style : "margin-left: 4px;"});
-        content.append($videoCameraSelection);
-        content.append($("<legend>").append("Camera: ").append($videoCameraSelection));
         var $video = $("<video>", { id : "video", width : "50%", height : "50%", style : "display: block; margin: 0 auto;" });
         content.append($video);
 
@@ -141,9 +146,6 @@ var BarcodeUtil = new function() {
         hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
         codeReader = new ZXing.BrowserMultiFormatReader(hints);
                 codeReader.listVideoInputDevices().then((videoInputDevices) => {
-                    const sourceSelect = document.getElementById('sourceSelect');
-                    selectedDeviceId = videoInputDevices[0].deviceId;
-
                     var decodeFromVideoDeviceCallback = (result, err) => {
                         if(result && result.text) {
                             barcodeReader = result.text;
@@ -155,22 +157,7 @@ var BarcodeUtil = new function() {
                         }
                     };
 
-                    if(videoInputDevices.length > 1) {
-                        videoInputDevices.forEach((element) => {
-                            var option = $("<option>", { value: element.deviceId }).text(element.label);
-                            $videoCameraSelection.append(option);
-                        });
-
-                        $videoCameraSelection.change(function(event) {
-                            //Stop
-                            codeReader.reset();
-                            //Start
-                            selectedDeviceId = $(this).val();
-                            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', decodeFromVideoDeviceCallback);
-                        });
-                    }
-
-                    codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', decodeFromVideoDeviceCallback);
+                    codeReader.decodeFromVideoDevice(cameraDeviceId, 'video', decodeFromVideoDeviceCallback);
         });
     }
 
@@ -496,17 +483,17 @@ var BarcodeUtil = new function() {
 
         var css = {
             'text-align' : 'left',
-            'top' : '15%',
-            'width' : '70%',
-            'height' : '400px',
-            'left' : '15%',
-            'right' : '20%',
+            'top' : '5%',
+            'width' : '90%',
+            'height' : '90%',
+            'left' : '5%',
+            'right' : '5%',
             'overflow' : 'auto'
         };
 
         Util.blockUI($window, css);
 
-        BarcodeUtil.readBarcodeFromScannerOrCamera(null, $barcodeReaderContainer, function(permId, error) {
+        BarcodeUtil.readBarcodeFromScannerOrCamera($barcodeReaderContainer, function(permId, error) {
             console.log(permId);
             readSample(gatherReaded);
         });
@@ -649,7 +636,7 @@ var BarcodeUtil = new function() {
 
         Util.blockUI($window, css);
 
-        BarcodeUtil.readBarcodeFromScannerOrCamera(null, $readerContainer, function(permId, error) {
+        BarcodeUtil.readBarcodeFromScannerOrCamera($readerContainer, function(permId, error) {
             console.log(permId);
             if(isScanner) {
                 return; //Scanner already types on the fields, do nothing
@@ -751,11 +738,11 @@ var BarcodeUtil = new function() {
 
         var css = {
             'text-align' : 'left',
-            'top' : '15%',
-            'width' : '70%',
-            'height' : '400px',
-            'left' : '15%',
-            'right' : '20%',
+            'top' : '5%',
+            'width' : '90%',
+            'height' : '90%',
+            'left' : '5%',
+            'right' : '5%',
             'overflow' : 'auto'
         };
 
