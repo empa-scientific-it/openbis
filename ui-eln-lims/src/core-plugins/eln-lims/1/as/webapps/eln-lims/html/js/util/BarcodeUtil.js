@@ -107,6 +107,7 @@ var BarcodeUtil = new function() {
         var onDeviceChange = function() {
             _this.disableAutomaticBarcodeReading();
             _this.disableAutomaticBarcodeReadingFromCamera();
+            $cameraContainer.empty();
 
             var isScanner = deviceInputs[0].is(":checked");
             if(isScanner) {
@@ -114,7 +115,6 @@ var BarcodeUtil = new function() {
                 isScanner = true;
                 _this.enableAutomaticBarcodeReading(action);
                 _this.disableAutomaticBarcodeReadingFromCamera();
-                $cameraContainer.empty();
                 mainController.serverFacade.setSetting("barcode-reader-device", 0);
             }
 
