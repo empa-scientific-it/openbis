@@ -101,6 +101,7 @@ var BarcodeUtil = new function() {
         var $cameraContainer = $("<div>");
 
         $form.append($toggleSwitch);
+        $form.append($("<br>"))
         $form.append($cameraContainer);
 
         var onDeviceChange = function() {
