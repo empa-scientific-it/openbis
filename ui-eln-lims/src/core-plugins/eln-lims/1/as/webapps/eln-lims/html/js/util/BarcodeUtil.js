@@ -1,6 +1,9 @@
 var BarcodeUtil = new function() {
     var barcodeTimeout = false;
     var barcodeReader = "";
+    var isScanner = false;
+    var isCamera = false;
+
     var _this = this;
 
     var readSample = function(action) {
@@ -30,7 +33,7 @@ var BarcodeUtil = new function() {
         }
     }
 
-    this.readBarcodeFromScannerOrCamera = function($container, action) {
+    this.readBarcodeFromScannerOrCamera = function(title, $container, action) {
         if(!$container) {
             mainController.changeView("showBlancPage");
             var content = mainController.currentView.content;
@@ -70,7 +73,9 @@ var BarcodeUtil = new function() {
 
         $toggleSwitch.append($device);
 
-        $form.append($("<legend>").text("Read Barcode: "));
+        if(title) {
+            $form.append($("<legend>").text(title)); // "Read Barcode "
+        }
 
         var $cameraContainer = $("<div>");
 
@@ -80,12 +85,16 @@ var BarcodeUtil = new function() {
         var onDeviceChange = function() {
             var isScanner = $scannerInput.is(":checked");
             if(isScanner) {
+                isCamera = false;
+                isScanner = true;
                 _this.enableAutomaticBarcodeReading(action);
                 _this.disableAutomaticBarcodeReadingFromCamera();
                 $cameraContainer.empty();
             }
             var isCamera = $cameraInput.is(":checked");
             if(isCamera) {
+                isCamera = true;
+                isScanner = false;
                 _this.disableAutomaticBarcodeReading();
                 _this.enableAutomaticBarcodeReadingFromCamera($cameraContainer, action);
             }
@@ -94,6 +103,8 @@ var BarcodeUtil = new function() {
         mainController.currentView.finalize = function() {
             _this.disableAutomaticBarcodeReading();
             _this.disableAutomaticBarcodeReadingFromCamera();
+            isCamera = false;
+            isScanner = false;
         }
 
         $cameraInput.change(onDeviceChange);
@@ -519,6 +530,9 @@ var BarcodeUtil = new function() {
         }
 
         $btnAccept.click(function(event) {
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             var errors = [];
             for(var eIdx = 0; eIdx < entities.length; eIdx++) {
                 var barcode = $barcodeReaders[eIdx].val();
@@ -591,6 +605,9 @@ var BarcodeUtil = new function() {
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
         $btnCancel.on('keyup keypress', this.preventFormSubmit);
         $btnCancel.click(function(event) {
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             Util.unblockUI();
         });
 
@@ -599,7 +616,8 @@ var BarcodeUtil = new function() {
         $window.append(FormUtil.getInfoText("A valid barcode need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
         $window.append(FormUtil.getInfoText("If a custom barcode is not given the permId is always used as default barcode."));
         $window.append(FormUtil.getWarningText("Empty the custom barcode to delete the current custom barcode."));
-
+        var $readerContainer = $("<div>");
+        $window.append($readerContainer);
         $window.append($('<br>'));
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
             var $barcodeBlock = $("<div>");
@@ -617,15 +635,32 @@ var BarcodeUtil = new function() {
 
         var css = {
             'text-align' : 'left',
-            'top' : '15%',
-            'width' : '70%',
-            'height' : '400px',
-            'left' : '15%',
-            'right' : '20%',
+            'top' : '5%',
+            'width' : '90%',
+            'height' : '90%',
+            'left' : '5%',
+            'right' : '5%',
             'overflow' : 'auto'
         };
 
         Util.blockUI($window, css);
+
+        BarcodeUtil.readBarcodeFromScannerOrCamera(null, $readerContainer, function(permId, error) {
+            console.log(permId);
+            if(isScanner) {
+                return; //Scanner already types on the fields, do nothing
+            }
+
+            // Camera needs this code to set the permId on the first non-empty reader
+            for(var eIdx = 0; eIdx < $barcodeReaders.length; eIdx++) {
+                var $barcodeReader = $barcodeReaders[eIdx];
+                var value = $barcodeReader.val();
+                if(!value) {
+                    $barcodeReader.val(permId);
+                    break;
+                }
+            }
+        });
     }
 
     this.showBarcode = function(entity) {
