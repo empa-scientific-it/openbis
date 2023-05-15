@@ -83,6 +83,9 @@ var BarcodeUtil = new function() {
 
                             // Enable last used device
                             mainController.serverFacade.getSetting("barcode-reader-device", function(selectedDeviceIndex) {
+                                if(!selectedDeviceIndex) {
+                                    selectedDeviceIndex = 0;
+                                }
                                 for(var dIdx = 0; dIdx < deviceInputs.length; dIdx++) {
                                     if(dIdx === selectedDeviceIndex) {
                                         deviceInputs[dIdx][0]['checked'] =  true;
