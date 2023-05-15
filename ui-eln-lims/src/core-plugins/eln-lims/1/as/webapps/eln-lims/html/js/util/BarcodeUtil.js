@@ -146,6 +146,7 @@ var BarcodeUtil = new function() {
 
                     var decodeFromVideoDeviceCallback = (result, err) => {
                         if(result && result.text) {
+                            barcodeReader = result.text;
                             action(result.text, null);
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
@@ -441,8 +442,6 @@ var BarcodeUtil = new function() {
         var _this = this;
         var $readed = $('<div>');
 
-        // Remove global event
-        this.disableAutomaticBarcodeReading();
         // Add local event
         var objects = [];
         var gatherReaded = function(object) {
@@ -461,9 +460,6 @@ var BarcodeUtil = new function() {
             $readed.append($container.append($identifier).append($removeBtn));
         }
 
-        var barcodeReaderLocalEventListener = barcodeReaderEventListener(gatherReaded);
-        document.addEventListener('keyup', barcodeReaderLocalEventListener);
-
         var $window = $('<form>', {
             'action' : 'javascript:void(0);'
         });
@@ -472,9 +468,9 @@ var BarcodeUtil = new function() {
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : actionLabel });
         $btnAccept.on('keyup keypress', this.preventFormSubmit);
         $btnAccept.click(function(event) {
-            // Swap event listeners
-            document.removeEventListener('keyup', barcodeReaderLocalEventListener);
-            _this.enableAutomaticBarcodeReading();
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             Util.unblockUI();
             action(objects);
         });
@@ -482,13 +478,16 @@ var BarcodeUtil = new function() {
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
         $btnCancel.on('keyup keypress', this.preventFormSubmit);
         $btnCancel.click(function(event) {
-            // Swap event listeners
-            document.removeEventListener('keyup', barcodeReaderLocalEventListener);
-            _this.enableAutomaticBarcodeReading();
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             Util.unblockUI();
         });
 
         $window.append($('<legend>').append("Barcode Reader"));
+        $window.append($('<br>'));
+        var $barcodeReaderContainer = $('<div>');
+        $window.append($barcodeReaderContainer);
         $window.append($('<br>'));
         $window.append($btnAccept).append('&nbsp;').append($btnCancel);
         $window.append($('<legend>').append('Read'));
@@ -506,6 +505,11 @@ var BarcodeUtil = new function() {
         };
 
         Util.blockUI($window, css);
+
+        BarcodeUtil.readBarcodeFromScannerOrCamera(null, $barcodeReaderContainer, function(permId, error) {
+            console.log(permId);
+            readSample(gatherReaded);
+        });
     }
 
     this.readBarcode = function(entities) {
