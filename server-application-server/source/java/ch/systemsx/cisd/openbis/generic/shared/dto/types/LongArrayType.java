@@ -61,20 +61,6 @@ public class LongArrayType implements UserType
                     .map(Object::toString)
                     .map(Long::parseLong)
                     .toArray(Long[]::new);
-//Math.toIntExact()
-
-//            String content = rs.getString(names[0]);
-//            content = content.substring(1, content.length() - 1);
-//            return Arrays.stream(content.split(",")).map(Long::parseLong).toArray();
-
-
-//            PGobject[] values = (PGobject[]) array.getArray();
-//            List<Long> arr = new ArrayList<>();
-//            for(PGobject pGobject : values) {
-//                Long l = Long.parseLong(pGobject.getValue());
-//                arr.add(l);
-//            }
-//            return arr.toArray(new Long[0]);
         }
         return null;
     }
@@ -86,10 +72,6 @@ public class LongArrayType implements UserType
             throws HibernateException, SQLException {
         if (value != null && st != null) {
             st.setObject( index, value );
-// WORKS
-//            Connection connection = session.connection();
-//            Array array =  connection.createArrayOf("long_value", (Long[])value);
-//            st.setArray(index, array);
         } else {
             st.setNull(index, sqlTypes()[0]);
         }
