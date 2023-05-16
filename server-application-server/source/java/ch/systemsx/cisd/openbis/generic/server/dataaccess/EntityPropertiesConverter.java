@@ -19,6 +19,7 @@ import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 
@@ -877,7 +878,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            return Arrays.stream(value.split(SEPARATOR))
+            // Special regex to allow strings with ',' character
+            String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
+            return Arrays.stream(value.split(regex))
                     .map(String::trim)
                     .toArray(String[]::new);
         }
