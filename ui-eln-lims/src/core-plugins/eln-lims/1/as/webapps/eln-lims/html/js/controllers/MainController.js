@@ -146,6 +146,12 @@ function MainController(profile) {
 		//BackButton Logic
 		var _this = this;
 		this.backButtonLogic = function(e) {
+//			// The back button is used to restore standard size before doing any other action
+//			if(LayoutManager.fullScreenFlag) {
+//                LayoutManager.restoreStandardSize();
+//                return;
+//			}
+			// Standard back button logic
 			if(	this.currentView && 
 				this.currentView.finalize) {
 				this.currentView.finalize();

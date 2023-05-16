@@ -27,6 +27,7 @@ var LayoutManager = {
 	isResizingColumn : false,
 	isLoadingView : false,
     settings: null,
+    fullScreenFlag : false,
 	_init : function(isFirstTime) {
 		var _this = this;
 
@@ -410,6 +411,14 @@ var LayoutManager = {
     getExpectedContentWidth : function() {
         return LayoutManager.secondColumnHeader.outerWidth();
     },
+    isMobile : function() {
+        var width = $( window ).width();
+        if (width > this.TABLET_SIZE) {
+            return false;
+        } else {
+            return true;
+        }
+    },
 	fullScreen : function() {
 		var width = $( window ).width();
 		if (width > this.DESKTOP_SIZE) {
@@ -420,13 +429,24 @@ var LayoutManager = {
 			this.firstColumn.hide();
 			this.secondColumn.width(width);
 		} else if (width > this.MOBILE_SIZE) {
-			this.secondColumn.width(width);
+			// No columns to hide, remove menu instead.
+			$("#sideMenuTopContainer").parent().css({ "height" : "" });
+			$("#sideMenuBody").css({ "display" : "none" });
+			//
 		} else {
 			alert("Layout manager unable to go fullScreen, this should never happen.");
 		}
+		this.fullScreenFlag = true; // The flag is set until gets restored by pressing the back button on mobile or changing views on larger layouts.
 	},
 	restoreStandardSize : function() {
+	    // Restore changes of mobile layout
+	    if(this.isMobile()) {
+            $("#sideMenuTopContainer").parent().css({ "height" : "100%" });
+            $("#sideMenuBody").css({ "display" : "" });
+        }
+        //
 		LayoutManager.resize(mainController.views, true);
+		this.fullScreenFlag = false;
 	},
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
@@ -463,8 +483,10 @@ var LayoutManager = {
 		this._init(isFirstTime);
 		if (this.FOUND_SIZE === this.DESKTOP_SIZE) {
 			this._setDesktopLayout(view, isFirstTime);
+			this.fullScreenFlag = false;
 		} else if (this.FOUND_SIZE === this.TABLET_SIZE) {
 			this._setTabletLayout(view, isFirstTime);
+			this.fullScreenFlag = false;
 		} else if (this.FOUND_SIZE === this.MOBILE_SIZE) {
 			this._setMobileLayout(view, isFirstTime);
 		}

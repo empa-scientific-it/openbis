@@ -36,6 +36,9 @@ var BarcodeUtil = new function() {
     this.readBarcodeFromScannerOrCamera = function($container, action) {
         if(!$container) {
             mainController.changeView("showBlancPage");
+            if(LayoutManager.isMobile()) {
+                LayoutManager.fullScreen();
+            }
             var content = mainController.currentView.content;
             content.empty();
             $container = content;
