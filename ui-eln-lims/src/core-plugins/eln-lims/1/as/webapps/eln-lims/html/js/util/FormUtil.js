@@ -819,7 +819,7 @@ var FormUtil = new function() {
                 $controlLabel.append($line);
             } else
             {
-                $controlLabel.text(label + ":");
+                $controlLabel.html(label + ":");
             }
         }
         return $controlLabel;
