@@ -58,7 +58,7 @@ var BarcodeUtil = new function() {
 		var $form = $("<div>");
 
         var $toggleSwitch = $("<fieldset>");
-            $toggleSwitch.append($("<legend>").text("Read Barcode from Device"));
+        //    $toggleSwitch.append($("<legend>").text("Read Barcode from Device"));
 
         var deviceInputs = [];
 
@@ -101,7 +101,7 @@ var BarcodeUtil = new function() {
         var $cameraContainer = $("<div>");
 
         $form.append($toggleSwitch);
-        $form.append($("<br>"))
+        //$form.append($("<br>"))
         $form.append($cameraContainer);
 
         var onDeviceChange = function() {
@@ -156,11 +156,18 @@ var BarcodeUtil = new function() {
     this.enableAutomaticBarcodeReadingFromCamera = function(cameraDeviceId, $container, action) {
         _this.disableAutomaticBarcodeReadingFromCamera();
         var $video = $("<video>", { id : "video" });
+        var leftColumnSize = 0;
+        if(LayoutManager.FOUND_SIZE >= LayoutManager.TABLET_SIZE) {
+            leftColumnSize = $(LayoutManager.firstColumn).width();
+        }
+        var width = $( window ).width();
+        var height = $( window ).height() * 0.3 - 52; // 30% Size - Header size
         $video.css({
             display: "block", // centering
             margin: "0 auto", // centering
-            width : "40%",
-            height : "40%"
+            width : width - leftColumnSize + "px",
+            height : height + "px",
+            "margin-top" : "4px"
         });
         $container.append($video);
 
@@ -451,6 +458,29 @@ var BarcodeUtil = new function() {
 
     this.readBarcodeMulti = function(actionLabel, action) {
         var _this = this;
+
+        var $masterContainer = $("<div>");
+        $masterContainer.css({
+            'height' : '100%',
+            'overflow' : 'hidden'
+        });
+
+        var $readerContainer = $("<div>");
+        $readerContainer.css({
+            'height' : '30%',
+            'overflow' : 'hidden'
+        });
+
+        var $window = $('<form>', {
+            'action' : 'javascript:void(0);'
+        });
+        $window.css({
+            'height' : '70%',
+            'overflow' : 'auto'
+        });
+
+        $masterContainer.append($readerContainer).append($window);
+
         var $readed = $('<div>');
 
         // Add local event
@@ -471,9 +501,6 @@ var BarcodeUtil = new function() {
             $readed.append($container.append($identifier).append($removeBtn));
         }
 
-        var $window = $('<form>', {
-            'action' : 'javascript:void(0);'
-        });
         $window.on('keyup keypress', this.preventFormSubmit);
 
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : actionLabel });
@@ -495,29 +522,26 @@ var BarcodeUtil = new function() {
             Util.unblockUI();
         });
 
-        $window.append($('<legend>').append("Barcode Reader"));
-        $window.append($('<br>'));
-        var $barcodeReaderContainer = $('<div>');
-        $window.append($barcodeReaderContainer);
-        $window.append($('<br>'));
+        $window.append($('<legend>').append("Read Barcodes"));
+        $window.append(FormUtil.getInfoText("Please scan one or more barcodes. The barcodes will be listed below if the scan is successful."));
+        $window.append($('<legend>').append('Found'));
         $window.append($btnAccept).append('&nbsp;').append($btnCancel);
-        $window.append($('<legend>').append('Read'));
+
         $window.append($('<br>'));
         $window.append($('<div>').append($readed));
 
         var css = {
             'text-align' : 'left',
-            'top' : '5%',
-            'width' : '90%',
-            'height' : '90%',
-            'left' : '5%',
-            'right' : '5%',
-            'overflow' : 'auto'
+            'top' : '0%',
+            'width' : '100%',
+            'height' : '100%',
+            'left' : '0%',
+            'right' : '0%'
         };
 
-        Util.blockUI($window, css);
+        Util.blockUI($masterContainer, css);
 
-        BarcodeUtil.readBarcodeFromScannerOrCamera($barcodeReaderContainer, function(permId, error) {
+        BarcodeUtil.readBarcodeFromScannerOrCamera($readerContainer, function(permId, error) {
             console.log(permId);
             readSample(gatherReaded);
         });
@@ -525,9 +549,29 @@ var BarcodeUtil = new function() {
 
     this.readBarcode = function(entities) {
         var _this = this;
+
+        var $masterContainer = $("<div>");
+        $masterContainer.css({
+            'height' : '100%',
+            'overflow' : 'hidden'
+        });
+
+        var $readerContainer = $("<div>");
+        $readerContainer.css({
+            'height' : '30%',
+            'overflow' : 'hidden'
+        });
+
         var $window = $('<form>', {
             'action' : 'javascript:void(0);'
         });
+        $window.css({
+            'height' : '70%',
+            'overflow' : 'auto'
+        });
+
+        $masterContainer.append($readerContainer).append($window);
+
         $window.on('keyup keypress', this.preventFormSubmit);
 
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode' });
@@ -631,8 +675,7 @@ var BarcodeUtil = new function() {
         $window.append(FormUtil.getInfoText("A valid barcode need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
         $window.append(FormUtil.getInfoText("If a custom barcode is not given the permId is always used as default barcode."));
         $window.append(FormUtil.getWarningText("Empty the custom barcode to delete the current custom barcode."));
-        var $readerContainer = $("<div>");
-        $window.append($readerContainer);
+
         $window.append($('<br>'));
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
             var $barcodeBlock = $("<div>");
@@ -650,15 +693,14 @@ var BarcodeUtil = new function() {
 
         var css = {
             'text-align' : 'left',
-            'top' : '5%',
-            'width' : '90%',
-            'height' : '90%',
-            'left' : '5%',
-            'right' : '5%',
-            'overflow' : 'auto'
+            'top' : '0%',
+            'width' : '100%',
+            'height' : '100%',
+            'left' : '0%',
+            'right' : '0%'
         };
 
-        Util.blockUI($window, css);
+        Util.blockUI($masterContainer, css);
 
         BarcodeUtil.readBarcodeFromScannerOrCamera($readerContainer, function(permId, error) {
             console.log(permId);
