@@ -763,7 +763,7 @@ var FormUtil = new function() {
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		var requiredText = '';
 		if($component.attr('required')) {
-			requiredText = "&nbsp;(*)"
+			requiredText = " (*)"
 		}
 		
 		var labelText = "";
@@ -819,7 +819,7 @@ var FormUtil = new function() {
                 $controlLabel.append($line);
             } else
             {
-                $controlLabel.html(label + ":");
+                $controlLabel.text(label + ":");
             }
         }
         return $controlLabel;
