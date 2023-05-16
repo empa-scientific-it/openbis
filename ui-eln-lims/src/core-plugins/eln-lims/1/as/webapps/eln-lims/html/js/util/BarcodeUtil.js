@@ -486,6 +486,12 @@ var BarcodeUtil = new function() {
         // Add local event
         var objects = [];
         var gatherReaded = function(object) {
+            // Avoid adding same item twice, check if is already on the list.
+            for(var oIdx = 0; oIdx < objects.length; oIdx++) {
+                if(objects[oIdx].identifier.identifier === object.identifier.identifier) {
+                    return; // Do nothing if the same objet is on the list
+                }
+            }
             objects.push(object);
             var displayName = "";
             var $container = $('<div>');
@@ -704,10 +710,17 @@ var BarcodeUtil = new function() {
 
         BarcodeUtil.readBarcodeFromScannerOrCamera($readerContainer, function(permId, error) {
             console.log(permId);
-            if(isScanner) {
-                return; //Scanner already types on the fields, do nothing
+            // We try to find the permId on the fields, if is not already we add it, this handles three corner cases:
+            //  - Scanner already typed on the field -> It avoids to repeat it
+            //  - Scanner not focused on fields -> It adds it to the field
+            //  - Camera doesn't act as a keyboard -> it adds to the field
+            for(var eIdx = 0; eIdx < $barcodeReaders.length; eIdx++) {
+                var $barcodeReader = $barcodeReaders[eIdx];
+                var value = $barcodeReader.val();
+                if(value === permId) {
+                    return; // Do nothing if the same objet is on the list
+                }
             }
-
             // Camera needs this code to set the permId on the first non-empty reader
             for(var eIdx = 0; eIdx < $barcodeReaders.length; eIdx++) {
                 var $barcodeReader = $barcodeReaders[eIdx];
