@@ -328,7 +328,7 @@ public class DtoGenerator
     public void generateDTO() throws FileNotFoundException
     {
         generateDTO(
-                "/home/alaskowski/openbis/api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
+                "../api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
                         "\\.", "/") + "/" + className
                         + ".java");
     }
@@ -336,7 +336,7 @@ public class DtoGenerator
     public void generateDTOJS() throws FileNotFoundException
     {
         generateDTOJS(
-                "/home/alaskowski/openbis/api-openbis-javascript/src/v3/as/dto/" + className.toLowerCase() + "/" + className + ".js");
+                "../test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className + ".js");
     }
 
     private void generateDTO(String file) throws FileNotFoundException

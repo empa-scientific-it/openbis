@@ -227,7 +227,7 @@ public class AbstractGenerator
         gen.addAdditionalMethod("@Override\n"
                 + "    public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)\n"
                 + "    {\n"
-                + "        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ssZ\"));\n"
+                + "        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ssX\"));\n"
                 + "        setProperty(propertyName, value);\n"
                 + "    }");
 
@@ -334,7 +334,7 @@ public class AbstractGenerator
                 + "    public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)\n"
                 + "    {\n"
                 + "        String value = (propertyValue == null) ? null : Arrays.stream(propertyValue)\n"
-                + "                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ssZ\")))\n"
+                + "                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ssX\")))\n"
                 + "                 .reduce((a,b) -> a + \", \" + b)\n"
                 + "                 .get();\n"
                 + "        setProperty(propertyName, value);\n"

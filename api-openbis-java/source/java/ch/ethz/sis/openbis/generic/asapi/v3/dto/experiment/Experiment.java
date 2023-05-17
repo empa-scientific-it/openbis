@@ -711,7 +711,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)
     {
-        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ"));
+        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX"));
         setProperty(propertyName, value);
     }
 
@@ -830,7 +830,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)
     {
         String value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
-                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
+                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")))
                  .reduce((a,b) -> a + ", " + b)
                  .get();
         setProperty(propertyName, value);
