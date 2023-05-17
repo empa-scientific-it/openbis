@@ -169,7 +169,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 }
             },
             null,
-            "Hide menu",
+            "Toggle menu",
             "collapseMenuBtn"
         )
 
