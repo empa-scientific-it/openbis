@@ -97,8 +97,11 @@ var CKEditorManager = new function() {
 	            // 2. Check that image src
 	            var dataCheckEnd = offset + this.servicePattern.length;
 	            var dataCheck = data.substring(offset, dataCheckEnd);
-	            var startsWith = this.servicePattern === dataCheck;
-	            if(!startsWith) {
+	            // Uploaded imagine using the wizard
+	            var startsWithServicePattern = this.servicePattern === dataCheck;
+	            // Uploaded automatically
+	            var isEmptySrc = '"' === dataCheck.charAt(0);
+	            if(!startsWithServicePattern && !isEmptySrc) {
                     return false;
 	            }
 	        } else {
