@@ -18,6 +18,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	this._parentController = parentController;
 	this._dataSetFormModel = new DataSetFormModel(mode, entity, isMini, dataSetV3);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
+	this._commentsController = null;
 	
 	this.init = function(views) {
 		var _this = this;
@@ -70,10 +71,10 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 	}
 	
 	this._addCommentsWidget = function($container) {
-		var commentsController = new CommentsController(this._dataSetFormModel.dataSetV3, this._dataSetFormModel.mode, this._dataSetFormModel);
+		this._commentsController  = new CommentsController(this._dataSetFormModel.dataSetV3, this._dataSetFormModel.mode, this._dataSetFormModel);
 		if(this._dataSetFormModel.mode !== FormMode.VIEW || 
-			this._dataSetFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
-			commentsController.init($container);
+			this._dataSetFormModel.mode === FormMode.VIEW && !this._commentsController.isEmpty()) {
+			this._commentsController.init($container);
 			return true;
 		} else {
 			return false;
@@ -154,6 +155,9 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		// Metadata Submit and Creation (Step 2)
 		//
 		var metadata = this._dataSetFormModel.dataSetV3 ? this._dataSetFormModel.dataSetV3.properties : {};
+        if(this._commentsController) {
+			metadata = Object.assign({}, metadata, this._commentsController._commentsModel._getProperties());
+		}
 
 		var isZipDirectoryUpload = profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
 		if(isZipDirectoryUpload === null) {
