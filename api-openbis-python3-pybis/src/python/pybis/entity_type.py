@@ -186,7 +186,10 @@ class EntityType:
         # assign plugin
         if plugin is not None:
             plugin_obj = self.openbis.get_plugin(plugin)
-            new_assignment["plugin"] = plugin_obj.permId
+            new_assignment["pluginId"] = {
+                "@type": 'as.dto.plugin.id.PluginPermId',
+                "permId": plugin_obj.permId
+            }
 
         request = self._get_request_for_pa(new_assignment, "Add")
         try:
