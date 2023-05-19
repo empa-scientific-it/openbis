@@ -835,6 +835,13 @@ var FormUtil = new function() {
 			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
 			    isLink = true;
 			}
+		} else if (propertyType.dataType === "INTEGER" || propertyType.dataType === "REAL") {
+		    var numberFormat = new Intl.NumberFormat('en-US', { notation : "standard",
+		                                                        minimumSignificantDigits :  "1",
+		                                                        maximumSignificantDigits : "21",
+		                                                        minimumFractionDigits : "0",
+		                                                        maximumFractionDigits : "20" });
+		    propertyValue = numberFormat.format(propertyValue);
 		}
         return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel, $info);
 	}
