@@ -13,14 +13,9 @@
 #   limitations under the License.
 #
 from tabulate import tabulate
-from texttable import Texttable
+
 from pybis.utils import (
     check_datatype,
-    split_identifier,
-    format_timestamp,
-    is_identifier,
-    is_permid,
-    nvl,
 )
 
 
@@ -147,7 +142,7 @@ class PropertyHolder:
                 raise ValueError(
                     f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
                 )
-        elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR"):
+        elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
             if not check_datatype(data_type, value):
                 raise ValueError(f"Value must be of type {data_type}")
         self.__dict__[name] = value

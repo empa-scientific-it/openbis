@@ -12,29 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from tabulate import tabulate
-from texttable import Texttable
 from pandas import DataFrame
-from .openbis_object import OpenBisObject
-from .things import Things
-from .utils import (
-    check_datatype,
-    split_identifier,
-    format_timestamp,
-    is_identifier,
-    is_permid,
-    nvl,
-    extract_permid,
-    extract_code,
-    extract_name,
-    VERBOSE,
-)
+
 from .definitions import (
     get_method_for_entity,
     get_type_for_entity,
     get_definition_for_entity,
 )
+from .openbis_object import OpenBisObject
 from .semantic_annotation import SemanticAnnotation
+from .things import Things
+from .utils import (
+    format_timestamp,
+    extract_code,
+    extract_name,
+    VERBOSE,
+)
 
 
 class EntityType:
@@ -193,7 +186,7 @@ class EntityType:
         # assign plugin
         if plugin is not None:
             plugin_obj = self.openbis.get_plugin(plugin)
-            new_assignment["plugin"] = plugin_obj.name
+            new_assignment["plugin"] = plugin_obj.permId
 
         request = self._get_request_for_pa(new_assignment, "Add")
         try:
@@ -229,11 +222,11 @@ class EntityType:
         }
         request = self._get_request_for_pa(items, "Remove", force)
         resp = self.openbis._post_request(self.openbis.as_v3, request)
-        if not resp and VERBOSE:
+        if not resp:
             new_data = self._get_method(self.permId, only_data=True)
             self._set_entity_data(new_data)
-
-            print(f"Property {property_type} revoked from {self.permId}")
+            if VERBOSE:
+                print(f"Property {property_type} revoked from {self.permId}")
 
     def _get_request_for_pa(self, items, item_action, force=False):
 

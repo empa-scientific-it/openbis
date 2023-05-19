@@ -90,8 +90,11 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
         self.a(data)
         self.__dict__["data"] = data
 
-        # put the properties in the self.p namespace (without checking them)
+        # put the properties in the self.p namespace
         for key, value in data["properties"].items():
+            data_type = self.p._property_names[key.lower()]['dataType']
+            if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                value = self.formatter.to_array(data_type, value)
             self.p.__dict__[key.lower()] = value
 
     def __dir__(self):

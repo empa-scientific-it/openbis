@@ -167,6 +167,11 @@ def openbis_definitions(entity):
                 "MATERIAL",
                 "HYPERLINK",
                 "XML",
+                "ARRAY_INTEGER",
+                "ARRAY_REAL",
+                "ARRAY_STRING",
+                "ARRAY_TIMESTAMP",
+                "JSON"
             ],
             "identifier": "typeId",
         },

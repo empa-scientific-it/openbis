@@ -12,9 +12,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from datetime import datetime
-from pathlib import Path
 import re
+from datetime import datetime
 
 # display messages when in a interactive context (IPython or Jupyter)
 try:
@@ -128,6 +127,8 @@ def check_datatype(type_name, value):
         return isinstance(value, bool)
     if type_name == "VARCHAR":
         return isinstance(value, str)
+    if type_name is not None and type_name.startswith("ARRAY"):
+        return isinstance(value, list)
     return True
 
 

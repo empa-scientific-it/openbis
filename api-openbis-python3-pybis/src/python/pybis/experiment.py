@@ -12,11 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from .property import PropertyHolder
-from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
-from .definitions import openbis_definitions
-from .utils import VERBOSE
 
 
 class Experiment(
@@ -30,8 +26,11 @@ class Experiment(
         self.a(data)
         self.__dict__["data"] = data
 
-        # put the properties in the self.p namespace (without checking them)
+        # put the properties in the self.p namespace
         for key, value in data["properties"].items():
+            data_type = self.p._property_names[key.lower()]['dataType']
+            if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                value = self.formatter.to_array(data_type, value)
             self.p.__dict__[key.lower()] = value
 
     def __str__(self):

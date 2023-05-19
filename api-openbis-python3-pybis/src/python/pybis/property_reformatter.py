@@ -12,6 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import re
 from datetime import datetime
 
 import pandas as pd
@@ -44,9 +45,15 @@ class PropertyReformatter:
             raise ValueError('properties can not be None!')
 
         for key, value in properties.items():
+            if value is None:
+                continue
             property_type = self.openbis.get_property_type(key)
             if property_type.dataType == 'TIMESTAMP':
                 properties[key] = self._format_timestamp(value)
+            elif property_type.dataType == 'ARRAY_TIMESTAMP':
+                properties[key] = ",".join([self._format_timestamp(x) for x in value])
+            elif property_type.dataType.startswith('ARRAY'):
+                properties[key] = ",".join(map(str, value))
                 
         return properties
 
@@ -59,4 +66,18 @@ class PropertyReformatter:
         result = timestamp.strftime(PropertyReformatter.LONG_DATETIME_FORMAT)
         print(
             f'WARNING: "{value}" is not of any OpenBis supported datetime formats. Reformatting to "{result}"')
+        return result
+
+    def to_array(self, data_type, prop_value):
+        if prop_value is None or prop_value == "":
+            return []
+        result = []
+        if data_type == "ARRAY_INTEGER":
+            result = [int(x.strip()) for x in prop_value.split(',')]
+        elif data_type == "ARRAY_REAL":
+            result = [float(x.strip()) for x in prop_value.split(',')]
+        elif data_type == "ARRAY_STRING":
+            result = [x.strip() for x in re.split(r"(?<!\\),", prop_value)]
+        elif data_type == "ARRAY_TIMESTAMP":
+            result = [x.strip() for x in prop_value.split(',')]
         return result

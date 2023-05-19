@@ -1292,7 +1292,6 @@ class Openbis:
         if resp.ok:
             resp = resp.json()
             if "error" in resp:
-                # print(full_url)
                 print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
@@ -1300,7 +1299,8 @@ class Openbis:
             else:
                 raise ValueError("request did not return either result nor error")
         else:
-            raise ValueError("general error while performing post request")
+            raise ValueError(
+                f"general error while performing post request. {resp.status_code}:{resp.reason}")
 
     def logout(self):
         """Log out of openBIS. After logout, the session token is no longer valid."""
