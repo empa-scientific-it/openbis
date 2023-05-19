@@ -132,9 +132,12 @@ def _removeInventorySpace(context, settingsSamples, code):
     for settingsSample in settingsSamples:
         settings = settingsSample.getProperty("$ELN_SETTINGS")
         if settings is not None:
+            removed = False
             settings = json.loads(settings)
-            removed = _removeFromList(settings["inventorySpaces"], code)
-            removed = removed or _removeFromList(settings["inventorySpacesReadOnly"], code)
+            if "inventorySpaces" in settings:
+                removed = _removeFromList(settings["inventorySpaces"], code)
+            if "inventorySpacesReadOnly" in settings:
+                removed = removed or _removeFromList(settings["inventorySpacesReadOnly"], code)
             if removed:
                 settingsUpdated = True
                 _updateSettings(context, settingsSample, settings)
