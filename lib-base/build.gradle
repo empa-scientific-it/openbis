@@ -1,12 +1,10 @@
-apply from: './javaproject.gradle'
-
-group='sis'
+apply from: '../build/javaproject.gradle'
 
 dependencies {
-    compile 'apache:commons-io:+',
-            'apache:commons-lang3:+',
-            'testng:testng:+',
-            'rinn:restrictions:+'
+    api 'apache:commons-io:2.6',
+            'apache:commons-lang3:3.11',
+            'testng:testng:6.8-CISD',
+            'rinn:restrictions:1.0.2'
 } 
 
 tasks.withType(Test) {
@@ -40,31 +38,7 @@ sourcesJar {
     archiveName "${project.group}-base-${version}-sources.jar"
 }
 
-task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
-    archiveName "${project.group}-base-${version}-tests.jar"
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from files(sourceSets.test.output.classesDir)
-    from files("libs")
- 
-    from('targets/dist') {
-        include 'BUILD*INFO'
-    }    
-
-    from {configurations.testRuntime.collect {zipTree(it)}}
- 
-    manifest {
-        attributes 'Main-Class': 'ch.systemsx.cisd.base.AllTests'
-    }
-}
-
-task javadocZip(type: Jar, dependsOn: javadoc) {
-    archiveName "${project.group}-base-${version}-javadoc.jar"
-    baseName "${project.group}-base-javadoc"
-    from javadoc.destinationDir
-}
-
-task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip, standaloneTestJar]) {
+task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadoc, testJar]) {
     def ver = project.ext.versionNumber.startsWith('SNAPSHOT') ? "${version}" : ""
     def myVersion = project.ext.versionNumber.startsWith('SNAPSHOT') ? "${project.ext.versionNumber}-${project.ext.revisionNumber}" : project.ext.versionNumber
     archiveName "${project.group}-base-${myVersion}.zip"
@@ -76,19 +50,19 @@ task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip, standal
         into "${project.group}-base/doc"
     }
 
-    from (jar.archivePath) {
+    from (jar) {
         into "${project.group}-base/lib"
     }
     
-    from (sourcesJar.archivePath) {
+    from (sourcesJar) {
         into "${project.group}-base/src"
     }
     
-    from (standaloneTestJar.archivePath) {
+    from (testJar) {
         into "${project.group}-base/lib"
     }
     
-    from (javadocZip.archivePath) {
+    from (javadoc) {
         into "${project.group}-base/doc"
     }
 }
