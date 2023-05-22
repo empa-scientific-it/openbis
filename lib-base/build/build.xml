@@ -1,0 +1,163 @@
+<project name="base" default="dist" basedir="..">
+	<target name="clean">
+		<delete dir="${dist}" />
+	</target>
+
+	<import file="../../build_resources/ant/build-common.xml" />
+
+	<project-classpath name="ecp" classes="${classes}" />
+	<property name="distfolder" value="sis-base" />
+	<property name="mainfolder" value="base" />
+	<property name="jar.file" value="${dist}/sis-base.jar" />
+	<property name="dist.file" value="${dist}/sis-base" />
+	<property name="jar.test.file" value="${dist}/sis-base-test.jar" />
+	<property name="src.zip.file" value="${dist}/sis-base-src.zip" />
+	<property name="javadoc.zip.file" value="${dist}/sis-base-javadoc.zip" />
+	<property name="original.dist" value="../${ant.project.name}/dist" />
+	<property name="nativesrc" value="libs/native" />
+	<property name="nativeroot" value="${targets}/ant" />
+	<property name="native" value="${nativeroot}/native" />
+
+	<property name="dist.common" value="${dist}/${mainfolder}" />
+	<property name="dist.common.lib" value="${dist.common}/lib" />
+
+
+	<target name="ci" depends="build-common.ci, check-dependencies, dist" />
+
+	<target name="jar" depends="compile">
+		<mkdir dir="${dist.common.lib}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc}">
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
+			</fileset>
+		</copy>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc}">
+				<include name="**/libnativedata.so" />
+				<include name="**/libnativedata.jnilib" />
+				<include name="**/nativedata.dll" />
+			</fileset>
+		</copy>
+		<recursive-jar destfile="${jar.file}">
+			<fileset dir="${classes}">
+				<include name="**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="${nativeroot}">
+				<include name="native/**/*.so" />
+				<include name="native/**/*.jnilib" />
+				<include name="native/**/*.dll" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class"
+				           value="ch.systemsx.cisd.base.BuildAndEnvironmentInfo" />
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
+
+	<target name="jar-test" depends="compile-tests">
+		<mkdir dir="${dist.common.lib}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc}">
+				<include name="**/libunix.so" />
+				<include name="**/libunix.jnilib" />
+			</fileset>
+		</copy>
+		<copy todir="${native}">
+			<fileset dir="${nativesrc}">
+				<include name="**/libnativedata.so" />
+				<include name="**/libnativedata.jnilib" />
+				<include name="**/nativedata.dll" />
+			</fileset>
+		</copy>
+		<recursive-jar destfile="${jar.test.file}">
+			<fileset dir="${classes}">
+				<include name="**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="${nativeroot}">
+				<include name="native/**/*.so" />
+				<include name="native/**/*.jnilib" />
+				<include name="native/**/*.dll" />
+			</fileset>
+			<zipfileset src="${lib}/testng/testng-jdk15.jar" />
+			<zipfileset src="${lib}/commons-lang/commons-lang.jar" />
+			<zipfileset src="${lib}/commons-io/commons-io.jar" />
+			<manifest>
+				<attribute name="Main-Class" value="ch.systemsx.cisd.base.AllTests" />
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
+
+	<target name="src-zip">
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<mkdir dir="${classes}" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<jar destfile="${src.zip.file}">
+			<fileset dir="${classes}">
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="${sources}">
+				<include name="**/*.java" />
+			</fileset>
+			<fileset dir="${sources.test}">
+				<include name="ch/systemsx/cisd/base/tests/**/*.java" />
+			</fileset>
+			<manifest>
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="doc">
+		<delete dir="targets/doc" />
+		<javadoc sourcepath="source/java"
+		         packagenames="ch.systemsx.cisd.base.*"
+		         classpath="../libraries/commons-lang/commons-lang.jar:../libraries/commons-io/commons-io.jar:../libraries/testng/testng-jdk15.jar:../libraries/restrictionchecker/restrictions.jar"
+		         destdir="targets/doc"
+		         access="public" />
+	</target>
+
+	<target name="dist" depends="clean, jar, jar-test, src-zip, doc">
+		<zip destfile="${javadoc.zip.file}" basedir="${targets}" includes="doc/**" />
+		<delete dir="${dist}/${mainfolder}" />
+		<delete dir="${dist}/${distfolder}" />
+		<move file="${jar.file}" todir="${dist}/${distfolder}/lib" />
+		<move file="${jar.test.file}" todir="${dist}/${distfolder}/lib" />
+		<move file="${src.zip.file}" todir="${dist}/${distfolder}/src" />
+		<move file="${javadoc.zip.file}" todir="${dist}/${distfolder}/doc" />
+		<copy todir="${dist}/${distfolder}/doc">
+			<fileset dir="doc" includes="**" />
+		</copy>
+	  <copy todir="${dist}/${distfolder}">
+	    <fileset dir="${original.dist}"/>
+	  </copy>
+		<zip destfile="${dist.file}-${version.number}-r${revision.number}.zip"
+		     basedir="${dist}"
+		     includes="${distfolder}/**" />
+		<delete dir="${dist}/${distfolder}" />
+	</target>
+
+	<!--
+	  // Runs the test suite 'tests.xml'.
+	  -->
+	<target name="run-tests" description="Runs the test suite 'tests.xml'.">
+		<antcall target="build-common.run-tests">
+			<param name="test.suite" value="tests.xml" />
+		</antcall>
+	</target>
+
+</project>

@@ -1,0 +1,43 @@
+Tagged Array Definition:
+
+All indices and lengths are given in bytes.
+
+ID: number_type
+START INDEX: 0
+LENGTH: 1
+DESCRIPTION:
+    'F' : IEEE floating point numbers
+    'I' : Integer numbers
+ 
+ID: endiness
+START INDEX: 1
+LENGTH: 1
+DESCRIPTION:
+    'L' : Little Endian
+    'B' : Big Endian
+
+ID: element_size
+START INDEX: 2
+LENGTH: 1
+DESCRIPTION:
+    Size in Bytes (e.g. 4 for a 32bit number, or 8 for a 64bit number)
+    
+ID: rank
+START INDEX: 3
+LENGTH: 1
+DESCRIPTION:
+    Rank of the array (e.g. 2 for a matrix or 3 for a cube)
+
+ID: dimensions
+START INDEX: 4
+LENGTH: 4 * rank
+DESCRIPTION:
+    Dimensions of the array along each axis; each entry is a 32bit (4 byte) integer number in the specified endiness
+
+ID: data
+START INDEX: 4 + 4 * rank
+LENGTH: prod(dimensions)
+DESCRIPTION:
+    Number array with prod(dimensions) elements in C row-major order; 
+    each element is a number of the specified number_type, endiness and element_size
+    

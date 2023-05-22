@@ -1,0 +1,241 @@
+/****************************************************************************
+ * NCSA HDF                                                                 *
+ * National Computational Science Alliance                                  *
+ * University of Illinois at Urbana-Champaign                               *
+ * 605 E. Springfield, Champaign IL 61820                                   *
+ *                                                                          *
+ * Center for Information Sciences and Databases, ETH Zurich, Switzerland   *
+ *                                                                          *
+ * For conditions of distribution and use, see the accompanying             *
+ * COPYING file.                                                            *
+ *                                                                          *
+ ****************************************************************************/
+
+/*
+ *  This module contains the implementation of all the native methods
+ *  used for number conversion.  This is represented by the Java
+ *  class HDFNativeData.
+ *
+ *  These routines convert one dimensional arrays of bytes into
+ *  one-D arrays of other types (int, float, etc) and vice versa.
+ *
+ *  These routines are called from the Java parts of the Java-C
+ *  interface.
+ *
+ *  ***Important notes:
+ *
+ *     1.  These routines are designed to be portable--they use the
+ *         C compiler to do the required native data manipulation.
+ *     2.  These routines copy the data at least once -- a serious
+ *         but unavoidable performance hit.
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <jni.h>
+
+extern jboolean h5JNIFatalError( JNIEnv *env, char *functName);
+extern jboolean h5nullArgument( JNIEnv *env, char *functName);
+extern jboolean h5badArgument( JNIEnv *env, char *functName);
+extern jboolean h5indexOutOfBounds( JNIEnv *env, char *functName);
+
+/* Change byte order for data type of length 2. */
+#define CHANGE_BYTE_ORDER_2(ARRAY) {jbyte _tmp; _tmp=ARRAY[0]; ARRAY[0]=ARRAY[1]; ARRAY[1]=_tmp;}
+/* Change byte order for data type of length 4. */
+#define CHANGE_BYTE_ORDER_4(ARRAY) {jbyte _tmp; _tmp=ARRAY[0]; ARRAY[0]=ARRAY[3]; ARRAY[3]=_tmp; _tmp=ARRAY[1]; ARRAY[1]=ARRAY[2]; ARRAY[2]=_tmp;}
+/* Change byte order for data type of length 8. */
+#define CHANGE_BYTE_ORDER_8(ARRAY) {jbyte _tmp; _tmp=ARRAY[0]; ARRAY[0]=ARRAY[7]; ARRAY[7]=_tmp; _tmp=ARRAY[1]; ARRAY[1]=ARRAY[6]; ARRAY[6]=_tmp; _tmp=ARRAY[2]; ARRAY[2]=ARRAY[5]; ARRAY[5]=_tmp; _tmp=ARRAY[3]; ARRAY[3]=ARRAY[4]; ARRAY[4]=_tmp;}
+
+#define INDATA_IS_NULL_ERR_TB METHODNAMETB ": inData is NULL"
+#define OUTDATA_IS_NULL_ERR_TB METHODNAMETB ": outData is NULL"
+#define OOB_IN_ERR_TB METHODNAMETB ": inStart or len is out of bounds"
+#define OOB_OUT_ERR_TB METHODNAMETB ": outStart or len is out of bounds"
+#define PINNING_OUT_ERR_TB METHODNAMETB ": pinning outArray failed"
+
+#define INDATA_IS_NULL_ERR_BT METHODNAMEBT ": inData is NULL"
+#define OUTDATA_IS_NULL_ERR_BT METHODNAMEBT ": outData is NULL"
+#define OOB_IN_ERR_BT METHODNAMEBT ": inStart or len is out of bounds"
+#define OOB_OUT_ERR_BT METHODNAMEBT ": outStart or len is out of bounds"
+#define PINNING_OUT_ERR_BT METHODNAMEBT ": pinning outArray failed"
+
+/*
+ *   public static native void copy<TARGET_CAPT>oByte(<TARGET>[] inData, int inStart, 
+ *                                byte[] outData, int outStart, int len, int byteOrder);
+ */
+JNIEXPORT void JNICALL FUNCTIONNAMETB
+(JNIEnv *env,
+  jclass clss,
+  TARGET_ARRAY inData, /* IN: array of TARGET */
+  jint inStart,
+  jbyteArray outData, /* OUT: array of byte */
+  jint outStart,
+  jint len,
+  jint byteOrder
+)  
+{
+    jsize inSize, outSize;
+    jint lenInBytes;
+    jbyte *outArray;
+    jboolean isCopy;
+
+    if (inData == NULL) {
+        h5nullArgument(env, INDATA_IS_NULL_ERR_BT);
+        return;
+    }
+
+    if (outData == NULL) {
+        h5nullArgument(env, OUTDATA_IS_NULL_ERR_TB);
+        return;
+    }
+
+    lenInBytes = len * sizeof(TARGET);
+
+#ifdef __cplusplus
+    inSize = env->GetArrayLength(inData);
+#else
+    inSize = (*env)->GetArrayLength(env, inData);
+#endif
+    if ((inStart < 0) || (inStart + len > inSize)) {
+        h5indexOutOfBounds(env, OOB_IN_ERR_TB);
+        return;
+    }
+
+#ifdef __cplusplus
+    outSize = env->GetArrayLength(outData);
+#else
+    outSize = (*env)->GetArrayLength(env, outData);
+#endif
+    if ((outStart < 0) || (outStart + lenInBytes > outSize)) {
+        h5indexOutOfBounds(env, OOB_OUT_ERR_TB);
+        return;
+    }
+
+#ifdef __cplusplus
+    outArray = env->GetPrimitiveArrayCritical(outData, &isCopy);
+#else
+    outArray = (*env)->GetPrimitiveArrayCritical(env, outData, &isCopy);
+#endif
+    if (outArray == NULL) {
+        h5JNIFatalError(env, PINNING_OUT_ERR_TB);
+        return;
+    }
+
+#ifdef __cplusplus
+    env->COPY_FUNC(inData, inStart, len, (TARGET*) (outArray + outStart));
+#else
+    (*env)->COPY_FUNC(env, inData, inStart, len, (TARGET*) (outArray + outStart));
+#endif
+
+    if (byteOrder > 0 && byteOrder != MACHINE_BYTE_ORDER)
+    {
+        jbyte *buf = outArray + outStart;
+        int nelmts;
+        for(nelmts = 0; nelmts < len; ++nelmts)
+        {
+            CHANGE_BYTE_ORDER(buf);
+            buf += sizeof(TARGET);
+        } 
+    }
+
+#ifdef __cplusplus
+    env->ReleasePrimitiveArrayCritical(outData, outArray, 0);
+#else
+    (*env)->ReleasePrimitiveArrayCritical(env, outData,outArray, 0);
+#endif
+
+    return;
+}
+
+/*
+ *   public static native void copyByteTo<TARGET_CAP>(byte[] inData, int inStart, 
+ *                                TARGET[] outData, int outStart, int len, int byteOrder);
+ */
+JNIEXPORT void JNICALL FUNCTIONNAMEBT
+(JNIEnv *env,
+  jclass clss,
+  jbyteArray inData, /* IN: array of byte */
+  jint inStart,
+  TARGET_ARRAY outData, /* OUT: array of TAGET */
+  jint outStart,
+  jint len,
+  jint byteOrder
+  )  
+{
+    jsize inSize, outSize;
+    jint lenInBytes;
+    TARGET *outArray;
+    jboolean isCopy;
+
+    if (inData == NULL) {
+        h5nullArgument(env, INDATA_IS_NULL_ERR_BT);
+        return;
+    }
+
+    if (outData == NULL) {
+        h5nullArgument(env, OUTDATA_IS_NULL_ERR_BT);
+        return;
+    }
+
+    lenInBytes = len * sizeof(TARGET);
+
+#ifdef __cplusplus
+    inSize = env->GetArrayLength(inData);
+#else
+    inSize = (*env)->GetArrayLength(env, inData);
+#endif
+    if ((inStart < 0) || (inStart + lenInBytes > inSize)) {
+        h5indexOutOfBounds(env, OOB_IN_ERR_BT);
+        return;
+    }
+
+#ifdef __cplusplus
+    outSize = env->GetArrayLength(outData);
+#else
+    outSize = (*env)->GetArrayLength(env, outData);
+#endif
+    if ((outStart < 0) || (outStart + len > outSize)) {
+        h5indexOutOfBounds(env, OOB_OUT_ERR_BT);
+        return;
+    }
+
+#ifdef __cplusplus
+    outArray = env->GetPrimitiveArrayCritical(outData, &isCopy);
+#else
+    outArray = (*env)->GetPrimitiveArrayCritical(env, outData, &isCopy);
+#endif
+    if (outArray == NULL) {
+        h5JNIFatalError(env, PINNING_OUT_ERR_BT);
+        return;
+    }
+
+#ifdef __cplusplus
+    env->GetByteArrayRegion(inData, inStart, lenInBytes, outArray + outStart);
+#else
+    (*env)->GetByteArrayRegion(env, inData, inStart, lenInBytes, (jbyte*) (outArray + outStart));
+#endif
+
+    if (byteOrder > 0 && byteOrder != MACHINE_BYTE_ORDER)
+    {
+        jbyte *buf = (jbyte*) outArray + outStart;
+        int nelmts;
+        for(nelmts = 0; nelmts < len; ++nelmts)
+        {
+            CHANGE_BYTE_ORDER(buf);
+            buf += sizeof(TARGET);
+        } 
+    }
+
+#ifdef __cplusplus
+    env->ReleasePrimitiveArrayCritical(outData, outArray, 0);
+#else
+    (*env)->ReleasePrimitiveArrayCritical(env, outData, outArray, 0);
+#endif
+
+    return;
+}
+
+#ifdef __cplusplus
+}
+#endif

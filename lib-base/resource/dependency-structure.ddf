@@ -1,0 +1,6 @@
+{package} = ch.systemsx.cisd.base
+
+layer exceptions = ${package}.exceptions
+layer rest = ${package}.mdarray ${package}.namedthread ${package}.unix ${package}.utilities
+
+check layeringOf exceptions rest

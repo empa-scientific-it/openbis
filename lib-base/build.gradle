@@ -1,0 +1,116 @@
+apply from: './javaproject.gradle'
+
+group='sis'
+
+dependencies {
+    compile 'apache:commons-io:+',
+            'apache:commons-lang3:+',
+            'testng:testng:+',
+            'rinn:restrictions:+'
+} 
+
+tasks.withType(Test) {
+    systemProperty "java.library.path", "libs/native/unix/amd64-Linux:libs/native/nativedata/amd64-Linux:libs/native/unix/x86_64-Mac OS X:libs/native/nativedata/x86_64-Mac OS X"
+}
+
+
+sourceSets {
+  test {
+    resources {
+      srcDir "libs"
+      include "**"
+    }
+  }
+}
+
+jar {
+    archiveName "${project.group}-base-${version}.jar"
+    manifest {
+        attributes 'Main-Class': 'ch.systemsx.cisd.base.BuildAndEnvironmentInfo'
+    }
+
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
+
+    from fileTree("libs/")
+}
+
+sourcesJar {
+    archiveName "${project.group}-base-${version}-sources.jar"
+}
+
+task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
+    archiveName "${project.group}-base-${version}-tests.jar"
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from files(sourceSets.test.output.classesDir)
+    from files("libs")
+ 
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
+
+    from {configurations.testRuntime.collect {zipTree(it)}}
+ 
+    manifest {
+        attributes 'Main-Class': 'ch.systemsx.cisd.base.AllTests'
+    }
+}
+
+task javadocZip(type: Jar, dependsOn: javadoc) {
+    archiveName "${project.group}-base-${version}-javadoc.jar"
+    baseName "${project.group}-base-javadoc"
+    from javadoc.destinationDir
+}
+
+task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip, standaloneTestJar]) {
+    def ver = project.ext.versionNumber.startsWith('SNAPSHOT') ? "${version}" : ""
+    def myVersion = project.ext.versionNumber.startsWith('SNAPSHOT') ? "${project.ext.versionNumber}-${project.ext.revisionNumber}" : project.ext.versionNumber
+    archiveName "${project.group}-base-${myVersion}.zip"
+    from ('dist') {
+        into "${project.group}-base"
+    }
+
+    from ('doc') {
+        into "${project.group}-base/doc"
+    }
+
+    from (jar.archivePath) {
+        into "${project.group}-base/lib"
+    }
+    
+    from (sourcesJar.archivePath) {
+        into "${project.group}-base/src"
+    }
+    
+    from (standaloneTestJar.archivePath) {
+        into "${project.group}-base/lib"
+    }
+    
+    from (javadocZip.archivePath) {
+        into "${project.group}-base/doc"
+    }
+}
+
+build.dependsOn distributionZip
+
+publishing {
+    publications {
+        ivy(IvyPublication) {
+            module "${project.group}-base"
+            revision project.revisionForPublication
+            from components.java
+            artifact(sourcesJar) {
+                type = 'source'
+            }
+            descriptor {
+                withXml {
+                    for (org in ['testng', 'rinn']) {
+                      asNode().dependencies.dependency.find { it.@org == org }.replaceNode {}
+                    }
+                }
+            }
+        }
+  }
+}
