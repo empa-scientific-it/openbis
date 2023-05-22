@@ -264,6 +264,12 @@ dependencies {
     ecj "eclipse:ecj:4.6.1"
 }
 
+if(System.getProperty("java.version").startsWith("1.8.")) {
+    tasks.withType(JavaCompile) {
+        options.headerOutputDirectory.convention(null)
+    }
+}
+
 compileJava {
     options.encoding = 'utf-8'
     options.fork = true

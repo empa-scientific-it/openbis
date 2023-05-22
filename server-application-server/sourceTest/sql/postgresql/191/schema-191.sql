@@ -1969,7 +1969,21 @@ CREATE TABLE material_properties (
     pers_id_author tech_id NOT NULL,
     tsvector_document tsvector NOT NULL,
     is_unique boolean_char DEFAULT false NOT NULL,
-    CONSTRAINT mapr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL) AND (mate_prop_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NOT NULL))))
+    integer_array_value long_value[],
+    real_array_value double_value[],
+    string_array_value text_value[],
+    timestamp_array_value time_stamp[],
+    json_value jsonb,
+    CONSTRAINT mapr_ck CHECK ((
+            ((value IS NOT NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NOT NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NOT NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NOT NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NOT NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NOT NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NOT NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (cvte_id IS NULL) AND (mate_prop_id IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NOT NULL))
+        ))
 );
 CREATE TABLE material_properties_history (
     id tech_id NOT NULL,
@@ -1981,7 +1995,21 @@ CREATE TABLE material_properties_history (
     valid_from_timestamp time_stamp NOT NULL,
     vocabulary_term identifier,
     material identifier,
-    CONSTRAINT maprh_ck CHECK ((((value IS NOT NULL) AND (vocabulary_term IS NULL) AND (material IS NULL)) OR ((value IS NULL) AND (vocabulary_term IS NOT NULL) AND (material IS NULL)) OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NOT NULL))))
+    integer_array_value long_value[],
+    real_array_value double_value[],
+    string_array_value text_value[],
+    timestamp_array_value time_stamp[],
+    json_value jsonb,
+    CONSTRAINT maprh_ck CHECK ((
+            ((value IS NOT NULL) AND (vocabulary_term IS NULL) AND (material IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NOT NULL) AND (material IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NOT NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NULL) AND (integer_array_value IS NOT NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NOT NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NOT NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NOT NULL) AND (json_value IS NULL))
+                OR ((value IS NULL) AND (vocabulary_term IS NULL) AND (material IS NULL) AND (integer_array_value IS NULL) AND (real_array_value IS NULL) AND (string_array_value IS NULL) AND (timestamp_array_value IS NULL) AND (json_value IS NOT NULL))
+        ))
 );
 CREATE SEQUENCE material_property_id_seq
     START WITH 1
