@@ -57,7 +57,7 @@ cd core-plugin-openbis/
 
 ```
 git clone https://sissource.ethz.ch/sispub/openbis.git
-cd core-plugin-openbis/
+cd api-openbis-javascript/
 ./gradlew clean
 ./gradlew bundleOpenbisStaticResources -x test
 ```
