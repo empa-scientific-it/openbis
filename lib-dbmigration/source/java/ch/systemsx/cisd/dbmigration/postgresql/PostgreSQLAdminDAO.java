@@ -152,6 +152,10 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
         try
         {
             String version = getJdbcTemplate().queryForMap("select version()").get("version").toString().split(" ")[1];
+            // Compatibility Fix for versions ended in comma, for example: "PostgreSQL 15.0, compiled by Visual C++ build 1929, 64-bit"
+            if (version.endsWith(",")) {
+                version = version.substring(0, version.length() - 1);
+            }
             operationLog.info("Databaser server version: " + version);
             return version;
         } catch (RuntimeException ex)
