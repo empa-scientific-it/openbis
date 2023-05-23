@@ -2,6 +2,7 @@ import json
 import os
 import time
 
+from java.lang import System
 from java.nio.file import NoSuchFileException
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria
@@ -124,9 +125,6 @@ class Settings(object):
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
 
-settings = None
-settingsExpirationTimestamp = None
-
 acceptor = Acceptor()
 pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
 for pluginFileName in os.listdir(pluginsFolder):
@@ -134,10 +132,11 @@ for pluginFileName in os.listdir(pluginsFolder):
     execfile(file, {"acceptor":acceptor})
 
 def resolve(subPath, context):
-    global settings, settingsExpirationTimestamp
-    if settings is None or time.time() > settingsExpirationTimestamp:
+#    print("%10.3f: (%s) %s %s" % (System.currentTimeMillis()*0.001, context, context.getSessionToken(), context.getCache()))
+    settings = context.getCache().getObject("ELN_SETTINGS")
+    if settings is None:
         settings = getAllSettings(context)
-        settingsExpirationTimestamp = time.time() + 60
+        context.getCache().putObject("ELN_SETTINGS", settings)
 
     acceptor.configure(settings)
     if len(subPath) == 0:
@@ -378,18 +377,38 @@ def addDataSetFileNodesFor(path, dataSets, response, acceptor, context):
         addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
 
 def getContentNodes(permIds, context):
-    ids = []
+    dataSetCodes = []
     paths = []
     for permId in permIds:
         splittedId = permId.split("::")
-        ids.append(DataSetPermId(splittedId[0]))
+        dataSetCodes.append(splittedId[0])
         paths.append(splittedId[1] if len(splittedId) > 1 else None)
 
-    fetchOptions = DataSetFetchOptions()
-    fetchOptions.withDataStore()
-    fetchOptions.withPhysicalData()
-    dataSets = context.getApi().getDataSets(context.getSessionToken(), ids, fetchOptions).values()
+    dataSets = retrieveDataSets(dataSetCodes, context)
     return asContentNodes(dataSets, context, paths)
+
+class DataSetWrapper(PhysicalDataSet):
+    def __init__(self, dataSet):
+        self.dataSet = dataSet
+        self.setCode(dataSet.getCode())
+
+def retrieveDataSets(dataSetCodes, context):
+    dataSets = []
+    notcachedDataSets = []
+    for dataSetCode in dataSetCodes:
+        dataSet = context.getCache().getExternalData(dataSetCode)
+        if dataSet is None:
+            notcachedDataSets.append(DataSetPermId(dataSetCode))
+        else:
+            dataSets.append(dataSet.dataSet)
+    if len(notcachedDataSets) > 0:
+        fetchOptions = DataSetFetchOptions()
+        fetchOptions.withDataStore()
+        fetchOptions.withPhysicalData()
+        dataSets += context.getApi().getDataSets(context.getSessionToken(), notcachedDataSets, fetchOptions).values()
+    for dataSet in dataSets:
+        context.getCache().putExternalData(DataSetWrapper(dataSet))
+    return dataSets
 
 def asContentNodes(dataSets, context, paths=None):
     result = []
@@ -402,13 +421,16 @@ def asContentNodes(dataSets, context, paths=None):
         dataStore.setHostUrl(dataSet.getDataStore().getDownloadUrl())
         kind = dataSet.getKind()
         if kind == DataSetKind.PHYSICAL:
-            physicalData = dataSet.getPhysicalData()
-            physicalDataSet = PhysicalDataSet()
-            physicalDataSet.setCode(dataSetCode)
-            physicalDataSet.setLocation(physicalData.getLocation())
-            physicalDataSet.setDataStore(dataStore)
-            physicalDataSet.setShareId(physicalData.getShareId())
-            content = contentProvider.asContentWithoutModifyingAccessTimestamp(physicalDataSet)
+            content = context.getCache().getContent(dataSetCode)
+            if content is None:
+                physicalData = dataSet.getPhysicalData()
+                physicalDataSet = PhysicalDataSet()
+                physicalDataSet.setCode(dataSetCode)
+                physicalDataSet.setLocation(physicalData.getLocation())
+                physicalDataSet.setDataStore(dataStore)
+                physicalDataSet.setShareId(physicalData.getShareId())
+                content = contentProvider.asContentWithoutModifyingAccessTimestamp(physicalDataSet)
+                context.getCache().putContent(dataSetCode, content)
             contentNode = content.getRootNode() if paths is None or paths[i] is None else content.tryGetNode(paths[i])
             result.append((dataSetCode, contentNode, content))
         else:

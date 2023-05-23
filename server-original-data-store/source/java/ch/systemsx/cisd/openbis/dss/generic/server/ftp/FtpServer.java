@@ -55,13 +55,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -145,7 +145,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
 
     private SshServer sshServer;
 
-    private final Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken = new HashMap<>();
+    private final Map<String, Set<DSSFileSystemView>> fileSystemViewsBySessionToken = new WeakHashMap<>();
 
     public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             FtpUserManager userManager) throws Exception
@@ -357,6 +357,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                 fileSystemViewsBySessionToken.put(sessionToken, views);
             }
             views.add(fileSystemView);
+            operationLog.info(views.size() + " filesystem views");
             return fileSystemView;
         } else
         {

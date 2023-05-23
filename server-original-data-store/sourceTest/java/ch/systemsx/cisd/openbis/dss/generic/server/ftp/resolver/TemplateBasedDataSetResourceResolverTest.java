@@ -180,15 +180,6 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private PhysicalDataSet ds3;
 
-    private ITimeProvider timeProvider = new ITimeProvider()
-        {
-            @Override
-            public long getTimeInMilliseconds()
-            {
-                return 0;
-            }
-        };
-
     @Override
     @BeforeMethod
     public void setUp()
@@ -207,7 +198,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         root.mkdirs();
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
-        Cache cache = new Cache(timeProvider);
+        Cache cache = new Cache();
         // these are the tests for old style resolvers.
         // they are tested in here in a way that doesn't use the path in the Resolver context.
         // in productive code we always create a new context for each request and we have a

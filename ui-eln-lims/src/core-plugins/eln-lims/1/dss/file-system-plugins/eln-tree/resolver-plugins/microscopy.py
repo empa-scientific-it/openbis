@@ -11,6 +11,7 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     for dataSet in dataSets:
         if acceptor.acceptDataSet(dataSet):
             filteredDataSets.append(dataSet)
+#    print("ADD SAMPLE CHILD NODES: %s of %s, sample: %s" % (len(filteredDataSets),len(dataSets),samplePermId))
     script.addDataSetFileNodesFor(path, filteredDataSets, response, acceptor, context)
 
 acceptor.sampleChildrenHandlers["MICROSCOPY_EXPERIMENT"] = addSampleChildNodes
