@@ -1,5 +1,5 @@
 /*
- * Copyright ETH 2023 Zürich, Scientific IT Services
+ * Copyright 2007 - 2018 ETH Zuerich, CISD and SIS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package ch.systemsx.cisd.base.unix;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import com.sun.security.auth.module.UnixSystem;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.UserPrincipal;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Set;
 
-public class Posix
+public final class Posix
 {
+    // Make constructor private to make clear is a utility class
+    private Posix() {
+
+    }
+
+    public static boolean isOperational() {
+        return true;
+    }
+
     // Available on unix systems JDK 11 onwards
-    private static UnixSystem unixSystem = new com.sun.security.auth.module.UnixSystem();
+    private static UnixSystem unixSystem = new UnixSystem();
 
     //
     // User Functions
     //
+
+    public static int getEuid() {
+        try {
+            String processId = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+            String command = "id -u " + processId;
+
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String output = reader.readLine();
+            reader.close();
+
+            if (output != null) {
+                return Integer.parseInt(output);
+            } else {
+                throw new IOExceptionUnchecked("Failed to retrieve user ID.");
+            }
+        } catch (IOException | NumberFormatException ex) {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
 
     public static int getUid()
     {
@@ -43,9 +81,53 @@ public class Posix
         return (int) unixSystem.getGid();
     }
 
+    public static String tryGetUserNameForUid(int uid) throws IOExceptionUnchecked {
+        try
+        {
+            FileSystem fileSystem = FileSystems.getDefault();
+            UserPrincipalLookupService service = fileSystem.getUserPrincipalLookupService();
+            UserPrincipal groupPrincipal = service.lookupPrincipalByName(Integer.toString(uid));
+            return groupPrincipal.getName();
+        } catch (IOException ex) {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public static String tryGetGroupNameForGid(int gid) throws IOExceptionUnchecked {
+        try
+        {
+            FileSystem fileSystem = FileSystems.getDefault();
+            UserPrincipalLookupService service = fileSystem.getUserPrincipalLookupService();
+            GroupPrincipal groupPrincipal = service.lookupPrincipalByGroupName(Integer.toString(gid));
+            return groupPrincipal.getName();
+        } catch (IOException ex) {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
     //
     // File functions
     //
+
+    public static void setOwner(String pathAsString, int uid, int gid) throws IOExceptionUnchecked
+    {
+        try
+        {
+            FileSystem fileSystem = FileSystems.getDefault();
+            UserPrincipalLookupService service = fileSystem.getUserPrincipalLookupService();
+            Path path = Path.of(pathAsString);
+            UserPrincipal user = service.lookupPrincipalByName(Integer.toString(uid));
+            Files.setOwner(path, user);
+            UserPrincipal group = service.lookupPrincipalByGroupName(Integer.toString(gid));
+            Files.setOwner(path, group);
+        } catch (IOException ex) {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    public static boolean isSymbolicLink(String path) {
+        return Files.isSymbolicLink(Path.of(path));
+    }
 
     private static Set<PosixFilePermission> allPermissionsMode = Set.of(PosixFilePermission.OWNER_READ,
             PosixFilePermission.OWNER_WRITE,

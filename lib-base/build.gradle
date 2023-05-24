@@ -22,6 +22,7 @@ sourceSets {
 }
 
 jar {
+    duplicatesStrategy 'include'
     archiveName "${project.group}-base-${version}.jar"
     manifest {
         attributes 'Main-Class': 'ch.systemsx.cisd.base.BuildAndEnvironmentInfo'
