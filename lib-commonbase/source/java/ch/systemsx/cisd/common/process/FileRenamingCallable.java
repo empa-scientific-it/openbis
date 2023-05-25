@@ -16,12 +16,14 @@
 package ch.systemsx.cisd.common.process;
 
 import java.io.File;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
+import ch.systemsx.cisd.common.io.Posix;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -72,16 +74,16 @@ public final class FileRenamingCallable implements Callable<Boolean>
         boolean renamed = sourceFile.renameTo(destinationFile);
         if (renamed == false)
         {
-            if (Unix.isOperational())
+            if (Posix.isOperational())
             {
                 try
                 {
                     // Try to set the permissions to "all can write"
-                    final short permissions =
-                            Unix.getFileInfo(sourceFile.getPath()).getPermissions();
-                    Unix.setAccessMode(sourceFile.getPath(), (short) 0777);
+                    Set<PosixFilePermission> permissions =
+                            Posix.getPermissions(sourceFile.getPath());
+                    Posix.setAccessMode(sourceFile.getPath(), (short) 0777);
                     renamed = sourceFile.renameTo(destinationFile);
-                    Unix.setAccessMode(destinationFile.getPath(), permissions);
+                    Posix.setAccessMode(destinationFile.getPath(), permissions);
                 } catch (IOExceptionUnchecked ex)
                 {
                     operationLog.warn(String.format(

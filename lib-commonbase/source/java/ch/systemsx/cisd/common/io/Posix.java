@@ -36,6 +36,24 @@ public final class Posix
         return true;
     }
 
+    public static Set<PosixFilePermission> getPermissions(String path) throws IOExceptionUnchecked {
+        try
+        {
+            return Files.getPosixFilePermissions(Path.of(path));
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static void setAccessMode(String path, Set<PosixFilePermission> permissions) throws IOExceptionUnchecked {
+        try {
+            Files.setPosixFilePermissions(Path.of(path), permissions);
+        } catch (IOException e) {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
     public static void setAccessMode(String path, short mode) throws IOExceptionUnchecked {
         if (mode != (short) 0777) {
             throw new IOExceptionUnchecked("Failure to set file permissions for '" + path + "', mode 777 is supported.");
