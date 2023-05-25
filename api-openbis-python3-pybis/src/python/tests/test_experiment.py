@@ -108,3 +108,78 @@ def test_experiment_property_in_isoformat_date(space):
     assert len(exp.p()) == 1
     assert exp.p[property_type_code] is not None
 
+
+def create_array_properties(openbis, code_prefix):
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_INTEGER',
+        label='integer array',
+        description='integer array property',
+        dataType='ARRAY_INTEGER',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_REAL',
+        label='real array',
+        description='real array property',
+        dataType='ARRAY_REAL',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_STRING',
+        label='string array',
+        description='string array property',
+        dataType='ARRAY_STRING',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_TIMESTAMP',
+        label='timestamp array',
+        description='timestamp array property',
+        dataType='ARRAY_TIMESTAMP',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_JSON',
+        label='json',
+        description='json type property',
+        dataType='JSON',
+    )
+    pt.save()
+
+
+def test_experiment_array_properties(space):
+
+    create_array_properties(space.openbis, "EXPERIMENT")
+
+    collection_code = 'TEST_ARRAY_COLLECTION'
+    experiment_type = space.openbis.new_experiment_type(
+        collection_code,
+        description=None,
+        validationPlugin=None,
+    )
+    experiment_type.save()
+    experiment_type.assign_property('EXPERIMENT_ARRAY_INTEGER')
+    experiment_type.assign_property('EXPERIMENT_ARRAY_REAL')
+    experiment_type.assign_property('EXPERIMENT_ARRAY_STRING')
+    experiment_type.assign_property('EXPERIMENT_ARRAY_TIMESTAMP')
+    experiment_type.assign_property('EXPERIMENT_JSON')
+
+    exp = space.openbis.new_experiment(
+        code = 'EXP_PYTHON',
+        type = collection_code,
+        project = 'DEFAULT',
+        props = { 'experiment_array_integer': [1, 2, 3]})
+    exp.save()
+
+    exp.props['experiment_array_integer'] = [3, 2, 1]
+    exp.props['experiment_array_real'] = [3.1, 2.2, 1.3]
+    exp.props['experiment_array_string'] = ["aa", "bb", "cc"]
+    exp.props['experiment_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
+                                               '2023-05-18 11:17:05']
+    exp.props['experiment_json'] = "{ \"key\": [1, 1, 1] }"
+    exp.save()
+    

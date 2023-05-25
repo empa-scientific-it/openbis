@@ -19,6 +19,7 @@ import time
 import uuid
 
 import pytest
+
 from pybis.things import Things
 
 
@@ -257,3 +258,84 @@ def test_dataset_property_in_isoformat_date(space):
 
     assert len(dataset.p()) == 1
     assert dataset.p[property_type_code] is not None
+
+
+def create_array_properties(openbis, code_prefix):
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_INTEGER',
+        label='integer array',
+        description='integer array property',
+        dataType='ARRAY_INTEGER',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_REAL',
+        label='real array',
+        description='real array property',
+        dataType='ARRAY_REAL',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_STRING',
+        label='string array',
+        description='string array property',
+        dataType='ARRAY_STRING',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_ARRAY_TIMESTAMP',
+        label='timestamp array',
+        description='timestamp array property',
+        dataType='ARRAY_TIMESTAMP',
+    )
+    pt.save()
+
+    pt = openbis.new_property_type(
+        code=code_prefix + '_JSON',
+        label='json',
+        description='json type property',
+        dataType='JSON',
+    )
+    pt.save()
+
+
+def test_dataset_array_properties(space):
+
+    create_array_properties(space.openbis, "DATASET")
+
+    dataset_code = 'TEST_ARRAY_DATASET'
+    dataset_type = space.openbis.new_dataset_type(
+         code = dataset_code
+    )
+    dataset_type.save()
+
+    dataset_type.assign_property('$NAME')
+    dataset_type.assign_property('DATASET_ARRAY_INTEGER')
+    dataset_type.assign_property('DATASET_ARRAY_REAL')
+    dataset_type.assign_property('DATASET_ARRAY_STRING')
+    dataset_type.assign_property('DATASET_ARRAY_TIMESTAMP')
+    dataset_type.assign_property('DATASET_JSON')
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    dataset = space.openbis.new_dataset(
+        type = dataset_code,
+        sample="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props = { 'dataset_array_integer': [1, 2, 3]}
+    )
+    dataset.save()
+
+    dataset.props['dataset_array_integer'] = [3, 2, 1]
+    dataset.props['dataset_array_real'] = [3.1, 2.2, 1.3]
+    dataset.props['dataset_array_string'] = ["aa", "bb", "cc"]
+    dataset.props['dataset_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
+                                               '2023-05-18 11:17:05']
+    dataset.props['dataset_json'] = "{ \"key\": [1, 1, 1] }"
+    dataset.save()
+
+    assert dataset.props['sample_array_integer'] == [3, 2, 1]
+    assert dataset.props['sample_array_real'] == [3.1, 2.2, 1.3]
+
