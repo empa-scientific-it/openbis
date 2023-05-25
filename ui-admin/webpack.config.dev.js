@@ -47,7 +47,13 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
-        type: 'asset',
+        resourceQuery: { not: [/url/] },
+        type: 'asset'
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
+        resourceQuery: /url/,
+        type: 'asset/resource'
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,

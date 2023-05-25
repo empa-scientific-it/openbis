@@ -3,7 +3,11 @@
   <head>
     <title>openBIS Admin</title>
     <meta charset="utf-8" />
-    <link rel="shortcut icon" href="<%= require('@src/img/favicon.ico') %>" />
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= require('@src/img/apple-touch-icon.png') %>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<%= require('@src/img/favicon-32x32.png?url') %>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<%= require('@src/img/favicon-16x16.png?url') %>">
+    <link rel="manifest" href="<%= require('@src/js/webmanifest.js').default %>">
+
     <style>
       html {
         font-size: 16px;
