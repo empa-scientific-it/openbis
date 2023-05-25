@@ -1,6 +1,7 @@
 /* eslint-disable */
 const Webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const path = require('path')
 
 module.exports = {
@@ -26,13 +27,7 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
-        resourceQuery: { not: [/url/] },
         type: 'asset'
-      },
-      {
-        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
-        resourceQuery: /url/,
-        type: 'asset/resource'
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
@@ -67,6 +62,9 @@ module.exports = {
     }),
     new Webpack.ProvidePlugin({
       process: 'process/browser'
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: 'src/resources' }]
     })
   ]
 }

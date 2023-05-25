@@ -18,7 +18,7 @@ import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
-import Logo from '@src/img/openbis-logo-transparent.png'
+import Logo from '@src/resources/img/openbis-logo-transparent.png'
 
 const styles = theme => ({
   card: {
