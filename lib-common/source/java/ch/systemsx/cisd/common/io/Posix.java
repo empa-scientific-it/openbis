@@ -79,8 +79,8 @@ public final class Posix
      */
     public static final void symlink(String fileName, String linkName) throws IOExceptionUnchecked {
         try {
-            Path file = new File(fileName).getCanonicalFile().toPath();
-            Path link = new File(linkName).getCanonicalFile().toPath();
+            Path file = Path.of(fileName);
+            Path link = Path.of(linkName);
             Files.createDirectories(link.getParent()); // Create any missing folder on the directory hierarchy leading to folder that will contain the link
             Files.createSymbolicLink(link, file); // Creates the link
         } catch (IOException exception) {
@@ -93,8 +93,8 @@ public final class Posix
      */
     public static final void link(String fileName, String linkName) throws IOExceptionUnchecked {
         try {
-            Path file = new File(fileName).getCanonicalFile().toPath();
-            Path link = new File(linkName).getCanonicalFile().toPath();
+            Path file = Path.of(fileName);
+            Path link = Path.of(linkName);
             Files.createDirectories(link.getParent()); // Create any missing folder on the directory hierarchy leading to folder that will contain the link
             Files.createLink(link, file); // Creates the link
         } catch (IOException exception) {
