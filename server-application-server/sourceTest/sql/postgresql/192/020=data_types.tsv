@@ -1,0 +1,17 @@
+1	VARCHAR	Variable length character
+2	INTEGER	Integer
+3	REAL	Real number, i.e. an inexact, variable-precision numeric type
+4	BOOLEAN	An enumerated type with values True and False
+5	TIMESTAMP	Both date and time. Format: yyyy-mm-dd hh:mm:ss
+6	CONTROLLEDVOCABULARY	Controlled Vocabulary
+7	MATERIAL	Reference to a material
+8	HYPERLINK	Address of a web page
+9	MULTILINE_VARCHAR	Long text
+10	XML	XML document
+11	SAMPLE	Reference to a sample
+12	DATE	Date. Format: yyyy-mm-dd
+13	ARRAY_INTEGER	Array of integer values
+14	ARRAY_REAL	Array of floating point values
+15	ARRAY_STRING	Array of string values
+16	ARRAY_TIMESTAMP	Array of timestamp values
+17	JSON	Json value
