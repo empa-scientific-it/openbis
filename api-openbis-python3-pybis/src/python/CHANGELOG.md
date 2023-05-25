@@ -1,3 +1,9 @@
+## Changes with pybis-1.35.5
+
+- Implementation of array-type properties handling
+- Fixed assignment of dynamic property plugins to property types 
+
+
 ## Changes with pybis-1.35.4
 
 - Changes to internal implementation of data set download/upload to use OpenBIS V3 API
