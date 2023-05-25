@@ -47,7 +47,8 @@ public class UpdateMaterialTypesOperationExecutor
         implements IUpdateMaterialTypesOperationExecutor
 {
     private static final List<DataTypeCode> INVALID_TYPES =
-            Arrays.asList(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_STRING, DataTypeCode.ARRAY_REAL,
+            Arrays.asList(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_STRING,
+                    DataTypeCode.ARRAY_REAL,
                     DataTypeCode.ARRAY_TIMESTAMP, DataTypeCode.JSON);
 
     @Autowired
@@ -82,26 +83,34 @@ public class UpdateMaterialTypesOperationExecutor
     {
         for (MaterialTypeUpdate materialTypeUpdate : materialTypeUpdates)
         {
-            if(materialTypeUpdate.getPropertyAssignments() != null)
+            if (materialTypeUpdate.getPropertyAssignments() != null)
             {
                 for (PropertyAssignmentCreation addedAssignments : materialTypeUpdate.getPropertyAssignments()
                         .getAdded())
                 {
-                    PropertyTypePE type =
-                            findPropertyType(context, addedAssignments.getPropertyTypeId());
-                    if (type.getType() != null && INVALID_TYPES.contains(type.getType().getCode()))
+                    if (addedAssignments.getPropertyTypeId() != null)
                     {
-                        return false;
+                        PropertyTypePE type =
+                                findPropertyType(context, addedAssignments.getPropertyTypeId());
+                        if (type.getType() != null && INVALID_TYPES.contains(
+                                type.getType().getCode()))
+                        {
+                            return false;
+                        }
                     }
                 }
                 for (PropertyAssignmentCreation setAssignments : materialTypeUpdate.getPropertyAssignments()
                         .getSet())
                 {
-                    PropertyTypePE type =
-                            findPropertyType(context, setAssignments.getPropertyTypeId());
-                    if (type.getType() != null && INVALID_TYPES.contains(type.getType().getCode()))
+                    if (setAssignments.getPropertyTypeId() != null)
                     {
-                        return false;
+                        PropertyTypePE type =
+                                findPropertyType(context, setAssignments.getPropertyTypeId());
+                        if (type.getType() != null && INVALID_TYPES.contains(
+                                type.getType().getCode()))
+                        {
+                            return false;
+                        }
                     }
                 }
             }
