@@ -1138,7 +1138,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
         String propertyValue = getProperty(propertyName);
         return propertyValue == null ? null : Arrays.stream(propertyValue.split(","))
              .map(String::trim)
-             .map(ZonedDateTime::parse)
+             .map(dateTime -> ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")))
              .toArray(ZonedDateTime[]::new);
     }
 

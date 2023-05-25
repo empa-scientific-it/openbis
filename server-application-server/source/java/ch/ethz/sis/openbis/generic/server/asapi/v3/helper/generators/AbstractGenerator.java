@@ -326,7 +326,7 @@ public class AbstractGenerator
                 + "        String propertyValue = getProperty(propertyName);\n"
                 + "        return propertyValue == null ? null : Arrays.stream(propertyValue.split(\",\"))\n"
                 + "             .map(String::trim)\n"
-                + "             .map(ZonedDateTime::parse)\n"
+                + "             .map(dateTime -> ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss X\")))\n"
                 + "             .toArray(ZonedDateTime[]::new);\n"
                 + "    }");
 

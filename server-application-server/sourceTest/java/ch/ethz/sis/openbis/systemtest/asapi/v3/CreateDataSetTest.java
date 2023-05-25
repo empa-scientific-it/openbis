@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -2099,6 +2100,143 @@ public class CreateDataSetTest extends AbstractDataSetTest
         DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
         assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
         assertEquals(dataSet.getProperties().get(propertyType.getPermId()), "2008-12-24 03:04:00 +0100");
+        assertEquals(dataSet.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithPropertyOfTypeJson()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.JSON);
+        EntityTypePermId dataSetType = createADataSetType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        creation.setJsonProperty(propertyType.getPermId(), "{\"key\": \"value\", \"array\":[1,2,3]}");
+
+        // When
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(dataSetIds.size(), 1);
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
+        assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(dataSet.getJsonProperty(propertyType.getPermId()), "{\"key\": \"value\", \"array\": [1, 2, 3]}");
+        assertEquals(dataSet.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithPropertyOfTypeArrayInteger()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.ARRAY_INTEGER);
+        EntityTypePermId dataSetType = createADataSetType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        creation.setIntegerArrayProperty(propertyType.getPermId(), new Long[]{1L, 2L, 3L});
+
+        // When
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(dataSetIds.size(), 1);
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
+        assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(dataSet.getIntegerArrayProperty(propertyType.getPermId()), new Long[]{1L, 2L, 3L});
+        assertEquals(dataSet.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithPropertyOfTypeArrayReal()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.ARRAY_REAL);
+        EntityTypePermId dataSetType = createADataSetType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        creation.setRealArrayProperty(propertyType.getPermId(), new Double[]{1.0, 2.0, 3.0});
+
+        // When
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(dataSetIds.size(), 1);
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
+        assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(dataSet.getRealArrayProperty(propertyType.getPermId()), new Double[]{1.0, 2.0, 3.0});
+        assertEquals(dataSet.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithPropertyOfTypeArrayString()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.ARRAY_STRING);
+        EntityTypePermId dataSetType = createADataSetType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        creation.setStringArrayProperty(propertyType.getPermId(), new String[]{"a", "b", "c"});
+
+        // When
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(dataSetIds.size(), 1);
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
+        assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(dataSet.getStringArrayProperty(propertyType.getPermId()), new String[]{"a", "b", "c"});
+        assertEquals(dataSet.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithPropertyOfTypeArrayTimestamp()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.ARRAY_TIMESTAMP);
+        EntityTypePermId dataSetType = createADataSetType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        ZonedDateTime time1 = ZonedDateTime.parse("2023-05-16T11:22:33+02");
+        ZonedDateTime time2 = ZonedDateTime.parse("2023-05-18T11:17:03+02");
+        creation.setTimestampArrayProperty(propertyType.getPermId(), new ZonedDateTime[]{time1, time2});
+
+        // When
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(dataSetIds.size(), 1);
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
+        assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(dataSet.getTimestampArrayProperty(propertyType.getPermId()), new ZonedDateTime[]{time1, time2});
         assertEquals(dataSet.getProperties().size(), 2);
     }
 
