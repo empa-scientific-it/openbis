@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 
 public final class Posix
 {
@@ -32,6 +34,21 @@ public final class Posix
 
     public static boolean isOperational() {
         return true;
+    }
+
+    public static void setAccessMode(String path, short mode) throws IOExceptionUnchecked {
+        if (mode != (short) 0777) {
+            throw new IOExceptionUnchecked("Failure to set file permissions for '" + path + "', mode 777 is supported.");
+        }
+        try {
+            Files.setPosixFilePermissions(Path.of(path), Set.of(PosixFilePermission.values()));
+        } catch (IOException e) {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static boolean isSymbolicLink(String absolutePath) {
+        return Files.isSymbolicLink(Path.of(absolutePath));
     }
 
     /**
