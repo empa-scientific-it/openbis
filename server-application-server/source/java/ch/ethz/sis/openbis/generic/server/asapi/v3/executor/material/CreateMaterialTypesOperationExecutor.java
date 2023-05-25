@@ -15,6 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropertyTypeByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,16 +34,28 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialTypeCrea
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.create.CreateObjectsOperationExecutor;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author pkupczyk
  */
 @Component
-public class CreateMaterialTypesOperationExecutor extends CreateObjectsOperationExecutor<MaterialTypeCreation, EntityTypePermId> implements
+public class CreateMaterialTypesOperationExecutor
+        extends CreateObjectsOperationExecutor<MaterialTypeCreation, EntityTypePermId> implements
         ICreateMaterialTypesOperationExecutor
 {
 
+    private static final List<DataTypeCode> INVALID_TYPES =
+            Arrays.asList(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_STRING, DataTypeCode.ARRAY_REAL,
+                    DataTypeCode.ARRAY_TIMESTAMP, DataTypeCode.JSON);
+
     @Autowired
     private ICreateMaterialTypeExecutor executor;
+
+    @Autowired
+    private IMapPropertyTypeByIdExecutor mapPropertyTypeByIdExecutor;
 
     @Override
     protected Class<? extends CreateObjectsOperation<MaterialTypeCreation>> getOperationClass()
@@ -48,7 +67,50 @@ public class CreateMaterialTypesOperationExecutor extends CreateObjectsOperation
     protected CreateObjectsOperationResult<EntityTypePermId> doExecute(IOperationContext context,
             CreateObjectsOperation<MaterialTypeCreation> operation)
     {
-        return new CreateMaterialTypesOperationResult(executor.create(context, operation.getCreations()));
+        if (isValid(context, operation.getCreations()))
+        {
+            return new CreateMaterialTypesOperationResult(
+                    executor.create(context, operation.getCreations()));
+        } else
+        {
+            throw new UserFailureException("Wrong property type has been provided!");
+        }
+    }
+
+    public boolean isValid(IOperationContext context,
+            List<MaterialTypeCreation> materialTypeCreations)
+    {
+        for (MaterialTypeCreation materialTypeCreation : materialTypeCreations)
+        {
+            if(materialTypeCreation.getPropertyAssignments() != null)
+            {
+                for (PropertyAssignmentCreation propertyAssignmentCreation : materialTypeCreation.getPropertyAssignments())
+                {
+                    PropertyTypePE type =
+                            findPropertyType(context,
+                                    propertyAssignmentCreation.getPropertyTypeId());
+                    if (type.getType() != null && INVALID_TYPES.contains(type.getType().getCode()))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private PropertyTypePE findPropertyType(IOperationContext context,
+            IPropertyTypeId propertyTypeId)
+    {
+        Map<IPropertyTypeId, PropertyTypePE> propertyTypePEMap =
+                mapPropertyTypeByIdExecutor.map(context, Arrays.asList(propertyTypeId));
+        PropertyTypePE propertyTypePE = propertyTypePEMap.get(propertyTypeId);
+
+        if (propertyTypePE == null)
+        {
+            throw new ObjectNotFoundException(propertyTypeId);
+        }
+        return propertyTypePE;
     }
 
 }

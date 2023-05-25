@@ -15,6 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropertyTypeByIdExecutor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +34,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.UpdateMaterialTy
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.update.UpdateObjectsOperationExecutor;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Franz-Josef Elmer
  */
@@ -35,8 +46,15 @@ public class UpdateMaterialTypesOperationExecutor
         extends UpdateObjectsOperationExecutor<MaterialTypeUpdate, IEntityTypeId>
         implements IUpdateMaterialTypesOperationExecutor
 {
+    private static final List<DataTypeCode> INVALID_TYPES =
+            Arrays.asList(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_STRING, DataTypeCode.ARRAY_REAL,
+                    DataTypeCode.ARRAY_TIMESTAMP, DataTypeCode.JSON);
+
     @Autowired
     private IUpdateMaterialTypeExecutor executor;
+
+    @Autowired
+    private IMapPropertyTypeByIdExecutor mapPropertyTypeByIdExecutor;
 
     @Override
     protected Class<? extends UpdateObjectsOperation<MaterialTypeUpdate>> getOperationClass()
@@ -45,9 +63,64 @@ public class UpdateMaterialTypesOperationExecutor
     }
 
     @Override
-    protected UpdateObjectsOperationResult<? extends IEntityTypeId> doExecute(IOperationContext context,
+    protected UpdateObjectsOperationResult<? extends IEntityTypeId> doExecute(
+            IOperationContext context,
             UpdateObjectsOperation<MaterialTypeUpdate> operation)
     {
-        return new UpdateMaterialTypesOperationResult(executor.update(context, operation.getUpdates()));
+        if (isValid(context, operation.getUpdates()))
+        {
+            return new UpdateMaterialTypesOperationResult(
+                    executor.update(context, operation.getUpdates()));
+        } else
+        {
+            throw new UserFailureException("Wrong property type has been provided!");
+        }
     }
+
+    public boolean isValid(IOperationContext context,
+            List<MaterialTypeUpdate> materialTypeUpdates)
+    {
+        for (MaterialTypeUpdate materialTypeUpdate : materialTypeUpdates)
+        {
+            if(materialTypeUpdate.getPropertyAssignments() != null)
+            {
+                for (PropertyAssignmentCreation addedAssignments : materialTypeUpdate.getPropertyAssignments()
+                        .getAdded())
+                {
+                    PropertyTypePE type =
+                            findPropertyType(context, addedAssignments.getPropertyTypeId());
+                    if (type.getType() != null && INVALID_TYPES.contains(type.getType().getCode()))
+                    {
+                        return false;
+                    }
+                }
+                for (PropertyAssignmentCreation setAssignments : materialTypeUpdate.getPropertyAssignments()
+                        .getSet())
+                {
+                    PropertyTypePE type =
+                            findPropertyType(context, setAssignments.getPropertyTypeId());
+                    if (type.getType() != null && INVALID_TYPES.contains(type.getType().getCode()))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private PropertyTypePE findPropertyType(IOperationContext context,
+            IPropertyTypeId propertyTypeId)
+    {
+        Map<IPropertyTypeId, PropertyTypePE> propertyTypePEMap =
+                mapPropertyTypeByIdExecutor.map(context, Arrays.asList(propertyTypeId));
+        PropertyTypePE propertyTypePE = propertyTypePEMap.get(propertyTypeId);
+
+        if (propertyTypePE == null)
+        {
+            throw new ObjectNotFoundException(propertyTypeId);
+        }
+        return propertyTypePE;
+    }
+
 }
