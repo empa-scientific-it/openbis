@@ -18,10 +18,10 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.File;
 import java.io.IOException;
 
+import ch.systemsx.cisd.common.io.Posix;
 import org.apache.commons.io.FileCopyUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.time.TimingParameters;
@@ -66,7 +66,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                 }
                 try
                 {
-                    Unix.createHardLink(source.getAbsolutePath(), destination.getAbsolutePath());
+                    Posix.createHardLink(source.getAbsolutePath(), destination.getAbsolutePath());
                     return Status.OK;
                 } catch (IOExceptionUnchecked ex)
                 {
@@ -93,7 +93,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
      */
     public final static boolean isOperational()
     {
-        return Unix.isOperational();
+        return Posix.isOperational();
     }
 
     /**
@@ -104,7 +104,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
      */
     public final static IFileImmutableCopier tryCreate(final TimingParameters timingParameters)
     {
-        if (Unix.isOperational() == false)
+        if (Posix.isOperational() == false)
         {
             return null;
         }
