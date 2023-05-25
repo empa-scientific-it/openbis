@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.io;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,11 +79,10 @@ public final class Posix
      */
     public static final void symlink(String fileName, String linkName) throws IOExceptionUnchecked {
         try {
-            Path file = Path.of(fileName);
-            Path link = Path.of(linkName);
-            Path relativeFilePath = link.getParent().relativize(file); // Relative path to the file from the link
+            Path file = new File(fileName).getCanonicalFile().toPath();
+            Path link = new File(linkName).getCanonicalFile().toPath();
             Files.createDirectories(link.getParent()); // Create any missing folder on the directory hierarchy leading to folder that will contain the link
-            Files.createSymbolicLink(link, relativeFilePath); // Creates the link
+            Files.createSymbolicLink(link, file); // Creates the link
         } catch (IOException exception) {
             throw new IOExceptionUnchecked(exception);
         }
@@ -93,11 +93,10 @@ public final class Posix
      */
     public static final void link(String fileName, String linkName) throws IOExceptionUnchecked {
         try {
-            Path file = Path.of(fileName);
-            Path link = Path.of(linkName);
-            Path relativeFilePath = link.getParent().relativize(file); // Relative path to the file from the link
+            Path file = new File(fileName).getCanonicalFile().toPath();
+            Path link = new File(linkName).getCanonicalFile().toPath();
             Files.createDirectories(link.getParent()); // Create any missing folder on the directory hierarchy leading to folder that will contain the link
-            Files.createLink(link, relativeFilePath); // Creates the link
+            Files.createLink(link, file); // Creates the link
         } catch (IOException exception) {
             throw new IOExceptionUnchecked(exception);
         }
