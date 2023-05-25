@@ -19,7 +19,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IMapPropertyTypeByIdExecutor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,8 @@ public class CreateMaterialTypesOperationExecutor
 {
 
     private static final List<DataTypeCode> INVALID_TYPES =
-            Arrays.asList(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_STRING, DataTypeCode.ARRAY_REAL,
+            Arrays.asList(DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_STRING,
+                    DataTypeCode.ARRAY_REAL,
                     DataTypeCode.ARRAY_TIMESTAMP, DataTypeCode.JSON);
 
     @Autowired
@@ -82,7 +83,7 @@ public class CreateMaterialTypesOperationExecutor
     {
         for (MaterialTypeCreation materialTypeCreation : materialTypeCreations)
         {
-            if(materialTypeCreation.getPropertyAssignments() != null)
+            if (materialTypeCreation.getPropertyAssignments() != null)
             {
                 for (PropertyAssignmentCreation propertyAssignmentCreation : materialTypeCreation.getPropertyAssignments())
                 {
