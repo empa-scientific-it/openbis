@@ -2747,3 +2747,6 @@ ApplicationServerAPIExtensions
 getManagedPersonalAccessToken
 PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD
 PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD
+
+is Code Beats Auto Generated Code
+set Code Beats Auto Generated Code
