@@ -313,12 +313,27 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
         })
       }
     } else {
-      openbis.DataType.values.map(dataType => {
-        options.push({
-          label: new DataType(dataType).getLabel(),
-          value: dataType
+      const objectType = this.getType().objectType.value;
+      if(objectType == 'materialType') {
+        //Filter out new data types for materials
+        const filtered = [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+            openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP, openbis.DataType.JSON];
+        openbis.DataType.values.map(dataType => {
+          if(!filtered.includes(dataType)) {
+            options.push({
+              label: new DataType(dataType).getLabel(),
+              value: dataType
+            })
+          }
         })
-      })
+      } else {
+        openbis.DataType.values.map(dataType => {
+              options.push({
+                label: new DataType(dataType).getLabel(),
+                value: dataType
+              })
+          })
+      }
     }
 
     const { mode, classes } = this.props
