@@ -219,7 +219,7 @@ class WithLogin extends React.Component {
             <Card classes={{ root: classes.card }}>
               <Container square={true}>
                 <div className={classes.logo}>
-                  <img src={Logo} height='90' />
+                  <img src={Logo} width='200' />
                 </div>
                 <Typography variant='h6' classes={{ root: classes.header }}>
                   Login
