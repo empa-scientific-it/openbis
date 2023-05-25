@@ -14,10 +14,24 @@ var loadJSResorce = function(pathToResource, onLoad) {
 
 var setFavicons = function(img) {
     var head = document.getElementsByTagName('head')[0];
-    var iconLink= document.createElement('link');
-    iconLink.setAttribute('rel', 'icon');
-    iconLink.setAttribute('href', img);
-    head.appendChild(iconLink);
+
+    if(_.isString(img)){
+        var iconLink= document.createElement('link');
+        iconLink.setAttribute('rel', 'icon');
+        iconLink.setAttribute('href', img);
+        head.appendChild(iconLink);
+    }else if(_.isObject(img)){
+        Object.keys(img).forEach(function(linkKey){
+            var linkDefinition = img[linkKey]
+            var linkElement = document.createElement('link');
+            if(_.isObject(linkDefinition)){
+                Object.keys(linkDefinition).forEach(function(attributeName){
+                    linkElement.setAttribute(attributeName, linkDefinition[attributeName]);
+                })
+                head.appendChild(linkElement);
+            }
+        })
+    }
 };
 
 var setHelp = function(url) {
@@ -42,7 +56,12 @@ var onLoadInstanceProfileResorceFunc = function() {
 
 //<PROFILE_PLACEHOLDER>
 loadJSResorce("./etc/InstanceProfile.js", onLoadInstanceProfileResorceFunc);
-setFavicons("./img/favicon.ico");
+setFavicons({
+    appleTouchIcon : { href : "./img/apple-touch-icon.png", rel: "apple-touch-icon", sizes: "180x180" },
+    favicon32 : { href : "./img/favicon-32x32.png", rel: "icon", type: "image/png", sizes: "32x32" },
+    favicon16 : { href : "./img/favicon-16x16.png", rel: "icon", type: "image/png", sizes: "16x16" },
+    manifest : { href : "./site.webmanifest", rel: "manifest" }
+});
 //</PROFILE_PLACEHOLDER>
 
 var PLUGINS_CONFIGURATION = {
