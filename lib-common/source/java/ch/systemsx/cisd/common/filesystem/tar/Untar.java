@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.io.Posix;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 
@@ -65,7 +65,7 @@ public class Untar implements Closeable
     {
         this.copier = copier;
         this.in = new TarArchiveInputStream(new FileInputStream(tarFile));
-        this.setOwner = (Posix.isOperational() && Posix.getEuid() == 0);
+        this.setOwner = (Unix.isOperational() && Unix.getEuid() == 0);
     }
 
     /**
@@ -186,18 +186,18 @@ public class Untar implements Closeable
 
     protected void createSymbolicLink(final File file, TarArchiveEntry entry)
     {
-        if (Posix.isOperational())
+        if (Unix.isOperational())
         {
-            Posix.createSymbolicLink(entry.getLinkName(),
+            Unix.createSymbolicLink(entry.getLinkName(),
                     file.getPath());
         }
     }
 
     protected void createHardLink(final File file, TarArchiveEntry entry)
     {
-        if (Posix.isOperational())
+        if (Unix.isOperational())
         {
-            Posix.createHardLink(entry.getLinkName(),
+            Unix.createHardLink(entry.getLinkName(),
                     file.getPath());
         }
     }
@@ -209,17 +209,17 @@ public class Untar implements Closeable
 
     protected void setFileMetadata(final File entryFile, TarArchiveEntry entry)
     {
-        if (Posix.isOperational())
+        if (Unix.isOperational())
         {
-            Posix.setAccessMode(entryFile.getPath(), (short) entry.getMode());
+            Unix.setAccessMode(entryFile.getPath(), (short) entry.getMode());
             if (setOwner)
             {
-                Posix.setOwner(entryFile.getPath(), entry.getUserId(),
+                Unix.setOwner(entryFile.getPath(), entry.getUserId(),
                         entry.getGroupId());
-            } else if (Posix.getUid() == entry.getUserId()
-                    && Posix.getGid() != entry.getGroupId())
+            } else if (Unix.getUid() == entry.getUserId()
+                    && Unix.getGid() != entry.getGroupId())
             {
-                Posix.setOwner(entryFile.getPath(), entry.getUserId(),
+                Unix.setOwner(entryFile.getPath(), entry.getUserId(),
                         entry.getGroupId());
             }
         }
