@@ -104,6 +104,28 @@ public final class Posix
         }
     }
 
+    public static int getUid(String path)
+    {
+        try
+        {
+            return (int) Files.getAttribute(Path.of(path), "unix:uid");
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static int getGid(String path)
+    {
+        try
+        {
+            return (int) Files.getAttribute(Path.of(path), "unix:gid");
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
     public static String tryGetUserNameForUid(int uid)
     {
         try
@@ -187,7 +209,7 @@ public final class Posix
             return gid;
         }
 
-        public String getSymbolicLinkOrNull()
+        public String tryGetSymbolicLink()
         {
             return symbolicLinkOrNull;
         }
@@ -275,13 +297,12 @@ public final class Posix
                 linkType = FileLinkType.OTHER;
             }
             long lastModified = Files.getLastModifiedTime(path).toMillis();
-            int uid = (int) Files.getAttribute(path, "unix:uid");
-            int gid = (int) Files.getAttribute(path, "unix:gid");
+            int uid = getUid(pathAsString);
+            int gid = getGid(pathAsString);
             String symbolicLinkOrNull = null;
             if (linkType == FileLinkType.SYMLINK) {
                 symbolicLinkOrNull = Files.readSymbolicLink(path).toString();
             }
-
             long size = Files.size(path);
             return new Stat(permissions, linkType, lastModified, uid, gid, symbolicLinkOrNull, size);
         } catch (IOException e)
