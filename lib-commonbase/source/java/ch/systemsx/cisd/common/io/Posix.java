@@ -17,13 +17,18 @@
 package ch.systemsx.cisd.common.io;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.unix.FileLinkType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.UserPrincipal;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,6 +42,10 @@ public final class Posix
     public static boolean isOperational() {
         return true;
     }
+
+    //
+    // User related methods
+    //
 
     public static int getGid()
     {
@@ -95,6 +104,192 @@ public final class Posix
         }
     }
 
+    public static String tryGetUserNameForUid(int uid)
+    {
+        try
+        {
+            UserPrincipalLookupService service = FileSystems.getDefault().getUserPrincipalLookupService();
+            UserPrincipal user = service.lookupPrincipalByName(Integer.toString(uid));
+            return user.getName();
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static String tryGetGroupNameForGid(int gid)
+    {
+        try
+        {
+            UserPrincipalLookupService service = FileSystems.getDefault().getUserPrincipalLookupService();
+            GroupPrincipal group = service.lookupPrincipalByGroupName(Integer.toString(gid));
+            return group.getName();
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    //
+    // File related methods
+    //
+
+    public static class Stat
+    {
+        private final short permissions;
+
+        private final FileLinkType linkType;
+
+        private final long lastModified;
+
+        private final int uid;
+
+        private final int gid;
+
+        private final String symbolicLinkOrNull;
+
+        private final long size;
+
+        public Stat(short permissions, FileLinkType linkType, long lastModified, int uid, int gid,
+                String symbolicLinkOrNull, long size)
+        {
+            this.permissions = permissions;
+            this.linkType = linkType;
+            this.lastModified = lastModified;
+            this.uid = uid;
+            this.gid = gid;
+            this.symbolicLinkOrNull = symbolicLinkOrNull;
+            this.size = size;
+        }
+
+        public short getPermissions()
+        {
+            return permissions;
+        }
+
+        public FileLinkType getLinkType()
+        {
+            return linkType;
+        }
+
+        public long getLastModified()
+        {
+            return lastModified;
+        }
+
+        public int getUid()
+        {
+            return uid;
+        }
+
+        public int getGid()
+        {
+            return gid;
+        }
+
+        public String getSymbolicLinkOrNull()
+        {
+            return symbolicLinkOrNull;
+        }
+
+        public long getSize() {
+            return size;
+        }
+    }
+
+    private static short getNumericAccessMode(Set<PosixFilePermission> permissions) {
+        short mode = 0;
+        if (permissions.contains(PosixFilePermission.OWNER_READ)) {
+            mode |= 0400;
+        }
+        if (permissions.contains(PosixFilePermission.OWNER_WRITE)) {
+            mode |= 0200;
+        }
+        if (permissions.contains(PosixFilePermission.OWNER_EXECUTE)) {
+            mode |= 0100;
+        }
+        if (permissions.contains(PosixFilePermission.GROUP_READ)) {
+            mode |= 040;
+        }
+        if (permissions.contains(PosixFilePermission.GROUP_WRITE)) {
+            mode |= 020;
+        }
+        if (permissions.contains(PosixFilePermission.GROUP_EXECUTE)) {
+            mode |= 010;
+        }
+        if (permissions.contains(PosixFilePermission.OTHERS_READ)) {
+            mode |= 04;
+        }
+        if (permissions.contains(PosixFilePermission.OTHERS_WRITE)) {
+            mode |= 02;
+        }
+        if (permissions.contains(PosixFilePermission.OTHERS_EXECUTE)) {
+            mode |= 01;
+        }
+        return mode;
+    }
+
+    private static Set<PosixFilePermission> getFilePermissionsMode(short mode) {
+        Set<PosixFilePermission> permissions = new HashSet<>();
+        if ((0400 & mode) == 0400) {
+            permissions.add(PosixFilePermission.OWNER_READ);
+        }
+        if ((0200 & mode) == 0200) {
+            permissions.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((0100 & mode) == 0100) {
+            permissions.add(PosixFilePermission.OWNER_EXECUTE);
+        }
+        if ((040 & mode) == 040) {
+            permissions.add(PosixFilePermission.GROUP_READ);
+        }
+        if ((020 & mode) == 020) {
+            permissions.add(PosixFilePermission.GROUP_WRITE);
+        }
+        if ((010 & mode) == 010) {
+            permissions.add(PosixFilePermission.GROUP_EXECUTE);
+        }
+        if ((04 & mode) == 04) {
+            permissions.add(PosixFilePermission.OTHERS_READ);
+        }
+        if ((02 & mode) == 02) {
+            permissions.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((01 & mode) == 01) {
+            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+        }
+        return permissions;
+    }
+
+    public static Stat tryGetLinkInfo(String pathAsString) {
+        try
+        {
+            Path path = Path.of(pathAsString);
+            short permissions = getNumericAccessMode(Files.getPosixFilePermissions(path));
+            FileLinkType linkType;
+            if (Files.isSymbolicLink(path)) {
+                linkType = FileLinkType.SYMLINK;
+            } else if (Files.isDirectory(path)) {
+                linkType = FileLinkType.DIRECTORY;
+            } else {
+                linkType = FileLinkType.OTHER;
+            }
+            long lastModified = Files.getLastModifiedTime(path).toMillis();
+            int uid = (int) Files.getAttribute(path, "unix:uid");
+            int gid = (int) Files.getAttribute(path, "unix:gid");
+            String symbolicLinkOrNull = null;
+            if (linkType == FileLinkType.SYMLINK) {
+                symbolicLinkOrNull = Files.readSymbolicLink(path).toString();
+            }
+
+            long size = Files.size(path);
+            return new Stat(permissions, linkType, lastModified, uid, gid, symbolicLinkOrNull, size);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+    
     public static Set<PosixFilePermission> getPermissions(String path) throws IOExceptionUnchecked {
         try
         {
@@ -114,39 +309,8 @@ public final class Posix
     }
 
     public static void setAccessMode(String path, short mode) throws IOExceptionUnchecked {
-        Set<PosixFilePermission> permissions = new HashSet<>();
-
-        if ((400 & mode) == 400) {
-            permissions.add(PosixFilePermission.OWNER_READ);
-        }
-        if ((200 & mode) == 200) {
-            permissions.add(PosixFilePermission.OWNER_WRITE);
-        }
-        if ((100 & mode) == 100) {
-            permissions.add(PosixFilePermission.OWNER_EXECUTE);
-        }
-
-        if ((40 & mode) == 40) {
-            permissions.add(PosixFilePermission.GROUP_READ);
-        }
-        if ((20 & mode) == 20) {
-            permissions.add(PosixFilePermission.GROUP_WRITE);
-        }
-        if ((10 & mode) == 10) {
-            permissions.add(PosixFilePermission.GROUP_EXECUTE);
-        }
-
-        if ((4 & mode) == 4) {
-            permissions.add(PosixFilePermission.OTHERS_READ);
-        }
-        if ((2 & mode) == 2) {
-            permissions.add(PosixFilePermission.OWNER_WRITE);
-        }
-        if ((1 & mode) == 1) {
-            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
-        }
-
         try {
+            Set<PosixFilePermission> permissions = getFilePermissionsMode(mode);
             Files.setPosixFilePermissions(Path.of(path), permissions);
         } catch (IOException e) {
             throw new IOExceptionUnchecked(e);
