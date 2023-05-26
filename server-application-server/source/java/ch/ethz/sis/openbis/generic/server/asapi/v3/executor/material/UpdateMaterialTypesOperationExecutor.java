@@ -121,10 +121,16 @@ public class UpdateMaterialTypesOperationExecutor
     private PropertyTypePE findPropertyType(IOperationContext context,
             IPropertyTypeId propertyTypeId)
     {
-        Map<IPropertyTypeId, PropertyTypePE> propertyTypePEMap =
-                mapPropertyTypeByIdExecutor.map(context, Arrays.asList(propertyTypeId));
-        PropertyTypePE propertyTypePE = propertyTypePEMap.get(propertyTypeId);
-        return propertyTypePE;
+        try 
+        {
+            Map<IPropertyTypeId, PropertyTypePE> propertyTypePEMap =
+                    mapPropertyTypeByIdExecutor.map(context, Arrays.asList(propertyTypeId));
+            PropertyTypePE propertyTypePE = propertyTypePEMap.get(propertyTypeId);
+            return propertyTypePE;
+        } catch(Exception e) {
+            return null;
+        }
+        
     }
 
 }
