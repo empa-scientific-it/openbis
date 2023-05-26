@@ -92,7 +92,7 @@ public class UpdateMaterialTypesOperationExecutor
                     {
                         PropertyTypePE type =
                                 findPropertyType(context, addedAssignments.getPropertyTypeId());
-                        if (type.getType() != null && INVALID_TYPES.contains(
+                        if (type != null && type.getType() != null && INVALID_TYPES.contains(
                                 type.getType().getCode()))
                         {
                             return false;
@@ -106,7 +106,7 @@ public class UpdateMaterialTypesOperationExecutor
                     {
                         PropertyTypePE type =
                                 findPropertyType(context, setAssignments.getPropertyTypeId());
-                        if (type.getType() != null && INVALID_TYPES.contains(
+                        if (type != null && type.getType() != null && INVALID_TYPES.contains(
                                 type.getType().getCode()))
                         {
                             return false;
@@ -124,11 +124,6 @@ public class UpdateMaterialTypesOperationExecutor
         Map<IPropertyTypeId, PropertyTypePE> propertyTypePEMap =
                 mapPropertyTypeByIdExecutor.map(context, Arrays.asList(propertyTypeId));
         PropertyTypePE propertyTypePE = propertyTypePEMap.get(propertyTypeId);
-
-        if (propertyTypePE == null)
-        {
-            throw new ObjectNotFoundException(propertyTypeId);
-        }
         return propertyTypePE;
     }
 
