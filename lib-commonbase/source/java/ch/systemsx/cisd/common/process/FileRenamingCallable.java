@@ -81,7 +81,7 @@ public final class FileRenamingCallable implements Callable<Boolean>
                     // Try to set the permissions to "all can write"
                     Set<PosixFilePermission> permissions =
                             Posix.getPermissions(sourceFile.getPath());
-                    Posix.setAccessMode(sourceFile.getPath(), (short) 0777);
+                    Posix.setAccessMode777(sourceFile.getPath());
                     renamed = sourceFile.renameTo(destinationFile);
                     Posix.setAccessMode(destinationFile.getPath(), permissions);
                 } catch (IOExceptionUnchecked ex)

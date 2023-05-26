@@ -905,7 +905,7 @@ public final class FileUtilities
         {
             try
             {
-                Posix.setAccessMode(path.getPath(), (short) 0777);
+                Posix.setAccessMode777(path.getPath());
             } catch (IOExceptionUnchecked ex)
             {
                 if (ex.getCause() != null
@@ -931,7 +931,7 @@ public final class FileUtilities
         }
         if (file.exists() && Posix.isOperational())
         {
-            Posix.setAccessMode(file.getPath(), (short) 0777);
+            Posix.setAccessMode777(file.getPath());
             return file.delete();
         }
         return false;

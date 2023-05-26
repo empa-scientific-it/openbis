@@ -18,11 +18,13 @@ package ch.systemsx.cisd.common.io;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
 import java.util.Set;
 
 public final class Posix
@@ -34,6 +36,63 @@ public final class Posix
 
     public static boolean isOperational() {
         return true;
+    }
+
+    public static int getGid()
+    {
+        try
+        {
+            Process process = Runtime.getRuntime().exec("id -g -r");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String output = reader.readLine();
+            reader.close();
+            return Integer.parseInt(output);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static int getUid() throws IOExceptionUnchecked
+    {
+        try
+        {
+            Process process = Runtime.getRuntime().exec("id -u -r");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String output = reader.readLine();
+            reader.close();
+            return Integer.parseInt(output);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static int getEuid()
+    {
+        try
+        {
+            Process process = Runtime.getRuntime().exec("id -u");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String output = reader.readLine();
+            reader.close();
+            return Integer.parseInt(output);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static void setOwner(String path, int userId, int groupId)
+    {
+        try
+        {
+            Files.setAttribute(Path.of(path), "unix:uid", userId);
+            Files.setAttribute(Path.of(path), "unix:gid", groupId);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
     }
 
     public static Set<PosixFilePermission> getPermissions(String path) throws IOExceptionUnchecked {
@@ -55,9 +114,47 @@ public final class Posix
     }
 
     public static void setAccessMode(String path, short mode) throws IOExceptionUnchecked {
-        if (mode != (short) 0777) {
-            throw new IOExceptionUnchecked("Failure to set file permissions for '" + path + "', mode 777 is supported.");
+        Set<PosixFilePermission> permissions = new HashSet<>();
+
+        if ((400 & mode) == 400) {
+            permissions.add(PosixFilePermission.OWNER_READ);
         }
+        if ((200 & mode) == 200) {
+            permissions.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((100 & mode) == 100) {
+            permissions.add(PosixFilePermission.OWNER_EXECUTE);
+        }
+
+        if ((40 & mode) == 40) {
+            permissions.add(PosixFilePermission.GROUP_READ);
+        }
+        if ((20 & mode) == 20) {
+            permissions.add(PosixFilePermission.GROUP_WRITE);
+        }
+        if ((10 & mode) == 10) {
+            permissions.add(PosixFilePermission.GROUP_EXECUTE);
+        }
+
+        if ((4 & mode) == 4) {
+            permissions.add(PosixFilePermission.OTHERS_READ);
+        }
+        if ((2 & mode) == 2) {
+            permissions.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((1 & mode) == 1) {
+            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+        }
+
+        try {
+            Files.setPosixFilePermissions(Path.of(path), permissions);
+        } catch (IOException e) {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+
+    public static void setAccessMode777(String path) throws IOExceptionUnchecked {
         try {
             Files.setPosixFilePermissions(Path.of(path), Set.of(PosixFilePermission.values()));
         } catch (IOException e) {
