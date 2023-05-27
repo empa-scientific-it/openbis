@@ -905,7 +905,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			} else {
 				_this._advancedSearchModel.resetModel(kindAndType[0]); //Restart model
 			}
-            _this._paintRulesPanel(_this._$rulesPanelContainer, isGlobalSearch);
+            if (_this._$rulesPanelContainer) {
+                _this._paintRulesPanel(_this._$rulesPanelContainer, isGlobalSearch);
+            }
 
 			if(kindAndType.length === 2) {
 				var uuidValue = Util.guid();
