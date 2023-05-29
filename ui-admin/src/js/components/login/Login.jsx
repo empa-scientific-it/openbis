@@ -18,12 +18,18 @@ import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
+import Logo from '@src/resources/img/openbis-logo-transparent.png'
+
 const styles = theme => ({
   card: {
     marginTop: '10%',
     marginBottom: '10em',
     width: '30em',
     margin: '0 auto'
+  },
+  logo: {
+    display: 'flex',
+    justifyContent: 'center'
   },
   header: {
     marginBottom: theme.spacing(1)
@@ -212,6 +218,9 @@ class WithLogin extends React.Component {
           <form>
             <Card classes={{ root: classes.card }}>
               <Container square={true}>
+                <div className={classes.logo}>
+                  <img src={Logo} width='200' height='89' />
+                </div>
                 <Typography variant='h6' classes={{ root: classes.header }}>
                   Login
                 </Typography>
