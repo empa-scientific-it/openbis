@@ -31,6 +31,7 @@ module.exports = {
     underscore: '<rootDir>/srcV3/lib/underscore/js/underscore.js',
     '\\.css$': '<rootDir>/srcTest/js/mockStyles.js',
     'openbis.js': '<rootDir>/srcTest/js/services/openbis.js',
+    '^@src/resources(.*)$': '<rootDir>/srcTest/js/mockResources.js',
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@srcTest/(.*)$': '<rootDir>/srcTest/$1',
     '^@srcV3/(.*)$': '<rootDir>/srcV3/$1'
