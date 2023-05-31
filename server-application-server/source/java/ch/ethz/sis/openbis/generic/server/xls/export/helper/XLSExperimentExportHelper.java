@@ -51,7 +51,7 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     }
 
     @Override
-    protected Attribute[] getAttributes(final Experiment entity)
+    protected Attribute[] getAttributes(final Collection<Experiment> entities)
     {
         return new Attribute[] { PERM_ID, IDENTIFIER, CODE, PROJECT, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }

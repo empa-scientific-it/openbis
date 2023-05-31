@@ -42,9 +42,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
@@ -116,10 +119,21 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected Attribute[] getAttributes(final DataSet dataSet)
+    protected Attribute[] getAttributes(final Collection<DataSet> dataSets)
     {
-        return new Attribute[] { PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION,
-                dataSet.getSample() != null ? SAMPLE : EXPERIMENT, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
+        final boolean includeSample = dataSets.stream().anyMatch(dataSet -> dataSet.getSample() != null);
+        final boolean includeExperiment = dataSets.stream().anyMatch(dataSet -> dataSet.getSample() == null && dataSet.getExperiment() != null);
+
+        return Stream.concat(
+                Stream.concat(
+                        Stream.of(PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION),
+                        Stream.ofNullable(includeSample ? SAMPLE : null)
+                ),
+                Stream.concat(
+                        Stream.ofNullable(includeExperiment ? EXPERIMENT : null),
+                        Stream.of(PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE)
+                )
+        ).toArray(Attribute[]::new);
     }
 
     @Override
@@ -133,15 +147,18 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             }
             case ARCHIVING_STATUS:
             {
-                return dataSet.getPhysicalData().getStatus().toString();
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.getStatus().toString() : null;
             }
             case PRESENT_IN_ARCHIVE:
             {
-                return dataSet.getPhysicalData().isPresentInArchive().toString().toUpperCase();
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.isPresentInArchive().toString().toUpperCase() : null;
             }
             case STORAGE_CONFIRMATION:
             {
-                return dataSet.getPhysicalData().isStorageConfirmation().toString().toUpperCase();
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.isStorageConfirmation().toString().toUpperCase() : null;
             }
             case CODE:
             {
@@ -149,11 +166,14 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             }
             case SAMPLE:
             {
-                return dataSet.getSample().getIdentifier().getIdentifier();
+                final Sample sample = dataSet.getSample();
+                return sample != null ? sample.getIdentifier().getIdentifier() : null;
             }
             case EXPERIMENT:
             {
-                return dataSet.getExperiment().getIdentifier().getIdentifier();
+                final Sample sample = dataSet.getSample();
+                final Experiment experiment = dataSet.getExperiment();
+                return sample == null && experiment != null ? experiment.getIdentifier().getIdentifier() : null;
             }
             case REGISTRATOR:
             {

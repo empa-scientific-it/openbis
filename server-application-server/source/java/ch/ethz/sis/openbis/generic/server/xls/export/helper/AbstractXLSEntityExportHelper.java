@@ -80,7 +80,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
             warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
 
-            final Attribute[] possibleAttributes = getAttributes(entry.getValue().get(0));
+            final Attribute[] possibleAttributes = getAttributes(entry.getValue());
             final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream().map(PropertyAssignment::getPropertyType)
                     .collect(Collectors.toList());
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
@@ -221,7 +221,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
     protected abstract Function<ENTITY, ENTITY_TYPE> getTypeFunction();
 
-    protected abstract Attribute[] getAttributes(final ENTITY entity);
+    protected abstract Attribute[] getAttributes(final Collection<ENTITY> entities);
 
     protected abstract String getAttributeValue(final ENTITY entity, final Attribute attribute);
 

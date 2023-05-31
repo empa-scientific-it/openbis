@@ -39,11 +39,14 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 
@@ -86,7 +89,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
     }
 
     @Override
-    protected Attribute[] getAttributes(final Sample entity)
+    protected Attribute[] getAttributes(final Collection<Sample> entities)
     {
         return new Attribute[] { $, AUTO_GENERATE_CODE, PERM_ID, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, PARENTS, CHILDREN,
                 REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
@@ -129,15 +132,18 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
             }
             case SPACE:
             {
-                return sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "";
+                final Space space = sample.getSpace();
+                return space != null ? space.getPermId().getPermId() : null;
             }
             case PROJECT:
             {
-                return sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "";
+                final Project project = sample.getProject();
+                return project != null ? project.getIdentifier().getIdentifier() : null;
             }
             case EXPERIMENT:
             {
-                return sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier() : "";
+                final Experiment experiment = sample.getExperiment();
+                return experiment != null ? experiment.getIdentifier().getIdentifier() : null;
             }
             case PARENTS:
             {
@@ -170,10 +176,6 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
             {
                 final Date modificationDate = sample.getModificationDate();
                 return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
-            }
-            case $:
-            {
-                return "";
             }
             case AUTO_GENERATE_CODE:
             {
