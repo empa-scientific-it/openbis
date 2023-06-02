@@ -75,7 +75,11 @@ var BarcodeUtil = new function() {
                         codeReader.listVideoInputDevices().then((videoInputDevices) => {
                             // Add cameras to devices
                             for(var cIdx = 0; cIdx < videoInputDevices.length; cIdx++) {
-                                var $cameraInput = $("<input>", { id : "camera-" + (cIdx+1), name : "device", type : "radio", value : videoInputDevices[cIdx].deviceId });
+                                var cameraDeviceId = videoInputDevices[cIdx].deviceId;
+                                if(!cameraDeviceId) {
+                                    cameraDeviceId = "trust";
+                                }
+                                var $cameraInput = $("<input>", { id : "camera-" + (cIdx+1), name : "device", type : "radio", value : cameraDeviceId });
                                         $device.append($cameraInput);
                                         deviceInputs.push($cameraInput);
                                         $device.append($("<label>", { for : "camera-" + (cIdx+1),  onclick : "" }).append(videoInputDevices[cIdx].label));
@@ -190,7 +194,9 @@ var BarcodeUtil = new function() {
                             action(null, err);
                         }
                     };
-
+                    if(cameraDeviceId === "trust") {
+                        cameraDeviceId = null;
+                    }
                     codeReader.decodeFromVideoDevice(cameraDeviceId, 'video', decodeFromVideoDeviceCallback);
         });
     }
