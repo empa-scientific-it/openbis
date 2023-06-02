@@ -245,6 +245,13 @@ public class DtoGenerator
         fields.add(dtoField);
     }
 
+    public void addSimpleField(String definitionClassName, String name, String fullClassName, String persistentFieldName)
+    {
+        DTOField dtoField = createPlural(name, definitionClassName, fullClassName, null, null);
+        dtoField.persistentFieldName = persistentFieldName;
+        fields.add(dtoField);
+    }
+
     public DTOField addFetchedField(Class<?> c, String name, String description,
             Class<?> fetchOptionsClass)
     {

@@ -234,6 +234,7 @@ public class Generator extends AbstractGenerator
         addRegistrator(gen);
         addModifier(gen);
         addAttachments(gen);
+        addMetaData(gen);
 
         gen.setToStringMethod("\"Sample \" + permId");
 
@@ -265,6 +266,7 @@ public class Generator extends AbstractGenerator
 
         gen.addStringField("generatedCodePrefix");
         addModificationDate(gen);
+        addMetaData(gen);
 
         gen.setToStringMethod("\"SampleType \" + code");
         addPropertyAssignments(gen);

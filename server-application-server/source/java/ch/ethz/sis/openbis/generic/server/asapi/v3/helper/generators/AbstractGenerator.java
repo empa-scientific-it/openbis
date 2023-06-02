@@ -120,6 +120,12 @@ public class AbstractGenerator
         gen.addClassForImport(Set.class);
     }
 
+    public static void addMetaData(DtoGenerator gen)
+    {
+        gen.addSimpleField("Map<String, String>", "MetaData", Map.class.getName(), "metaData");
+        gen.addClassForImport(Map.class);
+    }
+
     public static void addProperties(DtoGenerator gen)
     {
         gen.addPluralFetchedField("Map<String, String>", Map.class.getName(), "properties",
@@ -251,21 +257,21 @@ public class AbstractGenerator
         gen.addAdditionalMethod("@Override\n"
                 + "    public void setControlledVocabularyProperty(String propertyName, String propertyValue)\n"
                 + "    {\n"
-                + "        setProperty(propertyName, value);\n"
+                + "        setProperty(propertyName, propertyValue);\n"
                 + "    }");
 
         // Sample
         gen.addAdditionalMethod("@Override\n"
-                + "    public String getSampleProperty(String propertyName)\n"
+                + "    public SamplePermId getSampleProperty(String propertyName)\n"
                 + "    {\n"
                 + "        String propertyValue = getProperty(propertyName);\n"
-                + "        return (propertyValue == null || propertyValue.isBlank()) ? null : new SamplePermId(propertyValue)\n"
+                + "        return (propertyValue == null || propertyValue.isBlank()) ? null : new SamplePermId(propertyValue);\n"
                 + "    }");
 
         gen.addAdditionalMethod("@Override\n"
                 + "    public void setSampleProperty(String propertyName, SamplePermId propertyValue)\n"
                 + "    {\n"
-                + "        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId())\n"
+                + "        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());\n"
                 + "    }");
 
         // Hyperlink
