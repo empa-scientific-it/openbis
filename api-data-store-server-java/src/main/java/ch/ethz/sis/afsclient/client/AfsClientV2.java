@@ -17,10 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 public final class AfsClientV2 implements PublicAPI
@@ -155,7 +152,7 @@ public final class AfsClientV2 implements PublicAPI
     {
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
-                "offset", offset.toString(), "md5Hash", getMd5HexString(md5Hash)), data);
+                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data), "md5Hash", getMd5HexString(md5Hash)));
     }
 
     @Override
@@ -223,15 +220,10 @@ public final class AfsClientV2 implements PublicAPI
         return request("POST", "recover", List.class, Map.of());
     }
 
-    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod, Class<T> responseType,
-            @NonNull final Map<String, String> parameters) throws Exception
-    {
-        return request(httpMethod, apiMethod, responseType, parameters, new byte[0]);
-    }
 
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod, Class<T> responseType,
-            @NonNull final Map<String, String> params, final byte @NonNull [] body)
+            @NonNull final Map<String, String> params)
             throws Exception
     {
         HttpClient.Builder clientBuilder = HttpClient.newBuilder()
@@ -256,17 +248,27 @@ public final class AfsClientV2 implements PublicAPI
             params.put("transactionManagerKey", transactionManagerKey);
         }
 
-        final String query = Stream.concat(
+        String parameters = Stream.concat(
                         Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
                         params.entrySet().stream())
                 .map(entry-> {
                     return urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue());
                 })
                 .reduce((s1, s2) -> s1 + "&" + s2).get();
+        // GET Request - Parameters on the query string
+        String queryParameters = null;
+        if (httpMethod.equals("GET")) {
+            queryParameters = parameters;
+        }
+        // POST Request - Parameters on body
+        byte[] body = null;
+        if (httpMethod.equals("POST")) {
+            body = parameters.getBytes(StandardCharsets.UTF_8);
+        }
 
         final URI uri =
                 new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
-                        serverUri.getPath(), query, null);
+                        serverUri.getPath(), queryParameters, null);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(uri)
