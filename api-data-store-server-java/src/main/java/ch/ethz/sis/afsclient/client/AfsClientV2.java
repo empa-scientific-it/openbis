@@ -226,12 +226,9 @@ public final class AfsClientV2 implements PublicAPI
             @NonNull final Map<String, String> params)
             throws Exception
     {
-        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofMillis(timeout));
-
-        HttpClient client = clientBuilder.build();
+        //
+        // General Parameter Handling
+        //
 
         if (sessionToken != null)
         {
@@ -255,17 +252,28 @@ public final class AfsClientV2 implements PublicAPI
                     return urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue());
                 })
                 .reduce((s1, s2) -> s1 + "&" + s2).get();
+
+        //
         // GET Request - Parameters on the query string
+        //
+
         String queryParameters = null;
         if (httpMethod.equals("GET")) {
             queryParameters = parameters;
         }
+
+        //
         // POST Request - Parameters on body
+        //
+
         byte[] body = null;
         if (httpMethod.equals("POST")) {
             body = parameters.getBytes(StandardCharsets.UTF_8);
         }
 
+        //
+        // HTTP Client
+        //
         final URI uri =
                 new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
                         serverUri.getPath(), queryParameters, null);
@@ -277,6 +285,13 @@ public final class AfsClientV2 implements PublicAPI
                 .method(httpMethod, HttpRequest.BodyPublishers.ofByteArray(body));
 
         final HttpRequest request = builder.build();
+
+        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofMillis(timeout));
+
+        HttpClient client = clientBuilder.build();
 
         final HttpResponse<byte[]> httpResponse =
                 client.send(request, HttpResponse.BodyHandlers.ofByteArray());
