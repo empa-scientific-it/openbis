@@ -44,17 +44,11 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import org.hibernate.annotations.OptimisticLock;
+import org.hibernate.annotations.*;
 import org.hibernate.validator.constraints.Length;
 
 import ch.rinn.restrictions.Friend;
@@ -81,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Entity
 @Table(name = TableNames.SAMPLES_VIEW)
 @Friend(toClasses = ProjectPE.class)
+@TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
         IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder, Serializable
@@ -135,6 +130,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();
+
+    private Map<String, String> metaData;
 
     @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
@@ -1103,6 +1100,18 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             Set<MetaprojectAssignmentPE> metaprojectAssignments)
     {
         this.metaprojectAssignments = metaprojectAssignments;
+    }
+
+    @Column(name = "meta_data")
+    @Type(type = "JsonMap")
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
 }

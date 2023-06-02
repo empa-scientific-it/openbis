@@ -48,6 +48,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		prototype.registrator = null;
 		prototype.modifier = null;
 		prototype.attachments = null;
+		prototype.metaData = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -539,6 +540,12 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		prototype.setAttachments = function(attachments) {
 			this.attachments = attachments;
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaData = function(metaData) {
+            this.metaData = metaData;
+        };
 		prototype.toString = function() {
 			return "Sample " + this.permId;
 		};
@@ -642,7 +649,11 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		attachments : {
 			name : "List",
 			arguments : [ "Attachment" ]
-		}
+		},
+		metaData: {
+            name: "Map",
+            arguments: ["String", "String"]
+        }
 	});
 	return Sample;
 })

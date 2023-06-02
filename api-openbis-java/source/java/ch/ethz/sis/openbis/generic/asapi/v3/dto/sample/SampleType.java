@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -91,6 +92,10 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
 
     @JsonProperty
     private Plugin validationPlugin;
+
+    @JsonProperty
+    private Map<String, String> metaData;
+
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -308,6 +313,18 @@ public class SampleType implements Serializable, ICodeHolder, IDescriptionHolder
     {
         this.validationPlugin = validationPlugin;
     }
+
+    @JsonIgnore
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
+    }
+
 
     // Method automatically generated with DtoGenerator
     @Override

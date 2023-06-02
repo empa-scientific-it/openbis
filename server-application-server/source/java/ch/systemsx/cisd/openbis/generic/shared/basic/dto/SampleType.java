@@ -16,11 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ch.systemsx.cisd.common.reflection.CollectionMapping;
 
@@ -48,6 +44,8 @@ public final class SampleType extends EntityType implements Serializable
     private boolean showParentMetadata;
 
     private String generatedCodePrefix;
+
+    private Map<String, String> metaData;
 
     private List<SampleTypePropertyType> sampleTypePropertyTypes =
             new ArrayList<SampleTypePropertyType>(0);
@@ -167,6 +165,16 @@ public final class SampleType extends EntityType implements Serializable
     public void setGeneratedCodePrefix(String generatedCodePrefix)
     {
         this.generatedCodePrefix = generatedCodePrefix;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     //

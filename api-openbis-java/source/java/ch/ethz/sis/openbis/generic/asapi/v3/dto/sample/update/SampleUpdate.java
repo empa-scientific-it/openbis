@@ -19,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,12 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.update.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.RelationshipUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
@@ -100,6 +96,9 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
 
     @JsonProperty
     private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
+
+    @JsonProperty
+    private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
     @Override
     @JsonIgnore
@@ -532,6 +531,18 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public void setJsonProperty(String propertyName, String propertyValue)
     {
         setProperty(propertyName, propertyValue);
+    }
+
+    @JsonIgnore
+    public ListUpdateMapValues getMetaData()
+    {
+        return metaData;
+    }
+
+    @JsonIgnore
+    public void setMetaDataActions(List<ListUpdateAction<Object>> actions)
+    {
+        metaData.setActions(actions);
     }
 
     @Override

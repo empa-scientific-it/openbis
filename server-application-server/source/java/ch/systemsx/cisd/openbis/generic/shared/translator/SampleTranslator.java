@@ -165,6 +165,7 @@ public final class SampleTranslator
                         AttachmentTranslator.translate(samplePE.getAttachments(), baseIndexURL);
             }
             result.setAttachments(attachments);
+            result.setMetaData(samplePE.getMetaData());
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {

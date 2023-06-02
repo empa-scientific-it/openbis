@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -106,6 +107,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
         result.setShowParentMetadata(baseRecord.showParentMetadata);
         result.setSubcodeUnique(baseRecord.subcodeUnique);
         result.setModificationDate(baseRecord.modificationDate);
+        result.setMetaData(CommonUtils.asMap(baseRecord.metaData));
 
         if (fetchOptions.hasPropertyAssignments())
         {

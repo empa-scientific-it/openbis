@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdat
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityTypePropertyTypesExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 
@@ -75,12 +81,62 @@ public class UpdateSampleTypeExecutor
         {
             type.setGeneratedFromHierarchyDepth(Boolean.TRUE.equals(update.isShowParents().getValue()) ? 1 : 0);
         }
+        updateMetaData(type, update);
     }
 
     @Override
     protected IUpdateEntityTypePropertyTypesExecutor<SampleTypeUpdate, SampleTypePE> getUpdateEntityTypePropertyTypeExecutor()
     {
         return updateSampleTypePropertyTypesExecutor;
+    }
+
+
+    private void updateMetaData(SampleTypePE type, SampleTypeUpdate update) {
+        Map<String, String> metaData = new HashMap<>();
+        if(type.getMetaData() != null) {
+            metaData.putAll(type.getMetaData());
+        }
+        ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
+        AtomicBoolean metaDataChanged = new AtomicBoolean(false);
+        for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
+        {
+            if (action instanceof ListUpdateValue.ListUpdateActionAdd<?>)
+            {
+                addTo(metaData, action, metaDataChanged);
+            } else if (action instanceof ListUpdateValue.ListUpdateActionRemove<?>)
+            {
+                for (String key : (Collection<String>) action.getItems())
+                {
+                    metaDataChanged.set(true);
+                    metaData.remove(key);
+                }
+            } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
+            {
+                lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
+            }
+        }
+        if (lastSetAction != null)
+        {
+            metaData.clear();
+            addTo(metaData, lastSetAction, metaDataChanged);
+        }
+        if (metaDataChanged.get())
+        {
+            type.setMetaData(metaData.isEmpty() ? null : metaData);
+        }
+    }
+
+    private void addTo(Map<String, String> metaData, ListUpdateValue.ListUpdateAction<?> lastSetAction, AtomicBoolean metaDataChanged)
+    {
+        Collection<Map<String, String>> maps = (Collection<Map<String, String>>) lastSetAction.getItems();
+        for (Map<String, String> map : maps)
+        {
+            if (!map.isEmpty())
+            {
+                metaDataChanged.set(true);
+                metaData.putAll(map);
+            }
+        }
     }
 
 }

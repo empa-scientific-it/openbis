@@ -191,6 +191,9 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     @JsonProperty
     private List<Attachment> attachments;
 
+    @JsonProperty
+    private Map<String, String> metaData;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public SampleFetchOptions getFetchOptions()
@@ -1175,6 +1178,17 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     {
         Map<SamplePermId, Relationship> relationships = getChildrenRelationships();
         return relationships == null ? new Relationship() : relationships.get(childId);
+    }
+
+    @JsonIgnore
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     // Method automatically generated with DtoGenerator

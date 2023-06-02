@@ -151,6 +151,7 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
                     sample.setPermId(createdPermId);
                     sample.setRegistrator(person);
                     RelationshipUtils.updateModificationDateAndModifier(sample, person, timeStamp);
+                    sample.setMetaData(creation.getMetaData());
                     samples.add(sample);
                 }
 

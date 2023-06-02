@@ -2,9 +2,10 @@
  * @author pkupczyk
  */
 define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue", 
-			"as/dto/attachment/update/AttachmentListUpdateValue", "as/dto/common/update/RelationshipUpdate" ], 
-			function(stjs, FieldUpdateValue,
-					IdListUpdateValue, AttachmentListUpdateValue, RelationshipUpdate) {
+			"as/dto/attachment/update/AttachmentListUpdateValue", "as/dto/common/update/RelationshipUpdate",
+			"as/dto/common/update/ListUpdateMapValues" ],
+			function(stjs, FieldUpdateValue, IdListUpdateValue, AttachmentListUpdateValue,
+			RelationshipUpdate, ListUpdateMapValues) {
 	var SampleUpdate = function() {
 		this.properties = {};
 		this.experimentId = new FieldUpdateValue();
@@ -17,6 +18,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		this.childIds = new IdListUpdateValue();
 		this.relationships = {};
 		this.attachments = new AttachmentListUpdateValue();
+		this.metaData = new ListUpdateMapValues();
 	};
 	stjs.extend(SampleUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.sample.update.SampleUpdate';
@@ -38,6 +40,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.childIds = null;
 		prototype.relationships = null;
 		prototype.attachments = null;
+		prototype.metaData = null;
 
 		prototype.getObjectId = function() {
 			return this.getSampleId();
@@ -252,6 +255,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setAttachmentsActions = function(actions) {
 			this.attachments.setActions(actions);
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaDataActions = function(actions) {
+            this.metaData.setActions(actions);
+        };
 	}, {
 		sampleId : "ISampleId",
 		experimentId : {
@@ -294,7 +303,8 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 			name : "Map",
 			arguments : [ "ISampleId", "RelationshipUpdate" ]
 		},
-		attachments : "AttachmentListUpdateValue"
+		attachments : "AttachmentListUpdateValue",
+		metaData : "ListUpdateMapValues"
 	});
 	return SampleUpdate;
 })

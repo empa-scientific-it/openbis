@@ -75,6 +75,7 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
         type.setShowContainer(creation.isShowContainer());
         type.setShowParents(creation.isShowParents());
         type.setShowParentMetadata(creation.isShowParentMetadata());
+        type.setMetaData(creation.getMetaData());
     }
 
     @Override

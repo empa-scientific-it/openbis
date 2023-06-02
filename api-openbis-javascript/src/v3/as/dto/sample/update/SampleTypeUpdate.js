@@ -1,5 +1,7 @@
-define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/update/PropertyAssignmentListUpdateValue" ], function(stjs, FieldUpdateValue, 
-		PropertyAssignmentListUpdateValue) {
+define([ "stjs", "as/dto/common/update/FieldUpdateValue",
+            "as/dto/entitytype/update/PropertyAssignmentListUpdateValue",
+            "as/dto/common/update/ListUpdateMapValues" ], function(stjs, FieldUpdateValue,
+            PropertyAssignmentListUpdateValue, ListUpdateMapValues) {
 	var SampleTypeUpdate = function() {
 		this.description = new FieldUpdateValue();
 		this.generatedCodePrefix = new FieldUpdateValue();
@@ -11,6 +13,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		this.showParentMetadata = new FieldUpdateValue();
 		this.validationPluginId = new FieldUpdateValue();
 		this.propertyAssignments = new PropertyAssignmentListUpdateValue();
+		this.metaData = new ListUpdateMapValues();
 	};
 	stjs.extend(SampleTypeUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.sample.update.SampleTypeUpdate';
@@ -26,6 +29,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		prototype.showParentMetadata = null;
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
+		prototype.metaData = null;
 
 		prototype.getObjectId = function() {
 			return this.getTypeId();
@@ -96,6 +100,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		prototype.setPropertyAssignmentActions = function(actions) {
 			this.propertyAssignments.setActions(actions);
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaDataActions = function(actions) {
+            this.metaData.setActions(actions);
+        };
 	}, {
 		typeId : "IEntityTypeId",
 		description : {
@@ -134,7 +144,8 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 			name : "FieldUpdateValue",
 			arguments : [ "IPluginId" ]
 		},
-		propertyAssignments : "PropertyAssignmentListUpdateValue"
+		propertyAssignments : "PropertyAssignmentListUpdateValue",
+        metaData : "ListUpdateMapValues"
 	});
 	return SampleTypeUpdate;
 })

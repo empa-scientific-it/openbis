@@ -612,7 +612,8 @@ CREATE OR REPLACE RULE sample_insert AS
          saty_id,
          space_id,
          space_frozen,
-         version
+         version,
+         meta_data
        ) VALUES (
          NEW.id,
          NEW.frozen,
@@ -637,7 +638,8 @@ CREATE OR REPLACE RULE sample_insert AS
          NEW.saty_id,
          NEW.space_id,
          NEW.space_frozen,
-         NEW.version
+         NEW.version,
+         NEW.meta_data
        );
 
 CREATE OR REPLACE RULE sample_update AS
@@ -665,7 +667,8 @@ CREATE OR REPLACE RULE sample_update AS
               saty_id = NEW.saty_id,
               space_id = NEW.space_id,
               space_frozen = NEW.space_frozen,
-              version = NEW.version
+              version = NEW.version,
+              meta_data = NEW.meta_data
           WHERE id = NEW.id;
 
 CREATE OR REPLACE RULE sample_delete AS

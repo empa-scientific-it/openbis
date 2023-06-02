@@ -49,4 +49,6 @@ public class SampleBaseRecord extends ObjectBaseRecord
 
     public Date modificationDate;
 
+    public String metaData;
+
 }

@@ -79,6 +79,8 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
 
     private CreationId creationId;
 
+    private Map<String, String> metaData;
+
     public IEntityTypeId getTypeId()
     {
         return typeId;
@@ -220,6 +222,16 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public void setAttachments(List<AttachmentCreation> attachments)
     {
         this.attachments = attachments;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     @Override

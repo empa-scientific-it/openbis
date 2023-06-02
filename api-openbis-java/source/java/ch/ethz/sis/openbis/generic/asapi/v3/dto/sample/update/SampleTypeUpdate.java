@@ -16,7 +16,9 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update;
 
 import java.util.List;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateMapValues;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -69,6 +71,9 @@ public class SampleTypeUpdate implements IEntityTypeUpdate
 
     @JsonProperty
     private PropertyAssignmentListUpdateValue propertyAssignments = new PropertyAssignmentListUpdateValue();
+
+    @JsonProperty
+    private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
     @Override
     @JsonIgnore
@@ -215,6 +220,18 @@ public class SampleTypeUpdate implements IEntityTypeUpdate
     public void setPropertyAssignmentActions(List<ListUpdateAction<Object>> actions)
     {
         propertyAssignments.setActions(actions);
+    }
+
+    @JsonIgnore
+    public ListUpdateMapValues getMetaData()
+    {
+        return metaData;
+    }
+
+    @JsonIgnore
+    public void setMetaDataActions(List<ListUpdateAction<Object>> actions)
+    {
+        metaData.setActions(actions);
     }
 
     @Override

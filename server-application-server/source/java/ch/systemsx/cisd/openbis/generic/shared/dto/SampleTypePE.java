@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -34,7 +35,11 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -48,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @Entity
 @Table(name = TableNames.SAMPLE_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
+@TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -72,6 +78,8 @@ public final class SampleTypePE extends EntityTypePE
     private Boolean showParentMetadata;
 
     private String generatedCodePrefix;
+
+    private Map<String, String> metaData;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "entityTypeInternal", orphanRemoval = true)
     private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
@@ -229,6 +237,18 @@ public final class SampleTypePE extends EntityTypePE
     public Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes()
     {
         return getSampleTypePropertyTypes();
+    }
+
+    @Column(name = "meta_data")
+    @Type(type = "JsonMap")
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
 }
