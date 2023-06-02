@@ -1,5 +1,13 @@
 package ch.ethz.sis.afsclient.client;
 
+import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.ApiResponse;
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
+import lombok.NonNull;
+
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.net.URI;
@@ -9,18 +17,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
-import ch.ethz.sis.afsapi.api.PublicAPI;
-import ch.ethz.sis.afsapi.dto.ApiResponse;
-import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
-import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
-import lombok.NonNull;
-
-public final class AfsClient implements PublicAPI
+public final class AfsClientV2 implements PublicAPI
 {
 
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
@@ -41,12 +44,12 @@ public final class AfsClient implements PublicAPI
 
     private final JsonObjectMapper jsonObjectMapper;
 
-    public AfsClient(final URI serverUri)
+    public AfsClientV2(final URI serverUri)
     {
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout)
+    public AfsClientV2(final URI serverUri, final int maxReadSizeInBytes, final int timeout)
     {
         this.maxReadSizeInBytes = maxReadSizeInBytes;
         this.timeout = timeout;
