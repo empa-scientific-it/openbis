@@ -1854,7 +1854,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
         var loadSamplesPromise = this._loadNodesExperimentSamples({
             node: samplesFolderNode,
             offset: 0,
-            limit: 0,
+            limit: this.LOAD_LIMIT,
         })
 
         var dataSetsFolderNode = this._createExperimentDataSetsNode()
@@ -1871,10 +1871,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             loadDataSetsPromise = this._loadNodesExperimentDataSets({
                 node: dataSetsFolderNode,
                 offset: 0,
-                limit: 0,
+                limit: this.LOAD_LIMIT,
             })
         } else {
             loadDataSetsPromise = Promise.resolve({
+                nodes: [],
                 totalCount: 0,
             })
         }
@@ -1885,11 +1886,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             nodes: [],
         }
 
-        if (samplesResults.totalCount > 0) {
+        if (samplesResults.totalCount > this.LOAD_LIMIT || samplesResults.nodes.length > 0) {
             results.nodes.push(samplesFolderNode)
         }
 
-        if (dataSetsResults.totalCount > 0) {
+        if (dataSetsResults.totalCount > this.LOAD_LIMIT || dataSetsResults.nodes.length > 0) {
             results.nodes.push(dataSetsFolderNode)
         }
 
@@ -2054,7 +2055,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
         var loadChildrenPromise = this._loadNodesSampleChildren({
             node: childrenFolderNode,
             offset: 0,
-            limit: 0,
+            limit: this.LOAD_LIMIT,
         })
 
         var dataSetsFolderNode = this._createSampleDataSetsNode()
@@ -2071,10 +2072,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             loadDataSetsPromise = this._loadNodesSampleDataSets({
                 node: dataSetsFolderNode,
                 offset: 0,
-                limit: 0,
+                limit: this.LOAD_LIMIT,
             })
         } else {
             loadDataSetsPromise = Promise.resolve({
+                nodes: [],
                 totalCount: 0,
             })
         }
@@ -2085,11 +2087,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             nodes: [],
         }
 
-        if (childrenResults.totalCount > 0) {
+        if (childrenResults.totalCount > this.LOAD_LIMIT || childrenResults.nodes.length > 0) {
             results.nodes.push(childrenFolderNode)
         }
 
-        if (dataSetsResults.totalCount > 0) {
+        if (dataSetsResults.totalCount > this.LOAD_LIMIT || dataSetsResults.nodes.length > 0) {
             results.nodes.push(dataSetsFolderNode)
         }
 
