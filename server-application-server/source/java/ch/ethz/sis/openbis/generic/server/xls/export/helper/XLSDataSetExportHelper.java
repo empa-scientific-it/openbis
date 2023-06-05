@@ -121,19 +121,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     @Override
     protected Attribute[] getAttributes(final Collection<DataSet> dataSets)
     {
-        final boolean includeSample = dataSets.stream().anyMatch(dataSet -> dataSet.getSample() != null);
-        final boolean includeExperiment = dataSets.stream().anyMatch(dataSet -> dataSet.getSample() == null && dataSet.getExperiment() != null);
-
-        return Stream.concat(
-                Stream.concat(
-                        Stream.of(PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION),
-                        Stream.ofNullable(includeSample ? SAMPLE : null)
-                ),
-                Stream.concat(
-                        Stream.ofNullable(includeExperiment ? EXPERIMENT : null),
-                        Stream.of(PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE)
-                )
-        ).toArray(Attribute[]::new);
+        return new Attribute[] { PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION, SAMPLE, EXPERIMENT, PARENTS, CHILDREN,
+                REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
     }
 
     @Override
@@ -160,6 +149,11 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
                 final PhysicalData physicalData = dataSet.getPhysicalData();
                 return physicalData != null ? physicalData.isStorageConfirmation().toString().toUpperCase() : null;
             }
+            case SIZE:
+            {
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.getSize().toString() : null;
+            }
             case CODE:
             {
                 return dataSet.getCode();
@@ -171,9 +165,8 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             }
             case EXPERIMENT:
             {
-                final Sample sample = dataSet.getSample();
                 final Experiment experiment = dataSet.getExperiment();
-                return sample == null && experiment != null ? experiment.getIdentifier().getIdentifier() : null;
+                return experiment != null ? experiment.getIdentifier().getIdentifier() : null;
             }
             case REGISTRATOR:
             {

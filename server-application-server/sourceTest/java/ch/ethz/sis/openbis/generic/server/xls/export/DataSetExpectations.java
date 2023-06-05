@@ -74,11 +74,14 @@ class DataSetExpectations extends Expectations
 
                 final Sample[] samples = new Sample[2];
 
+                final Experiment sampleExperiment = new Experiment();
+                sampleExperiment.setIdentifier(new ExperimentIdentifier("/TEST/TEST"));
+
                 samples[0] = new Sample();
-                samples[0].setIdentifier(new SampleIdentifier("/TEST/TEST_2"));
+                samples[0].setIdentifier(new SampleIdentifier("/TEST/TEST/TEST_2"));
 
                 samples[1] = new Sample();
-                samples[1].setIdentifier(new SampleIdentifier("/TEST/TEST_3"));
+                samples[1].setIdentifier(new SampleIdentifier("/TEST/TEST/TEST_3"));
 
                 final Experiment experiment = new Experiment();
                 experiment.setIdentifier(new ExperimentIdentifier("/TEST/TEST_1"));
@@ -137,6 +140,7 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setCode("TEST_2");
                 dataSets[1].setPhysicalData(physicalData[1]);
                 dataSets[1].setSample(samples[0]);
+                dataSets[1].setExperiment(sampleExperiment);
                 dataSets[1].setType(dataSetTypes[0]);
                 dataSets[1].setProperty("$NAME", "<i>Test 2</i>");
                 dataSets[1].setProperty("$ATTACHMENT", "file1.bin");
@@ -152,6 +156,7 @@ class DataSetExpectations extends Expectations
                 dataSets[2].setCode("TEST_3");
                 dataSets[2].setPhysicalData(physicalData[2]);
                 dataSets[2].setSample(samples[1]);
+                dataSets[2].setExperiment(sampleExperiment);
                 dataSets[2].setType(dataSetTypes[0]);
                 dataSets[2].setProperty("$NAME", "Test 3");
                 dataSets[2].setProperty("$ATTACHMENT", "file2.bin");

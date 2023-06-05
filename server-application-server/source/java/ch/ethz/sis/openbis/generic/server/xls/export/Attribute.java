@@ -72,6 +72,8 @@ public enum Attribute
 
     REGISTRATOR("Registrator", false, false, true),
 
+    SIZE("Size", false, false, true),
+
     SAMPLE("Sample", false, false, true),
 
     SPACE("Space", true, true, true),
