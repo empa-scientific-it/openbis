@@ -19,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,10 +27,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.update.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
@@ -68,6 +65,9 @@ public class ExperimentUpdate implements IUpdate, IObjectUpdate<IExperimentId>, 
 
     @JsonProperty
     private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
+
+    @JsonProperty
+    private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
     @Override
     @JsonIgnore
@@ -377,6 +377,19 @@ public class ExperimentUpdate implements IUpdate, IObjectUpdate<IExperimentId>, 
     {
         setProperty(propertyName, propertyValue);
     }
+
+    @JsonIgnore
+    public ListUpdateMapValues getMetaData()
+    {
+        return metaData;
+    }
+
+    @JsonIgnore
+    public void setMetaDataActions(List<ListUpdateAction<Object>> actions)
+    {
+        metaData.setActions(actions);
+    }
+
 
     @Override
     public String toString()

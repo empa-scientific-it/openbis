@@ -713,7 +713,8 @@ CREATE OR REPLACE RULE experiment_insert AS
        proj_id,
        proj_frozen,
        registration_timestamp,
-       version
+       version,
+       meta_data
      ) VALUES (
        NEW.id,
        NEW.frozen,
@@ -731,7 +732,8 @@ CREATE OR REPLACE RULE experiment_insert AS
        NEW.proj_id,
        NEW.proj_frozen,
        NEW.registration_timestamp,
-       NEW.version
+       NEW.version,
+       NEW.meta_data
      );
 
 CREATE OR REPLACE RULE experiment_update AS
@@ -752,7 +754,8 @@ CREATE OR REPLACE RULE experiment_update AS
               proj_id = NEW.proj_id,
               proj_frozen = NEW.proj_frozen,
               registration_timestamp = NEW.registration_timestamp,
-              version = NEW.version
+              version = NEW.version,
+              meta_data = NEW.meta_data
           WHERE id = NEW.id;
 
 CREATE OR REPLACE RULE experiment_delete AS

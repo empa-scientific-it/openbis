@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The <i>GWT</i> equivalent to ExperimentTypePE.
@@ -27,6 +28,8 @@ public class ExperimentType extends EntityType
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
+
+    private Map<String, String> metaData;
 
     @Override
     public List<ExperimentTypePropertyType> getAssignedPropertyTypes()
@@ -50,5 +53,15 @@ public class ExperimentType extends EntityType
     public EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 }

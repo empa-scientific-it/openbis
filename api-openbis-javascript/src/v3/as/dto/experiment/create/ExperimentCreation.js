@@ -15,7 +15,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.properties = null;
 		prototype.attachments = null;
 		prototype.creationId = null;
-
+        prototype.metaData = null;
 		prototype.setTypeId = function(typeId) {
 			this.typeId = typeId;
 		};
@@ -154,6 +154,12 @@ define([ "stjs" ], function(stjs) {
 		prototype.setCreationId = function(creationId) {
 			this.creationId = creationId;
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaData = function(metaData) {
+            this.metaData = metaData;
+        };
 	}, {
 		typeId : "IEntityTypeId",
 		projectId : "IProjectId",
@@ -169,7 +175,11 @@ define([ "stjs" ], function(stjs) {
 			name : "List",
 			arguments : [ "AttachmentCreation" ]
 		},
-		creationId : "CreationId"
+        creationId : "CreationId",
+        metaData: {
+             name: "Map",
+             arguments: ["String", "String"]
+        }
 	});
 	return ExperimentCreation;
 })

@@ -16,11 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,17 +39,11 @@ import javax.validation.constraints.Pattern;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import org.hibernate.annotations.OptimisticLock;
+import org.hibernate.annotations.*;
 import org.hibernate.validator.constraints.Length;
 
 import ch.rinn.restrictions.Friend;
@@ -79,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Table(name = TableNames.EXPERIMENTS_VIEW, uniqueConstraints = {
         @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Friend(toClasses = { AttachmentPE.class, ProjectPE.class })
+@TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
         IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects, IIdentityHolder,
@@ -152,6 +143,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private Integer originalDeletion;
 
     private String permId;
+
+    private Map<String, String> metaData;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
@@ -708,5 +701,17 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private void setExperimentSamples(final List<SamplePE> samples)
     {
         setSamples(samples);
+    }
+
+    @Column(name = "meta_data")
+    @Type(type = "JsonMap")
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 }

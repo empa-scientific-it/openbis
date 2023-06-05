@@ -1,13 +1,16 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue", "as/dto/attachment/update/AttachmentListUpdateValue" ], function(stjs, FieldUpdateValue, IdListUpdateValue,
-		AttachmentListUpdateValue) {
+define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue",
+    "as/dto/attachment/update/AttachmentListUpdateValue", "as/dto/common/update/ListUpdateMapValues" ],
+    function(stjs, FieldUpdateValue, IdListUpdateValue,
+		AttachmentListUpdateValue, ListUpdateMapValues) {
 	var ExperimentUpdate = function() {
 		this.properties = {};
 		this.projectId = new FieldUpdateValue();
 		this.tagIds = new IdListUpdateValue();
 		this.attachments = new AttachmentListUpdateValue();
+		this.metaData = new ListUpdateMapValues();
 	};
 	stjs.extend(ExperimentUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.experiment.update.ExperimentUpdate';
@@ -20,6 +23,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.projectId = null;
 		prototype.tagIds = null;
 		prototype.attachments = null;
+		prototype.metaData = null;
 
 		prototype.getObjectId = function() {
 			return this.getExperimentId();
@@ -167,6 +171,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setAttachmentsActions = function(actions) {
 			this.attachments.setActions(actions);
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaDataActions = function(actions) {
+            this.metaData.setActions(actions);
+        };
 	}, {
 		experimentId : "IExperimentId",
 		properties : {
@@ -181,7 +191,8 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 			name : "IdListUpdateValue",
 			arguments : [ "ITagId" ]
 		},
-		attachments : "AttachmentListUpdateValue"
+		attachments : "AttachmentListUpdateValue",
+        metaData : "ListUpdateMapValues"
 	});
 	return ExperimentUpdate;
 })

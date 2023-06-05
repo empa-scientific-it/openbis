@@ -17,22 +17,18 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.*;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 /**
  * Persistence entity representing type of experiment.
@@ -42,12 +38,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @Entity
 @Table(name = TableNames.EXPERIMENT_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
+@TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public final class ExperimentTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
     private Set<ExperimentTypePropertyTypePE> exerimentTypePropertyTypes =
             new HashSet<ExperimentTypePropertyTypePE>();
+
+    private Map<String, String> metaData;
 
     @Override
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_TYPE_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_TYPE_SEQUENCE, allocationSize = 1)
@@ -111,6 +110,18 @@ public final class ExperimentTypePE extends EntityTypePE
     public Collection<? extends EntityTypePropertyTypePE> getEntityTypePropertyTypes()
     {
         return getExperimentTypePropertyTypes();
+    }
+
+    @Column(name = "meta_data")
+    @Type(type = "JsonMap")
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
 }

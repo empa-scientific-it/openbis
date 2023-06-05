@@ -47,6 +47,7 @@ public class ExperimentTypeTranslator
         result.setModificationDate(experimentTypePE.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(experimentTypePE
                 .getValidationScript()));
+        result.setMetaData(experimentTypePE.getMetaData());
         return result;
     }
 

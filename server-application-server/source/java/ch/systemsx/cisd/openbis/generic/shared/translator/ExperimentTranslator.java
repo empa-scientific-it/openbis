@@ -144,6 +144,7 @@ public final class ExperimentTranslator
         result.setModifier(PersonTranslator.translate(experiment.getModifier()));
         result.setDeletion(DeletionTranslator.translate(experiment.getDeletion()));
         result.setVersion(experiment.getVersion());
+        result.setMetaData(experiment.getMetaData());
         for (final LoadableFields field : withFields)
         {
             switch (field)

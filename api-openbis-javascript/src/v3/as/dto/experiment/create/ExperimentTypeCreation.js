@@ -11,6 +11,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.description = null;
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
+        prototype.metaData = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -36,13 +37,23 @@ define([ "stjs" ], function(stjs) {
 		prototype.setPropertyAssignments = function(propertyAssignments) {
 			this.propertyAssignments = propertyAssignments;
 		};
+        prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaData = function(metaData) {
+            this.metaData = metaData;
+        };
 
 	}, {
 		validationPluginId : "IPluginId",
 		propertyAssignments : {
 			name : "List",
 			arguments : [ "PropertyAssignmentCreation" ]
-		}
+		},
+        metaData: {
+             name: "Map",
+             arguments: ["String", "String"]
+         }
 	});
 	return ExperimentTypeCreation;
 })

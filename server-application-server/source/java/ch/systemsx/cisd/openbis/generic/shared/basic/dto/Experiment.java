@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
@@ -60,6 +61,8 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
     private boolean isStub;
 
     private Collection<Metaproject> metaprojects;
+
+    private Map<String, String> metaData;
 
     public Experiment()
     {
@@ -237,4 +240,15 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
     {
         this.metaprojects = metaprojects;
     }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
+    }
+
 }

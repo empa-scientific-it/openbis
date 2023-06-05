@@ -34,6 +34,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrator = null;
 		prototype.modifier = null;
 		prototype.attachments = null;
+		prototype.metaData = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -374,6 +375,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setAttachments = function(attachments) {
 			this.attachments = attachments;
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaData = function(metaData) {
+            this.metaData = metaData;
+        };
 		prototype.toString = function() {
 			return "Experiment " + this.permId;
 		};
@@ -438,7 +445,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		attachments : {
 			name : "List",
 			arguments : [ "Attachment" ]
-		}
+		},
+        metaData: {
+             name: "Map",
+             arguments: ["String", "String"]
+         }
 	});
 	return Experiment;
 })

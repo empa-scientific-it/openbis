@@ -38,7 +38,8 @@ public interface ExperimentQuery extends ObjectQuery
 
     @Select(sql = "select e.id, e.code, e.perm_id as permId, p.code as projectCode, sp.code as spaceCode, "
             + "e.registration_timestamp as registrationDate, e.modification_timestamp as modificationDate, "
-            + "e.frozen as frozen, e.frozen_for_data as frozenForDataSets, e.frozen_for_samp as frozenForSamples "
+            + "e.frozen as frozen, e.frozen_for_data as frozenForDataSets, e.frozen_for_samp as frozenForSamples, "
+            + "e.meta_data as metaData "
             + "from experiments e join projects p on e.proj_id = p.id "
             + "join spaces sp on p.space_id = sp.id "
             + "where e.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
@@ -48,7 +49,7 @@ public interface ExperimentQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet experimentIds);
 
-    @Select(sql = "select et.id, et.code, et.description, et.modification_timestamp as modificationDate "
+    @Select(sql = "select et.id, et.code, et.description, et.modification_timestamp as modificationDate, et.meta_data as metaData "
             + "from experiment_types et where et.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ExperimentTypeBaseRecord> getTypes(LongSet experimentTypeIds);
 

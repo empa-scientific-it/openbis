@@ -1,9 +1,11 @@
-define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/update/PropertyAssignmentListUpdateValue" ], function(stjs, FieldUpdateValue, 
-		PropertyAssignmentListUpdateValue) {
+define([ "stjs", "as/dto/common/update/FieldUpdateValue",
+    "as/dto/entitytype/update/PropertyAssignmentListUpdateValue", "as/dto/common/update/ListUpdateMapValues"],
+     function(stjs, FieldUpdateValue, PropertyAssignmentListUpdateValue, ListUpdateMapValues) {
 	var ExperimentTypeUpdate = function() {
 		this.description = new FieldUpdateValue();
 		this.validationPluginId = new FieldUpdateValue();
 		this.propertyAssignments = new PropertyAssignmentListUpdateValue();
+		this.metaData = new ListUpdateMapValues();
 	};
 	stjs.extend(ExperimentTypeUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.experiment.update.ExperimentTypeUpdate';
@@ -12,6 +14,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		prototype.description = null;
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
+		prototype.metaData = null;
 
 		prototype.getObjectId = function() {
 			return this.getTypeId();
@@ -40,6 +43,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 		prototype.setPropertyAssignmentActions = function(actions) {
 			this.propertyAssignments.setActions(actions);
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaDataActions = function(actions) {
+            this.metaData.setActions(actions);
+        };
 	}, {
 		typeId : "IEntityTypeId",
 		description : {
@@ -50,7 +59,8 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/entitytype/upd
 			name : "FieldUpdateValue",
 			arguments : [ "IPluginId" ]
 		},
-		propertyAssignments : "PropertyAssignmentListUpdateValue"
+		propertyAssignments : "PropertyAssignmentListUpdateValue",
+		metaData : "ListUpdateMapValues"
 	});
 	return ExperimentTypeUpdate;
 })

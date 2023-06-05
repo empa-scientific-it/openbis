@@ -15,13 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -114,6 +112,7 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
         updateExperimentPropertyExecutor.update(context, batch);
         updateTags(context, batch);
         updateAttachments(context, batch);
+        updateMetaData(context, batch);
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
@@ -154,6 +153,69 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
         {
             eventExecutor.persist(context, freezingEvents);
         }
+    }
+
+    private void updateMetaData(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    {
+        new MapBatchProcessor<ExperimentUpdate, ExperimentPE>(context, batch)
+        {
+            @Override
+            public void process(ExperimentUpdate update, ExperimentPE entity)
+            {
+                Map<String, String> metaData = new HashMap<>();
+                if(entity.getMetaData() != null) {
+                    metaData.putAll(entity.getMetaData());
+                }
+                ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
+                AtomicBoolean metaDataChanged = new AtomicBoolean(false);
+                for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
+                {
+                    if (action instanceof ListUpdateValue.ListUpdateActionAdd<?>)
+                    {
+                        addTo(metaData, action, metaDataChanged);
+                    } else if (action instanceof ListUpdateValue.ListUpdateActionRemove<?>)
+                    {
+                        for (String key : (Collection<String>) action.getItems())
+                        {
+                            metaDataChanged.set(true);
+                            metaData.remove(key);
+                        }
+                    } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
+                    {
+                        lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
+                    }
+                }
+                if (lastSetAction != null)
+                {
+                    metaData.clear();
+                    addTo(metaData, lastSetAction, metaDataChanged);
+                }
+                if (metaDataChanged.get())
+                {
+                    entity.setMetaData(metaData.isEmpty() ? null : metaData);
+                }
+            }
+
+            @Override
+            public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
+            {
+                return new UpdateRelationProgress(update, entity, "experiment-tag", objectIndex, totalObjectCount);
+            }
+
+            @SuppressWarnings("unchecked")
+            private void addTo(Map<String, String> metaData, ListUpdateValue.ListUpdateAction<?> lastSetAction, AtomicBoolean metaDataChanged)
+            {
+                Collection<Map<String, String>> maps = (Collection<Map<String, String>>) lastSetAction.getItems();
+                for (Map<String, String> map : maps)
+                {
+                    if (!map.isEmpty())
+                    {
+                        metaDataChanged.set(true);
+                        metaData.putAll(map);
+                    }
+                }
+            }
+        };
     }
 
     private void updateTags(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)

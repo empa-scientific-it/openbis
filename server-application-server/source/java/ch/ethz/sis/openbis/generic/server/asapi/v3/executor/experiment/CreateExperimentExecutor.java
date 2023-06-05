@@ -101,6 +101,7 @@ public class CreateExperimentExecutor extends AbstractCreateEntityExecutor<Exper
                     experiment.setPermId(createdPermId);
                     experiment.setRegistrator(person);
                     RelationshipUtils.updateModificationDateAndModifier(experiment, person, timeStamp);
+                    experiment.setMetaData(object.getMetaData());
                     experiments.add(experiment);
                 }
 

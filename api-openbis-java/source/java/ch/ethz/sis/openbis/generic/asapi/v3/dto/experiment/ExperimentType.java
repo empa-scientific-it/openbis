@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -61,6 +62,10 @@ public class ExperimentType implements Serializable, ICodeHolder, IDescriptionHo
 
     @JsonProperty
     private Plugin validationPlugin;
+
+    @JsonProperty
+    private Map<String, String> metaData;
+
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -169,6 +174,18 @@ public class ExperimentType implements Serializable, ICodeHolder, IDescriptionHo
     {
         this.validationPlugin = validationPlugin;
     }
+
+    @JsonIgnore
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
+    }
+
 
     // Method automatically generated with DtoGenerator
     @Override

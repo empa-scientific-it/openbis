@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.create.IEntityTypeCreation;
@@ -39,6 +40,8 @@ public class ExperimentTypeCreation implements IEntityTypeCreation
     private IPluginId validationPluginId;
 
     private List<PropertyAssignmentCreation> propertyAssignments;
+
+    private Map<String, String> metaData;
 
     @Override
     public String getCode()
@@ -86,6 +89,16 @@ public class ExperimentTypeCreation implements IEntityTypeCreation
     public void setPropertyAssignments(List<PropertyAssignmentCreation> propertyAssignments)
     {
         this.propertyAssignments = propertyAssignments;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     @Override

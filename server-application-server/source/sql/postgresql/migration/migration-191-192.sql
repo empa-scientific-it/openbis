@@ -16,6 +16,19 @@ CREATE OR REPLACE VIEW samples AS
      WHERE del_id IS NULL;
 
 
+ALTER TABLE IF EXISTS EXPERIMENTS_ALL
+    ADD COLUMN META_DATA jsonb;
+
+ALTER TABLE IF EXISTS EXPERIMENT_TYPES
+    ADD COLUMN META_DATA jsonb;
+
+CREATE OR REPLACE VIEW experiments AS
+     SELECT id, perm_id, code, exty_id, pers_id_registerer, pers_id_modifier, registration_timestamp, modification_timestamp,
+            proj_id, proj_frozen, del_id, orig_del, is_public, version, frozen, frozen_for_samp, frozen_for_data, tsvector_document, meta_data
+       FROM experiments_all
+      WHERE del_id IS NULL;
+
+
 -- function
 
 CREATE OR REPLACE RULE sample_insert AS
@@ -99,6 +112,71 @@ CREATE OR REPLACE RULE sample_update AS
               saty_id = NEW.saty_id,
               space_id = NEW.space_id,
               space_frozen = NEW.space_frozen,
+              version = NEW.version,
+              meta_data = NEW.meta_data
+          WHERE id = NEW.id;
+
+
+CREATE OR REPLACE RULE experiment_insert AS
+  ON INSERT TO experiments DO INSTEAD
+     INSERT INTO experiments_all (
+       id,
+       frozen,
+       frozen_for_samp,
+       frozen_for_data,
+       code,
+       del_id,
+       orig_del,
+       exty_id,
+       is_public,
+       modification_timestamp,
+       perm_id,
+       pers_id_registerer,
+       pers_id_modifier,
+       proj_id,
+       proj_frozen,
+       registration_timestamp,
+       version,
+       meta_data
+     ) VALUES (
+       NEW.id,
+       NEW.frozen,
+       NEW.frozen_for_samp,
+       NEW.frozen_for_data,
+       NEW.code,
+       NEW.del_id,
+       NEW.orig_del,
+       NEW.exty_id,
+       NEW.is_public,
+       NEW.modification_timestamp,
+       NEW.perm_id,
+       NEW.pers_id_registerer,
+       NEW.pers_id_modifier,
+       NEW.proj_id,
+       NEW.proj_frozen,
+       NEW.registration_timestamp,
+       NEW.version,
+       NEW.meta_data
+     );
+
+CREATE OR REPLACE RULE experiment_update AS
+    ON UPDATE TO experiments DO INSTEAD
+       UPDATE experiments_all
+          SET code = NEW.code,
+              frozen = NEW.frozen,
+              frozen_for_samp = NEW.frozen_for_samp,
+              frozen_for_data = NEW.frozen_for_data,
+              del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              exty_id = NEW.exty_id,
+              is_public = NEW.is_public,
+              modification_timestamp = NEW.modification_timestamp,
+              perm_id = NEW.perm_id,
+              pers_id_registerer = NEW.pers_id_registerer,
+              pers_id_modifier = NEW.pers_id_modifier,
+              proj_id = NEW.proj_id,
+              proj_frozen = NEW.proj_frozen,
+              registration_timestamp = NEW.registration_timestamp,
               version = NEW.version,
               meta_data = NEW.meta_data
           WHERE id = NEW.id;

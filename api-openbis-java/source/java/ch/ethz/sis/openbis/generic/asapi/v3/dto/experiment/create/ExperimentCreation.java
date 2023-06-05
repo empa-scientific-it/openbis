@@ -54,6 +54,8 @@ public class ExperimentCreation implements ICreation, IObjectCreation, ICreation
 
     private CreationId creationId;
 
+    private Map<String, String> metaData;
+
     public void setTypeId(IEntityTypeId typeId)
     {
         this.typeId = typeId;
@@ -92,6 +94,16 @@ public class ExperimentCreation implements ICreation, IObjectCreation, ICreation
     public void setTagIds(List<? extends ITagId> tagIds)
     {
         this.tagIds = tagIds;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     @Override

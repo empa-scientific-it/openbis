@@ -31,4 +31,6 @@ public class ExperimentTypeBaseRecord extends ObjectBaseRecord
 
     public Date modificationDate;
 
+    public String metaData;
+
 }

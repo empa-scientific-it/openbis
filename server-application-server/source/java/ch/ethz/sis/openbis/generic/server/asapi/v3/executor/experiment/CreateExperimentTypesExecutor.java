@@ -64,7 +64,7 @@ public class CreateExperimentTypesExecutor extends AbstractCreateEntityTypeExecu
     @Override
     protected void fillTypeSpecificFields(ExperimentType type, ExperimentTypeCreation creation)
     {
-        // nothing to do
+        type.setMetaData(creation.getMetaData());
     }
 
     @Override

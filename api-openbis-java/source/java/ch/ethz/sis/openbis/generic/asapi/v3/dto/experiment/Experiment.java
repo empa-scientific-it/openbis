@@ -145,6 +145,10 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @JsonProperty
     private List<Attachment> attachments;
 
+    @JsonProperty
+    private Map<String, String> metaData;
+
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public ExperimentFetchOptions getFetchOptions()
@@ -847,6 +851,18 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     {
         setProperty(propertyName, propertyValue);
     }
+
+    @JsonIgnore
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
+    }
+
 
     // Method automatically generated with DtoGenerator
     @Override
