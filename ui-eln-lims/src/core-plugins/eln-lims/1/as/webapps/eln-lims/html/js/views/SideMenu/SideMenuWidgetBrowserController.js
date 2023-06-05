@@ -1975,6 +1975,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     async _loadNodesExperimentDataSets(params) {
         var datasetRules = {
             [Util.guid()]: { type: "Experiment", name: "ATTR.PERM_ID", value: params.node.experimentPermId },
+            [Util.guid()]: { type: "Sample", name: "NULL.NULL", value : "NULL" }
         }
         var datasetSubcriteria = []
 
