@@ -52,27 +52,43 @@ function MoveEntityController(entityType, entityPermId) {
 			if(!found) {
 				setTimeout(function(){ waitForIndexUpdate(); }, 300);
 			} else {
-				Util.showSuccess("Moved successfully", function() { 
-					Util.unblockUI();
-					
-					mainController.sideMenu.refreshNodeParentByPermId(entityType, entity.getPermId().permId); // Refresh old node parent
-					mainController.sideMenu.refreshNodeByPermId(entityType, moveEntityModel.selected.getPermId().permId); // New node parent
-					
-					switch(entityType) {
-						case "EXPERIMENT":
-							mainController.changeView("showExperimentPageFromIdentifier",
-									encodeURIComponent('["' + entity.getIdentifier().identifier + '",false]'));
-							break;
-						case "SAMPLE":
-							mainController.changeView("showViewSamplePageFromPermId", entity.getPermId().permId);
-							break;
-						case "DATASET":
-							mainController.changeView("showViewDataSetPageFromPermId", entity.getPermId().permId);
-							break;
-						case "PROJECT":
-							mainController.changeView("showProjectPageFromIdentifier", entity.getPermId().permId);
-							break;
-					}
+                Util.showSuccess("Moved successfully", async function() {
+                    Util.unblockUI();
+
+                    await mainController.sideMenu.refreshNodeParentByPermId(entityType, entity.getPermId().permId); // Refresh old node parent
+
+                    var selectedType = moveEntityModel.selected["@type"]
+                    var selectedEntityType = null
+
+                    if(selectedType === "as.dto.space.Space"){
+                        selectedEntityType = "SPACE"
+                    }else if(selectedType === "as.dto.project.Project"){
+                        selectedEntityType = "PROJECT"
+                    }else if(selectedType === "as.dto.experiment.Experiment"){
+                        selectedEntityType = "EXPERIMENT"
+                    }else if(selectedType === "as.dto.sample.Sample"){
+                        selectedEntityType = "SAMPLE"
+                    }else if(selectedType === "as.dto.dataset.DataSet"){
+                        selectedEntityType = "DATASET"
+                    }
+
+                    await mainController.sideMenu.refreshNodeByPermId(selectedEntityType, moveEntityModel.selected.getPermId().permId); // New node parent
+
+                    switch(entityType) {
+                        case "EXPERIMENT":
+                            mainController.changeView("showExperimentPageFromIdentifier",
+                                    encodeURIComponent('["' + entity.getIdentifier().identifier + '",false]'));
+                            break;
+                        case "SAMPLE":
+                            mainController.changeView("showViewSamplePageFromPermId", entity.getPermId().permId);
+                            break;
+                        case "DATASET":
+                            mainController.changeView("showViewDataSetPageFromPermId", entity.getPermId().permId);
+                            break;
+                        case "PROJECT":
+                            mainController.changeView("showProjectPageFromIdentifier", entity.getPermId().permId);
+                            break;
+                    }
 				});
 			}
 		});

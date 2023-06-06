@@ -43,7 +43,7 @@ function SideMenuWidgetController(mainController) {
         }
     }
 
-    this.deleteNodeByEntityPermId = function (entityType, entityPermId, isMoveToParent) {
+    this.deleteNodeByEntityPermId = async function (entityType, entityPermId, isMoveToParent) {
         var _this = this
 
         var nodes = this._browserController.getNodes().filter(function (node) {
@@ -54,9 +54,10 @@ function SideMenuWidgetController(mainController) {
             }
         })
 
-        nodes.forEach(function (node) {
-            _this._browserController.reloadNode(node.parentId)
-        })
+        for(var i = 0; i < nodes.length; i++){
+            var node = nodes[i]
+            await _this._browserController.reloadNode(node.parentId)
+        }
 
         if (isMoveToParent) {
             var parentIds = nodes.map(function (node) {
@@ -84,37 +85,40 @@ function SideMenuWidgetController(mainController) {
         }
     }
 
-    this.refreshCurrentNode = function () {
+    this.refreshCurrentNode = async function () {
         var _this = this
         var selectedObject = this._browserController.getSelectedObject()
         if (selectedObject) {
             var nodes = this._browserController.getNodes()
-            nodes.forEach(function (node) {
+            for(var i = 0; i < nodes.length; i++){
+                var node = nodes[i]
                 if (selectedObject.type === node.object.type && selectedObject.id === node.object.id) {
-                    _this._browserController.reloadNode(node.id)
+                    await _this._browserController.reloadNode(node.id)
                 }
-            })
+            }
         }
     }
 
-    this.refreshNodeByPermId = function (entityType, entityPermId) {
+    this.refreshNodeByPermId = async function (entityType, entityPermId) {
         var _this = this
         var nodes = this._browserController.getNodes()
-        nodes.forEach(function (node) {
+        for(var i = 0; i < nodes.length; i++){
+            var node = nodes[i]
             if (node.object && entityType === node.object.type && entityPermId === node.object.id) {
-                _this._browserController.reloadNode(node.id)
+                await _this._browserController.reloadNode(node.id)
             }
-        })
+        }
     }
 
-    this.refreshNodeParentByPermId = function (entityType, entityPermId) {
+    this.refreshNodeParentByPermId = async function (entityType, entityPermId) {
         var _this = this
         var nodes = this._browserController.getNodes()
-        nodes.forEach(function (node) {
+        for(var i = 0; i < nodes.length; i++){
+            var node = nodes[i]
             if (node.object && entityType === node.object.type && entityPermId === node.object.id) {
-                _this._browserController.reloadNode(node.parentId)
+                await _this._browserController.reloadNode(node.parentId)
             }
-        })
+        }
     }
 
     this.moveToNodeId = function (nodeObjectStr) {
