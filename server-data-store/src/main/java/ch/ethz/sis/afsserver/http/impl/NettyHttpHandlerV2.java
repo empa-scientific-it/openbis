@@ -78,7 +78,7 @@ public class NettyHttpHandlerV2 extends ChannelInboundHandlerAdapter
                     }
 
                     HttpResponse apiResponse = httpServerHandler.process(request.method(),
-                            queryStringDecoderForParameters.parameters(), array);
+                            queryStringDecoderForParameters.parameters(), null);
                     HttpResponseStatus status = (!apiResponse.isError()) ?
                             HttpResponseStatus.OK :
                             HttpResponseStatus.BAD_REQUEST;
