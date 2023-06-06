@@ -199,7 +199,7 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
             @Override
             public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
             {
-                return new UpdateRelationProgress(update, entity, "experiment-tag", objectIndex, totalObjectCount);
+                return new UpdateRelationProgress(update, entity, "experiment-metadata", objectIndex, totalObjectCount);
             }
 
             @SuppressWarnings("unchecked")

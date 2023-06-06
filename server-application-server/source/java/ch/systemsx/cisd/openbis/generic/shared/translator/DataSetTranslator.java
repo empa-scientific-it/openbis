@@ -295,6 +295,7 @@ public class DataSetTranslator
             externalData.setMetaprojects(metaprojects);
         }
         externalData.setDeletion(DeletionTranslator.translate(dataPE.getDeletion()));
+        externalData.setMetaData(dataPE.getMetaData());
         return externalData;
     }
 
@@ -401,6 +402,7 @@ public class DataSetTranslator
         dataSet.setH5Folders(externalDataPE.isH5Folders());
         dataSet.setH5arFolders(externalDataPE.isH5arFolders());
         dataSet.setArchivingRequested(externalDataPE.isArchivingRequested());
+        dataSet.setMetaData(externalDataPE.getMetaData());
         return dataSet;
     }
 
@@ -436,6 +438,7 @@ public class DataSetTranslator
         sample.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
         sample.setProject(ProjectTranslator.translate(samplePE.getProject()));
         sample.setExperiment(experiment);
+        sample.setMetaData(samplePE.getMetaData());
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),

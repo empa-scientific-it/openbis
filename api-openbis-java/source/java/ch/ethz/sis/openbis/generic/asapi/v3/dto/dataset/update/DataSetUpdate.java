@@ -19,16 +19,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
@@ -91,6 +88,9 @@ public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPrope
 
     @JsonProperty
     private IdListUpdateValue<IDataSetId> childIds = new IdListUpdateValue<IDataSetId>();
+
+    @JsonProperty
+    private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
     @Override
     @JsonIgnore
@@ -499,6 +499,18 @@ public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPrope
     public void setJsonProperty(String propertyName, String propertyValue)
     {
         setProperty(propertyName, propertyValue);
+    }
+
+    @JsonIgnore
+    public ListUpdateMapValues getMetaData()
+    {
+        return metaData;
+    }
+
+    @JsonIgnore
+    public void setMetaDataActions(List<ListUpdateAction<Object>> actions)
+    {
+        metaData.setActions(actions);
     }
 
     @Override

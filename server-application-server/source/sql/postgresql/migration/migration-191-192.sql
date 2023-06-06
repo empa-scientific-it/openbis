@@ -29,6 +29,21 @@ CREATE OR REPLACE VIEW experiments AS
       WHERE del_id IS NULL;
 
 
+ALTER TABLE IF EXISTS DATA_ALL
+    ADD COLUMN META_DATA jsonb;
+
+ALTER TABLE IF EXISTS DATA_SET_TYPES
+    ADD COLUMN META_DATA jsonb;
+
+CREATE OR REPLACE VIEW data AS
+   SELECT id, code, dsty_id, dast_id, expe_id, expe_frozen, data_producer_code, production_timestamp, samp_id, samp_frozen,
+          registration_timestamp, access_timestamp, pers_id_registerer, pers_id_modifier, is_valid, modification_timestamp,
+          is_derived, del_id, orig_del, version, data_set_kind,
+          frozen, frozen_for_children, frozen_for_parents, frozen_for_comps, frozen_for_conts, tsvector_document, meta_data
+     FROM data_all
+    WHERE del_id IS NULL;
+
+
 -- function
 
 CREATE OR REPLACE RULE sample_insert AS
@@ -180,3 +195,95 @@ CREATE OR REPLACE RULE experiment_update AS
               version = NEW.version,
               meta_data = NEW.meta_data
           WHERE id = NEW.id;
+
+
+CREATE OR REPLACE RULE data_insert AS
+  ON INSERT TO data DO INSTEAD
+     INSERT INTO data_all (
+       id,
+       frozen,
+       frozen_for_children,
+       frozen_for_parents,
+       frozen_for_comps,
+       frozen_for_conts,
+       code,
+       del_id,
+       orig_del,
+       expe_id,
+       expe_frozen,
+       dast_id,
+       data_producer_code,
+       dsty_id,
+       is_derived,
+       is_valid,
+       modification_timestamp,
+       access_timestamp,
+       pers_id_registerer,
+       pers_id_modifier,
+       production_timestamp,
+       registration_timestamp,
+       samp_id,
+       samp_frozen,
+       version,
+       data_set_kind,
+       meta_data
+     ) VALUES (
+       NEW.id,
+       NEW.frozen,
+       NEW.frozen_for_children,
+       NEW.frozen_for_parents,
+       NEW.frozen_for_comps,
+       NEW.frozen_for_conts,
+       NEW.code,
+       NEW.del_id,
+       NEW.orig_del,
+       NEW.expe_id,
+       NEW.expe_frozen,
+       NEW.dast_id,
+       NEW.data_producer_code,
+       NEW.dsty_id,
+       NEW.is_derived,
+       NEW.is_valid,
+       NEW.modification_timestamp,
+       NEW.access_timestamp,
+       NEW.pers_id_registerer,
+       NEW.pers_id_modifier,
+       NEW.production_timestamp,
+       NEW.registration_timestamp,
+       NEW.samp_id,
+       NEW.samp_frozen,
+       NEW.version,
+       NEW.data_set_kind,
+       NEW.meta_data
+     );
+
+CREATE OR REPLACE RULE data_update AS
+    ON UPDATE TO data DO INSTEAD
+       UPDATE data_all
+          SET code = NEW.code,
+              frozen = NEW.frozen,
+              frozen_for_children = NEW.frozen_for_children,
+              frozen_for_parents = NEW.frozen_for_parents,
+              frozen_for_comps = NEW.frozen_for_comps,
+              frozen_for_conts = NEW.frozen_for_conts,
+              del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              expe_id = NEW.expe_id,
+              expe_frozen = NEW.expe_frozen,
+              dast_id = NEW.dast_id,
+              data_producer_code = NEW.data_producer_code,
+              dsty_id = NEW.dsty_id,
+              is_derived = NEW.is_derived,
+              is_valid = NEW.is_valid,
+              modification_timestamp = NEW.modification_timestamp,
+              access_timestamp = NEW.access_timestamp,
+              pers_id_registerer = NEW.pers_id_registerer,
+              pers_id_modifier = NEW.pers_id_modifier,
+              production_timestamp = NEW.production_timestamp,
+              registration_timestamp = NEW.registration_timestamp,
+              samp_id = NEW.samp_id,
+              samp_frozen = NEW.samp_frozen,
+              version = NEW.version,
+              data_set_kind = NEW.data_set_kind,
+              meta_data = NEW.meta_data
+       WHERE id = NEW.id;

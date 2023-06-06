@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -32,6 +33,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericConstants;
@@ -45,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @Entity
 @Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
+@TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public class DataSetTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -57,6 +63,8 @@ public class DataSetTypePE extends EntityTypePE
     private String mainDataSetPattern;
 
     private boolean deletionDisallow;
+
+    private Map<String, String> metaData;
 
     @Override
     @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_SEQUENCE, allocationSize = 1)
@@ -162,5 +170,18 @@ public class DataSetTypePE extends EntityTypePE
     {
         this.deletionDisallow = deletionDisallow;
     }
+
+    @Column(name = "meta_data")
+    @Type(type = "JsonMap")
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
+    }
+
 
 }

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -315,6 +316,7 @@ public class DataSetTranslator extends AbstractCachingTranslator<Long, DataSet, 
         result.setFrozenForParents(baseRecord.frozenForParents);
         result.setFrozenForComponents(baseRecord.frozenForComponents);
         result.setFrozenForContainers(baseRecord.frozenForContainers);
+        result.setMetaData(CommonUtils.asMap(baseRecord.metaData));
 
         if (fetchOptions.hasType())
         {

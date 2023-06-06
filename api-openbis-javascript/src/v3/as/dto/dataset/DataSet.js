@@ -50,6 +50,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.sampleProperties = null;
 		prototype.dataProducer = null;
 		prototype.dataProductionDate = null;
+		prototype.metaData = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -527,6 +528,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setDataProductionDate = function(dataProductionDate) {
 			this.dataProductionDate = dataProductionDate;
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaData = function(metaData) {
+            this.metaData = metaData;
+        };
 	}, {
 		fetchOptions : "DataSetFetchOptions",
 		permId : "DataSetPermId",
@@ -614,7 +621,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 			name : "Map",
 			arguments : [ "String", "Sample" ]
 		},
-		dataProductionDate : "Date"
+		dataProductionDate : "Date",
+		metaData: {
+            name: "Map",
+            arguments: ["String", "String"]
+        }
 	});
 	return DataSet;
 })

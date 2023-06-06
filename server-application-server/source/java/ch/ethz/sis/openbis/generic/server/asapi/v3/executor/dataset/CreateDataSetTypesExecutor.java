@@ -76,6 +76,7 @@ public class CreateDataSetTypesExecutor extends AbstractCreateEntityTypeExecutor
         type.setMainDataSetPattern(creation.getMainDataSetPattern());
         type.setMainDataSetPath(creation.getMainDataSetPath());
         type.setDeletionDisallow(creation.isDisallowDeletion());
+        type.setMetaData(creation.getMetaData());
     }
 
     @Override

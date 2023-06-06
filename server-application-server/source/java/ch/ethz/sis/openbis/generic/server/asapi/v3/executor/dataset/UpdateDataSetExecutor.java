@@ -15,13 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -125,6 +123,7 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
         updateDataSetSampleExecutor.update(context, batch);
         updateDataSetPropertyExecutor.update(context, batch);
         updateTags(context, batch);
+        updateMetaData(context, batch);
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
@@ -199,6 +198,69 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
                     return new UpdateRelationProgress(key, value, "dataset-tag", objectIndex, totalObjectCount);
                 }
             };
+    }
+
+    private void updateMetaData(final IOperationContext context, final MapBatch<DataSetUpdate, DataPE> batch)
+    {
+        new MapBatchProcessor<DataSetUpdate, DataPE>(context, batch)
+        {
+            @Override
+            public void process(DataSetUpdate update, DataPE entity)
+            {
+                Map<String, String> metaData = new HashMap<>();
+                if(entity.getMetaData() != null) {
+                    metaData.putAll(entity.getMetaData());
+                }
+                ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
+                AtomicBoolean metaDataChanged = new AtomicBoolean(false);
+                for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
+                {
+                    if (action instanceof ListUpdateValue.ListUpdateActionAdd<?>)
+                    {
+                        addTo(metaData, action, metaDataChanged);
+                    } else if (action instanceof ListUpdateValue.ListUpdateActionRemove<?>)
+                    {
+                        for (String key : (Collection<String>) action.getItems())
+                        {
+                            metaDataChanged.set(true);
+                            metaData.remove(key);
+                        }
+                    } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
+                    {
+                        lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
+                    }
+                }
+                if (lastSetAction != null)
+                {
+                    metaData.clear();
+                    addTo(metaData, lastSetAction, metaDataChanged);
+                }
+                if (metaDataChanged.get())
+                {
+                    entity.setMetaData(metaData.isEmpty() ? null : metaData);
+                }
+            }
+
+            @Override
+            public IProgress createProgress(DataSetUpdate key, DataPE value, int objectIndex, int totalObjectCount)
+            {
+                return new UpdateRelationProgress(key, value, "dataset-metadata", objectIndex, totalObjectCount);
+            }
+
+            @SuppressWarnings("unchecked")
+            private void addTo(Map<String, String> metaData, ListUpdateValue.ListUpdateAction<?> lastSetAction, AtomicBoolean metaDataChanged)
+            {
+                Collection<Map<String, String>> maps = (Collection<Map<String, String>>) lastSetAction.getItems();
+                for (Map<String, String> map : maps)
+                {
+                    if (!map.isEmpty())
+                    {
+                        metaDataChanged.set(true);
+                        metaData.putAll(map);
+                    }
+                }
+            }
+        };
     }
 
     @Override

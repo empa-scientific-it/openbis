@@ -37,4 +37,6 @@ public class DataSetTypeBaseRecord extends ObjectBaseRecord
 
     public Date modificationDate;
 
+    public String metaData;
+
 }

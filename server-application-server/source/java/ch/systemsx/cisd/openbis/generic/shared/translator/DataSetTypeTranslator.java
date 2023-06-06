@@ -61,6 +61,7 @@ public class DataSetTypeTranslator
         result.setModificationDate(entityTypeOrNull.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(entityTypeOrNull
                 .getValidationScript()));
+        result.setMetaData(entityTypeOrNull.getMetaData());
         return result;
     }
 

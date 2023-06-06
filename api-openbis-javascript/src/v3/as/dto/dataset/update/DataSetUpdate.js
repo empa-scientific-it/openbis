@@ -1,7 +1,9 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue" ], function(stjs, FieldUpdateValue, IdListUpdateValue) {
+define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue",
+    "as/dto/common/update/ListUpdateMapValues"],
+    function(stjs, FieldUpdateValue, IdListUpdateValue, ListUpdateMapValues) {
 	var DataSetUpdate = function() {
 		this.experimentId = new FieldUpdateValue();
 		this.sampleId = new FieldUpdateValue();
@@ -13,6 +15,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		this.componentIds = new IdListUpdateValue();
 		this.parentIds = new IdListUpdateValue();
 		this.childIds = new IdListUpdateValue();
+		this.metaData = new ListUpdateMapValues();
 	};
 	stjs.extend(DataSetUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.dataset.update.DataSetUpdate';
@@ -33,6 +36,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.componentIds = null;
 		prototype.parentIds = null;
 		prototype.childIds = null;
+		prototype.metaData = null;
 
 		prototype.getObjectId = function() {
 			return this.getDataSetId();
@@ -233,6 +237,12 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setChildActions = function(actions) {
 			this.childIds.setActions(actions);
 		};
+		prototype.getMetaData = function() {
+            return this.metaData;
+        };
+        prototype.setMetaDataActions = function(actions) {
+            this.metaData.setActions(actions);
+        };
 	}, {
 		dataSetId : "IDataSetId",
 		experimentId : {
@@ -274,7 +284,8 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		childIds : {
 			name : "IdListUpdateValue",
 			arguments : [ "IDataSetId" ]
-		}
+		},
+        metaData : "ListUpdateMapValues"
 	});
 	return DataSetUpdate;
 })

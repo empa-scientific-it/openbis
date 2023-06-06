@@ -191,6 +191,9 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     @JsonProperty
     private Date accessDate;
 
+    @JsonProperty
+    private Map<String, String> metaData;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public DataSetFetchOptions getFetchOptions()
@@ -1162,6 +1165,17 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public void setJsonProperty(String propertyName, String propertyValue)
     {
         setProperty(propertyName, propertyValue);
+    }
+
+    @JsonIgnore
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     // Method automatically generated with DtoGenerator

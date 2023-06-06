@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset;
 import java.util.Collection;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -89,6 +90,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         result.setDisallowDeletion(baseRecord.disallowDeletion);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
+        result.setMetaData(CommonUtils.asMap(baseRecord.metaData));
 
         if (fetchOptions.hasPropertyAssignments())
         {

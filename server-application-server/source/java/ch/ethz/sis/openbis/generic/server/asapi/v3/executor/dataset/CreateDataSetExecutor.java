@@ -152,6 +152,7 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                     dataSet.setDerived(false == creation.isMeasured());
                     dataSet.setDataProducerCode(creation.getDataProducer());
                     dataSet.setProductionDate(creation.getDataProductionDate());
+                    dataSet.setMetaData(creation.getMetaData());
 
                     PersonPE person = context.getSession().tryGetPerson();
                     dataSet.setRegistrator(person);

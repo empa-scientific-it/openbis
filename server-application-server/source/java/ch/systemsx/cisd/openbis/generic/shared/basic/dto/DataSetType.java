@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The <i>GWT</i> equivalent to DataSetTypePE.
@@ -33,6 +34,8 @@ public class DataSetType extends EntityType
     private String mainDataSetPath;
 
     private boolean deletionDisallow;
+
+    private Map<String, String> metaData;
 
     public void setMainDataSetPattern(String mainDataSetPattern)
     {
@@ -94,5 +97,15 @@ public class DataSetType extends EntityType
     public EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 }

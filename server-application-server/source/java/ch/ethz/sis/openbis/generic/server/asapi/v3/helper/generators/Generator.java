@@ -391,6 +391,7 @@ public class Generator extends AbstractGenerator
         addExperiment(gen);
         addSample(gen);
         addProperties(gen);
+        addMetaData(gen);
 
         gen.addPluralFetchedField("List<DataSet>", List.class.getName(), "parents", "Parents", DataSetFetchOptions.class)
                 .withInterfaceReflexive(IParentChildrenHolder.class);
@@ -448,6 +449,7 @@ public class Generator extends AbstractGenerator
         gen.addStringField("mainDataSetPath");
         gen.addBooleanField("disallowDeletion");
         addModificationDate(gen);
+        addMetaData(gen);
 
         gen.setToStringMethod("\"DataSetType \" + code");
         addPropertyAssignments(gen);

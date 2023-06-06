@@ -15,15 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -45,14 +37,8 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-import org.hibernate.annotations.OptimisticLock;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.JsonMapUserType;
+import org.hibernate.annotations.*;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
@@ -73,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Entity
 @Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
+@TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 @Inheritance(strategy = InheritanceType.JOINED)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
@@ -154,6 +141,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private Set<DataSetRelationshipPE> parentRelationships = new LinkedHashSet<DataSetRelationshipPE>();
 
     private Set<DataSetRelationshipPE> childRelationships = new LinkedHashSet<DataSetRelationshipPE>();
+
+    private Map<String, String> metaData;
 
     @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentDataSet")
@@ -1048,6 +1037,18 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public void setPostRegistration(final Set<PostRegistrationPE> postRegistration)
     {
         this.postRegistration = postRegistration;
+    }
+
+    @Column(name = "meta_data")
+    @Type(type = "JsonMap")
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
 }

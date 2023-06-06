@@ -21,6 +21,8 @@ define(['stjs'], function (stjs) {
       prototype.modificationDate = null
       prototype.propertyAssignments = null
       prototype.validationPlugin = null
+      prototype.metaData = null;
+
       prototype.getPropertyAssignments = function () {
         if (
           this.getFetchOptions() &&
@@ -99,6 +101,12 @@ define(['stjs'], function (stjs) {
       prototype.setModificationDate = function (modificationDate) {
         this.modificationDate = modificationDate
       }
+      prototype.getMetaData = function() {
+        return this.metaData;
+      }
+      prototype.setMetaData = function(metaData) {
+        this.metaData = metaData;
+      };
       prototype.toString = function () {
         return this.getCode()
       }
@@ -111,7 +119,11 @@ define(['stjs'], function (stjs) {
         name: 'List',
         arguments: ['PropertyAssignment']
       },
-      validationPlugin: 'Plugin'
+      validationPlugin: 'Plugin',
+      metaData: {
+        name: "Map",
+        arguments: ["String", "String"]
+      }
     }
   )
   return DataSetType

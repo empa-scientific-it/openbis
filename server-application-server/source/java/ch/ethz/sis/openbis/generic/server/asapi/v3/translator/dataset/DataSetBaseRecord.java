@@ -50,4 +50,6 @@ public class DataSetBaseRecord extends ObjectBaseRecord
     public boolean frozenForComponents;
 
     public boolean frozenForContainers;
+
+    public String metaData;
 }

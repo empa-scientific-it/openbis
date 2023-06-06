@@ -123,6 +123,8 @@ public abstract class AbstractExternalData extends
 
     private Date accessTimestamp;
 
+    private Map<String, String> metaData;
+
     public AbstractExternalData(boolean isStub)
     {
         this.isStub = isStub;
@@ -517,6 +519,16 @@ public abstract class AbstractExternalData extends
         }
 
         return null;
+    }
+
+    public Map<String, String> getMetaData()
+    {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, String> metaData)
+    {
+        this.metaData = metaData;
     }
 
     /**
