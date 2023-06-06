@@ -24,6 +24,7 @@ import lombok.Value;
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class HttpResponse {
+    public static final String CONTENT_TYPE_TEXT = "text/plain";
     public static final String CONTENT_TYPE_BINARY_DATA = "application/octet-stream";
     public static final String CONTENT_TYPE_JSON = "application/json";
 

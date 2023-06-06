@@ -39,7 +39,7 @@ public final class AfsClientV2 implements PublicAPI
 
     private final URI serverUri;
 
-    private final JsonObjectMapper jsonObjectMapper;
+    private static final JsonObjectMapper jsonObjectMapper = new JacksonObjectMapper();
 
     public AfsClientV2(final URI serverUri)
     {
@@ -51,7 +51,6 @@ public final class AfsClientV2 implements PublicAPI
         this.maxReadSizeInBytes = maxReadSizeInBytes;
         this.timeout = timeout;
         this.serverUri = serverUri;
-        this.jsonObjectMapper = new JacksonObjectMapper();
     }
 
     public URI getServerUri()
@@ -147,12 +146,12 @@ public final class AfsClientV2 implements PublicAPI
 
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
-            @NonNull final Long offset, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception
+            @NonNull final Long offset, @NonNull final byte[] data,
+            @NonNull  final byte[] md5Hash) throws Exception
     {
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
-                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data), "md5Hash", getMd5HexString(md5Hash)));
+                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data), "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
     }
 
     @Override
@@ -304,20 +303,10 @@ public final class AfsClientV2 implements PublicAPI
                 throw new IllegalArgumentException(
                         "Server error HTTP response. Missing content-type");
             }
-            String content = httpResponse.headers().map().get("content-type").get(0);
+            String contentType = httpResponse.headers().map().get("content-type").get(0);
+            byte[] responseBody = httpResponse.body();
 
-            switch (content)
-            {
-                case "text/plain":
-                    return parseFormDataResponse(responseType, httpResponse);
-                case "application/json":
-                    return parseJsonResponse(httpResponse);
-                case "application/octet-stream":
-                    return (T) httpResponse.body();
-                default:
-                    throw new IllegalArgumentException(
-                            "Client error HTTP response. Unsupported content-type received.");
-            }
+            return getResponseResult(responseType, contentType, responseBody);
         } else if (statusCode >= 400 && statusCode < 500)
         {
             // jsonObjectMapper can't deserialize immutable lists sent in the error message.
@@ -332,23 +321,40 @@ public final class AfsClientV2 implements PublicAPI
         }
     }
 
-    private <T> T parseFormDataResponse(Class<T> responseType, HttpResponse<byte[]> httpResponse)
+    public static <T> T getResponseResult(Class<T> responseType, String contentType, byte[] responseBody)
+            throws Exception
+    {
+        switch (contentType)
+        {
+            case "text/plain":
+                return AfsClientV2.parseFormDataResponse(responseType, responseBody);
+            case "application/json":
+                return AfsClientV2.parseJsonResponse(responseBody);
+            case "application/octet-stream":
+                return (T) responseBody;
+            default:
+                throw new IllegalArgumentException(
+                        "Client error HTTP response. Unsupported content-type received.");
+        }
+    }
+
+    private static <T> T parseFormDataResponse(Class<T> responseType, byte[] responseBody)
     {
         if (responseType == null) {
             return null;
         } else if (responseType == String.class) {
-            return responseType.cast(new String(httpResponse.body()));
+            return responseType.cast(new String(responseBody, StandardCharsets.UTF_8));
         } else if (responseType == Boolean.class) {
-            return  responseType.cast(Boolean.parseBoolean(new String(httpResponse.body())));
+            return  responseType.cast(Boolean.parseBoolean(new String(responseBody, StandardCharsets.UTF_8)));
         }
 
         throw new IllegalStateException("Unreachable statement!");
     }
 
-    private <T> T parseJsonResponse(final HttpResponse<byte[]> httpResponse) throws Exception
+    private static <T> T parseJsonResponse(byte[] responseBody) throws Exception
     {
         final ApiResponse response =
-                jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
+                jsonObjectMapper.readValue(new ByteArrayInputStream(responseBody),
                         ApiResponse.class);
 
         if (response.getError() != null)
@@ -366,14 +372,5 @@ public final class AfsClientV2 implements PublicAPI
         {
             throw new IllegalStateException("No session information detected!");
         }
-    }
-
-    private String getMd5HexString(byte[] md5) {
-        BigInteger no = new BigInteger(1, md5);
-        String hashtext = no.toString(16);
-        while (hashtext.length() < 32) {
-            hashtext = "0" + hashtext;
-        }
-        return hashtext;
     }
 }
