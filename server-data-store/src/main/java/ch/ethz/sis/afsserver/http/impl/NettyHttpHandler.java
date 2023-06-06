@@ -27,7 +27,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
@@ -59,18 +58,27 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
         if (msg instanceof FullHttpRequest)
         {
             final FullHttpRequest request = (FullHttpRequest) msg;
-            QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri(), true);
-            if (queryStringDecoder.path().equals(uri) &&
+            QueryStringDecoder queryStringDecoderForPath = new QueryStringDecoder(request.uri(), true);
+
+            if (queryStringDecoderForPath.path().equals(uri) &&
                     allowedMethods.contains(request.method()))
             {
                 FullHttpResponse response = null;
                 ByteBuf content = request.content();
                 try
                 {
+                    QueryStringDecoder queryStringDecoderForParameters = null;
                     byte[] array = new byte[content.readableBytes()];
                     content.readBytes(array);
+
+                    if (GET.equals(request.method())) {
+                        queryStringDecoderForParameters = queryStringDecoderForPath;
+                    } else {
+                        queryStringDecoderForParameters = new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
+                    }
+
                     HttpResponse apiResponse = httpServerHandler.process(request.method(),
-                            queryStringDecoder.parameters(), array);
+                            queryStringDecoderForParameters.parameters(), null);
                     HttpResponseStatus status = (!apiResponse.isError()) ?
                             HttpResponseStatus.OK :
                             HttpResponseStatus.BAD_REQUEST;

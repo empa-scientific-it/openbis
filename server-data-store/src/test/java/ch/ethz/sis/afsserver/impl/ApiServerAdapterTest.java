@@ -31,6 +31,6 @@ public class ApiServerAdapterTest extends ApiServerTest {
         Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
         JsonObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
         ApiServerAdapter apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
-        return new APIServerAdapterWrapper(apiServerAdapter, jsonObjectMapper);
+        return new APIServerAdapterWrapper(apiServerAdapter);
     }
 }

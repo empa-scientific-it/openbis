@@ -15,24 +15,19 @@
  */
 package ch.ethz.sis.afsserver.impl;
 
+import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.afsserver.core.AbstractPublicAPIWrapper;
 import ch.ethz.sis.afsserver.http.HttpResponse;
-import ch.ethz.sis.afsserver.server.impl.ApiRequest;
-import ch.ethz.sis.afsserver.server.impl.ApiResponse;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
-import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import static ch.ethz.sis.afsserver.http.HttpResponse.CONTENT_TYPE_BINARY_DATA;
-import static ch.ethz.sis.afsserver.http.HttpResponse.CONTENT_TYPE_JSON;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
 {
@@ -41,13 +36,10 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
 
     private ApiServerAdapter apiServerAdapter;
 
-    private JsonObjectMapper jsonObjectMapper;
 
-    public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter,
-            JsonObjectMapper jsonObjectMapper)
+    public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter)
     {
         this.apiServerAdapter = apiServerAdapter;
-        this.jsonObjectMapper = jsonObjectMapper;
     }
 
     public Map<String, List<String>> getURIParameters(Map<String, Object> args)
@@ -55,13 +47,9 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
         Map<String, List<String>> result = new HashMap<>(args.size());
         for (Map.Entry<String, Object> entry : args.entrySet())
         {
-            if (entry.getKey().equals("data") && entry.getValue() instanceof byte[])
+            if (entry.getValue() instanceof byte[])
             {
-                continue; // Skip
-            } else if (entry.getValue() instanceof byte[])
-            {
-                result.put(entry.getKey(),
-                        List.of(IOUtils.encodeBase64((byte[]) entry.getValue())));
+                result.put(entry.getKey(), List.of(IOUtils.encodeBase64((byte[]) entry.getValue())));
             } else
             {
                 result.put(entry.getKey(), List.of(String.valueOf(entry.getValue())));
@@ -70,49 +58,39 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
         return result;
     }
 
-    public <E> E process(String apiMethod, Map<String, Object> queryParams,
-            Map<String, Object> bodyParams)
+    public <E> E process(Class<E> responseType, String apiMethod, Map<String, Object> params)
     {
         try
         {
             HttpMethod httpMethod = ApiServerAdapter.getHttpMethod(apiMethod);
-            Map<String, List<String>> uriParameters = new HashMap<>();
+            Map<String, List<String>> requestParameters = getURIParameters(params);
+            requestParameters.put("sessionToken", List.of(UUID.randomUUID().toString()));
+            requestParameters.put("method", List.of(apiMethod));
+
             byte[] requestBody = null;
 
             if (HttpMethod.GET.equals(httpMethod))
             {
-                uriParameters = getURIParameters(queryParams);
-                uriParameters.put("sessionToken", List.of(UUID.randomUUID().toString()));
+                // Do nothing
             } else if (HttpMethod.POST.equals(httpMethod) || HttpMethod.DELETE.equals(httpMethod))
             {
-                Map<String, Object> fullBodyParams = new HashMap<>();
-                fullBodyParams.putAll(bodyParams);
-                fullBodyParams.put("sessionToken", UUID.randomUUID().toString());
-                requestBody = jsonObjectMapper.writeValue(fullBodyParams);
+                // Do nothing
             } else
             {
                 throw new IllegalArgumentException("Not supported HTTP method type!");
             }
 
-            uriParameters.put("method", List.of(apiMethod));
 
-            HttpResponse response =
-                    apiServerAdapter.process(httpMethod, uriParameters, requestBody);
-            switch (response.getContentType())
-            {
-                case CONTENT_TYPE_BINARY_DATA:
-                    return (E) response.getBody();
-                case CONTENT_TYPE_JSON:
-                    ApiResponse apiResponse =
-                            jsonObjectMapper.readValue(new ByteArrayInputStream(response.getBody()),
-                                    ApiResponse.class);
-                    return (E) apiResponse.getResult();
-            }
+
+            HttpResponse response = apiServerAdapter.process(httpMethod, requestParameters, null);
+            String contentType = response.getContentType();
+            byte[] body = response.getBody();
+
+            return AfsClient.getResponseResult(responseType, contentType, body);
         } catch (Throwable throwable)
         {
             throw new RuntimeException(throwable);
         }
-        throw new RuntimeException("This line should be unreachable");
     }
 
 }

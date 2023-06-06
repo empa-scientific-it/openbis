@@ -15,13 +15,10 @@
  */
 package ch.ethz.sis.afsserver.core;
 
-import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.File;
 import lombok.NonNull;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,8 +26,7 @@ import java.util.UUID;
 public abstract class AbstractPublicAPIWrapper implements PublicAPI
 {
 
-    public abstract <E> E process(String method, Map<String, Object> queryParams,
-            Map<String, Object> bodyParams);
+    public abstract <E> E process(Class<E> responseType, String method, Map<String, Object> params);
 
     @Override
     public List<File> list(@NonNull String owner, @NonNull String source,
@@ -40,7 +36,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
                 "owner", owner,
                 "source", source,
                 "recursively", recursively);
-        return process("list", args, Map.of());
+        return process(List.class, "list", args);
     }
 
     @Override
@@ -52,7 +48,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
                 "source", source,
                 "offset", offset,
                 "limit", limit);
-        return process("read", args, Map.of());
+        return process(byte[].class,"read", args);
     }
 
     @Override
@@ -65,7 +61,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
                 "offset", offset,
                 "data", data,
                 "md5Hash", md5Hash);
-        return process("write", Map.of(), args);
+        return process(Boolean.class, "write", args);
     }
 
     @Override
@@ -74,7 +70,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
         Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source);
-        return process("delete", Map.of(), args);
+        return process(Boolean.class, "delete", args);
     }
 
     @Override
@@ -86,7 +82,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
                 "source", source,
                 "targetOwner", targetOwner,
                 "target", target);
-        return process("copy", Map.of(), args);
+        return process(Boolean.class,"copy", args);
     }
 
     @Override
@@ -98,7 +94,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
                 "source", source,
                 "targetOwner", targetOwner,
                 "target", target);
-        return process("move", Map.of(), args);
+        return process(Boolean.class, "move", args);
     }
 
     @Override

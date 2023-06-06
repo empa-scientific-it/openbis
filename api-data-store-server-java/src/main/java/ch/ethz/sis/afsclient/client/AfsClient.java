@@ -1,11 +1,14 @@
 package ch.ethz.sis.afsclient.client;
 
+import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.ApiResponse;
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
+import lombok.NonNull;
+
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -15,14 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
-
-import ch.ethz.sis.afsapi.api.PublicAPI;
-import ch.ethz.sis.afsapi.dto.ApiResponse;
-import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
-import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
-import lombok.NonNull;
 
 public final class AfsClient implements PublicAPI
 {
@@ -43,7 +38,7 @@ public final class AfsClient implements PublicAPI
 
     private final URI serverUri;
 
-    private final JsonObjectMapper jsonObjectMapper;
+    private static final JsonObjectMapper jsonObjectMapper = new JacksonObjectMapper();
 
     public AfsClient(final URI serverUri)
     {
@@ -55,7 +50,6 @@ public final class AfsClient implements PublicAPI
         this.maxReadSizeInBytes = maxReadSizeInBytes;
         this.timeout = timeout;
         this.serverUri = serverUri;
-        this.jsonObjectMapper = new JacksonObjectMapper();
     }
 
     public URI getServerUri()
@@ -107,9 +101,8 @@ public final class AfsClient implements PublicAPI
     public @NonNull String login(@NonNull final String userId, @NonNull final String password)
             throws Exception
     {
-        Map<String, String> credentials = Map.of("userId", userId, "password", password);
-        String result = request("POST", "login", Map.of(),
-                jsonObjectMapper.writeValue(credentials));
+        String result = request("POST",
+                "login", String.class, Map.of("userId", userId, "password", password));
         setSessionToken(result);
         return result;
     }
@@ -118,15 +111,14 @@ public final class AfsClient implements PublicAPI
     public @NonNull Boolean isSessionValid() throws Exception
     {
         validateSessionToken();
-        return request("GET", "isSessionValid", Map.of("sessionToken", getSessionToken()));
+        return request("GET", "isSessionValid", Boolean.class,Map.of());
     }
 
     @Override
     public @NonNull Boolean logout() throws Exception
     {
         validateSessionToken();
-        Boolean result = request("POST", "logout", Map.of(),
-                jsonObjectMapper.writeValue(Map.of("sessionToken", getSessionToken())));
+        Boolean result = request("POST", "logout", Boolean.class, Map.of());
         setSessionToken(null);
         return result;
     }
@@ -136,9 +128,9 @@ public final class AfsClient implements PublicAPI
             @NonNull final Boolean recursively) throws Exception
     {
         validateSessionToken();
-        return request("GET", "list",
+        return request("GET", "list", List.class,
                 Map.of("owner", owner, "source", source, "recursively",
-                        recursively.toString(), "sessionToken", getSessionToken()));
+                        recursively.toString()));
     }
 
     @Override
@@ -146,24 +138,19 @@ public final class AfsClient implements PublicAPI
             @NonNull final Long offset, @NonNull final Integer limit) throws Exception
     {
         validateSessionToken();
-        return request("GET", "read",
+        return request("GET", "read", byte[].class,
                 Map.of("owner", owner, "source", source, "offset",
-                        offset.toString(), "limit", limit.toString(), "sessionToken",
-                        getSessionToken()));
+                        offset.toString(), "limit", limit.toString()));
     }
 
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
-            @NonNull final Long offset, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception
+            @NonNull final Long offset, @NonNull final byte[] data,
+            @NonNull  final byte[] md5Hash) throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("owner", owner, "source", source,
-                        "offset", offset, "data", data, "md5Hash", md5Hash,
-                        "sessionToken", getSessionToken());
-
-        return request("POST", "write", Map.of(), jsonObjectMapper.writeValue(parameters));
+        return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
+                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data), "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
     }
 
     @Override
@@ -171,11 +158,7 @@ public final class AfsClient implements PublicAPI
             throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("owner", owner, "source", source,
-                        "sessionToken", getSessionToken());
-
-        return request("DELETE", "delete", Map.of(), jsonObjectMapper.writeValue(parameters));
+        return request("DELETE", "delete", Boolean.class, Map.of("owner", owner, "source", source));
     }
 
     @Override
@@ -185,12 +168,8 @@ public final class AfsClient implements PublicAPI
             throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("sourceOwner", sourceOwner, "source", source,
-                        "targetOwner", targetOwner, "target", target,
-                        "sessionToken", getSessionToken());
-
-        return request("POST", "copy", Map.of(), jsonObjectMapper.writeValue(parameters));
+        return request("POST", "copy", Boolean.class, Map.of("sourceOwner", sourceOwner, "source", source,
+                "targetOwner", targetOwner, "target", target));
     }
 
     @Override
@@ -200,91 +179,107 @@ public final class AfsClient implements PublicAPI
             throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("sourceOwner", sourceOwner, "source", source,
-                        "targetOwner", targetOwner, "target", target,
-                        "sessionToken", getSessionToken());
-
-        return request("POST", "move", Map.of(), jsonObjectMapper.writeValue(parameters));
+        return request("POST", "move", Boolean.class, Map.of("sourceOwner", sourceOwner, "source", source,
+                "targetOwner", targetOwner, "target", target));
     }
 
     @Override
     public void begin(final UUID transactionId) throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("transactionId", transactionId.toString(),
-                        "sessionToken", getSessionToken(),
-                        "interactiveSessionKey", getInteractiveSessionKey());
-        request("POST", "begin", Map.of(), jsonObjectMapper.writeValue(parameters));
+        request("POST", "begin", null, Map.of("transactionId", transactionId.toString()));
     }
 
     @Override
     public Boolean prepare() throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey(),
-                        "transactionManagerKey", getTransactionManagerKey());
-        return request("POST", "prepare", Map.of(), jsonObjectMapper.writeValue(parameters));
+        return request("POST", "prepare", Boolean.class, Map.of());
     }
 
     @Override
     public void commit() throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey());
-        request("POST", "commit", Map.of(), jsonObjectMapper.writeValue(parameters));
+        request("POST", "commit", null, Map.of());
     }
 
     @Override
     public void rollback() throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey());
-        request("POST", "rollback", Map.of(), jsonObjectMapper.writeValue(parameters));
+        request("POST", "rollback", null, Map.of());
     }
 
     @Override
     public List<UUID> recover() throws Exception
     {
         validateSessionToken();
-        Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey(),
-                        "transactionManagerKey", getTransactionManagerKey());
-        return request("POST", "recover", Map.of(), jsonObjectMapper.writeValue(parameters));
+        return request("POST", "recover", List.class, Map.of());
     }
 
-    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
-            @NonNull final Map<String, String> parameters) throws Exception
-    {
-        return request(httpMethod, apiMethod, parameters, new byte[0]);
-    }
 
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
-    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
-            @NonNull final Map<String, String> parameters, final byte @NonNull [] body)
+    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod, Class<T> responseType,
+            @NonNull Map<String, String> params)
             throws Exception
     {
-        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofMillis(timeout));
-        Map<String, String> params = parameters;
+        //
+        // General Parameter Handling
+        //
 
-        HttpClient client = clientBuilder.build();
+        HashMap<String, String> mutableParams = new HashMap<>(params);
+        params = mutableParams;
 
-        final String query = Stream.concat(
+        if (sessionToken != null)
+        {
+            params.put("sessionToken", sessionToken);
+        }
+
+        if(interactiveSessionKey != null)
+        {
+            params.put("interactiveSessionKey", interactiveSessionKey);
+        }
+
+        if (transactionManagerKey != null)
+        {
+            params.put("transactionManagerKey", transactionManagerKey);
+        }
+
+        String parameters = Stream.concat(
                         Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
                         params.entrySet().stream())
-                .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
+                .map(entry-> {
+                    return urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue());
+                })
                 .reduce((s1, s2) -> s1 + "&" + s2).get();
 
+        //
+        // GET Request - Parameters on the query string
+        //
+
+        String queryParameters = null;
+        if (httpMethod.equals("GET")) {
+            queryParameters = parameters;
+        }
+
+        //
+        // POST and DELETE Request - Parameters on body
+        //
+
+        byte[] body = null;
+        if (httpMethod.equals("POST") || httpMethod.equals("DELETE")) {
+            body = parameters.getBytes(StandardCharsets.UTF_8);
+        } else {
+            body = new byte[0];
+        }
+
+        //
+        // HTTP Client
+        //
         final URI uri =
                 new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
-                        serverUri.getPath(), query, null);
+                        serverUri.getPath(), queryParameters, null);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(uri)
@@ -293,6 +288,13 @@ public final class AfsClient implements PublicAPI
                 .method(httpMethod, HttpRequest.BodyPublishers.ofByteArray(body));
 
         final HttpRequest request = builder.build();
+
+        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofMillis(timeout));
+
+        HttpClient client = clientBuilder.build();
 
         final HttpResponse<byte[]> httpResponse =
                 client.send(request, HttpResponse.BodyHandlers.ofByteArray());
@@ -305,18 +307,10 @@ public final class AfsClient implements PublicAPI
                 throw new IllegalArgumentException(
                         "Server error HTTP response. Missing content-type");
             }
-            String content = httpResponse.headers().map().get("content-type").get(0);
+            String contentType = httpResponse.headers().map().get("content-type").get(0);
+            byte[] responseBody = httpResponse.body();
 
-            switch (content)
-            {
-                case "application/json":
-                    return parseJsonResponse(httpResponse);
-                case "application/octet-stream":
-                    return (T) httpResponse.body();
-                default:
-                    throw new IllegalArgumentException(
-                            "Client error HTTP response. Unsupported content-type received.");
-            }
+            return getResponseResult(responseType, contentType, responseBody);
         } else if (statusCode >= 400 && statusCode < 500)
         {
             // jsonObjectMapper can't deserialize immutable lists sent in the error message.
@@ -331,10 +325,40 @@ public final class AfsClient implements PublicAPI
         }
     }
 
-    private <T> T parseJsonResponse(final HttpResponse<byte[]> httpResponse) throws Exception
+    public static <T> T getResponseResult(Class<T> responseType, String contentType, byte[] responseBody)
+            throws Exception
+    {
+        switch (contentType)
+        {
+            case "text/plain":
+                return AfsClient.parseFormDataResponse(responseType, responseBody);
+            case "application/json":
+                return AfsClient.parseJsonResponse(responseBody);
+            case "application/octet-stream":
+                return (T) responseBody;
+            default:
+                throw new IllegalArgumentException(
+                        "Client error HTTP response. Unsupported content-type received.");
+        }
+    }
+
+    private static <T> T parseFormDataResponse(Class<T> responseType, byte[] responseBody)
+    {
+        if (responseType == null) {
+            return null;
+        } else if (responseType == String.class) {
+            return responseType.cast(new String(responseBody, StandardCharsets.UTF_8));
+        } else if (responseType == Boolean.class) {
+            return  responseType.cast(Boolean.parseBoolean(new String(responseBody, StandardCharsets.UTF_8)));
+        }
+
+        throw new IllegalStateException("Unreachable statement!");
+    }
+
+    private static <T> T parseJsonResponse(byte[] responseBody) throws Exception
     {
         final ApiResponse response =
-                jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
+                jsonObjectMapper.readValue(new ByteArrayInputStream(responseBody),
                         ApiResponse.class);
 
         if (response.getError() != null)
@@ -353,5 +377,4 @@ public final class AfsClient implements PublicAPI
             throw new IllegalStateException("No session information detected!");
         }
     }
-
 }

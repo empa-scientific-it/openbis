@@ -25,11 +25,11 @@ import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class APIServerWrapper extends AbstractPublicAPIWrapper {
+public class APIServerWrapper extends AbstractPublicAPIWrapper
+{
 
     private static final Logger logger = LogManager.getLogger(APIServerWrapper.class);
 
@@ -41,13 +41,10 @@ public class APIServerWrapper extends AbstractPublicAPIWrapper {
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
-    public <E> E process(String method, Map<String, Object> queryParams, Map<String, Object> bodyParams) {
+    public <E> E process(Class<E> responseType, String method, Map<String, Object> params) {
         PerformanceAuditor performanceAuditor = new PerformanceAuditor();
         // Random Session token just works for tests with dummy authentication
-        Map<String, Object> args = new HashMap<>();
-        args.putAll(queryParams);
-        args.putAll(bodyParams);
-        ApiRequest request = new ApiRequest("test", method, args, UUID.randomUUID().toString(), null, null);
+        ApiRequest request = new ApiRequest("test", method, params, UUID.randomUUID().toString(), null, null);
 
         try {
             Response response = apiServer.processOperation(request, apiResponseBuilder, performanceAuditor);
