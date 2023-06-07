@@ -1114,12 +1114,20 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : "Size (bytes)",
                     property : "size",
-                    isExportable : false,
+									  exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SIZE,
                     sortable : false,
                     render : function(data, grid) {
                         return data.size;
                     }
                 });
+								columns.push({
+									label : "Size",
+									property : "sizeHumanReadable",
+									sortable : false,
+									render : function(data, grid) {
+										return PrintUtil.renderNumberOfBytes(data.size);
+									}
+								});
             }
 
 			columns = columns.concat(_this.additionalColumns);
