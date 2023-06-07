@@ -75,15 +75,6 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
             exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SAMPLE,
             sortable : false
         }];
-        searchView.additionalLastColumns = [{
-            label : "Size",
-            property : "size",
-            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SIZE,
-            sortable : false,
-            render : function(data, grid) {
-                return PrintUtil.renderNumberOfBytes(data.size);
-            }
-        }];
         searchView._paintRulesPanel($rulesPanel);
         searchView._$entityTypeDropdown.val("DATASET");
         searchView._$entityTypeDropdown.trigger("change");
