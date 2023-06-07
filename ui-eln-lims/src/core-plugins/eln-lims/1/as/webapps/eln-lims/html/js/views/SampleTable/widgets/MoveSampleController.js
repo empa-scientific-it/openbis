@@ -48,35 +48,29 @@ function MoveSampleController(samplePermIdOrIds, successAction) {
             mainController.serverFacade.moveSample(
                 _this._moveSampleModel.samples.map(s => s.permId), experimentIdentifier,
                 function() {
-                    var msg = ELNDictionary.Sample + " " + _this._moveSampleModel.samples[0].identifier;
-                    if (_this._moveSampleModel.samples.length > 1) {
-                        msg = _this._moveSampleModel.samples.length + " " + ELNDictionary.Samples; 
-                    }
-                    Util.showSuccess(msg + " moved to " + _this._moveSampleModel.experimentIdentifier, function() {
-                        Util.unblockUI()
-                        if (_this._moveSampleModel.successAction) { 
-                            //Delete Samples from current experiment menu
-                            _this._moveSampleModel.samples.forEach(function(sample) {
-                                mainController.sideMenu.deleteNodeByEntityPermId("SAMPLE", sample.permId, true);
-                            });
-                            
-                            //Add Experiment to the menu if new
-                            if(_this._moveSampleModel.isNewExperiment) {
-                                var experimentIdentifier = _this._moveSampleModel.experimentIdentifier;
-                                var isInventory = profile.isInventorySpace(IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
-                                mainController.sideMenu.refreshExperiment({ 
-                                    identifier: _this._moveSampleModel.experimentIdentifier, 
-                                    code: IdentifierUtil.getCodeFromIdentifier(experimentIdentifier), 
-                                    properties : {}
-                                }, isInventory);
+                    mainController.serverFacade.getExperimentOrNull(experimentIdentifier, function(experiment){
+                        var msg = ELNDictionary.Sample + " " + _this._moveSampleModel.samples[0].identifier;
+                        if (_this._moveSampleModel.samples.length > 1) {
+                            msg = _this._moveSampleModel.samples.length + " " + ELNDictionary.Samples; 
+                        }
+                        Util.showSuccess(msg + " moved to " + _this._moveSampleModel.experimentIdentifier, async function() {
+                            Util.unblockUI()
+
+                            //Refresh old experiment
+                            await mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._moveSampleModel.samples[0].permId);
+
+                            // Refresh new experiment
+                            if(_this._moveSampleModel.isNewExperiment){
+                                await mainController.sideMenu.refreshNodeByPermId("PROJECT", experiment.getProject().getPermId().getPermId());
+                            } else {
+                                await mainController.sideMenu.refreshNodeByPermId("EXPERIMENT", experiment.getPermId().getPermId());
                             }
 
-                            //Refresh Experiment where sample was moved
-                            mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._moveSampleModel.samples[0].permId);
-
-                            _this._moveSampleModel.successAction();
-                        } 
-                    });
+                            if(_this._moveSampleModel.successAction){
+                                _this._moveSampleModel.successAction();
+                            }
+                        });
+                    })
                 });
         }
         if (this._moveSampleModel.isNewExperiment) {
