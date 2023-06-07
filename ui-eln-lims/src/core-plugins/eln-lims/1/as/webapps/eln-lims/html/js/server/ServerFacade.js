@@ -2074,6 +2074,13 @@ function ServerFacade(openbisServer) {
                                                 break;
                                     }
                                     break;
+																case "SAMPLE_CODE":
+																	  switch (comparisonOperator) {
+																		    case 'thatContains':
+																			      criteria.withSample().withCode().thatContains(attributeValue)
+																				    break
+																	  }
+																	  break
                                 case "EXPERIMENT_IDENTIFIER":
                                     if(!comparisonOperator) {
                                         comparisonOperator = "thatEquals";

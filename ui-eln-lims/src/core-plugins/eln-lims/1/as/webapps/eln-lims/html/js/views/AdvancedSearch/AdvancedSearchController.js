@@ -19,7 +19,6 @@ function AdvancedSearchController(mainController, forceSearch) {
 	this._advancedSearchModel = new AdvancedSearchModel(forceSearch);
 	this._advancedSearchView = new AdvancedSearchView(this, this._advancedSearchModel);
 	this.additionalRules = [];
-	this.fetchWithSample = false;
 	this.enrichResultsFunction = function(results, callback) {
 		callback(results);
 	}
@@ -192,7 +191,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.withExperiment = true;
 				fetchOptions.withParents = false;
 				fetchOptions.withChildren = false;
-				fetchOptions.withSample = _this.fetchWithSample;
+				fetchOptions.withSample = true;
                 optionsSearch = JSON.stringify({
                     searchMode: options.searchMode,
                     searchMap: options.searchMap,
@@ -246,6 +245,8 @@ function AdvancedSearchController(mainController, forceSearch) {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "ENTITY_TYPE", value : search, operator: "thatContains" };
                         }else if(field === "experiment"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_CODE", value : search, operator: "thatContains" };
+												}else if(field === "sample"){
+													gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SAMPLE_CODE", value : search, operator: "thatContains" };
                         }else if(field === "code"){
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
                         }else if(field === "identifier"){

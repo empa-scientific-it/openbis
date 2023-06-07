@@ -1072,6 +1072,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.EXPERIMENT,
 				filterable: !isGlobalSearch,
 				sortable : false
+			}, {
+				label : ELNDictionary.getSampleDualName(),
+				property : 'sample',
+				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SAMPLE,
+				filterable: !isGlobalSearch,
+				sortable : false
 			}]);
 
 			if (criteria.entityKind === "DATASET") {

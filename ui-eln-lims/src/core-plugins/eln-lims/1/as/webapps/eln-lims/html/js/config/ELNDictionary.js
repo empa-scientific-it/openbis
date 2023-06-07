@@ -3,10 +3,15 @@ var ELNDictionary = {
 	Samples : "Objects",
 	sample : "object",
 	samples : "objects",
+	SampleELN : "Sample",
 	ExperimentELN : "Experiment",
 	ExperimentCollection : "Collection",
 	ExperimentsELN : "Experiments",
 	ExperimentsCollection : "Collections"
+}
+
+ELNDictionary.getSampleDualName = function() {
+	return ELNDictionary.SampleELN + "/" + ELNDictionary.Sample;
 }
 
 ELNDictionary.getExperimentDualName = function() {
