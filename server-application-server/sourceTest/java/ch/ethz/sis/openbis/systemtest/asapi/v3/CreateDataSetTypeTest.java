@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -98,6 +99,23 @@ public class CreateDataSetTypeTest extends CreateEntityTypeTest<DataSetTypeCreat
 
         assertAccessLog(
                 "create-data-set-types  NEW_DATA_SET_TYPES('[DataSetTypeCreation[code=LOG_TEST_1], DataSetTypeCreation[code=LOG_TEST_2]]')");
+    }
+
+    @Test
+    public void testCreateWithMetaData()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetTypeCreation creation = new DataSetTypeCreation();
+        creation.setCode("META_DATA_TEST_1");
+        creation.setMetaData(Map.of("key", "value"));
+
+
+        List<EntityTypePermId> ids = v3api.createDataSetTypes(sessionToken, Arrays.asList(creation));
+
+        DataSetType type = getType(sessionToken, "META_DATA_TEST_1");
+
+        assertEquals(type.getMetaData(), Map.of("key", "value"));
     }
 
 }

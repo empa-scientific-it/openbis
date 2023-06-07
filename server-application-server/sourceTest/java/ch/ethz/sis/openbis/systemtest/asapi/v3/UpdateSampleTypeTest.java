@@ -19,6 +19,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -73,9 +74,9 @@ public class UpdateSampleTypeTest extends UpdateEntityTypeTest<SampleTypeCreatio
     }
 
     @Override
-    protected List<EntityTypePermId> createTypes(String sessionToken, List<SampleTypeCreation> updates)
+    protected List<EntityTypePermId> createTypes(String sessionToken, List<SampleTypeCreation> creations)
     {
-        return v3api.createSampleTypes(sessionToken, updates);
+        return v3api.createSampleTypes(sessionToken, creations);
     }
 
     @Override
@@ -172,6 +173,33 @@ public class UpdateSampleTypeTest extends UpdateEntityTypeTest<SampleTypeCreatio
 
         assertAccessLog(
                 "update-sample-types  SAMPLE_TYPE_UPDATES('[SampleTypeUpdate[typeId=MASTER_PLATE (SAMPLE)], SampleTypeUpdate[typeId=WELL (SAMPLE)]]')");
+    }
+
+    @Test
+    public void testUpdateMetaData()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Prepare
+        SampleTypeCreation creation = new SampleTypeCreation();
+        creation.setCode("META_DATA_UPDATE_TEST_1");
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+        createTypes(sessionToken, List.of(creation));
+
+        // Act
+        SampleTypeUpdate update = new SampleTypeUpdate();
+        update.setTypeId(new EntityTypePermId("META_DATA_UPDATE_TEST_1"));
+        update.getMetaData().put("key_modify", "new_value");
+        update.getMetaData().add(Map.of("key_add", "value_add"));
+        update.getMetaData().remove("key_delete");
+
+        v3api.updateSampleTypes(sessionToken, Arrays.asList(update));
+
+        // Verify
+        SampleType type = getType(sessionToken, new EntityTypePermId("META_DATA_UPDATE_TEST_1"));
+
+        assertEquals(type.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
+
     }
 
 }

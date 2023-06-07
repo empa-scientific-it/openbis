@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -31,11 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -135,6 +131,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         sampleTypePE.setShowParentMetadata(entityType.isShowParentMetadata());
         sampleTypePE.setGeneratedCodePrefix(entityType.getGeneratedCodePrefix());
         sampleTypePE.setValidationScript(getValidationScriptPE(entityType));
+        sampleTypePE.setMetaData(entityType.getMetaData());
 
         this.entityKind = EntityKind.SAMPLE;
         this.entityTypePE = sampleTypePE;
@@ -150,8 +147,14 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
     @Override
     public void define(ExperimentType entityType)
     {
+        ExperimentTypePE experimentTypePE = new ExperimentTypePE();
+        experimentTypePE.setCode(entityType.getCode());
+        experimentTypePE.setDescription(entityType.getDescription());
+        experimentTypePE.setValidationScript(getValidationScriptPE(entityType));
+        experimentTypePE.setMetaData(entityType.getMetaData());
+
         this.entityKind = EntityKind.EXPERIMENT;
-        this.entityTypePE = convertGeneric(entityType, entityKind);
+        this.entityTypePE = experimentTypePE;
     }
 
     @Override
@@ -166,7 +169,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
         dataSetTypePE.setDeletionDisallow(entityType.isDeletionDisallow());
         dataSetTypePE.setValidationScript(getValidationScriptPE(entityType));
-
+        dataSetTypePE.setMetaData(entityType.getMetaData());
         this.entityKind = EntityKind.DATA_SET;
         this.entityTypePE = dataSetTypePE;
     }

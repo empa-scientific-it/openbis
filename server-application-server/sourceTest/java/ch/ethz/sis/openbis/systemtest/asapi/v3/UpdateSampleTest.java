@@ -174,6 +174,44 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateSampleMetaData()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(new SpacePermId("TEST-SPACE"));
+        update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
+        update.getMetaData().put("key_modify", "new_value");
+        update.getMetaData().remove("key_delete");
+        update.getMetaData().add(Map.of("key_add", "value_add"));
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withSpace();
+        fetchOptions.withExperiment();
+
+        Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
+        AssertionUtil.assertCollectionSize(samples, 1);
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        assertEquals(sample.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
+    }
+
+    @Test
     public void testUpdateWithSampleNonexistent()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);

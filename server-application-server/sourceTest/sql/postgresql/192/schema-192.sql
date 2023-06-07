@@ -1158,6 +1158,7 @@ CREATE TABLE data_all (
     frozen_for_comps boolean_char DEFAULT false NOT NULL,
     frozen_for_conts boolean_char DEFAULT false NOT NULL,
     tsvector_document tsvector NOT NULL,
+    meta_data jsonb,
     CONSTRAINT data_ck CHECK (((expe_id IS NOT NULL) OR (samp_id IS NOT NULL)))
 );
 CREATE VIEW data AS
@@ -1187,7 +1188,8 @@ CREATE VIEW data AS
     data_all.frozen_for_parents,
     data_all.frozen_for_comps,
     data_all.frozen_for_conts,
-    data_all.tsvector_document
+    data_all.tsvector_document,
+    data_all.meta_data
    FROM data_all
   WHERE (data_all.del_id IS NULL);
 CREATE VIEW data_deleted AS
@@ -1488,7 +1490,8 @@ CREATE TABLE data_set_types (
     main_ds_pattern character varying(300),
     main_ds_path character varying(1000),
     deletion_disallow boolean_char DEFAULT false,
-    validation_script_id tech_id
+    validation_script_id tech_id,
+    meta_data jsonb
 );
 CREATE SEQUENCE data_store_id_seq
     START WITH 1
@@ -1799,7 +1802,8 @@ CREATE TABLE experiment_types (
     code code NOT NULL,
     description description_2000,
     modification_timestamp time_stamp DEFAULT now(),
-    validation_script_id tech_id
+    validation_script_id tech_id,
+    meta_data jsonb
 );
 CREATE TABLE experiments_all (
     id tech_id NOT NULL,
@@ -1819,7 +1823,8 @@ CREATE TABLE experiments_all (
     proj_frozen boolean_char DEFAULT false NOT NULL,
     frozen_for_samp boolean_char DEFAULT false NOT NULL,
     frozen_for_data boolean_char DEFAULT false NOT NULL,
-    tsvector_document tsvector NOT NULL
+    tsvector_document tsvector NOT NULL,
+    meta_data jsonb
 );
 CREATE VIEW experiments AS
  SELECT experiments_all.id,
@@ -1839,7 +1844,8 @@ CREATE VIEW experiments AS
     experiments_all.frozen,
     experiments_all.frozen_for_samp,
     experiments_all.frozen_for_data,
-    experiments_all.tsvector_document
+    experiments_all.tsvector_document,
+    experiments_all.meta_data
    FROM experiments_all
   WHERE (experiments_all.del_id IS NULL);
 CREATE VIEW experiments_deleted AS
@@ -2507,7 +2513,8 @@ CREATE TABLE sample_types (
     is_subcode_unique boolean_char DEFAULT false NOT NULL,
     inherit_properties boolean_char DEFAULT false NOT NULL,
     validation_script_id tech_id,
-    show_parent_metadata boolean_char DEFAULT false NOT NULL
+    show_parent_metadata boolean_char DEFAULT false NOT NULL,
+    meta_data jsonb
 );
 CREATE TABLE samples_all (
     id tech_id NOT NULL,
@@ -2537,7 +2544,8 @@ CREATE TABLE samples_all (
     frozen_for_parents boolean_char DEFAULT false NOT NULL,
     frozen_for_data boolean_char DEFAULT false NOT NULL,
     sample_identifier sample_identifier,
-    tsvector_document tsvector NOT NULL
+    tsvector_document tsvector NOT NULL,
+    meta_data jsonb
 );
 CREATE VIEW samples AS
  SELECT samples_all.id,
@@ -2565,7 +2573,8 @@ CREATE VIEW samples AS
     samples_all.frozen_for_parents,
     samples_all.frozen_for_data,
     samples_all.tsvector_document,
-    samples_all.sample_identifier
+    samples_all.sample_identifier,
+    samples_all.meta_data
    FROM samples_all
   WHERE (samples_all.del_id IS NULL);
 CREATE VIEW samples_deleted AS

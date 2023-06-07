@@ -2240,6 +2240,35 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getProperties().size(), 2);
     }
 
+    @Test
+    public void testCreateWithMetaData()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.BOOLEAN);
+        EntityTypePermId dataSetType = createADataSetType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        DataSetCreation creation = physicalDataSetCreation();
+        creation.setTypeId(dataSetType);
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        creation.setBooleanProperty(propertyType.getPermId(), true);
+        creation.setMetaData(Map.of("key", "value"));
+
+        // When
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(dataSetIds.size(), 1);
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        DataSet dataSet = v3api.getDataSets(sessionToken, dataSetIds, fetchOptions).get(dataSetIds.get(0));
+        assertEquals(dataSet.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(dataSet.getBooleanProperty(propertyType.getPermId()).booleanValue(), true);
+        assertEquals(dataSet.getProperties().size(), 2);
+        assertEquals(dataSet.getMetaData(), Map.of("key", "value"));
+    }
+
     private DataSetCreation containerDataSetCreation()
     {
         String code = UUID.randomUUID().toString();

@@ -278,6 +278,7 @@ getLocatorType
 getLocatorTypeId
 getMaterialId
 getMaterialProperties
+getMetaData
 getModificationDate
 getModifier
 getMultilineVarcharProperty
@@ -691,6 +692,7 @@ setLocatorTypeId
 setMaterialId
 setMaterialProperties
 setMeasured
+setMetaData
 setModificationDate
 setModifier
 setMultilineVarcharProperty

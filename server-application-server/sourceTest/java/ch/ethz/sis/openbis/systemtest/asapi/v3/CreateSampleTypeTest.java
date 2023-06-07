@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -106,6 +107,23 @@ public class CreateSampleTypeTest extends CreateEntityTypeTest<SampleTypeCreatio
 
         assertAccessLog(
                 "create-sample-types  NEW_SAMPLE_TYPES('[SampleTypeCreation[code=LOG_TEST_1], SampleTypeCreation[code=LOG_TEST_2]]')");
+    }
+
+    @Test
+    public void testCreateWithMetaData()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleTypeCreation creation = new SampleTypeCreation();
+        creation.setCode("META_DATA_TEST_1");
+        creation.setMetaData(Map.of("key", "value"));
+
+        List<EntityTypePermId> ids = v3api.createSampleTypes(sessionToken, Arrays.asList(creation));
+
+        SampleType type = getType(sessionToken, "META_DATA_TEST_1");
+
+        assertEquals(type.getMetaData(), Map.of("key", "value"));
+
     }
 
 }

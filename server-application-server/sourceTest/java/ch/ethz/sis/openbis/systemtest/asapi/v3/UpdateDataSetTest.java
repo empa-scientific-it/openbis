@@ -1310,6 +1310,34 @@ public class UpdateDataSetTest extends AbstractDataSetTest
                         + " can not be deleted because it is mandatory.");
     }
 
+
+    @Test
+    public void testCreateMetaData()
+    {
+        // Prepare
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetCreation dataSetCreation = createDataSet();
+        dataSetCreation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+        DataSetPermId id = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
+
+        // Act
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.getMetaData().put("key_modify", "new_value");
+        update.getMetaData().add(Map.of("key_add", "value_add"));
+        update.getMetaData().remove("key_delete");
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        // Verify
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        fetchOptions.withHistory().withAuthor();
+        DataSet dataSet = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions).get(id);
+
+        assertEquals(dataSet.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
+    }
+
     private Collection<String> dataSetCodes(Collection<? extends DataSet> list)
     {
         LinkedList<String> result = new LinkedList<String>();

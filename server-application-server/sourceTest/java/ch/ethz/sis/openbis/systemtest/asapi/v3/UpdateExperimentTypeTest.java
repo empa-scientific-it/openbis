@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -33,6 +34,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * @author Franz-Josef Elmer
@@ -150,6 +153,32 @@ public class UpdateExperimentTypeTest extends UpdateEntityTypeTest<ExperimentTyp
 
         assertAccessLog(
                 "update-experiment-types  EXPERIMENT_TYPE_UPDATES('[ExperimentTypeUpdate[typeId=SIRNA_HCS (EXPERIMENT)], ExperimentTypeUpdate[typeId=COMPOUND_HCS (EXPERIMENT)]]')");
+    }
+
+
+    @Test
+    public void testUpdateMetaData()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Prepare
+        ExperimentTypeCreation creation = new ExperimentTypeCreation();
+        creation.setCode("EXPERIMENT_TYPE_META_DATA_TEST");
+        creation.setMetaData(Map.of("kay_modify", "value_modify", "key_delete", "value_delete"));
+        createTypes(sessionToken, List.of(creation));
+
+        // Act
+        ExperimentTypeUpdate update = new ExperimentTypeUpdate();
+        update.setTypeId(new EntityTypePermId("EXPERIMENT_TYPE_META_DATA_TEST"));
+        update.getMetaData().put("key_modify", "new_value");
+        update.getMetaData().add(Map.of("key_add", "value_add"));
+        update.getMetaData().remove("key_delete");
+        v3api.updateExperimentTypes(sessionToken, Arrays.asList(update));
+
+        // Verify
+        ExperimentType type = getType(sessionToken, new EntityTypePermId("EXPERIMENT_TYPE_META_DATA_TEST"));
+
+        assertEquals(type.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
     }
 
 }
