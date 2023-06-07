@@ -68,6 +68,7 @@ export default {
     REGISTRATION_DATE: attribute('REGISTRATION_DATE'),
     REGISTRATOR: attribute('REGISTRATOR'),
     SAMPLE: attribute('SAMPLE'),
+    SIZE: attribute('SIZE'),
     SPACE: attribute('SPACE'),
     STORAGE_CONFIRMATION: attribute('STORAGE_CONFIRMATION'),
     UNIQUE_SUBCODES: attribute('UNIQUE_SUBCODES'),

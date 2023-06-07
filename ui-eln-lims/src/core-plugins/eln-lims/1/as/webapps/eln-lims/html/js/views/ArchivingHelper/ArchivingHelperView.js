@@ -73,13 +73,13 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
         searchView.additionalColumns = [{
             label : ELNDictionary.Sample,
             property : 'sample',
-            isExportable: false,
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SAMPLE,
             sortable : false
         }];
         searchView.additionalLastColumns = [{
             label : "Size",
             property : "size",
-            isExportable : false,
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SIZE,
             sortable : false,
             render : function(data, grid) {
                 return PrintUtil.renderNumberOfBytes(data.size);
