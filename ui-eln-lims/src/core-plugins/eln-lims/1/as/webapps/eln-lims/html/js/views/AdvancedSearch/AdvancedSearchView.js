@@ -1112,18 +1112,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     }
                 });
                 columns.push({
-                    label : 'Storage confirmation',
-                    property : 'storageConfirmation',
-                    filterable: !isGlobalSearch,
-                    sortable : false,
-                    renderFilter : function(params) {
-                        return FormUtil.renderBooleanGridFilter(params);
-                    },
-                    render : function(data) {
-                        return data.storageConfirmation == true ? "true" : "false"
-                    }
-                });
-                columns.push({
                     label : "Size (bytes)",
                     property : "size",
                     isExportable : false,
