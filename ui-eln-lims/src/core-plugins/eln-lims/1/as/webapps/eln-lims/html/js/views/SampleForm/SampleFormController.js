@@ -389,7 +389,12 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					"sampleChildrenAdded": sampleChildrenAddedFinal,
 					"sampleChildrenRemoved": sampleChildrenRemovedFinal,
 					//Other Samples
-					"changesToDo" : changesToDo
+                    "changesToDo" : changesToDo,
+                    //Callback parameters
+                    "isCopyWithNewCode": isCopyWithNewCode,
+                    "samplesToDelete": samplesToDelete,
+                    "parentsAnnotationsState": parentsAnnotationsState,
+                    "childrenAnnotationsState": childrenAnnotationsState
 			};
 			
 			//
@@ -399,9 +404,6 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 				parameters["method"] = "copySample";
 				parameters["sampleCode"] = isCopyWithNewCode;
 				parameters["sampleCodeOrig"] = sampleCode;
-				parameters["notCopyProperties"] = [];
-				parameters["defaultBenchPropertyList"] = [];
-				
 				if(!copyCommentsLogOnCopy && parameters["sampleProperties"]["$XMLCOMMENTS"]) {
 					delete parameters["sampleProperties"]["$XMLCOMMENTS"];
 				}
@@ -417,25 +419,14 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 				parameters["sampleChildrenRemoved"] = [];
 			}
 			
-			//
-			// Sending the request to the server
-			//
-			if(profile.getDefaultDataStoreCode()) {
-				
-				mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
-					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, parameters["copyChildrenOnCopy"]);
-				});
-				
-			} else {
-				Util.showError("No DSS available.", function() {Util.unblockUI();});
-			}
+            _this._createUpdateSample(parameters);
 		}
 		
 		profile.sampleFormOnSubmit(sample, continueSampleCreation);
 		return false;
 	}
 	
-	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, copyChildrenOnCopy) {
+	this._createUpdateCopySampleCallbackOld = function(_this, isCopyWithNewCode, response, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, copyChildrenOnCopy) {
 		if(response.error) { //Error Case 1
 			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") { //Error Case 2
@@ -446,131 +437,377 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			if(response.result.columns[2].title === "RESULT" && response.result.rows[0][2].value) {
 				permId = response.result.rows[0][2].value;
 			}
-			
-			var sampleType = profile.getSampleTypeForSampleTypeCode(_this._sampleFormModel.sample.sampleTypeCode);
-			var sampleTypeDisplayName = sampleType.description;
-			if(!sampleTypeDisplayName) {
-				sampleTypeDisplayName = _this._sampleFormModel.sample.sampleTypeCode;
-			}
-			
-			var message = "";
-			if(isCopyWithNewCode) {
-				message = "" + ELNDictionary.Sample + " copied with new code: " + isCopyWithNewCode + ".";
-			} else if(_this._sampleFormModel.mode === FormMode.CREATE) {
-				message = "" + ELNDictionary.Sample + " Created.";
-			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
-				message = "" + ELNDictionary.Sample + " Updated.";
-			}
-			
-			var callbackOk = function() {
-				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSample) {
-					if(_this._sampleFormModel.mode === FormMode.CREATE) {
-						mainController.sideMenu.refreshCurrentNode();
-					} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
-						mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._sampleFormModel.sample.permId);
-					}
-				}
-				
-				var searchUntilFound = null;
-				    searchUntilFound = function() {
-					mainController.serverFacade.searchWithUniqueId(permId, function(data) {
-						if(data && data.length > 0) {
-							mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
-							Util.unblockUI();
-						} else { // Recursive call, only if not found yet due to reindexing
-							setTimeout(searchUntilFound, 100);
-						}
-					});
-				}
-				searchUntilFound(); //First call
-			}
-
-			if(profile.enableNewAnnotationsBackend) { // Branch for openBIS 20.X
-	            require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier", "as/dto/sample/update/SampleUpdate" ],
-                    function(SamplePermId, SampleIdentifier, SampleUpdate) {
-                        var sampleUpdate = new SampleUpdate();
-                        sampleUpdate.setSampleId(new SamplePermId(permId));
-                        if(parentsAnnotationsState) {
-                            // Add annotations
-                            for(var parentPermId in parentsAnnotationsState) {
-                                var parentAnnotation = parentsAnnotationsState[parentPermId];
-                                var parentIdentifier = parentAnnotation["identifier"]; // When creating new parents, annotations should be added by identifier, permIds are not easily obtainable
-                                delete parentAnnotation["identifier"];
-                                delete parentAnnotation["sampleType"];
-                                for(var annotationKey in parentAnnotation) {
-                                    sampleUpdate.relationship(new SampleIdentifier(parentIdentifier)).addParentAnnotation(annotationKey, parentAnnotation[annotationKey]);
-                                }
-                            }
-                            // Update annotations
-                            // Adding an existing annotation, overrides the old one, updating it.
-                            // Remove annotations
-                            // Adding an emtpy string on exiting annotation, effectively deletes the value.
-                        }
-                        if(
-                            (childrenAnnotationsState && !isCopyWithNewCode) // Standard Sample Case
-                            ||
-                            (childrenAnnotationsState && isCopyWithNewCode && copyChildrenOnCopy) // Copy Children Case
-                        ) {
-                            // Add annotations
-                            for(var childPermId in childrenAnnotationsState) {
-                                var childAnnotation = childrenAnnotationsState[childPermId];
-                                if(!Util.isMapEmpty(childAnnotation)) { // Storage positions don't have annotations
-                                    var childIdentifier = childAnnotation["identifier"]; // When creating new children (copy function), annotations should be added by identifier, permIds are not easily obtainable
-                                    if(isCopyWithNewCode) {
-                                        // The copied children identifier follow the pattern /<PARENT_SPACE>/<PARENT_PROJECT>/<COPYED_SAMPLE_CODE>_<ORIGINAL_CHILDREN_CODE>
-                                        var originalSampleIdentifier = _this._sampleFormModel.sample.identifier;
-                                        var parentSampleSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(originalSampleIdentifier);
-                                        var parentSampleProjectCode = IdentifierUtil.getProjectCodeFromSampleIdentifier(originalSampleIdentifier);
-                                        var copiedParentSampleCode = isCopyWithNewCode;
-                                        var childrenToCopyCode = IdentifierUtil.getCodeFromIdentifier(childIdentifier);
-                                        childIdentifier = IdentifierUtil.getSampleIdentifier(parentSampleSpaceCode, parentSampleProjectCode, copiedParentSampleCode + "_" + childrenToCopyCode);
-                                    }
-                                    delete childAnnotation["identifier"];
-                                    delete childAnnotation["sampleType"];
-                                    for(var annotationKey in childAnnotation) {
-                                        sampleUpdate.relationship(new SampleIdentifier(childIdentifier)).addChildAnnotation(annotationKey, childAnnotation[annotationKey]);
-                                    }
-                                }
-                            }
-                            // Update annotations
-                            // Adding an existing annotation, overrides the old one, updating it.
-                            // Remove annotations
-                            // Adding an emtpy string on exiting annotation, effectively deletes the value.
-                        }
-                        mainController.openbisV3.updateSamples([sampleUpdate]).done(function() {
-                            if(samplesToDelete) {
-                                mainController.serverFacade.trashStorageSamplesWithoutParents(samplesToDelete,
-                                "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier,
-                                function(response) {
-                                    Util.showSuccess(message, callbackOk);
-                                });
-                            } else {
-                                Util.showSuccess(message, callbackOk);
-                                _this._sampleFormModel.isFormDirty = false;
-                            }
-                        }).fail(function(result) {
-                            Util.showError("Failed to save annotations: " + console.log(JSON.stringify(result)), function() {Util.unblockUI();});
-                        });
-                });
-			} else { // Branch for openBIS 19.X
-                if(samplesToDelete) {
-                    mainController.serverFacade.trashStorageSamplesWithoutParents(samplesToDelete,
-                        "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier,
-                        function(response) {
-                            Util.showSuccess(message, callbackOk);
-                    });
-                } else {
-                    Util.showSuccess(message, callbackOk);
-                    _this._sampleFormModel.isFormDirty = false;
-                }
-			}
-			
-		} else { //This should never happen
-			Util.showError("Unknown Error.", function() {Util.unblockUI();});
-		}
+            _this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, permId, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, copyChildrenOnCopy)
+        } else { //This should never happen
+            Util.showError("Unknown Error.", function() {Util.unblockUI();});           
+        }
 	}
+	
+    this._createUpdateSample = function(parameters) {
+        var _this = this;
+        var samplesToGet = parameters["sampleChildrenNew"].map(child => child.identifier);
+        if (parameters["copyChildrenOnCopy"] && parameters["copyChildrenOnCopy"] != false) {
+            samplesToGet = samplesToGet.concat(parameters["sampleChildren"]);
+        }
+        if (samplesToGet.length > 0) {
+            require(["as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions"], 
+                    function(SampleIdentifier, SampleFetchOptions) {
+                var sampleIds = samplesToGet.map(id => new SampleIdentifier(id));
+                var fetchOptions = new SampleFetchOptions();
+                fetchOptions.withType();
+                fetchOptions.withExperiment();
+                fetchOptions.withProperties();
+                mainController.openbisV3.getSamples(sampleIds, fetchOptions).done(function(samples) {
+                    var existingSamples = {}
+                    for (id in samples) {
+                        existingSamples[id] = samples[id];
+                    }
+                    _this._createUpdateSampleStepPerformCreationsAndUpdates(parameters, existingSamples);
+                }).fail(function(result) {
+                    Util.showFailedServerCallError(result);
+                });
+            });
+        } else {
+            this._createUpdateSampleStepPerformCreationsAndUpdates(parameters, {});
+        }
+        
+    }
 
-	this.getAnnotationsState = function(type) {
+    this._createUpdateSampleStepPerformCreationsAndUpdates = function(parameters, existingSamples) {
+        var _this = this;
+        require([ "as/dto/operation/SynchronousOperationExecutionOptions",
+                  "as/dto/sample/create/CreateSamplesOperation", "as/dto/sample/create/SampleCreation", 
+                  "as/dto/sample/update/UpdateSamplesOperation", "as/dto/sample/update/SampleUpdate", 
+                  "as/dto/entitytype/id/EntityTypePermId", 
+                  "as/dto/entitytype/EntityKind", "as/dto/space/id/SpacePermId", 
+                  "as/dto/project/id/ProjectIdentifier", "as/dto/experiment/id/ExperimentIdentifier",
+                  "as/dto/sample/id/SampleIdentifier", "as/dto/common/id/CreationId"],
+                  function(SynchronousOperationExecutionOptions, CreateSamplesOperation, SampleCreation, 
+                          UpdateSamplesOperation, SampleUpdate,
+                          EntityTypePermId, EntityKind, 
+                          SpacePermId, ProjectIdentifier, ExperimentIdentifier, SampleIdentifier, CreationId) {
+            // Define helper functions
+            var createSampleCreation = function(parameters) {
+                var creation = new SampleCreation();
+                setBasics(creation, parameters);
+                creation.setTypeId(new EntityTypePermId(parameters["sampleType"], EntityKind.SAMPLE));
+                var sampleCode = parameters["sampleCode"]
+                if (sampleCode) {
+                    creation.setCode(sampleCode);
+                }
+                return creation;
+            }
+            var setBasics = function(object, parameters) {
+                var space = parameters["sampleSpace"];
+                object.setSpaceId(new SpacePermId(space));
+                var sampleIdentifier = "/" + space;
+                var project = parameters["sampleProject"];
+                if (project != null) {
+                    object.setProjectId(new ProjectIdentifier("/" + space + "/" + project));
+                    sampleIdentifier += "/" + project;
+                    var experiment = parameters["sampleExperiment"]
+                    if (experiment != null) {
+                        object.setExperimentId(new ExperimentIdentifier("/" + space + "/" + project + "/" + experiment));
+                    }
+                }
+                if (object.setSampleId) {
+                    object.setSampleId(new SampleIdentifier(sampleIdentifier + "/" + parameters["sampleCode"]));
+                }
+                object.setProperties(parameters["sampleProperties"]);
+            }
+            var createRelatedSampleCreation = function(definition) {
+                var creation = new SampleCreation();
+                creation.setTypeId(new EntityTypePermId(definition["sampleTypeCode"], EntityKind.SAMPLE));
+                var splitted = definition["identifier"].split("/");
+                creation.setSpaceId(new SpacePermId(splitted[1]));
+                if (splitted.length == 4) {
+                    creation.setProjectId(new ProjectIdentifier("/" + splitted[1] + "/" + splitted[2]))
+                }
+                var experimentIdentifier = definition["experimentIdentifier"];
+                if (experimentIdentifier) {
+                    creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
+                }
+                var experimentIdentifier = definition["experimentIdentifierOrNull"];
+                if (experimentIdentifier) {
+                    creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
+                }
+                creation.setCode(definition["code"]);
+                creation.setProperties(definition["properties"]);
+                creation.setCreationId(new CreationId(definition[["identifier"]]));
+                return creation;
+            };
+            var getParents = function() {
+                var parents = null;
+                var sampleParents = parameters["sampleParents"];
+                if (sampleParents) {
+                    parents = sampleParents.map(p => new SampleIdentifier(p));
+                }
+                var sampleParentsNew = parameters["sampleParentsNew"];
+                if (sampleParentsNew) {
+                    sampleParentsNew.forEach(function(newSampleParent) {
+                        var identifier = newSampleParent["identifier"];
+                        var parentCreation = createRelatedSampleCreation(newSampleParent);
+                        sampleCreations.push(parentCreation);
+                        if (!parents) {
+                            parents = [];
+                        }
+                        parents.push(parentCreation.getCreationId());
+                        var parentsIdentifiers = newSampleParent["parentsIdentifiers"];
+                        parentCreation.setParentIds(parentsIdentifiers.map(p => new SampleIdentifier(p)));
+                    });
+                }
+                return parents;
+            };
+            var getChildren = function() {
+                var children = [];
+                sampleChildrenNewIdentifiers = [];
+                var sampleChildrenNew = parameters["sampleChildrenNew"];
+                if (sampleChildrenNew) {
+                    sampleChildrenNew.forEach(function(newSampleChild) {
+                        var identifier = newSampleChild["identifier"];
+                        sampleChildrenNewIdentifiers.push(identifier);
+                        if (!existingSamples[identifier]) {
+                            var childCreation = createRelatedSampleCreation(newSampleChild);
+                            sampleCreations.push(childCreation);
+                            children.push(childCreation.getCreationId());
+                        } else {
+                            children.push(new SampleIdentifier(identifier));
+                        }
+                    });
+                }
+                var sampleChildrenAdded = parameters["sampleChildrenAdded"];
+                if (sampleChildrenAdded) {
+                    sampleChildrenAdded.forEach(function(sampleChildIdentifier) {
+                        if (sampleChildrenNewIdentifiers.includes(sampleChildIdentifier) == false) {
+                            children.push(new SampleIdentifier(sampleChildIdentifier));
+                        }
+                    });
+                }
+                return children;
+            };
+            // end of helper functions
+            var sampleCreations = [];
+            var sampleUpdates = [];
+            var method = parameters["method"];
+            if (method === "insertSample") {
+                var creation = createSampleCreation(parameters);
+                sampleCreations.push(creation);
+                var parents = getParents();
+                if (parents) {
+                    creation.setParentIds(parents);
+                }
+                creation.setChildIds(getChildren());
+                // End of 'insertSample' section
+            } else if (method === "updateSample") {
+                var update = new SampleUpdate();
+                sampleUpdates.push(update);
+                setBasics(update, parameters);
+                var parents = getParents();
+                if (parents) {
+                    update.getParentIds().set(parents);
+                }
+                var children = getChildren();
+                if (children.length > 0) {
+                    update.getChildIds().add(children);
+                }
+                var sampleChildrenRemoved = parameters["sampleChildrenRemoved"];
+                if (sampleChildrenRemoved) {
+                    update.getChildIds().remove(sampleChildrenRemoved.map(c => new SampleIdentifier(c)));
+                }
+                // End of 'updateSample' section
+            } else if (method === "copySample") {
+                var creation = createSampleCreation(parameters);
+                sampleCreations.push(creation);
+                var parents = getParents();
+                if (parents) {
+                    creation.setParentIds(parents);
+                }
+                var creationId = new CreationId(":::copy:::");
+                creation.setCreationId(creationId);
+                var sampleChildren = parameters["sampleChildren"];
+                var copyChildrenOnCopy = parameters["copyChildrenOnCopy"];
+                if (sampleChildren && copyChildrenOnCopy != false) {
+                    sampleChildren.forEach(function(sampleId) {
+                        var child = existingSamples[sampleId];
+                        var copyChildCode = parameters["sampleCode"];
+                        var index = child.getCode().indexOf("_");
+                        if (index >= 0) {
+                            copyChildCode += child.getCode().substring(index);
+                        } else {
+                            copyChildCode += "_" + child.getCode();
+                        }
+                        var copyChildParameters = {};
+                        copyChildParameters["sampleCode"] = copyChildCode;
+                        copyChildParameters["sampleType"] = child.getType().getPermId().getPermId();
+                        copyChildParameters["sampleProperties"] = child.getProperties();
+                        copyChildParameters["sampleSpace"] = parameters["sampleSpace"];
+                        copyChildParameters["sampleProject"] = parameters["sampleProject"];
+                        copyChildParameters["sampleExperiment"] = parameters["sampleExperiment"];
+                        var copyChildCreation = createSampleCreation(copyChildParameters);
+                        sampleCreations.push(copyChildCreation);
+                        copyChildCreation.setParentIds([creationId]);
+                    });
+                }
+                // End of 'copySample' section
+            }
+            parameters["changesToDo"].forEach(function(change) {
+                var update = new SampleUpdate();
+                sampleUpdates.push(update);
+                update.setSampleId(new SampleIdentifier(change["identifier"]));
+                update.setProperties(change["properties"]);
+            });
+
+            var operations = [];
+            if (sampleCreations.length > 0) {
+                operations.push(new CreateSamplesOperation(sampleCreations));
+            }
+            if (sampleUpdates.length > 0) {
+                operations.push(new UpdateSamplesOperation(sampleUpdates));
+            }
+            var operationOptions = new SynchronousOperationExecutionOptions();
+            mainController.openbisV3.executeOperations(operations, operationOptions).done(function(result) {
+                var permId = null;
+                result.results.forEach(function(operationResult) {
+                    if (operationResult["@type"] === "as.dto.sample.create.CreateSamplesOperationResult"
+                            && (method == "insertSample" || method == "copySample")) {
+                        permId = operationResult.getObjectIds()[0].getPermId();
+                    }
+                    if (operationResult["@type"] === "as.dto.sample.update.UpdateSamplesOperationResult"
+                            && method == "updateSample") {
+                        permId = operationResult.getObjectIds()[0].getPermId();
+                    }
+                });
+                _this._createUpdateCopySampleCallback(_this, parameters["isCopyWithNewCode"], permId, 
+                        parameters["samplesToDelete"], parameters["parentsAnnotationsState"], 
+                        parameters["childrenAnnotationsState"], parameters["copyChildrenOnCopy"]);
+            }).fail(function(result) {
+                Util.showFailedServerCallError(result);
+            });
+        });
+    }
+    
+    this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, permId, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, copyChildrenOnCopy) {
+        
+        var sampleType = profile.getSampleTypeForSampleTypeCode(_this._sampleFormModel.sample.sampleTypeCode);
+        var sampleTypeDisplayName = sampleType.description;
+        if(!sampleTypeDisplayName) {
+            sampleTypeDisplayName = _this._sampleFormModel.sample.sampleTypeCode;
+        }
+        
+        var message = "";
+        if(isCopyWithNewCode) {
+            message = "" + ELNDictionary.Sample + " copied with new code: " + isCopyWithNewCode + ".";
+        } else if(_this._sampleFormModel.mode === FormMode.CREATE) {
+            message = "" + ELNDictionary.Sample + " Created.";
+        } else if(_this._sampleFormModel.mode === FormMode.EDIT) {
+            message = "" + ELNDictionary.Sample + " Updated.";
+        }
+        
+        var callbackOk = function() {
+            if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSample) {
+                if(_this._sampleFormModel.mode === FormMode.CREATE) {
+                    mainController.sideMenu.refreshCurrentNode();
+                } else if(_this._sampleFormModel.mode === FormMode.EDIT) {
+                    mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._sampleFormModel.sample.permId);
+                }
+            }
+            
+            var searchUntilFound = null;
+                searchUntilFound = function() {
+                mainController.serverFacade.searchWithUniqueId(permId, function(data) {
+                    if(data && data.length > 0) {
+                        mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
+                        Util.unblockUI();
+                    } else { // Recursive call, only if not found yet due to reindexing
+                        setTimeout(searchUntilFound, 100);
+                    }
+                });
+            }
+            searchUntilFound(); //First call
+        }
+
+        if(profile.enableNewAnnotationsBackend) { // Branch for openBIS 20.X
+            require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier", "as/dto/sample/update/SampleUpdate" ],
+                function(SamplePermId, SampleIdentifier, SampleUpdate) {
+                    var sampleUpdate = new SampleUpdate();
+                    sampleUpdate.setSampleId(new SamplePermId(permId));
+                    if(parentsAnnotationsState) {
+                        // Add annotations
+                        for(var parentPermId in parentsAnnotationsState) {
+                            var parentAnnotation = parentsAnnotationsState[parentPermId];
+                            var parentIdentifier = parentAnnotation["identifier"]; // When creating new parents, annotations should be added by identifier, permIds are not easily obtainable
+                            delete parentAnnotation["identifier"];
+                            delete parentAnnotation["sampleType"];
+                            for(var annotationKey in parentAnnotation) {
+                                sampleUpdate.relationship(new SampleIdentifier(parentIdentifier)).addParentAnnotation(annotationKey, parentAnnotation[annotationKey]);
+                            }
+                        }
+                        // Update annotations
+                        // Adding an existing annotation, overrides the old one, updating it.
+                        // Remove annotations
+                        // Adding an emtpy string on exiting annotation, effectively deletes the value.
+                    }
+                    if(
+                        (childrenAnnotationsState && !isCopyWithNewCode) // Standard Sample Case
+                        ||
+                        (childrenAnnotationsState && isCopyWithNewCode && copyChildrenOnCopy) // Copy Children Case
+                    ) {
+                        // Add annotations
+                        for(var childPermId in childrenAnnotationsState) {
+                            var childAnnotation = childrenAnnotationsState[childPermId];
+                            if(!Util.isMapEmpty(childAnnotation)) { // Storage positions don't have annotations
+                                var childIdentifier = childAnnotation["identifier"]; // When creating new children (copy function), annotations should be added by identifier, permIds are not easily obtainable
+                                if(isCopyWithNewCode) {
+                                    // The copied children identifier follow the pattern /<PARENT_SPACE>/<PARENT_PROJECT>/<COPYED_SAMPLE_CODE>_<ORIGINAL_CHILDREN_CODE>
+                                    var originalSampleIdentifier = _this._sampleFormModel.sample.identifier;
+                                    var parentSampleSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(originalSampleIdentifier);
+                                    var parentSampleProjectCode = IdentifierUtil.getProjectCodeFromSampleIdentifier(originalSampleIdentifier);
+                                    var copiedParentSampleCode = isCopyWithNewCode;
+                                    var childrenToCopyCode = IdentifierUtil.getCodeFromIdentifier(childIdentifier);
+                                    childIdentifier = IdentifierUtil.getSampleIdentifier(parentSampleSpaceCode, parentSampleProjectCode, copiedParentSampleCode + "_" + childrenToCopyCode);
+                                }
+                                delete childAnnotation["identifier"];
+                                delete childAnnotation["sampleType"];
+                                for(var annotationKey in childAnnotation) {
+                                    sampleUpdate.relationship(new SampleIdentifier(childIdentifier)).addChildAnnotation(annotationKey, childAnnotation[annotationKey]);
+                                }
+                            }
+                        }
+                        // Update annotations
+                        // Adding an existing annotation, overrides the old one, updating it.
+                        // Remove annotations
+                        // Adding an emtpy string on exiting annotation, effectively deletes the value.
+                    }
+                    mainController.openbisV3.updateSamples([sampleUpdate]).done(function() {
+                        if(samplesToDelete) {
+                            mainController.serverFacade.trashStorageSamplesWithoutParents(samplesToDelete,
+                            "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier,
+                            function(response) {
+                                Util.showSuccess(message, callbackOk);
+                            });
+                        } else {
+                            Util.showSuccess(message, callbackOk);
+                            _this._sampleFormModel.isFormDirty = false;
+                        }
+                    }).fail(function(result) {
+                        Util.showError("Failed to save annotations: " + console.log(JSON.stringify(result)), function() {Util.unblockUI();});
+                    });
+            });
+        } else { // Branch for openBIS 19.X
+            if(samplesToDelete) {
+                mainController.serverFacade.trashStorageSamplesWithoutParents(samplesToDelete,
+                    "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier,
+                    function(response) {
+                        Util.showSuccess(message, callbackOk);
+                });
+            } else {
+                Util.showSuccess(message, callbackOk);
+                _this._sampleFormModel.isFormDirty = false;
+            }
+        }
+    }
+
+    this.getAnnotationsState = function(type) {
         // Used by openBIS 19.X : Check if annotations can't be saved
         if(!profile.enableNewAnnotationsBackend) {
             var isStateFieldAvailable = false;
@@ -592,5 +829,5 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
             typeAnnotations = FormUtil.getAnnotationsFromSample(this._sampleFormModel.v3_sample, type);
         }
         return typeAnnotations;
-	}
+    }
 }
