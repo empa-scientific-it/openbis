@@ -91,6 +91,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
 
         VocabularyTermUpdate update = new VocabularyTermUpdate();
         update.setVocabularyTermId(permIds.get(0));
+        update.setDescription("updated description");
         update.setOfficial(true);
 
         assertExceptionMessage(new IDelegatedAction()
@@ -183,7 +184,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
         updateTerms(TEST_USER, PASSWORD, update);
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Offical vocabulary term DOG \\(ORGANISM\\) cannot be updated to be unofficial.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Official vocabulary term DOG \\(ORGANISM\\) cannot be updated to be unofficial.*")
     public void testUpdateWithOfficialTermMadeUnofficial()
     {
         VocabularyTermUpdate update = new VocabularyTermUpdate();

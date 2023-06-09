@@ -155,11 +155,13 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
                 if (termPE.isOfficial() && Boolean.FALSE.equals(update.isOfficial().getValue()))
                 {
                     throw new UserFailureException(
-                            "Offical vocabulary term " + update.getVocabularyTermId() + " cannot be updated to be unofficial.");
+                            "Official vocabulary term " + update.getVocabularyTermId() + " cannot be updated to be unofficial.");
+                } else if (!termPE.isOfficial() && Boolean.TRUE.equals(update.isOfficial().getValue()))
+                {
+                    VocabularyTerm term = new VocabularyTerm();
+                    term.setId(termPE.getId());
+                    termBO.makeOfficial(Arrays.asList(term));
                 }
-                VocabularyTerm term = new VocabularyTerm();
-                term.setId(termPE.getId());
-                termBO.makeOfficial(Arrays.asList(term));
             }
         }
 
