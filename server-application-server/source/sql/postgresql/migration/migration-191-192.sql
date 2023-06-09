@@ -9,11 +9,11 @@ ALTER TABLE IF EXISTS SAMPLE_TYPES
     ADD COLUMN META_DATA jsonb;
 
 CREATE OR REPLACE VIEW samples AS
-     SELECT id, perm_id, code, proj_id, proj_frozen, expe_id, expe_frozen, saty_id, registration_timestamp,
-            modification_timestamp, pers_id_registerer, pers_id_modifier, del_id, orig_del, space_id, space_frozen,
-            samp_id_part_of, cont_frozen, version, frozen, frozen_for_comp, frozen_for_children, frozen_for_parents, frozen_for_data, tsvector_document, sample_identifier
-       FROM samples_all
-     WHERE del_id IS NULL;
+       SELECT id, perm_id, code, proj_id, proj_frozen, expe_id, expe_frozen, saty_id, registration_timestamp,
+              modification_timestamp, pers_id_registerer, pers_id_modifier, del_id, orig_del, space_id, space_frozen,
+              samp_id_part_of, cont_frozen, version, frozen, frozen_for_comp, frozen_for_children, frozen_for_parents, frozen_for_data, tsvector_document, sample_identifier, meta_data
+         FROM samples_all
+        WHERE del_id IS NULL;
 
 
 ALTER TABLE IF EXISTS EXPERIMENTS_ALL
