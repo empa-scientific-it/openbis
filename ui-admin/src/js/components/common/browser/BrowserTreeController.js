@@ -201,7 +201,19 @@ export default class BrowserTreeController {
         }
       }
 
-      await this.loadNode(nodeId, 0, limit, false)
+      const newState = { ...state, nodes: {} }
+
+      // remove descendant nodes before reload
+      Object.values(state.nodes).forEach(node => {
+        if(!this._isDescendantNodeId(nodeId, node.id)){
+            newState.nodes[node.id] = node
+        }
+      })
+
+      await this._setNodeLoading(nodeId, true)
+      await this._doLoadNode(newState, node.id, 0, limit, false)
+      await this.setState(newState)
+      await this._setNodeLoading(nodeId, false)
     }
   }
 
