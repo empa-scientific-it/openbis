@@ -24,9 +24,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.MaterialP
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyRecord;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.SamplePropertyRecord;
-import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
-import ch.systemsx.cisd.common.db.mapper.StringMapMapper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.HistoryPropertyRecordDataObjectBinding;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.PropertyRecordDataObjectBinding;
 import it.unimi.dsi.fastutil.longs.LongSet;
