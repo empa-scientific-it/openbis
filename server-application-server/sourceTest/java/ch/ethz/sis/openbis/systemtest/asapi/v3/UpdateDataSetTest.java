@@ -1312,11 +1312,17 @@ public class UpdateDataSetTest extends AbstractDataSetTest
 
 
     @Test
-    public void testCreateMetaData()
+    public void testUpdateMetaData()
     {
         // Prepare
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        DataSetCreation dataSetCreation = createDataSet();
+
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setCode("DATA_SET_META_1");
+        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
+        dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
+        dataSetCreation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
         dataSetCreation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
         DataSetPermId id = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
 

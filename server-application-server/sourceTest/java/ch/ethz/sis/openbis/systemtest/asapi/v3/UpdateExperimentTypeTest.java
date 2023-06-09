@@ -164,7 +164,7 @@ public class UpdateExperimentTypeTest extends UpdateEntityTypeTest<ExperimentTyp
         // Prepare
         ExperimentTypeCreation creation = new ExperimentTypeCreation();
         creation.setCode("EXPERIMENT_TYPE_META_DATA_TEST");
-        creation.setMetaData(Map.of("kay_modify", "value_modify", "key_delete", "value_delete"));
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
         createTypes(sessionToken, List.of(creation));
 
         // Act
