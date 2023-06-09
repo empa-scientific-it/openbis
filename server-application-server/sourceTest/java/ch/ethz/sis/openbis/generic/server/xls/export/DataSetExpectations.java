@@ -29,14 +29,14 @@ import org.jmock.lib.action.CustomAction;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
@@ -105,18 +105,21 @@ class DataSetExpectations extends Expectations
                 physicalData[0].setPresentInArchive(true);
                 physicalData[0].setStorageConfirmation(true);
                 physicalData[0].setStatus(ArchivingStatus.AVAILABLE);
+                physicalData[0].setSize(123456L);
 
                 physicalData[1] = new PhysicalData();
                 physicalData[1].setArchivingRequested(true);
                 physicalData[1].setPresentInArchive(false);
                 physicalData[1].setStorageConfirmation(false);
                 physicalData[1].setStatus(ArchivingStatus.AVAILABLE);
+                physicalData[1].setSize(234567L);
 
                 physicalData[2] = new PhysicalData();
                 physicalData[2].setArchivingRequested(true);
                 physicalData[2].setPresentInArchive(true);
                 physicalData[2].setStorageConfirmation(false);
                 physicalData[2].setStatus(ArchivingStatus.ARCHIVED);
+                physicalData[2].setSize(345678L);
 
                 final DataSet[] dataSets = new DataSet[3];
 
