@@ -26,13 +26,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.io.Posix;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.unix.FileLinkType;
-import ch.systemsx.cisd.base.unix.Unix;
-import ch.systemsx.cisd.base.unix.Unix.Stat;
 import ch.systemsx.cisd.common.io.MonitoredIOStreamCopier;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
@@ -95,10 +94,10 @@ public class Tar implements Closeable
     public void add(String name) throws IOException
     {
         final TarArchiveEntry entry = new TarArchiveEntry(name);
-        if (Unix.isOperational())
+        if (Posix.isOperational())
         {
-            entry.setUserId(Unix.getUid());
-            entry.setGroupId(Unix.getGid());
+            entry.setUserId(Posix.getUid());
+            entry.setGroupId(Posix.getGid());
         }
         add(entry, (InputStream) null);
     }
@@ -112,10 +111,10 @@ public class Tar implements Closeable
     public void add(String name, byte[] data) throws IOException
     {
         final TarArchiveEntry entry = new TarArchiveEntry(name);
-        if (Unix.isOperational())
+        if (Posix.isOperational())
         {
-            entry.setUserId(Unix.getUid());
-            entry.setGroupId(Unix.getGid());
+            entry.setUserId(Posix.getUid());
+            entry.setGroupId(Posix.getGid());
         }
         add(entry, data);
     }
@@ -220,7 +219,7 @@ public class Tar implements Closeable
         final String cached = groupMap.get(gid);
         if (cached == null)
         {
-            final String name = Unix.tryGetGroupNameForGid(gid);
+            final String name = Posix.tryGetGroupNameForGid(gid);
             if (name != null)
             {
                 groupMap.put(gid, name);
@@ -237,7 +236,7 @@ public class Tar implements Closeable
         final String cached = userMap.get(uid);
         if (cached == null)
         {
-            final String name = Unix.tryGetUserNameForUid(uid);
+            final String name = Posix.tryGetUserNameForUid(uid);
             if (name != null)
             {
                 userMap.put(uid, name);
@@ -252,10 +251,10 @@ public class Tar implements Closeable
     private TarArchiveEntry createArchiveEntry(final File file,
             final int rootDirectoryLength, final boolean addSlash)
     {
-        final Stat stat;
-        if (Unix.isOperational())
+        final Posix.Stat stat;
+        if (Posix.isOperational())
         {
-            stat = Unix.tryGetLinkInfo(file.getPath());
+            stat = Posix.tryGetLinkInfo(file.getPath());
         } else
         {
             stat = null;
@@ -276,7 +275,7 @@ public class Tar implements Closeable
         }
     }
 
-    private TarArchiveEntry createArchiveEntry(final String name, final Stat stat)
+    private TarArchiveEntry createArchiveEntry(final String name, final Posix.Stat stat)
     {
         final byte linkType =
                 stat.getLinkType() == FileLinkType.SYMLINK ? TarArchiveEntry.LF_SYMLINK
