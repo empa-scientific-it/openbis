@@ -111,7 +111,7 @@ public final class AfsClient implements PublicAPI
     public @NonNull Boolean isSessionValid() throws Exception
     {
         validateSessionToken();
-        return request("GET", "isSessionValid", Boolean.class,Map.of());
+        return request("GET", "isSessionValid", Boolean.class, Map.of());
     }
 
     @Override
@@ -146,11 +146,12 @@ public final class AfsClient implements PublicAPI
     @Override
     public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, @NonNull final byte[] data,
-            @NonNull  final byte[] md5Hash) throws Exception
+            @NonNull final byte[] md5Hash) throws Exception
     {
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
-                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data), "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
+                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data),
+                "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
     }
 
     @Override
@@ -168,8 +169,9 @@ public final class AfsClient implements PublicAPI
             throws Exception
     {
         validateSessionToken();
-        return request("POST", "copy", Boolean.class, Map.of("sourceOwner", sourceOwner, "source", source,
-                "targetOwner", targetOwner, "target", target));
+        return request("POST", "copy", Boolean.class,
+                Map.of("sourceOwner", sourceOwner, "source", source,
+                        "targetOwner", targetOwner, "target", target));
     }
 
     @Override
@@ -179,8 +181,9 @@ public final class AfsClient implements PublicAPI
             throws Exception
     {
         validateSessionToken();
-        return request("POST", "move", Boolean.class, Map.of("sourceOwner", sourceOwner, "source", source,
-                "targetOwner", targetOwner, "target", target));
+        return request("POST", "move", Boolean.class,
+                Map.of("sourceOwner", sourceOwner, "source", source,
+                        "targetOwner", targetOwner, "target", target));
     }
 
     @Override
@@ -218,9 +221,9 @@ public final class AfsClient implements PublicAPI
         return request("POST", "recover", List.class, Map.of());
     }
 
-
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
-    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod, Class<T> responseType,
+    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
+            Class<T> responseType,
             @NonNull Map<String, String> params)
             throws Exception
     {
@@ -236,7 +239,7 @@ public final class AfsClient implements PublicAPI
             params.put("sessionToken", sessionToken);
         }
 
-        if(interactiveSessionKey != null)
+        if (interactiveSessionKey != null)
         {
             params.put("interactiveSessionKey", interactiveSessionKey);
         }
@@ -249,9 +252,7 @@ public final class AfsClient implements PublicAPI
         String parameters = Stream.concat(
                         Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
                         params.entrySet().stream())
-                .map(entry-> {
-                    return urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue());
-                })
+                .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
                 .reduce((s1, s2) -> s1 + "&" + s2).get();
 
         //
@@ -259,7 +260,8 @@ public final class AfsClient implements PublicAPI
         //
 
         String queryParameters = null;
-        if (httpMethod.equals("GET")) {
+        if (httpMethod.equals("GET"))
+        {
             queryParameters = parameters;
         }
 
@@ -268,9 +270,11 @@ public final class AfsClient implements PublicAPI
         //
 
         byte[] body = null;
-        if (httpMethod.equals("POST") || httpMethod.equals("DELETE")) {
+        if (httpMethod.equals("POST") || httpMethod.equals("DELETE"))
+        {
             body = parameters.getBytes(StandardCharsets.UTF_8);
-        } else {
+        } else
+        {
             body = new byte[0];
         }
 
@@ -325,7 +329,8 @@ public final class AfsClient implements PublicAPI
         }
     }
 
-    public static <T> T getResponseResult(Class<T> responseType, String contentType, byte[] responseBody)
+    public static <T> T getResponseResult(Class<T> responseType, String contentType,
+            byte[] responseBody)
             throws Exception
     {
         switch (contentType)
@@ -344,12 +349,16 @@ public final class AfsClient implements PublicAPI
 
     private static <T> T parseFormDataResponse(Class<T> responseType, byte[] responseBody)
     {
-        if (responseType == null) {
+        if (responseType == null)
+        {
             return null;
-        } else if (responseType == String.class) {
+        } else if (responseType == String.class)
+        {
             return responseType.cast(new String(responseBody, StandardCharsets.UTF_8));
-        } else if (responseType == Boolean.class) {
-            return  responseType.cast(Boolean.parseBoolean(new String(responseBody, StandardCharsets.UTF_8)));
+        } else if (responseType == Boolean.class)
+        {
+            return responseType.cast(
+                    Boolean.parseBoolean(new String(responseBody, StandardCharsets.UTF_8)));
         }
 
         throw new IllegalStateException("Unreachable statement!");
