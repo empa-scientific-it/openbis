@@ -181,7 +181,38 @@ export default class BrowserTreeController {
       const newState = { ...state }
       await this._setNodeLoading(nodeId, true)
       await this._doLoadNode(newState, node.id, offset, limit, append)
-      this.setState(newState)
+      await this.setState(newState)
+      await this._setNodeLoading(nodeId, false)
+    }
+  }
+
+  async reloadNode(nodeId) {
+    const state = this.getState()
+    const node = state.nodes[nodeId]
+
+    if (node) {
+      var limit = null
+
+      if (!_.isNil(node.childrenLoadLimit)) {
+        limit = node.childrenLoadLimit
+
+        if (!_.isNil(node.children)) {
+          limit = Math.max(limit, node.children.length)
+        }
+      }
+
+      const newState = { ...state, nodes: {} }
+
+      // remove descendant nodes before reload
+      Object.values(state.nodes).forEach(node => {
+        if(!this._isDescendantNodeId(nodeId, node.id)){
+            newState.nodes[node.id] = node
+        }
+      })
+
+      await this._setNodeLoading(nodeId, true)
+      await this._doLoadNode(newState, node.id, 0, limit, false)
+      await this.setState(newState)
       await this._setNodeLoading(nodeId, false)
     }
   }

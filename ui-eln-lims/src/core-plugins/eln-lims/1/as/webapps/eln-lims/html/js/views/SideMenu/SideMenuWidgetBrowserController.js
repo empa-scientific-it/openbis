@@ -1883,14 +1883,17 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
 
         var results = {
             nodes: [],
+            totalCount: 0
         }
 
         if (samplesResults.totalCount > 0) {
             results.nodes.push(samplesFolderNode)
+            results.totalCount++
         }
 
         if (dataSetsResults.totalCount > 0) {
             results.nodes.push(dataSetsFolderNode)
+            results.totalCount++
         }
 
         return results
@@ -2084,14 +2087,17 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
 
         var results = {
             nodes: [],
+            totalCount: 0
         }
 
         if (childrenResults.totalCount > 0) {
             results.nodes.push(childrenFolderNode)
+            results.totalCount++
         }
 
         if (dataSetsResults.totalCount > 0) {
             results.nodes.push(dataSetsFolderNode)
+            results.totalCount++
         }
 
         return results

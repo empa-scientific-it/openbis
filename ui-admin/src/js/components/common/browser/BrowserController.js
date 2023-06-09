@@ -211,7 +211,7 @@ export default class BrowserController extends ComponentController {
   }
 
   async reloadNode(nodeId) {
-    await this._getTreeController().loadNode(nodeId, 0, null, false)
+    await this._getTreeController().reloadNode(nodeId)
   }
 
   async filterChange(newFilter) {
