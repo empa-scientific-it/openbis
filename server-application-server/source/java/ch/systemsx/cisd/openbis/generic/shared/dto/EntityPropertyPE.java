@@ -357,7 +357,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private String convertTimestampArrayToString(Date[] array) {
         if (array == null || array.length == 0)
             return "";
-        DateFormat dateFormat = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss XX");
         return Stream.of(array)
                 .map(dateFormat::format)
                 .reduce((x, y) -> x + ", " + y)
