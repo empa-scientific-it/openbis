@@ -187,6 +187,10 @@ public final class Posix
         return getGid();
     }
 
+    /**
+     * Sets the owner of <var>fileName</var> to the specified <var>uid</var> and <var>gid</var> values.
+     * Dereferences a symbolic link.
+     */
     public static void setOwner(String path, int userId, int groupId)
     {
         try
@@ -567,6 +571,11 @@ public final class Posix
             return symbolicLinkOrNull != null;
         }
 
+        /**
+         * Returns the number of hard links for the <var>linkName</var>. Does not dereference a symbolic link.
+         *
+         * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
+         */
         public int getNumberOfHardLinks() throws IOException
         {
             Number count = (Number) Files.getAttribute(path, "unix:nlink", LinkOption.NOFOLLOW_LINKS);
@@ -656,6 +665,12 @@ public final class Posix
         return getLinkInfo(absolutePath, true);
     }
 
+    /**
+     * Returns the information about <var>linkName</var>. If <code>readSymbolicLinkTarget == true</code>, then the symbolic link target is read when
+     * <var>linkName</var> is a symbolic link.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
+     */
     public static Stat getLinkInfo(String pathAsString, boolean readSymbolicLinkTarget)
     {
         try {
@@ -722,20 +737,38 @@ public final class Posix
         }
     }
 
+    /**
+     * Returns the information about <var>linkName</var>, or {@link NullPointerException}, if the information could not be obtained, e.g. because the
+     * link does not exist.
+     */
     public static Stat tryGetLinkInfo(String pathAsString){
         return getLinkInfo(pathAsString, true);
     }
 
+    /**
+     * Returns the information about <var>fileName</var>, or {@link NullPointerException}, if the information could not be obtained, e.g. because the
+     * file does not exist.
+     */
     public static Stat tryGetFileInfo(String absolutePath)
     {
         return getFileInfo(absolutePath, true);
     }
 
+    /**
+     * Returns the information about <var>fileName</var>.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file does not exist.
+     */
     public static Stat getFileInfo(String pathAsString)
     {
         return getFileInfo(pathAsString, true);
     }
 
+    /**
+     * Returns the information about <var>fileName</var>.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file does not exist.
+     */
     public static Stat getFileInfo(String pathAsString, boolean readSymbolicLinkTarget)
             throws IOExceptionUnchecked
     {
@@ -799,13 +832,13 @@ public final class Posix
         }
     }
 
+    /**
+     * Sets the access mode of <var>filename</var> to the specified <var>mode</var> value.
+     * Dereferences a symbolic link.
+     */
     public static void setAccessMode(String path, short mode) throws IOExceptionUnchecked {
-        try {
-            Set<PosixFilePermission> permissions = getFilePermissionsMode(mode);
-            Files.setPosixFilePermissions(Path.of(path), permissions);
-        } catch (IOException e) {
-            throw new IOExceptionUnchecked(e);
-        }
+        Set<PosixFilePermission> permissions = getFilePermissionsMode(mode);
+        setAccessMode(path, permissions);
     }
 
 
