@@ -323,8 +323,8 @@ public final class Posix
             FileTime accessTime = FileTime.from(accessTimeInstant);
             Instant modifiedTimeInstant = Instant.ofEpochSecond(modificationTimeSecs).plus(modificationTimeMicroSecs, ChronoUnit.MICROS);
             FileTime modifiedTime = FileTime.from(modifiedTimeInstant);
-            Files.getFileAttributeView(Path.of(fileName), BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setTimes(modifiedTime, accessTime, null);
-            Files.getFileAttributeView(Path.of(fileName), BasicFileAttributeView.class).setTimes(modifiedTime, accessTime, null);
+            Files.getFileAttributeView(Path.of(fileName), PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setTimes(modifiedTime, accessTime, null);
+            Files.getFileAttributeView(Path.of(fileName), PosixFileAttributeView.class).setTimes(modifiedTime, accessTime, null);
         } catch (IOException e)
         {
             throw new IOExceptionUnchecked(e);
@@ -361,7 +361,7 @@ public final class Posix
             FileTime accessTime = FileTime.from(accessTimeInstant);
             Instant modifiedTimeInstant = Instant.ofEpochSecond(modificationTimeSecs).plus(modificationTimeMicroSecs, ChronoUnit.MICROS);
             FileTime modifiedTime = FileTime.from(modifiedTimeInstant);
-            Files.getFileAttributeView(Path.of(fileName), BasicFileAttributeView.class).setTimes(modifiedTime, accessTime, null);
+            Files.getFileAttributeView(Path.of(fileName), PosixFileAttributeView.class).setTimes(modifiedTime, accessTime, null);
         } catch (IOException e)
         {
             throw new IOExceptionUnchecked(e);
@@ -686,7 +686,7 @@ public final class Posix
             }
 
 
-            BasicFileAttributes attrs = null;
+            PosixFileAttributes attrs = null;
             FileLinkType linkType;
             short permissions;
             int uid;
@@ -694,7 +694,7 @@ public final class Posix
             if(readSymbolicLinkTarget && Files.exists(path))
             {
                 permissions = getNumericAccessMode(Files.getPosixFilePermissions(path));
-                attrs = Files.readAttributes(path, BasicFileAttributes.class);
+                attrs = Files.readAttributes(path, PosixFileAttributes.class);
                 if (Files.isSymbolicLink(path)) {
                     linkType = FileLinkType.SYMLINK;
                 } else if (Files.isDirectory(path)) {
@@ -708,7 +708,7 @@ public final class Posix
                 gid = getGid(pathAsString);
             } else {
                 permissions = getNumericAccessMode(Files.getPosixFilePermissions(path, LinkOption.NOFOLLOW_LINKS));
-                attrs = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                attrs = Files.readAttributes(path, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
                 if (Files.isSymbolicLink(path)) {
                     linkType = FileLinkType.SYMLINK;
                 } else if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
@@ -785,7 +785,7 @@ public final class Posix
             }
 
             short permissions = getNumericAccessMode(Files.getPosixFilePermissions(path));
-            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+            PosixFileAttributes attrs = Files.readAttributes(path, PosixFileAttributes.class);
 
             FileLinkType linkType;
             if (attrs.isSymbolicLink()) {
