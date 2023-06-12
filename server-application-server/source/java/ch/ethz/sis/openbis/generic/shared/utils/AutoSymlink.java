@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.listener.IOperationListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.service.CustomASServiceProvider;
-import ch.systemsx.cisd.common.io.Posix;
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
@@ -81,7 +81,7 @@ public class AutoSymlink
                             String link =
                                     libDir.getAbsolutePath() + "/autolink-" + key + "-"
                                             + jar.getName();
-                            Posix.createSymbolicLink(jar.getAbsolutePath(), link);
+                            Unix.createSymbolicLink(jar.getAbsolutePath(), link);
                         }
                     }
                 }

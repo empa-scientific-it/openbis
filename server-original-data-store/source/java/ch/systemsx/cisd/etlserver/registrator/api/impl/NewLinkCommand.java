@@ -17,7 +17,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.io.Posix;
+import ch.systemsx.cisd.base.unix.Unix;
 
 /**
  * @author anttil
@@ -40,7 +40,7 @@ public class NewLinkCommand extends AbstractTransactionalCommand
     @Override
     public void execute()
     {
-        Posix.createSymbolicLink(targetPath, linkPath);
+        Unix.createSymbolicLink(targetPath, linkPath);
     }
 
     @Override

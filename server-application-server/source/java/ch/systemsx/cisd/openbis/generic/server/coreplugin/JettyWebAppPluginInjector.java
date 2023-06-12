@@ -25,8 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.io.Posix;
 import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -156,7 +157,7 @@ public class JettyWebAppPluginInjector
                 if (link.exists() == false)
                 {
                     String linkPath = link.getAbsolutePath();
-                    Posix.createSymbolicLink(path, linkPath);
+                    Unix.createSymbolicLink(path, linkPath);
                     operationLog.info("WebApp '" + webapp + "': Symbolic link " + linkPath + " -> " + path);
                 }
             }
@@ -191,7 +192,7 @@ public class JettyWebAppPluginInjector
                         operationLog.error("Couldn't delete folder " + folderCustom.getAbsolutePath() + ".");
                     }
                 }
-                Posix.createSymbolicLink(webappFolder.getAbsolutePath(), folderCustom.getAbsolutePath());
+                Unix.createSymbolicLink(webappFolder.getAbsolutePath(), folderCustom.getAbsolutePath());
                 operationLog.info("Symbolic link: " + folderCustom.getAbsolutePath() + " -> " + webappFolder.getAbsolutePath());
                 File webappIndexFile = new File(webappFolder, "index.html");
                 if (webappIndexFile.exists())
@@ -208,7 +209,7 @@ public class JettyWebAppPluginInjector
                             operationLog.error("Couldn't delete file " + indexFile.getAbsolutePath() + ".");
                         }
                     }
-                    Posix.createSymbolicLink(webappIndexFile.getAbsolutePath(), indexFile.getAbsolutePath());
+                    Unix.createSymbolicLink(webappIndexFile.getAbsolutePath(), indexFile.getAbsolutePath());
                     operationLog.info("Symbolic link: " + indexFile.getAbsolutePath() + " -> " + webappIndexFile.getAbsolutePath());
                 }
             }

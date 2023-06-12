@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import ch.systemsx.cisd.common.io.Posix;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -59,7 +58,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
@@ -878,9 +877,9 @@ public final class FileUtilities
     /** @return true if file is a symbolic link */
     public static boolean isSymbolicLink(File path)
     {
-        if (Posix.isOperational())
+        if (Unix.isOperational())
         {
-            return Posix.isSymbolicLink(path.getAbsolutePath());
+            return Unix.isSymbolicLink(path.getAbsolutePath());
         } else
         {
             // it is not Linux, Solaris or Mac. So it's probably Windows which does not support
@@ -901,11 +900,11 @@ public final class FileUtilities
 
     private static boolean ensureWritable(File path)
     {
-        if (path.canWrite() == false && Posix.isOperational())
+        if (path.canWrite() == false && Unix.isOperational())
         {
             try
             {
-                Posix.setAccessMode777(path.getPath());
+                Unix.setAccessMode(path.getPath(), (short) 0777);
             } catch (IOExceptionUnchecked ex)
             {
                 if (ex.getCause() != null
@@ -929,9 +928,9 @@ public final class FileUtilities
         {
             return true;
         }
-        if (file.exists() && Posix.isOperational())
+        if (file.exists() && Unix.isOperational())
         {
-            Posix.setAccessMode777(file.getPath());
+            Unix.setAccessMode(file.getPath(), (short) 0777);
             return file.delete();
         }
         return false;
