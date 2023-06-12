@@ -41,6 +41,7 @@ public abstract class MainSuite extends SeleniumTest
 
         // This is because changing filters later at the same time with columns
         // causes StaleElementReferenceExceptions and I cannot figure out how to fix them.
+        takeScreenShot();
         create(aSampleType());
         SampleBrowser sampleBrowser = browser().goTo(sampleBrowser());
         sampleBrowser.allSpaces();
