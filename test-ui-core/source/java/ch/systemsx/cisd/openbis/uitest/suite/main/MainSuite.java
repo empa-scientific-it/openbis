@@ -37,7 +37,6 @@ public abstract class MainSuite extends SeleniumTest
     {
         useGui();
 
-        takeScreenShot();
         login(ADMIN_USER, ADMIN_PASSWORD);
 
         enableLegacyUi(); // This is here to enable the legacy UI for metadata since tests use it
