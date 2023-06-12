@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.6
+
+- Added metaData attribute handling for sample, sampleType, experiment, experimentType, dataset, datasetType
+
 ## Changes with pybis-1.35.5
 
 - Implementation of array-type properties handling
