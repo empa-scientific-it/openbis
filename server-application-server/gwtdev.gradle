@@ -10,7 +10,7 @@ if (System.getProperty("openbis.development-build") != null) {
                 'google:gwt-user:2.4',
                 'google:gwt-debug-panel:1.0',
                 'sencha:gxt:2.2.5',
-                'sis:sis-base:18.09.0',
+                project(':lib-base'),
                 'fasterxml:jackson-annotations:2.9.10',
                 project(':lib-common'),
                 project(path: ':lib-common', configuration: 'archives'),

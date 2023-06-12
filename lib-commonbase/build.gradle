@@ -5,7 +5,7 @@ dependencies {
             'apache:commons-lang3:3.11',
             'apache:commons-text:1.6',
             'apache:log4j:1.2.15',
-            'sis:sis-base:18.09.0',
+            project(':lib-base'),
             'rinn:restrictions:1.0.2',
             // Removed libraries from JDK 11 used by many projects
             'javax.activation:activation:1.1.1',

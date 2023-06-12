@@ -67,7 +67,7 @@ task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
 
 configurations.create('queryApiDependencies')
 dependencies {
-    queryApiDependencies 'sis:sis-base:18.09.0',
+    queryApiDependencies project(':lib-base'),
             'apache:httpclient:4.3.6',
             'apache:httpcore:4.3.3',
             'apache:log4j:1.2.15',
@@ -124,7 +124,7 @@ task apiV3Jar(type: Jar) {
 
 configurations.create('apiV3Dependencies')
 dependencies {
-    apiV3Dependencies 'sis:sis-base:18.09.0',
+    apiV3Dependencies project(':lib-base'),
             'sis:sis-file-transfer:19.03.1',
             'apache:httpclient:4.3.6',
             'apache:commons-lang3:3.11',
