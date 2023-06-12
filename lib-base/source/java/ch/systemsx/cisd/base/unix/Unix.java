@@ -16,122 +16,318 @@
 
 package ch.systemsx.cisd.base.unix;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.utilities.NativeLibraryUtilities;
-
-/**
- * A utility class that provides access to common Unix system calls. Obviously, this will only work on Unix platforms and it requires a native library
- * to be loaded.
- * <p>
- * <i>Check with {@link #isOperational()} if this class is operational and only call the other methods if
- * <code>Unix.isOperational() == true</code>.</i>
- * 
- * @author Bernd Rinn
- */
 public final class Unix
 {
+    // Make constructor private to make clear is a utility class
+    private Unix() {
 
-    /**
-     * Method how processes are detected on this host.
-     *
-     */
-    private enum ProcessDetection
-    {
-        /**
-         * Process detection via <code>procfs</code> (Linux only).
-         */
-        PROCFS,
-        
-        /**
-         * Process detection via the command line tool <code>ps</code>.
-         */
-        PS,
-        
-        /**
-         * No working process detection found. 
-         */
-        NONE
     }
 
-    private final static boolean operational;
-    
-    private final static ProcessDetection processDetection;
+    public static boolean isOperational() {
+        return File.separatorChar == '/'; //On Posix systems the value of this field is '/'
+    }
 
-    private static volatile boolean useUnixRealtimeTimer = false;
+    //
+    // User related methods
+    //
 
-    static
+    private static Integer gid = null;
+
+    public static int getGid()
     {
-        operational = NativeLibraryUtilities.loadNativeLibrary("unix");
-        if (operational)
+        if (gid == null)
         {
-            init();
-            final int myPid = getPid();
-            if (isProcessRunningProcFS(myPid))
+            try
             {
-                processDetection = ProcessDetection.PROCFS;
-            } else if (isProcessRunningPS(myPid))
+                Process process = Runtime.getRuntime().exec("id -g -r");
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                gid = Integer.parseInt(output);
+            } catch (IOException e)
             {
-                processDetection = ProcessDetection.PS;
-            } else
-            {
-                processDetection = ProcessDetection.NONE;
+                throw new IOExceptionUnchecked(e);
             }
-        } else
-        {
-            processDetection = ProcessDetection.NONE;
         }
-        useUnixRealtimeTimer = Boolean.getBoolean("unix.realtime.timer");
+        return gid;
     }
 
-    /** set user ID on execution */
-    public static final short S_ISUID = 04000;
+    private static Integer uid = null;
 
-    /** set group ID on execution */
-    public static final short S_ISGID = 02000;
+    public static int getUid() throws IOExceptionUnchecked
+    {
+        if (uid == null)
+        {
+            try
+            {
+                Process process = Runtime.getRuntime().exec("id -u -r");
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                uid = Integer.parseInt(output);
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
+        }
+        return uid;
+    }
 
-    /** sticky bit */
-    public static final short S_ISVTX = 01000;
-
-    /** read by owner */
-    public static final short S_IRUSR = 00400;
-
-    /** write by owner */
-    public static final short S_IWUSR = 00200;
-
-    /** execute/search by owner */
-    public static final short S_IXUSR = 00100;
-
-    /** read by group */
-    public static final short S_IRGRP = 00040;
-
-    /** write by group */
-    public static final short S_IWGRP = 00020;
-
-    /** execute/search by group */
-    public static final short S_IXGRP = 00010;
-
-    /** read by others */
-    public static final short S_IROTH = 00004;
-
-    /** write by others */
-    public static final short S_IWOTH = 00002;
-
-    /** execute/search by others */
-    public static final short S_IXOTH = 00001;
+    private static Map<String, Integer> uidByUserName = new HashMap<>();
 
     /**
-     * A class to represent a Unix <code>struct timespec</code> that holds a system time in nano-second resolution. 
+     * Returns the uid of the <var>userName</var>, or <code>-1</code>, if no user with this name exists.
+     */
+    public static final int getUidForUserName(String userName)
+    {
+        if (userName == null)
+        {
+            throw new NullPointerException("userName");
+        }
+
+        if (uidByUserName.get(userName) == null)
+        {
+            try
+            {
+                Process process = Runtime.getRuntime().exec("id -u " + userName);
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                int uid = Integer.parseInt(output);
+                uidByUserName.put(userName, uid);
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
+        }
+
+        return uidByUserName.get(userName);
+    }
+
+    private static Map<String, Integer> gidByGroupName = new HashMap<>();
+
+    /**
+     * Returns the gid of the <var>groupName</var>, or <code>-1</code>, if no group with this name exists.
+     */
+    public static final int getGidForGroupName(String groupName)
+    {
+        if (groupName == null)
+        {
+            throw new NullPointerException("groupName");
+        }
+
+        if (gidByGroupName.get(groupName) == null)
+        {
+            try
+            {
+                Process process = Runtime.getRuntime().exec("id -g " + groupName);
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                int uid = Integer.parseInt(output);
+                gidByGroupName.put(groupName, uid);
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
+        }
+
+        return gidByGroupName.get(groupName);
+    }
+
+    private static Integer euid = null;
+
+    public static int getEuid()
+    {
+        if (euid == null)
+        {
+            try
+            {
+                Process process = Runtime.getRuntime().exec("id -u");
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                euid = Integer.parseInt(output);
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
+        }
+        return euid;
+    }
+
+    /**
+     * Returns the effective gid that determines the permissions of this process.
+     */
+    public static final int getEgid()
+    {
+        return getGid();
+    }
+
+    /**
+     * Sets the owner of <var>fileName</var> to the specified <var>uid</var> and <var>gid</var> values.
+     * Dereferences a symbolic link.
+     */
+    public static void setOwner(String path, int userId, int groupId)
+    {
+        try
+        {
+            Files.setAttribute(Path.of(path), "unix:uid", userId);
+            Files.setAttribute(Path.of(path), "unix:gid", groupId);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static int getUid(String path, boolean followLinks)
+    {
+        try
+        {
+            if (followLinks)
+            {
+                return (int) Files.getAttribute(Path.of(path), "unix:uid");
+            } else {
+                return (int) Files.getAttribute(Path.of(path), "unix:uid", LinkOption.NOFOLLOW_LINKS);
+            }
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static int getUid(String path)
+    {
+        return getUid(path, true);
+    }
+
+    public static int getGid(String path, boolean followLinks)
+    {
+        try
+        {
+            if (followLinks)
+            {
+                return (int) Files.getAttribute(Path.of(path), "unix:gid");
+            } else {
+                return (int) Files.getAttribute(Path.of(path), "unix:gid", LinkOption.NOFOLLOW_LINKS);
+            }
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static int getGid(String path)
+    {
+        return getGid(path, true);
+    }
+
+    private static Map<Integer, String> userNameByUid = new HashMap<>();
+
+    public static String tryGetUserNameForUid(int uid)
+    {
+        if (userNameByUid.get(uid) == null)
+        {
+            try
+            {
+                Process process = Runtime.getRuntime().exec("id -un " + uid);
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                userNameByUid.put(uid, output);
+                uidByUserName.put(output, uid);
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
+        }
+        return userNameByUid.get(uid);
+    }
+
+    private static Map<Integer, String> groupNameByGid = new HashMap<>();
+
+    public static String tryGetGroupNameForGid(int gid)
+    {
+        if (groupNameByGid.get(gid) == null)
+        {
+            try
+            {
+                Process process = Runtime.getRuntime().exec("id -gn " + gid);
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String output = reader.readLine();
+                reader.close();
+                groupNameByGid.put(gid, output);
+                gidByGroupName.put(output, gid);
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
+        }
+        return groupNameByGid.get(gid);
+    }
+
+    public static Time getSystemTime()
+    {
+        return Time.getInstance();
+    }
+
+    public static String tryReadSymbolicLink(String absolutePath)
+    {
+        Stat stat = tryGetLinkInfo(absolutePath);
+        return stat.isSymbolicLink() ? stat.tryGetSymbolicLink() : null;
+    }
+
+    //
+    // File related methods
+    //
+
+    /**
+     * A class to represent a Unix <code>struct timespec</code> that holds a system time in nano-second resolution.
      */
     public static final class Time
     {
         private final long secs;
-        
+
         private final long nanos;
+
+        public static Time getInstance() {
+            Instant now = Instant.now();
+            return new Time(now);
+        }
+
+        private Time(Instant now) {
+            this(now.getEpochSecond(), now.getNano());
+        }
+
+        private Time(FileTime fileTime)
+        {
+            this(fileTime.toInstant().getEpochSecond(), fileTime.toInstant().getNano());
+        }
 
         private Time(long secs, long nanos)
         {
@@ -170,7 +366,7 @@ public final class Unix
                 return nanos / 1_000_000;
             }
         }
-        
+
         public long getMillis()
         {
             return secs * 1_000 + getMilliSecPart();
@@ -220,93 +416,39 @@ public final class Unix
         }
 
     }
-    
-    /**
-     * A class representing the Unix <code>stat</code> structure.
-     */
-    public static final class Stat
-    {
-        private final long deviceId;
 
-        private final long inode;
+    public static class Stat
+    {
+        private final Path path;
 
         private final short permissions;
 
         private final FileLinkType linkType;
 
-        private String symbolicLinkOrNull;
+        private final Time lastModified;
 
-        private final int numberOfHardLinks;
+        private final Time lastAccessed;
 
         private final int uid;
 
         private final int gid;
 
-        private final Time lastAccess;
-
-        private final Time lastModified;
-
-        private final Time lastStatusChange;
+        private final String symbolicLinkOrNull;
 
         private final long size;
 
-        private final long numberOfBlocks;
-
-        private final int blockSize;
-
-        Stat(long deviceId, long inode, short permissions, byte linkType, int numberOfHardLinks,
-                int uid, int gid, long lastAccess, long lastModified, long lastStatusChange,
-                long size, long numberOfBlocks, int blockSize)
+        public Stat(Path path, short permissions, FileLinkType linkType, FileTime lastModified, FileTime lastAccessed, int uid, int gid,
+                String symbolicLinkOrNull, long size)
         {
-            this(deviceId, inode, permissions, linkType, numberOfHardLinks, uid, gid,
-                    lastAccess, 0, lastModified, 0, lastStatusChange, 0, size, numberOfBlocks, blockSize);
-        }
-
-        Stat(long deviceId, long inode, short permissions, byte linkType, int numberOfHardLinks,
-                int uid, int gid, long lastAccess, long lastAccessNanos,
-                long lastModified, long lastModifiedNanos,
-                long lastStatusChange, long lastStatusChangeNanos,
-                long size, long numberOfBlocks, int blockSize)
-        {
-            this.deviceId = deviceId;
-            this.inode = inode;
+            this.path = path;
             this.permissions = permissions;
-            this.linkType = FileLinkType.values()[linkType];
-            this.numberOfHardLinks = numberOfHardLinks;
+            this.linkType = linkType;
+            this.lastModified = new Time(lastModified);
+            this.lastAccessed = new Time(lastAccessed);
             this.uid = uid;
             this.gid = gid;
-            this.lastAccess = new Time(lastAccess, lastAccessNanos);
-            this.lastModified = new Time(lastModified, lastModifiedNanos);
-            this.lastStatusChange = new Time(lastStatusChange, lastStatusChangeNanos);
-            this.size = size;
-            this.numberOfBlocks = numberOfBlocks;
-            this.blockSize = blockSize;
-        }
-
-        void setSymbolicLinkOrNull(String symbolicLinkOrNull)
-        {
             this.symbolicLinkOrNull = symbolicLinkOrNull;
-        }
-
-        /**
-         * Get link target of the symbolic link or <code>null</code>, if this is not a link or the link target has not been read.
-         */
-        public String tryGetSymbolicLink()
-        {
-            return symbolicLinkOrNull;
-        }
-
-        public long getDeviceId()
-        {
-            return deviceId;
-        }
-
-        /**
-         * Returns the inode. 
-         */
-        public long getInode()
-        {
-            return inode;
+            this.size = size;
         }
 
         public short getPermissions()
@@ -319,204 +461,24 @@ public final class Unix
             return linkType;
         }
 
-        /**
-         * Returns <code>true</code>, if this link is a symbolic link.
-         */
-        public final boolean isSymbolicLink()
-        {
-            return FileLinkType.SYMLINK == linkType;
-        }
-
-        /**
-         * Returns the number of hard links for the <var>linkName</var>. Does not dereference a symbolic link.
-         * 
-         * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-         */ 
-        public int getNumberOfHardLinks()
-        {
-            return numberOfHardLinks;
-        }
-
-        public int getUid()
-        {
-            return uid;
-        }
-
-        public int getGid()
-        {
-            return gid;
-        }
-
-        /**
-         * Time when file data last accessed.
-         * <p>
-         * Changed by the mknod(2), utimes(2) and read(2) system calls.
-         * 
-         * @return {@link Time} object containing seconds (to nano-second resolution) since the epoch.
-         */
-        public Time getLastAccessTime()
-        {
-            return lastAccess;
-        }
-
-        /**
-         * Time when file data last accessed.
-         * <p>
-         * Changed by the mknod(2), utimes(2) and read(2) system calls.
-         * 
-         * @return Seconds since the epoch.
-         */
         public long getLastAccess()
         {
-            return lastAccess.getSecs();
+            return lastAccessed.getSecs();
         }
 
-        /**
-         * Time when file data last modified.
-         * <p>
-         * Changed by the mknod(2), utimes(2) and write(2) system calls.
-         * 
-         * @return {@link Time} object containing seconds (to nano-second resolution) since the epoch.
-         */
-        public Time getLastModifiedTime()
+        public Time getLastAccessTime()
         {
-            return lastModified;
+            return lastAccessed;
         }
 
-        /**
-         * Time when file data last modified.
-         * <p>
-         * Changed by the mknod(2), utimes(2) and write(2) system calls.
-         * 
-         * @return Seconds since the epoch.
-         */
         public long getLastModified()
         {
             return lastModified.getSecs();
         }
 
-        /**
-         * Time when file status was last changed (inode data modification).
-         * <p>
-         * Changed by the chmod(2), chown(2), link(2), mknod(2), rename(2), unlink(2), utimes(2) and write(2) system calls.
-         * 
-         * @return {@link Time} object containing seconds (to nano-second resolution) since the epoch.
-         */
-        public Time getLastStatusChangeTime()
+        public Time getLastModifiedTime()
         {
-            return lastStatusChange;
-        }
-
-        /**
-         * Time when file status was last changed (inode data modification).
-         * <p>
-         * Changed by the chmod(2), chown(2), link(2), mknod(2), rename(2), unlink(2), utimes(2) and write(2) system calls.
-         * 
-         * @return Seconds since the epoch.
-         */
-        public long getLastStatusChange()
-        {
-            return lastStatusChange.getSecs();
-        }
-
-        public long getSize()
-        {
-            return size;
-        }
-
-        public long getNumberOfBlocks()
-        {
-            return numberOfBlocks;
-        }
-
-        public int getBlockSize()
-        {
-            return blockSize;
-        }
-
-    }
-
-    /**
-     * A class representing the Unix <code>group</code> struct.
-     */
-    public static final class Group
-    {
-        private final String groupName;
-
-        private final String groupPasswordHash;
-
-        private final int gid;
-
-        private final String[] groupMembers;
-
-        Group(String groupName, String groupPasswordHash, int gid, String[] groupMembers)
-        {
-            this.groupName = groupName;
-            this.groupPasswordHash = groupPasswordHash;
-            this.gid = gid;
-            this.groupMembers = groupMembers;
-        }
-
-        public String getGroupName()
-        {
-            return groupName;
-        }
-
-        public String getGroupPasswordHash()
-        {
-            return groupPasswordHash;
-        }
-
-        public int getGid()
-        {
-            return gid;
-        }
-
-        public String[] getGroupMembers()
-        {
-            return groupMembers;
-        }
-    }
-
-    /**
-     * A class representing the Unix <code>passwd</code> struct.
-     */
-    public static final class Password
-    {
-        private final String userName;
-
-        private final String passwordHash;
-
-        private final int uid;
-
-        private final int gid;
-
-        private final String userFullName;
-
-        private final String homeDirectory;
-
-        private final String shell;
-
-        Password(String userName, String passwordHash, int uid, int gid, String userFullName,
-                String homeDirectory, String shell)
-        {
-            this.userName = userName;
-            this.passwordHash = passwordHash;
-            this.uid = uid;
-            this.gid = gid;
-            this.userFullName = userFullName;
-            this.homeDirectory = homeDirectory;
-            this.shell = shell;
-        }
-
-        public String getUserName()
-        {
-            return userName;
-        }
-
-        public String getPasswordHash()
-        {
-            return passwordHash;
+            return lastModified;
         }
 
         public int getUid()
@@ -529,274 +491,306 @@ public final class Unix
             return gid;
         }
 
-        public String getUserFullName()
+        public String tryGetSymbolicLink()
         {
-            return userFullName;
+            return symbolicLinkOrNull;
         }
 
-        public String getHomeDirectory()
-        {
-            return homeDirectory;
+        public long getSize() {
+            return size;
         }
 
-        public String getShell()
+        public boolean isSymbolicLink()
         {
-            return shell;
+            return symbolicLinkOrNull != null;
+        }
+
+        /**
+         * Returns the number of hard links for the <var>linkName</var>. Does not dereference a symbolic link.
+         *
+         * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
+         */
+        public int getNumberOfHardLinks() throws IOException
+        {
+            Number count = (Number) Files.getAttribute(path, "unix:nlink", LinkOption.NOFOLLOW_LINKS);
+            return count.intValue();
         }
     }
 
-    private static void throwLinkCreationException(String type, String source, String target,
-            String errorMessage)
-    {
-        throw new IOExceptionUnchecked(new IOException(String.format(
-                "Creating %s link '%s' -> '%s': %s", type, target, source, errorMessage)));
+    private static short getNumericAccessMode(Set<PosixFilePermission> permissions) {
+        short posixPermissions = 0;
+
+        for (PosixFilePermission permission : permissions) {
+            switch (permission) {
+                case OWNER_READ:
+                    posixPermissions |= 0400;
+                    break;
+                case OWNER_WRITE:
+                    posixPermissions |= 0200;
+                    break;
+                case OWNER_EXECUTE:
+                    posixPermissions |= 0100;
+                    break;
+                case GROUP_READ:
+                    posixPermissions |= 0040;
+                    break;
+                case GROUP_WRITE:
+                    posixPermissions |= 0020;
+                    break;
+                case GROUP_EXECUTE:
+                    posixPermissions |= 0010;
+                    break;
+                case OTHERS_READ:
+                    posixPermissions |= 0004;
+                    break;
+                case OTHERS_WRITE:
+                    posixPermissions |= 0002;
+                    break;
+                case OTHERS_EXECUTE:
+                    posixPermissions |= 0001;
+                    break;
+            }
+        }
+
+        return posixPermissions;
     }
 
-    private static void throwStatException(String filename, String errorMessage)
-    {
-        throw new IOExceptionUnchecked(new IOException(String.format(
-                "Cannot obtain inode info for file '%s': %s", filename, errorMessage)));
-    }
+    private static Set<PosixFilePermission> getFilePermissionsMode(short permissions) {
+        Set<PosixFilePermission> posixPermissions = new HashSet<>();
 
-    private static void throwFileException(String operation, String filename, String errorMessage)
-    {
-        throw new IOExceptionUnchecked(new IOException(String.format("Cannot %s of file '%s': %s",
-                operation, filename, errorMessage)));
-    }
+        if ((permissions & 0400) != 0) {
+            posixPermissions.add(PosixFilePermission.OWNER_READ);
+        }
+        if ((permissions & 0200) != 0) {
+            posixPermissions.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((permissions & 0100) != 0) {
+            posixPermissions.add(PosixFilePermission.OWNER_EXECUTE);
+        }
+        if ((permissions & 0040) != 0) {
+            posixPermissions.add(PosixFilePermission.GROUP_READ);
+        }
+        if ((permissions & 0020) != 0) {
+            posixPermissions.add(PosixFilePermission.GROUP_WRITE);
+        }
+        if ((permissions & 0010) != 0) {
+            posixPermissions.add(PosixFilePermission.GROUP_EXECUTE);
+        }
+        if ((permissions & 0004) != 0) {
+            posixPermissions.add(PosixFilePermission.OTHERS_READ);
+        }
+        if ((permissions & 0002) != 0) {
+            posixPermissions.add(PosixFilePermission.OTHERS_WRITE);
+        }
+        if ((permissions & 0001) != 0) {
+            posixPermissions.add(PosixFilePermission.OTHERS_EXECUTE);
+        }
 
-    private static void throwRuntimeException(String operation, String errorMessage)
-    {
-        throw new RuntimeException(String.format("Error on %s: %s", operation, errorMessage));
-    }
-
-    private static native int init();
-
-    public static boolean isUseUnixRealtimeTimer()
-    {
-        return useUnixRealtimeTimer;
+        return posixPermissions;
     }
 
     /**
-     * Sets whether to use the Unix realttime timer.
-     * <p>
-     * <i>Note that old versions of Linux and MacOSX do not yet support this and will terminate the Java program when 
-     * this flag is set to <code>true</code> and {@link #getSystemTime()} is called!</i>
-     * @param useUnixRealTimeTimer if <code>true</code>, the realtime timer (nano-second resolution) will be used, 
-     * otherwise the regular timer (micro-second resolution) will be used.
+     * Returns the information about <var>linkName</var>.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
      */
-    public static void setUseUnixRealtimeTimer(boolean useUnixRealTimeTimer)
+    public static Stat getLinkInfo(String absolutePath)
     {
-        Unix.useUnixRealtimeTimer = useUnixRealTimeTimer;
+        return getLinkInfo(absolutePath, true);
     }
 
-    private static native int getpid();
-
-    private static native int getuid();
-
-    private static native int geteuid();
-
-    private static native int getgid();
-
-    private static native int getegid();
-
-    private static native int link(String filename, String linktarget);
-
-    private static native int symlink(String filename, String linktarget);
-
-    private static native Stat stat(String filename);
-
-    private static native Stat lstat(String filename);
-
-    private static native String readlink(String filename, int linkvallen);
-
-    private static native int chmod(String filename, short mode);
-
-    private static native int chown(String filename, int uid, int gid);
-
-    private static native int lchown(String filename, int uid, int gid);
-
-    private static native int clock_gettime(final long[] time);
-    
-    private static native int clock_gettime2(final long[] time);
-    
-    private static native int lutimes(String filename,
-            long accessTimeSecs, long accessTimeMicroSecs,
-            long modificationTimeSecs, long modificationTimeMicroSecs);
-
-    private static native int utimes(String filename,
-            long accessTimeSecs, long accessTimeMicroSecs,
-            long modificationTimeSecs, long modificationTimeMicroSecs);
-
-    private static native String getuser(int uid);
-
-    private static native String getgroup(int gid);
-
-    private static native int getuid(String user);
-
-    private static native Password getpwnam(String user);
-
-    private static native Password getpwuid(int uid);
-
-    private static native int getgid(String group);
-
-    private static native Group getgrnam(String group);
-
-    private static native Group getgrgid(int gid);
-
-    private static native String strerror(int errnum);
-
-    private static native String strerror();
-    
-    @Private
-    static boolean isProcessRunningProcFS(int pid)
+    /**
+     * Returns the information about <var>linkName</var>. If <code>readSymbolicLinkTarget == true</code>, then the symbolic link target is read when
+     * <var>linkName</var> is a symbolic link.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
+     */
+    public static Stat getLinkInfo(String pathAsString, boolean readSymbolicLinkTarget)
     {
-        return new File("/proc/" + pid).isDirectory();
+        try {
+            if (pathAsString == null)
+            {
+                throw new NullPointerException("linkName");
+            }
+
+            Path path = Path.of(pathAsString);
+            if (Files.exists(path, LinkOption.NOFOLLOW_LINKS) == false)
+            {
+                return null;
+            }
+
+
+            PosixFileAttributes attrs = null;
+            FileLinkType linkType;
+            short permissions;
+            int uid;
+            int gid;
+            if(readSymbolicLinkTarget && Files.exists(path))
+            {
+                permissions = getNumericAccessMode(Files.getPosixFilePermissions(path));
+                attrs = Files.readAttributes(path, PosixFileAttributes.class);
+                if (Files.isSymbolicLink(path)) {
+                    linkType = FileLinkType.SYMLINK;
+                } else if (Files.isDirectory(path)) {
+                    linkType = FileLinkType.DIRECTORY;
+                } else if (Files.isRegularFile(path)) {
+                    linkType = FileLinkType.REGULAR_FILE;
+                } else {
+                    linkType = FileLinkType.OTHER;
+                }
+                uid = getUid(pathAsString);
+                gid = getGid(pathAsString);
+            } else {
+                permissions = getNumericAccessMode(Files.getPosixFilePermissions(path, LinkOption.NOFOLLOW_LINKS));
+                attrs = Files.readAttributes(path, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                if (Files.isSymbolicLink(path)) {
+                    linkType = FileLinkType.SYMLINK;
+                } else if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+                    linkType = FileLinkType.DIRECTORY;
+                } else if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
+                    linkType = FileLinkType.REGULAR_FILE;
+                } else {
+                    linkType = FileLinkType.OTHER;
+                }
+                uid = getUid(pathAsString, false);
+                gid = getGid(pathAsString, false);
+            }
+
+            FileTime lastModified = attrs.lastModifiedTime();
+            FileTime lastAccessed = attrs.lastAccessTime();
+
+            String symbolicLinkOrNull = null;
+            if (linkType == FileLinkType.SYMLINK && readSymbolicLinkTarget) {
+                symbolicLinkOrNull = Files.readSymbolicLink(path).toString();
+            }
+            long size = attrs.size();
+            return new Stat(path, permissions, linkType, lastModified, lastAccessed, uid, gid, symbolicLinkOrNull, size);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
     }
 
-    @Private
-    static boolean isProcessRunningPS(int pid)
+    /**
+     * Returns the information about <var>linkName</var>, or {@link NullPointerException}, if the information could not be obtained, e.g. because the
+     * link does not exist.
+     */
+    public static Stat tryGetLinkInfo(String pathAsString){
+        return getLinkInfo(pathAsString, true);
+    }
+
+    /**
+     * Returns the information about <var>fileName</var>, or {@link NullPointerException}, if the information could not be obtained, e.g. because the
+     * file does not exist.
+     */
+    public static Stat tryGetFileInfo(String absolutePath)
     {
+        return getFileInfo(absolutePath, true);
+    }
+
+    /**
+     * Returns the information about <var>fileName</var>.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file does not exist.
+     */
+    public static Stat getFileInfo(String pathAsString)
+    {
+        return getFileInfo(pathAsString, true);
+    }
+
+    /**
+     * Returns the information about <var>fileName</var>.
+     *
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file does not exist.
+     */
+    public static Stat getFileInfo(String pathAsString, boolean readSymbolicLinkTarget)
+            throws IOExceptionUnchecked
+    {
+        try {
+            if (pathAsString == null)
+            {
+                throw new NullPointerException("linkName");
+            }
+
+            Path path = Path.of(pathAsString);
+            if (Files.exists(path) == false)
+            {
+                return null;
+            }
+
+            short permissions = getNumericAccessMode(Files.getPosixFilePermissions(path));
+            PosixFileAttributes attrs = Files.readAttributes(path, PosixFileAttributes.class);
+
+            FileLinkType linkType;
+            if (attrs.isSymbolicLink()) {
+                linkType = FileLinkType.SYMLINK;
+            } else if (attrs.isDirectory()) {
+                linkType = FileLinkType.DIRECTORY;
+            } else if (attrs.isRegularFile()) {
+                linkType = FileLinkType.REGULAR_FILE;
+            } else {
+                linkType = FileLinkType.OTHER;
+            }
+
+            FileTime lastModified = attrs.lastModifiedTime();
+            FileTime lastAccessed = attrs.lastAccessTime();
+            int uid = getUid(pathAsString);
+            int gid = getGid(pathAsString);
+            String symbolicLinkOrNull = null;
+            if (linkType == FileLinkType.SYMLINK && readSymbolicLinkTarget) {
+                symbolicLinkOrNull = Files.readSymbolicLink(path).toString();
+            }
+            long size = attrs.size();
+            return new Stat(path, permissions, linkType, lastModified, lastAccessed, uid, gid, symbolicLinkOrNull, size);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    public static Set<PosixFilePermission> getPermissions(String path) throws IOExceptionUnchecked {
         try
         {
-            return Runtime.getRuntime().exec(new String[] { "ps", "-p", Integer.toString(pid) }).waitFor() == 0;
-        } catch (IOException ex)
+            return Files.getPosixFilePermissions(Path.of(path));
+        } catch (IOException e)
         {
-            return false;
-        } catch (InterruptedException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            throw new IOExceptionUnchecked(e);
         }
     }
 
-    //
-    // Public
-    //
-
-    /**
-     * Returns <code>true</code>, if the native library has been loaded successfully and the link utilities are operational, <code>false</code>
-     * otherwise.
-     */
-    public static final boolean isOperational()
-    {
-        return operational;
-    }
-
-    /**
-     * Returns <code>true</code>, if process detection is available on this system.
-     */
-    public static boolean canDetectProcesses()
-    {
-        return processDetection != ProcessDetection.NONE;
-    }
-
-    /**
-     * Returns the last error that occurred in this class. Use this to find out what went wrong after {@link #tryGetLinkInfo(String)} or
-     * {@link #tryGetFileInfo(String)} returned <code>null</code>.
-     */
-    public static String getLastError()
-    {
-        return strerror();
-    }
-
-    //
-    // Process functions
-    //
-
-    /**
-     * Returns the process identifier of the current process.
-     */
-    public static int getPid()
-    {
-        return getpid();
-    }
-
-    /**
-     * Returns <code>true</code>, if the process with <var>pid</var> is currently running and <code>false</code>, if it is not running or if process
-     * detection is not available ( {@link #canDetectProcesses()} <code>== false</code>).
-     */
-    public static boolean isProcessRunning(int pid)
-    {
-        switch (processDetection)
-        {
-            case PROCFS:
-                return isProcessRunningProcFS(pid);
-            case PS:
-                return isProcessRunningPS(pid);
-            default:
-                return false;
+    public static void setAccessMode(String path, Set<PosixFilePermission> permissions) throws IOExceptionUnchecked {
+        try {
+            Files.setPosixFilePermissions(Path.of(path), permissions);
+        } catch (IOException e) {
+            throw new IOExceptionUnchecked(e);
         }
     }
 
     /**
-     * Returns the uid of the user that started this process.
+     * Sets the access mode of <var>filename</var> to the specified <var>mode</var> value.
+     * Dereferences a symbolic link.
      */
-    public static final int getUid()
-    {
-        return getuid();
+    public static void setAccessMode(String path, short mode) throws IOExceptionUnchecked {
+        Set<PosixFilePermission> permissions = getFilePermissionsMode(mode);
+        setAccessMode(path, permissions);
     }
 
-    /**
-     * Returns the effective uid that determines the permissions of this process.
-     */
-    public static final int getEuid()
-    {
-        return geteuid();
-    }
 
-    /**
-     * Returns the gid of the user that started this process.
-     */
-    public static final int getGid()
-    {
-        return getgid();
-    }
-
-    /**
-     * Returns the effective gid that determines the permissions of this process.
-     */
-    public static final int getEgid()
-    {
-        return getegid();
-    }
-
-    //
-    // Time functions
-    //
-
-    /**
-     * Gets the current system time.
-     * 
-     * @return the system time as <i>seconds since the epoch</i> and, in addition, 
-     *         nano-seconds since the current second.
-     */
-    public static final Time getSystemTime()
-    {
-        final long[] time = new long[2];
-        final int result = useUnixRealtimeTimer ? clock_gettime(time) : clock_gettime2(time);
-        if (result < 0)
-        {
-            throwRuntimeException("get system time", strerror(result));
+    public static void setAccessMode777(String path) throws IOExceptionUnchecked {
+        try {
+            Files.setPosixFilePermissions(Path.of(path), Set.of(PosixFilePermission.values()));
+        } catch (IOException e) {
+            throw new IOExceptionUnchecked(e);
         }
-        return new Time(time[0], time[1]);
     }
-    
-    /**
-     * Gets the current system time.
-     * 
-     * @return the system time as <i>milli-seconds since the epoch</i>.
-     */
-    public static final long getSystemTimeMillis()
-    {
-        return getSystemTime().getMillis();
+
+    public static boolean isSymbolicLink(String absolutePath) {
+        return Files.isSymbolicLink(Path.of(absolutePath));
     }
-    
-    //
-    // File functions
-    //
 
     /**
      * Creates a hard link <var>linkName</var> that points to <var>fileName</var>.
-     * 
+     *
      * @throws IOExceptionUnchecked If the underlying system call fails, e.g. because <var>linkName</var> already exists or <var>fileName</var> does
      *             not exist.
      */
@@ -811,16 +805,12 @@ public final class Unix
         {
             throw new NullPointerException("linkName");
         }
-        final int result = link(fileName, linkName);
-        if (result < 0)
-        {
-            throwLinkCreationException("hard", fileName, linkName, strerror(result));
-        }
+        link(fileName, linkName);
     }
 
     /**
      * Creates a symbolic link <var>linkName</var> that points to <var>fileName</var>.
-     * 
+     *
      * @throws IOExceptionUnchecked If the underlying system call fails, e.g. because <var>linkName</var> already exists.
      */
     public static final void createSymbolicLink(String fileName, String linkName)
@@ -834,494 +824,34 @@ public final class Unix
         {
             throw new NullPointerException("linkName");
         }
-        final int result = symlink(fileName, linkName);
-        if (result < 0)
-        {
-            throwLinkCreationException("symbolic", fileName, linkName, strerror(result));
+
+        symlink(fileName, linkName);
+    }
+
+    /*
+     * This method manages symbolic link creation using NIO API.
+     */
+    public static final void symlink(String fileName, String linkName) throws IOExceptionUnchecked {
+        try {
+            Path file = Path.of(fileName);
+            Path link = Path.of(linkName);
+            Files.createSymbolicLink(link, file);// Creates the link
+        } catch (IOException exception) {
+            throw new IOExceptionUnchecked(exception);
         }
     }
 
-    private static Stat tryGetStat(String fileName) throws IOExceptionUnchecked
-    {
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
+    /*
+     * This method manages link creation using NIO API.
+     */
+    public static final void link(String fileName, String linkName) throws IOExceptionUnchecked {
+        try {
+            Path file = Path.of(fileName);
+            Path link = Path.of(linkName);
+            Files.createLink(link, file); // Creates the link
+        } catch (IOException exception) {
+            throw new IOExceptionUnchecked(exception);
         }
-        return stat(fileName);
-    }
-
-    private static Stat getStat(String fileName) throws IOExceptionUnchecked
-    {
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
-        }
-        final Stat result = stat(fileName);
-        if (result == null)
-        {
-            throwStatException(fileName, strerror());
-        }
-        return result;
-    }
-
-    private static Stat tryGetLStat(String linkName) throws IOExceptionUnchecked
-    {
-        if (linkName == null)
-        {
-            throw new NullPointerException("linkName");
-        }
-        return lstat(linkName);
-    }
-
-    private static Stat getLStat(String linkName) throws IOExceptionUnchecked
-    {
-        if (linkName == null)
-        {
-            throw new NullPointerException("linkName");
-        }
-        final Stat result = lstat(linkName);
-        if (result == null)
-        {
-            throwStatException(linkName, strerror());
-        }
-        return result;
-    }
-
-    /**
-     * Returns the inode for the <var>fileName</var>. Does not dereference a symbolic link. 
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-     * 
-     * @deprecated Use method {@link Stat#getInode(String)} from {@link #getLinkInfo(String)} instead.
-     */
-    @Deprecated
-    public static final long getInode(String linkName) throws IOExceptionUnchecked
-    {
-        return getLStat(linkName).getInode();
-    }
-
-    /**
-     * Returns the number of hard links for the <var>linkName</var>. Does not dereference a symbolic link.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-     * 
-     * @deprecated Use method {@link Stat#getNumberOfHardLinks(String)} from {@link #getLinkInfo(String)} instead.
-     */
-    @Deprecated
-    public static final int getNumberOfHardLinks(String linkName) throws IOExceptionUnchecked
-    {
-        return getLStat(linkName).getNumberOfHardLinks();
-    }
-
-    /**
-     * Returns <code>true</code> if <var>linkName</var> is a symbolic link and <code>false</code> otherwise.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-     */
-    public static final boolean isSymbolicLink(String linkName) throws IOExceptionUnchecked
-    {
-        return getLStat(linkName).isSymbolicLink();
-    }
-
-    /**
-     * Returns the value of the symbolik link <var>linkName</var>, or <code>null</code>, if <var>linkName</var> is not a symbolic link.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-     */
-    public static final String tryReadSymbolicLink(String linkName) throws IOExceptionUnchecked
-    {
-        final Stat stat = getLStat(linkName);
-        return stat.isSymbolicLink() ? readlink(linkName, (int) stat.getSize()) : null;
-    }
-
-    /**
-     * Returns the information about <var>fileName</var>.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file does not exist.
-     */
-    public static final Stat getFileInfo(String fileName) throws IOExceptionUnchecked
-    {
-        return getStat(fileName);
-    }
-
-    /**
-     * Returns the information about <var>fileName</var>, or {@link NullPointerException}, if the information could not be obtained, e.g. because the
-     * file does not exist (call {@link #getLastError()} to find out what went wrong).
-     */
-    public static final Stat tryGetFileInfo(String fileName) throws IOExceptionUnchecked
-    {
-        return tryGetStat(fileName);
-    }
-
-    /**
-     * Returns the information about <var>linkName</var>.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-     */
-    public static final Stat getLinkInfo(String linkName) throws IOExceptionUnchecked
-    {
-        return getLinkInfo(linkName, true);
-    }
-
-    /**
-     * Returns the information about <var>linkName</var>. If <code>readSymbolicLinkTarget == true</code>, then the symbolic link target is read when
-     * <var>linkName</var> is a symbolic link.
-     * 
-     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link does not exist.
-     */
-    public static final Stat getLinkInfo(String linkName, boolean readSymbolicLinkTarget)
-            throws IOExceptionUnchecked
-    {
-        final Stat stat = getLStat(linkName);
-        final String symbolicLinkOrNull =
-                (readSymbolicLinkTarget && stat.isSymbolicLink()) ? readlink(linkName,
-                        (int) stat.getSize()) : null;
-        stat.setSymbolicLinkOrNull(symbolicLinkOrNull);
-        return stat;
-    }
-
-    /**
-     * Returns the information about <var>linkName</var>, or {@link NullPointerException}, if the information could not be obtained, e.g. because the
-     * link does not exist (call {@link #getLastError()} to find out what went wrong).
-     */
-    public static final Stat tryGetLinkInfo(String linkName) throws IOExceptionUnchecked
-    {
-        return tryGetLinkInfo(linkName, true);
-    }
-
-    /**
-     * Returns the information about <var>linkName</var>, or <code>null</code> if the information can not be obtained, e.g. because the link does not
-     * exist (call {@link #getLastError()} to find out what went wrong). If <code>readSymbolicLinkTarget == true</code>, then the symbolic link target
-     * is read when <var>linkName</var> is a symbolic link.
-     */
-    public static final Stat tryGetLinkInfo(String linkName, boolean readSymbolicLinkTarget)
-            throws IOExceptionUnchecked
-    {
-        final Stat stat = tryGetLStat(linkName);
-        if (stat == null)
-        {
-            return null;
-        }
-        final String symbolicLinkOrNull =
-                (readSymbolicLinkTarget && stat.isSymbolicLink()) ? readlink(linkName,
-                        (int) stat.getSize()) : null;
-        stat.setSymbolicLinkOrNull(symbolicLinkOrNull);
-        return stat;
-    }
-
-    /**
-     * Sets the access mode of <var>filename</var> to the specified <var>mode</var> value.
-     * Dereferences a symbolic link.
-     */
-    public static final void setAccessMode(String fileName, short mode) throws IOExceptionUnchecked
-    {
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
-        }
-        final int result = chmod(fileName, mode);
-        if (result < 0)
-        {
-            throwFileException("set mode", fileName, strerror(result));
-        }
-    }
-
-    /**
-     * Sets the owner of <var>fileName</var> to the specified <var>uid</var> and <var>gid</var> values. 
-     * Dereferences a symbolic link.
-     */
-    public static final void setOwner(String fileName, int uid, int gid)
-            throws IOExceptionUnchecked
-    {
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
-        }
-        final int result = chown(fileName, uid, gid);
-        if (result < 0)
-        {
-            throwFileException("set owner", fileName, strerror(result));
-        }
-    }
-
-    /**
-     * Sets the owner of <var>fileName</var> to the <var>uid</var> and <var>gid</var> of the specified <code>user</code>. 
-     * Dereferences a symbolic link.
-     */
-    public static final void setOwner(String fileName, Password user)
-            throws IOExceptionUnchecked
-    {
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
-        }
-        final int result = chown(fileName, user.getUid(), user.getGid());
-        if (result < 0)
-        {
-            throwFileException("set owner", fileName, strerror(result));
-        }
-    }
-
-    /**
-     * Sets the owner of <var>linkName</var> to the specified <var>uid</var> and <var>gid</var> values. 
-     * Does not dereference a symbolic link.
-     */
-    public static final void setLinkOwner(String linkName, int uid, int gid)
-            throws IOExceptionUnchecked
-    {
-        if (linkName == null)
-        {
-            throw new NullPointerException("linkName");
-        }
-        final int result = lchown(linkName, uid, gid);
-        if (result < 0)
-        {
-            throwFileException("set link owner", linkName, strerror(result));
-        }
-    }
-
-    /**
-     * Sets the owner of <var>linkName</var> to the <var>uid</var> and <var>gid</var> of the specified <code>user</code>. 
-     * Does not dereference a symbolic link.
-     */
-    public static final void setLinkOwner(String linkName, Password user)
-            throws IOExceptionUnchecked
-    {
-        if (linkName == null)
-        {
-            throw new NullPointerException("linkName");
-        }
-        final int result = lchown(linkName, user.getUid(), user.getGid());
-        if (result < 0)
-        {
-            throwFileException("set owner", linkName, strerror(result));
-        }
-    }
-
-    /**
-     * Change link timestamps of a file, directory or link. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     * @param accessTimeSecs The new access time in seconds since start of the epoch.
-     * @param accessTimeMicroSecs The micro-second part of the new access time.
-     * @param modificationTimeSecs The new modification time in seconds since start of the epoch.
-     * @param modificationTimeMicroSecs The micro-second part of the new modification time.
-     */
-    public static void setLinkTimestamps(String fileName,
-            long accessTimeSecs, long accessTimeMicroSecs,
-            long modificationTimeSecs, long modificationTimeMicroSecs) throws IOExceptionUnchecked
-    {
-        final int result = lutimes(fileName, accessTimeSecs, accessTimeMicroSecs,
-                            modificationTimeSecs, modificationTimeMicroSecs);
-        if (result < 0)
-        {
-            throwFileException("set file timestamps", fileName, strerror(result));
-        }
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     * @param accessTimeSecs The new access time in seconds since start of the epoch.
-     * @param modificationTimeSecs The new modification time in seconds since start of the epoch.
-     */
-    public static void setLinkTimestamps(String fileName,
-            long accessTimeSecs, long modificationTimeSecs) throws IOExceptionUnchecked
-    {
-        setLinkTimestamps(fileName, accessTimeSecs, 0, modificationTimeSecs, 0);
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     * @param accessTime The new access time as {@link Time} object.
-     * @param modificationTime The new modification time as {@link Time} object.
-     */
-    public static void setLinkTimestamps(String fileName,
-            Time accessTime, Time modificationTime) throws IOExceptionUnchecked
-    {
-        setLinkTimestamps(fileName, accessTime.getSecs(), accessTime.getMicroSecPart(), 
-                modificationTime.getSecs(), modificationTime.getMicroSecPart());
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link to the current time. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     */
-    public static void setLinkTimestamps(String fileName) throws IOExceptionUnchecked
-    {
-        final Time now = getSystemTime();
-        final int result = lutimes(fileName, now.getSecs(), now.getMicroSecPart(), now.getSecs(), now.getMicroSecPart());
-        if (result < 0)
-        {
-            throwFileException("set file timestamps", fileName, strerror(result));
-        }
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link. Dereferences a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     * @param accessTimeSecs The new access time in seconds since start of the epoch.
-     * @param accessTimeMicroSecs The micro-second part of the new access time.
-     * @param modificationTimeSecs The new modification time in seconds since start of the epoch.
-     * @param modificationTimeMicroSecs The micro-second part of the new modification time.
-     */
-    public static void setFileTimestamps(String fileName,
-            long accessTimeSecs, long accessTimeMicroSecs,
-            long modificationTimeSecs, long modificationTimeMicroSecs) throws IOExceptionUnchecked
-    {
-        final int result = utimes(fileName, accessTimeSecs, accessTimeMicroSecs,
-                            modificationTimeSecs, modificationTimeMicroSecs);
-        if (result < 0)
-        {
-            throwFileException("set file timestamps", fileName, strerror(result));
-        }
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     * @param accessTimeSecs The new access time in seconds since start of the epoch.
-     * @param modificationTimeSecs The new modification time in seconds since start of the epoch.
-     */
-    public static void setFileTimestamps(String fileName,
-            long accessTimeSecs, long modificationTimeSecs) throws IOExceptionUnchecked
-    {
-        setFileTimestamps(fileName, accessTimeSecs, 0, modificationTimeSecs, 0);
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     * @param accessTime The new access time as {@link Time} object.
-     * @param modificationTime The new modification time as {@link Time} object.
-     */
-    public static void setFileTimestamps(String fileName,
-            Time accessTime, Time modificationTime) throws IOExceptionUnchecked
-    {
-        setFileTimestamps(fileName, accessTime.getSecs(), accessTime.getMicroSecPart(), 
-                modificationTime.getSecs(), modificationTime.getMicroSecPart());
-    }
-
-    /**
-     * Change file timestamps of a file, directory or link to the current time. Does not dereference a symbolic link.
-     * 
-     * @param fileName The name of the file or link to change the timestamp of.
-     */
-    public static void setFileTimestamps(String fileName) throws IOExceptionUnchecked
-    {
-        final Time now = getSystemTime();
-        final int result = utimes(fileName, now.getSecs(), now.getMicroSecPart(), now.getSecs(), now.getMicroSecPart());
-        if (result < 0)
-        {
-            throwFileException("set file timestamps", fileName, strerror(result));
-        }
-    }
-
-    //
-    // User functions
-    //
-
-    /**
-     * Returns the name of the user identified by <var>uid</var>.
-     */
-    public static final String tryGetUserNameForUid(int uid)
-    {
-        return getuser(uid);
-    }
-
-    /**
-     * Returns the uid of the <var>userName</var>, or <code>-1</code>, if no user with this name exists.
-     */
-    public static final int getUidForUserName(String userName)
-    {
-        if (userName == null)
-        {
-            throw new NullPointerException("userName");
-        }
-        return getuid(userName);
-    }
-
-    /**
-     * Returns the {@link Password} for the given <var>userName</var>, or <code>null</code>, if no user with that name exists.
-     */
-    public static final Password tryGetUserByName(String userName)
-    {
-        if (userName == null)
-        {
-            throw new NullPointerException("userName");
-        }
-        return getpwnam(userName);
-    }
-
-    /**
-     * Returns the {@link Password} for the given <var>userName</var>, or <code>null</code>, if no user with that name exists.
-     */
-    public static final Password tryGetUserByUid(int uid)
-    {
-        return getpwuid(uid);
-    }
-
-    //
-    // Group functions
-    //
-
-    /**
-     * Returns the name of the group identified by <var>gid</var>, or <code>null</code>, if no group with that <var>gid</var> exists.
-     */
-    public static final String tryGetGroupNameForGid(int gid)
-    {
-        return getgroup(gid);
-    }
-
-    /**
-     * Returns the gid of the <var>groupName</var>, or <code>-1</code>, if no group with this name exists.
-     */
-    public static final int getGidForGroupName(String groupName)
-    {
-        if (groupName == null)
-        {
-            throw new NullPointerException("groupName");
-        }
-        return getgid(groupName);
-    }
-
-    /**
-     * Returns the {@link Group} for the given <var>groupName</var>, or <code>null</code>, if no group with that name exists.
-     */
-    public static final Group tryGetGroupByName(String groupName)
-    {
-        if (groupName == null)
-        {
-            throw new NullPointerException("groupName");
-        }
-        return getgrnam(groupName);
-    }
-
-    /**
-     * Returns the {@link Group} for the given <var>gid</var>, or <code>null</code>, if no group with that gid exists.
-     */
-    public static final Group tryGetGroupByGid(int gid)
-    {
-        return getgrgid(gid);
-    }
-
-    //
-    // Error
-    //
-
-    /**
-     * Returns the error string for the given <var>errnum</var>.
-     */
-    public static final String getErrorString(int errnum)
-    {
-        return strerror(errnum);
     }
 
 }
