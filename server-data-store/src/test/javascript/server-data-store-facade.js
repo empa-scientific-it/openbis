@@ -48,14 +48,29 @@ _datastoreInternal.prototype.jsonRequestData = function(params) {
 _datastoreInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data, callback) {
 	const xhr = new XMLHttpRequest();
 	xhr.open(httpMethod, url);
-	xhr.setRequestHeader("Content-Type", contentType);
+	xhr.setRequestHeader("content-type", contentType);
 	xhr.onreadystatechange = function() {
-	  if (xhr.readyState === XMLHttpRequest.DONE) {
-		callback(xhr.responseText);
-	  }
+		if (xhr.readyState === XMLHttpRequest.DONE) { 
+			const status = xhr.status;	
+			if (status >= 200 && status < 300) {
+				callback(xhr.responseText);
+			} else if(status >= 400 && status < 500) {
+				let response = JSON.parse(xhr.responseText);
+				alert(response.error[1].message);
+			} else if(status >= 500 && status < 600) {
+				let response = JSON.parse(xhr.responseText);
+				alert(response.error[1].message);
+			} else {
+				alert("ERROR: " + xhr.responseText);
+			}
+			
+			
+		  }
 	};
-	xhr.send(JSON.stringify(data));
+	xhr.send(data);
   }
+
+
 
   _datastoreInternal.prototype.buildGetUrl = function(queryParams) {
 	const queryString = Object.keys(queryParams)
@@ -157,36 +172,6 @@ function datastore(datastoreUrlOrNull, httpServerUri) {
  */
 
 /**
- * Log into DSS.
- * 
- * @method
- */
-datastore.prototype.login = function(userId, userPassword, action) {
-	var datastoreObj = this
-	const data = {
-		"userId": userId,
-		"password": userPassword
-	};
-	this._internal.sendHttpRequest(
-		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("login"),
-		data,
-		function(loginResponse) {
-			let response = JSON.parse(loginResponse);
-			if(response.error){
-				alert("Login failed: " + response.error.message);
-			}else{
-				datastoreObj._internal.sessionToken = response.result;
-				datastoreObj.rememberSession();
-				action(response);
-			}
-		}
-	);
-
-}
-
-/**
  * Stores the current session in a cookie. 
  *
  * @method
@@ -232,17 +217,95 @@ datastore.prototype.getSession = function(){
 }
 
 /**
+ * Sets interactiveSessionKey.
+ * 
+ * @method
+ */
+datastore.prototype.setInteractiveSessionKey = function(interactiveSessionKey){
+	this._internal.interactiveSessionKey = interactiveSessionKey;
+}
+
+/**
+ * Returns the current session.
+ * 
+ * @method
+ */
+datastore.prototype.getInteractiveSessionKey = function(){
+	return this._internal.interactiveSessionKey;
+}
+
+/**
+ * Sets transactionManagerKey.
+ * 
+ * @method
+ */
+datastore.prototype.setTransactionManagerKey = function(transactionManagerKey){
+	this._internal.transactionManagerKey = transactionManagerKey;
+}
+
+/**
+ * Returns the current session.
+ * 
+ * @method
+ */
+datastore.prototype.getTransactionManagerKey = function(){
+	return this._internal.transactionManagerKey;
+}
+
+datastore.prototype.fillCommonParameters = function(params) {
+	if(this.getSession()) {
+		params["sessionToken"] = this.getSession();
+	}
+	if(this.getInteractiveSessionKey()) {
+		params["interactiveSessionKey"] = this.getInteractiveSessionKey();
+	}
+	if(this.getTransactionManagerKey()) {
+		params["transactionManagerKey"] = this.getTransactionManagerKey();
+	}
+	return params;
+}
+
+const encodeParams = p =>  Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
+
+/**
+ * Log into DSS.
+ * 
+ * @method
+ */
+datastore.prototype.login = function(userId, userPassword, action) {
+	var datastoreObj = this
+	const data =  this.fillCommonParameters({
+		"method": "login",
+		"userId": userId,
+		"password": userPassword
+	});
+	this._internal.sendHttpRequest(
+		"POST",
+		"text/plain", 
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		function(loginResponse) {
+			datastoreObj._internal.sessionToken = loginResponse;
+			datastoreObj.rememberSession();
+			action(loginResponse);
+		}
+	);
+
+}
+
+
+/**
  * Checks whether the current session is still active.
  *
  */
 datastore.prototype.isSessionValid = function(action) {
 	if(this.getSession()){
-		const data = { "sessionToken" : this.getSession() }
+		const data =  this.fillCommonParameters({"method":"isSessionValid"});
 		this._internal.sendHttpRequest(
 			"GET",
-			"application/json",
-			this._internal.getUrlForMethod("isSessionValid"),
-			data,
+			"text/plain",
+			this._internal.datastoreUrl,
+			encodeParams(data),
 			(response) => parseJsonResponse(response, action)
 		);
 	}else{
@@ -272,12 +335,12 @@ datastore.prototype.logout = function(action) {
 	this.forgetSession();
 	
 	if(this.getSession()){
-		const data ={ "sessionToken" : this.getSession() };
+		const data =  this.fillCommonParameters({"method":"logout"});
 		this._internal.sendHttpRequest(
 			"POST",
-			"application/json",
-			this._internal.getUrlForMethod("logout"),
-			data,
+			"text/plain",
+			this._internal.datastoreUrl,
+			encodeParams(data),
 			(response) => parseJsonResponse(response, action)
 		);
 	}else if(action){
@@ -296,16 +359,15 @@ datastore.prototype.logout = function(action) {
  * List files in the DSS for given owner and source
  */
 datastore.prototype.list = function(owner, source, recursively, action){
-	const data = {
+	const data =  this.fillCommonParameters({
 		"method": "list",
 		"owner" :  owner,
 		"source":  source,
-		"recursively":  recursively,
-		"sessionToken" :  this.getSession()
-	};
+		"recursively":  recursively
+	});
 	this._internal.sendHttpRequest(
 		"GET",
-		"application/json",
+		"text/plain",
 		this._internal.buildGetUrl(data),
 		{},
 		(response) => parseJsonResponse(response, action)
@@ -321,14 +383,13 @@ datastore.prototype.list = function(owner, source, recursively, action){
  * @param {*} action post-processing action
  */
 datastore.prototype.read = function(owner, source, offset, limit, action){
-	const data = {
+	const data =  this.fillCommonParameters({
 		"method": "read",
 		"owner" :  owner,
 		"source":  source,
 		"offset":  offset,
-		"limit":  limit,
-		"sessionToken" : this.getSession()
-	};
+		"limit":  limit
+	});
 	this._internal.sendHttpRequest(
 		"GET",
 		"text",
@@ -338,19 +399,13 @@ datastore.prototype.read = function(owner, source, offset, limit, action){
 	);
 }
 
-/** Helper function to encode string into byte array */
-String.prototype.encodeHex = function () {
-    return this.split('').map(e => e.charCodeAt())
-};
-
-/** Helper function to convert string md5Hash into byte array that Java MessageDigest uses. */
-function convertToBin(md5hash) {
-	var res = []
-	for(var i=0;i<md5hash.length;i+=2){
-		var val = parseInt(md5hash.substring(i, i+2), 16);
-		res.push(val >= 128 ? -256+val : val);
-	}
-	return res;
+/** Helper function to convert string md5Hash into an array. */
+function hex2a(hexx) {
+    var hex = hexx.toString(); //force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
 }
 
 /**
@@ -362,21 +417,21 @@ function convertToBin(md5hash) {
  * @param {*} action post-processing action
  */
 datastore.prototype.write = function(owner, source, offset, data, action){
-	let md5Hash = md5(data).toUpperCase();
-	const body = {
-		"owner" : ["java.lang.String", owner],
-		"source": ["java.lang.String", source],
-		"offset": [ "java.lang.Long", offset ],
-		"data":  [ "[B", data.encodeHex() ],
-		"md5Hash":  [ "[B", convertToBin(md5Hash)],
-		"sessionToken" : ["java.lang.String", this.getSession()]
-	};
+	const params =  this.fillCommonParameters({
+		"method": "write",
+		"owner" : owner,
+		"source": source,
+		"offset": offset,
+		"data":  btoa(data),
+		"md5Hash":  btoa(hex2a(md5(data))),
+	});
+
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("write"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(params),
+		(response) => action(response)
 	);
 }
 
@@ -387,17 +442,17 @@ datastore.prototype.write = function(owner, source, offset, data, action){
  * @param {*} action post-processing action 
  */
 datastore.prototype.delete = function(owner, source, action){
-	const body = {
-		"owner" : ["java.lang.String", owner],
-		"source": ["java.lang.String", source],
-		"sessionToken" : ["java.lang.String", this.getSession()]
-	};
+	const data =  this.fillCommonParameters({
+		"method": "delete",
+		"owner" : owner,
+		"source": source
+	});
 	this._internal.sendHttpRequest(
 		"DELETE",
-		"application/json",
-		this._internal.getUrlForMethod("delete"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 }
 
@@ -405,19 +460,19 @@ datastore.prototype.delete = function(owner, source, action){
  * Copy file within DSS
  */
 datastore.prototype.copy = function(sourceOwner, source, targetOwner, target, action){
-	const body = {
-		"sourceOwner" : ["java.lang.String", sourceOwner],
-		"source": ["java.lang.String", source],
-		"targetOwner": ["java.lang.String", targetOwner],
-		"target": ["java.lang.String", target],
-		"sessionToken" : ["java.lang.String", this.getSession()]
-	};
+	const data =  this.fillCommonParameters({
+		"method": "copy",
+		"sourceOwner" : sourceOwner,
+		"source": source,
+		"targetOwner": targetOwner,
+		"target" : target
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("copy"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 }
 
@@ -425,19 +480,19 @@ datastore.prototype.copy = function(sourceOwner, source, targetOwner, target, ac
  * Move file within DSS
  */
 datastore.prototype.move = function(sourceOwner, source, targetOwner, target, action){
-	const body = {
-		"sourceOwner" : ["java.lang.String", sourceOwner],
-		"source": ["java.lang.String", source],
-		"targetOwner": ["java.lang.String", targetOwner],
-		"target": ["java.lang.String", target],
-		"sessionToken" : ["java.lang.String", this.getSession()]
-	};
+	const data =  this.fillCommonParameters({
+		"method": "move",
+		"sourceOwner" : sourceOwner,
+		"source": source,
+		"targetOwner": targetOwner,
+		"target" : target
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("move"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 	
 }
@@ -449,80 +504,73 @@ datastore.prototype.move = function(sourceOwner, source, targetOwner, target, ac
  * ==================================================================================
  */
 
-datastore.prototype.begin = function(transactionId, interactiveSessionKey, action){
-	const body = {
-		"transactionId" : ["java.lang.String", transactionId],
-		"sessionToken" : ["java.lang.String", this.getSession()],
-		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey]
-	};
+datastore.prototype.begin = function(transactionId, action){
+	const data =  this.fillCommonParameters({
+		"method": "begin",
+		"transactionId" : transactionId
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("begin"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 	
 }
 
-datastore.prototype.prepare = function(interactiveSessionKey, transactionManagerKey, action){
-	const body = {
-		"sessionToken" : ["java.lang.String", this.getSession()],
-		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey],
-		"transactionManagerKey": ["java.lang.String", transactionManagerKey]
-	};
+datastore.prototype.prepare = function(action){
+	const data =  this.fillCommonParameters({
+		"method": "prepare"
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("prepare"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 	
 }
 
-datastore.prototype.commit = function(interactiveSessionKey, action){
-	const body = {
-		"sessionToken" : ["java.lang.String", this.getSession()],
-		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey],
-	};
+datastore.prototype.commit = function(action){
+	const data =  this.fillCommonParameters({
+		"method": "commit"
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("commit"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 	
 }
 
 
-datastore.prototype.rollback = function(interactiveSessionKey, action){
-	const body = {
-		"sessionToken" : ["java.lang.String", this.getSession()],
-		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey]
-	};
+datastore.prototype.rollback = function(action){
+	const data =  this.fillCommonParameters({
+		"method": "rollback"
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("rollback"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 }
 
-datastore.prototype.recover = function(interactiveSessionKey, transactionManagerKey, action){
-	const body = {
-		"sessionToken" : ["java.lang.String", this.getSession()],
-		"interactiveSessionKey": ["java.lang.String", interactiveSessionKey],
-		"transactionManagerKey": ["java.lang.String", transactionManagerKey]
-	};
+datastore.prototype.recover = function(action){
+	const data =  this.fillCommonParameters({
+		"method": "recover"
+	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"application/json",
-		this._internal.getUrlForMethod("recover"),
-		body,
-		(response) => parseJsonResponse(response, action)
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
 	);
 	
 }

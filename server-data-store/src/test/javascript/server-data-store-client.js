@@ -169,7 +169,7 @@ function isMoveValid() {
 
 function enterApp(data)
 {
-	if(data.result == null){
+	if(data == null){
 		alert("Login or password incorrect");
 		document.getElementById("username").focus();
 		return;
