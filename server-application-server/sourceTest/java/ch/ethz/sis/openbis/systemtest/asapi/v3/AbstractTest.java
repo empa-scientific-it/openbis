@@ -53,6 +53,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
@@ -154,6 +155,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -180,6 +182,8 @@ public class AbstractTest extends SystemTestCase
             return item.getPermId().toString();
         }
     };
+
+    protected static final String USER_ROLES_PROVIDER = "provideUserRoles";
 
     protected BufferedAppender logRecorder;
 
@@ -1328,10 +1332,15 @@ public class AbstractTest extends SystemTestCase
 
     protected Object[][] createTestUsersProvider(String... users)
     {
-        Object[][] objects = new Object[users.length][];
-        for (int i = 0; i < users.length; i++)
+        return createProvider(users);
+    }
+
+    protected <T> Object[][] createProvider(T... values)
+    {
+        Object[][] objects = new Object[values.length][];
+        for (int i = 0; i < values.length; i++)
         {
-            objects[i] = new Object[] { users[i] };
+            objects[i] = new Object[] { values[i] };
         }
         return objects;
     }
@@ -1812,6 +1821,14 @@ public class AbstractTest extends SystemTestCase
         Map<IPersonalAccessTokenId, PersonalAccessToken> map = v3api.getPersonalAccessTokens(sessionToken, Arrays.asList(tokenId), fetchOptions);
 
         return map.get(tokenId);
+    }
+
+    @DataProvider
+    protected Object[][] provideUserRoles()
+    {
+        return createProvider(RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_OBSERVER, RoleWithHierarchy.SPACE_ADMIN,
+                RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.PROJECT_ADMIN,
+                RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.PROJECT_OBSERVER);
     }
 
 }
