@@ -23,8 +23,6 @@ import org.testng.annotations.BeforeTest;
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.UserSettingsDialog;
 
-import java.lang.reflect.Method;
-
 /**
  * @author anttil
  */
