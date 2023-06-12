@@ -42,7 +42,17 @@ public final class Unix
     }
 
     public static boolean isOperational() {
-        return File.separatorChar == '/'; //On Posix systems the value of this field is '/'
+        boolean isPosixFileSystem = File.separatorChar == '/'; //On Posix systems the value of this field is '/';
+        boolean isIdCommandLineToolAvailable;
+
+        try {
+            getUid();
+            isIdCommandLineToolAvailable = true;
+        } catch (Throwable t) {
+            isIdCommandLineToolAvailable = false;
+        }
+
+        return isPosixFileSystem && isIdCommandLineToolAvailable;
     }
 
     //
