@@ -16,21 +16,24 @@
 
 package ch.systemsx.cisd.base.unix;
 
-import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-
-import static ch.systemsx.cisd.base.unix.Unix.Stat;
+import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.unix.Unix.Stat;
 
 /**
  * Test cases for the {@link Unix} system calls.
- *
- * @author Juan Fuentes
+ * 
+ * @author Bernd Rinn
  */
 @Friend(toClasses = Unix.class)
 public class UnixTests extends AbstractFileSystemTestCase
@@ -45,7 +48,8 @@ public class UnixTests extends AbstractFileSystemTestCase
         super(cleanAfterMethod);
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetLinkInfoRegularFile() throws IOException
     {
         final short accessMode = (short) 0777;
@@ -64,13 +68,15 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertEquals(f.lastModified()/1000, info.getLastModified());
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(groups =
+        { "requires_unix" }, expectedExceptions = NullPointerException.class)
     public void testGetLinkNull() throws IOException
     {
         Unix.getLinkInfo(null);
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetLinkInfoDirectory() throws IOException
     {
         final File d = new File(workingDirectory, "someDir");
@@ -81,7 +87,8 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertFalse(info.isSymbolicLink());
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetLinkInfoSymLink() throws IOException
     {
         final File f = new File(workingDirectory, "someOtherFile");
@@ -105,7 +112,8 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertNull(info2.tryGetSymbolicLink());
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetLinkInfoSymLinkDanglingLink() throws IOException
     {
         final File s = new File(workingDirectory, "someDanglingLink");
@@ -117,34 +125,35 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertTrue(info.isSymbolicLink());
         final Stat info2 = Unix.tryGetFileInfo(s.getAbsolutePath());
         assertNull(info2);
-        //        assertEquals("No such file or directory", Unix.getLastError());
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetLinkInfoNonExistent() throws IOException
     {
         final File s = new File(workingDirectory, "nonExistent");
         final Stat info = Unix.tryGetLinkInfo(s.getAbsolutePath());
         assertNull(info);
-        //        assertEquals("No such file or directory", Unix.getLastError());
         final Stat info2 = Unix.tryGetFileInfo(s.getAbsolutePath());
         assertNull(info2);
-        //        assertEquals("No such file or directory", Unix.getLastError());
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(groups =
+        { "requires_unix" }, expectedExceptions = NullPointerException.class)
     public void testCreateSymbolicLinkNull() throws IOException
     {
         Unix.createSymbolicLink(null, null);
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(groups =
+        { "requires_unix" }, expectedExceptions = NullPointerException.class)
     public void testCreateHardLinkNull() throws IOException
     {
         Unix.createHardLink(null, null);
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetLinkInfoHardLink() throws IOException
     {
         final File f = new File(workingDirectory, "someOtherFile");
@@ -158,45 +167,52 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertNull(info.tryGetSymbolicLink());
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetUid()
     {
         assertTrue(Unix.getUid() >= 0);
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetEuid()
     {
         assertTrue(Unix.getEuid() >= 0);
         assertEquals(Unix.getUid(), Unix.getEuid());
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetGid()
     {
         assertTrue(Unix.getGid() >= 0);
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetEgid()
     {
         assertTrue(Unix.getEgid() >= 0);
         assertEquals(Unix.getGid(), Unix.getEgid());
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetUidForUserName()
     {
         assertEquals(0, Unix.getUidForUserName("root"));
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(groups =
+        { "requires_unix" }, expectedExceptions = NullPointerException.class)
     public void testGetUidForUserNameNull() throws IOException
     {
         Unix.getUidForUserName(null);
     }
 
-    @Test
+    @Test(groups =
+        { "requires_unix" })
     public void testGetGidForGroupName()
     {
         final String rootGroup = Unix.tryGetGroupNameForGid(0);
@@ -204,9 +220,85 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertEquals(0, Unix.getGidForGroupName(rootGroup));
     }
 
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(groups =
+        { "requires_unix" }, expectedExceptions = NullPointerException.class)
     public void testGetGidForGroupNameNull() throws IOException
     {
         Unix.getGidForGroupName(null);
     }
+
+    @Test(groups =
+        { "requires_unix" }, expectedExceptions = NullPointerException.class)
+    public void testTryGetUserByNameNull() throws IOException
+    {
+        Unix.tryGetUserByName(null);
+    }
+
+    public static void main(String[] args) throws Throwable
+    {
+        System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + UnixTests.class.getSimpleName());
+        System.out.println();
+        if (Unix.isOperational() == false)
+        {
+            System.err.println("No unix library found.");
+            System.exit(1);
+        }
+        boolean stopOnError = args.length > 0 && "stopOnError".equalsIgnoreCase(args[0]);
+        int failed = 0;
+        final UnixTests test = new UnixTests();
+        try
+        {
+            for (Method m : UnixTests.class.getMethods())
+            {
+                final Test testAnnotation = m.getAnnotation(Test.class);
+                if (testAnnotation == null)
+                {
+                    continue;
+                }
+                System.out.println("Running " + m.getName());
+                test.setUp();
+                try
+                {
+                    m.invoke(test);
+                } catch (InvocationTargetException wrapperThrowable)
+                {
+                    final Throwable th = wrapperThrowable.getCause();
+                    boolean exceptionFound = false;
+                    for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
+                    {
+                        if (expectedExClazz == th.getClass())
+                        {
+                            exceptionFound = true;
+                            break;
+                        }
+                    }
+                    if (exceptionFound == false)
+                    {
+                        ++failed;
+                        System.out.println("Caught exception in method " + m.getName());
+                        th.printStackTrace();
+                        if (stopOnError)
+                        {
+                            System.exit(1);
+                        }
+                    }
+                }
+            }
+            if (failed == 0)
+            {
+                System.out.println("Tests OK!");
+            } else
+            {   
+                System.out.printf("%d tests FAILED!\n", failed);
+            }
+        } finally
+        {
+            if (failed == 0)
+            {
+                test.afterClass();
+            }
+        }
+    }
+
 }

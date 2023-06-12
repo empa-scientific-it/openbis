@@ -22,12 +22,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
-import java.nio.file.attribute.PosixFileAttributes;
-import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.*;
+import java.nio.file.attribute.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -213,6 +209,44 @@ public final class Unix
         }
     }
 
+    /**
+     * Sets the owner of <var>linkName</var> to the specified <var>uid</var> and <var>gid</var> values.
+     * Does not dereference a symbolic link.
+     */
+    public static final void setLinkOwner(String linkName, int uid, int gid)
+            throws IOExceptionUnchecked
+    {
+        try
+        {
+            Files.setAttribute(Path.of(linkName), "unix:uid", uid, LinkOption.NOFOLLOW_LINKS);
+            Files.setAttribute(Path.of(linkName), "unix:gid", gid, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException e)
+        {
+            throw new IOExceptionUnchecked(e);
+        }
+    }
+
+    /**
+     * Sets the owner of <var>linkName</var> to the <var>uid</var> and <var>gid</var> of the specified <code>user</code>.
+     * Does not dereference a symbolic link.
+     */
+    public static final void setLinkOwner(String linkName, Password user)
+            throws IOExceptionUnchecked
+    {
+        setLinkOwner(linkName, user.getUid(), user.getGid());
+    }
+
+    /**
+     * Sets the owner of <var>fileName</var> to the <var>uid</var> and <var>gid</var> of the specified <code>user</code>.
+     * Dereferences a symbolic link.
+     */
+    public static final void setOwner(String fileName, Password user)
+            throws IOExceptionUnchecked
+    {
+        setOwner(fileName, user.getUid(), user.getGid());
+    }
+
+
     public static int getUid(String path, boolean followLinks)
     {
         try
@@ -310,6 +344,48 @@ public final class Unix
     {
         Stat stat = tryGetLinkInfo(absolutePath);
         return stat.isSymbolicLink() ? stat.tryGetSymbolicLink() : null;
+    }
+
+    /**
+     * A class representing the Unix <code>passwd</code> struct.
+     */
+    public static final class Password
+    {
+        private final String userName;
+
+        private final int uid;
+
+        private final int gid;
+
+        Password(String userName, int uid, int gid)
+        {
+            this.userName = userName;
+            this.uid = uid;
+            this.gid = gid;
+        }
+
+        public String getUserName()
+        {
+            return userName;
+        }
+
+        public int getUid()
+        {
+            return uid;
+        }
+
+        public int getGid()
+        {
+            return gid;
+        }
+    }
+
+    public static Unix.Password tryGetUserByName(String username) throws IOExceptionUnchecked
+    {
+        int uid = getUidForUserName(username);
+        int gid = getGidForGroupName(username);
+        Password password = new Password(username, uid, gid);
+        return password;
     }
 
     //
