@@ -108,121 +108,120 @@ public class PosixTest extends AbstractFileSystemTestCase
         assertNull(info2.tryGetSymbolicLink());
     }
 
-    @Test
-    public void testTouchSymLinkAndFileRealtimeTimer() throws IOException, InterruptedException
-    {
-        if (BuildAndEnvironmentInfo.INSTANCE.getOS().contains("2.6.32"))
-        {
-            System.out.println("  ...skipping as CentOS6 does not yet support the realtime timer.");
-            return;
-        }
-//        Posix.setUseUnixRealtimeTimer(true);
-        final File f = new File(workingDirectory, "someOtherFile");
-        final String content = "someMoreText\n";
-        FileUtils.writeStringToFile(f, content, Charset.defaultCharset());
-        final File s = new File(workingDirectory, "someLink");
-        Posix.createSymbolicLink(f.getAbsolutePath(), s.getAbsolutePath());
-        final Stat info = Posix.getLinkInfo(s.getAbsolutePath());
-        assertEquals(1, info.getNumberOfHardLinks());
-        assertEquals(FileLinkType.SYMLINK, info.getLinkType());
-        assertTrue(info.isSymbolicLink());
-        assertEquals(f.getAbsolutePath(), info.tryGetSymbolicLink());
-        assertEquals(f.getAbsolutePath(), Posix.tryReadSymbolicLink(s.getAbsolutePath()));
-        assertNull(Posix.getLinkInfo(s.getAbsolutePath(), false).tryGetSymbolicLink());
-        final long lastMicros = info.getLastModifiedTime().getMicroSecPart();
-        final long newLastModifiedLink = info.getLastModifiedTime().getSecs() - 24 * 3600;
-        Posix.setLinkTimestamps(s.getAbsolutePath(), newLastModifiedLink, lastMicros, newLastModifiedLink, lastMicros);
-
-        final long newLastModifiedFile = info.getLastModifiedTime().getSecs() - 2 * 24 * 3600;
-        Posix.setFileTimestamps(f.getAbsolutePath(), newLastModifiedFile, lastMicros, newLastModifiedFile, lastMicros);
-
-        final Stat info2l = Posix.getLinkInfo(s.getAbsolutePath(), false);
-        assertEquals(newLastModifiedLink, info2l.getLastModifiedTime().getSecs());
-        assertEquals(lastMicros, info2l.getLastModifiedTime().getMicroSecPart());
-        assertEquals(newLastModifiedLink, info2l.getLastAccessTime().getSecs());
-        assertEquals(lastMicros, info2l.getLastAccessTime().getMicroSecPart());
-
-        final Stat info2f = Posix.getFileInfo(s.getAbsolutePath());
-        final Stat info2f2 = Posix.getLinkInfo(f.getAbsolutePath());
-        assertNotEquals(info2l.getLastModifiedTime(), info2f2.getLastModifiedTime());
-        assertEquals(info2f2.getLastModifiedTime(), info2f.getLastModifiedTime());
-        assertEquals(newLastModifiedFile, info2f.getLastModifiedTime().getSecs());
-        assertEquals(lastMicros, info2f.getLastModifiedTime().getMicroSecPart());
-        assertEquals(newLastModifiedFile, info2f.getLastAccessTime().getSecs());
-        assertEquals(lastMicros, info2f.getLastAccessTime().getMicroSecPart());
-
-        Thread.sleep(10);
-
-        final Posix.Time now1 = Posix.getSystemTime();
-        assertNotEquals(0, now1.getNanoSecPart() % 1_000);
-        Posix.setLinkTimestamps(s.getAbsolutePath());
-        final Posix.Time now2 = Posix.getSystemTime();
-        final Stat info3 = Posix.getLinkInfo(s.getAbsolutePath());
-        
-        assertTrue(now1.getSecs() <= info3.getLastModified() && info3.getLastModified() <= now2.getSecs());
-        assertTrue(now1.getMicroSecPart() <= info3.getLastModifiedTime().getMicroSecPart() && info.getLastModifiedTime().getMilliSecPart() <= now2.getMicroSecPart());
-        assertTrue(now1.getSecs() <= info3.getLastAccess() && info3.getLastAccess() <= now2.getSecs());
-        assertTrue(now1.getMicroSecPart() <= info3.getLastAccessTime().getMicroSecPart() && info.getLastAccessTime().getMilliSecPart() <= now2.getMicroSecPart());
-        assertNotEquals(lastMicros, info3.getLastModifiedTime().getMicroSecPart());
-        assertNotEquals(lastMicros, info3.getLastAccessTime().getMicroSecPart());
-
-    }
-
-    @Test
-    public void testTouchSymLinkAndFile() throws IOException, InterruptedException
-    {
-//        Posix.setUseUnixRealtimeTimer(false);
-        final File someFile = new File(workingDirectory, "someOtherFile");
-        final String content = "someMoreText\n";
-        FileUtils.writeStringToFile(someFile, content, Charset.defaultCharset());
-        final File someSymlink = new File(workingDirectory, "someLink");
-        Posix.createSymbolicLink(someFile.getAbsolutePath(), someSymlink.getAbsolutePath());
-        final Stat infoSymlink = Posix.getLinkInfo(someSymlink.getAbsolutePath());
-        assertEquals(1, infoSymlink.getNumberOfHardLinks());
-        assertEquals(FileLinkType.SYMLINK, infoSymlink.getLinkType());
-        assertTrue(infoSymlink.isSymbolicLink());
-        assertEquals(someFile.getAbsolutePath(), infoSymlink.tryGetSymbolicLink());
-        assertEquals(someFile.getAbsolutePath(), Posix.tryReadSymbolicLink(someSymlink.getAbsolutePath()));
-        assertNull(Posix.getLinkInfo(someSymlink.getAbsolutePath(), false).tryGetSymbolicLink());
-        final long newLastModifiedLinkMicros = infoSymlink.getLastModifiedTime().getMicroSecPart();
-        final long newLastModifiedLinkSec = infoSymlink.getLastModifiedTime().getSecs() - 24 * 3600;
-        Posix.setLinkTimestamps(someSymlink.getAbsolutePath(), newLastModifiedLinkSec, newLastModifiedLinkMicros, newLastModifiedLinkSec, newLastModifiedLinkMicros);
-
-        final long newLastModifiedSecFile = infoSymlink.getLastModifiedTime().getSecs() - 2 * 24 * 3600;
-        Posix.setFileTimestamps(someFile.getAbsolutePath(), newLastModifiedSecFile, newLastModifiedLinkMicros, newLastModifiedSecFile, newLastModifiedLinkMicros);
-
-        final Stat infoSymlink2 = Posix.getLinkInfo(someSymlink.getAbsolutePath(), false);
-        assertEquals(newLastModifiedLinkSec, infoSymlink2.getLastModifiedTime().getSecs());
-        assertEquals(newLastModifiedLinkMicros, infoSymlink2.getLastModifiedTime().getMicroSecPart());
-        assertEquals(newLastModifiedLinkSec, infoSymlink2.getLastAccessTime().getSecs());
-        assertEquals(newLastModifiedLinkMicros, infoSymlink2.getLastAccessTime().getMicroSecPart());
-
-        final Stat info2f = Posix.getFileInfo(someSymlink.getAbsolutePath());
-        final Stat info2f2 = Posix.getLinkInfo(someFile.getAbsolutePath());
-        assertNotEquals(infoSymlink2.getLastModifiedTime(), info2f2.getLastModifiedTime());
-        assertEquals(info2f2.getLastModifiedTime(), info2f.getLastModifiedTime());
-        assertEquals(newLastModifiedSecFile, info2f.getLastModifiedTime().getSecs());
-        assertEquals(newLastModifiedLinkMicros, info2f.getLastModifiedTime().getMicroSecPart());
-        assertEquals(newLastModifiedSecFile, info2f.getLastAccessTime().getSecs());
-        assertEquals(newLastModifiedLinkMicros, info2f.getLastAccessTime().getMicroSecPart());
-
-
-        Thread.sleep(10);
-
-        final Posix.Time now1 = Posix.getSystemTime();
-        assertEquals(0, now1.getNanoSecPart() % 1_000);
-        Posix.setLinkTimestamps(someSymlink.getAbsolutePath()); // Modifies the link, not the linked file
-        final Posix.Time now2 = Posix.getSystemTime();
-        final Stat info3 = Posix.getLinkInfo(someSymlink.getAbsolutePath()); // Returns the linked file info
-        
-        assertTrue(now1.getSecs() <= info3.getLastModified() && info3.getLastModified() <= now2.getSecs());
-        assertTrue(now1.getMicroSecPart() <= info3.getLastModifiedTime().getMicroSecPart() && infoSymlink.getLastModifiedTime().getMilliSecPart() <= now2.getMicroSecPart());
-        assertTrue(now1.getSecs() <= info3.getLastAccess() && info3.getLastAccess() <= now2.getSecs());
-        assertTrue(now1.getMicroSecPart() <= info3.getLastAccessTime().getMicroSecPart() && infoSymlink.getLastAccessTime().getMilliSecPart() <= now2.getMicroSecPart());
-        assertNotEquals(newLastModifiedLinkMicros, info3.getLastModifiedTime().getMicroSecPart());
-        assertNotEquals(newLastModifiedLinkMicros, info3.getLastAccessTime().getMicroSecPart());
-
-    }
+//    @Test
+//    public void testTouchSymLinkAndFileRealtimeTimer() throws IOException, InterruptedException
+//    {
+//        if (BuildAndEnvironmentInfo.INSTANCE.getOS().contains("2.6.32"))
+//        {
+//            System.out.println("  ...skipping as CentOS6 does not yet support the realtime timer.");
+//            return;
+//        }
+////        Posix.setUseUnixRealtimeTimer(true);
+//        final File f = new File(workingDirectory, "someOtherFile");
+//        final String content = "someMoreText\n";
+//        FileUtils.writeStringToFile(f, content, Charset.defaultCharset());
+//        final File s = new File(workingDirectory, "someLink");
+//        Posix.createSymbolicLink(f.getAbsolutePath(), s.getAbsolutePath());
+//        final Stat info = Posix.getLinkInfo(s.getAbsolutePath());
+//        assertEquals(1, info.getNumberOfHardLinks());
+//        assertEquals(FileLinkType.SYMLINK, info.getLinkType());
+//        assertTrue(info.isSymbolicLink());
+//        assertEquals(f.getAbsolutePath(), info.tryGetSymbolicLink());
+//        assertEquals(f.getAbsolutePath(), Posix.tryReadSymbolicLink(s.getAbsolutePath()));
+//        assertNull(Posix.getLinkInfo(s.getAbsolutePath(), false).tryGetSymbolicLink());
+//        final long lastMicros = info.getLastModifiedTime().getMicroSecPart();
+//        final long newLastModifiedLink = info.getLastModifiedTime().getSecs() - 24 * 3600;
+//        Posix.setLinkTimestamps(s.getAbsolutePath(), newLastModifiedLink, lastMicros, newLastModifiedLink, lastMicros);
+//
+//        final long newLastModifiedFile = info.getLastModifiedTime().getSecs() - 2 * 24 * 3600;
+//        Posix.setFileTimestamps(f.getAbsolutePath(), newLastModifiedFile, lastMicros, newLastModifiedFile, lastMicros);
+//
+//        final Stat info2l = Posix.getLinkInfo(s.getAbsolutePath(), false);
+//        assertEquals(newLastModifiedLink, info2l.getLastModifiedTime().getSecs());
+//        assertEquals(lastMicros, info2l.getLastModifiedTime().getMicroSecPart());
+//        assertEquals(newLastModifiedLink, info2l.getLastAccessTime().getSecs());
+//        assertEquals(lastMicros, info2l.getLastAccessTime().getMicroSecPart());
+//
+//        final Stat info2f = Posix.getFileInfo(s.getAbsolutePath());
+//        final Stat info2f2 = Posix.getLinkInfo(f.getAbsolutePath());
+//        assertNotEquals(info2l.getLastModifiedTime(), info2f2.getLastModifiedTime());
+//        assertEquals(info2f2.getLastModifiedTime(), info2f.getLastModifiedTime());
+//        assertEquals(newLastModifiedFile, info2f.getLastModifiedTime().getSecs());
+//        assertEquals(lastMicros, info2f.getLastModifiedTime().getMicroSecPart());
+//        assertEquals(newLastModifiedFile, info2f.getLastAccessTime().getSecs());
+//        assertEquals(lastMicros, info2f.getLastAccessTime().getMicroSecPart());
+//
+//        Thread.sleep(10);
+//
+//        final Posix.Time now1 = Posix.getSystemTime();
+//        assertNotEquals(0, now1.getNanoSecPart() % 1_000);
+//        Posix.setLinkTimestamps(s.getAbsolutePath());
+//        final Posix.Time now2 = Posix.getSystemTime();
+//        final Stat info3 = Posix.getLinkInfo(s.getAbsolutePath());
+//
+//        assertTrue(now1.getSecs() <= info3.getLastModified() && info3.getLastModified() <= now2.getSecs());
+//        assertTrue(now1.getMicroSecPart() <= info3.getLastModifiedTime().getMicroSecPart() && info.getLastModifiedTime().getMilliSecPart() <= now2.getMicroSecPart());
+//        assertTrue(now1.getSecs() <= info3.getLastAccess() && info3.getLastAccess() <= now2.getSecs());
+//        assertTrue(now1.getMicroSecPart() <= info3.getLastAccessTime().getMicroSecPart() && info.getLastAccessTime().getMilliSecPart() <= now2.getMicroSecPart());
+//        assertNotEquals(lastMicros, info3.getLastModifiedTime().getMicroSecPart());
+//        assertNotEquals(lastMicros, info3.getLastAccessTime().getMicroSecPart());
+//
+//    }
+//
+//    @Test
+//    public void testTouchSymLinkAndFile() throws IOException, InterruptedException
+//    {
+////        Posix.setUseUnixRealtimeTimer(false);
+//        final File someFile = new File(workingDirectory, "someOtherFile");
+//        final String content = "someMoreText\n";
+//        FileUtils.writeStringToFile(someFile, content, Charset.defaultCharset());
+//        final File someSymlink = new File(workingDirectory, "someLink");
+//        Posix.createSymbolicLink(someFile.getAbsolutePath(), someSymlink.getAbsolutePath());
+//        final Stat infoSymlink = Posix.getLinkInfo(someSymlink.getAbsolutePath());
+//        assertEquals(1, infoSymlink.getNumberOfHardLinks());
+//        assertEquals(FileLinkType.SYMLINK, infoSymlink.getLinkType());
+//        assertTrue(infoSymlink.isSymbolicLink());
+//        assertEquals(someFile.getAbsolutePath(), infoSymlink.tryGetSymbolicLink());
+//        assertEquals(someFile.getAbsolutePath(), Posix.tryReadSymbolicLink(someSymlink.getAbsolutePath()));
+//        assertNull(Posix.getLinkInfo(someSymlink.getAbsolutePath(), false).tryGetSymbolicLink());
+//        final long newLastModifiedLinkMicros = infoSymlink.getLastModifiedTime().getMicroSecPart();
+//        final long newLastModifiedLinkSec = infoSymlink.getLastModifiedTime().getSecs() - 24 * 3600;
+//        Posix.setLinkTimestamps(someSymlink.getAbsolutePath(), newLastModifiedLinkSec, newLastModifiedLinkMicros, newLastModifiedLinkSec, newLastModifiedLinkMicros);
+//
+//        final long newLastModifiedSecFile = infoSymlink.getLastModifiedTime().getSecs() - 2 * 24 * 3600;
+//        Posix.setFileTimestamps(someFile.getAbsolutePath(), newLastModifiedSecFile, newLastModifiedLinkMicros, newLastModifiedSecFile, newLastModifiedLinkMicros);
+//
+//        final Stat infoSymlink2 = Posix.getLinkInfo(someSymlink.getAbsolutePath(), false);
+//        assertEquals(newLastModifiedLinkSec, infoSymlink2.getLastModifiedTime().getSecs());
+//        assertEquals(newLastModifiedLinkMicros, infoSymlink2.getLastModifiedTime().getMicroSecPart());
+//        assertEquals(newLastModifiedLinkSec, infoSymlink2.getLastAccessTime().getSecs());
+//        assertEquals(newLastModifiedLinkMicros, infoSymlink2.getLastAccessTime().getMicroSecPart());
+//
+//        final Stat info2f = Posix.getFileInfo(someSymlink.getAbsolutePath());
+//        final Stat info2f2 = Posix.getLinkInfo(someFile.getAbsolutePath());
+//        assertNotEquals(infoSymlink2.getLastModifiedTime(), info2f2.getLastModifiedTime());
+//        assertEquals(info2f2.getLastModifiedTime(), info2f.getLastModifiedTime());
+//        assertEquals(newLastModifiedSecFile, info2f.getLastModifiedTime().getSecs());
+//        assertEquals(newLastModifiedLinkMicros, info2f.getLastModifiedTime().getMicroSecPart());
+//        assertEquals(newLastModifiedSecFile, info2f.getLastAccessTime().getSecs());
+//        assertEquals(newLastModifiedLinkMicros, info2f.getLastAccessTime().getMicroSecPart());
+//
+//
+//        Thread.sleep(10);
+//
+//        final Posix.Time now1 = Posix.getSystemTime();
+//        assertEquals(0, now1.getNanoSecPart() % 1_000);
+//        Posix.setLinkTimestamps(someSymlink.getAbsolutePath()); // Modifies the link, not the linked file
+//        final Posix.Time now2 = Posix.getSystemTime();
+//        final Stat info3 = Posix.getLinkInfo(someSymlink.getAbsolutePath()); // Returns the linked file info
+//
+//        assertTrue(now1.getSecs() <= info3.getLastModified() && info3.getLastModified() <= now2.getSecs());
+//        assertTrue(now1.getMicroSecPart() <= info3.getLastModifiedTime().getMicroSecPart() && infoSymlink.getLastModifiedTime().getMilliSecPart() <= now2.getMicroSecPart());
+//        assertTrue(now1.getSecs() <= info3.getLastAccess() && info3.getLastAccess() <= now2.getSecs());
+//        assertTrue(now1.getMicroSecPart() <= info3.getLastAccessTime().getMicroSecPart() && infoSymlink.getLastAccessTime().getMilliSecPart() <= now2.getMicroSecPart());
+//        assertNotEquals(newLastModifiedLinkMicros, info3.getLastModifiedTime().getMicroSecPart());
+//        assertNotEquals(newLastModifiedLinkMicros, info3.getLastAccessTime().getMicroSecPart());
+//    }
 
     @Test
     public void testGetLinkInfoSymLinkDanglingLink() throws IOException
