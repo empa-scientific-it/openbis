@@ -80,7 +80,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnot
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IValidationPluginHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
@@ -115,8 +114,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.IPersonalAccessTokenId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.id.PersonalAccessTokenPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.update.PersonalAccessTokenUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -126,13 +130,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDele
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
@@ -1829,6 +1837,101 @@ public class AbstractTest extends SystemTestCase
         return createProvider(RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_OBSERVER, RoleWithHierarchy.SPACE_ADMIN,
                 RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.PROJECT_ADMIN,
                 RoleWithHierarchy.PROJECT_POWER_USER, RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.PROJECT_OBSERVER);
+    }
+
+    protected void testWithUserRole(RoleWithHierarchy role, TestWithUserRole action)
+    {
+        final String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // userId needs to end with "_pa_on" for the user's project roles to be taken into consideration (see project authorization settings in service.properties)
+
+        final PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId("test_user_with_role_" + role + "_pa_on");
+        v3api.createPersons(adminSessionToken, List.of(personCreation));
+
+        final SpaceCreation space1Creation = new SpaceCreation();
+        space1Creation.setCode("TEST_SPACE_1_" + UUID.randomUUID());
+
+        final SpaceCreation space2Creation = new SpaceCreation();
+        space2Creation.setCode("TEST_SPACE_2_" + UUID.randomUUID());
+
+        List<SpacePermId> spaceIds = v3api.createSpaces(adminSessionToken, List.of(space1Creation, space2Creation));
+        SpacePermId space1Id = spaceIds.get(0);
+        SpacePermId space2Id = spaceIds.get(1);
+
+        final ProjectCreation space1Project1Creation = new ProjectCreation();
+        space1Project1Creation.setCode("TEST_SPACE_1_PROJECT_1_" + UUID.randomUUID());
+        space1Project1Creation.setSpaceId(new SpacePermId(space1Creation.getCode()));
+
+        final ProjectCreation space1Project2Creation = new ProjectCreation();
+        space1Project2Creation.setCode("TEST_SPACE_1_PROJECT_2_" + UUID.randomUUID());
+        space1Project2Creation.setSpaceId(new SpacePermId(space1Creation.getCode()));
+
+        List<ProjectPermId> projectIds = v3api.createProjects(adminSessionToken, List.of(space1Project1Creation, space1Project2Creation));
+        ProjectPermId space1Project1Id = projectIds.get(0);
+        ProjectPermId space1Project2Id = projectIds.get(1);
+
+        if (role.isInstanceLevel())
+        {
+            final RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+            roleCreation.setUserId(new PersonPermId(personCreation.getUserId()));
+            roleCreation.setRole(Role.valueOf(role.getRoleCode().name()));
+
+            v3api.createRoleAssignments(adminSessionToken, List.of(roleCreation));
+        } else if (role.isSpaceLevel() || role.isProjectLevel())
+        {
+            final RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+            roleCreation.setUserId(new PersonPermId(personCreation.getUserId()));
+            roleCreation.setRole(Role.valueOf(role.getRoleCode().name()));
+
+            final RoleAssignmentCreation roleCreation2 = new RoleAssignmentCreation();
+            roleCreation2.setUserId(new PersonPermId(personCreation.getUserId()));
+            roleCreation2.setRole(Role.valueOf(role.getRoleCode().name()));
+
+            if (role.isSpaceLevel())
+            {
+                roleCreation.setSpaceId(space1Id);
+                roleCreation2.setSpaceId(space2Id);
+            } else if (role.isProjectLevel())
+            {
+                roleCreation.setProjectId(space1Project1Id);
+                roleCreation2.setProjectId(space1Project2Id);
+            }
+
+            v3api.createRoleAssignments(adminSessionToken, List.of(roleCreation, roleCreation2));
+        }
+
+        final String userSessionToken = v3api.login(personCreation.getUserId(), PASSWORD);
+
+        final TestWithUserRoleParams params = new TestWithUserRoleParams();
+        params.adminSessionToken = adminSessionToken;
+        params.userSessionToken = userSessionToken;
+        params.roleSpace1Id = space1Id;
+        params.roleSpace2Id = space2Id;
+        params.roleSpace1Project1Id = space1Project1Id;
+        params.roleSpace1Project2Id = space1Project2Id;
+
+        action.execute(params);
+    }
+
+    protected static class TestWithUserRoleParams
+    {
+        public String adminSessionToken;
+
+        public String userSessionToken;
+
+        public ISpaceId roleSpace1Id;
+
+        public ISpaceId roleSpace2Id;
+
+        public IProjectId roleSpace1Project1Id;
+
+        public IProjectId roleSpace1Project2Id;
+    }
+
+    protected static interface TestWithUserRole
+    {
+        void execute(TestWithUserRoleParams params);
     }
 
 }

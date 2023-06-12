@@ -37,26 +37,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
@@ -64,7 +57,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -524,56 +516,6 @@ public class CreateSampleTest extends AbstractSampleTest
                                                     }
                                                 }, experimentId,
                 patternContains("setting relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/UNAUTHORIZED_EXPERIMENT'")));
-    }
-
-    @Test(dataProvider = USER_ROLES_PROVIDER)
-    public void testCreateWithProjectWithDifferentRoles(RoleWithHierarchy role)
-    {
-        final String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        // userId needs to end with "_pa_on" for the user's project roles to be taken into consideration (see project authorization settings in service.properties)
-        final PersonCreation personCreation = new PersonCreation();
-        personCreation.setUserId("test_user_with_role_" + role + "_pa_on");
-        v3api.createPersons(adminSessionToken, List.of(personCreation));
-
-        final SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode("TEST_SPACE_" + UUID.randomUUID());
-        SpacePermId spaceId = v3api.createSpaces(adminSessionToken, List.of(spaceCreation)).get(0);
-
-        final ProjectCreation projectCreation = new ProjectCreation();
-        projectCreation.setCode("TEST_PROJECT_" + UUID.randomUUID());
-        projectCreation.setSpaceId(new SpacePermId(spaceCreation.getCode()));
-        ProjectPermId projectId = v3api.createProjects(adminSessionToken, List.of(projectCreation)).get(0);
-
-        final RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
-        roleCreation.setUserId(new PersonPermId(personCreation.getUserId()));
-        roleCreation.setRole(Role.valueOf(role.getRoleCode().name()));
-
-        if (role.isSpaceLevel())
-        {
-            roleCreation.setSpaceId(spaceId);
-        } else if (role.isProjectLevel())
-        {
-            roleCreation.setProjectId(projectId);
-        }
-
-        v3api.createRoleAssignments(adminSessionToken, List.of(roleCreation));
-
-        final String userSessionToken = v3api.login(personCreation.getUserId(), PASSWORD);
-
-        final SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setCode("TEST_SAMPLE_" + UUID.randomUUID());
-        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        sampleCreation.setSpaceId(spaceId);
-        sampleCreation.setProjectId(projectId);
-
-        if (List.of(RoleWithHierarchy.RoleCode.OBSERVER).contains(role.getRoleCode()))
-        {
-            assertAuthorizationFailureException(() -> v3api.createSamples(userSessionToken, Collections.singletonList(sampleCreation)));
-        } else
-        {
-            v3api.createSamples(userSessionToken, Collections.singletonList(sampleCreation));
-        }
     }
 
     @Test
@@ -2078,6 +2020,100 @@ public class CreateSampleTest extends AbstractSampleTest
             assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
                     "Can not assign sample /CISD/TEST_SAMPLE to project /CISD/NEMO because project samples are not enabled.");
         }
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesInstanceSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_INSTANCE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+            if (RoleWithHierarchy.INSTANCE_ADMIN.equals(role))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertUnauthorizedObjectAccessException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)),
+                        null);
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesSpaceSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_SPACE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.roleSpace1Id);
+
+            if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertUnauthorizedObjectAccessException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)),
+                        null);
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesProjectSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_PROJECT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.roleSpace1Id);
+            sampleCreation.setProjectId(params.roleSpace1Project1Id);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertAuthorizationFailureException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesExperimentSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.roleSpace1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+            final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, List.of(experimentCreation)).get(0);
+
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_EXPERIMENT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.roleSpace1Id);
+            sampleCreation.setExperimentId(experimentId);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertAuthorizationFailureException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+            }
+        });
     }
 
     @Test
