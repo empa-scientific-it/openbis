@@ -1,2 +1,2 @@
-includeFlat 'lib-commonbase', 'lib-common', 'api-openbis-java', 'lib-openbis-common', 'lib-authentication',
+includeFlat 'lib-base', 'lib-commonbase', 'lib-common', 'api-openbis-java', 'lib-openbis-common', 'lib-authentication',
         'lib-dbmigration', 'server-application-server', 'server-original-data-store', 'api-openbis-javascript'
