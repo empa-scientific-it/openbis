@@ -501,6 +501,12 @@ task serverOriginalDataStoreJavadocZip(type: Zip, dependsOn: serverOriginalDataS
     from serverOriginalDataStoreJavadoc.destinationDir
 }
 
+task commonbaseZip(type: Zip, dependsOn: [project(':lib-commonbase').tasks.jar]) {
+    baseName 'openBIS-API-commonbase'
+    from project(':lib-commonbase').tasks.jar.archiveFile
+    into 'openBIS-API-commonbase'
+}
+
 task serverApplicationServerJavadoc(type: Javadoc) {
     source project(':server-application-server').files('source/java').getAsFileTree().matching {
         include "**/ch/systemsx/cisd/openbis/generic/server/jython/api/v1/**/*.java"
@@ -514,26 +520,27 @@ task serverApplicationServerJavadocZip(type: Zip, dependsOn: serverApplicationSe
     from serverApplicationServerJavadoc.destinationDir
 }
 
-// TODO: Add dropboxApiZip
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip,
                                            dropboxJavaDocZip, dynamicApiJavadocZip, libOpenbisCommonJavadocZip,
-                                           serverOriginalDataStoreJavadocZip, serverApplicationServerJavadocZip]) {
+                                           serverOriginalDataStoreJavadocZip, serverApplicationServerJavadocZip, dropboxApiZip, commonbaseZip]) {
     baseName 'openBIS-clients-and-APIs'
-    from dssClientZip.archivePath
-    from queryApiZip.archivePath
-    from apiV3Zip.archivePath
-    from screeningApiZip.archivePath
-    from pybisZip.archivePath
-    from obisZip.archivePath
-    from dropboxJavaDocZip.archivePath
-    from dynamicApiJavadocZip.archivePath
-    from libOpenbisCommonJavadocZip.archivePath
-    from serverOriginalDataStoreJavadocZip.archivePath
-    from serverApplicationServerJavadocZip.archivePath
+    from dssClientZip.archiveFile
+    from queryApiZip.archiveFile
+    from apiV3Zip.archiveFile
+    from dropboxApiZip.archiveFile
+    from screeningApiZip.archiveFile
+    from pybisZip.archiveFile
+    from obisZip.archiveFile
+    from dropboxJavaDocZip.archiveFile
+    from dynamicApiJavadocZip.archiveFile
+    from libOpenbisCommonJavadocZip.archiveFile
+    from serverOriginalDataStoreJavadocZip.archiveFile
+    from serverApplicationServerJavadocZip.archiveFile
+    from commonbaseZip.archiveFile
     from('dist/client/readme.txt')
     rename { filename ->
         if (filename.startsWith('pybis-')) {
-            def contentOfSetUpFile = zipTree(pybisZip.archivePath).getFiles().findAll { it.path.endsWith('src/python/setup.cfg') }.iterator().next().text
+            def contentOfSetUpFile = zipTree(pybisZip.archiveFile).getFiles().findAll { it.path.endsWith('src/python/setup.cfg') }.iterator().next().text
             def pybisVersion = (contentOfSetUpFile =~ /version.*=.*(.*)/)[0][1]
             'pybis-' + pybisVersion + '.zip'
         } else {

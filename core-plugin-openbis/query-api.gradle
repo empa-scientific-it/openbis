@@ -252,31 +252,30 @@ task apiV3JavaDocZip(type: Zip, dependsOn: apiV3JavaDoc) {
 
 task apiV3Zip(type: Zip, dependsOn: [apiV3JarBatteriesIncluded, apiV3Sources, apiV3JavaDocZip]) {
     baseName 'openBIS-API-V3'
-    from apiV3Jar.archivePath
-    from apiV3JarBatteriesIncluded.archivePath
-    from apiV3Sources.archivePath
-    from apiV3JavaDocZip.archivePath
+    from apiV3Jar.archiveFile
+    from apiV3JarBatteriesIncluded.archiveFile
+    from apiV3Sources.archiveFile
+    from apiV3JavaDocZip.archiveFile
     from configurations.apiV3Dependencies
     into 'openBIS-API-V3'
 }
 
 /////////// DROPBOX API V2 ////////////////////
 
-// TODO: Add dropboxApiJar and dropboxApiZip
-//task dropboxApiJar(type: Jar) {
-//    baseName 'openBIS-API-dropbox'
-//    includeEmptyDirs false
-//    from project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree().matching {
-//        include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.class"
-//        include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.class"
-//    }
-//}
-//
-//task dropboxApiZip(type: Zip, dependsOn: [dropboxApiJar]) {
-//    baseName 'openBIS-API-dropbox'
-//    from dropboxApiJar.archivePath
-//    into 'openBIS-API-dropbox'
-//}
+task dropboxApiJar(type: Jar) {
+    baseName 'openBIS-API-dropbox'
+    includeEmptyDirs false
+    from project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree().matching {
+        include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.class"
+        include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.class"
+    }
+}
+
+task dropboxApiZip(type: Zip, dependsOn: [dropboxApiJar]) {
+    baseName 'openBIS-API-dropbox'
+    from dropboxApiJar.archiveFile
+    into 'openBIS-API-dropbox'
+}
 
 configurations.create('dropboxApiJavadoc')
 dependencies {
