@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -65,6 +66,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.FreezingFlags;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
@@ -1313,6 +1315,36 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         assertEquals(experiment.getMetaData(),
                 Map.of("key_modify", "new_value", "key_add", "value_add"));
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testUpdateWithDifferentRoles(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+
+            final ExperimentPermId experimentId =
+                    v3api.createExperiments(params.adminSessionToken, Collections.singletonList(experimentCreation)).get(0);
+
+            final ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+            experimentUpdate.setExperimentId(experimentId);
+            experimentUpdate.setProjectId(params.space1Project2Id);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.updateExperiments(params.userSessionToken, Collections.singletonList(experimentUpdate));
+            } else
+            {
+                assertAnyAuthorizationException(
+                        () -> v3api.updateExperiments(params.userSessionToken, Collections.singletonList(experimentUpdate)));
+            }
+        });
     }
 
     @Test

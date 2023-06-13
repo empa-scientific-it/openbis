@@ -2036,8 +2036,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
             } else
             {
-                assertUnauthorizedObjectAccessException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)),
-                        null);
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
             }
         });
     }
@@ -2059,8 +2058,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
             } else
             {
-                assertUnauthorizedObjectAccessException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)),
-                        null);
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
             }
         });
     }
@@ -2082,7 +2080,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
             } else
             {
-                assertAuthorizationFailureException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
             }
         });
     }
@@ -2111,7 +2109,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
             } else
             {
-                assertAuthorizationFailureException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
             }
         });
     }

@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.annotations.Test;
 
@@ -46,12 +47,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
 
@@ -1004,8 +1007,31 @@ public class CreateExperimentTest extends AbstractExperimentTest
         fetchOptions.withSampleProperties();
         Experiment experiment2 = v3api.getExperiments(sessionToken, experimentIds, fetchOptions).get(experimentIds.get(0));
         assertEquals(experiment2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
-        assertEquals(experiment2.getTimestampArrayProperty(propertyType.getPermId()), new ZonedDateTime[]{time1, time2});
+        assertEquals(experiment2.getTimestampArrayProperty(propertyType.getPermId()), new ZonedDateTime[] { time1, time2 });
         assertEquals(experiment2.getProperties().size(), 2);
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRoles(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createExperiments(params.userSessionToken, Collections.singletonList(experimentCreation));
+            } else
+            {
+                assertAnyAuthorizationException(
+                        () -> v3api.createExperiments(params.userSessionToken, Collections.singletonList(experimentCreation)));
+            }
+        });
     }
 
 }
