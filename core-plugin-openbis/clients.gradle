@@ -1,7 +1,7 @@
 configurations.create('webStartJars')
 configurations.create('appbundler')
 dependencies {
-    webStartJars 'sis:sis-base:18.09.0',
+    webStartJars 'sis:sis-base:23.06.0',
             'cisd:cisd-args4j:9.11.2',
             'cglib:cglib-nodep:2.2',
             'jline:jline:0.9.94',

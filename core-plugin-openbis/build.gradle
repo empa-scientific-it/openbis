@@ -102,7 +102,7 @@ dependencies {
             project(path: ':server-application-server', configuration: 'archives'),
             project(path: ':server-original-data-store', configuration: 'archives'),
             project(path: ':server-screening', configuration: 'archives'),
-            'sis:sis-base:18.09.0:sources',
+            'sis:sis-base:23.06.0:sources',
             'cisd:cisd-args4j:9.11.2:sources',
             'cisd:cisd-hotdeploy:13.01.0:sources'
 
