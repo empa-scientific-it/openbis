@@ -1,4 +1,3 @@
-evaluationDependsOn(':lib-base')
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':api-openbis-java')

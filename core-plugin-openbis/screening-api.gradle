@@ -82,7 +82,7 @@ task screeningApiJavaDocZip(type: Zip, dependsOn: screeningApiJavaDoc) {
 
 configurations.create('batteries')
 dependencies {
-    batteries project(':lib-base'),
+    batteries 'sis:sis-base:23.06.0',
             'apache:httpclient:4.3.6',
             'apache:httpcore:4.3.3',
             'apache:commons-lang3:3.11',
