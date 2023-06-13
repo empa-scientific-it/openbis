@@ -54,9 +54,16 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project);
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER })
     @Capability("ASSIGN_SAMPLE_TO_PROJECT")
     public void assignSampleToProject(IAuthSession session,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
+            @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project);
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
+    @Capability("REASSIGN_SAMPLE_TO_PROJECT")
+    public void reassignSampleToProject(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project);
 

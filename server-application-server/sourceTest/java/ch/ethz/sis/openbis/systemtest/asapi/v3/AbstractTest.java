@@ -1906,10 +1906,10 @@ public class AbstractTest extends SystemTestCase
         final TestWithUserRoleParams params = new TestWithUserRoleParams();
         params.adminSessionToken = adminSessionToken;
         params.userSessionToken = userSessionToken;
-        params.roleSpace1Id = space1Id;
-        params.roleSpace2Id = space2Id;
-        params.roleSpace1Project1Id = space1Project1Id;
-        params.roleSpace1Project2Id = space1Project2Id;
+        params.space1Id = space1Id;
+        params.space2Id = space2Id;
+        params.space1Project1Id = space1Project1Id;
+        params.space1Project2Id = space1Project2Id;
 
         action.execute(params);
     }
@@ -1920,13 +1920,13 @@ public class AbstractTest extends SystemTestCase
 
         public String userSessionToken;
 
-        public ISpaceId roleSpace1Id;
+        public ISpaceId space1Id;
 
-        public ISpaceId roleSpace2Id;
+        public ISpaceId space2Id;
 
-        public IProjectId roleSpace1Project1Id;
+        public IProjectId space1Project1Id;
 
-        public IProjectId roleSpace1Project2Id;
+        public IProjectId space1Project2Id;
     }
 
     protected static interface TestWithUserRole

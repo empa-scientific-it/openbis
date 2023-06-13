@@ -879,7 +879,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         if (project != null)
         {
-            relationshipService.assignSampleToProject(session, sample, project);
+            relationshipService.reassignSampleToProject(session, sample, project);
         } else
         {
             relationshipService.unassignSampleFromProject(session, sample);

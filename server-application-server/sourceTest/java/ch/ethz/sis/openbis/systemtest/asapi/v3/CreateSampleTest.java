@@ -2050,7 +2050,7 @@ public class CreateSampleTest extends AbstractSampleTest
             final SampleCreation sampleCreation = new SampleCreation();
             sampleCreation.setCode("TEST_SPACE_SAMPLE_" + UUID.randomUUID());
             sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-            sampleCreation.setSpaceId(params.roleSpace1Id);
+            sampleCreation.setSpaceId(params.space1Id);
 
             if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
                             RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
@@ -2073,8 +2073,8 @@ public class CreateSampleTest extends AbstractSampleTest
             final SampleCreation sampleCreation = new SampleCreation();
             sampleCreation.setCode("TEST_PROJECT_SAMPLE_" + UUID.randomUUID());
             sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-            sampleCreation.setSpaceId(params.roleSpace1Id);
-            sampleCreation.setProjectId(params.roleSpace1Project1Id);
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setProjectId(params.space1Project1Id);
 
             if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
                     .contains(role.getRoleCode()))
@@ -2095,14 +2095,14 @@ public class CreateSampleTest extends AbstractSampleTest
             final ExperimentCreation experimentCreation = new ExperimentCreation();
             experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
             experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
-            experimentCreation.setProjectId(params.roleSpace1Project1Id);
+            experimentCreation.setProjectId(params.space1Project1Id);
             experimentCreation.setProperty("DESCRIPTION", "test description");
             final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, List.of(experimentCreation)).get(0);
 
             final SampleCreation sampleCreation = new SampleCreation();
             sampleCreation.setCode("TEST_EXPERIMENT_SAMPLE_" + UUID.randomUUID());
             sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-            sampleCreation.setSpaceId(params.roleSpace1Id);
+            sampleCreation.setSpaceId(params.space1Id);
             sampleCreation.setExperimentId(experimentId);
 
             if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
