@@ -262,20 +262,21 @@ task apiV3Zip(type: Zip, dependsOn: [apiV3JarBatteriesIncluded, apiV3Sources, ap
 
 /////////// DROPBOX API V2 ////////////////////
 
-task dropboxApiJar(type: Jar) {
-    baseName 'openBIS-API-dropbox'
-    includeEmptyDirs false
-    from project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree().matching {
-        include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.class"
-        include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.class"
-    }
-}
-
-task dropboxApiZip(type: Zip, dependsOn: [dropboxApiJar]) {
-    baseName 'openBIS-API-dropbox'
-    from dropboxApiJar.archivePath
-    into 'openBIS-API-dropbox'
-}
+// TODO: Add dropboxApiJar and dropboxApiZip
+//task dropboxApiJar(type: Jar) {
+//    baseName 'openBIS-API-dropbox'
+//    includeEmptyDirs false
+//    from project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree().matching {
+//        include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.class"
+//        include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.class"
+//    }
+//}
+//
+//task dropboxApiZip(type: Zip, dependsOn: [dropboxApiJar]) {
+//    baseName 'openBIS-API-dropbox'
+//    from dropboxApiJar.archivePath
+//    into 'openBIS-API-dropbox'
+//}
 
 configurations.create('dropboxApiJavadoc')
 dependencies {

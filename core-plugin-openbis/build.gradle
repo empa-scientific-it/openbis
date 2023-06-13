@@ -514,7 +514,8 @@ task serverApplicationServerJavadocZip(type: Zip, dependsOn: serverApplicationSe
     from serverApplicationServerJavadoc.destinationDir
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, dropboxApiZip, screeningApiZip, pybisZip, obisZip,
+// TODO: Add dropboxApiZip
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip,
                                            dropboxJavaDocZip, dynamicApiJavadocZip, libOpenbisCommonJavadocZip,
                                            serverOriginalDataStoreJavadocZip, serverApplicationServerJavadocZip]) {
     baseName 'openBIS-clients-and-APIs'
