@@ -1847,7 +1847,7 @@ public class AbstractTest extends SystemTestCase
 
         final PersonCreation personCreation = new PersonCreation();
         personCreation.setUserId("test_user_with_role_" + role + "_pa_on");
-        v3api.createPersons(adminSessionToken, List.of(personCreation));
+        final PersonPermId personId = v3api.createPersons(adminSessionToken, List.of(personCreation)).get(0);
 
         final SpaceCreation space1Creation = new SpaceCreation();
         space1Creation.setCode("TEST_SPACE_1_" + UUID.randomUUID());
@@ -1906,6 +1906,7 @@ public class AbstractTest extends SystemTestCase
         final TestWithUserRoleParams params = new TestWithUserRoleParams();
         params.adminSessionToken = adminSessionToken;
         params.userSessionToken = userSessionToken;
+        params.userId = personId.getPermId();
         params.space1Id = space1Id;
         params.space2Id = space2Id;
         params.space1Project1Id = space1Project1Id;
@@ -1919,6 +1920,8 @@ public class AbstractTest extends SystemTestCase
         public String adminSessionToken;
 
         public String userSessionToken;
+
+        public String userId;
 
         public ISpaceId space1Id;
 
