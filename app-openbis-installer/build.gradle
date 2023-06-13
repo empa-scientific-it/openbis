@@ -41,7 +41,7 @@ dependencies {
 
     archives 'apache:commons-io:2.6',
             'apache:log4j:1.2.15',
-            project(':lib-base'),
+            'sis:sis-base:18.09.0',
             'postgresql:postgresql:42.5.0',
             'gradle:core:7.4'
 
