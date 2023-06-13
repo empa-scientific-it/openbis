@@ -17,7 +17,6 @@ package ch.systemsx.cisd.openbis.jstest.suite.common;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.io.Posix;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
@@ -25,6 +24,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisV3JsWebappLocation;
@@ -55,7 +55,7 @@ public class JsTestCommonSelenium extends SeleniumTest
         {
             String jettyHome = new File(System.getProperty("jetty.home")).getAbsolutePath();
             new File(jettyHome + "/webapps").mkdirs();
-            Posix.createSymbolicLink(jettyHome + "/webapps/openbis/webapp",
+            Unix.createSymbolicLink(jettyHome + "/webapps/openbis/webapp",
                     jettyHome + "/webapps/webapp/webapp");
         } catch (Exception e)
         {
