@@ -13,33 +13,43 @@
 #   limitations under the License.
 #
 
+# from queue import Queue
+# from threading import Thread
+import concurrent.futures
+
 from .openbis_command import OpenbisCommand
 from ..command_result import CommandResult
 from ..utils import cd
 from ...scripts.click_util import click_echo
 
 
-def _dfs(objects, prop, func):
+def _dfs(objects, prop, func, func_specific):
     """Helper function that perform DFS search over children graph of objects"""
-    stack = [getattr(openbis_obj, prop) for openbis_obj in
-             objects]  # datasets and samples provide children in different formats
-    downloaded = {getattr(openbis_obj, prop): openbis_obj for openbis_obj in objects}
-    visited = set()
-    stack.reverse()
-    output = []
-    while stack:
-        key = stack.pop()
-        if key not in visited:
-            visited.add(key)
-            if key in downloaded:
-                obj = downloaded[key]
-            else:
-                obj = func(key)
-            output += [obj]
-            children = obj.children.copy()
-            children.reverse()
+    with concurrent.futures.ThreadPoolExecutor(
+            max_workers=5) as pool_simple, concurrent.futures.ThreadPoolExecutor(
+            max_workers=20) as pool_full:
+        stack = [getattr(openbis_obj, prop) for openbis_obj in
+                 objects]  # datasets and samples provide children in different formats
+        visited = set()
+        stack.reverse()
+        output = []
+        while stack:
+            simple_results = pool_simple.map(func, stack)
+            stack = []
+            children = []
+            full_download = []
+            for obj in simple_results:
+                key = obj.df[prop][0]
+                children += list(obj.df['children'])[0]
+                if key not in visited:
+                    visited.add(key)
+                    full_download += [key]
+            if full_download:
+                output += pool_full.map(func_specific, full_download)
             for child in children:
-                stack.append(child)
+                if child not in visited:
+                    stack += [child]
+
     return output
 
 
@@ -76,6 +86,9 @@ class Search(OpenbisCommand):
 
         return CommandResult(returncode=0, output="Search completed.")
 
+    def _get_samples_children(self, identifier):
+        return self.openbis.get_samples(identifier, attrs=["children"])
+
     def _search_samples(self):
         """Helper method to search samples"""
 
@@ -87,7 +100,9 @@ class Search(OpenbisCommand):
             results = self.openbis.get_samples(**args)
 
         if self.recursive:
+            click_echo(f"Recursive search enabled. It may take time to produce results.")
             output = _dfs(results.objects, 'identifier',
+                          self._get_samples_children,
                           self.openbis.get_sample)  # samples provide identifiers as children
             search_results = self.openbis._sample_list_for_response(props=self.props,
                                                                     response=[sample.data for sample
@@ -97,19 +112,24 @@ class Search(OpenbisCommand):
             search_results = results
         return search_results
 
+    def _get_datasets_children(self, permId):
+        return self.openbis.get_datasets(permId, attrs=["children"])
+
     def search_data_sets(self):
         if self.save_path is not None and self.fileservice_url() is None:
             return CommandResult(returncode=-1,
                                  output="Configuration fileservice_url needs to be set for download.")
 
         if self.recursive:
+            click_echo(f"Recursive search enabled. It may take time to produce results.")
             search_results = self._search_samples()  # Look for samples recursively
             o = []
             for sample in search_results.objects:  # get datasets
                 o += sample.get_datasets(
                     attrs=self.attrs, props=self.props)
             output = _dfs(o, 'permId',  # datasets provide permIds as children
-                          self.openbis.get_dataset)  # look for child datasets of sample datasets
+                          self._get_datasets_children,
+                          self.openbis.get_dataset)  # look for child datasets
             datasets = self.openbis._dataset_list_for_response(props=self.props,
                                                                response=[dataset.data for dataset
                                                                          in output],
