@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
@@ -56,6 +58,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Batch;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
@@ -2017,6 +2020,130 @@ public class CreateSampleTest extends AbstractSampleTest
             assertUserFailureException(() -> v3api.createSamples(sessionToken, Collections.singletonList(creation)),
                     "Can not assign sample /CISD/TEST_SAMPLE to project /CISD/NEMO because project samples are not enabled.");
         }
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesInstanceSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_INSTANCE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+            if (RoleWithHierarchy.INSTANCE_ADMIN.equals(role))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesSpaceSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_SPACE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+
+            if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesProjectSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_PROJECT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setProjectId(params.space1Project1Id);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesExperimentSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+            final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, List.of(experimentCreation)).get(0);
+
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_EXPERIMENT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setExperimentId(experimentId);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(sampleCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesParentChildSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation parentCreation = new SampleCreation();
+            parentCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
+            parentCreation.setCode("TEST_PARENT_SAMPLE_" + UUID.randomUUID());
+            parentCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            parentCreation.setSpaceId(params.space1Id);
+
+            final SampleCreation childCreation = new SampleCreation();
+            childCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
+            childCreation.setCode("TEST_CHILD_" + UUID.randomUUID());
+            childCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            childCreation.setSpaceId(params.space1Id);
+
+            parentCreation.setChildIds(List.of(childCreation.getCreationId()));
+            childCreation.setParentIds(List.of(parentCreation.getCreationId()));
+
+            if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, List.of(parentCreation, childCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(parentCreation)));
+            }
+        });
     }
 
     @Test

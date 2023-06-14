@@ -75,6 +75,7 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -2267,6 +2268,162 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getBooleanProperty(propertyType.getPermId()).booleanValue(), true);
         assertEquals(dataSet.getProperties().size(), 2);
         assertEquals(dataSet.getMetaData(), Map.of("key", "value"));
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesExperimentDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+            final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, List.of(experimentCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(experimentId);
+            dataSetCreation.setSampleId(null);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesInstanceSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_INSTANCE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, List.of(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (RoleWithHierarchy.INSTANCE_ADMIN.equals(role))
+            {
+                // shared samples cannot have data sets
+                assertUserFailureException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)),
+                        "shared sample");
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesSpaceSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_SPACE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, List.of(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesProjectSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_PROJECT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setProjectId(params.space1Project1Id);
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, List.of(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesExperimentSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+            final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, List.of(experimentCreation)).get(0);
+
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_EXPERIMENT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setExperimentId(experimentId);
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, List.of(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (List.of(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
     }
 
     private DataSetCreation containerDataSetCreation()

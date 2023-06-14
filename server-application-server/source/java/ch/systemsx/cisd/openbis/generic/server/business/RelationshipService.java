@@ -98,6 +98,11 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     @Override
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
+        reassignSampleToProject(session, sample, project);
+    }
+
+    @Override public void reassignSampleToProject(final IAuthSession session, final SamplePE sample, final ProjectPE project)
+    {
         if (SamplePE.projectSamplesEnabled)
         {
             Date timeStamp = getTransactionTimeStamp();

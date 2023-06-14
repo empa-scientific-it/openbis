@@ -141,6 +141,12 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
+    public void reassignSampleToProject(final IAuthSession session, final SamplePE sample, final ProjectPE project)
+    {
+
+    }
+
+    @Override
     public void unassignSampleFromProject(IAuthSession session, SamplePE sample)
     {
         // TODO Auto-generated method stub
