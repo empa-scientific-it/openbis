@@ -61,13 +61,6 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project);
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
-    @Capability("REASSIGN_SAMPLE_TO_PROJECT")
-    public void reassignSampleToProject(IAuthSession session,
-            @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
-            @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project);
-
-    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_PROJECT_TO_SPACE")
     public void assignProjectToSpace(IAuthSession session,
@@ -80,6 +73,12 @@ public interface IRelationshipService
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment);
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
+    @Capability("UNASSIGN_SAMPLE_FROM_PROJECT")
+    public void checkCanUnassignSampleFromProject(IAuthSession session,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })

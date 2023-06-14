@@ -49,6 +49,10 @@ public class RelationshipServiceStub implements IRelationshipService
     {
     }
 
+    @Override public void checkCanUnassignSampleFromProject(final IAuthSession session, final SamplePE sample)
+    {
+    }
+
     @Override
     public void checkCanUnassignSampleFromExperiment(IAuthSession session, SamplePE sample)
     {
@@ -137,12 +141,6 @@ public class RelationshipServiceStub implements IRelationshipService
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
         // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void reassignSampleToProject(final IAuthSession session, final SamplePE sample, final ProjectPE project)
-    {
 
     }
 

@@ -98,7 +98,7 @@ public class UpdateSampleProjectExecutor extends AbstractUpdateEntityToOneRelati
             relationshipService.unassignSampleFromProject(context.getSession(), entity);
         } else
         {
-            relationshipService.reassignSampleToProject(context.getSession(), entity, related);
+            relationshipService.assignSampleToProject(context.getSession(), entity, related);
         }
     }
 

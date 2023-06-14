@@ -98,15 +98,16 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
     @Override
     public void assignSampleToProject(IAuthSession session, SamplePE sample, ProjectPE project)
     {
-        reassignSampleToProject(session, sample, project);
-    }
-
-    @Override public void reassignSampleToProject(final IAuthSession session, final SamplePE sample, final ProjectPE project)
-    {
         if (SamplePE.projectSamplesEnabled)
         {
             Date timeStamp = getTransactionTimeStamp();
             ProjectPE previousProject = sample.getProject();
+
+            if (previousProject != null && !previousProject.equals(project))
+            {
+                service.checkCanUnassignSampleFromProject(session, sample);
+            }
+
             RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);
             sample.setProject(project);
             RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
@@ -155,6 +156,12 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
         RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experiment, currentProject,
                 session, timeStamp);
+    }
+
+    @Override
+    public void checkCanUnassignSampleFromProject(IAuthSession session, SamplePE sample)
+    {
+        // all the logic is done by the authorization mechanism
     }
 
     @Override
