@@ -2725,4 +2725,48 @@ public class UpdateSampleTest extends AbstractSampleTest
         });
     }
 
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testUpdateWithDifferentRolesParentChildSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation parentCreation = new SampleCreation();
+            parentCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
+            parentCreation.setCode("TEST_PARENT_SAMPLE_" + UUID.randomUUID());
+            parentCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            parentCreation.setSpaceId(params.space1Id);
+
+            final SampleCreation childCreation = new SampleCreation();
+            childCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
+            childCreation.setCode("TEST_CHILD_" + UUID.randomUUID());
+            childCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            childCreation.setSpaceId(params.space1Id);
+
+            parentCreation.setChildIds(List.of(childCreation.getCreationId()));
+            childCreation.setParentIds(List.of(parentCreation.getCreationId()));
+
+            List<SamplePermId> sampleIds = v3api.createSamples(params.adminSessionToken, List.of(parentCreation, childCreation));
+            SamplePermId parentId = sampleIds.get(0);
+            SamplePermId childId = sampleIds.get(1);
+
+            SampleUpdate parentUpdate = new SampleUpdate();
+            parentUpdate.setSampleId(parentId);
+            parentUpdate.getChildIds().remove(childId);
+
+            SampleUpdate childUpdate = new SampleUpdate();
+            childUpdate.setSampleId(childId);
+            childUpdate.getParentIds().remove(parentId);
+
+            if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.updateSamples(params.userSessionToken, List.of(parentUpdate, childUpdate));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.updateSamples(params.userSessionToken, List.of(parentUpdate, childUpdate)));
+            }
+        });
+    }
+
 }

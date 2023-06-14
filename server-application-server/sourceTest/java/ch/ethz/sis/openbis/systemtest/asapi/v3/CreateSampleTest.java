@@ -2114,6 +2114,38 @@ public class CreateSampleTest extends AbstractSampleTest
         });
     }
 
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesParentChildSample(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation parentCreation = new SampleCreation();
+            parentCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
+            parentCreation.setCode("TEST_PARENT_SAMPLE_" + UUID.randomUUID());
+            parentCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            parentCreation.setSpaceId(params.space1Id);
+
+            final SampleCreation childCreation = new SampleCreation();
+            childCreation.setCreationId(new CreationId(UUID.randomUUID().toString()));
+            childCreation.setCode("TEST_CHILD_" + UUID.randomUUID());
+            childCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            childCreation.setSpaceId(params.space1Id);
+
+            parentCreation.setChildIds(List.of(childCreation.getCreationId()));
+            childCreation.setParentIds(List.of(parentCreation.getCreationId()));
+
+            if (List.of(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && List.of(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createSamples(params.userSessionToken, List.of(parentCreation, childCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createSamples(params.userSessionToken, Collections.singletonList(parentCreation)));
+            }
+        });
+    }
+
     @Test
     public void testLogging()
     {
