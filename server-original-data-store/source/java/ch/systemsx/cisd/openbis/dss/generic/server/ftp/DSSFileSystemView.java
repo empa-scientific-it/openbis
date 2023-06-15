@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.lang.ref.Cleaner;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -115,6 +116,15 @@ public class DSSFileSystemView implements FileSystemView
     {
         this.sessionToken = sessionToken;
         this.cache = new Cache();
+        Cleaner cleaner = Cleaner.create();
+        cleaner.register(cache, new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    operationLog.info("Finish cache for session " + sessionToken + ": " + cache);
+                }
+            });
         this.service =
                 (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { IServiceForDataStoreServer.class },
                         new ServiceInvocationHandler(service));

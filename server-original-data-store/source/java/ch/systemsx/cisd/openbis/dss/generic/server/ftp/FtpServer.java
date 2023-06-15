@@ -350,14 +350,17 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             String sessionToken = ((FtpUser) user).getSessionToken();
             DSSFileSystemView fileSystemView = new DSSFileSystemView(sessionToken, openBisService, generalInfoService,
                     v3api, pathResolverRegistry);
+            operationLog.info("Get file system views set for session " + sessionToken + " (" 
+                    + fileSystemViewsBySessionToken.size() + " sessions are cached)");
             Set<DSSFileSystemView> views = fileSystemViewsBySessionToken.get(sessionToken);
             if (views == null)
             {
+                operationLog.info("Create new file system views set for session " + sessionToken);
                 views = new HashSet<>();
                 fileSystemViewsBySessionToken.put(sessionToken, views);
             }
             views.add(fileSystemView);
-            operationLog.info(views.size() + " filesystem views");
+            operationLog.info("There are " + views.size() + " file system views sets cached for session " + sessionToken);
             return fileSystemView;
         } else
         {
