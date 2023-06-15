@@ -563,7 +563,7 @@ o.get_projects(
 o.get_projects(space='MY_SPACE')
 space.get_projects()
 
-project.get_experiments()
+project.get_experiments() # see details and limitations in Section 'search for experiments'
 
 project.get_attachments()             # deprecated, as attachments are not compatible with ELN-LIMS.
                                       # Attachments are an old concept and should not be used anymore.
@@ -745,7 +745,7 @@ sample.save()
 
 sample = o.get_sample('/MY_SPACE/MY_SAMPLE_CODE')
 sample = o.get_sample('20170518112808649-52')
-samples= o.get_samples(type='UNKNOWN')    # search for samples, see below
+samples= o.get_samples(type='UNKNOWN')    # see details and limitations in Section 'search for samples / objects'
 
 # get individual attributes
 sample.space

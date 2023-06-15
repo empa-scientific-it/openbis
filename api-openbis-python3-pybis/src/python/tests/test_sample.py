@@ -278,3 +278,45 @@ def test_sample_array_properties(space):
     sample.save()
 
     assert sample.props['sample_array_integer'] == [3, 2, 1]
+
+
+def test_create_sample_type_assign_property(space):
+    name_suffix = str(time.time())
+    sc = "TEST_" + name_suffix
+    pc = "ESFA_" + name_suffix
+    ptc1 = "START_DATE_" + name_suffix
+    ptc2 = "EXP_DESCRIPTION_" + name_suffix
+    stc = "EXPERIMENTAL_STEP_MILAR_" + name_suffix
+
+    # Create the new space and project
+    sp = space.openbis.new_space(code=sc, description="Test space")
+    sp.save()
+    pr = space.openbis.new_project(code=pc, space=sc, description="ESFA experiments")
+    pr.save()
+
+    # Create the experiment
+    exp = space.openbis.new_collection(code=pc, project="/" + sc + "/" + pc, type="COLLECTION")
+    exp.save()
+
+    # Create the sample type
+    date_prop = space.openbis.new_property_type(code=ptc1, dataType="TIMESTAMP",
+                                                   label="Start date",
+                                                   description="Date of the measurement")
+    date_prop.save()
+    date_prop = space.openbis.new_property_type(code=ptc2, dataType="MULTILINE_VARCHAR",
+                                                   label="Experimental description",
+                                                   description="Experimental description")
+    date_prop.save()
+    st = space.openbis.new_sample_type(code=stc, generatedCodePrefix="EXSTEPMILAR")
+    st.save()
+
+    if st is None:
+        print(space.openbis.get_sample_types())
+        st = space.openbis.get_sample_type(stc)
+        st.save()
+
+    st.assign_property(ptc1)
+    st.assign_property(ptc2)
+    st.assign_property("$NAME")
+    st.save()
+

@@ -2382,7 +2382,10 @@ class Openbis:
             where=None,
             **properties,
     ):
-        """Returns a DataFrame of all samples for a given space/project/experiment (or any combination)
+        """Returns a DataFrame of all samples for a given space/project/experiment (or any combination).
+        The default result contains only basic attributes, i.e identifier, permId, type, registrator,
+        registrationDate, modifier, modificationDate. Additional attributes may be downloaded by specifying
+        'attrs' list.
 
         Filters
         -------
@@ -2560,7 +2563,10 @@ class Openbis:
             where=None,
             **properties,
     ):
-        """Returns a DataFrame of all samples for a given space/project (or any combination)
+        """Returns a DataFrame of all samples for a given space/project (or any combination).
+        The default result contains only basic attributes, i.e identifier, permId, type, registrator,
+        registrationDate, modifier, modificationDate. Additional attributes may be downloaded by specifying
+        'attrs' list.
 
         Filters:
         --------
@@ -2783,7 +2789,10 @@ class Openbis:
             where=None,
             **properties,
     ):
-        """Returns a DataFrame of all dataSets for a given project/experiment/sample (or any combination)
+        """Returns a DataFrame of all dataSets for a given project/experiment/sample (or any combination).
+        The default result contains only basic attributes, i.e permId, type, experiment, sample, registrationDate,
+        modificationDate, location, status, presentInArchive, size.
+        Additional attributes may be downloaded by specifying 'attrs' list.
 
         Filters
         -------
@@ -4140,7 +4149,7 @@ class Openbis:
 
     get_object_types = get_sample_types  # Alias
 
-    def get_sample_type(self, type, only_data=False, with_vocabulary=False):
+    def get_sample_type(self, type, only_data=False, with_vocabulary=False, use_cache=True):
         return self.get_entity_type(
             entity="sampleType",
             identifier=type,
@@ -4148,6 +4157,7 @@ class Openbis:
             with_vocabulary=with_vocabulary,
             method=self.get_sample_type,
             only_data=only_data,
+            use_cache=use_cache
         )
 
     get_object_type = get_sample_type  # Alias
