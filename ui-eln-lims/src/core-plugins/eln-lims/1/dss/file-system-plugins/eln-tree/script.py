@@ -121,6 +121,8 @@ class Acceptor(object):
 
 class Settings(object):
     def __init__(self, inventorySpaces, mainMenues, sampleTypeViewAttributes):
+        if len(mainMenues) == 0:
+            raise NoSuchFileException("No main menues defined because ELN Settings are yet specified.")
         self.inventorySpaces = inventorySpaces
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
