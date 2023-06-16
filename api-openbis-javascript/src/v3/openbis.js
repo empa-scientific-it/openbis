@@ -11,6 +11,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			settings.type = "POST";
 			settings.processData = false;
 			settings.dataType = "json";
+			settings.contentType = "application/json";
 
 			var returnType = settings.returnType;
 			if (returnType) {
