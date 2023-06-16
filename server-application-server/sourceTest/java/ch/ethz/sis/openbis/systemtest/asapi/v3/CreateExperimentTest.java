@@ -1011,6 +1011,36 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(experiment2.getProperties().size(), 2);
     }
 
+    @Test
+    public void testCreateWithMetaData()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypePermId propertyType = createAPropertyType(sessionToken, DataType.BOOLEAN);
+        EntityTypePermId experimentType = createAnExperimentType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        creation.setTypeId(experimentType);
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        creation.setBooleanProperty(propertyType.getPermId(), true);
+        creation.setMetaData(Map.of("key", "value"));
+
+        // When
+        List<ExperimentPermId> experimentIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+
+        // Then
+        assertEquals(experimentIds.size(), 1);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        Experiment experiment2 = v3api.getExperiments(sessionToken, experimentIds, fetchOptions).get(experimentIds.get(0));
+        assertEquals(experiment2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        assertEquals(experiment2.getBooleanProperty(propertyType.getPermId()).booleanValue(), true);
+        assertEquals(experiment2.getMetaData(), Map.of("key", "value"));
+    }
+
     @Test(dataProvider = USER_ROLES_PROVIDER)
     public void testCreateWithDifferentRoles(RoleWithHierarchy role)
     {
