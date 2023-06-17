@@ -214,8 +214,8 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
-                + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n");
+                + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:02 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1, U2);
         builder.space("A").observer(U1).non(U2);
@@ -751,8 +751,8 @@ public class UserManagerTest extends AbstractTest
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n");
+                + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:02 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U3);
         builder.usersWithoutAuthentication(U2);
@@ -765,6 +765,110 @@ public class UserManagerTest extends AbstractTest
         builder.space("G2_U2").admin(U1).non(U3);
         builder.space("G2_U3").admin(U1).admin(U3);
         builder.homeSpace(U1, "G2_U1");
+        builder.homeSpace(U2, "G2_U2");
+        builder.homeSpace(U3, "G2_U3");
+        builder.assertExpectations();
+    }
+
+    @Test
+    public void testMoveUserToAnotherGroup()
+    {
+        // Given
+        // 1. create group G1 with users U1 (admin), U2 and group G2 with user U3 (admin)
+        MockLogger logger = new MockLogger();
+        Map<Role, List<String>> commonSpaces = commonSpaces();
+        UserManager userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        List<String> globalSpaces = Arrays.asList("A", "B");
+        userManager.setGlobalSpaces(globalSpaces);
+        userManager.addGroup(new UserGroupAsBuilder("G1").admins(U1), users(U1, U2));
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U3), users(U3));
+        assertEquals(manage(userManager).getErrorReport(), "");
+        // 2. move user U2 from group G1 to group G2
+        userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        userManager.setGlobalSpaces(globalSpaces);
+        userManager.addGroup(new UserGroupAsBuilder("G1").admins(U1), users(U1));
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U3), users(U2, U3));
+
+        // When
+        UserManagerReport report = manage(userManager);
+
+        // Then
+        assertEquals(report.getErrorReport(), "");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:02 [ADD-SPACE] G2_U2\n"
+                + "1970-01-01 01:00:03 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:04 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:05 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:06 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n");
+        UserManagerExpectationsBuilder builder = createBuilder();
+        builder.groups("G1").commonSpaces(commonSpaces).users(U1);
+        builder.groups("G2").commonSpaces(commonSpaces).users(U2, U3);
+        builder.usersWithoutAuthentication();
+        builder.space("A").observer(U1, U2, U3);
+        builder.space("B").observer(U1, U2, U3);
+        builder.space("G1_ALPHA").admin(U1).non(U2, U3);
+        builder.space("G1_BETA").admin(U1).non(U2, U3);
+        builder.space("G1_GAMMA").admin(U1).non(U2, U3);
+        builder.space("G2_ALPHA").admin(U3).user(U2).non(U1);
+        builder.space("G2_BETA").admin(U3).user(U2).non(U1);
+        builder.space("G2_GAMMA").admin(U3).observer(U2).non(U1);
+        builder.homeSpace(U1, "G1_U1");
+        builder.homeSpace(U2, "G2_U2");
+        builder.homeSpace(U3, "G2_U3");
+        builder.assertExpectations();
+    }
+
+    
+    @Test
+    public void testMoveUserToAnotherGroupAndRemovePreviousGroup()
+    {
+        // Given
+        // 1. create group G1 with users U1 (admin), U2 and group G2 with user U3 (admin)
+        MockLogger logger = new MockLogger();
+        Map<Role, List<String>> commonSpaces = commonSpaces();
+        UserManager userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        List<String> globalSpaces = Arrays.asList("A", "B");
+        userManager.setGlobalSpaces(globalSpaces);
+        userManager.addGroup(new UserGroupAsBuilder("G1").admins(U1), users(U1, U2));
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U3), users(U3));
+        assertEquals(manage(userManager).getErrorReport(), "");
+        // 2. move user U2 from group G1 to group G2 and remove group G1
+        userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        userManager.setGlobalSpaces(globalSpaces);
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U3), users(U2, U3));
+
+        // When
+        UserManagerReport report = manage(userManager);
+
+        // Then
+        assertEquals(report.getErrorReport(), "");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u1\n"
+                + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1_ADMIN, user: u1\n"
+                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u1, role: SPACE_ADMIN for G1_U1\n"
+                + "1970-01-01 01:00:03 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G1, user: u2\n"
+                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G1_U2\n"
+                + "1970-01-01 01:00:05 [REMOVE-AUTHORIZATION-GROUP] G1\n"
+                + "1970-01-01 01:00:06 [REMOVE-AUTHORIZATION-GROUP] G1_ADMIN\n"
+                + "1970-01-01 01:00:07 [ADD-SPACE] G2_U2\n"
+                + "1970-01-01 01:00:08 [ASSIGN-ROLE-TO-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:09 [ASSIGN-ROLE-TO-AUTHORIZATION-GROUP] group: G2_ADMIN, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:10 [ADD-USER-TO-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:11 [ASSIGN-HOME-SPACE-FOR-USER] user: u2, home space: G2_U2\n"
+                + "1970-01-01 01:00:12 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n");
+        UserManagerExpectationsBuilder builder = createBuilder();
+        builder.groups("G1").commonSpaces(commonSpaces).users();
+        builder.groups("G2").commonSpaces(commonSpaces).users(U2, U3);
+        builder.usersWithoutAuthentication(U1);
+        builder.space("A").observer(U2, U3);
+        builder.space("B").observer(U2, U3);
+        builder.space("G1_ALPHA").non(U2, U3);
+        builder.space("G1_BETA").non(U2, U3);
+        builder.space("G1_GAMMA").non(U2, U3);
+        builder.space("G2_ALPHA").admin(U3).user(U2);
+        builder.space("G2_BETA").admin(U3).user(U2);
+        builder.space("G2_GAMMA").admin(U3).observer(U2);
+        builder.homeSpace(U1, "G1_U1");
         builder.homeSpace(U2, "G2_U2");
         builder.homeSpace(U3, "G2_U3");
         builder.assertExpectations();
@@ -794,14 +898,14 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u1\n"
                 + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u1\n"
-                + "1970-01-01 01:00:02 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n"
-                + "1970-01-01 01:00:03 [UNASSIGN-ROLE-FORM-USER] user: u1, role: SPACE_ADMIN for G2_U1\n"
-                + "1970-01-01 01:00:04 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
-                + "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:07 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:08 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
-                + "1970-01-01 01:00:09 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n");
+                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u1, role: SPACE_ADMIN for G2_U1\n"
+                + "1970-01-01 01:00:03 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:07 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u1\n"
+                + "1970-01-01 01:00:08 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
+                + "1970-01-01 01:00:09 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G2").users();
         builder.usersWithoutAuthentication(U1, U2, U3);
@@ -902,13 +1006,13 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
                 + "1970-01-01 01:00:01 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2_ADMIN, user: u2\n"
-                + "1970-01-01 01:00:02 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
-                + "1970-01-01 01:00:03 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
-                + "1970-01-01 01:00:04 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n"
-                + "1970-01-01 01:00:05 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n"
-                + "1970-01-01 01:00:06 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
-                + "1970-01-01 01:00:07 [REMOVE-AUTHORIZATION-GROUP] G2\n"
-                + "1970-01-01 01:00:08 [REMOVE-AUTHORIZATION-GROUP] G2_ADMIN\n");
+                + "1970-01-01 01:00:02 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:03 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u3\n"
+                + "1970-01-01 01:00:04 [UNASSIGN-ROLE-FORM-USER] user: u3, role: SPACE_ADMIN for G2_U3\n"
+                + "1970-01-01 01:00:05 [REMOVE-AUTHORIZATION-GROUP] G2\n"
+                + "1970-01-01 01:00:06 [REMOVE-AUTHORIZATION-GROUP] G2_ADMIN\n"
+                + "1970-01-01 01:00:07 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u2\n"
+                + "1970-01-01 01:00:08 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: ALL_GROUPS, user: u3\n");
         UserManagerExpectationsBuilder builder = createBuilder();
         builder.groups("G1").commonSpaces(commonSpaces).users(U1);
         builder.usersWithoutAuthentication(U2, U3);

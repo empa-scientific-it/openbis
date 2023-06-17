@@ -273,6 +273,7 @@ public class UserManager
                 manageGroup(sessionToken, groupCode, users, currentState, report);
             }
             updateHomeSpaces(sessionToken, currentState, report);
+            removeUsersFromGlobalGroup(sessionToken, currentState, report);
         } catch (Throwable e)
         {
             report.addErrorMessage("Error: " + e.toString());
@@ -424,6 +425,21 @@ public class UserManager
         personUpdate.setSpaceId(spacePermId);
         report.assignHomeSpace(userId, spacePermId);
         return personUpdate;
+    }
+
+    private void removeUsersFromGlobalGroup(String sessionToken, CurrentState currentState, UserManagerReport report)
+    {
+        AuthorizationGroup globalGroup = currentState.getGlobalGroup();
+        if (globalGroup != null)
+        {
+            Context context = new Context(sessionToken, service, currentState, report);
+
+            for (String userId : currentState.getUsersToBeRemovedFromGlobalGroup())
+            {
+                removePersonFromAuthorizationGroup(context, globalGroup.getCode(), userId);
+            }
+            context.executeOperations();
+        }
     }
 
     private void manageInstanceAdmins(String sessionToken, CurrentState currentState, UserManagerReport report)
@@ -814,9 +830,9 @@ public class UserManager
     private void manageUsers(Context context, String groupCode, Map<String, Principal> groupUsers)
     {
         UserGroup group = groupsByCode.get(groupCode);
-        Map<String, Person> currentUsersOfGroup = context.currentState.getCurrentUsersOfGroup(groupCode);
+        Map<String, Person> currentUsersOfGroup = context.getCurrentState().getCurrentUsersOfGroup(groupCode);
         Set<String> usersToBeRemoved = new TreeSet<>(currentUsersOfGroup.keySet());
-        AuthorizationGroup globalGroup = context.currentState.getGlobalGroup();
+        AuthorizationGroup globalGroup = context.getCurrentState().getGlobalGroup();
         String adminGroupCode = createAdminGroupCode(groupCode);
         boolean createUserSpace = group == null || group.isCreateUserSpace();
         boolean useEmailAsUserId = group != null && group.isUseEmailAsUserId();
@@ -833,6 +849,7 @@ public class UserManager
             addPersonToAuthorizationGroup(context, groupCode, userId);
             if (globalGroup != null)
             {
+                context.getCurrentState().addPersonToGlobalGroup(userId);
                 addPersonToAuthorizationGroup(context, globalGroup.getCode(), userId);
             }
             if (isAdmin(userId, groupCode))
@@ -850,10 +867,10 @@ public class UserManager
     private void handleRoleAssignmentForUserSpaces(Context context, String groupCode)
     {
         UserGroup group = groupsByCode.get(groupCode);
-        Map<String, Person> currentUsersOfGroup = context.currentState.getCurrentUsersOfGroup(groupCode);
+        Map<String, Person> currentUsersOfGroup = context.getCurrentState().getCurrentUsersOfGroup(groupCode);
         Set<String> allUserSpaces = getAllUserSpaces(context, groupCode, currentUsersOfGroup);
         Role userSpaceRole = group.getUserSpaceRole();
-        AuthorizationGroup authorizationGroup = context.currentState.groupsByCode.get(groupCode);
+        AuthorizationGroup authorizationGroup = context.getCurrentState().groupsByCode.get(groupCode);
         AuthorizationGroupPermId groupId = new AuthorizationGroupPermId(groupCode);
 
         for (String spaceCode : allUserSpaces)
@@ -880,7 +897,7 @@ public class UserManager
             }
             if (roleAssignments.isEmpty() && userSpaceRole != null)
             {
-                Space space = context.currentState.getSpace(spaceCode);
+                Space space = context.getCurrentState().getSpace(spaceCode);
                 createRoleAssignment(context, groupId, userSpaceRole, space.getPermId());
             }
         }
@@ -975,12 +992,12 @@ public class UserManager
         {
             removePersonFromAuthorizationGroup(context, groupCode, userId);
             removePersonFromAuthorizationGroup(context, adminGroupCode, userId);
-            AuthorizationGroup globalGroup = context.currentState.getGlobalGroup();
+            AuthorizationGroup globalGroup = context.getCurrentState().getGlobalGroup();
             if (globalGroup != null)
             {
-                removePersonFromAuthorizationGroup(context, globalGroup.getCode(), userId);
+                context.getCurrentState().removeUserFromGlobalGroup(userId);
             }
-            Person user = context.currentState.getUser(userId);
+            Person user = context.getCurrentState().getUser(userId);
             for (RoleAssignment roleAssignment : user.getRoleAssignments())
             {
                 Space space = roleAssignment.getSpace();
@@ -1038,7 +1055,8 @@ public class UserManager
 
     private void addPersonToAuthorizationGroup(Context context, String groupCode, String userId)
     {
-        if (context.currentState.getCurrentUsersOfGroup(groupCode).keySet().contains(userId) == false)
+        System.err.println(context.getCurrentState().getCurrentUsersOfGroup(groupCode));
+        if (context.getCurrentState().getCurrentUsersOfGroup(groupCode).keySet().contains(userId) == false)
         {
             AuthorizationGroupUpdate groupUpdate = new AuthorizationGroupUpdate();
             groupUpdate.setAuthorizationGroupId(new AuthorizationGroupPermId(groupCode));
@@ -1050,7 +1068,7 @@ public class UserManager
 
     private void removePersonFromAuthorizationGroup(Context context, String groupCode, String userId)
     {
-        if (context.currentState.getCurrentUsersOfGroup(groupCode).keySet().contains(userId))
+        if (context.getCurrentState().getCurrentUsersOfGroup(groupCode).keySet().contains(userId))
         {
             AuthorizationGroupUpdate groupUpdate = new AuthorizationGroupUpdate();
             groupUpdate.setAuthorizationGroupId(new AuthorizationGroupPermId(groupCode));
@@ -1121,6 +1139,10 @@ public class UserManager
 
         private Set<String> newUsers = new TreeSet<>();
 
+        private Set<String> usersAddedToGlobalGroup = new TreeSet<>();
+
+        private Set<String> usersRemovedFromGlobalGroup = new TreeSet<>();
+
         private AuthorizationGroup globalGroup;
 
         CurrentState(List<AuthorizationGroup> authorizationGroups, AuthorizationGroup globalGroup, List<Space> spaces, List<Person> users)
@@ -1130,6 +1152,22 @@ public class UserManager
             groupsByCode.put(GLOBAL_AUTHORIZATION_GROUP_CODE, globalGroup);
             spaces.forEach(space -> spacesByCode.put(space.getCode(), space));
             users.forEach(user -> usersById.put(user.getUserId(), user));
+        }
+
+        public void removeUserFromGlobalGroup(String userId)
+        {
+            usersRemovedFromGlobalGroup.add(userId);
+        }
+
+        public void addPersonToGlobalGroup(String userId)
+        {
+            usersAddedToGlobalGroup.add(userId);
+        }
+
+        public Set<String> getUsersToBeRemovedFromGlobalGroup()
+        {
+            usersRemovedFromGlobalGroup.removeAll(usersAddedToGlobalGroup);
+            return usersRemovedFromGlobalGroup;
         }
 
         public Map<String, Person> getCurrentUsersOfGroup(String groupCode)
