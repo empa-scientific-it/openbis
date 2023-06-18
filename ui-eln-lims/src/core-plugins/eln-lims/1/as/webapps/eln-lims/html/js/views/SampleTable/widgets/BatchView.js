@@ -62,7 +62,8 @@ function BatchView(controller, model) {
             var templateType = _this._model.allowSampleTypeSelection ? "GENERAL" : "COLLECTION";
             mainController.serverFacade.getSamplesImportTemplate(allowedSampleTypes, templateType, importMode, function(result) {
                 var mimeType = "application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                var filename = "SAMPLE-" + templateType + "-" + importMode + "-" + allowedSampleTypes.join("-") + "-template.xlsx";
+                var joinedTypes = allowedSampleTypes.length <= 2 ? "-" + allowedSampleTypes.join("-") : "";
+                var filename = "SAMPLE-" + templateType + "-" + importMode + joinedTypes + "-template.xlsx";
                 Util.download(result, mimeType, true, filename);
             });
         });
