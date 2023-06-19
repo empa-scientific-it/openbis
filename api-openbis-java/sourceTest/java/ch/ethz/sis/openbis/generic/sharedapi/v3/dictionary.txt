@@ -412,6 +412,7 @@ IExternalDmsId
 IFileFormatTypeId
 ILocatorTypeId
 IMaterialId
+IMetaDataUpdateHolder
 IModificationDateHolder
 IModifierHolder
 indent
