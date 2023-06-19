@@ -125,6 +125,7 @@ define(
 						attachmentCreation.setContent(btoa("hello world!"));
 						experimentCreation.setAttachments([ attachmentCreation ]);
 						experimentCreation.setProperty("EXPERIMENT_DESIGN", "SEQUENCE_ENRICHMENT");
+						experimentCreation.setMetaData({"meta_key":"meta_value"})
 						return facade.createExperiments([ experimentCreation ]);
 					}
 
@@ -146,6 +147,8 @@ define(
 						var properties = experiment.getProperties();
 						c.assertEqual(properties["EXPERIMENT_DESIGN"], "SEQUENCE_ENRICHMENT", "Property EXPERIMENT_DESIGN");
 						c.assertEqual(Object.keys(properties), "EXPERIMENT_DESIGN", "Properties");
+						var metaData = experiment.getMetaData();
+						c.assertEqual(metaData["meta_key"], "meta_value", "metadata meta_key");
 					}
 
 					testCreate(c, fCreate, c.findExperiment, fCheck);
@@ -222,6 +225,7 @@ define(
 						creation.setDescription("a new description");
 						creation.setValidationPluginId(new c.PluginPermId("Has_Parents"));
 						creation.setPropertyAssignments([ assignmentCreation ]);
+						creation.setMetaData({"type_key":"type_value"});
 
 						return facade.createExperimentTypes([ creation ]);
 					}
@@ -243,6 +247,9 @@ define(
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
 						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
+
+						var metaData = type.getMetaData();
+						c.assertEqual(metaData["type_key"], "type_value", "Metadata");
 					}
 
 					testCreate(c, fCreate, c.findExperimentType, fCheck);
@@ -258,6 +265,7 @@ define(
 						creation.setCode(code);
 						creation.setSpaceId(new c.SpacePermId("TEST"));
 						creation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
+						creation.setMetaData({"sample_key":"sample_value"});
 						return facade.createSamples([ creation ]);
 					}
 
@@ -266,6 +274,9 @@ define(
 						c.assertEqual(sample.getType().getCode(), "UNKNOWN", "Type code");
 						c.assertEqual(sample.getSpace().getCode(), "TEST", "Space code");
 						c.assertEqual(sample.getTags()[0].getCode(), "CREATE_JSON_TAG", "Tag code");
+
+						var metaData = sample.getMetaData();
+                        c.assertEqual(metaData["sample_key"], "sample_value", "Metadata");
 					}
 
 					testCreate(c, fCreate, c.findSample, fCheck);
@@ -398,6 +409,7 @@ define(
 						creation.setShowParentMetadata(true);
 						creation.setValidationPluginId(new c.PluginPermId("Has_Parents"));
 						creation.setPropertyAssignments([ assignmentCreation ]);
+						creation.setMetaData({"sample_type_key":"type_value"});
 
 						return facade.createSampleTypes([ creation ]);
 					}
@@ -425,6 +437,9 @@ define(
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
 						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
+
+						var metaData = type.getMetaData();
+                        c.assertEqual(metaData["sample_type_key"], "type_value", "Metadata");
 					}
 
 					testCreate(c, fCreate, c.findSampleType, fCheck);
@@ -531,6 +546,7 @@ define(
 								creation.setDataStoreId(new c.DataStorePermId("DSS1"));
 								creation.setExperimentId(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
 								creation.setProperty(propertyTypeCode, "20130412140147735-20");
+								creation.setMetaData({"dataset_key":"dataset_value"});
 								return facade.createDataSets([ creation ]);
 							});
 						});
@@ -541,6 +557,10 @@ define(
 						c.assertEqual(dataSet.getType().getCode(), dataSetTypeCode, "Type code");
 						c.assertEqual(dataSet.getProperties()[propertyTypeCode], "20130412140147735-20", "Sample property id");
 						c.assertEqual(dataSet.getSampleProperties()[propertyTypeCode].getIdentifier().getIdentifier(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-1", "Sample property");
+
+						var metaData = dataSet.getMetaData();
+						c.assertEqual(metaData["dataset_key"], "dataset_value", "Metadata");
+
 					}
 					
 					testCreate(c, fCreate, c.findDataSet, fCheck);
@@ -569,6 +589,7 @@ define(
 						creation.setDisallowDeletion(true);
 						creation.setValidationPluginId(new c.PluginPermId("Has_Parents"));
 						creation.setPropertyAssignments([ assignmentCreation ]);
+						creation.setMetaData({"dataset_type_key":"dataset_type_value"});
 
 						return facade.createDataSetTypes([ creation ]);
 					}
@@ -592,6 +613,9 @@ define(
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
 						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
+
+						var metaData = type.getMetaData();
+						c.assertEqual(metaData["dataset_type_key"], "dataset_type_value", "Metadata");
 					}
 
 					testCreate(c, fCreate, c.findDataSetType, fCheck);

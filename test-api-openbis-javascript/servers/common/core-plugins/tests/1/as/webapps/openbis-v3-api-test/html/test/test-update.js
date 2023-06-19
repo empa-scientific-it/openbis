@@ -175,6 +175,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				creation.setCode(code);
 				creation.setDescription("a new description");
 				creation.setPropertyAssignments([ assignmentCreation ]);
+				creation.setMetaData({"experiment_type_update":"old_value", "experiment_type_delete":"del_value"});
 
 				return facade.createExperimentTypes([ creation ]);
 			}
@@ -194,6 +195,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.setDescription("another new description");
 				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
 				update.getPropertyAssignments().set([ assignmentCreation ]);
+				update.getMetaData().put("experiment_type_update", "new_value");
+				update.getMetaData().add({"experiment_type_add":"add_value"});
+				update.getMetaData().remove("experiment_type_delete");
 				return facade.updateExperimentTypes([ update ]);
 			}
 
@@ -212,6 +216,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+
+				var metaData = type.getMetaData();
+				c.assertEqual(metaData["experiment_type_update"], "new_value", "Metadata update");
+				c.assertEqual(metaData["experiment_type_add"], "add_value", "Metadata add");
+				c.assertEqual(metaData["experiment_type_delete"], undefined, "Metadata delete");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findExperimentType, fCheck);
@@ -228,6 +237,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
 				experimentCreation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
 				experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+				experimentCreation.setMetaData({"experiment_update":"old_value", "experiment_delete":"del_value"});
 				return facade.createExperiments([ experimentCreation ]);
 			}
 
@@ -242,6 +252,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				attachmentCreation.setDescription("test_description");
 				attachmentCreation.setContent(btoa("hello world"));
 				experimentUpdate.getAttachments().add([ attachmentCreation ]);
+				experimentUpdate.getMetaData().put("experiment_update", "new_value");
+                experimentUpdate.getMetaData().add({"experiment_add":"add_value"});
+                experimentUpdate.getMetaData().remove("experiment_delete");
 				return facade.updateExperiments([ experimentUpdate ]);
 			}
 
@@ -260,6 +273,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(attachments[0].description, "test_description", "Attachment description");
 				c.assertEqual(atob(attachments[0].content), "hello world", "Attachment content");
 				c.assertEqual(attachments.length, 1, "Number of attachments");
+
+				var metaData = experiment.getMetaData();
+                c.assertEqual(metaData["experiment_update"], "new_value", "Metadata update");
+                c.assertEqual(metaData["experiment_add"], "add_value", "Metadata add");
+                c.assertEqual(metaData["experiment_delete"], undefined, "Metadata delete");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findExperiment, fCheck);
@@ -396,6 +414,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				creation.setDescription("a new description");
 				creation.setGeneratedCodePrefix("TEST_PREFIX");
 				creation.setPropertyAssignments([ assignmentCreation ]);
+				creation.setMetaData({"sample_type_update":"old_value", "sample_type_delete":"del_value"});
 
 				return facade.createSampleTypes([ creation ]);
 			}
@@ -423,6 +442,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
 				update.getPropertyAssignments().add([ assignmentCreation ]);
 				update.getPropertyAssignments().remove([ new c.PropertyAssignmentPermId(permId, new c.PropertyTypePermId("DESCRIPTION")) ]);
+                update.getMetaData().put("sample_type_update", "new_value");
+                update.getMetaData().add({"sample_type_add":"add_value"});
+                update.getMetaData().remove("sample_type_delete");
 				return facade.updateSampleTypes([ update ]);
 			}
 
@@ -448,6 +470,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+
+				var metaData = type.getMetaData();
+                c.assertEqual(metaData["sample_type_update"], "new_value", "Metadata update");
+                c.assertEqual(metaData["sample_type_add"], "add_value", "Metadata add");
+                c.assertEqual(metaData["sample_type_delete"], undefined, "Metadata delete");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findSampleType, fCheck);
@@ -463,6 +490,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				creation.setCode(code);
 				creation.setSpaceId(new c.SpacePermId("TEST"));
 				creation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
+				creation.setMetaData({"sample_update":"old_value", "sample_delete":"del_value"});
 				return facade.createSamples([ creation ]);
 			}
 
@@ -472,6 +500,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.getTagIds().remove(new c.TagCode("CREATE_JSON_TAG"));
 				update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_2"));
 				update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_3"));
+				update.getMetaData().put("sample_update", "new_value");
+                update.getMetaData().add({"sample_add":"add_value"});
+                update.getMetaData().remove("sample_delete");
 				return facade.updateSamples([ update ]);
 			}
 
@@ -481,6 +512,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(sample.getSpace().getCode(), "TEST", "Space code");
 				c.assertObjectsCount(sample.getTags(), 2);
 				c.assertObjectsWithValues(sample.getTags(), "code", [ "CREATE_JSON_TAG_2", "CREATE_JSON_TAG_3" ]);
+
+				var metaData = sample.getMetaData();
+                c.assertEqual(metaData["sample_update"], "new_value", "Metadata update");
+                c.assertEqual(metaData["sample_add"], "add_value", "Metadata add");
+                c.assertEqual(metaData["sample_delete"], undefined, "Metadata delete");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findSample, fCheck);
@@ -715,6 +751,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				creation.setCode(code);
 				creation.setDescription("a new description");
 				creation.setPropertyAssignments([ assignmentCreation ]);
+				creation.setMetaData({"dataset_type_update":"old_value", "dataset_type_delete":"del_value"});
 
 				return facade.createDataSetTypes([ creation ]);
 			}
@@ -737,6 +774,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.setMainDataSetPath("original/images/");
 				update.setDisallowDeletion(true);
 				update.getPropertyAssignments().set([ assignmentCreation ]);
+				update.getMetaData().put("dataset_type_update", "new_value");
+                update.getMetaData().add({"dataset_type_add":"add_value"});
+                update.getMetaData().remove("dataset_type_delete");
 				return facade.updateDataSetTypes([ update ]);
 			}
 
@@ -758,6 +798,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 				c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 				c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+
+				var metaData = type.getMetaData();
+                c.assertEqual(metaData["dataset_type_update"], "new_value", "Metadata update");
+                c.assertEqual(metaData["dataset_type_add"], "add_value", "Metadata add");
+                c.assertEqual(metaData["dataset_type_delete"], undefined, "Metadata delete");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findDataSetType, fCheck);
@@ -823,6 +868,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 						creation.setDataStoreId(new c.DataStorePermId("DSS1"));
 						creation.setExperimentId(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
 						creation.setProperty(propertyTypeCode, "20130412140147735-20");
+						creation.setMetaData({"dataset_update":"old_value", "dataset_delete":"del_value"});
 						return facade.createDataSets([ creation ]);
 					});
 				});
@@ -832,6 +878,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				var update = new c.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setProperty(propertyTypeCode, "20130412140147736-21");
+				update.getMetaData().put("dataset_update", "new_value");
+                update.getMetaData().add({"dataset_add":"add_value"});
+                update.getMetaData().remove("dataset_delete");
 				return facade.updateDataSets([ update ]);
 			}
 
@@ -841,6 +890,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(dataSet.getSampleProperties()[propertyTypeCode].getIdentifier().getIdentifier(), "/PLATONIC/SCREENING-EXAMPLES/PLATE-2", "Sample property");
 				c.assertEqual(dataSet.getHistory()[0].getPropertyName(), propertyTypeCode, "Previous sample property name");
 				c.assertEqual(dataSet.getHistory()[0].getPropertyValue(), "20130412140147735-20", "Previous sample property value");
+
+				var metaData = dataSet.getMetaData();
+                c.assertEqual(metaData["dataset_update"], "new_value", "Metadata update");
+                c.assertEqual(metaData["dataset_add"], "add_value", "Metadata add");
+                c.assertEqual(metaData["dataset_delete"], undefined, "Metadata delete");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);
