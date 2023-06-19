@@ -150,9 +150,9 @@ public abstract class AbstractDataSetPackager
         {
             long size = file.length();
             long checksum = isChecksumNeeded() ? node.getChecksumCRC32() : 0;
-            try
+            try (InputStream nodeInputStream = node.getInputStream())
             {
-                addEntry(entryPath, node.getLastModified(), size, checksum, node.getInputStream());
+                addEntry(entryPath, node.getLastModified(), size, checksum, nodeInputStream);
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
