@@ -245,7 +245,7 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             @Override
             public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
             {
-                return new UpdateRelationProgress(update, entity, "sample-metadata", objectIndex, totalObjectCount);
+                return new UpdateRelationProgress(update, entity, "sample-tag", objectIndex, totalObjectCount);
             }
 
             @SuppressWarnings("unchecked")
