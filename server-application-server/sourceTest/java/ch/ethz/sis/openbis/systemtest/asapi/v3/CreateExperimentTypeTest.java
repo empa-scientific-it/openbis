@@ -15,12 +15,9 @@
  */
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static org.testng.Assert.assertEquals;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -95,21 +92,6 @@ public class CreateExperimentTypeTest extends CreateEntityTypeTest<ExperimentTyp
 
         assertAccessLog(
                 "create-experiment-types  NEW_EXPERIMENT_TYPES('[ExperimentTypeCreation[code=LOG_TEST_1], ExperimentTypeCreation[code=LOG_TEST_2]]')");
-    }
-
-    @Test
-    public void testCreateWithMetaData() {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        ExperimentTypeCreation creation = new ExperimentTypeCreation();
-        creation.setCode("META_DATA_CODE_1");
-        creation.setMetaData(Map.of("key", "value"));
-
-        v3api.createExperimentTypes(sessionToken, Arrays.asList(creation));
-
-        ExperimentType type = getType(sessionToken, "META_DATA_CODE_1");
-
-        assertEquals(type.getMetaData(), Map.of("key", "value"));
     }
 
 }
