@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Persistence Entity representing experiment.
- * 
+ *
  * @author Izabela Adamczyk
  */
 @Entity
@@ -72,8 +72,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
-        IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects, IIdentityHolder,
-        Serializable
+        IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects,
+        IIdentityHolder,
+        Serializable, IEntityWithMetaData
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -137,8 +138,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private int version;
 
     /**
-     * If not null than this object has been originally trashed. (As oposed to the entities which were trashed as being dependent on other trashed
-     * entity)
+     * If not null than this object has been originally trashed. (As oposed to the entities which
+     * were trashed as being dependent on other trashed entity)
      */
     private Integer originalDeletion;
 
@@ -647,11 +648,14 @@ public class ExperimentPE extends AttachmentHolderPE implements
      * Non hibernate related methods to keep API compatibility inside the business logic
      */
 
-    private static List<SamplePE> getExperimentSamples(long experimentTechId) {
+    private static List<SamplePE> getExperimentSamples(long experimentTechId)
+    {
         ISampleDAO sampleDAO = CommonServiceProvider.getDAOFactory().getSampleDAO();
-        List<TechId> techIds = sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
+        List<TechId> techIds =
+                sampleDAO.listSampleIdsByExperimentIds(TechId.createList(experimentTechId));
         List<Long> techIdsAsLongs = new ArrayList<>();
-        for (TechId id : techIds) {
+        for (TechId id : techIds)
+        {
             Long idId = id.getId();
             techIdsAsLongs.add(idId);
         }
@@ -668,7 +672,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setSamples(List<SamplePE> samples)
     {
         List<SamplePE> currentSamples = getExperimentSamples(id);
-        for (SamplePE samplePE:currentSamples) {
+        for (SamplePE samplePE : currentSamples)
+        {
             samplePE.setExperimentInternal(null);
         }
         for (SamplePE sample : samples)
@@ -703,6 +708,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         setSamples(samples);
     }
 
+    @Override
     @Column(name = "meta_data")
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
@@ -710,6 +716,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return metaData;
     }
 
+    @Override
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;

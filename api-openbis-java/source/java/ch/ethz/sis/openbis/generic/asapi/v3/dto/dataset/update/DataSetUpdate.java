@@ -19,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,7 +38,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("as.dto.dataset.update.DataSetUpdate")
-public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPropertiesHolder
+public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPropertiesHolder,
+        IMetaDataUpdateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -501,6 +503,7 @@ public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPrope
         setProperty(propertyName, propertyValue);
     }
 
+    @Override
     @JsonIgnore
     public ListUpdateMapValues getMetaData()
     {

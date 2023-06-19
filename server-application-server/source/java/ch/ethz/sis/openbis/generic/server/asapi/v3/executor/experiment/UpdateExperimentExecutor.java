@@ -17,9 +17,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.metadata.IUpdateMetaDataForEntityExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -50,7 +49,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<ExperimentUpdate, ExperimentPE, IExperimentId, ExperimentPermId> implements
+public class UpdateExperimentExecutor extends
+        AbstractUpdateEntityExecutor<ExperimentUpdate, ExperimentPE, IExperimentId, ExperimentPermId>
+        implements
         IUpdateExperimentExecutor
 {
 
@@ -77,6 +78,10 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
 
     @Autowired
     private IEventExecutor eventExecutor;
+
+    @Autowired
+    private IUpdateMetaDataForEntityExecutor<ExperimentUpdate, ExperimentPE>
+            updateMetaDataForEntityExecutor;
 
     @Override
     protected IExperimentId getId(ExperimentUpdate update)
@@ -106,13 +111,14 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     }
 
     @Override
-    protected void updateBatch(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    protected void updateBatch(final IOperationContext context,
+            final MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
         updateExperimentProjectExecutor.update(context, batch);
         updateExperimentPropertyExecutor.update(context, batch);
         updateTags(context, batch);
         updateAttachments(context, batch);
-        updateMetaData(context, batch);
+        updateMetaDataForEntityExecutor.update(context, batch);
 
         PersonPE person = context.getSession().tryGetPerson();
         Date timeStamp = daoFactory.getTransactionTimestamp();
@@ -133,20 +139,24 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
             if (update.shouldBeFrozenForDataSets())
             {
                 authorizationExecutor.canFreeze(context, experiment);
-                assertionOfNoDeletedEntityExecutor.assertExperimentHasNoDeletedDataSets(experiment.getPermId());
+                assertionOfNoDeletedEntityExecutor.assertExperimentHasNoDeletedDataSets(
+                        experiment.getPermId());
                 experiment.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }
             if (update.shouldBeFrozenForSamples())
             {
                 authorizationExecutor.canFreeze(context, experiment);
-                assertionOfNoDeletedEntityExecutor.assertExperimentHasNoDeletedSamples(experiment.getPermId());
+                assertionOfNoDeletedEntityExecutor.assertExperimentHasNoDeletedSamples(
+                        experiment.getPermId());
                 experiment.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }
             if (freezingFlags.noFlags() == false)
             {
-                freezingEvents.add(new FreezingEvent(experiment.getIdentifier(), EventPE.EntityType.EXPERIMENT, freezingFlags));
+                freezingEvents.add(
+                        new FreezingEvent(experiment.getIdentifier(), EventPE.EntityType.EXPERIMENT,
+                                freezingFlags));
             }
         }
         if (freezingEvents.isEmpty() == false)
@@ -155,118 +165,64 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
         }
     }
 
-    private void updateMetaData(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    private void updateTags(final IOperationContext context,
+            final MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
         new MapBatchProcessor<ExperimentUpdate, ExperimentPE>(context, batch)
         {
             @Override
             public void process(ExperimentUpdate update, ExperimentPE entity)
             {
-                Map<String, String> metaData = new HashMap<>();
-                if(entity.getMetaData() != null) {
-                    metaData.putAll(entity.getMetaData());
-                }
-                ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
-                AtomicBoolean metaDataChanged = new AtomicBoolean(false);
-                for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
+                if (update.getTagIds() != null && update.getTagIds().hasActions())
                 {
-                    if (action instanceof ListUpdateValue.ListUpdateActionAdd<?>)
-                    {
-                        addTo(metaData, action, metaDataChanged);
-                    } else if (action instanceof ListUpdateValue.ListUpdateActionRemove<?>)
-                    {
-                        for (String key : (Collection<String>) action.getItems())
-                        {
-                            metaDataChanged.set(true);
-                            metaData.remove(key);
-                        }
-                    } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
-                    {
-                        lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
-                    }
-                }
-                if (lastSetAction != null)
-                {
-                    metaData.clear();
-                    addTo(metaData, lastSetAction, metaDataChanged);
-                }
-                if (metaDataChanged.get())
-                {
-                    entity.setMetaData(metaData.isEmpty() ? null : metaData);
+                    updateTagForEntityExecutor.update(context, entity, update.getTagIds());
                 }
             }
 
             @Override
-            public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
+            public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity,
+                    int objectIndex, int totalObjectCount)
             {
-                return new UpdateRelationProgress(update, entity, "experiment-metadata", objectIndex, totalObjectCount);
-            }
-
-            @SuppressWarnings("unchecked")
-            private void addTo(Map<String, String> metaData, ListUpdateValue.ListUpdateAction<?> lastSetAction, AtomicBoolean metaDataChanged)
-            {
-                Collection<Map<String, String>> maps = (Collection<Map<String, String>>) lastSetAction.getItems();
-                for (Map<String, String> map : maps)
-                {
-                    if (!map.isEmpty())
-                    {
-                        metaDataChanged.set(true);
-                        metaData.putAll(map);
-                    }
-                }
+                return new UpdateRelationProgress(update, entity, "experiment-tag", objectIndex,
+                        totalObjectCount);
             }
         };
     }
 
-    private void updateTags(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    private void updateAttachments(final IOperationContext context,
+            final MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
         new MapBatchProcessor<ExperimentUpdate, ExperimentPE>(context, batch)
+        {
+            @Override
+            public void process(ExperimentUpdate update, ExperimentPE entity)
             {
-                @Override
-                public void process(ExperimentUpdate update, ExperimentPE entity)
+                if (update.getAttachments() != null && update.getAttachments().hasActions())
                 {
-                    if (update.getTagIds() != null && update.getTagIds().hasActions())
-                    {
-                        updateTagForEntityExecutor.update(context, entity, update.getTagIds());
-                    }
+                    updateExperimentAttachmentExecutor.update(context, entity,
+                            update.getAttachments());
                 }
+            }
 
-                @Override
-                public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
-                {
-                    return new UpdateRelationProgress(update, entity, "experiment-tag", objectIndex, totalObjectCount);
-                }
-            };
-    }
-
-    private void updateAttachments(final IOperationContext context, final MapBatch<ExperimentUpdate, ExperimentPE> batch)
-    {
-        new MapBatchProcessor<ExperimentUpdate, ExperimentPE>(context, batch)
+            @Override
+            public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity,
+                    int objectIndex, int totalObjectCount)
             {
-                @Override
-                public void process(ExperimentUpdate update, ExperimentPE entity)
-                {
-                    if (update.getAttachments() != null && update.getAttachments().hasActions())
-                    {
-                        updateExperimentAttachmentExecutor.update(context, entity, update.getAttachments());
-                    }
-                }
-
-                @Override
-                public IProgress createProgress(ExperimentUpdate update, ExperimentPE entity, int objectIndex, int totalObjectCount)
-                {
-                    return new UpdateRelationProgress(update, entity, "experiment-attachment", objectIndex, totalObjectCount);
-                }
-            };
+                return new UpdateRelationProgress(update, entity, "experiment-attachment",
+                        objectIndex, totalObjectCount);
+            }
+        };
     }
 
     @Override
-    protected void updateAll(IOperationContext context, MapBatch<ExperimentUpdate, ExperimentPE> batch)
+    protected void updateAll(IOperationContext context,
+            MapBatch<ExperimentUpdate, ExperimentPE> batch)
     {
     }
 
     @Override
-    protected Map<IExperimentId, ExperimentPE> map(IOperationContext context, Collection<IExperimentId> ids)
+    protected Map<IExperimentId, ExperimentPE> map(IOperationContext context,
+            Collection<IExperimentId> ids)
     {
         return mapExperimentByIdExecutor.map(context, ids);
     }
@@ -280,13 +236,16 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
     @Override
     protected void save(IOperationContext context, List<ExperimentPE> entities, boolean clearCache)
     {
-        daoFactory.getExperimentDAO().createOrUpdateExperiments(entities, context.getSession().tryGetPerson(), clearCache);
+        daoFactory.getExperimentDAO()
+                .createOrUpdateExperiments(entities, context.getSession().tryGetPerson(),
+                        clearCache);
     }
 
     @Override
     protected void handleException(DataAccessException e)
     {
-        DataAccessExceptionTranslator.throwException(e, EntityKind.EXPERIMENT.getLabel(), EntityKind.EXPERIMENT);
+        DataAccessExceptionTranslator.throwException(e, EntityKind.EXPERIMENT.getLabel(),
+                EntityKind.EXPERIMENT);
     }
 
 }

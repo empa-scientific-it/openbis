@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateMapValues;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.sample.update.SampleTypeUpdate")
-public class SampleTypeUpdate implements IEntityTypeUpdate
+public class SampleTypeUpdate implements IEntityTypeUpdate, IMetaDataUpdateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -222,6 +223,7 @@ public class SampleTypeUpdate implements IEntityTypeUpdate
         propertyAssignments.setActions(actions);
     }
 
+    @Override
     @JsonIgnore
     public ListUpdateMapValues getMetaData()
     {

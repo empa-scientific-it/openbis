@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateMapValues;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("as.dto.dataset.update.DataSetTypeUpdate")
-public class DataSetTypeUpdate implements IEntityTypeUpdate
+public class DataSetTypeUpdate implements IEntityTypeUpdate, IMetaDataUpdateHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -57,7 +58,8 @@ public class DataSetTypeUpdate implements IEntityTypeUpdate
     private FieldUpdateValue<IPluginId> validationPluginId = new FieldUpdateValue<IPluginId>();
 
     @JsonProperty
-    private PropertyAssignmentListUpdateValue propertyAssignments = new PropertyAssignmentListUpdateValue();
+    private PropertyAssignmentListUpdateValue propertyAssignments =
+            new PropertyAssignmentListUpdateValue();
 
     @JsonProperty
     private ListUpdateMapValues metaData = new ListUpdateMapValues();
@@ -161,6 +163,7 @@ public class DataSetTypeUpdate implements IEntityTypeUpdate
         propertyAssignments.setActions(actions);
     }
 
+    @Override
     @JsonIgnore
     public ListUpdateMapValues getMetaData()
     {

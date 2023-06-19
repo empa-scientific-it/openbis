@@ -17,9 +17,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.metadata.IUpdateMetaDataForEntityExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -51,7 +50,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  * @author pkupczyk
  */
 @Component
-public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpdate, SamplePE, ISampleId, SamplePermId> implements
+public class UpdateSampleExecutor
+        extends AbstractUpdateEntityExecutor<SampleUpdate, SamplePE, ISampleId, SamplePermId>
+        implements
         IUpdateSampleExecutor
 {
 
@@ -90,6 +91,9 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
 
     @Autowired
     private IEventExecutor eventExecutor;
+
+    @Autowired
+    private IUpdateMetaDataForEntityExecutor<SampleUpdate, SamplePE> updateMetaDataExecutor;
 
     @Override
     protected ISampleId getId(SampleUpdate update)
@@ -142,34 +146,40 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             if (update.shouldBeFrozenForComponents())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedComponents(entity.getPermId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedComponents(
+                        entity.getPermId());
                 entity.setFrozenForComponent(true);
                 freezingFlags.freezeForComponents();
             }
             if (update.shouldBeFrozenForChildren())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedChildren(entity.getPermId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedChildren(
+                        entity.getPermId());
                 entity.setFrozenForChildren(true);
                 freezingFlags.freezeForChildren();
             }
             if (update.shouldBeFrozenForParents())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedParents(entity.getPermId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedParents(
+                        entity.getPermId());
                 entity.setFrozenForParents(true);
                 freezingFlags.freezeForParents();
             }
             if (update.shouldBeFrozenForDataSets())
             {
                 authorizationExecutor.canFreeze(context, entity);
-                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedDataSets(entity.getPermId());
+                assertionOfNoDeletedEntityExecutor.assertSampleHasNoDeletedDataSets(
+                        entity.getPermId());
                 entity.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }
             if (freezingFlags.noFlags() == false)
             {
-                freezingEvents.add(new FreezingEvent(entity.getIdentifier(), EventPE.EntityType.SAMPLE, freezingFlags));
+                freezingEvents.add(
+                        new FreezingEvent(entity.getIdentifier(), EventPE.EntityType.SAMPLE,
+                                freezingFlags));
             }
         }
         if (freezingEvents.isEmpty() == false)
@@ -181,15 +191,16 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
         updateSampleExperimentExecutor.update(context, batch);
         updateSampleProjectExecutor.update(context, batch);
         updateSamplePropertyExecutor.update(context, batch);
+        updateMetaDataExecutor.update(context, batch);
         updateTags(context, batch);
         updateAttachments(context, batch);
-        updateMetaData(context, batch);
 
         for (SamplePE entity : experimentOrProjectSamples)
         {
             if (entity.getExperiment() == null && entity.getProject() == null)
             {
-                relationshipService.assignSampleToSpace(context.getSession(), entity, entity.getSpace());
+                relationshipService.assignSampleToSpace(context.getSession(), entity,
+                        entity.getSpace());
             }
         }
 
@@ -202,69 +213,8 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
         }
     }
 
-    private void updateMetaData(final IOperationContext context, final MapBatch<SampleUpdate, SamplePE> batch) {
-        new MapBatchProcessor<SampleUpdate, SamplePE>(context, batch)
-        {
-            @Override
-            public void process(SampleUpdate update, SamplePE entity)
-            {
-                Map<String, String> metaData = new HashMap<>();
-                if(entity.getMetaData() != null) {
-                    metaData.putAll(entity.getMetaData());
-                }
-                ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
-                AtomicBoolean metaDataChanged = new AtomicBoolean(false);
-                for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
-                {
-                    if (action instanceof ListUpdateValue.ListUpdateActionAdd<?>)
-                    {
-                        addTo(metaData, action, metaDataChanged);
-                    } else if (action instanceof ListUpdateValue.ListUpdateActionRemove<?>)
-                    {
-                        for (String key : (Collection<String>) action.getItems())
-                        {
-                            metaDataChanged.set(true);
-                            metaData.remove(key);
-                        }
-                    } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
-                    {
-                        lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
-                    }
-                }
-                if (lastSetAction != null)
-                {
-                    metaData.clear();
-                    addTo(metaData, lastSetAction, metaDataChanged);
-                }
-                if (metaDataChanged.get())
-                {
-                    entity.setMetaData(metaData.isEmpty() ? null : metaData);
-                }
-            }
-
-            @Override
-            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
-            {
-                return new UpdateRelationProgress(update, entity, "sample-metadata", objectIndex, totalObjectCount);
-            }
-
-            @SuppressWarnings("unchecked")
-            private void addTo(Map<String, String> metaData, ListUpdateValue.ListUpdateAction<?> lastSetAction, AtomicBoolean metaDataChanged)
-            {
-                Collection<Map<String, String>> maps = (Collection<Map<String, String>>) lastSetAction.getItems();
-                for (Map<String, String> map : maps)
-                {
-                    if (map.isEmpty() == false)
-                    {
-                        metaDataChanged.set(true);
-                        metaData.putAll(map);
-                    }
-                }
-            }
-        };
-    }
-
-    private void updateTags(final IOperationContext context, final MapBatch<SampleUpdate, SamplePE> batch)
+    private void updateTags(final IOperationContext context,
+            final MapBatch<SampleUpdate, SamplePE> batch)
     {
         new MapBatchProcessor<SampleUpdate, SamplePE>(context, batch)
         {
@@ -278,14 +228,17 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             }
 
             @Override
-            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
+            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex,
+                    int totalObjectCount)
             {
-                return new UpdateRelationProgress(update, entity, "sample-tag", objectIndex, totalObjectCount);
+                return new UpdateRelationProgress(update, entity, "sample-tag", objectIndex,
+                        totalObjectCount);
             }
         };
     }
 
-    private void updateAttachments(final IOperationContext context, final MapBatch<SampleUpdate, SamplePE> batch)
+    private void updateAttachments(final IOperationContext context,
+            final MapBatch<SampleUpdate, SamplePE> batch)
     {
         new MapBatchProcessor<SampleUpdate, SamplePE>(context, batch)
         {
@@ -299,9 +252,11 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             }
 
             @Override
-            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex, int totalObjectCount)
+            public IProgress createProgress(SampleUpdate update, SamplePE entity, int objectIndex,
+                    int totalObjectCount)
             {
-                return new UpdateRelationProgress(update, entity, "sample-attachment", objectIndex, totalObjectCount);
+                return new UpdateRelationProgress(update, entity, "sample-attachment", objectIndex,
+                        totalObjectCount);
             }
         };
     }
@@ -327,13 +282,15 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
     @Override
     protected void save(IOperationContext context, List<SamplePE> entities, boolean clearCache)
     {
-        daoFactory.getSampleDAO().createOrUpdateSamples(entities, context.getSession().tryGetPerson(), clearCache);
+        daoFactory.getSampleDAO()
+                .createOrUpdateSamples(entities, context.getSession().tryGetPerson(), clearCache);
     }
 
     @Override
     protected void handleException(DataAccessException e)
     {
-        DataAccessExceptionTranslator.throwException(e, EntityKind.SAMPLE.getLabel(), EntityKind.SAMPLE);
+        DataAccessExceptionTranslator.throwException(e, EntityKind.SAMPLE.getLabel(),
+                EntityKind.SAMPLE);
     }
 
 }

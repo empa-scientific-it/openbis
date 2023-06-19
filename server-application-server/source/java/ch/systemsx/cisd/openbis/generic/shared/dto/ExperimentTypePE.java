@@ -39,7 +39,7 @@ import org.hibernate.annotations.TypeDefs;
 @Entity
 @Table(name = TableNames.EXPERIMENT_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 @TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
-public final class ExperimentTypePE extends EntityTypePE
+public final class ExperimentTypePE extends EntityTypePE implements IEntityWithMetaData
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -112,6 +112,7 @@ public final class ExperimentTypePE extends EntityTypePE
         return getExperimentTypePropertyTypes();
     }
 
+    @Override
     @Column(name = "meta_data")
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
@@ -119,6 +120,7 @@ public final class ExperimentTypePE extends EntityTypePE
         return metaData;
     }
 
+    @Override
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;

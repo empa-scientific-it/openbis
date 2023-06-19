@@ -63,7 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
-        IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder
+        IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder,
+        IEntityWithMetaData
 {
 
     private static final long serialVersionUID = IServer.VERSION;
@@ -1039,6 +1040,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.postRegistration = postRegistration;
     }
 
+    @Override
     @Column(name = "meta_data")
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
@@ -1046,6 +1048,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return metaData;
     }
 
+    @Override
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;

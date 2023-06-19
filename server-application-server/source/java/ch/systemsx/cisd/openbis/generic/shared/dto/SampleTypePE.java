@@ -47,14 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence Entity representing 'sample type'.
- * 
+ *
  * @author Christian Ribeaud
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.SAMPLE_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
+@Table(name = TableNames.SAMPLE_TYPES_TABLE, uniqueConstraints = {
+        @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 @TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
-public final class SampleTypePE extends EntityTypePE
+public final class SampleTypePE extends EntityTypePE implements IEntityWithMetaData
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -239,6 +240,7 @@ public final class SampleTypePE extends EntityTypePE
         return getSampleTypePropertyTypes();
     }
 
+    @Override
     @Column(name = "meta_data")
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
@@ -246,6 +248,7 @@ public final class SampleTypePE extends EntityTypePE
         return metaData;
     }
 
+    @Override
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;

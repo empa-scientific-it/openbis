@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.metadata.IUpdateMetaDataForEntityExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +27,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntity
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Franz-Josef Elmer
@@ -42,9 +38,13 @@ public class UpdateDataSetTypeExecutor
 {
     @Autowired
     private IDataSetTypeAuthorizationExecutor authorizationExecutor;
-    
+
     @Autowired
     private IUpdateDataSetTypePropertyTypesExecutor updateDataSetTypePropertyTypesExecutor;
+
+    @Autowired
+    private IUpdateMetaDataForEntityExecutor<DataSetTypeUpdate, DataSetTypePE>
+            updateMetaDataForEntityExecutor;
 
     @Override
     protected EntityKind getDAOEntityKind()
@@ -60,10 +60,13 @@ public class UpdateDataSetTypeExecutor
     @Override
     protected void updateSpecific(DataSetTypePE type, DataSetTypeUpdate update)
     {
-        type.setMainDataSetPattern(getNewValue(update.getMainDataSetPattern(), type.getMainDataSetPattern()));
-        type.setMainDataSetPath(getNewValue(update.getMainDataSetPath(), type.getMainDataSetPath()));
-        type.setDeletionDisallow(getNewValue(update.isDisallowDeletion(), type.isDeletionDisallow()));
-        updateMetaData(type, update);
+        type.setMainDataSetPattern(
+                getNewValue(update.getMainDataSetPattern(), type.getMainDataSetPattern()));
+        type.setMainDataSetPath(
+                getNewValue(update.getMainDataSetPath(), type.getMainDataSetPath()));
+        type.setDeletionDisallow(
+                getNewValue(update.isDisallowDeletion(), type.isDeletionDisallow()));
+        updateMetaDataForEntityExecutor.updateSpecific(update, type);
     }
 
     @Override
@@ -76,55 +79,6 @@ public class UpdateDataSetTypeExecutor
     protected void checkAccess(IOperationContext context, IEntityTypeId id, DataSetTypePE entity)
     {
         authorizationExecutor.canUpdate(context);
-    }
-
-    private void updateMetaData(DataSetTypePE type, DataSetTypeUpdate update)
-    {
-        Map<String, String> metaData = new HashMap<>();
-        if(type.getMetaData() != null) {
-            metaData.putAll(type.getMetaData());
-        }
-        ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
-        AtomicBoolean metaDataChanged = new AtomicBoolean(false);
-        for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
-        {
-            if (action instanceof ListUpdateValue.ListUpdateActionAdd<?>)
-            {
-                addTo(metaData, action, metaDataChanged);
-            } else if (action instanceof ListUpdateValue.ListUpdateActionRemove<?>)
-            {
-                for (String key : (Collection<String>) action.getItems())
-                {
-                    metaDataChanged.set(true);
-                    metaData.remove(key);
-                }
-            } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
-            {
-                lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
-            }
-        }
-        if (lastSetAction != null)
-        {
-            metaData.clear();
-            addTo(metaData, lastSetAction, metaDataChanged);
-        }
-        if (metaDataChanged.get())
-        {
-            type.setMetaData(metaData.isEmpty() ? null : metaData);
-        }
-    }
-
-    private void addTo(Map<String, String> metaData, ListUpdateValue.ListUpdateAction<?> lastSetAction, AtomicBoolean metaDataChanged)
-    {
-        Collection<Map<String, String>> maps = (Collection<Map<String, String>>) lastSetAction.getItems();
-        for (Map<String, String> map : maps)
-        {
-            if (!map.isEmpty())
-            {
-                metaDataChanged.set(true);
-                metaData.putAll(map);
-            }
-        }
     }
 
 }

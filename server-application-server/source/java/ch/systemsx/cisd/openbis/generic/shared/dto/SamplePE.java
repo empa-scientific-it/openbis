@@ -77,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Friend(toClasses = ProjectPE.class)
 @TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
-        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
+        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE, IEntityWithMetaData,
         IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -1104,11 +1104,13 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @Column(name = "meta_data")
     @Type(type = "JsonMap")
+    @Override
     public Map<String, String> getMetaData()
     {
         return metaData;
     }
 
+    @Override
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;

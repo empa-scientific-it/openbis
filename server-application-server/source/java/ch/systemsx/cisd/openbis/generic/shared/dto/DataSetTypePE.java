@@ -45,13 +45,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence Entity representing data set type.
- * 
+ *
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
+@Table(name = TableNames.DATA_SET_TYPES_TABLE, uniqueConstraints = {
+        @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN }) })
 @TypeDefs({ @TypeDef(name = "JsonMap", typeClass = JsonMapUserType.class) })
-public class DataSetTypePE extends EntityTypePE
+public class DataSetTypePE extends EntityTypePE implements IEntityWithMetaData
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -155,7 +156,8 @@ public class DataSetTypePE extends EntityTypePE
     }
 
     /**
-     * Returns <code>true</code> if data sets of this type require special user rights and an additional confirmation to be deleted.
+     * Returns <code>true</code> if data sets of this type require special user rights and an
+     * additional confirmation to be deleted.
      */
     @Column(name = ColumnNames.DELETION_DISALLOW)
     public boolean isDeletionDisallow()
@@ -164,13 +166,15 @@ public class DataSetTypePE extends EntityTypePE
     }
 
     /**
-     * Set to <code>true</code> if data sets of this type require special user rights and an additional confirmation to be deleted.
+     * Set to <code>true</code> if data sets of this type require special user rights and an
+     * additional confirmation to be deleted.
      */
     public void setDeletionDisallow(boolean deletionDisallow)
     {
         this.deletionDisallow = deletionDisallow;
     }
 
+    @Override
     @Column(name = "meta_data")
     @Type(type = "JsonMap")
     public Map<String, String> getMetaData()
@@ -178,10 +182,10 @@ public class DataSetTypePE extends EntityTypePE
         return metaData;
     }
 
+    @Override
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
     }
-
 
 }
