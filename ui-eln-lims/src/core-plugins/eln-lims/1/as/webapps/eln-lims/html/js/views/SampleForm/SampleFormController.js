@@ -707,7 +707,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
             if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSample) {
                 if(_this._sampleFormModel.mode === FormMode.CREATE) {
                     mainController.sideMenu.refreshCurrentNode();
-                } else if(_this._sampleFormModel.mode === FormMode.EDIT) {
+                } else if(_this._sampleFormModel.mode === FormMode.EDIT || isCopyWithNewCode) {
                     mainController.sideMenu.refreshNodeParentByPermId("SAMPLE", _this._sampleFormModel.sample.permId);
                 }
             }
