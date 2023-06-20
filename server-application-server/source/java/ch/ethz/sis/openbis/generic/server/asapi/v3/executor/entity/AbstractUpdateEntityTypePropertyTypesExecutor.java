@@ -19,14 +19,22 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleExecutor;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -83,6 +91,9 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
 
     @Autowired
     private ISearchMaterialExecutor searchMaterialExecutor;
+
+    @Autowired
+    private IApplicationServerApi applicationServerApi;
 
     protected abstract EntityKind getEntityKind();
 
@@ -250,31 +261,44 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         for (EntityTypePropertyTypePE entityTypePropertyType : etpts)
         {
             EntityTypePE entityTypePE = entityTypePropertyType.getEntityType();
-            List<Long> found = null;
+            int totalCount = 0;
+            String sessionToken = context.getSession().getSessionToken();
             if (entityTypePE instanceof SampleTypePE) {
                 SampleSearchCriteria criteria = new SampleSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchSampleExecutor.search(context, criteria);
+                SampleFetchOptions fetchOptions = new SampleFetchOptions();
+                fetchOptions.count(0);
+                SearchResult searchResult = applicationServerApi.searchSamples(sessionToken, criteria, fetchOptions);
+                totalCount = searchResult.getTotalCount();
             } else if (entityTypePE instanceof ExperimentTypePE) {
                 ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchExperimentExecutor.search(context, criteria);
+                ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+                fetchOptions.count(0);
+                SearchResult searchResult = applicationServerApi.searchExperiments(sessionToken, criteria, fetchOptions);
+                totalCount = searchResult.getTotalCount();
             } else if (entityTypePE instanceof DataSetTypePE) {
                 DataSetSearchCriteria criteria = new DataSetSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchDataSetExecutor.search(context, criteria);
+                DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+                fetchOptions.count(0);
+                SearchResult searchResult = applicationServerApi.searchDataSets(sessionToken, criteria, fetchOptions);
+                totalCount = searchResult.getTotalCount();
             } else if (entityTypePE instanceof MaterialTypePE) {
                 MaterialSearchCriteria criteria = new MaterialSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchMaterialExecutor.search(context, criteria);
+                MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+                fetchOptions.count(0);
+                SearchResult searchResult = applicationServerApi.searchMaterials(sessionToken, criteria, fetchOptions);
+                totalCount = searchResult.getTotalCount();
             } else {
                 throw new IllegalStateException("This should never happen! entityTypePE=" + entityTypePE.getClass());
             }
-            if (forceRemovingAssignments || found.isEmpty())
+            if (forceRemovingAssignments || totalCount == 0)
             {
                 new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(context.getSession(), entityTypePropertyType.getPropertyType(),
                         entityTypePropertyType);
@@ -285,7 +309,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                 throw new UserFailureException("Can not remove property type "
                         + entityTypePropertyType.getPropertyType().getCode() + " from type "
                         + entityTypePropertyType.getEntityType().getCode() + " because "
-                        + found.size() + " entites using this property. "
+                        + totalCount + " entites using this property. "
                         + "To force removal call getPropertyAssignments().setForceRemovingAssignments(true) "
                         + "on the entity update object.");
             }
