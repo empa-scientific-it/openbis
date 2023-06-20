@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public abstract class AbstractCrossOriginFilter implements Filter
 {
+
     protected static final String ORIGIN_HEADER = "Origin";
 
     protected static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER =
@@ -58,6 +59,8 @@ public abstract class AbstractCrossOriginFilter implements Filter
     protected static final String ALLOWED_ORIGINS_KEY = "TODO";
 
     private static final String ALLOW_ALL_ORIGINS = "*";
+
+    public static final String CONTENT_TYPE = "content-type";
 
     private FilterConfig filterConfig;
 
@@ -121,7 +124,7 @@ public abstract class AbstractCrossOriginFilter implements Filter
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, originHeader);
             httpResponse.setHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, String.valueOf(true));
-            httpResponse.setHeader(ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "content-type");
+            httpResponse.setHeader(ACCESS_CONTROL_ALLOW_HEADERS_HEADER, CONTENT_TYPE);
         }
 
         filterChain.doFilter(request, response);

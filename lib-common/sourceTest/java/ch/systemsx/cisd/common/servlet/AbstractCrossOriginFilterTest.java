@@ -122,7 +122,8 @@ public class AbstractCrossOriginFilterTest extends AssertJUnit
                             AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin);
                     one(response).setHeader(
                             AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, String.valueOf(true));
-
+                    one(response).setHeader(
+                            AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, AbstractCrossOriginFilter.CONTENT_TYPE);
                     one(filterChain).doFilter(request, response);
                 }
             });
