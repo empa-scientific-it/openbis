@@ -56,7 +56,7 @@
         <filter-class>ch.systemsx.cisd.common.servlet.MethodFilter</filter-class>
         <init-param>
             <param-name>allowed-methods</param-name>
-            <param-value>GET, POST</param-value>
+            <param-value>GET, POST, OPTIONS</param-value>
         </init-param>
     </filter>
     <filter-mapping>

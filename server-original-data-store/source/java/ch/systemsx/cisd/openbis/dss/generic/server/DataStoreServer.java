@@ -376,7 +376,7 @@ public class DataStoreServer
         context.addFilter(DssCrossOriginFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(InitializeRequestContextHolderFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(MethodFilter.class, "/*", EnumSet.allOf(DispatcherType.class))
-                .setInitParameter(MethodFilter.ALLOWED_METHODS_PARAMETER, "GET, POST");
+                .setInitParameter(MethodFilter.ALLOWED_METHODS_PARAMETER, "GET, POST, OPTIONS");
 
         // name service
 

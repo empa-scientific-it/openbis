@@ -61,6 +61,11 @@ public class DataStoreServerApiJsonServer extends AbstractApiJsonServiceExporter
             throws ServletException,
             IOException
     {
+        if (request.getMethod().equals("OPTIONS"))
+        {
+            return;
+        }
+
         super.handleRequest(request, response);
     }
 }
