@@ -612,6 +612,39 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
                 "Can not remove property type " + propertyType + " from type " + typeId.getPermId());
     }
 
+    @DataProvider
+    public Object[][] testRemovePropertyTypeAssignmentWithEntitiesWithSuchPropertyAndForceFlagProvider()
+    {
+        return new Object[][] { { DataType.VARCHAR, "abc" }, { DataType.INTEGER, "123" }, { DataType.DATE, "2023-06-21" },
+                { DataType.TIMESTAMP, "2023-06-21 12:07:01" } };
+    }
+
+    @Test(dataProvider = "testRemovePropertyTypeAssignmentWithEntitiesWithSuchPropertyAndForceFlagProvider")
+    public void testRemovePropertyTypeAssignmentWithEntitiesWithSuchPropertyAndForceFlag(DataType propertyDataType, String propertyValue)
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        EntityTypePermId typeId = getTypeId();
+        PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, propertyDataType);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(propertyTypeId);
+
+        UPDATE updateAddAssignment = newTypeUpdate();
+        updateAddAssignment.setTypeId(typeId);
+        updateAddAssignment.getPropertyAssignments().add(assignmentCreation);
+        updateTypes(sessionToken, List.of(updateAddAssignment));
+
+        createEntity(sessionToken, typeId, propertyTypeId.getPermId(), propertyValue);
+
+        UPDATE updateRemoveAssignment = newTypeUpdate();
+        updateRemoveAssignment.setTypeId(typeId);
+        updateRemoveAssignment.getPropertyAssignments().remove(new PropertyAssignmentPermId(typeId, propertyTypeId));
+        updateRemoveAssignment.getPropertyAssignments().setForceRemovingAssignments(true);
+        updateTypes(sessionToken, List.of(updateRemoveAssignment));
+    }
+
     @Test
     public void testAddAlreadyExistingPropertyTypeAssignment()
     {
