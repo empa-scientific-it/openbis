@@ -124,6 +124,7 @@ export default class BrowserController extends ComponentController {
             loadResult.nodes.forEach(node => {
               delete node.sortings
               delete node.sortingId
+              node.reloadable = false
               node.draggable = false
               node.rootable = false
               if (!_.isEmpty(node.children)) {
