@@ -297,7 +297,7 @@ class BrowserNodeClass extends React.PureComponent {
   renderChildren() {
     const { node, level, classes } = this.props
 
-    if (!node.canHaveChildren || !node.loaded) {
+    if (!node.canHaveChildren) {
       return null
     }
 

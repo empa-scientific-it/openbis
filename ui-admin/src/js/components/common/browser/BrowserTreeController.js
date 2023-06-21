@@ -205,8 +205,8 @@ export default class BrowserTreeController {
 
       // remove descendant nodes before reload
       Object.values(state.nodes).forEach(node => {
-        if(!this._isDescendantNodeId(nodeId, node.id)){
-            newState.nodes[node.id] = node
+        if (!this._isDescendantNodeId(nodeId, node.id)) {
+          newState.nodes[node.id] = node
         }
       })
 
@@ -538,7 +538,13 @@ export default class BrowserTreeController {
       }
 
       // flags
-      const flags = ['canHaveChildren', 'rootable', 'selectable', 'draggable']
+      const flags = [
+        'canHaveChildren',
+        'rootable',
+        'selectable',
+        'draggable',
+        'reloadable'
+      ]
 
       flags.forEach(flag => {
         if (!_.isNil(child[flag]) && !_.isBoolean(child[flag])) {
@@ -675,6 +681,7 @@ export default class BrowserTreeController {
   }
 
   _doProcessLoadedNode(state, parentNode, loadedNode) {
+    const reloadable = loadedNode.reloadable !== false
     const draggable = loadedNode.draggable !== false
     const selectable = loadedNode.selectable !== false
     const expanded = loadedNode.expanded === true
@@ -704,6 +711,7 @@ export default class BrowserTreeController {
 
     return {
       ...loadedNode,
+      reloadable: reloadable,
       draggable: draggable,
       selectable: selectable,
       selected:
@@ -937,6 +945,10 @@ export default class BrowserTreeController {
         ...node
       }
 
+      if (newNode.reloadable) {
+        newNode.loaded = false
+      }
+
       if (recursive) {
         newNode.expanded = node.expandedOnLoad
       } else {
@@ -963,29 +975,31 @@ export default class BrowserTreeController {
 
   async undoCollapseAllNodes(nodeId) {
     const state = this.getState()
+    const node = state.nodes[nodeId]
     const undoCollapseAll = state.undoCollapseAllIds[nodeId]
 
-    if (!_.isNil(undoCollapseAll)) {
+    if (!_.isNil(node) && !_.isNil(undoCollapseAll)) {
       const newState = { ...state }
       const { collapsedIds, expandedIds } = undoCollapseAll
-      const expandPromises = []
 
-      collapsedIds.forEach(collapsedId => {
-        expandPromises.push(this._doExpandNode(newState, collapsedId))
-      })
+      await this._setNodeLoading(nodeId, true)
 
-      if (!_.isEmpty(expandPromises)) {
-        await Promise.all(expandPromises)
+      collapsedIds.toSorted((id1, id2) => id1.length - id2.length)
+      for (let i = 0; i < collapsedIds.length; i++) {
+        await this._doExpandNode(newState, collapsedIds[i])
       }
 
-      expandedIds.forEach(expandedId => {
-        this._doCollapseNode(newState, expandedId)
-      })
+      expandedIds.toSorted((id1, id2) => id2.length - id1.length)
+      for (let i = 0; i < expandedIds.length; i++) {
+        this._doCollapseNode(newState, expandedIds[i])
+      }
 
       newState.undoCollapseAllIds = { ...newState.undoCollapseAllIds }
       delete newState.undoCollapseAllIds[nodeId]
 
       await this.setState(newState)
+      await this._setNodeLoading(nodeId, false)
+
       this._saveSettings()
     }
   }
