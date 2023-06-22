@@ -1055,7 +1055,6 @@ public class UserManager
 
     private void addPersonToAuthorizationGroup(Context context, String groupCode, String userId)
     {
-        System.err.println(context.getCurrentState().getCurrentUsersOfGroup(groupCode));
         if (context.getCurrentState().getCurrentUsersOfGroup(groupCode).keySet().contains(userId) == false)
         {
             AuthorizationGroupUpdate groupUpdate = new AuthorizationGroupUpdate();
