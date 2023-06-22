@@ -152,7 +152,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         List<File> onFSandNotDB = new ArrayList<File>();
         for (File file : filesOnDisk)
         {
-            String fileName = destinationFolder.toPath().relativize(file.toPath()).toString();
+            String fileName = destinationFolder.toPath().relativize(file.toPath()).toString().toLowerCase();
             presentInArchiveFS.add(fileName); // To be used in step 4
             if (multiDatasetsContainersOnDB.contains(fileName))
             {
@@ -209,7 +209,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             Collections.sort(onFSandNotDB);
             for (File notFound : onFSandNotDB)
             {
-                content += "Found in the archive but not in the database: " + notFound.getName() + "\n";
+                content += "Found in the archive but not in the database: " + destinationFolder.toPath().relativize(notFound.toPath()) + "\n";
             }
             Collections.sort(multiOnDBandNotFS);
             for (String notFound : multiOnDBandNotFS)
