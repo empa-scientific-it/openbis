@@ -16,12 +16,16 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,14 +134,25 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        File[] filesOnDisk = destinationFolder.listFiles();
-        operationLog.info("3. Verify if the " + filesOnDisk.length
+        List<File> filesOnDisk = null;
+
+        try
+        {
+            filesOnDisk = Files.find(destinationFolder.toPath(), Integer.MAX_VALUE, (path, basicFileAttributes) -> !Files.isDirectory(path))
+                    .map(Path::toFile).collect(Collectors.toList());
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Couldn't list files in folder: " + destinationFolder.getAbsolutePath(), e);
+        }
+
+        operationLog.info("3. Verify if the " + filesOnDisk.size()
                 + " files on destination are on multi dataset archiver containers or a normal archived dataset.");
+
         Set<String> presentInArchiveFS = new HashSet<String>();
         List<File> onFSandNotDB = new ArrayList<File>();
         for (File file : filesOnDisk)
         {
-            String fileName = file.getName().toLowerCase();
+            String fileName = destinationFolder.toPath().relativize(file.toPath()).toString();
             presentInArchiveFS.add(fileName); // To be used in step 4
             if (multiDatasetsContainersOnDB.contains(fileName))
             {
@@ -189,7 +204,7 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         if (onFSandNotDB.isEmpty() == false || multiOnDBandNotFS.isEmpty() == false || singleOnDBandNotFS.isEmpty() == false)
         {
             operationLog.info("5. Send email with not found files.");
-            String subject = "openBIS Data Set Archiv Orphan Finder report";
+            String subject = "openBIS Data Set Archive Orphan Finder report";
             String content = "";
             Collections.sort(onFSandNotDB);
             for (File notFound : onFSandNotDB)
