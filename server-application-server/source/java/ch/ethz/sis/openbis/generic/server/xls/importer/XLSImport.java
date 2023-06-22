@@ -91,7 +91,9 @@ public class XLSImport
 
     private final DatabaseConsistencyChecker dbChecker;
 
-    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String ignoredXLSName)
+    private final boolean shouldCheckVersionsOnDatabase;
+
+    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String xlsName)
     {
         this.sessionToken = sessionToken;
         this.api = api;
@@ -114,11 +116,15 @@ public class XLSImport
         this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options, beforeVersions);
         this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);
         this.semanticAnnotationImportHelper = new SemanticAnnotationImportHelper(this.delayedExecutor, mode, options);
+        this.shouldCheckVersionsOnDatabase = xlsName == null || xlsName.equals("DEFAULT") == false;
     }
 
     public List<IObjectId> importXLS(byte xls[])
     {
-        this.dbChecker.checkVersionsOnDataBase();
+        if (shouldCheckVersionsOnDatabase)
+        {
+            this.dbChecker.checkVersionsOnDataBase();
+        }
 
         List<List<List<String>>> lines = ExcelParser.parseExcel(xls);
         int pageNumber = 0;
