@@ -12,8 +12,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from pandas import DataFrame, Series
+import base64
+import os
+import pathlib
+
+from pandas import DataFrame
 from tabulate import tabulate
+
+from .attachment import Attachment
 from .definitions import (
     openbis_definitions,
     fetch_option,
@@ -21,21 +27,10 @@ from .definitions import (
     get_type_for_entity,
 )
 from .utils import (
-    parse_jackson,
-    check_datatype,
-    split_identifier,
     format_timestamp,
-    is_identifier,
-    is_permid,
     nvl,
     extract_person,
 )
-from .attachment import Attachment
-
-import copy
-import base64
-import os
-import pathlib
 
 
 class AttrHolder:
@@ -829,13 +824,13 @@ class AttrHolder:
                     and "identifier" in item
                     and ident["identifier"] == item["identifier"]
                 ):
-                    self.__dict__["_children"].pop(i, None)
+                    self.__dict__["_children"].pop(i)
                 elif (
                     "permId" in ident
                     and "permId" in item
                     and ident["permId"] == item["permId"]
                 ):
-                    self.__dict__["_children"].pop(i, None)
+                    self.__dict__["_children"].pop(i)
 
     @property
     def tags(self):

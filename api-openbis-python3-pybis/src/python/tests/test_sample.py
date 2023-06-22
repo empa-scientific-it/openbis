@@ -320,3 +320,28 @@ def test_create_sample_type_assign_property(space):
     st.assign_property("$NAME")
     st.save()
 
+def test_del_child_from_sample(space):
+    # Prepare
+    sample_type = "UNKNOWN"
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
+    sample_code1 = "test_sample_child_" + timestamp + "_" + str(random.randint(0, 1000))
+
+    sample_child = space.new_sample(code=sample_code1, type=sample_type)
+    sample_child.save()
+
+    sample_code2 = "test_sample_parent_" + timestamp + "_" + str(random.randint(0, 1000))
+    sample_parent = space.new_sample(code=sample_code2, type=sample_type)
+    sample_parent.children = [sample_child]
+    sample_parent.save()
+
+    assert sample_parent.children == [sample_child.identifier]
+
+    # Act & Assert
+    item = str(sample_parent.children[0])
+    sample_parent.del_children(item)
+    sample_parent.save()
+
+    assert sample_parent.children == []
+
+
+
