@@ -155,7 +155,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 BarcodeUtil.readBarcodeFromScannerOrCamera();
             },
             null,
-            "Scan barcode",
+            "Scan Barcode/QR code",
             "barcodeReaderBtn"
         )
 
