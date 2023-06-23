@@ -21,6 +21,9 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	this._imagePreviewIconLoader = new ImagePreviewIconLoader();
 	
 	this.repaintDatasets = function() {
+        if (this._dataSetViewerModel.formMode == FormMode.VIEW) {
+            this._paintDataSetTable();
+        }
 		var _this = this;
 		
 		// Container
@@ -76,7 +79,147 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		}
 		this.repaintFilesAsTree($filesContainer);
 	}
-	
+
+    this._paintDataSetTable = function() {
+        var $dataSetsSection = $("#data-sets-section");
+        var $legend = $("<legend>").append("Data Sets");
+        var $dataSetContainer = $("<div>", { 'id' : 'data-set-table' });
+        $dataSetsSection.append($legend);
+        $dataSetsSection.append($dataSetContainer);
+        $legend.prepend(FormUtil.getShowHideButton($dataSetContainer, "data-set-table"));
+
+        var _this = this;
+        var getDataList = function(callback) {
+            var data = [];
+            _this._dataSetViewerModel.v3Datasets.forEach(function(dataSet) {
+                var properties = dataSet.getProperties();
+                var name = properties[profile.propertyReplacingCode];
+                var row = {
+                    'id' : dataSet.getCode(),
+                    'name' : name ? name : "",
+                    'type' : dataSet.getType().getCode(),
+                    'properties' : properties,
+                    'parents' : dataSet.getParents().map(d => d.getCode()),
+                    'registrator' : dataSet.getRegistrator().getUserId(),
+                    'registrationDate' : Util.getFormatedDate(new Date(dataSet.getRegistrationDate())),
+                    'modifier' : dataSet.getModifier().getUserId(),
+                    'modificationDate' : Util.getFormatedDate(new Date(dataSet.getModificationDate()))
+                };
+                if (properties) {
+                    for(var propertyCode in properties) {
+                        row[propertyCode] = properties[propertyCode];
+                    }
+                }
+                data.push(row);
+            });
+            callback(data);
+        };
+        var columns = [];
+        columns.push({
+            label : 'Code',
+            property : 'id',
+            isExportable: true,
+            sortable : true,
+            filterable: true,
+            showByDefault: true,
+            render : function(data) {
+                return FormUtil.getFormLink(data.id, "DataSet", data.id);
+            },
+        });
+        columns.push({
+            label : 'Name',
+            property : '$NAME',
+            isExportable: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("$NAME"),
+            sortable : true,
+            filterable: true,
+            showByDefault: true,
+            render : function(data) {
+                return FormUtil.getFormLink(data['name'], "DataSet", data.id);
+            },
+        });
+        columns.push({
+            label : 'Data Set Type',
+            property : 'type',
+            isExportable: true,
+            sortable : true,
+            filterable: true,
+            showByDefault: true
+        });
+        var dynamicColumnsFunc = function(dataSets) {
+            var foundPropertyCodes = {};
+            dataSets.forEach(function(dataSet) {
+                for (var propertyCode in dataSet.properties) {
+                    if (dataSet.properties[propertyCode]) {
+                        foundPropertyCodes[propertyCode] = true;
+                    }
+                }
+            });
+            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+            FormUtil.sortPropertyColumns(propertyColumnsToSort, dataSets.map(function(dataSet){
+                return {
+                    entityKind: "DATASET",
+                    entityType: dataSet.type
+                }
+            }))
+            return propertyColumnsToSort;
+        };
+        var columnsLast = [];
+        columnsLast.push({
+            label : '---------------',
+            property : null,
+            filterable: false,
+            sortable : false
+        });
+        columnsLast.push({
+            label : 'Parents',
+            property : 'parents',
+            filterable : true,
+            sortable : false
+        });
+        columnsLast.push({
+            label : 'Registrator',
+            property : 'registrator',
+            exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATOR,
+            filterable : true,
+            sortable : true
+        });
+        columnsLast.push({
+            label : 'Registration Date',
+            property : 'registrationDate',
+            exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATION_DATE,
+            filterable : true,
+            sortable : true,
+            renderFilter : function(params) {
+                return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP")
+            }
+        });
+        columnsLast.push({
+            label : 'Modifier',
+            property : 'modifier',
+            exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.MODIFIER,
+            filterable : true,
+            sortable : true
+        });
+        columnsLast.push({
+            label : 'Modification Date',
+            property : 'modificationDate',
+            exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.MODIFICATION_DATE,
+            filterable : true,
+            sortable : true,
+            renderFilter : function(params) {
+                return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP")
+            }
+        });
+        var dataGrid = new DataGridController(null, columns, columnsLast, dynamicColumnsFunc, getDataList, 
+                null, false, "DATA_SETS_OF_SAMPLE", false, 
+                {
+                    fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
+                    filePrefix: 'data-sets'
+                },
+                90);
+        dataGrid.init($dataSetContainer);
+    }
+
 	this._expandAll = function() {
 		var _this = this;
 		var tree = $("#filestree").fancytree("getTree");

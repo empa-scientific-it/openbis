@@ -27,8 +27,8 @@
  * @param {Map} datasets API result with the datasets to show.
  * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
  */
-function DataSetViewerController(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding) {
-	this._datasetViewerModel = new DataSetViewerModel(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding);
+function DataSetViewerController(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding, formMode) {
+    this._datasetViewerModel = new DataSetViewerModel(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableDeepUnfolding, formMode);
 	this._datasetViewerView = new DataSetViewerView(this, this._datasetViewerModel);
 	
 	this.init = function() {
@@ -100,6 +100,9 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 						ids.push(id);
 					}
 		            var fetchOptions = new DataSetFetchOptions();
+                    fetchOptions.withType();
+                    fetchOptions.withRegistrator();
+                    fetchOptions.withModifier();
 		            fetchOptions.withPhysicalData();
 		            fetchOptions.withLinkedData().withExternalDms();
 		            fetchOptions.withProperties();

@@ -281,6 +281,9 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append(this._createSamplesSection(hideShowOptionsModel));
 		}
 
+        // Data sets section
+        $formColumn.append($("<div>", {'id':'data-sets-section'}))
+
 		//
 		// Identification Info on not Create
 		//
@@ -341,7 +344,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 // Dataset Viewer
                 var $dataSetViewerContainer = new $('<div>', { id : "dataSetViewerContainer", style: "overflow: scroll; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #ddd; " });
                 mainController.sideMenu.addSubSideMenu($dataSetViewerContainer);
-                this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._experimentFormModel.v3_experiment, mainController.serverFacade, profile.getDefaultDataStoreURL(), null, false, true);
+                this._experimentFormModel.dataSetViewer = new DataSetViewerController("dataSetViewerContainer", profile, this._experimentFormModel.v3_experiment, mainController.serverFacade, 
+                        profile.getDefaultDataStoreURL(), null, false, true, this._experimentFormModel.mode);
                 this._experimentFormModel.dataSetViewer.init();
             }
         }

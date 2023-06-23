@@ -15,7 +15,8 @@
  */
 
 function DataSetViewerModel(containerId, profile, entity, serverFacade, datastoreDownloadURL, datasets, 
-		enableUpload, enableDeepUnfolding) {
+        enableUpload, enableDeepUnfolding, formMode) {
+    this.formMode = formMode;
 	this.containerId = containerId;
 	this.containerIdTitle = containerId + "-title";
 	this.containerIdContent = containerId + "-content";
