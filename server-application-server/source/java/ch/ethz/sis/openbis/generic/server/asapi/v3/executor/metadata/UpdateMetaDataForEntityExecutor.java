@@ -68,7 +68,6 @@ public class UpdateMetaDataForEntityExecutor<ENTITY_UPDATE extends IMetaDataUpda
         {
             metaData.putAll(entity.getMetaData());
         }
-        ListUpdateValue.ListUpdateActionSet<?> lastSetAction = null;
         AtomicBoolean metaDataChanged = new AtomicBoolean(false);
         for (ListUpdateValue.ListUpdateAction<Object> action : update.getMetaData().getActions())
         {
@@ -84,13 +83,13 @@ public class UpdateMetaDataForEntityExecutor<ENTITY_UPDATE extends IMetaDataUpda
                 }
             } else if (action instanceof ListUpdateValue.ListUpdateActionSet<?>)
             {
-                lastSetAction = (ListUpdateValue.ListUpdateActionSet<?>) action;
+                metaDataChanged.set(true);
+                Collection<Map<String, String>> items = (Collection<Map<String, String>>) action.getItems();
+                for (Map<String, String> item : items)
+                {
+                    metaData = item;
+                }
             }
-        }
-        if (lastSetAction != null)
-        {
-            metaData.clear();
-            addTo(metaData, lastSetAction, metaDataChanged);
         }
         if (metaDataChanged.get())
         {

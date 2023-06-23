@@ -1317,6 +1317,41 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 Map.of("key_modify", "new_value", "key_add", "value_add"));
     }
 
+    @Test
+    public void testUpdateMetaDataSetEmpty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Prepare
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT_META_DATA");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+
+        final ExperimentPermId permId = ids.get(0);
+
+        // Act
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(permId);
+        update.getMetaData().add(Map.of());
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        // Verify
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        fetchOptions.withHistory().withAuthor();
+        Experiment experiment =
+                v3api.getExperiments(sessionToken, Arrays.asList(permId), fetchOptions).get(permId);
+
+        assertEquals(experiment.getMetaData(), Map.of());
+    }
+
     @Test(dataProvider = USER_ROLES_PROVIDER)
     public void testUpdateWithDifferentRoles(RoleWithHierarchy role)
     {

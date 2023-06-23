@@ -1348,6 +1348,37 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
     }
 
+    @Test
+    public void testUpdateMetaDataSetEmpty()
+    {
+        // Prepare
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setCode("DATA_SET_META_1");
+        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
+        dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
+        dataSetCreation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
+        dataSetCreation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+        DataSetPermId id = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
+
+        // Act
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(id);
+        update.getMetaData().add(Map.of());
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+
+        // Verify
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        fetchOptions.withHistory().withAuthor();
+        DataSet dataSet = v3api.getDataSets(sessionToken, Arrays.asList(id), fetchOptions).get(id);
+
+        assertEquals(dataSet.getMetaData(), Map.of());
+    }
+
     @Test(dataProvider = USER_ROLES_PROVIDER)
     public void testUpdateWithDifferentRolesExperimentDataSet(RoleWithHierarchy role)
     {

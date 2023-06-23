@@ -201,4 +201,25 @@ public class UpdateDataSetTypeTest extends UpdateEntityTypeTest<DataSetTypeCreat
         assertEquals(type.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
     }
 
+    @Test
+    public void testUpdateMetaDataSetEmpty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        // Prepare
+        DataSetTypeCreation creation = new DataSetTypeCreation();
+        creation.setCode("DATA_SET_META_DATA_TEST");
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+        createTypes(sessionToken, List.of(creation));
+
+        // Act
+        DataSetTypeUpdate update = new DataSetTypeUpdate();
+        update.setTypeId(new EntityTypePermId("DATA_SET_META_DATA_TEST"));
+        update.getMetaData().add(Map.of());
+        v3api.updateDataSetTypes(sessionToken, Arrays.asList(update));
+
+        // Verify
+        DataSetType type = getType(sessionToken, new EntityTypePermId("DATA_SET_META_DATA_TEST"));
+        assertEquals(type.getMetaData(), Map.of());
+    }
+
 }

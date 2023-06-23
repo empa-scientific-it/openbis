@@ -202,4 +202,28 @@ public class UpdateSampleTypeTest extends UpdateEntityTypeTest<SampleTypeCreatio
 
     }
 
+    @Test
+    public void testUpdateMetaDataSetEmpty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Prepare
+        SampleTypeCreation creation = new SampleTypeCreation();
+        creation.setCode("META_DATA_UPDATE_TEST_1");
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+        createTypes(sessionToken, List.of(creation));
+
+        // Act
+        SampleTypeUpdate update = new SampleTypeUpdate();
+        update.setTypeId(new EntityTypePermId("META_DATA_UPDATE_TEST_1"));
+        update.getMetaData().set(Map.of());
+
+        v3api.updateSampleTypes(sessionToken, Arrays.asList(update));
+
+        // Verify
+        SampleType type = getType(sessionToken, new EntityTypePermId("META_DATA_UPDATE_TEST_1"));
+
+        assertEquals(type.getMetaData(), Map.of());
+    }
+
 }

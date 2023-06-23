@@ -181,4 +181,27 @@ public class UpdateExperimentTypeTest extends UpdateEntityTypeTest<ExperimentTyp
         assertEquals(type.getMetaData(), Map.of("key_modify", "new_value", "key_add", "value_add"));
     }
 
+    @Test
+    public void testUpdateMetaDataSetEmpty()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Prepare
+        ExperimentTypeCreation creation = new ExperimentTypeCreation();
+        creation.setCode("EXPERIMENT_TYPE_META_DATA_TEST");
+        creation.setMetaData(Map.of("key_modify", "value_modify", "key_delete", "value_delete"));
+        createTypes(sessionToken, List.of(creation));
+
+        // Act
+        ExperimentTypeUpdate update = new ExperimentTypeUpdate();
+        update.setTypeId(new EntityTypePermId("EXPERIMENT_TYPE_META_DATA_TEST"));
+        update.getMetaData().add(Map.of());
+        v3api.updateExperimentTypes(sessionToken, Arrays.asList(update));
+
+        // Verify
+        ExperimentType type = getType(sessionToken, new EntityTypePermId("EXPERIMENT_TYPE_META_DATA_TEST"));
+
+        assertEquals(type.getMetaData(), Map.of());
+    }
+
 }
