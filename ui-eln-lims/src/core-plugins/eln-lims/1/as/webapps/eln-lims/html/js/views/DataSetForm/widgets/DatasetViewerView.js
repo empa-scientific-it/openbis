@@ -93,10 +93,9 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
             var data = [];
             _this._dataSetViewerModel.v3Datasets.forEach(function(dataSet) {
                 var properties = dataSet.getProperties();
-                var name = properties[profile.propertyReplacingCode];
                 var row = {
                     'id' : dataSet.getCode(),
-                    'name' : name ? name : "",
+                    'name' : _this._render(properties[profile.propertyReplacingCode]),
                     'type' : dataSet.getType().getCode(),
                     'properties' : properties,
                     'parents' : dataSet.getParents().map(d => d.getCode()),
@@ -105,6 +104,13 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                     'modifier' : dataSet.getModifier().getUserId(),
                     'modificationDate' : Util.getFormatedDate(new Date(dataSet.getModificationDate()))
                 };
+                if (dataSet.getPhysicalData()) {
+                    row.storageConfirmation = _this._render(dataSet.getPhysicalData().isStorageConfirmation());
+                    row.size = _this._render(dataSet.getPhysicalData().getSize());
+                    row.status = _this._render(dataSet.getPhysicalData().getStatus());
+                    row.presentInArchive = _this._render(dataSet.getPhysicalData().isPresentInArchive());
+                    row.archivingRequested = _this._render(dataSet.getPhysicalData().isArchivingRequested());
+                }
                 if (properties) {
                     for(var propertyCode in properties) {
                         row[propertyCode] = properties[propertyCode];
@@ -145,6 +151,84 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
             filterable: true,
             showByDefault: true
         });
+        columns.push({
+            label : 'Parents',
+            property : 'parents',
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PARENTS,
+            filterable : true,
+            sortable : false,
+            truncate: true,
+            render : function(data, grid) {
+                return _this._renderRelatedDataSets(data.parents);
+            }
+        });
+        columns.push({
+            label : "Size (bytes)",
+            property : "size",
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SIZE,
+            filterable: true,
+            sortable : true,
+            render : function(data, grid) {
+                return data.size;
+            }
+        });
+        columns.push({
+            label : "Size",
+            property : "sizeHumanReadable",
+            sortable : false,
+            render : function(data, grid) {
+                return PrintUtil.renderNumberOfBytes(data.size);
+            }
+        });
+        columns.push({
+            label : 'Archiving status',
+            property : 'status',
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.ARCHIVING_STATUS,
+            filterable: true,
+            sortable : true,
+            renderFilter : function(params) {
+                return FormUtil.renderArchivingStatusGridFilter(params);
+            },
+        });
+        columns.push({
+            label : 'Present in archive',
+            property : 'presentInArchive',
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PRESENT_IN_ARCHIVE,
+            filterable: true,
+            sortable : false,
+            renderFilter : function(params) {
+                return FormUtil.renderBooleanGridFilter(params);
+            },
+            render : function(data) {
+                return data.presentInArchive == true ? "true" : "false"
+            }
+        });
+        columns.push({
+            label : 'Archiving requested',
+            property : 'archivingRequested',
+//            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.ARCHIVING_REQUESTED,
+            filterable: true,
+            sortable : false,
+            renderFilter : function(params) {
+                return FormUtil.renderBooleanGridFilter(params);
+            },
+            render : function(data) {
+                return data.archivingRequested == true ? "true" : "false"
+            }
+        });
+        columns.push({
+            label : 'Storage confirmation',
+            property : 'storageConfirmation',
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.STORAGE_CONFIRMATION,
+            filterable: true,
+            sortable : false,
+            renderFilter : function(params) {
+                return FormUtil.renderBooleanGridFilter(params);
+            },
+            render : function(data) {
+                return data.storageConfirmation == true ? "true" : "false"
+            }
+        });
         var dynamicColumnsFunc = function(dataSets) {
             var foundPropertyCodes = {};
             dataSets.forEach(function(dataSet) {
@@ -168,12 +252,6 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
             label : '---------------',
             property : null,
             filterable: false,
-            sortable : false
-        });
-        columnsLast.push({
-            label : 'Parents',
-            property : 'parents',
-            filterable : true,
             sortable : false
         });
         columnsLast.push({
@@ -218,6 +296,23 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                 },
                 90);
         dataGrid.init($dataSetContainer);
+    }
+
+    this._render = function(value) {
+        return value ? value : "";
+    }
+
+    this._renderRelatedDataSets = function(dataSets) {
+        var $rendered = $("<span>");
+        if (dataSets) {
+            for (var idx = 0; idx < dataSets.length;idx++) {
+                if (idx != 0) {
+                    $rendered.append(", ");
+                }
+                $rendered.append(FormUtil.getFormLink(dataSets[idx], "DataSet", dataSets[idx]));
+            }
+        }
+        return $rendered;
     }
 
 	this._expandAll = function() {
