@@ -643,7 +643,7 @@ function ServerFacade(openbisServer) {
 				var entityTypePermId = new EntityTypePermId(sampleType, EntityKind.SAMPLE);
 				var sampleTypeFetchOptions = new SampleTypeFetchOptions();
                 sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
-                if (profile.showSemanticAnnotations != false) {
+                if (profile.showSemanticAnnotations == true) {
                     sampleTypeFetchOptions.withSemanticAnnotations();
                     sampleTypeFetchOptions.withPropertyAssignments().withSemanticAnnotations();
                     sampleTypeFetchOptions.withPropertyAssignments().withPropertyType().withSemanticAnnotations();

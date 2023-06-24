@@ -237,7 +237,7 @@ function SettingsManager(serverFacade) {
 
              // Miscellaneous
              var miscellaneousFields = [{name: "hideSectionsByDefault", defaultValue: true},
-                                        {name: "showSemanticAnnotations", defaultValue: true},
+                                        {name: "showSemanticAnnotations", defaultValue: false},
                                         {name: "showDatasetArchivingButton", defaultValue: false}];
              var defaultValues = [];
              for(var miscellaneousField of miscellaneousFields) {
