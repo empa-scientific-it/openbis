@@ -102,7 +102,12 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                     'registrator' : dataSet.getRegistrator().getUserId(),
                     'registrationDate' : Util.getFormatedDate(new Date(dataSet.getRegistrationDate())),
                     'modifier' : dataSet.getModifier().getUserId(),
-                    'modificationDate' : Util.getFormatedDate(new Date(dataSet.getModificationDate()))
+                    'modificationDate' : Util.getFormatedDate(new Date(dataSet.getModificationDate())),
+                    'storageConfirmation' : "",
+                    'size' : "",
+                    'status' : "",
+                    'presentInArchive' : "",
+                    'archivingRequested' : ""
                 };
                 if (dataSet.getPhysicalData()) {
                     row.storageConfirmation = _this._render(dataSet.getPhysicalData().isStorageConfirmation());
