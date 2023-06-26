@@ -1366,7 +1366,7 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         // Act
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(id);
-        update.getMetaData().add(Map.of());
+        update.getMetaData().set(Map.of());
         v3api.updateDataSets(sessionToken, Arrays.asList(update));
 
         // Verify

@@ -214,7 +214,7 @@ public class UpdateDataSetTypeTest extends UpdateEntityTypeTest<DataSetTypeCreat
         // Act
         DataSetTypeUpdate update = new DataSetTypeUpdate();
         update.setTypeId(new EntityTypePermId("DATA_SET_META_DATA_TEST"));
-        update.getMetaData().add(Map.of());
+        update.getMetaData().set(Map.of());
         v3api.updateDataSetTypes(sessionToken, Arrays.asList(update));
 
         // Verify

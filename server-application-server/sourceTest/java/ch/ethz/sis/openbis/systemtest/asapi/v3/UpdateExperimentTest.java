@@ -1337,7 +1337,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         // Act
         final ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(permId);
-        update.getMetaData().add(Map.of());
+        update.getMetaData().set(Map.of());
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 

@@ -195,7 +195,7 @@ public class UpdateExperimentTypeTest extends UpdateEntityTypeTest<ExperimentTyp
         // Act
         ExperimentTypeUpdate update = new ExperimentTypeUpdate();
         update.setTypeId(new EntityTypePermId("EXPERIMENT_TYPE_META_DATA_TEST"));
-        update.getMetaData().add(Map.of());
+        update.getMetaData().set(Map.of());
         v3api.updateExperimentTypes(sessionToken, Arrays.asList(update));
 
         // Verify
