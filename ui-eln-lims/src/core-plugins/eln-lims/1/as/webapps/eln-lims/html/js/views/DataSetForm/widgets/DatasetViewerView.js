@@ -102,19 +102,14 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                     'registrator' : dataSet.getRegistrator().getUserId(),
                     'registrationDate' : Util.getFormatedDate(new Date(dataSet.getRegistrationDate())),
                     'modifier' : dataSet.getModifier().getUserId(),
-                    'modificationDate' : Util.getFormatedDate(new Date(dataSet.getModificationDate())),
-                    'storageConfirmation' : "",
-                    'size' : "",
-                    'status' : "",
-                    'presentInArchive' : "",
-                    'archivingRequested' : ""
+                    'modificationDate' : Util.getFormatedDate(new Date(dataSet.getModificationDate()))
                 };
                 if (dataSet.getPhysicalData()) {
-                    row.storageConfirmation = _this._render(dataSet.getPhysicalData().isStorageConfirmation());
-                    row.size = _this._render(dataSet.getPhysicalData().getSize());
-                    row.status = _this._render(dataSet.getPhysicalData().getStatus());
-                    row.presentInArchive = _this._render(dataSet.getPhysicalData().isPresentInArchive());
-                    row.archivingRequested = _this._render(dataSet.getPhysicalData().isArchivingRequested());
+                    row.storageConfirmation = dataSet.getPhysicalData().isStorageConfirmation();
+                    row.size = dataSet.getPhysicalData().getSize();
+                    row.status = dataSet.getPhysicalData().getStatus();
+                    row.presentInArchive = dataSet.getPhysicalData().isPresentInArchive();
+                    row.archivingRequested = dataSet.getPhysicalData().isArchivingRequested();
                 }
                 if (properties) {
                     for(var propertyCode in properties) {
@@ -174,7 +169,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
             filterable: true,
             sortable : true,
             render : function(data, grid) {
-                return data.size;
+                return data.size ? data.size : "";
             }
         });
         columns.push({
@@ -182,7 +177,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
             property : "sizeHumanReadable",
             sortable : false,
             render : function(data, grid) {
-                return PrintUtil.renderNumberOfBytes(data.size);
+                return data.size ? PrintUtil.renderNumberOfBytes(data.size) : "";
             }
         });
         columns.push({
@@ -205,7 +200,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                 return FormUtil.renderBooleanGridFilter(params);
             },
             render : function(data) {
-                return data.presentInArchive == true ? "true" : "false"
+                return _this._render(data.presentInArchive);
             }
         });
         columns.push({
@@ -218,7 +213,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                 return FormUtil.renderBooleanGridFilter(params);
             },
             render : function(data) {
-                return data.archivingRequested == true ? "true" : "false"
+                return _this._render(data.archivingRequested);
             }
         });
         columns.push({
@@ -231,7 +226,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                 return FormUtil.renderBooleanGridFilter(params);
             },
             render : function(data) {
-                return data.storageConfirmation == true ? "true" : "false"
+                return _this._render(data.storageConfirmation);
             }
         });
         var dynamicColumnsFunc = function(dataSets) {
@@ -293,8 +288,8 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
                 return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP")
             }
         });
-        var dataGrid = new DataGridController(null, columns, columnsLast, dynamicColumnsFunc, getDataList, 
-                null, false, "DATA_SETS_OF_SAMPLE", false, 
+        var dataGrid = new DataGridController(null, columns, columnsLast, dynamicColumnsFunc, getDataList,
+                null, false, "DATA_SETS_OF_SAMPLE", false,
                 {
                     fileFormat: DataGridExportOptions.FILE_FORMAT.TSV,
                     filePrefix: 'data-sets'
@@ -304,7 +299,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
     }
 
     this._render = function(value) {
-        return value ? value : "";
+        return value == null ? "" : (value == false ? "false" : value);
     }
 
     this._renderRelatedDataSets = function(dataSets) {
