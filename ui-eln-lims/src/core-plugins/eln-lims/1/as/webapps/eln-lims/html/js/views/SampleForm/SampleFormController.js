@@ -513,7 +513,16 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 if (object.setSampleId) {
                     object.setSampleId(new SampleIdentifier(sampleIdentifier + "/" + parameters["sampleCode"]));
                 }
-                object.setProperties(parameters["sampleProperties"]);
+                var sampleProperties = parameters["sampleProperties"];
+                var properties = {};
+                Object.keys(sampleProperties).forEach(function(key) {
+                    var sampleProperty = sampleProperties[key];
+                    if (sampleProperty == "") {
+                        sampleProperty = null;
+                    }
+                    properties[key] = sampleProperty;
+                });
+                object.setProperties(properties);
             }
             var createRelatedSampleCreation = function(definition) {
                 var creation = new SampleCreation();
