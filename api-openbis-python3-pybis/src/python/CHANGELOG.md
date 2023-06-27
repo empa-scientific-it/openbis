@@ -4,7 +4,7 @@
 - Fixed property assignment to a newly created sample type.
 - Updated docs.
 - Fixed sample.del_children() method.
-- Fixed metaData attributed assignment case.
+- Fixed metaData attribute assignment case.
 
 ## Changes with pybis-1.35.5
 
