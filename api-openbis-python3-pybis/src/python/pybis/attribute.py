@@ -249,6 +249,9 @@ class AttrHolder:
                     # metaData needs to be set to {} in order to remove it.
                     items = ["custom_widget"]
                     data_type = "as.dto.common.update.ListUpdateActionRemove"
+                else:
+                    items = [{}]
+                    data_type = "as.dto.common.update.ListUpdateActionSet"
                 up_obj[attr] = {
                     "actions": [{"items": items, "@type": data_type}],
                     "@type": "as.dto.common.update.ListUpdateMapValues",
