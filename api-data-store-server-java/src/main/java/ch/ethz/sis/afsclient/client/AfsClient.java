@@ -1,5 +1,6 @@
 package ch.ethz.sis.afsclient.client;
 
+import ch.ethz.sis.afsapi.api.ClientAPI;
 import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsapi.dto.ApiResponse;
 import ch.ethz.sis.afsapi.dto.File;
@@ -14,12 +15,16 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
-public final class AfsClient implements PublicAPI
+public final class AfsClient implements PublicAPI, ClientAPI
 {
 
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
@@ -219,6 +224,47 @@ public final class AfsClient implements PublicAPI
     {
         validateSessionToken();
         return request("POST", "recover", List.class, Map.of());
+    }
+
+
+    public String getName(String path) {
+        int indexOf = path.lastIndexOf('/');
+        if(indexOf == -1) {
+            return path;
+        } else {
+            return path.substring(indexOf + 1);
+        }
+    }
+
+    @Override
+    public void resumeRead(@NonNull String owner, @NonNull String source, @NonNull Path destination,
+            @NonNull Long offset) throws Exception
+    {
+        AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.WRITE);
+        List<File> infos = list(owner, source, false);
+        if(infos.isEmpty()) {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+        }
+        File file = null;
+        for(File info:infos) {
+            if(info.getName().equals(getName(source))) {
+                file = info;
+                break;
+            }
+        }
+        while(offset < file.getSize()) {
+            byte[] read = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
+            fileChannel.write(ByteBuffer.wrap(read), offset);
+            offset += read.length;
+        }
+        fileChannel.close();
+    }
+
+    @Override
+    public @NonNull Boolean resumeWrite(@NonNull String owner, @NonNull String destination,
+            @NonNull Path source, @NonNull Long offset) throws Exception
+    {
+        return null;
     }
 
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
