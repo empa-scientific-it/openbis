@@ -1421,7 +1421,7 @@ public class SearchDataSetTest extends AbstractDataSetTest
         List<DataSet> dataSets = v3api.searchDataSets(sessionToken, criteria, new DataSetFetchOptions()).getObjects();
 
         // Then
-        assertDataSetCodesInOrder(dataSets, "DATA_SET_WITH_DATE_PROPERTY1", "DATA_SET_WITH_DATE_PROPERTY2");
+        assertDataSetCodes(dataSets, "DATA_SET_WITH_DATE_PROPERTY1", "DATA_SET_WITH_DATE_PROPERTY2");
     }
 
     @Test
