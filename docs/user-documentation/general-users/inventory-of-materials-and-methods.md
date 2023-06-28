@@ -214,12 +214,12 @@ process. **
 
 If you want to register a few *Objects* and at the same time establish a
 parent-child relationship between some of them, you can do so by using
-the **\$** and **Parents** columns. In the example below we want to
+the **\\$** and **Parents** columns. In the example below we want to
 register 2 *Objects*, antibody 1 and antibody 2. We want to assign
-antibody 1 as parent of antibody 2. In the **\$ column** corresponding to
-antibody 1 we need to enter numbers or letters proceeded by the \$ symbol
-(i.e. \$1, or \$parent1). In the **Parents** column of antibody 2, we need
-to use the same value used in the **\$ column** for antibody 1.
+antibody 1 as parent of antibody 2. In the **\\$ column** corresponding to
+antibody 1 we need to enter numbers or letters proceeded by the \\$ symbol
+(i.e. \\$1, or \\$parent1). In the **Parents** column of antibody 2, we need
+to use the same value used in the **\\$ column** for antibody 1.
 
  
 
@@ -242,10 +242,10 @@ together, as shown in the template provided above:
 
  
 
--   The info in the **$** column of the **sample** spreadsheet should
+-   The info in the **\$** column of the **sample** spreadsheet should
     match the **Parents** column in **Storage Positions** spreadsheet.
-    In the $ column you can enter numbers or letters proceeded by the $
-    symbol (i.e. $1, $2 or $parent1, $parent2)**.**
+    In the \$ column you can enter numbers or letters proceeded by the \$
+    symbol (i.e. \$1, \$2 or \$parent1, \$parent2)**.**
 
  
 
