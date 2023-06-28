@@ -61,6 +61,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetTypeS
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetTypeFetchOptions;
 
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.property import DataType
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSetKind
 
 #V3 API - Files
 from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search import DataSetFileSearchCriteria;
@@ -243,14 +244,28 @@ def findEntitiesToExport(params):
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
                 entitiesToExpand.append(entityFound);
         if type == "DATASET" and not metadataOnly:
-            criteria = DataSetFileSearchCriteria();
-            criteria.withDataSet().withPermId().thatEquals(permId);
-            results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
-            operationLog.info(u"Found: %d files" % results.getTotalCount());
-            for file in results.getObjects():
-                entityFound = {"type": "FILE", "permId": permId, "path": file.getPath(), "isDirectory": file.isDirectory(),
-                               "length": file.getFileLength()};
-                addToExportWithoutRepeating(entitiesToExport, entityFound);
+            criteria = DataSetSearchCriteria()
+            criteria.withPermId().thatEquals(permId)
+            fetchOptions = DataSetFetchOptions()
+            results = v3.searchDataSets(sessionToken, criteria, fetchOptions)
+
+            if results.getTotalCount() == 0:
+                raise UserFailureException(u"No dataset found with permId %s" % permId)
+
+            dataSet = results.getObjects().get(0)
+
+            if dataSet.getKind() != DataSetKind.LINK:
+                criteria = DataSetFileSearchCriteria();
+                criteria.withDataSet().withPermId().thatEquals(permId);
+                results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
+                operationLog.info(u"Found: %d files" % results.getTotalCount());
+
+                for file in results.getObjects():
+                    entityFound = {"type": "FILE", "permId": permId, "path": file.getPath(), "isDirectory": file.isDirectory(),
+                                   "length": file.getFileLength()};
+                    addToExportWithoutRepeating(entitiesToExport, entityFound);
+            else:
+                operationLog.info(u"Omitted data export for link dataset with permId: %s" % permId)
     return entitiesToExport
 
 
