@@ -1,4 +1,4 @@
-General Users
+Properties handled by scripts
 =============
 
 .. toctree::
