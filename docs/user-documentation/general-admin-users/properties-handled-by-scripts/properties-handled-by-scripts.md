@@ -77,7 +77,7 @@ following steps.
     section. (e.g Admin-&gt;Types-&gt;Samples. Select sample and click
     edit.)
 
-![image info](img/)
+![image info](img/80.png)
 
  
 
@@ -107,10 +107,10 @@ To create a dynamic property:
 
 -   Define a property type with appropriate name and data type
     (`Admin->Plugins→Add Plugin`)  
-![image info](img/)
+![image info](img/110.png)
 -   Choose `Dynamic Property Evaluator` from Plugin type dropdown list
     in the upper left corner.  
-![image info](img/)
+![image info](img/113.png)
 -   You may evaluate script on chosen entity in Script Tester section.
 
 ### Creating scripts
@@ -431,7 +431,7 @@ validation script for each type:
 -   You find a property which is called 'Validation Script' (see screen
     shot below). Just select your defined Script and hit save.
 
-![image info](img/)
+![image info](img/434.png)
 
 ### Creating and Deploying Java Validation Plugins
 
@@ -518,7 +518,7 @@ To create a Managed Property:
             the script has defined the function `batchColumnNames` or
             `inputWidgets`.
 
-![image info](img/)
+![image info](img/521.png)
 
 ### Creating scripts
 
@@ -642,7 +642,7 @@ The picture below shows that in detail view of CELL\_PLATE sample S1
 there will be a tab titled *Fixed Table* containing a table defined by
 the script. The table has the same functionality as all other openBIS
 tables like sorting, filtering, exporting etc.  
-![image info](img/)
+![image info](img/645.png)
 
 ###### Example 2
 
@@ -728,7 +728,7 @@ Let's assume, that:
 
 The picture below shows that in detail view of sample S1 there will be a
 tab titled CSV containing a table defined by the script.  
-![image info](img/)
+![image info](img/731.png)
 
 Managed property value will be visible as text in the left panel
 (*Sample Properties*) only if user had enabled debugging mode in openBIS
@@ -774,7 +774,7 @@ input for actions like add, edit and delete:
 The picture below shows updated detail view of sample S1. For every
 action defined in the script there is a button in bottom toolbar of the
 table.  
-![image info](img/)
+![image info](img/777.png)
 The screenshot was taken after a user clicked on the first table row and
 then clicked on `Edit` button. This resulted in showing a dialog with
 input fields defined in the script. Every field has default value set
@@ -871,7 +871,7 @@ property `MANGED-TEXT`
 
 would create in sample detailed view
 
-![image info](img/)
+![image info](img/874.png)
 
 ###### Example 7
 
@@ -912,14 +912,14 @@ Uploading the following file for such a sample type
     /test/sample-with-managed-property-2                sec 47.11
 
 would lead to a detailed view as in the following screenshot:  
-![image info](img/)
+![image info](img/915.png)
 
 If the flag *Shown in Edit Views* is set and flag *Show Raw Value in
 Forms* is not set, the registration form would have a field called
 'Managed Text' with initially one section with input field 'Unit' and
 'Value':
 
-![image info](img/)
+![image info](img/922.png)
 
 With '+' and 'Add More' button additional sections can be created.
 Existing sections can be deleted by the '-' button. The section fields
@@ -938,7 +938,7 @@ is replaced by function `inputWidgets` as in the following example:
 The field 'Managed Text' in the registration form will be as shown in
 the following screen shot:
 
-![image info](img/)
+![image info](img/941.png)
 
 Both fields are mandatory and the first field is a combo box with the
 two elements 'cm' and 'mm'.
