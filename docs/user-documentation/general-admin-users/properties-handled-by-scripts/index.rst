@@ -1,5 +1,5 @@
-General Users
-=============
+Configurable Scripts
+====================
 
 .. toctree::
    :maxdepth: 4
