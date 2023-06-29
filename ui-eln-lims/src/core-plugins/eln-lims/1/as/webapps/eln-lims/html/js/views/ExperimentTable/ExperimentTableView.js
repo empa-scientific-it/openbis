@@ -30,10 +30,6 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 			$container.append($title);
 		}
 		
-		var toolbarModel = [];
-		toolbarModel.push({ component : this._showExperimentFromOverviewDropdown(), tooltip: null });
-		
-		$container.append(FormUtil.getToolbar(toolbarModel));
 		$container.append(this._tableContainer);
 	}
 	
@@ -46,30 +42,5 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	//
 	this.getTypeSelector = function() {
 		return this.typeSelector;
-	}
-	
-	this._showExperimentFromOverviewDropdown = function() {
-		var _this = this;
-		var expDropModel = [];
-		var kindName = ELNDictionary.getExperimentsDualName();
-		expDropModel = [{value : "OVERVIEW", label : "Show only overview " + kindName, selected : this._experimentTableModel.showInProjectOverview },
-		                {value : "ALL", label : "Show all " + kindName, selected : !this._experimentTableModel.showInProjectOverview }];
-		
-		
-		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what " + kindName + " to show");
-		$experimentDropdown.attr("id", "what-experiments-drop-down");
-		
-		$experimentDropdown.change(function() {
-			switch($(this).val()){
-				case "OVERVIEW":
-						_this._experimentTableModel.showInProjectOverview = true;
-					break;
-				case "ALL":
-						_this._experimentTableModel.showInProjectOverview = false;
-					break;
-			}
-			_this._experimentTableController.init(_this._$container);
-		});
-		return $("<span>").append($experimentDropdown);
 	}
 }

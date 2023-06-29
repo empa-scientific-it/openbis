@@ -1,5 +1,5 @@
 var ExperimentDataGridUtil = new function() {
-	this.getExperimentDataGrid = function(entities, rowClick, heightPercentage) {
+	this.getExperimentDataGrid = function(entities, rowClick, multiselectable, heightPercentage) {
 		//Fill Columns model
 		var columns = [];
 
@@ -129,6 +129,7 @@ var ExperimentDataGridUtil = new function() {
 										perm_id: entity.permId,
 										type_perm_id: entity.experimentTypeCode
 									},
+                                    '$object' : entity,
 									'code' : entity.code,
 									'identifier' : entity.identifier,
 									'permId' : entity.permId,
@@ -174,7 +175,7 @@ var ExperimentDataGridUtil = new function() {
 			
 		//Create and return a data grid controller
         var configKey = "EXPERIMENT_TABLE";
-        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, {
+        var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, multiselectable, {
             fileFormat: DataGridExportOptions.FILE_FORMAT.XLS,
             filePrefix: 'collections',
             fileContent: DataGridExportOptions.FILE_CONTENT.ENTITIES

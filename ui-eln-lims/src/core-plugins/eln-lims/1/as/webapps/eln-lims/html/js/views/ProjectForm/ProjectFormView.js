@@ -177,8 +177,8 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		}
 
 		if (this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
+            $formColumn.append(this._createOverviewSection(projectIdentifier, hideShowOptionsModel));
 			$formColumn.append(this._createExperimentsSection(projectIdentifier, hideShowOptionsModel));
-			$formColumn.append(this._createSamplesSection(hideShowOptionsModel));
 		}
 
 		FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, "PROJECT-VIEW");
@@ -284,7 +284,43 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		$description.hide();
 		return $description;
 	}
-	
+
+    this._createOverviewSection = function(projectIdentifier, hideShowOptionsModel) {
+        var $overview = $("<div>", { id : "project-overview" });
+        $overview.append($("<legend>").append("Overview"));
+        var $overviewContainer = $("<div>");
+        $overview.append($overviewContainer);
+
+        $experimentsOverview = $("<div>");
+        $overviewContainer.append($("<h4>").append(ELNDictionary.ExperimentsELN));
+        $overviewContainer.append($experimentsOverview);
+        
+        $samplesOverview = $("<div>");
+        $header = $("<h4>").append(ELNDictionary.Samples);
+        $overviewContainer.append($header);
+        $overviewContainer.append($samplesOverview);
+        
+        var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
+        experimentTableController.init($experimentsOverview);
+        var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true, null, 40);
+        var views = {
+            header : $header,
+            content : $samplesOverview
+        }
+        sampleTableController.init(views);
+
+        $overview.hide();
+        hideShowOptionsModel.push({
+            label : "Overview",
+            section : "#project-overview",
+            beforeShowingAction : function() {
+                experimentTableController.refresh();
+                sampleTableController.refresh();
+            }
+        });
+        return $overview;
+    }
+
 	this._createExperimentsSection = function(projectIdentifier, hideShowOptionsModel) {
 		var entityKindName = ELNDictionary.getExperimentsDualName();
 		var $experiments = $("<div>", { id : "project-experiments" });
@@ -292,7 +328,24 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		$experiments.append($("<legend>").append(entityKindName));
 		$experiments.append($experimentsContainer);
 		
-		var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
+        var _this = this;
+        var extraOptions = [];
+        extraOptions.push({ name : "Delete", action : function(selected) {
+            if(selected != undefined && selected.length == 0){
+                Util.showUserError("Please select at least one " + ELNDictionary.experimentELN + " to delete!");
+            } else {
+                _this._deleteExperiments(selected.map(e => e.permId));
+            }
+        }});
+        extraOptions.push({ name : "Move", action : function(selected) {
+            if(selected != undefined && selected.length == 0){
+                Util.showUserError("Please select at least one " + ELNDictionary.experimentELN + " to move!");
+            } else {
+                _this._moveExperiments(selected.map(s => s.permId));
+            }
+        }});
+        var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), 
+                false, extraOptions);
 		experimentTableController.init($experimentsContainer);
 		$experiments.hide();
 		hideShowOptionsModel.push({
@@ -304,34 +357,100 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		});
 		return $experiments;
 	}
-	
-	this._createSamplesSection = function(hideShowOptionsModel) {
-		var entityKindName = "" + ELNDictionary.Samples + "";
-		
-		var $samples = $("<div>", { id : "project-samples" });
-		var $experimentsContainer = $("<div>");
-		$samples.append($("<legend>").append(entityKindName));
-		var $samplesContainerHeader = $("<div>");
-		$samples.append($samplesContainerHeader);
-		var $samplesContainer = $("<div>");
-		$samples.append($samplesContainer);
-		
-		var views = {
-				header : $samplesContainerHeader,
-				content : $samplesContainer
-		}
-		var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true, null, 40);
-		sampleTableController.init(views);
-		$samples.hide();
-		hideShowOptionsModel.push({
-			label : entityKindName,
-			section : "#project-samples",
-			beforeShowingAction : function() {
-				sampleTableController.refresh();
-			}
-		});
-		return $samples;
-	}
+
+    this._deleteExperiments = function(permIds) {
+        var _this = this;
+        var $component = $("<div>");
+        var warningText = "Also all " + ELNDictionary.samples + " and data sets of the selected " 
+                + permIds.length + " " + ELNDictionary.getExperimentsDualName() + " will be deleted.";
+        var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+        $warning.css('color', FormUtil.warningColor);
+        $component.append($warning);
+        var modalView = new DeleteEntityController(function(reason) {
+            require(["as/dto/experiment/id/ExperimentPermId","as/dto/experiment/delete/ExperimentDeletionOptions"],
+                function(ExperimentPermId, ExperimentDeletionOptions) {
+                    var experimentIds = permIds.map(permId => new ExperimentPermId(permId));
+                    var deletionOptions = new ExperimentDeletionOptions();
+                    deletionOptions.setReason(reason);
+                    mainController.openbisV3.deleteExperiments(experimentIds, deletionOptions).done(function() {
+                        Util.showSuccess("All " + permIds.length + " " + ELNDictionary.getExperimentsDualName() 
+                                + " are moved to trashcan", function() {
+                            permIds.forEach(function(permId) {
+                                mainController.sideMenu.deleteNodeByEntityPermId("EXPERIMENT", permId, false);
+                            });
+                            mainController.refreshView();
+                        });
+                    }).fail(function(error) {
+                        Util.showFailedServerCallError(error);
+                        Util.unblockUI();
+                    });
+                })
+            }, true, null, $component);
+        modalView.init();
+    }
+
+    this._moveExperiments = function(permIds) {
+        var _this = this;
+        var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+        var project = null;
+        $window.submit(function() {
+            Util.unblockUI();
+            require(["as/dto/experiment/id/ExperimentPermId", "as/dto/experiment/update/ExperimentUpdate"], 
+                    function(ExperimentPermId, ExperimentUpdate) {
+                        var projectIdentifier = project.getIdentifier();
+                        var updates = [];
+                        permIds.forEach(function(permId) {
+                            var update = new ExperimentUpdate();
+                            update.setExperimentId(new ExperimentPermId(permId));
+                            update.setProjectId(projectIdentifier);
+                            updates.push(update);
+                        });
+                        mainController.openbisV3.updateExperiments(updates).done(function() {
+                            Util.showSuccess("Moved successfully", function() {
+                                var projectPermId = project.getPermId().getPermId();
+                                mainController.sideMenu.refreshNodeParentByPermId("PROJECT", projectPermId, true);
+                                permIds.forEach(function(permId) {
+                                    mainController.sideMenu.deleteNodeByEntityPermId("EXPERIMENT", permId, false);
+                                });
+                                mainController.refreshView();
+                            });
+                        }).fail(function(error) {
+                            Util.showFailedServerCallError(error);
+                            Util.unblockUI();
+                        });
+                    });
+        });
+
+        $window.append($('<legend>').append("Moving " + permIds.length + " selected " 
+                + ELNDictionary.getExperimentsDualName() + " to:"));
+        var $searchBox = $('<div>');
+        $window.append($searchBox);
+        var searchDropdown = new AdvancedEntitySearchDropdown(false, true, "search project to move to",
+                false, false, false, true, false);
+        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+        $btnCancel.click(function() {
+            Util.unblockUI();
+        });
+
+        $window.append('<br>').append($btnAccept).append('&nbsp;').append($btnCancel);
+        searchDropdown.onChange(function(selected) {
+            project = selected[0];
+        });
+
+        searchDropdown.init($searchBox);
+
+        var css = {
+                'text-align' : 'left',
+                'top' : '15%',
+                'width' : '70%',
+                'left' : '15%',
+                'right' : '20%',
+                'overflow' : 'hidden'
+        };
+        Util.blockUI($window, css);
+
+    }
 
     this._projectDeletionAction = function() {
         var _this = this;

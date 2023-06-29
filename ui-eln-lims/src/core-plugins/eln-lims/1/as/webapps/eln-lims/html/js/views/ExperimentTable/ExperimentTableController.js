@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function ExperimentTableController(parentController, title, project, showInProjectOverview) {
+function ExperimentTableController(parentController, title, project, showInProjectOverview, extraOptions) {
 	this._parentController = parentController;
 	this._experimentTableModel = new ExperimentTableModel(title, project, showInProjectOverview);
 	this._experimentTableView = new ExperimentTableView(this, this._experimentTableModel);
@@ -66,8 +66,9 @@ function ExperimentTableController(parentController, title, project, showInProje
         var rowClick = null;
         
         //Create and display table
-        this._dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(experiments, rowClick, 50);
-        this._dataGridController.init(this._experimentTableView.getTableContainer());
+        var multiselectable = extraOptions != null;
+        this._dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(experiments, rowClick, multiselectable, 50);
+        this._dataGridController.init(this._experimentTableView.getTableContainer(), extraOptions);
 	}
 	
 	this.refresh = function()
