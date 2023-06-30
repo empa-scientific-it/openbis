@@ -1,5 +1,5 @@
-General Users
-=============
+Admins Documentation
+====================
 
 .. toctree::
    :maxdepth: 4
