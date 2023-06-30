@@ -58,7 +58,7 @@ execute the images.
   
 
 How to run the official JupyterHub for openBIS image in your local machine
-==========================================================================
+--------------------------------------------------------------------------
 
   
 
@@ -92,7 +92,7 @@ container\_ID". **
 The container\_ID can be found by running the command** "docker ps".**
 
 How to extend the official JupyterHub for openBIS image
-=======================================================
+-------------------------------------------------------
 
 Modify a currently running container - From UI (for users)
 ----------------------------------------------------------
@@ -274,7 +274,7 @@ The new image is now available and can be started as described above.
     openbis/jupyterhub-openbis-sis-20180405                 latest              585a9adf333b        23 hours ago        4.75GB
 
 How to start a jupyterhub-openbis docker image on a productive JupyterHub server
-================================================================================
+--------------------------------------------------------------------------------
 
   
 
@@ -307,7 +307,7 @@ the name of the image it runs to the one of your choice
     $ ./jupyterhub-openbis-start.sh
 
 Other useful Docker commands
-============================
+----------------------------
 
 ### Save an image as a tar file to share it
 
@@ -343,7 +343,7 @@ created by different users at different times.
     $ docker rm $(docker ps -aq)
 
 openBIS ELN Integration Configuration
-=====================================
+-------------------------------------
 
 On the openBIS end, what needs to be done is to append the following
 lines into your ELN instance profile:
@@ -377,7 +377,7 @@ firewall-cmd this would look as follows:
   
 
 Troubleshooting Connectivity to openBIS
-=======================================
+---------------------------------------
 
 Currently only connecting to the openBIS server used to validate your
 log in is supported.
