@@ -146,6 +146,8 @@ public class UserManager
 
     private boolean deactivateUnknownUsers;
 
+    private boolean reuseHomeSpace;
+
     public UserManager(IAuthenticationService authenticationService, IApplicationServerInternalApi service,
             File shareIdsMappingFileOrNull, ISimpleLogger logger, UserManagerReport report)
     {
@@ -1023,10 +1025,13 @@ public class UserManager
     private SpacePermId createUserSpace(Context context, String groupCode, String userId)
     {
         String userSpaceCode = createCommonSpaceCode(groupCode, userId.toUpperCase());
-        int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
-        if (n > 0)
+        if(!reuseHomeSpace)
         {
-            userSpaceCode += "_" + (n + 1);
+            int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
+            if (n > 0)
+            {
+                userSpaceCode += "_" + (n + 1);
+            }
         }
         return createSpace(context, userSpaceCode);
     }
@@ -1126,6 +1131,11 @@ public class UserManager
             spaceId = new SpacePermId(spaceCodeOrNull);
         }
         context.getReport().assignRoleTo(groupId, role, spaceId);
+    }
+
+    public void setReuseHomeSpace(boolean reuseHomeSpace)
+    {
+        this.reuseHomeSpace = reuseHomeSpace;
     }
 
     private static final class CurrentState

@@ -24,6 +24,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
 
 class UserManagerConfig
 {
+    private Boolean reuseHomeSpace = true;
+
     private List<String> globalSpaces = new ArrayList<>();
 
     private Map<Role, List<String>> commonSpaces = new HashMap<>();
@@ -96,4 +98,13 @@ class UserManagerConfig
         this.instanceAdmins = instanceAdmins;
     }
 
+    public boolean getReuseHomeSpace()
+    {
+        return reuseHomeSpace;
+    }
+
+    public void setReuseHomeSpace(boolean reuseHomeSpace)
+    {
+        this.reuseHomeSpace = reuseHomeSpace;
+    }
 }
