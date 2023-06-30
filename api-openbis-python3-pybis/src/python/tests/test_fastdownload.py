@@ -1,15 +1,17 @@
+import binascii
 import json
 import os
+import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 
 import pytest
+
 from pybis.fast_download import FastDownload
 
 
 def get_download_response(sequence_number, perm_id, file, is_directory, offset, payload):
-    # binascii.crc32(byte_array[:end])
-    import binascii
+
     result = b''
     result += sequence_number.to_bytes(4, "big")
     download_item_id = perm_id + "/" + file
@@ -52,7 +54,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(response)
 
 
-def createFastDownloadSession(permId, files, download_url, wished_number_of_streams):
+def create_fast_download_session(permId, files, download_url, wished_number_of_streams):
     return '''{ "jsonrpc": "2.0", "id": "2", "result": {
         "@type": "dss.dto.datasetfile.fastdownload.FastDownloadSession", "@id": 1,
         "downloadUrl": "''' + download_url + '''",
@@ -66,7 +68,7 @@ def createFastDownloadSession(permId, files, download_url, wished_number_of_stre
             "wishedNumberOfStreams": ''' + wished_number_of_streams + ''' } } }'''
 
 
-def startDownloadSession(ranges, wished_number_of_streams):
+def start_download_session(ranges, wished_number_of_streams):
     return """{
         "downloadSessionId": "72863f8d-1ed1-4795-a531-4d93a5081562",
         "ranges": {
@@ -113,18 +115,18 @@ def run_around_tests(base_data):
         'finishDownloadSession': "",
         'counter': 0,
         'parts': 10,
-        'createFastDownloadSession': createFastDownloadSession(perm_id,
-                                                               file,
-                                                               download_url,
-                                                               streams),
-        'startDownloadSession': startDownloadSession(ranges, streams)
+        'createFastDownloadSession': create_fast_download_session(perm_id,
+                                                                  file,
+                                                                  download_url,
+                                                                  streams),
+        'startDownloadSession': start_download_session(ranges, streams)
     }
     MyServer.response_code = 200
     yield temp_folder, download_url, streams, perm_id, file
     cleanup(temp_folder)
 
 
-def test_download_fails_after_retry(run_around_tests):
+def test_download_fails_after_retries(run_around_tests):
     temp_folder, download_url, streams, perm_id, file = run_around_tests
 
     def generate_download_response():
@@ -139,7 +141,7 @@ def test_download_fails_after_retry(run_around_tests):
         fast_download.download()
         assert False
     except ValueError as error:
-        assert str(error) == 'Reached maximum retry count:3. Aborting.'
+        assert str(error) == 'Consecutive download calls to the server failed.'
 
 
 def test_download_file(run_around_tests):
@@ -169,6 +171,58 @@ def test_download_file(run_around_tests):
         for f in fn
     ]
     assert len(downloaded_files) == 1
+    assert downloaded_files[0].endswith(file)
+    import functools
+    expected_outcome = functools.reduce(lambda a, b: a + b,
+                                        [bytearray([x] * 10) for x in range(10)])
+    with open(downloaded_files[0], 'rb') as fn:
+        data = fn.read()
+        assert len(data) == 100
+        assert expected_outcome == data
+
+
+def test_download_file_wait_flag_disabled(run_around_tests):
+    temp_folder, download_url, streams, perm_id, file = run_around_tests
+
+    def generate_download_response():
+        parts = MyServer.next_response['parts']
+        counter = MyServer.next_response['counter']
+        payload_length = 10
+        while counter < parts:
+            response = get_download_response(counter, perm_id, file, False,
+                                             counter * payload_length,
+                                             bytearray([counter] * payload_length))
+            # Slow down responses to simulate download of a big file
+            time.sleep(0.1)
+            counter += 1
+            MyServer.next_response['counter'] = counter % parts
+            yield response
+
+    MyServer.next_response['download'] = generate_download_response()
+
+    fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
+                                 True, False, False, streams)
+    fast_download.download()
+
+    # Verify that file has not been downloaded yet
+    downloaded_files = [
+        os.path.join(dp, f)
+        for dp, dn, fn in os.walk(temp_folder)
+        for f in fn
+    ]
+    assert len(downloaded_files) == 0
+
+    # Wait for 2 seconds to finish download
+    time.sleep(2)
+
+    # find file
+    downloaded_files = [
+        os.path.join(dp, f)
+        for dp, dn, fn in os.walk(temp_folder)
+        for f in fn
+    ]
+    assert len(downloaded_files) == 1
+
     assert downloaded_files[0].endswith(file)
     import functools
     expected_outcome = functools.reduce(lambda a, b: a + b,
@@ -218,3 +272,119 @@ def test_download_file_starts_with_fail(run_around_tests):
         data = fn.read()
         assert len(data) == 100
         assert expected_outcome == data
+
+
+def test_download_fails_after_getting_java_exception(run_around_tests):
+    """
+    Test that verifies that if non-retryable exception is thrown,
+    the whole download session is aborted.
+    """
+    temp_folder, download_url, streams, perm_id, file = run_around_tests
+
+    def generate_download_response():
+        # First download fails with non-retryable exception
+        yield b'{"error":"Some server error message.","retriable":false}'
+        # Further responses are alright
+        MyServer.response_code = 200
+        parts = MyServer.next_response['parts']
+        counter = MyServer.next_response['counter']
+        payload_length = 10
+        while counter < parts:
+            response = get_download_response(counter, perm_id, file, False,
+                                             counter * payload_length,
+                                             bytearray([counter] * payload_length))
+            counter += 1
+            MyServer.next_response['counter'] = counter % parts
+            yield response
+
+    MyServer.next_response['download'] = generate_download_response()
+
+    fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
+                                 True, True, False, streams)
+    try:
+        fast_download.download()
+        assert False
+    except ValueError as error:
+        assert str(error) == 'Some server error message.'
+
+
+def test_download_passes_after_getting_java_exception(run_around_tests):
+    """
+    Test that verifies that if retryable server exception is thrown,
+    the whole download retries and downloads the file.
+    """
+    temp_folder, download_url, streams, perm_id, file = run_around_tests
+
+    def generate_download_response():
+        # First download fails with non-retryable exception
+        yield b'{"error":"Some server error message.","retriable":true}'
+        # Further responses are alright
+        MyServer.response_code = 200
+        parts = MyServer.next_response['parts']
+        counter = MyServer.next_response['counter']
+        payload_length = 10
+        while counter < parts:
+            response = get_download_response(counter, perm_id, file, False,
+                                             counter * payload_length,
+                                             bytearray([counter] * payload_length))
+            counter += 1
+            MyServer.next_response['counter'] = counter % parts
+            yield response
+
+    MyServer.next_response['download'] = generate_download_response()
+
+    fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
+                                 True, True, False, streams)
+    fast_download.download()
+
+    downloaded_files = [
+        os.path.join(dp, f)
+        for dp, dn, fn in os.walk(temp_folder)
+        for f in fn
+    ]
+    assert len(downloaded_files) == 1
+    assert downloaded_files[0].endswith(file)
+    import functools
+    expected_outcome = functools.reduce(lambda a, b: a + b,
+                                        [bytearray([x] * 10) for x in range(10)])
+    with open(downloaded_files[0], 'rb') as fn:
+        data = fn.read()
+        assert len(data) == 100
+        assert expected_outcome == data
+
+
+def test_download_file_payload_failure(run_around_tests):
+    temp_folder, download_url, streams, perm_id, file = run_around_tests
+
+    def generate_download_response():
+        parts = MyServer.next_response['parts']
+        counter = MyServer.next_response['counter']
+        payload_length = 10
+
+        fail_response = None
+        while counter < parts:
+            response = get_download_response(counter, perm_id, file, False,
+                                             counter * payload_length,
+                                             bytearray([counter] * payload_length))
+            if counter == 0:
+                array = bytearray(response)
+                array[-8:] = bytearray([0]*8)
+                response = bytes(array)
+                fail_response = response
+
+            counter += 1
+            MyServer.next_response['counter'] = counter % parts
+            yield response
+
+        while True:
+            yield fail_response
+
+    MyServer.next_response['download'] = generate_download_response()
+
+    fast_download = FastDownload("", download_url, perm_id, file, str(temp_folder),
+                                 True, True, False, streams)
+    try:
+        fast_download.download()
+        assert False
+    except ValueError as error:
+        assert str(error) == 'Received incorrect payload multiple times. Aborting.'
