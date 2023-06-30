@@ -1,5 +1,5 @@
-General Users
-=============
+Custom Database Queries
+=======================
 
 .. toctree::
    :maxdepth: 4
