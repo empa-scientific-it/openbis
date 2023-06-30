@@ -6,5 +6,5 @@ General Admin Users
    :maxdepth: 4
 
    Admins Documentation </user-documentation/general-admin-users/admins-documentation/index>
-   Properties Handled By Scripts </user-documentation/general-admin-users/properties-handled-by-scripts/properties-handled-by-scripts>
-   Custom Database Queries </user-documentation/general-admin-users/custom-database-queries/custom-database-queries>
+   Properties Handled By Scripts </user-documentation/general-admin-users/properties-handled-by-scripts>
+   Custom Database Queries </user-documentation/general-admin-users/custom-database-queries>
