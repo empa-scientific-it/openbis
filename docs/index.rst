@@ -17,7 +17,7 @@ User Documentation
 ^^^^^^^^^^^^^^^^^^
    - :doc:`General Users </user-documentation/general-users/index>`
    - :doc:`General Admin Users </user-documentation/general-admin-users/index>`
-   - :doc:`Advanced Features </user-documentation/advance-features/index>`
+   - :doc:`Advance Features </user-documentation/advance-features/index>`
    - Legacy Advance Features
 
 Software Developer Documentation
