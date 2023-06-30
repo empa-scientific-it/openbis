@@ -1,5 +1,5 @@
-Configurable Scripts
-====================
+Properties Handled By Scripts
+=============================
 
 .. toctree::
    :maxdepth: 4
