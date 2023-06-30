@@ -11,12 +11,13 @@ The complete solution for managing your research data.
 
    General Users </user-documentation/general-users/index>
    General Admin Users </user-documentation/general-admin-users/index>
+   Advance Features </user-documentation/advance-features/index>
 
 User Documentation
 ^^^^^^^^^^^^^^^^^^
    - :doc:`General Users </user-documentation/general-users/index>`
    - :doc:`General Admin Users </user-documentation/general-admin-users/index>`
-   - Advanced Features
+   - :doc:`Advanced Features </user-documentation/advance-features/index>`
    - Legacy Advance Features
 
 Software Developer Documentation
