@@ -1,0 +1,859 @@
+    
+
+<!DOCTYPE html>
+<html lang="en-GB" >
+<head>
+                            <title>Welcome to Confluence of ETH Zurich - Confluence - Confluence</title>
+    
+        
+
+                        
+    
+                        
+    
+
+                
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=EDGE,chrome=IE7">
+<meta charset="UTF-8">
+<meta id="confluence-context-path" name="confluence-context-path" content="">
+<meta id="confluence-base-url" name="confluence-base-url" content="https://unlimited.ethz.ch">
+
+    <meta id="atlassian-token" name="atlassian-token" content="2f665f788dd4d48becd59686fb87fb7075ed450b">
+
+
+<meta id="confluence-space-key" name="confluence-space-key" content="CON">
+<script type="text/javascript">
+        var contextPath = '';
+</script>
+
+    
+
+    <meta name="confluence-request-time" content="1688136365797">
+        
+    
+        
+            <style>.ia-fixed-sidebar, .ia-splitter-left {width: 285px;}.theme-default .ia-splitter #main {margin-left: 285px;}.ia-fixed-sidebar {visibility: hidden;}</style>
+            <meta name="ajs-use-keyboard-shortcuts" content="true">
+            <meta name="ajs-discovered-plugin-features" content="$discoveredList">
+            <meta name="ajs-keyboardshortcut-hash" content="5d1ba1fd696cce9a6e914516d1d9995b">
+            <meta id="team-calendars-has-jira-link" content="true">
+            <meta name="ajs-team-calendars-display-time-format" content="displayTimeFormat24">
+            <meta id="team-calendars-display-week-number" content="true">
+            <meta id="team-calendars-user-timezone" content="Europe/Zurich">
+            <script type="text/x-template" id="team-calendars-messages" title="team-calendars-messages"><fieldset class="i18n hidden"><input type="hidden" name="calendar3.month.long.july" value="July"><input type="hidden" name="calendar3.day.short.wednesday" value="Wed"><input type="hidden" name="calendar3.day.short.thursday" value="Thu"><input type="hidden" name="calendar3.month.short.march" value="Mar"><input type="hidden" name="calendar3.month.long.april" value="April"><input type="hidden" name="calendar3.month.long.october" value="October"><input type="hidden" name="calendar3.month.long.august" value="August"><input type="hidden" name="calendar3.month.short.july" value="Jul"><input type="hidden" name="calendar3.month.short.may" value="May"><input type="hidden" name="calendar3.month.short.november" value="Nov"><input type="hidden" name="calendar3.day.long.friday" value="Friday"><input type="hidden" name="calendar3.day.long.sunday" value="Sunday"><input type="hidden" name="calendar3.day.long.saturday" value="Saturday"><input type="hidden" name="calendar3.month.short.april" value="Apr"><input type="hidden" name="calendar3.day.long.wednesday" value="Wednesday"><input type="hidden" name="calendar3.month.long.december" value="December"><input type="hidden" name="calendar3.month.short.october" value="Oct"><input type="hidden" name="calendar3.day.long.monday" value="Monday"><input type="hidden" name="calendar3.month.short.june" value="Jun"><input type="hidden" name="calendar3.day.short.monday" value="Mon"><input type="hidden" name="calendar3.day.short.tuesday" value="Tue"><input type="hidden" name="calendar3.day.short.saturday" value="Sat"><input type="hidden" name="calendar3.month.long.march" value="March"><input type="hidden" name="calendar3.month.long.june" value="June"><input type="hidden" name="calendar3.month.short.february" value="Feb"><input type="hidden" name="calendar3.month.short.august" value="Aug"><input type="hidden" name="calendar3.month.short.december" value="Dec"><input type="hidden" name="calendar3.day.short.sunday" value="Sun"><input type="hidden" name="calendar3.month.long.february" value="February"><input type="hidden" name="calendar3.day.long.tuesday" value="Tuesday"><input type="hidden" name="calendar3.month.long.may" value="May"><input type="hidden" name="calendar3.month.long.september" value="September"><input type="hidden" name="calendar3.month.long.november" value="November"><input type="hidden" name="calendar3.month.short.january" value="Jan"><input type="hidden" name="calendar3.month.short.september" value="Sep"><input type="hidden" name="calendar3.day.long.thursday" value="Thursday"><input type="hidden" name="calendar3.month.long.january" value="January"><input type="hidden" name="calendar3.day.short.friday" value="Fri"></fieldset></script>
+            <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['(mathjax-inline(', ')mathjax-inline)' ] ], displayMath: [ ['(mathjax-block(', ')mathjax-block)' ] ], }, asciimath2jax: { delimiters: [ ['(mathjax-ascii-math(',')mathjax-ascii-math)'] ] } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+            <meta name="ajs-is-confluence-admin" content="false">
+            <meta name="ajs-connection-timeout" content="10000">
+            
+    
+    
+            <meta name="ajs-page-title" content="Welcome to Confluence of ETH Zurich">
+            <meta name="ajs-latest-published-page-title" content="Welcome to Confluence of ETH Zurich">
+            <meta name="ajs-space-name" content="Confluence">
+            <meta name="ajs-page-id" content="36258959">
+            <meta name="ajs-latest-page-id" content="36258959">
+            <meta name="ajs-content-type" content="page">
+            <meta name="ajs-parent-page-id" content="">
+            <meta name="ajs-space-key" content="CON">
+            <meta name="ajs-max-number-editors" content="12">
+            <meta name="ajs-macro-placeholder-timeout" content="5000">
+            <meta name="ajs-jira-metadata-count" content="0">
+            <meta name="ajs-from-page-title" content="">
+            <meta name="ajs-can-remove-page" content="false">
+            <meta name="ajs-can-remove-page-hierarchy" content="false">
+            <meta name="ajs-browse-page-tree-mode" content="view">
+            <meta name="ajs-shared-drafts" content="true">
+            <meta name="ajs-context-path" content="">
+            <meta name="ajs-base-url" content="https://unlimited.ethz.ch">
+            <meta name="ajs-version-number" content="8.2.0">
+            <meta name="ajs-build-number" content="9004">
+            <meta name="ajs-remote-user" content="">
+            <meta name="ajs-remote-user-key" content="">
+            <meta name="ajs-remote-user-has-licensed-access" content="false">
+            <meta name="ajs-remote-user-has-browse-users-permission" content="false">
+            <meta name="ajs-current-user-fullname" content="">
+            <meta name="ajs-current-user-avatar-uri-reference" content="/images/icons/profilepics/anonymous.svg">
+            <meta name="ajs-static-resource-url-prefix" content="/s/-5iwf5w/9004/9r8qvy/_">
+            <meta name="ajs-global-settings-attachment-max-size" content="157286400">
+            <meta name="ajs-global-settings-quick-search-enabled" content="true">
+            <meta name="ajs-user-locale" content="en_GB">
+            <meta name="ajs-enabled-dark-features" content="site-wide.shared-drafts,site-wide.synchrony,clc.quick.create,confluence.view.edit.transition,cql.search.screen,confluence-inline-comments-resolved,http.session.registrar,nps.survey.inline.dialog,confluence.efi.onboarding.new.templates,atlassian.cdn.static.assets,pdf-preview,previews.sharing,previews.versions,file-annotations,confluence.efi.onboarding.rich.space.content,collaborative-audit-log,confluence.reindex.improvements,previews.conversion-service,editor.ajax.save,crowd.sync.nested.groups.group.membership.changes.batching.enabled,read.only.mode,graphql,previews.trigger-all-file-types,attachment.extracted.text.extractor,lucene.caching.filter,confluence.table.resizable,notification.batch,previews.sharing.pushstate,confluence-inline-comments-rich-editor,tc.tacca.dacca,site-wide.synchrony.opt-in,atlassian.webresource.twophase.js.i18n.disabled,confluence.denormalisedpermissions,file-annotations.likes,gatekeeper-ui-v2,v2.content.name.searcher,confluence.search.improvements.ranking,crowd.event.transformer.directory.manager.cache,mobile.supported.version,pulp,crowd.sync.delete.user.memberships.batching.enabled,confluence-inline-comments,confluence-inline-comments-dangling-comment,quick-reload-inline-comments-flags,confluence.retention.rules">
+            <meta name="ajs-atl-token" content="2f665f788dd4d48becd59686fb87fb7075ed450b">
+            <meta name="ajs-confluence-flavour" content="VANILLA">
+            <meta name="ajs-user-date-pattern" content="dd MMM yyyy">
+            <meta name="ajs-access-mode" content="READ_WRITE">
+            <meta name="ajs-render-mode" content="READ_WRITE">
+            <meta name="ajs-date.format" content="MMM dd, yyyy">
+    
+    <link rel="shortcut icon" href="/s/-5iwf5w/9004/9r8qvy/8/_/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/s/-5iwf5w/9004/9r8qvy/8/_/favicon.ico">
+
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/osd.action" title="Confluence"/>
+    
+                    
+            <meta name="ajs-create-issue-metadata-show-discovery" content="false">
+            
+
+    <script>
+window.WRM=window.WRM||{};window.WRM._unparsedData=window.WRM._unparsedData||{};window.WRM._unparsedErrors=window.WRM._unparsedErrors||{};
+WRM._unparsedData["com.atlassian.applinks.applinks-plugin:applinks-common-exported.entity-types"]="{\u0022singular\u0022:{\u0022refapp.charlie\u0022:\u0022Charlie\u0022,\u0022fecru.project\u0022:\u0022Crucible Project\u0022,\u0022fecru.repository\u0022:\u0022FishEye Repository\u0022,\u0022stash.project\u0022:\u0022Stash Project\u0022,\u0022generic.entity\u0022:\u0022Generic Project\u0022,\u0022confluence.space\u0022:\u0022Confluence Space\u0022,\u0022bamboo.project\u0022:\u0022Bamboo Project\u0022,\u0022jira.project\u0022:\u0022Jira Project\u0022},\u0022plural\u0022:{\u0022refapp.charlie\u0022:\u0022Charlies\u0022,\u0022fecru.project\u0022:\u0022Crucible Projects\u0022,\u0022fecru.repository\u0022:\u0022FishEye Repositories\u0022,\u0022stash.project\u0022:\u0022Stash Projects\u0022,\u0022generic.entity\u0022:\u0022Generic Projects\u0022,\u0022confluence.space\u0022:\u0022Confluence Spaces\u0022,\u0022bamboo.project\u0022:\u0022Bamboo Projects\u0022,\u0022jira.project\u0022:\u0022Jira Projects\u0022}}";
+WRM._unparsedData["com.atlassian.analytics.analytics-client:programmatic-analytics-init.programmatic-analytics-data-provider"]="false";
+WRM._unparsedData["com.atlassian.confluence.plugins.confluence-license-banner:confluence-license-banner-resources.license-details"]="{\u0022daysBeforeLicenseExpiry\u0022:0,\u0022daysBeforeMaintenanceExpiry\u0022:0,\u0022showLicenseExpiryBanner\u0022:false,\u0022showMaintenanceExpiryBanner\u0022:false,\u0022renewUrl\u0022:null,\u0022salesUrl\u0022:null}";
+WRM._unparsedData["com.atlassian.plugins.atlassian-plugins-webresource-plugin:context-path.context-path"]="\u0022\u0022";
+WRM._unparsedData["com.atlassian.analytics.analytics-client:policy-update-init.policy-update-data-provider"]="false";
+WRM._unparsedData["com.atlassian.applinks.applinks-plugin:applinks-common-exported.authentication-types"]="{\u0022com.atlassian.applinks.api.auth.types.BasicAuthenticationProvider\u0022:\u0022Basic Access\u0022,\u0022com.atlassian.applinks.api.auth.types.TrustedAppsAuthenticationProvider\u0022:\u0022Trusted Applications\u0022,\u0022com.atlassian.applinks.api.auth.types.CorsAuthenticationProvider\u0022:\u0022CORS\u0022,\u0022com.atlassian.applinks.api.auth.types.OAuthAuthenticationProvider\u0022:\u0022OAuth\u0022,\u0022com.atlassian.applinks.api.auth.types.TwoLeggedOAuthAuthenticationProvider\u0022:\u0022OAuth\u0022,\u0022com.atlassian.applinks.api.auth.types.TwoLeggedOAuthWithImpersonationAuthenticationProvider\u0022:\u0022OAuth\u0022}";
+WRM._unparsedData["com.atlassian.confluence.plugins.confluence-search-ui-plugin:confluence-search-ui-plugin-resources.i18n-data"]="{\u0022search.ui.recent.link.text\u0022:\u0022View more recently visited\u0022,\u0022search.ui.search.results.empty\u0022:\u0022We couldn\u0027\u0027t find anything matching \u005C\u0022{0}\u005C\u0022.\u0022,\u0022search.ui.filter.clear.selected\u0022:\u0022Clear selected items\u0022,\u0022search.ui.content.name.search.items.panel.load.all.top.items.button.text\u0022:\u0022Show more app results...\u0022,\u0022search.ui.filter.contributor.button.text\u0022:\u0022Contributor\u0022,\u0022search.ui.filter.space.current.label\u0022:\u0022CURRENT\u0022,\u0022search.ui.clear.input.button.text\u0022:\u0022Clear text\u0022,\u0022search.ui.search.results.clear.button\u0022:\u0022clear your filters.\u0022,\u0022help.search.ui.link.title\u0022:\u0022Search tips\u0022,\u0022search.ui.container.close.text\u0022:\u0022Close\u0022,\u0022search.ui.filter.date.month.text\u0022:\u0022The past month\u0022,\u0022search.ui.infinite.scroll.button.text\u0022:\u0022More results\u0022,\u0022search.ui.filter.date.button.text\u0022:\u0022Date\u0022,\u0022search.ui.filter.date.week.text\u0022:\u0022The past week\u0022,\u0022search.ui.result.subtitle.calendar\u0022:\u0022Team calendar\u0022,\u0022search.ui.filter.date.heading\u0022:\u0022Last modified within\u0022,\u0022search.ui.filter.space.input.label\u0022:\u0022Find spaces...\u0022,\u0022search.ui.generic.error\u0022:\u0022Something went wrong. Refresh the page, or contact your admin if this keeps happening.\u0022,\u0022search.ui.recent.spaces\u0022:\u0022Recent Spaces\u0022,\u0022search.ui.result.subtitle.space\u0022:\u0022Space\u0022,\u0022search.ui.filter.space.category.input.label\u0022:\u0022Find space categories...\u0022,\u0022search.ui.filter.space.archive.label\u0022:\u0022Search archived spaces\u0022,\u0022search.ui.filter.label\u0022:\u0022filter\u0022,\u0022search.ui.filter.date.all.text\u0022:\u0022Any time\u0022,\u0022search.ui.filter.date.hour.text\u0022:\u0022The past day\u0022,\u0022search.ui.filters.heading\u0022:\u0022Filter by\u0022,\u0022search.ui.filter.label.input.label\u0022:\u0022Find labels...\u0022,\u0022search.ui.recent.items.anonymous\u0022:\u0022Start exploring. Your search results will appear here.\u0022,\u0022search.ui.input.label\u0022:\u0022Search\u0022,\u0022search.ui.input.aria.label\u0022:\u0022Search, when you type, your results will be displayed below.\u0022,\u0022search.ui.search.result\u0022:\u0022{0,choice,1#{0} search result|1\u003c{0} search results}\u0022,\u0022search.ui.filter.label.button.text\u0022:\u0022Label\u0022,\u0022search.ui.container.clear.ariaLabel\u0022:\u0022Clear\u0022,\u0022search.ui.input.alert\u0022:\u0022Hit enter to search\u0022,\u0022search.ui.filter.no.result.text\u0022:\u0022We can\u0027\u0027t find anything matching your search\u0022,\u0022search.ui.result.subtitle.user\u0022:\u0022User profile\u0022,\u0022search.ui.filter.contributor.input.label\u0022:\u0022Find people...\u0022,\u0022search.ui.filter.content.type.button.text\u0022:\u0022Type\u0022,\u0022search.ui.filter.date.year.text\u0022:\u0022The past year\u0022,\u0022search.ui.advanced.search.link.text\u0022:\u0022Advanced search\u0022,\u0022search.ui.filter.space.button.text\u0022:\u0022Space\u0022,\u0022search.ui.search.results.clear.line2\u0022:\u0022Try a different search term or\u0022,\u0022search.ui.filter.space.category.button.text\u0022:\u0022Space category\u0022,\u0022search.ui.search.results.clear.line1\u0022:\u0022We couldn\u0027\u0027t find anything matching your search.\u0022,\u0022search.ui.content.name.search.items.panel.load.all.top.items.admin.button.text\u0022:\u0022Show more settings and app results...\u0022,\u0022search.ui.recent.pages\u0022:\u0022Recently visited\u0022,\u0022search.ui.search.result.anonymous\u0022:\u0022{0,choice,1#{0} search result|1\u003c{0} search results}. Have an account? {1}Log in{2} to expand your search.\u0022,\u0022search.ui.recent.items.empty\u0022:\u0022Start exploring. Pages and spaces you\u0027\u0027ve visited recently will appear here.\u0022,\u0022search.ui.filter.space.init.heading\u0022:\u0022recent spaces\u0022}";
+WRM._unparsedData["com.atlassian.applinks.applinks-plugin:applinks-common-exported.applinks-types"]="{\u0022crowd\u0022:\u0022Crowd\u0022,\u0022confluence\u0022:\u0022Confluence\u0022,\u0022fecru\u0022:\u0022FishEye / Crucible\u0022,\u0022stash\u0022:\u0022Stash\u0022,\u0022jira\u0022:\u0022Jira\u0022,\u0022refapp\u0022:\u0022Reference Application\u0022,\u0022bamboo\u0022:\u0022Bamboo\u0022,\u0022generic\u0022:\u0022Generic Application\u0022}";
+WRM._unparsedData["com.atlassian.confluence.plugins.synchrony-interop:synchrony-status-banner-loader.synchrony-status"]="false";
+WRM._unparsedData["com.atlassian.applinks.applinks-plugin:applinks-common-exported.applinks-help-paths"]="{\u0022entries\u0022:{\u0022applinks.docs.root\u0022:\u0022https://confluence.atlassian.com/display/APPLINKS-090/\u0022,\u0022applinks.docs.diagnostics.troubleshoot.sslunmatched\u0022:\u0022SSL+and+application+link+troubleshooting+guide\u0022,\u0022applinks.docs.diagnostics.troubleshoot.oauthsignatureinvalid\u0022:\u0022OAuth+troubleshooting+guide\u0022,\u0022applinks.docs.diagnostics.troubleshoot.oauthtimestamprefused\u0022:\u0022OAuth+troubleshooting+guide\u0022,\u0022applinks.docs.delete.entity.link\u0022:\u0022Create+links+between+projects\u0022,\u0022applinks.docs.adding.application.link\u0022:\u0022Link+Atlassian+applications+to+work+together\u0022,\u0022applinks.docs.administration.guide\u0022:\u0022Application+Links+Documentation\u0022,\u0022applinks.docs.oauth.security\u0022:\u0022OAuth+security+for+application+links\u0022,\u0022applinks.docs.troubleshoot.application.links\u0022:\u0022Troubleshoot+application+links\u0022,\u0022applinks.docs.diagnostics.troubleshoot.unknownerror\u0022:\u0022Network+and+connectivity+troubleshooting+guide\u0022,\u0022applinks.docs.configuring.auth.trusted.apps\u0022:\u0022Configuring+Trusted+Applications+authentication+for+an+application+link\u0022,\u0022applinks.docs.diagnostics.troubleshoot.authlevelunsupported\u0022:\u0022OAuth+troubleshooting+guide\u0022,\u0022applinks.docs.diagnostics.troubleshoot.ssluntrusted\u0022:\u0022SSL+and+application+link+troubleshooting+guide\u0022,\u0022applinks.docs.diagnostics.troubleshoot.unknownhost\u0022:\u0022Network+and+connectivity+troubleshooting+guide\u0022,\u0022applinks.docs.delete.application.link\u0022:\u0022Link+Atlassian+applications+to+work+together\u0022,\u0022applinks.docs.adding.project.link\u0022:\u0022Configuring+Project+links+across+Applications\u0022,\u0022applinks.docs.link.applications\u0022:\u0022Link+Atlassian+applications+to+work+together\u0022,\u0022applinks.docs.diagnostics.troubleshoot.oauthproblem\u0022:\u0022OAuth+troubleshooting+guide\u0022,\u0022applinks.docs.diagnostics.troubleshoot.migration\u0022:\u0022Update+application+links+to+use+OAuth\u0022,\u0022applinks.docs.relocate.application.link\u0022:\u0022Link+Atlassian+applications+to+work+together\u0022,\u0022applinks.docs.administering.entity.links\u0022:\u0022Create+links+between+projects\u0022,\u0022applinks.docs.upgrade.application.link\u0022:\u0022OAuth+security+for+application+links\u0022,\u0022applinks.docs.diagnostics.troubleshoot.connectionrefused\u0022:\u0022Network+and+connectivity+troubleshooting+guide\u0022,\u0022applinks.docs.configuring.auth.oauth\u0022:\u0022OAuth+security+for+application+links\u0022,\u0022applinks.docs.insufficient.remote.permission\u0022:\u0022OAuth+security+for+application+links\u0022,\u0022applinks.docs.configuring.application.link.auth\u0022:\u0022OAuth+security+for+application+links\u0022,\u0022applinks.docs.diagnostics\u0022:\u0022Application+links+diagnostics\u0022,\u0022applinks.docs.configured.authentication.types\u0022:\u0022OAuth+security+for+application+links\u0022,\u0022applinks.docs.adding.entity.link\u0022:\u0022Create+links+between+projects\u0022,\u0022applinks.docs.diagnostics.troubleshoot.unexpectedresponse\u0022:\u0022Network+and+connectivity+troubleshooting+guide\u0022,\u0022applinks.docs.configuring.auth.basic\u0022:\u0022Configuring+Basic+HTTP+Authentication+for+an+Application+Link\u0022,\u0022applinks.docs.diagnostics.troubleshoot.authlevelmismatch\u0022:\u0022OAuth+troubleshooting+guide\u0022}}";
+WRM._unparsedData["com.atlassian.confluence.plugins.confluence-feature-discovery-plugin:confluence-feature-discovery-plugin-resources.test-mode"]="false";
+if(window.WRM._dataArrived)window.WRM._dataArrived();</script>
+<link rel="stylesheet" href="/s/3906b0a9678c0e7366e2037031ee723f-CDN/-5iwf5w/9004/9r8qvy/88fd744a9e5c04fb75da4bef47308e85/_/download/contextbatch/css/_super,-com.atlassian.plugins.atlassian-plugins-webresource-rest:data-collector-perf-observer/batch.css" data-wrm-key="_super,-com.atlassian.plugins.atlassian-plugins-webresource-rest:data-collector-perf-observer" data-wrm-batch-type="context" media="all">
+<link rel="stylesheet" href="/s/0c56633e0aefa2b6661634c23890e5e1-CDN/-5iwf5w/9004/9r8qvy/874b773bd8d8c495dc5a9025eccfabcc/_/download/contextbatch/css/atl.confluence.plugins.pagetree-desktop,main,viewcontent,atl.general,page,atl.comments,-_super/batch.css?cefp_collab_enabled=true&amp;cefp_ed_perm=false&amp;cefp_is_admin=false&amp;gatekeeper-ui-v2=true&amp;highlightactions=true" data-wrm-key="atl.confluence.plugins.pagetree-desktop,main,viewcontent,atl.general,page,atl.comments,-_super" data-wrm-batch-type="context" media="all">
+<link rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e-CDN/-5iwf5w/9004/9r8qvy/9.0.9/_/download/batch/confluence.macros.advanced:blogpost-resources/confluence.macros.advanced:blogpost-resources.css" data-wrm-key="confluence.macros.advanced:blogpost-resources" data-wrm-batch-type="resource" media="all">
+<link rel="stylesheet" href="/s/-5iwf5w/9004/9r8qvy/8/_/styles/custom.css" media="all">
+<script data-wrm-key="com.atlassian.plugins.atlassian-plugins-webresource-rest:data-collector-perf-observer" data-wrm-batch-type="resource" data-initially-rendered>
+!function(){"use strict";if("PerformanceObserver"in window){const e=[];window.__observedResources=e;const r=e=>"script"===e?"script":"css";new PerformanceObserver((n=>{n.getEntries().filter((({initiatorType:e,name:r})=>{const n="script"===e||((e,r)=>"link"===e&&"css"===new URL(r).pathname.split(".").pop())(e,r),i=new URL(location.href).origin===new URL(r).origin;return n&&i})).forEach((({name:n,transferSize:i,encodedBodySize:s,initiatorType:o})=>{e.push([i,s,n,r(o)])}))})).observe({type:"resource"})}}();
+
+</script>
+<script src="/s/db7b93668ec3f1e28b20d5f4cb5aaf12-CDN/-5iwf5w/9004/9r8qvy/88fd744a9e5c04fb75da4bef47308e85/_/download/contextbatch/js/_super,-com.atlassian.plugins.atlassian-plugins-webresource-rest:data-collector-perf-observer/batch.js?locale=en-GB" data-wrm-key="_super,-com.atlassian.plugins.atlassian-plugins-webresource-rest:data-collector-perf-observer" data-wrm-batch-type="context" data-initially-rendered></script>
+<script src="/s/0341ac3c08eb7d3372fdf748f56002e3-CDN/-5iwf5w/9004/9r8qvy/874b773bd8d8c495dc5a9025eccfabcc/_/download/contextbatch/js/atl.confluence.plugins.pagetree-desktop,main,viewcontent,atl.general,page,atl.comments,-_super/batch.js?cefp_collab_enabled=true&amp;cefp_ed_perm=false&amp;cefp_is_admin=false&amp;gatekeeper-ui-v2=true&amp;highlightactions=true&amp;locale=en-GB" data-wrm-key="atl.confluence.plugins.pagetree-desktop,main,viewcontent,atl.general,page,atl.comments,-_super" data-wrm-batch-type="context" data-initially-rendered></script>
+<script type="module">WRM.requireLazily(["wr!com.atlassian.plugins.atlassian-plugins-webresource-rest:data-collector-async"])</script>
+    
+
+        
+    
+
+        
+        <meta name="ajs-site-title" content="Confluence" />
+            
+    <script>
+jQuery(document).ready(function() {
+    jQuery(".external-link").attr("target", "_blank");
+});
+</script>
+<script type="text/javascript">
+    AJS.toInit(function(){
+        if (AJS.params.remoteUser == ''){
+          AJS.$('#who-can-view-button-ak-button').hide();
+         
+        }
+    });
+</script>
+
+    
+                <link rel="canonical" href="https://unlimited.ethz.ch/display/CON/Welcome+to+Confluence+of+ETH+Zurich">
+        <link rel="shortlink" href="https://unlimited.ethz.ch/x/j0QpAg">
+    <meta name="wikilink" content="[CON:Welcome to Confluence of ETH Zurich]">
+    <meta name="page-version" content="32">
+    <meta name="ajs-page-version" content="32">
+
+</head>
+
+    
+<body      id="com-atlassian-confluence" class="theme-default  aui-layout aui-theme-default">
+
+        
+            <div id='stp-licenseStatus-banner'></div>
+            <meta name="ajs-is-scroll-viewport-available" content="true">
+    <div id="page">
+<div id="full-height-container">
+    <div id="header-precursor">
+        <div class="cell">
+            
+                            </div>
+    </div>
+        
+
+
+
+
+
+<header id="header" role="banner">
+            <a class="aui-skip-link" href="https://unlimited.ethz.ch/login.action?os_destination=%2F" tabindex="1">Log in</a>
+        <nav class="aui-header aui-dropdown2-trigger-group" aria-label="Site"><div class="aui-header-inner"><div class="aui-header-before"><button class=" aui-dropdown2-trigger app-switcher-trigger aui-dropdown2-trigger-arrowless" aria-controls="app-switcher" aria-haspopup="true" role="button" data-aui-trigger href="#app-switcher"><span class="aui-icon aui-icon-small aui-iconfont-appswitcher">Linked Applications</span></button><div id="app-switcher" class="aui-dropdown2 aui-style-default" role="menu" hidden data-is-user-admin="false" data-is-switcher="true"><div class="app-switcher-loading">Loading&hellip;</div></div></div><div class="aui-header-primary"><span id="logo" class="aui-header-logo aui-header-logo-custom"><a href="/" aria-label="Go to home page"><img src="/download/attachments/327682/atl.site.logo?version=1&amp;modificationDate=1563454119905&amp;api=v2" alt="Confluence" /></a></span><ul class="aui-nav">
+                            <li>
+            
+    
+        
+<a  id="space-directory-link" href="/spacedirectory/view.action"  class=" aui-nav-imagelink"   title="Spaces">
+            <span>Spaces</span>
+    </a>
+        </li>
+                                <li class="aui-buttons">
+                                <a href="#" id="create-page-button" class="aui-button aui-button-primary clc-create-dialog-btn" title = 'Create from template' tabindex="0"><span class="aui-icon aui-icon-small aui-iconfont-more">Create </span></a>
+            </li>
+</ul>
+</div><div class="aui-header-secondary"><ul class="aui-nav">
+                        <li>
+        <div id="search-ui" class="aui-quicksearch dont-default-focus header-quicksearch"><button id="quick-search-query-button" aria-label="Search" aria-haspopup= "dialog" aria-controls="search_drawer" ></button><input id="quick-search-query" aria-label="Search" placeholder="Search" type="text" aria-haspopup= "dialog" aria-controls="search_drawer" /><div id="quick-search-alert" role="alert">Hit enter to search</div><aui-spinner size="small"></aui-spinner></div>
+    </li>
+        <li>
+            
+        <a id="help-menu-link" role="button" class="aui-nav-link aui-dropdown2-trigger aui-dropdown2-trigger-arrowless" href="#" aria-haspopup="true" aria-owns="help-menu-link-content" title="Help">
+        <span class="aui-icon aui-icon-small aui-iconfont-question-filled">Help</span>
+    </a>
+    <nav id="help-menu-link-content" class="aui-dropdown2 aui-style-default" >
+                    <div class="aui-dropdown2-section">
+                                    <strong></strong>
+                                <ul role="menu"
+                     role="menu"                    aria-label="Help"                    id="help-menu-link-pages"                    class="aui-list-truncate section-pages first">
+                                            <li role="presentation">
+        
+            
+<a role="menuitem"  id="confluence-help-link" href="https://docs.atlassian.com/confluence/docs-82/" class="    "      title="Visit the Confluence documentation home"  target="_blank"
+>
+        Online Help
+</a>
+</li>
+                                            <li role="presentation">
+    
+                
+<a role="menuitem"  id="keyboard-shortcuts-link" href="#" class="    "      title="View available keyboard shortcuts" >
+        Keyboard Shortcuts
+</a>
+</li>
+                                            <li role="presentation">
+    
+            
+<a role="menuitem"  id="feed-builder-link" href="/dashboard/configurerssfeed.action" class="    "      title="Create your custom RSS feed." >
+        Feed Builder
+</a>
+</li>
+                                            <li role="presentation">
+    
+            
+<a role="menuitem"  id="whats-new-menu-link" href="https://confluence.atlassian.com/display/DOC/Confluence+8.2+Release+Notes" class="    "      title="" >
+        What’s new
+</a>
+</li>
+                                            <li role="presentation">
+    
+                
+<a role="menuitem"  id="gadget-directory-link" href="#" class="   user-item administration-link "      title="Browse gadgets provided by Confluence" >
+        Available Gadgets
+</a>
+</li>
+                                            <li role="presentation">
+    
+            
+<a role="menuitem"  id="confluence-about-link" href="/aboutconfluencepage.action" class="    "      title="Get more information about Confluence" >
+        About Confluence
+</a>
+</li>
+                                    </ul>
+            </div>
+            </nav>
+    
+    </li>
+        <li>
+                
+    
+    </li>
+        <li>
+            
+    </li>
+        <li>
+                                            <li>
+        
+            
+<a role="menuitem"  id="login-link" href="/login.action?os_destination=%2F" class="   user-item login-link "      title="" >
+        Log in
+</a>
+</li>
+                        
+    </li>
+    </ul>
+</div></div><!-- .aui-header-inner--></nav><!-- .aui-header -->
+    <br class="clear">
+</header>
+    
+
+    
+    	<div class="ia-splitter">
+    		<div class="ia-splitter-left">
+    			<div class="ia-fixed-sidebar" role="complementary" aria-label=sidebar>
+                                            
+                            <div class="acs-side-bar ia-scrollable-section"><div class="acs-side-bar-space-info tipsy-enabled" data-configure-tooltip="Edit space details"><div class="avatar"><div class="space-logo" data-key="CON" data-name="Confluence" data-entity-type="confluence.space"><div class="avatar-img-container"><div class="avatar-img-wrapper"><a href="/display/CON/Welcome+to+Confluence+of+ETH+Zurich" title="Confluence"><img class="avatar-img" src="/images/logo/default-space-logo.svg" alt="Confluence"></a></div></div></div></div><div class="space-information-container"><div class="name"><a href="/display/CON/Welcome+to+Confluence+of+ETH+Zurich" title="Confluence">Confluence</a></div><div class="flyout-handle icon aui-icon aui-icon-small aui-iconfont-edit"></div></div></div><div class="acs-side-bar-content"><div class="acs-nav-wrapper"><div class="acs-nav" data-has-create-permission="false" data-quick-links-state="null" data-page-tree-state="null" data-nav-type="page-tree"><div class="acs-nav-sections"><div class="main-links-section "><ul class="acs-nav-list"><li class="acs-nav-item blog" data-collector-key="spacebar-blogs"><a class="acs-nav-item-link tipsy-enabled" href="/pages/viewrecentblogposts.action?key=CON" data-collapsed-tooltip="Blog"><span class="icon"></span><span class="acs-nav-item-label">Blog</span></a></li></ul></div><div class="quick-links-wrapper"><h2 class="ia-quick-links-header-title">Space shortcuts</h2><div class="quick-links-section tipsy-enabled "><ul class="acs-nav-list"><li class="acs-nav-item external_link"><a class="acs-nav-item-link tipsy-enabled" href="https://unlimited.ethz.ch/dashboard.action#all-updates" data-collapsed-tooltip="null"><span class="icon"></span><span class="acs-nav-item-label">Dashboard</span></a></li></ul></div></div></div></div></div><div class="ia-secondary-container tipsy-enabled" data-tree-type="page-tree"><div class="ia-secondary-header"><h2 class="ia-secondary-header-title page-tree"><span class="icon"></span><span class="label">Page tree</span></h2></div><div class="ia-secondary-content">
+
+
+<div class="plugin_pagetree conf-macro output-inline" data-hasbody="false" data-macro-name="pagetree">
+
+        
+        
+    <ul role="list" class="plugin_pagetree_children_list plugin_pagetree_children_list_noleftspace">
+        <div class="plugin_pagetree_children">
+        </div>
+    </ul>
+
+    <fieldset class="hidden">
+        <input type="hidden" name="treeId" value="" />
+        <input type="hidden" name="treeRequestId" value="/plugins/pagetree/naturalchildren.action?decorator=none&amp;excerpt=false&amp;sort=position&amp;reverse=false&amp;disableLinks=false&amp;expandCurrent=true&amp;placement=sidebar" />
+        <input type="hidden" name="treePageId" value="36258959" />
+
+        <input type="hidden" name="noRoot" value="false" />
+        <input type="hidden" name="rootPageId" value="36258959" />
+
+        <input type="hidden" name="rootPage" value="" />
+        <input type="hidden" name="startDepth" value="0" />
+        <input type="hidden" name="spaceKey" value="CON" />
+
+        <input type="hidden" name="i18n-pagetree.loading" value="Loading..." />
+        <input type="hidden" name="i18n-pagetree.error.permission" value="Unable to load page tree. It seems that you do not have permission to view the root page." />
+        <input type="hidden" name="i18n-pagetree.eeror.general" value="There was a problem retrieving the page tree. Please check the server log file for more information." />
+        <input type="hidden" name="loginUrl" value="/login.action?os_destination=%2Fpages%2Fviewpage.action%3FspaceKey%3DCON%26title%3DWelcome%2Bto%2BConfluence%2Bof%2BETH%2BZurich&amp;permissionViolation=true" />
+        <input type="hidden" name="mobile" value="false" />
+        <input type="hidden" name="placement" value="sidebar" />
+
+                <fieldset class="hidden">
+                            <input type="hidden" name="ancestorId" value="36258959" />
+                    </fieldset>
+    </fieldset>
+</div>
+</div></div></div><div class="hidden"><a href="/collector/pages.action?key=CON" id="space-pages-link"></a><script type="text/x-template" title="logo-config-content"><h2>Space Details</h2><div class="personal-space-logo-hint">Your profile picture is used as the logo for your personal space. <a href="/users/profile/editmyprofilepicture.action" target="_blank">Change your profile picture</a>.</div></script></div></div><div class="space-tools-section"><div id="space-tools-menu-additional-items" class="hidden"><div data-label="Browse pages" data-class="" data-href="/pages/reorderpages.action?key=CON">Browse pages</div></div><button id="space-tools-menu-trigger"  class=" aui-dropdown2-trigger aui-button aui-button-subtle tipsy-enabled aui-dropdown2-trigger-arrowless " aria-controls="space-tools-menu" aria-haspopup="true" role="button" data-aui-trigger><span class="aui-icon aui-icon-small aui-iconfont-configure">Configure</span><span class="aui-button-label">Space tools</span><span class="aui-icon "></span></button><div id="space-tools-menu" class="aui-dropdown2 aui-style-default space-tools-dropdown" role="menu" hidden data-aui-alignment="top left"></div><a href="#" role="button" class="expand-collapse-trigger aui-icon aui-icon-small aui-iconfont-chevron-double-left" aria-expanded="true"></a></div>
+                    
+                        			</div>
+    		</div>
+        <!-- \#header -->
+
+            
+    
+        <main role="main" id="main" class=" aui-page-panel">
+                        <div id="main-header">
+                        
+    <div id="navigation" class="content-navigation view" role="region" aria-label="Page tools">
+                    <ul class="ajs-menu-bar">
+                                            
+        <li class="normal ajs-menu-item">
+        <a id="action-menu-link" class="action aui-dropdown2-trigger-arrowless aui-button aui-button-subtle ajs-menu-title aui-dropdown2-trigger" href="#" aria-haspopup="true" aria-label="More options" aria-owns="action-menu" data-container="#navigation">
+            <span>
+                                    <span class="aui-icon aui-icon-small aui-iconfont-more" aria-label="More options"></span>
+                                
+            </span>
+        </a>         <div id="action-menu" class="aui-dropdown2 aui-style-default"  role="menu" aria-labelledby="action-menu-link" >
+                            <div class="aui-dropdown2-section">
+                    <ul  id="action-menu-primary"                          class="section-primary first"                         role="presentation" >
+                                                    <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="view-attachments-link"                href="/pages/viewpageattachments.action?pageId=36258959"
+                rel="nofollow"
+                class="action-view-attachments"
+                 accessKey="t"                 title="View Attachments"                                                 role="menuitem"                >
+
+                        <span>
+                                A<u>t</u>tachments (12)
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="action-view-history-link"                href="/pages/viewpreviousversions.action?pageId=36258959"
+                rel="nofollow"
+                class="action-view-history"
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                Page History
+            </span>        </a>
+    </li>
+                                        </ul>
+                </div>
+                            <div class="aui-dropdown2-section">
+                    <ul  id="action-menu-secondary"                          class="section-secondary"                         role="presentation" >
+                                                    <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="view-page-info-link"                href="/pages/viewinfo.action?pageId=36258959"
+                rel="nofollow"
+                class="action-view-info"
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                Page Information
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+            
+    
+                                                                        
+    
+    
+            <a  id="view-resolved-comments"                href="#"
+                rel="nofollow"
+                class=""
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                Resolved comments
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="view-in-hierarchy-link"                href="/pages/reorderpages.action?key=CON&amp;openId=36258959#selectedPageInHierarchy"
+                rel="nofollow"
+                class=""
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                View in Hierarchy
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="action-view-source-link"                href="/plugins/viewsource/viewpagesrc.action?pageId=36258959"
+                rel="nofollow"
+                class="action-view-source popup-link"
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                View Source
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="action-export-pdf-link"                href="/spaces/flyingpdf/pdfpageexport.action?pageId=36258959"
+                rel="nofollow"
+                class=""
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                Export to PDF
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="action-export-word-link"                href="/exportword?pageId=36258959"
+                rel="nofollow"
+                class="action-export-word"
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                Export to Word
+            </span>        </a>
+    </li>
+                                                <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a                 href="/plugins/lucidchart/selectVisio.action?contentId=36258959"
+                rel="nofollow"
+                class=""
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                View Visio File
+            </span>        </a>
+    </li>
+                                        </ul>
+                </div>
+                            <div class="aui-dropdown2-section">
+                    <ul  id="action-menu-modify"                          class="section-modify"                         role="presentation" >
+                                                    <li
+                    role="presentation"
+            >
+
+    
+        
+    
+                                                                        
+    
+    
+            <a  id="action-copy-page-link"                href="/pages/copypage.action?idOfPageToCopy=36258959&amp;spaceKey=CON"
+                rel="nofollow"
+                class="action-copy"
+                                 title=""                                                 role="menuitem"                >
+
+                        <span>
+                                Copy
+            </span>        </a>
+    </li>
+                                        </ul>
+                </div>
+                    </div>
+    </li>
+            </ul>
+    </div>
+
+            
+            <div id="title-heading" class="pagetitle with-breadcrumbs">
+                
+                                    <div id="breadcrumb-section">
+                        
+    
+    
+    <nav aria-label="Breadcrumbs">
+        <ol id="breadcrumbs">
+                                                            
+                                
+            <li class="first" >
+                                
+                                    <span class=""><a href="/collector/pages.action?key=CON">Pages</a></span>
+                                                                                                    </ol>
+    </nav>
+
+
+                    </div>
+                
+                
+                
+            <div id="page-metadata-banner"><ul class="banner"><li id="system-content-items" class="noprint"><a href="" title="Unrestricted" id="content-metadata-page-restrictions-hidden" class="hidden"></a><a href="/pages/viewpageattachments.action?pageId=36258959&amp;metadataLink=true" title="12 attachments" id="content-metadata-attachments" class="aui-icon aui-icon-small aui-iconfont-attachment"></a></li><li class="page-metadata-item noprinthas-button"  id="content-metadata-jira-wrapper"><a href="" title="" id="content-metadata-jira" class="aui-button aui-button-subtle content-metadata-jira tipsy-disabled hidden"><span>Jira links</span></a></li></ul></div>
+        
+
+                <h1 id="title-text" class="with-breadcrumbs">
+                                                <a href="/display/CON/Welcome+to+Confluence+of+ETH+Zurich">Welcome to Confluence of ETH Zurich</a>
+                                    </h1>
+            </div>
+        </div><!-- \#main-header -->
+        
+        
+
+        <div id="sidebar-container">
+                                                </div><!-- \#sidebar-container -->
+
+        
+    
+
+        
+
+
+
+
+            
+    
+
+                                
+    
+
+    
+    
+        
+    
+    
+                    
+    
+
+    
+
+    
+            
+        
+
+    
+    
+
+    
+            
+        
+
+
+
+    
+<div id="content" class="page view">
+    
+
+
+<div id="action-messages">
+                        </div>
+
+
+
+            <script type="text/x-template" title="searchResultsGrid">
+    <table class="aui">
+        <thead>
+            <tr class="header">
+                <th class="search-result-title">Page Title</th>
+                <th class="search-result-space">Space</th>
+                <th class="search-result-date">Updated</th>
+            </tr>
+        </thead>
+    </table>
+</script>
+<script type="text/x-template" title="searchResultsGridCount">
+    <p class="search-result-count">{0}</p>
+</script>
+<script type="text/x-template" title="searchResultsGridRow">
+    <tr class="search-result">
+        <td class="search-result-title"><a href="{1}" class="content-type-{2}"><span>{0}</span></a></td>
+        <td class="search-result-space"><a class="space" href="/display/{4}/" title="{3}">{3}</a></td>
+        <td class="search-result-date"><span class="date" title="{6}">{5}</span></td>
+    </tr>
+</script>
+        
+    
+            
+
+        
+                            
+    
+
+                    
+
+        
+        <div class="page-metadata">
+    <ul>
+        <li class="page-metadata-modification-info">
+            
+        
+    
+    
+        
+    
+        
+            
+            Created by <span class='author'>     <a href="    /display/~mbu4ea
+"
+            aria-label="created by Buschor  Mark (4ea)"                       class="url fn"
+                            >Buschor  Mark (4ea)</a></span>, last modified by <span class='editor'>     <a href="    /display/~mabuscho
+"
+            aria-label="modified by Buschor  Mark (ID)"                       class="url fn"
+                            >Buschor  Mark (ID)</a></span> on <a class='last-modified' aria-label='modified on May 11, 2022, select to show changes' title='Show changes' href='/pages/diffpagesbyversion.action?pageId=36258959&amp;selectedPageVersions=31&amp;selectedPageVersions=32'>May 11, 2022</a>
+            </li>
+    </ul>
+</div>
+        
+                                            
+        <div id="main-content" class="wiki-content">
+                           
+        <div class="contentLayout2">
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<br/><div class="sectionColumnWrapper conf-macro output-block" data-hasbody="true" data-macro-name="section"><div class="sectionMacro"><div class="sectionMacroRow"><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:510px;min-width:510px;max-width:510px;"><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="border-bottom: 1px solid white;border-width: 0px;"><div class="panelContent">
+<p><a href="#WelcometoConfluenceofETHZurich-1"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="498" src="/download/attachments/36258959/previewHigh.jpg?version=1&amp;modificationDate=1594226270202&amp;api=v2" data-image-src="/download/attachments/36258959/previewHigh.jpg?version=1&amp;modificationDate=1594226270202&amp;api=v2" data-unresolved-comment-count="0" data-linked-resource-id="36258969" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="previewHigh.jpg" data-base-url="https://unlimited.ethz.ch" data-linked-resource-content-type="image/jpeg" data-linked-resource-container-id="36258959" data-linked-resource-container-version="32" alt="" /></span></a></p>
+</div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:300px;min-width:300px;max-width:300px;"><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #ebedef;border-color: #abb2b9;border-width: 1px;"><div class="panelContent" style="background-color: #ebedef;">
+<h3 style="text-align: center;" id="WelcometoConfluenceofETHZurich-WelcometoConfluenceofETHZurich">Welcome to Confluence of ETH Zurich</h3><hr /><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="border-bottom: 1px solid white;border-width: 0px;"><div class="panelContent">
+<p style="text-align: center;">Confluence is where your team collaborates and shares knowledge — create, share and discuss your files, ideas, minutes, specs, mockups, diagrams, and projects.</p><p style="text-align: center;">To receive announcements about Confluence news and operations, please subscribe to the mailing list: <br /><strong><a class="external-link" href="https://sympa.ethz.ch/sympa/info/confluence-operations" rel="nofollow">confluence-operations in Sympa</a><br /></strong></p><p style="text-align: center;"><strong>Want to Order a new Space? <a href="https://unlimited.ethz.ch/x/RQfcBg" rel="nofollow">Click here</a></strong></p>
+</div></div>
+</div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column"><p><span style="color: rgb(255,255,255);">S</span></p></div></div></div></div></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<h2 style="text-align: left;" id="WelcometoConfluenceofETHZurich-"><u><br/></u></h2><div class="sectionColumnWrapper conf-macro output-block" data-hasbody="true" data-macro-name="section"><div class="sectionMacro"><div class="sectionMacroRow"><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:400px;min-width:400px;max-width:400px;"><h2 style="text-align: left;" id="WelcometoConfluenceofETHZurich-FAQ&amp;ManualsofITServices">FAQ &amp; Manuals of IT Services<u><br /></u></h2><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:195px;min-width:195px;max-width:195px;"><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #d6eaf8;border-color: #0264ad;border-width: 1px;"><div class="panelContent" style="background-color: #d6eaf8;">
+<p style="text-align: center;"><a href="/display/itkb"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail" draggable="false" width="120" src="/download/thumbnails/36258959/firststeps_en.png?version=1&amp;modificationDate=1594226269359&amp;api=v2" data-image-src="/download/attachments/36258959/firststeps_en.png?version=1&amp;modificationDate=1594226269359&amp;api=v2" data-unresolved-comment-count="0" data-linked-resource-id="36258960" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="firststeps_en.png" data-base-url="https://unlimited.ethz.ch" data-linked-resource-content-type="image/png" data-linked-resource-container-id="36258959" data-linked-resource-container-version="32" alt="" /></span></a></p><h3 style="text-align: center;" id="WelcometoConfluenceofETHZurich-ITKnowledgeBase(EN)"><a href="/display/itkb">IT Knowledge Base<br />(EN)</a></h3>
+</div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:195px;min-width:195px;max-width:195px;"><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #d4efdf;border-color: #3c5a0f;border-width: 1px;"><div class="panelContent" style="background-color: #d4efdf;">
+<p style="text-align: center;"><a href="/display/itwdb"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail" draggable="false" width="120" src="/download/thumbnails/36258959/firststeps.png?version=1&amp;modificationDate=1594226269381&amp;api=v2" data-image-src="/download/attachments/36258959/firststeps.png?version=1&amp;modificationDate=1594226269381&amp;api=v2" data-unresolved-comment-count="0" data-linked-resource-id="36258961" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="firststeps.png" data-base-url="https://unlimited.ethz.ch" data-linked-resource-content-type="image/png" data-linked-resource-container-id="36258959" data-linked-resource-container-version="32" alt="" /></span></a></p><h3 style="text-align: center;" id="WelcometoConfluenceofETHZurich-IT-Wissensdatenbank(DE)"><a href="/display/itwdb">IT-Wissensdatenbank<br />(DE)</a></h3>
+</div></div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:10px;min-width:10px;max-width:10px;"><p><br /></p></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:400px;min-width:400px;max-width:400px;"><h2 class="auto-cursor-target" id="WelcometoConfluenceofETHZurich-News&amp;Updates">News &amp; Updates</h2><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #ebedef;border-color: #abb2b9;border-width: 1px;"><div class="panelContent" style="background-color: #ebedef;">
+<div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #ffffff;border-width: 1px;"><div class="panelContent" style="background-color: #ffffff;">
+<p>    
+
+</p><div class="blog-post-list conf-macro output-block" data-hasbody="false" data-macro-name="blog-posts">
+    <h4 class="sub-heading">Blog Posts</h4>
+    <ul>
+            <li class="blog-item">
+            <span class="blog-title">             <span class="icon aui-icon content-type-blogpost" title="Blog">Blog:</span>                 <a href="/pages/viewpage.action?pageId=40829180">New start page</a>
+         created by</span>
+            <div class="blog-item-creator">    <a href="    /display/~mbu4ea " class="url fn">Buschor  Mark (4ea)</a></div>
+            <div class="blog-item-date">
+                                    Jul 09, 2020
+                            </div>
+            <div class="blog-item-space"><a href="/display/CON">Confluence</a></div>
+        </li>
+        </ul>
+</div>
+<p> </p>
+</div></div><p class="auto-cursor-target" style="text-align: right;"><a href="https://unlimited.ethz.ch/display/SDE/2020/07/01/Confluence+Server+Update" rel="nofollow">Show More</a></p>
+</div></div><br /></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column"><p><br /></p></div></div></div></div><br/></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<div class="sectionColumnWrapper conf-macro output-block" data-hasbody="true" data-macro-name="section"><div class="sectionMacro"><div class="sectionMacroRow"><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:270px;min-width:270px;max-width:270px;"><h4 class="auto-cursor-target" id="WelcometoConfluenceofETHZurich-OfficialWebsiteETHZurich">Official Website ETH Zurich</h4><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #ffffff;border-color: #abb2b9;border-width: 1px;"><div class="panelContent" style="background-color: #ffffff;">
+<a class="external-link" href="https://ethz.ch/en.html" rel="nofollow"><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail image-center" draggable="false" width="160" src="/download/thumbnails/36258959/eth_logo_kurz_pos.jpg?version=1&amp;modificationDate=1594226269522&amp;api=v2" data-image-src="/download/attachments/36258959/eth_logo_kurz_pos.jpg?version=1&amp;modificationDate=1594226269522&amp;api=v2" data-unresolved-comment-count="0" data-linked-resource-id="36258964" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="eth_logo_kurz_pos.jpg" data-base-url="https://unlimited.ethz.ch" data-linked-resource-content-type="image/jpeg" data-linked-resource-container-id="36258959" data-linked-resource-container-version="32" alt="" /></span></a>
+</div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:270px;min-width:270px;max-width:270px;"><h4 class="auto-cursor-target" id="WelcometoConfluenceofETHZurich-ConfluenceatETHZurich">Confluence at ETH Zurich</h4><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #ffffff;border-color: #abb2b9;border-width: 1px;"><div class="panelContent" style="background-color: #ffffff;">
+<p class="auto-cursor-target"><a class="external-link" href="https://ethz.ch/services/en/it-services/catalogue/web-application-hosting/wiki.html" rel="nofollow"><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail image-center" draggable="false" width="160" src="/download/thumbnails/36258959/Confluence@2x-blue%20Kopie.png?version=1&amp;modificationDate=1594226269509&amp;api=v2" data-image-src="/download/attachments/36258959/Confluence@2x-blue%20Kopie.png?version=1&amp;modificationDate=1594226269509&amp;api=v2" data-unresolved-comment-count="0" data-linked-resource-id="36258962" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="Confluence@2x-blue Kopie.png" data-base-url="https://unlimited.ethz.ch" data-linked-resource-content-type="image/png" data-linked-resource-container-id="36258959" data-linked-resource-container-version="32" alt="" /></span></a></p>
+</div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column" style="width:270px;min-width:270px;max-width:270px;"><h4 class="auto-cursor-target" id="WelcometoConfluenceofETHZurich-Technicalcontact">Technical contact</h4><div class="panel conf-macro output-block" data-hasbody="true" data-macro-name="panel" style="background-color: #ffffff;border-color: #abb2b9;border-width: 1px;"><div class="panelContent" style="background-color: #ffffff;">
+<a class="external-link" href="https://ethz.ch/services/en/it-services.html" rel="nofollow"><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail image-center" draggable="false" width="160" src="/download/thumbnails/36258959/ITS-Logo_EN%20Kopie.png?version=1&amp;modificationDate=1594226269517&amp;api=v2" data-image-src="/download/attachments/36258959/ITS-Logo_EN%20Kopie.png?version=1&amp;modificationDate=1594226269517&amp;api=v2" data-unresolved-comment-count="0" data-linked-resource-id="36258963" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="ITS-Logo_EN Kopie.png" data-base-url="https://unlimited.ethz.ch" data-linked-resource-content-type="image/png" data-linked-resource-container-id="36258959" data-linked-resource-container-version="32" alt="" /></span></a>
+</div></div></div><div class="columnMacro conf-macro output-block" data-hasbody="true" data-macro-name="column"><p><br /></p></div></div></div></div><br/><br/><br/><br/><br/></div>
+</div>
+</div>
+</div>
+
+                
+        
+    
+        </div>
+
+                        
+    
+
+
+
+<div id="labels-section" class="pageSection group">
+    <div class="labels-section-content content-column" entityid="36258959" entitytype="page">
+	<div class="labels-content">
+		
+    <ul class="label-list label-list-right ">
+                    
+        <li class="aui-label " data-label-id="27984234"><a class="aui-label-split-main" href="/label/CON/confluence" rel="tag">confluence</a></li><li class="aui-label " data-label-id="41320449"><a class="aui-label-split-main" href="/label/CON/mainpage" rel="tag">mainpage</a></li><li class="aui-label " data-label-id="41320450"><a class="aui-label-split-main" href="/label/CON/landingpage" rel="tag">landingpage</a></li>
+            </ul>
+
+    </div>
+</div>
+</div>
+        
+		
+            
+
+
+
+
+            
+        
+
+
+
+
+
+
+
+
+                        
+    
+<div id="comments-section" class="pageSection group">
+        
+    
+
+
+
+</div>
+        
+
+
+                
+    
+            
+</div>
+
+    
+
+    
+
+
+
+
+    
+    
+
+    
+    
+    
+
+
+    
+<div id="space-tools-web-items" class="hidden">
+                <div data-label="Overview" data-href="/spaces/viewspacesummary.action?key=CON">Overview</div>
+            <div data-label="Content Tools" data-href="/pages/reorderpages.action?key=CON">Content Tools</div>
+            <div data-label="Apps" data-href="/spaces/scroll-viewport/config.action?key=CON#/list">Apps</div>
+    </div>
+        
+
+
+
+            </main><!-- \#main -->
+            
+    
+    
+        
+            
+            
+
+<div id="footer" role="contentinfo">
+    <section class="footer-body">
+
+                                                    
+        
+
+        <ul id="poweredby">
+            <li class="noprint">Powered by <a href="https://www.atlassian.com/software/confluence" class="hover-footer-link" rel="nofollow">Atlassian Confluence</a> <span id='footer-build-information'>8.2.0</span></li>
+            <li class="print-only">Printed by Atlassian Confluence 8.2.0</li>
+            <li class="noprint"><a href="https://support.atlassian.com/confluence-server/" class="hover-footer-link" rel="nofollow">Report a bug</a></li>
+            <li class="noprint"><a href="https://www.atlassian.com/company" class="hover-footer-link" rel="nofollow">Atlassian News</a></li>
+        </ul>
+
+        
+
+        <div id="footer-logo"><a href="https://www.atlassian.com/" rel="nofollow">Atlassian</a></div>
+
+                    
+        
+    </section>
+</div>
+
+    
+</div>
+
+</div><!-- \#full-height-container -->
+</div><!-- \#page -->
+
+    <span style="display:none;" id="confluence-server-performance">{"serverDuration": 215, "requestCorrelationId": "8ae5f79c4cdbf3f2"}</span>
+</body>
+</html>
+    
