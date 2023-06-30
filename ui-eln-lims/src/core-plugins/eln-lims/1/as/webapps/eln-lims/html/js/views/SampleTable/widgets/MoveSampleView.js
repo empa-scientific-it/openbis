@@ -99,7 +99,7 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 			//Attach Fields
 			$experimentSection.append(FormUtil.getFieldForComponentWithLabel($dropdown, "Future Project"))
 							.append(FormUtil.getFieldForComponentWithLabel($expTypeField, "Future " + ELNDictionary.getExperimentDualName() + " Type"))
-							.append(FormUtil.getFieldForComponentWithLabel($expNameField, "Future " + ELNDictionary.getExperimentDualName() + " Name"));
+							.append(FormUtil.getFieldForComponentWithLabel($expNameField, "Future " + ELNDictionary.getExperimentDualName() + " Code"));
 		});
 	}
 	
