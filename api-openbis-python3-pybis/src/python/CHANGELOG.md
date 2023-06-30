@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.7
+
+- Improvements to fast download scheme 
+
 ## Changes with pybis-1.35.6
 
 - Added metaData attribute handling for sample, sampleType, experiment, experimentType, dataset, datasetType
