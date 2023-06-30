@@ -1,7 +1,7 @@
-General Users
-=============
+Advance Features
+================
 
 .. toctree::
    :maxdepth: 4
 
-   custom-database-queries
+   jupiterhub-for-openbis
