@@ -1,6 +1,8 @@
 JupyterHub for openBIS
 ======================
 
+> :warning:   **This guide is not meant to substitute the official Docker documentation. Standard Docker commands are present in sections that are not necessarily related with them**. 
+
 ## Overview
 
 SIS provides a Docker image for the installation of a JupyterHub server,
@@ -11,10 +13,7 @@ them. It is aimed at users who are not familiar with Docker, but it
 should not be considered a substitute of the official Docker
 documentation.
 
-**![(warning)](/s/-5iwf5w/9004/9r8qvy/_/images/icons/emoticons/warning.svg) **We
-advise non expert users, to first test the instructions provided in this
-guide on their local machine, to familiarise themselves with the
-process, before making changes on the JupyterHub server.
+> :warning: **We advise non expert users, to first test the instructions provided in this guide on their local machine, to familiarise themselves with the process, before making changes on the JupyterHub server**.
 
 Docker images are stateless, which means that after rebooting all
 changes made will not be saved. This guarantees a stable environment,
