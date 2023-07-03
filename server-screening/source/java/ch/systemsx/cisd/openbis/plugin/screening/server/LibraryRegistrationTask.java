@@ -196,7 +196,7 @@ class LibraryRegistrationTask implements IASyncAction
             return;
         }
 
-        String existingGene = existingGeneProp.getValue();
+        String existingGene = existingGeneProp.tryGetAsString();
 
         IEntityProperty newGeneProp =
                 EntityHelper.tryFindProperty(newMaterial.getProperties(),
@@ -207,7 +207,7 @@ class LibraryRegistrationTask implements IASyncAction
             return;
         }
 
-        String mergedGeneSymbols = mergeGeneSymbols(existingGene, newGeneProp.getValue());
+        String mergedGeneSymbols = mergeGeneSymbols(existingGene, newGeneProp.tryGetAsString());
         newGeneProp.setValue(mergedGeneSymbols);
     }
 

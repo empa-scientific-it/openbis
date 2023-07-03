@@ -501,7 +501,7 @@ public class WellContentDialog extends ImageDialog
         {
             if (prop.getPropertyType().getCode().equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
             {
-                return prop.getValue();
+                return prop.tryGetAsString();
             }
         }
         return null;
