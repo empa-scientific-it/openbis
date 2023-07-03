@@ -136,9 +136,8 @@ Vocabulary Term
 
 **Example**
 
-|||||
-|--- |--- |--- |--- |
 |VOCABULARY_TYPE||||
+|--- |--- |--- |--- |
 |Version|Code|Description||
 |1|$STORAGE.STORAGE_VALIDATION_LEVEL|Validation Level||
 |Version|Code|Label|Description|
@@ -161,9 +160,8 @@ Experiment Type
 
 **Example**
 
-||||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |EXPERIMENT_TYPE|||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Version|Code|Description|Validation script||||||||
 |2|DEFAULT_EXPERIMENT||date_range_validation.py||||||||
 
@@ -183,9 +181,8 @@ Experiment Type
 
 **Example**
 
-|||||||
-|--- |--- |--- |--- |--- |--- |
 |SAMPLE_TYPE||||||
+|--- |--- |--- |--- |--- |--- |
 |Version|Code|Description|Auto generate codes|Validation script|Generated code prefix|
 |2|STORAGE_POSITION||TRUE|storage_position_validation.py|STO|
 
@@ -204,9 +201,8 @@ Experiment Type
 
 **Example**
 
-|||||
-|--- |--- |--- |--- |
 |DATASET_TYPE||||
+|--- |--- |--- |--- |
 |Version|Code|Description|Validation script|
 |1|RAW_DATA|||
 
@@ -255,9 +251,8 @@ are.
 In this case, the property is registered without being assigned to a
 type, and  the block of property types uses the PROPERTY\_TYPE block.
 
-||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |PROPERTY_TYPE|||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|
 |1|$WELL.COLOR_ENCODED_ANNOTATION|FALSE|TRUE||Color Annotation|CONTROLLEDVOCABULARY|$WELL.COLOR_ENCODED_ANNOTATIONS|Color Annotation for plate wells|
 |1|ANNOTATION.SYSTEM.COMMENTS|FALSE|TRUE||Comments|VARCHAR||Comments|
@@ -271,9 +266,8 @@ In this case the property types are assigned to a sample type and the
 block of property types belong to the entity type block (SAMPLE\_TYPE in
 this case).
 
-||||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |SAMPLE_TYPE|||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Version|Code|Description|Auto generate codes|Validation script|Generated code prefix||||||
 |1|ENTRY||TRUE||ENTRY||||||
 |Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
@@ -298,9 +292,8 @@ column. See the example columns below.
 
 ![image info](img/932.png)
 
-||||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |SAMPLE_TYPE|||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Version|Code|Description|Auto generate codes|Validation scriptƒgre|Generated code prefix||||||
 |2|STORAGE_POSITION||TRUE|storage_position_validation.py|STO||||||
 |Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
@@ -378,9 +371,8 @@ Label with an Attribute is encouraged to use the property code instead.
 
 **Example**
 
-|||
-|--- |--- |
 |SPACE||
+|--- |--- |
 |Code|Description|
 |ELN_SETTINGS|ELN Settings|
 |DEFAULT_LAB_NOTEBOOK|Default Lab Notebook|
@@ -401,9 +393,8 @@ Label with an Attribute is encouraged to use the property code instead.
 
 **Example**
 
-|||||
-|--- |--- |--- |--- |
 |PROJECT||||
+|--- |--- |--- |--- |
 |Identifier|Code|Description|Space|
 |/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT|DEFAULT_PROJECT|Default Project|DEFAULT_LAB_NOTEBOOK|
 |/METHODS/PROTOCOLS|PROTOCOLS|Protocols|METHODS|
@@ -426,9 +417,8 @@ Label with an Attribute is encouraged to use the property code instead.
 
 **Example**
 
-||||||
-|--- |--- |--- |--- |--- |
 |EXPERIMENT|||||
+|--- |--- |--- |--- |--- |
 |Experiment type|||||
 |COLLECTION|||||
 |Identifier|Code|Project|Name|Default object type|
@@ -457,9 +447,8 @@ Label with an Attribute is encouraged to use the property code instead.
 
 **Example**
 
-||||||||
-|--- |--- |--- |--- |--- |--- |--- |
 |SAMPLE|||||||
+|--- |--- |--- |--- |--- |--- |--- |
 |Sample type|||||||
 |ORDER|||||||
 |$|Identifier|Code|Space|Project|Experiment|Order Status|
@@ -480,9 +469,8 @@ samples. Samples can be addressed by:
 Parents and children SHOULD be separated by an end of line, each sample
 should be in its own line.
 
-||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |SAMPLE|||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Sample type|||||||||
 |ORDER|||||||||
 |$|Parents|Children|Identifier|Code|Space|Project|Experiment|Order Status|
