@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * A {@link AbstractParserObjectFactory} extension for creating {@link NewBasicExperiment}.
- * 
+ *
  * @author Christian Ribeaud
  * @author Izabela Adamczyk
  */
@@ -64,12 +64,30 @@ public abstract class AbstractBasicExperimentParserObjectFactory<T extends NewBa
             final String propertyDefault = tryGetPropertyDefault(unmatchedProperty);
             final String propertyValue =
                     getPropertyValue(lineTokens, propertyModel, propertyDefault);
-            if (StringUtils.isEmpty(propertyValue) == false)
+            if (StringUtils.isBlank(propertyValue) == false)
             {
-                final IEntityProperty property = new EntityProperty();
-                property.setPropertyType(createPropertyType(unmatchedProperty));
-                property.setValue(isDeletionMark(propertyValue) ? null : propertyValue);
-                properties.add(property);
+                //                final IEntityProperty property = new EntityProperty();
+                //                property.setPropertyType(createPropertyType(unmatchedProperty));
+                //                property.setValue(isDeletionMark(propertyValue) ? null : propertyValue);
+                //                properties.add(property);
+                PropertyType propertyType = createPropertyType(unmatchedProperty);
+                if (isDeletionMark(propertyValue))
+                {
+                    final IEntityProperty property = new EntityProperty();
+                    property.setPropertyType(propertyType);
+                    property.setValue(null);
+                    properties.add(property);
+                } else
+                {
+                    String[] splitted = propertyValue.split(",");
+                    for (String v : splitted)
+                    {
+                        final IEntityProperty property = new EntityProperty();
+                        property.setPropertyType(propertyType);
+                        property.setValue(v);
+                        properties.add(property);
+                    }
+                }
             }
         }
         newExperiment.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));

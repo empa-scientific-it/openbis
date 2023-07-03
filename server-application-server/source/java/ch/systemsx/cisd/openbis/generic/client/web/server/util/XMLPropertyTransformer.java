@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -52,8 +53,9 @@ public class XMLPropertyTransformer
                             if (transformation != null)
                             {
                                 String xslt = StringEscapeUtils.unescapeHtml4(transformation);
+                                Serializable value = entityProperty.getValue();
                                 String xmlString =
-                                        StringEscapeUtils.unescapeHtml4(entityProperty.getValue());
+                                            StringEscapeUtils.unescapeHtml4(getPropertyAsString(value));
                                 String renderedXMLString = XmlUtils.transform(xslt, xmlString);
                                 entityProperty.setValue(renderedXMLString);
                                 entityProperty.setOriginalValue(xmlString);
@@ -62,6 +64,23 @@ public class XMLPropertyTransformer
                     }
                 }
             }
+        }
+    }
+
+    private String getPropertyAsString(Serializable value) {
+        if(value != null && value.getClass().isArray()) {
+            StringBuilder builder = new StringBuilder();
+            for (Serializable term : (Serializable[]) value)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(term);
+            }
+            return builder.toString();
+        } else {
+            return (String) value;
         }
     }
 

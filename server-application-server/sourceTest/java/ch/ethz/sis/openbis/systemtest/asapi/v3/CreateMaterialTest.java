@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,14 +149,14 @@ public class CreateMaterialTest extends AbstractSampleTest
 
         MaterialPermId m1id = new MaterialPermId("FIRST", "SELF_REF");
         MaterialCreation m1 = materialCreation(m1id);
-        HashMap<String, String> properties1 = new HashMap<String, String>();
+        HashMap<String, Serializable> properties1 = new HashMap<String, Serializable>();
         properties1.put("ANY_MATERIAL", "SECOND (SELF_REF)");
         properties1.put("DESCRIPTION", "mandatory material decsription");
         m1.setProperties(properties1);
 
         MaterialPermId m2id = new MaterialPermId("SECOND", "SELF_REF");
         MaterialCreation m2 = materialCreation(m2id);
-        HashMap<String, String> properties2 = new HashMap<String, String>();
+        HashMap<String, Serializable> properties2 = new HashMap<String, Serializable>();
         properties2.put("ANY_MATERIAL", "FIRST (SELF_REF)");
         properties2.put("DESCRIPTION", "mandatory material decsription");
         m2.setProperties(properties2);
@@ -291,7 +292,7 @@ public class CreateMaterialTest extends AbstractSampleTest
         materialCreation.setCreationId(new CreationId("creation " + code));
         materialCreation.setDescription("Material with code " + code);
 
-        HashMap<String, String> properties = new HashMap<String, String>();
+        HashMap<String, Serializable> properties = new HashMap<String, Serializable>();
         properties.put("GENE_SYMBOL", "SYMBOL " + code);
 
         materialCreation.setProperties(properties);

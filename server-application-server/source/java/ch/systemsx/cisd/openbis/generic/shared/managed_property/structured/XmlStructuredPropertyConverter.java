@@ -61,7 +61,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
     public boolean canHandle(IManagedProperty property)
     {
-        return canHandle(property.getValue());
+        return canHandle(property.getStringValue());
     }
 
     public boolean canHandle(String string)
@@ -73,7 +73,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
     @Override
     public List<IElement> convertToElements(IManagedProperty property)
     {
-        return convertStringToElements(property.getValue());
+        return convertStringToElements(property.getStringValue());
     }
 
     @Override

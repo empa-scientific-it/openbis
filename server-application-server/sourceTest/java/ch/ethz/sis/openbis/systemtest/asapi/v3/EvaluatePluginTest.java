@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -541,7 +542,7 @@ public class EvaluatePluginTest extends AbstractTest
         return v3api.createSampleTypes(sessionToken, Arrays.asList(sampleTypeCreation)).get(0);
     }
 
-    private Sample createTestObject(IEntityTypeId typeId, Map<String, String> properties)
+    private Sample createTestObject(IEntityTypeId typeId, Map<String, Serializable> properties)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 

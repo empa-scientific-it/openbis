@@ -82,13 +82,13 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
         }
 
         @Override
-        public String getValue()
+        public String getStringValue()
         {
             return value;
         }
 
         @Override
-        public void setValue(String value)
+        public void setStringValue(String value)
         {
             throw new UnsupportedOperationException();
         }

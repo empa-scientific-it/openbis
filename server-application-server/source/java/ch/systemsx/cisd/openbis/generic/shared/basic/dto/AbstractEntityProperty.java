@@ -15,6 +15,10 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
+
+import java.io.Serializable;
+
 /**
  * The abstract base implementation of {@link IEntityProperty}, only featuring a {@link PropertyType}.
  * <p>
@@ -58,25 +62,43 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         DataType dataType = propertyType.getDataType();
         if (dataType == null)
         {
-            return getValue();
+            return getStringValue();
         }
         switch (dataType.getCode())
         {
             case CONTROLLEDVOCABULARY:
                 VocabularyTerm vocabularyTerm = getVocabularyTerm();
-                return (vocabularyTerm != null) ? vocabularyTerm.getCode() : getValue();
+                return (vocabularyTerm != null) ? vocabularyTerm.getCode() : getArrayAsString();
             case MATERIAL:
                 Material material = getMaterial();
                 return (material != null) ? MaterialIdentifier.print(material.getCode(), material
-                        .getMaterialType().getCode()) : getValue();
+                        .getMaterialType().getCode()) : getStringValue();
             case SAMPLE:
                 Sample sample = getSample();
-                return (sample != null) ? sample.getPermId() : getValue();
+                return (sample != null) ? sample.getPermId() : getArrayAsString();
             case DATE:
-                String timestamp = getValue();
+                String timestamp = getStringValue();
                 return timestamp != null ? timestamp.split(" ")[0] : null;
             default:
-                return getValue();
+                return getStringValue();
+        }
+    }
+
+    protected String getArrayAsString() {
+        Serializable value = getValue();
+        if(value != null && value.getClass().isArray()) {
+            StringBuilder builder = new StringBuilder();
+            for (Serializable term : (Serializable[]) value)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(term);
+            }
+            return builder.toString();
+        } else {
+            return getStringValue();
         }
     }
 
@@ -87,14 +109,25 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     }
 
     @Override
-    public String getValue()
+    public String getStringValue()
     {
         return null;
     }
 
     @Override
-    public void setValue(String value)
+    public void setStringValue(String value)
     {
+    }
+
+    @Override
+    public void setValue(Serializable value)
+    {
+    }
+
+    @Override
+    public Serializable getValue()
+    {
+        return null;
     }
 
     @Override

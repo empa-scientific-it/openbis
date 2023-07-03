@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.ProgressDetails;
@@ -28,9 +29,9 @@ public class UpdatePropertyProgress extends EntityProgress
 
     private static final long serialVersionUID = 1L;
 
-    private Map<String, String> properties;
+    private Map<String, Serializable> properties;
 
-    public UpdatePropertyProgress(IIdentityHolder entity, Map<String, String> properties, int numItemsProcessed,
+    public UpdatePropertyProgress(IIdentityHolder entity, Map<String, Serializable> properties, int numItemsProcessed,
             int totalItemsToProcess)
     {
         super("updating properties", entity, numItemsProcessed, totalItemsToProcess);

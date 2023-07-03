@@ -15,6 +15,9 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+import java.util.Arrays;
+
 /**
  * A {@link IEntityProperty} class that only stores the vocabulary term value, but not a generic value or a material value.
  * 

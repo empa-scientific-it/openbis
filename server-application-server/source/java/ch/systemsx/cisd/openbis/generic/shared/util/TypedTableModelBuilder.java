@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell
 
 /**
  * Builder class for creating an instance of {@link TypedTableModel}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class TypedTableModelBuilder<T extends Serializable>
@@ -215,7 +215,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             String code =
                     idPrefix
                             + (useOriginalPropertyTypeCode ? propertyType.getCode() : TableCellUtil
-                                    .getPropertyTypeCode(propertyType));
+                            .getPropertyTypeCode(propertyType));
             DataTypeCode dataType = propertyType.getDataType().getCode();
             IColumn column = column(code).withTitle(label).withDataType(dataType);
             return column;
@@ -412,7 +412,19 @@ public class TypedTableModelBuilder<T extends Serializable>
             {
                 values.add(EMPTY_CELL);
             }
-            values.add(index, valueOrNull);
+            if (index == values.size())
+            {
+                values.add(index, valueOrNull);
+            } else
+            {
+                ISerializableComparable v = values.get(index);
+                if (v instanceof VocabularyTermTableCell)
+                {
+                    VocabularyTermTableCell vc = (VocabularyTermTableCell) v;
+                    vc.append(valueOrNull);
+
+                }
+            }
         }
 
         @Override
@@ -551,15 +563,15 @@ public class TypedTableModelBuilder<T extends Serializable>
         {
             List<Column> itemColumns = item.getColumns();
             Collections.sort(itemColumns, new Comparator<Column>()
+            {
+                @Override
+                public int compare(Column c1, Column c2)
                 {
-                    @Override
-                    public int compare(Column c1, Column c2)
-                    {
-                        String t1 = StringUtils.trimToEmpty(c1.getHeader().getTitle());
-                        String t2 = StringUtils.trimToEmpty(c2.getHeader().getTitle());
-                        return t1.compareTo(t2);
-                    }
-                });
+                    String t1 = StringUtils.trimToEmpty(c1.getHeader().getTitle());
+                    String t2 = StringUtils.trimToEmpty(c2.getHeader().getTitle());
+                    return t1.compareTo(t2);
+                }
+            });
             orderedColumns.addAll(itemColumns);
         }
         for (int i = 0; i < orderedColumns.size(); i++)
@@ -589,8 +601,9 @@ public class TypedTableModelBuilder<T extends Serializable>
 
     /**
      * Adds a column with specified id.
-     * 
-     * @return an {@link IColumnMetaData} instance which allows to set title, default width, and/or data type.
+     *
+     * @return an {@link IColumnMetaData} instance which allows to set title, default width, and/or
+     *         data type.
      * @throws IllegalArgumentException if a column with specified is has already been added.
      */
     public IColumnMetaData addColumn(String id)
@@ -604,7 +617,8 @@ public class TypedTableModelBuilder<T extends Serializable>
     }
 
     /**
-     * Adds a row with optional row object. This method has to be called before adding values to columns.
+     * Adds a row with optional row object. This method has to be called before adding values to
+     * columns.
      */
     public void addRow(T objectOrNull)
     {
@@ -646,13 +660,13 @@ public class TypedTableModelBuilder<T extends Serializable>
         if (column == null)
         {
             column = new Column(id, new IIndexProvider()
+            {
+                @Override
+                public int getIndex()
                 {
-                    @Override
-                    public int getIndex()
-                    {
-                        return rowObjects.size() - 1;
-                    }
-                });
+                    return rowObjects.size() - 1;
+                }
+            });
             columns.put(id, column);
         }
         return column;

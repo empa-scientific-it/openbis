@@ -361,7 +361,7 @@ class EntityExistenceChecker
                         + propertyTypeCode + " assigned.");
             } else if (propertyTypePE.getType().getCode().equals(DataTypeCode.MATERIAL))
             {
-                String value = property.getValue();
+                String value = property.getStringValue();
                 MaterialTypePE materialType = propertyTypePE.getMaterialType();
                 try
                 {

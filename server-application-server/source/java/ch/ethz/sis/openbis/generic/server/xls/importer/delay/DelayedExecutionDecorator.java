@@ -568,13 +568,13 @@ public class DelayedExecutionDecorator
     }
 
     private void resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind entityKind, IObjectId id,
-            Map<String, String> properties, int page, int line)
+            Map<String, Serializable> properties, int page, int line)
     {
         // Manage Sample properties cyclical dependencies
         List<String> assignmentsToRemove = new ArrayList<>();
         for (String propertyCode : properties.keySet())
         {
-            String propertyValue = properties.get(propertyCode);
+            String propertyValue = (String) properties.get(propertyCode);
             if (propertyValue != null && isKeySamplePropertyCode(propertyCode))
             {
                 if (propertyValue.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))

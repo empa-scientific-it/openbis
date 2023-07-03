@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
+import java.io.Serializable;
+
 /**
  * An {@link IEntityProperty} implementation for managed properties.
  * 
@@ -72,7 +74,7 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     @Override
     public boolean isSpecialValue()
     {
-        return ManagedProperty.isSpecialValue(getValue());
+        return ManagedProperty.isSpecialValue(getStringValue());
     }
 
     //
@@ -148,13 +150,25 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     }
 
     @Override
-    public String getValue()
+    public String getStringValue()
+    {
+        return (String) entityProperty.getValue();
+    }
+
+    @Override
+    public void setStringValue(String value)
+    {
+        entityProperty.setValue(value);
+    }
+
+    @Override
+    public Serializable getValue()
     {
         return entityProperty.getValue();
     }
 
     @Override
-    public void setValue(String value)
+    public void setValue(Serializable value)
     {
         entityProperty.setValue(value);
     }

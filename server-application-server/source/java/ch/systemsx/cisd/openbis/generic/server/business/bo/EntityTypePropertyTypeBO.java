@@ -205,11 +205,12 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
             if (validatedValue != null)
             {
-                final EntityPropertyPE property =
+                final List<EntityPropertyPE> properties =
                         propertiesConverter.createValidatedProperty(propertyType, assignment,
                                 registrator, validatedValue);
-
-                entityPropertyTypeDAO.createProperties(property, entityIds);
+                for (EntityPropertyPE property : properties) {
+                    entityPropertyTypeDAO.createProperties(property, entityIds);
+                }
                 entityPropertyTypeDAO.updateEntityModificationTimestamps(entityIds);
             }
 

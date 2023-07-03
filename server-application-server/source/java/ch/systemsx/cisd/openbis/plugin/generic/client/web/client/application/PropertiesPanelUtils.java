@@ -50,7 +50,21 @@ public class PropertiesPanelUtils
             {
                 final String label =
                         PropertyTypeRenderer.getDisplayName(property.getPropertyType(), types);
-                properties.put(label, property);
+                Object[] array = (Object[]) properties.get(label);
+                if (array == null)
+                {
+                    array = new Object[] { property };
+                } else
+                {
+                    Object[] newArray = new Object[array.length + 1];
+                    for (int i = 0; i < array.length; i++)
+                    {
+                        newArray[i] = array[i];
+                    }
+                    newArray[array.length] = property;
+                    array = newArray;
+                }
+                properties.put(label, array);
             }
         }
     }

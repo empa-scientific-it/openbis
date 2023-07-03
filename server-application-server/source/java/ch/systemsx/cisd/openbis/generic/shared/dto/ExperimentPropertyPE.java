@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.EXPERIMENT_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = { ColumnNames.EXPERIMENT_COLUMN,
-        ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN }))
+@Table(name = TableNames.EXPERIMENT_PROPERTIES_TABLE)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExperimentPropertyPE extends EntityPropertyWithSampleDataTypePE
 {

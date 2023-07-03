@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
@@ -37,11 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
@@ -106,6 +102,10 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         for (final S stpt : entityTypesPropertyTypes)
         {
             String value = initialProperties.get(stpt.getPropertyType().getCode());
+            if (stpt.getPropertyType().getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY)
+            {
+                result.add(createPropertyField(stpt, value, propertyTypes));
+            }
             result.add(createPropertyField(stpt, value, propertyTypes));
         }
         return result;

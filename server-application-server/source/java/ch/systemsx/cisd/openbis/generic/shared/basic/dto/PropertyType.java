@@ -70,6 +70,8 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
 
     private String transformation;
 
+    private boolean multiValue;
+
     @Override
     public Long getId()
     {
@@ -258,5 +260,15 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
     public void setTransformation(String transformation)
     {
         this.transformation = transformation;
+    }
+
+    public boolean isMultiValue()
+    {
+        return multiValue;
+    }
+
+    public void setMultiValue(boolean multiValue)
+    {
+        this.multiValue = multiValue;
     }
 }

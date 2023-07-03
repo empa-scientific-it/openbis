@@ -33,13 +33,13 @@ public class NewProperty implements Serializable
 
     String property;
 
-    String value;
+    Serializable value;
 
     public NewProperty()
     {
     }
 
-    public NewProperty(String name, String value)
+    public NewProperty(String name, Serializable value)
     {
         this.property = name;
         this.value = value;
@@ -58,7 +58,7 @@ public class NewProperty implements Serializable
 
     public String getValue()
     {
-        return value;
+        return (String) value;
     }
 
     @BeanProperty(label = "value", optional = false)

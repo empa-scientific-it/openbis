@@ -84,8 +84,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         switch (entityDataType)
         {
             case CONTROLLEDVOCABULARY:
-                ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType
-                        .getVocabulary());
+                ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType);
                 break;
             case MATERIAL:
                 ((MaterialValidator) dataTypeValidator).setMaterialType(propertyType
@@ -184,10 +183,12 @@ public final class PropertyValidator implements IPropertyValueValidator
     {
 
         private VocabularyPE vocabulary;
+        private PropertyTypePE propertyTypePE;
 
-        final void setVocabulary(final VocabularyPE vocabulary)
+        final void setVocabulary(final PropertyTypePE propertyTypePE)
         {
-            this.vocabulary = vocabulary;
+            this.propertyTypePE = propertyTypePE;
+            this.vocabulary = propertyTypePE.getVocabulary();
         }
 
         //
@@ -200,16 +201,31 @@ public final class PropertyValidator implements IPropertyValueValidator
             assert value != null : "Unspecified value.";
             assert vocabulary != null : "Unspecified vocabulary.";
 
-            final String upperCaseValue = value.toUpperCase();
-            vocabulary.tryGetVocabularyTerm(upperCaseValue);
-            VocabularyTermPE termOrNull = vocabulary.tryGetVocabularyTerm(upperCaseValue);
-            if (termOrNull != null)
-            {
+            String upperCaseValue = value.toUpperCase();
+            boolean guard = true;
+            if(propertyTypePE.isMultiValue()) {
+                if(upperCaseValue.startsWith("[") && upperCaseValue.endsWith("]")) {
+                    upperCaseValue = upperCaseValue.substring(1, upperCaseValue.length()-1);
+                }
+                final String[] split = upperCaseValue.split(",");
+                for(String singleValue : split) {
+                    guard = guard && hasTerm(singleValue.trim());
+                }
+            } else {
+                guard = hasTerm(upperCaseValue);
+            }
+            if(guard) {
                 return upperCaseValue;
             }
-            throw UserFailureException.fromTemplate("Vocabulary value '%s' is not valid. "
-                    + "It must exist in '%s' controlled vocabulary %s", upperCaseValue,
+            throw UserFailureException.fromTemplate("Vocabulary value '%s' of property '%s' is not valid. "
+                    + "It must exist in '%s' controlled vocabulary %s", upperCaseValue, propertyTypePE.getCode(),
                     vocabulary.getCode(), getVocabularyDetails());
+        }
+
+        private boolean hasTerm(String value) {
+            vocabulary.tryGetVocabularyTerm(value);
+            VocabularyTermPE termOrNull = vocabulary.tryGetVocabularyTerm(value);
+            return termOrNull != null;
         }
 
         /**

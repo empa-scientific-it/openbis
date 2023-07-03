@@ -125,6 +125,8 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     private Date modificationDate;
 
+    private boolean multiValue;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = true)
     public VocabularyPE getVocabulary()
@@ -312,6 +314,18 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     public void setManagedInternally(final boolean managedInternally)
     {
         this.managedInternally = managedInternally;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IS_MULTI_VALUE)
+    public boolean isMultiValue()
+    {
+        return multiValue;
+    }
+
+    public void setMultiValue(final boolean multiValue)
+    {
+        this.multiValue = multiValue;
     }
 
     @Override

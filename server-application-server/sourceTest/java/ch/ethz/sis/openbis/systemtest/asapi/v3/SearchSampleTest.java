@@ -23,6 +23,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotSame;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -3795,11 +3796,11 @@ public class SearchSampleTest extends AbstractSampleTest
         return samples;
     }
 
-    private static boolean isNumber(final String property)
+    private static boolean isNumber(final Serializable property)
     {
         try
         {
-            Double.parseDouble(property);
+            Double.parseDouble((String) property);
         } catch (final NumberFormatException e)
         {
             return false;
@@ -3807,21 +3808,21 @@ public class SearchSampleTest extends AbstractSampleTest
         return true;
     }
 
-    private static boolean isDate(final String property)
+    private static boolean isDate(final Serializable property)
     {
         return DateFieldSearchCriteria.DATE_FORMATS.stream().map(dateFormat ->
         {
-            final Date formattedValue = DateFieldSearchCriteria.formatValue(property, dateFormat);
+            final Date formattedValue = DateFieldSearchCriteria.formatValue((String) property, dateFormat);
             return (formattedValue == null) ? null
                     : new Object[] { AnyFieldSearchConditionTranslator.TRUNCATION_INTERVAL_BY_DATE_FORMAT
                     .get(dateFormat.getClass()), formattedValue};
         }).anyMatch(Objects::nonNull);
     }
 
-    private static boolean isBoolean(final String property)
+    private static boolean isBoolean(final Serializable propertyValue)
     {
-        return property.equalsIgnoreCase(Boolean.TRUE.toString()) ||
-                property.equalsIgnoreCase(Boolean.FALSE.toString());
+        return ((String) propertyValue).equalsIgnoreCase(Boolean.TRUE.toString()) ||
+                ((String) propertyValue).equalsIgnoreCase(Boolean.FALSE.toString());
     }
 
     private void testSearch(String user, SampleSearchCriteria criteria, String... expectedIdentifiers)

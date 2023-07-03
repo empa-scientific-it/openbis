@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -182,12 +183,12 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
         assertEquals("/CISD/NEMO/EXP-TEST-2", experiments.get(0).getIdentifier());
         assertEquals("SIRNA_HCS", experiments.get(0).getExperimentTypeCode());
-        List<Entry<String, String>> list =
-                new ArrayList<Entry<String, String>>(experiments.get(0).getProperties().entrySet());
-        Collections.sort(list, new Comparator<Entry<String, String>>()
+        List<Entry<String, Serializable>> list =
+                new ArrayList<Entry<String, Serializable>>(experiments.get(0).getProperties().entrySet());
+        Collections.sort(list, new Comparator<Entry<String, Serializable>>()
             {
                 @Override
-                public int compare(Entry<String, String> e1, Entry<String, String> e2)
+                public int compare(Entry<String, Serializable> e1, Entry<String, Serializable> e2)
                 {
                     return e1.getKey().compareTo(e2.getKey());
                 }

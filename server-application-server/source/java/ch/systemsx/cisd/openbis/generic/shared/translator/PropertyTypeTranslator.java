@@ -88,6 +88,7 @@ public final class PropertyTypeTranslator
                 propertyType.getDataSetTypePropertyTypes(), result, materialTypeCache, cacheOrNull));
         result.setSchema(propertyType.getSchema());
         result.setTransformation(propertyType.getTransformation());
+        result.setMultiValue(propertyType.isMultiValue());
 
         return result;
     }

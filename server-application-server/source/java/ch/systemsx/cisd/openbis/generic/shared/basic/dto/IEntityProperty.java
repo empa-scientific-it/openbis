@@ -46,9 +46,13 @@ public interface IEntityProperty extends Serializable, Comparable<IEntityPropert
 
     public void setVocabularyTerm(VocabularyTerm vocabularyTerm);
 
-    public String getValue();
+    public String getStringValue();
 
-    public void setValue(final String value);
+    public void setStringValue(final String value);
+
+    public Serializable getValue();
+
+    public void setValue(final Serializable value);
 
     public PropertyType getPropertyType();
 

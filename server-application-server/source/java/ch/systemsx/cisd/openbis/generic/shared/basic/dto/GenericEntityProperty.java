@@ -15,6 +15,8 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 /**
  * A {@link IEntityProperty} class that only stores the generic value, but not a vocabulary term value or a material value.
  * 
@@ -25,20 +27,35 @@ public class GenericEntityProperty extends AbstractEntityProperty
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String originalValue;
+    private Serializable originalValue;
 
-    private String value;
+    private Serializable value;
 
     @Override
-    public String getValue()
+    public String getStringValue()
     {
-        return value;
+        if(value != null && value.getClass().isArray()) {
+            return getArrayAsString();
+        }
+        return (String) value;
     }
 
     @Override
-    public void setValue(String value)
+    public void setStringValue(String value)
     {
         this.value = value;
+    }
+
+    @Override
+    public void setValue(Serializable value)
+    {
+        this.value = value;
+    }
+
+    @Override
+    public Serializable getValue()
+    {
+        return value;
     }
 
     @Override
@@ -58,7 +75,7 @@ public class GenericEntityProperty extends AbstractEntityProperty
 
     public String getOriginalValue()
     {
-        return originalValue;
+        return (String) originalValue;
     }
 
 }

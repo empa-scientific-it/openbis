@@ -270,7 +270,7 @@ public final class PropertyValueRenderers
         public Widget getAsWidget(IEntityProperty object)
         {
             // strip error prefix from error message
-            String value = object.getValue();
+            String value = object.getStringValue();
             if (StringUtils.isBlank(value) == false
                     && StringEscapeUtils.unescapeHtml(value).startsWith(
                             BasicConstant.ERROR_PROPERTY_PREFIX))
@@ -330,7 +330,7 @@ public final class PropertyValueRenderers
 
         private Widget createMultilineHtmlWidget(IEntityProperty object)
         {
-            return createMultilineHtmlWidget(object.getValue());
+            return createMultilineHtmlWidget(object.getStringValue());
         }
 
         private Widget createMultilineHtmlWidget(String multilineText)
@@ -345,12 +345,12 @@ public final class PropertyValueRenderers
 
         private Widget createHtmlWidget(IEntityProperty object)
         {
-            return createHtmlWidget(object.getValue());
+            return createHtmlWidget(object.getStringValue());
         }
 
         private Widget createHyperlink(IEntityProperty object)
         {
-            String value = object.getValue();
+            String value = object.getStringValue();
             return new ExternalHyperlink(value, value);
         }
 

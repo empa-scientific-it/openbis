@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,7 +99,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
     public void update(final IOperationContext context,
             final MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
     {
-        final MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap =
+        final MapBatch<IEntityInformationWithPropertiesHolder, Map<String, Serializable>> entityToPropertiesMap =
                 getEntityToPropertiesMap(holderToEntityMap);
 
         if (entityToPropertiesMap == null || entityToPropertiesMap.isEmpty())
@@ -112,10 +113,10 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
 
         final Map<EntityKind, EntityPropertiesConverter> converters = new HashMap<EntityKind, EntityPropertiesConverter>();
 
-        new MapBatchProcessor<IEntityInformationWithPropertiesHolder, Map<String, String>>(context, entityToPropertiesMap)
+        new MapBatchProcessor<IEntityInformationWithPropertiesHolder, Map<String, Serializable>>(context, entityToPropertiesMap)
             {
                 @Override
-                public void process(IEntityInformationWithPropertiesHolder propertiesHolder, Map<String, String> properties)
+                public void process(IEntityInformationWithPropertiesHolder propertiesHolder, Map<String, Serializable> properties)
                 {
                     EntityKind entityKind = propertiesHolder.getEntityType().getEntityKind();
 
@@ -131,7 +132,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
 
                 @Override
                 public IProgress createProgress(IEntityInformationWithPropertiesHolder propertiesHolder,
-                        Map<String, String> properties,
+                        Map<String, Serializable> properties,
                         int objectIndex, int totalObjectCount)
                 {
                     return new UpdatePropertyProgress(propertiesHolder, properties, objectIndex, totalObjectCount);
@@ -292,11 +293,11 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
 
     private MapBatch<IEntityInformationWithPropertiesHolder, Map<String, ISampleId>> extractAndRemoveSampleProperties(
             MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap,
-            MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap)
+            MapBatch<IEntityInformationWithPropertiesHolder, Map<String, Serializable>> entityToPropertiesMap)
     {
         Map<IEntityInformationWithPropertiesHolder, Map<String, ISampleId>> map = new HashMap<>();
-        Map<IEntityInformationWithPropertiesHolder, Map<String, String>> objects = entityToPropertiesMap.getObjects();
-        for (Entry<IEntityInformationWithPropertiesHolder, Map<String, String>> entry : objects.entrySet())
+        Map<IEntityInformationWithPropertiesHolder, Map<String, Serializable>> objects = entityToPropertiesMap.getObjects();
+        for (Entry<IEntityInformationWithPropertiesHolder, Map<String, Serializable>> entry : objects.entrySet())
         {
             IEntityInformationWithPropertiesHolder entity = entry.getKey();
             Collection<? extends EntityTypePropertyTypePE> etpts = entity.getEntityType().getEntityTypePropertyTypes();
@@ -306,10 +307,10 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                 if (etpt.getPropertyType().getType().getCode() == DataTypeCode.SAMPLE)
                 {
                     String code = etpt.getPropertyType().getCode();
-                    Map<String, String> properties = entry.getValue();
+                    Map<String, Serializable> properties = entry.getValue();
                     if (properties.containsKey(code))
                     {
-                        String sample = properties.remove(code);
+                        String sample = (String) properties.remove(code);
                         ISampleId sampleId = null;
                         if (sample != null)
                         {
@@ -330,7 +331,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                 holderToEntityMap.getToObjectIndex(), map, holderToEntityMap.getTotalObjectCount());
     }
 
-    private MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>> getEntityToPropertiesMap(
+    private MapBatch<IEntityInformationWithPropertiesHolder, Map<String, Serializable>> getEntityToPropertiesMap(
             final MapBatch<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> holderToEntityMap)
     {
         if (holderToEntityMap == null || holderToEntityMap.isEmpty())
@@ -338,8 +339,8 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             return null;
         }
 
-        Map<IEntityInformationWithPropertiesHolder, Map<String, String>> entityToPropertiesMap =
-                new HashMap<IEntityInformationWithPropertiesHolder, Map<String, String>>();
+        Map<IEntityInformationWithPropertiesHolder, Map<String, Serializable>> entityToPropertiesMap =
+                new HashMap<>();
 
         for (Map.Entry<? extends IPropertiesHolder, ? extends IEntityInformationWithPropertiesHolder> entry : holderToEntityMap.getObjects()
                 .entrySet())
@@ -358,16 +359,16 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             return null;
         }
 
-        return new MapBatch<IEntityInformationWithPropertiesHolder, Map<String, String>>(holderToEntityMap.getBatchIndex(),
+        return new MapBatch<IEntityInformationWithPropertiesHolder, Map<String, Serializable>>(holderToEntityMap.getBatchIndex(),
                 holderToEntityMap.getFromObjectIndex(), holderToEntityMap.getToObjectIndex(), entityToPropertiesMap,
                 holderToEntityMap.getTotalObjectCount());
     }
 
-    private void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, Map<String, String> properties,
+    private void update(IOperationContext context, IEntityPropertiesHolder propertiesHolder, Map<String, Serializable> properties,
             EntityPropertiesConverter converter)
     {
         List<IEntityProperty> entityProperties = new LinkedList<IEntityProperty>();
-        for (Map.Entry<String, String> entry : properties.entrySet())
+        for (Map.Entry<String, Serializable> entry : properties.entrySet())
         {
             entityProperties.add(EntityHelper.createNewProperty(entry.getKey(), entry.getValue()));
         }

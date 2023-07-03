@@ -366,7 +366,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
                     value = property.getMaterial().getCode();
                     break;
                 default:
-                    value = property.getValue();
+                    value = property.getStringValue();
             }
             return value;
         }

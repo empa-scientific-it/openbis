@@ -80,7 +80,7 @@ public class ManagedProperty implements IManagedProperty
     }
 
     @Override
-    public String getValue()
+    public String getStringValue()
     {
         return value;
     }
@@ -92,7 +92,7 @@ public class ManagedProperty implements IManagedProperty
     }
 
     @Override
-    public void setValue(String value)
+    public void setStringValue(String value)
     {
         this.value = value;
     }

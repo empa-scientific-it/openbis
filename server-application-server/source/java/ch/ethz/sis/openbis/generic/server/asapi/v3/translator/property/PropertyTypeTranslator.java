@@ -126,6 +126,7 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
         result.setTransformation(baseRecord.transformation);
         result.setRegistrationDate(baseRecord.registration_timestamp);
         result.setMetaData(CommonUtils.asMap(baseRecord.meta_data));
+        result.setMultiValue(baseRecord.is_multi_value);
 
         if (fetchOptions.hasVocabulary())
         {

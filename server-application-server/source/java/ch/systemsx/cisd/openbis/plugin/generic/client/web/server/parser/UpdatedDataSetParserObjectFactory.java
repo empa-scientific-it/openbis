@@ -170,7 +170,7 @@ public final class UpdatedDataSetParserObjectFactory extends
         final List<IEntityProperty> updatedProperties = new ArrayList<IEntityProperty>();
         for (IEntityProperty property : newDataSet.getProperties())
         {
-            if (isDeletionMark(property.getValue()) == false)
+            if (isDeletionMark(property.getStringValue()) == false)
             {
                 updatedProperties.add(property);
             }

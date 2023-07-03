@@ -1,0 +1,15 @@
+1	properties	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON	t
+2	code	\N	entity.code()	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON	t
+3	date	\N	str(currentDate().getTime())	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON	t
+4	managed list	\N	pass	2010-10-27 15:16:48.994831+02	2	\N	MANAGED_PROPERTY	JYTHON	t
+5	validateOK	\N	def validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+6	validateFAIL	\N	def validate(entity, isNew):\n  return "This check always fail"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+7	validateUpdateFAIL	\N	def validate(entity, isNew):\n  if (not isNew):\n    return "Cannot update this entity"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+8	validateChildren	\N	def validate(entity, isNew):\n  for child in entity.children():\n    requestValidation(child)	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+9	code_date	\N	"%s %s" % (entity.code(), str(currentDate().getTime()))	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON	t
+10	waitOK	\N	import time;\ndef validate(entity, isNew):\n  time.sleep(1);\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+11	test	\N	import time;\ndef validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON	t
+12	testEXPERIMENT	\N	import time;\ndef validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	EXPERIMENT	ENTITY_VALIDATION	JYTHON	t
+13	testSAMPLE	\N	import time;\ndef validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	SAMPLE	ENTITY_VALIDATION	JYTHON	t
+14	propertiesEXPERIMENT	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	EXPERIMENT	DYNAMIC_PROPERTY	JYTHON	t
+15	propertiesSAMPLE	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	SAMPLE	DYNAMIC_PROPERTY	JYTHON	t

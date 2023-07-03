@@ -404,6 +404,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getEntity(), that.getEntity());
         builder.append(getEntityTypePropertyType(), that.getEntityTypePropertyType());
+        builder.append(tryGetUntypedValue(), that.tryGetUntypedValue());
         return builder.isEquals();
     }
 
@@ -413,6 +414,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getEntity());
         builder.append(getEntityTypePropertyType());
+        builder.append(tryGetUntypedValue());
         return builder.toHashCode();
     }
 

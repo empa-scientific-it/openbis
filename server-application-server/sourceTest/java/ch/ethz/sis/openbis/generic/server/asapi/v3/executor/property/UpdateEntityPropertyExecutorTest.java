@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -120,14 +121,14 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
             });
 
-        Map<String, String> updatedPropertyValues = new HashMap<String, String>();
+        Map<String, Serializable> updatedPropertyValues = new HashMap<String, Serializable>();
         updatedPropertyValues.put("TEST_PROPERTY_1", "value 1.1");
         updatedPropertyValues.put("TEST_PROPERTY_3", "value 3");
 
         execute(entityPropertiesHolder, entityType, updatedPropertyValues);
     }
 
-    private void execute(IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType, final Map<String, String> propertiesMap)
+    private void execute(IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType, final Map<String, Serializable> propertiesMap)
     {
         UpdateEntityPropertyExecutor executor = new UpdateEntityPropertyExecutor(daoFactory, managedPropertyEvaluatorFactory);
         IPropertiesHolder holder = new IPropertiesHolder()
@@ -139,7 +140,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public void setProperties(Map<String, String> properties)
+                public void setProperties(Map<String, Serializable> properties)
                 {
                     throw new UnsupportedOperationException();
                 }
@@ -151,7 +152,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public Map<String, String> getProperties()
+                public Map<String, Serializable> getProperties()
                 {
                     return propertiesMap;
                 }

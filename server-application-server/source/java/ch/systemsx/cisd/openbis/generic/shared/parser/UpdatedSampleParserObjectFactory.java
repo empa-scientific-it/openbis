@@ -127,7 +127,7 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         final List<IEntityProperty> updatedProperties = new ArrayList<IEntityProperty>();
         for (IEntityProperty property : newSample.getProperties())
         {
-            if (isDeletionMark(property.getValue()) == false)
+            if (isDeletionMark(property.getStringValue()) == false)
             {
                 updatedProperties.add(property);
             }

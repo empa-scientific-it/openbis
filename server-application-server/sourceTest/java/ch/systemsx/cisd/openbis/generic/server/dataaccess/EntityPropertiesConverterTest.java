@@ -495,7 +495,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         assertEquals(
                 registrator,
                 entityPropertiesConverter.createValidatedProperty(propertyType, assignment,
-                        registrator, defaultValue).getRegistrator());
+                        registrator, defaultValue).get(0).getRegistrator());
         context.assertIsSatisfied();
     }
 

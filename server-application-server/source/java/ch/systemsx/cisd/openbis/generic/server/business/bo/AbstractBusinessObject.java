@@ -638,16 +638,17 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         Set<? extends EntityPropertyPE> existingProperties =
                 entityAsPropertiesHolder.getProperties();
-        Map<String, Object> existingPropertyValuesByCode = new HashMap<String, Object>();
+        Map<String, List<Object>> existingPropertyValuesByCode = new HashMap<String, List<Object>>();
         for (EntityPropertyPE existingProperty : existingProperties)
         {
             String propertyCode =
                     existingProperty.getEntityTypePropertyType().getPropertyType().getCode();
-            existingPropertyValuesByCode.put(propertyCode, getValue(existingProperty));
+            existingPropertyValuesByCode.computeIfAbsent(propertyCode, s -> new ArrayList<>());
+            existingPropertyValuesByCode.get(propertyCode).add(getValue(existingProperty));
         }
         Set<? extends EntityPropertyPE> convertedProperties =
                 convertProperties(entityType, existingProperties, properties, propertiesToUpdate);
-        if (isEquals(existingPropertyValuesByCode, convertedProperties) == false)
+        if (isEqualsMultiple(existingPropertyValuesByCode, convertedProperties) == false)
         {
             getSessionFactory().getCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT)
                     .lock(entityAsPropertiesHolder);
@@ -678,6 +679,46 @@ abstract class AbstractBusinessObject implements IDAOFactory
                             .getPropertyType().getCode());
             if (existingValue == null || existingValue.equals(getValue(property)) == false)
             {
+                return false;
+            }
+        }
+        return existingPropertyValuesByCode.isEmpty();
+    }
+
+    private boolean isEqualsMultiple(Map<String, List<Object>> existingPropertyValuesByCode,
+            Set<? extends EntityPropertyPE> properties)
+    {
+        for (EntityPropertyPE property : properties)
+        {
+            List<Object> existingValueList =
+                    existingPropertyValuesByCode.get(property.getEntityTypePropertyType()
+                            .getPropertyType().getCode());
+            if (existingValueList == null || existingValueList.isEmpty())
+            {
+                return false;
+            }
+            boolean flag = false;
+            Object valToRemove = null;
+            for(Object value : existingValueList) {
+                Object propertyValue = getValue(property);
+                if(propertyValue == null) {
+                    // TODO: Add logic for sample property
+                    // we have some non-EntityPropertyPE property.
+                    return false;
+                }
+                if(value.equals(propertyValue)){
+                    flag = true;
+                    valToRemove = value;
+                    break;
+                }
+            }
+            if(flag) {
+                existingValueList.remove(valToRemove);
+                if(existingValueList.isEmpty()) {
+                    existingPropertyValuesByCode.remove(property.getEntityTypePropertyType()
+                            .getPropertyType().getCode());
+                }
+            } else  {
                 return false;
             }
         }

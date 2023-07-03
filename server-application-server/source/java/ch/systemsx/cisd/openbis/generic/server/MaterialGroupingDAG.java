@@ -85,7 +85,7 @@ public class MaterialGroupingDAG extends EntityGroupingDAG<NewMaterialWithType>
 
             if (typesWithMaterialProperty.get(newMaterial.getType()).contains(iEntityProperty.getPropertyType().getCode()))
             {
-                relatedMaterials.add(iEntityProperty.getValue());
+                relatedMaterials.add(iEntityProperty.getStringValue());
             }
         }
         return relatedMaterials;

@@ -54,7 +54,7 @@ public interface IEntityPropertiesConverter
     /**
      * Creates {@link EntityPropertyPE}.
      */
-    public <T extends EntityPropertyPE> T createValidatedProperty(PropertyTypePE propertyType,
+    public <T extends EntityPropertyPE> List<T> createValidatedProperty(PropertyTypePE propertyType,
             EntityTypePropertyTypePE entityTypePropertyType, final PersonPE registrator,
             String validatedValue);
 

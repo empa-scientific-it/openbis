@@ -21,6 +21,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -661,7 +662,7 @@ public class GetExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getCode(), "EXP1");
         assertEquals(experiment.getIdentifier().toString(), "/CISD/NEMO/EXP1");
 
-        Map<String, String> properties = experiment.getProperties();
+        Map<String, Serializable> properties = experiment.getProperties();
         assertEquals(properties.size(), 2);
         assertEquals(properties.get("DESCRIPTION"), "A simple experiment");
         assertEquals(properties.get("GENDER"), "MALE");

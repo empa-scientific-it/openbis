@@ -15,16 +15,20 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * Table cell for a {@link VocabularyTerm}.
- * 
+ *
  * @author Piotr Buczek
  */
 public class VocabularyTermTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private VocabularyTerm vocabularyTerm;
+    //    private VocabularyTerm vocabularyTerm;
+    private List<VocabularyTerm> vocabularyTerm = new ArrayList<VocabularyTerm>();
 
     public VocabularyTermTableCell(VocabularyTerm term)
     {
@@ -33,7 +37,8 @@ public class VocabularyTermTableCell implements ISerializableComparable
             throw new IllegalArgumentException("Unspecified vocabulary term");
         }
 
-        vocabularyTerm = term;
+        //        vocabularyTerm = term;
+        vocabularyTerm.add(term);
     }
 
     @Override
@@ -42,7 +47,8 @@ public class VocabularyTermTableCell implements ISerializableComparable
         return getVocabularyTerm().toString().compareTo(o.toString());
     }
 
-    public VocabularyTerm getVocabularyTerm()
+    //    public VocabularyTerm getVocabularyTerm()
+    public List<VocabularyTerm> getVocabularyTerm()
     {
         return vocabularyTerm;
     }
@@ -66,6 +72,15 @@ public class VocabularyTermTableCell implements ISerializableComparable
         }
         VocabularyTermTableCell other = (VocabularyTermTableCell) obj;
         return this.getVocabularyTerm().equals(other.getVocabularyTerm());
+    }
+
+    public void append(ISerializableComparable valueOrNull)
+    {
+        if (valueOrNull instanceof VocabularyTermTableCell)
+        {
+            VocabularyTermTableCell vt = (VocabularyTermTableCell) valueOrNull;
+            vocabularyTerm.addAll(vt.vocabularyTerm);
+        }
     }
 
     @Override

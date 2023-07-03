@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
  * Handles Managed Properties of batch uploads/updates.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class PropertiesBatchManager implements IPropertiesBatchManager
@@ -149,9 +149,9 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     {
         List<IEntityProperty> newProperties = new ArrayList<IEntityProperty>();
 
-        Map<String, Map<String, String>> subColumnBindings =
+        List<KeyValue<Map<String, String>>> subColumnBindings =
                 createColumnBindingsMap(propertiesBean.getProperties(), contexts);
-        for (Entry<String, Map<String, String>> entry : subColumnBindings.entrySet())
+        for (KeyValue<Map<String, String>> entry : subColumnBindings)
         {
             String code = entry.getKey();
             EvaluationContext evalContext = contexts.get(code);
@@ -159,7 +159,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             {
                 EntityProperty entityProperty =
                         evaluateManagedProperty(code, person, entry.getValue(), evalContext);
-                if (false == ManagedProperty.isSpecialValue(entityProperty.getValue()))
+                if (false == ManagedProperty.isSpecialValue(entityProperty.getStringValue()))
                 {
                     newProperties.add(entityProperty);
                 }
@@ -191,7 +191,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             ManagedProperty managedProperty = new ManagedProperty();
             managedProperty.setPropertyTypeCode(code);
             evaluator.updateFromBatchInput(managedProperty, person, bindings);
-            entityProperty.setValue(managedProperty.getValue());
+            entityProperty.setValue(managedProperty.getStringValue());
         }
         return entityProperty;
     }
@@ -206,19 +206,52 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         return entityProperty;
     }
 
-    private Map<String, Map<String, String>> createColumnBindingsMap(IEntityProperty[] properties,
+    private static final class KeyValue<T>
+    {
+        private final String key;
+
+        private final T value;
+
+        KeyValue(String key, T value)
+        {
+            this.key = key;
+            this.value = value;
+
+        }
+
+        public String getKey()
+        {
+            return key;
+        }
+
+        public T getValue()
+        {
+            return value;
+        }
+
+    }
+
+    //    private Map<String, Map<String, String>> createColumnBindingsMap(IEntityProperty[] properties,
+    //            Map<String, EvaluationContext> contexts)
+    private List<KeyValue<Map<String, String>>> createColumnBindingsMap(
+            IEntityProperty[] properties,
             Map<String, EvaluationContext> contexts)
     {
-        Map<String, Map<String, String>> subColumnBindings =
-                new HashMap<String, Map<String, String>>();
+        //        Map<String, Map<String, String>> subColumnBindings =
+        //                new HashMap<String, Map<String, String>>();
+        List<KeyValue<Map<String, String>>> subColumnBindings =
+                new ArrayList<KeyValue<Map<String, String>>>();
 
-        Map<String, String> originalColumnBindings = new HashMap<String, String>();
+        //        Map<String, String> originalColumnBindings = new HashMap<String, String>();
+        List<KeyValue<String>> originalColumnBindings = new ArrayList<KeyValue<String>>();
         for (IEntityProperty property : properties)
         {
             final String code = property.getPropertyType().getCode().toUpperCase();
-            final String value = property.getValue();
-            originalColumnBindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey(code),
-                    value);
+            final String value = property.getStringValue();
+            //            originalColumnBindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey(code),
+            //                    value);
+            originalColumnBindings.add(new KeyValue<String>(
+                    ManagedPropertyFunctions.originalColumnNameBindingKey(code), value));
 
             int indexOfColon = code.indexOf(':');
             String propertyCode = code;
@@ -228,29 +261,45 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 propertyCode = code.substring(0, indexOfColon);
                 subColumn = code.substring(indexOfColon + 1);
             }
-            Map<String, String> bindings = subColumnBindings.get(propertyCode);
-            if (bindings == null)
-            {
-                bindings = new HashMap<String, String>();
-                subColumnBindings.put(propertyCode, bindings);
-            }
+            //            Map<String, String> bindings = subColumnBindings.get(propertyCode);
+            //            if (bindings == null)
+            //            {
+            //                bindings = new HashMap<String, String>();
+            //                subColumnBindings.put(propertyCode, bindings);
+            //            }
+            final Map<String, String> bindings = new HashMap<String, String>();
+            subColumnBindings.add(new KeyValue<Map<String, String>>(propertyCode, bindings));
             bindings.put(subColumn, value);
         }
         // add original column bindings to all bindings
-        for (Map<String, String> bindings : subColumnBindings.values())
+        //        for (Map<String, String> bindings : subColumnBindings.values())
+        for (KeyValue<Map<String, String>> bindings : subColumnBindings)
         {
-            for (Entry<String, String> originalColumnEntry : originalColumnBindings.entrySet())
+            //            for (Entry<String, String> originalColumnEntry : originalColumnBindings.entrySet())
+            for (KeyValue<String> originalColumnEntry : originalColumnBindings)
             {
-                bindings.put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
+                //                bindings.put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
+                bindings.getValue()
+                        .put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
             }
         }
 
         for (Entry<String, EvaluationContext> entry : contexts.entrySet())
         {
             String code = entry.getKey().toUpperCase();
-            if (false == subColumnBindings.containsKey(code))
+            //            if (false == subColumnBindings.containsKey(code))
+            for (KeyValue<Map<String, String>> kv : subColumnBindings)
             {
-                subColumnBindings.put(code, new HashMap<String, String>(originalColumnBindings));
+                //                subColumnBindings.put(code, new HashMap<String, String>(originalColumnBindings));
+                if (kv.getKey().equals(code) == false)
+                {
+                    Map<String, String> map2 = new HashMap<String, String>();
+                    for (KeyValue<String> kv2 : originalColumnBindings)
+                    {
+                        map2.put(kv2.getKey(), kv2.getValue());
+                    }
+                    subColumnBindings.add(new KeyValue<Map<String, String>>(code, map2));
+                }
             }
         }
         return subColumnBindings;

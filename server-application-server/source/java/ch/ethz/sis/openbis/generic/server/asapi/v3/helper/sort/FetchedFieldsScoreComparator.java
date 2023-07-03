@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -386,7 +387,7 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
         int score = 0;
         String code = o.getCode();
         String typeCode = (hasType(o)) ? o.getType().getCode() : null;
-        Map<String, String> properties = (hasProperties(o)) ? o.getProperties() : null;
+        Map<String, Serializable> properties = (hasProperties(o)) ? o.getProperties() : null;
 
         for (int i = 0; i < exactMatchTerms.size(); i++)
         {
@@ -425,7 +426,7 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
                     {
                         if (boost.getPropertyBoost(propertykey) > 0)
                         {
-                            String propertyValue = properties.get(propertykey);
+                            String propertyValue = (String) properties.get(propertykey);
                             if (isPartialMatch(propertyValue, partialTerm))
                             { // If property matches partially
                                 score += partialPropertyBoost * boost.getPropertyBoost(propertykey);

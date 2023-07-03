@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -398,7 +399,7 @@ public class GetDataSetTest extends AbstractDataSetTest
 
         DataSet dataSet = map.get(permId);
 
-        Map<String, String> properties = dataSet.getProperties();
+        Map<String, Serializable> properties = dataSet.getProperties();
         assertEquals(properties.get("COMMENT"), "no comment");
         assertEquals(properties.get("GENDER"), "FEMALE");
         assertEquals(properties.get("BACTERIUM"), "BACTERIUM1 (BACTERIUM)");

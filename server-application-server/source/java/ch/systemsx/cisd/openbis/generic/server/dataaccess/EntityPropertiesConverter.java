@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -259,7 +260,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return result;
     }
 
-    private final <T extends EntityPropertyPE> T tryConvertProperty(final PersonPE registrator,
+    private final <T extends EntityPropertyPE> List<T> tryConvertProperty(final PersonPE registrator,
             final EntityTypePE entityTypePE, final IEntityProperty property)
     {
         final String propertyCode = property.getPropertyType().getCode();
@@ -276,27 +277,46 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
         if (isNullOrBlank(valueOrNull) == false)
         {
+            List<T> results = new ArrayList<>();
             String translatedValue = extendedETPT.translate(registrator, valueOrNull);
 
             final String validatedValue =
                     propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
+            results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE, validatedValue));
+            return results;
 
-            return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                    validatedValue);
+
         }
         return null;
     }
 
-    private final <T extends EntityPropertyPE> T createEntityProperty(final PersonPE registrator,
+    private final <T extends EntityPropertyPE> List<T> createEntityProperty(final PersonPE registrator,
             final PropertyTypePE propertyType,
             final EntityTypePropertyTypePE entityTypePropertyType, final String value)
     {
-        final T entityProperty = EntityPropertyPE.createEntityProperty(entityKind);
-        entityProperty.setRegistrator(registrator);
-        entityProperty.setAuthor(registrator);
-        entityProperty.setEntityTypePropertyType(entityTypePropertyType);
-        setPropertyValue(entityProperty, propertyType, value);
-        return entityProperty;
+        List<T> entityProperties = new ArrayList<>();
+        if (propertyType.isMultiValue()) {
+            for(String val : value.split(",")) {
+                String singleValue = val.trim();
+                final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
+                setPropertyValue(entityProperty, propertyType, singleValue);
+                entityProperties.add(entityProperty);
+            }
+        } else {
+            final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
+            setPropertyValue(entityProperty, propertyType, value);
+            entityProperties.add(entityProperty);
+        }
+        return entityProperties;
+    }
+
+    private <T extends EntityPropertyPE> T getEntityPropertyBase(final PersonPE registrator,
+            final EntityTypePropertyTypePE entityTypePropertyType) {
+        final T entityPropertyBase = EntityPropertyPE.createEntityProperty(entityKind);
+        entityPropertyBase.setRegistrator(registrator);
+        entityPropertyBase.setAuthor(registrator);
+        entityPropertyBase.setEntityTypePropertyType(entityTypePropertyType);
+        return entityPropertyBase;
     }
 
     //
@@ -337,11 +357,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final List<T> list = new ArrayList<T>();
         for (final IEntityProperty property : definedProperties)
         {
-            final T convertedPropertyOrNull =
+            final List<T> convertedPropertyOrNull =
                     tryConvertProperty(registrator, entityTypePE, property);
-            if (convertedPropertyOrNull != null)
+            if (convertedPropertyOrNull != null && !convertedPropertyOrNull.isEmpty())
             {
-                list.add(convertedPropertyOrNull);
+                list.addAll(convertedPropertyOrNull);
             }
         }
         return list;
@@ -440,7 +460,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     @Override
-    public final <T extends EntityPropertyPE> T createValidatedProperty(
+    public final <T extends EntityPropertyPE> List<T> createValidatedProperty(
             PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
             final PersonPE registrator, String validatedValue)
     {
@@ -504,20 +524,24 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         for (T newProperty : convertedProperties)
         {
             PropertyTypePE propertyType = newProperty.getEntityTypePropertyType().getPropertyType();
-            T existingProperty = tryFind(oldProperties, propertyType);
+            T existingProperty;
+            if(newProperty.getVocabularyTerm() != null) {
+                existingProperty = tryFind(oldProperties, propertyType, newProperty.getVocabularyTerm().getCode());
+            } else {
+                existingProperty = tryFind(oldProperties, propertyType);
+            }
+
             if (existingProperty != null)
             {
                 SamplePE sample = newProperty instanceof EntityPropertyWithSampleDataTypePE
                         ? ((EntityPropertyWithSampleDataTypePE) newProperty).getSampleValue()
                         : null;
                 existingProperty.setUntypedValue(newProperty.getValue(),
-                        newProperty.getVocabularyTerm(), newProperty.getMaterialValue(), sample,
-                        newProperty.getIntegerArrayValue(), newProperty.getRealArrayValue(),
-                        newProperty.getStringArrayValue(),
-                        newProperty.getTimestampArrayValue(), newProperty.getJsonValue());
-
-                if (false == existingPropertyValues.get(existingProperty)
-                        .equals(newProperty.tryGetUntypedValue()))
+                            newProperty.getVocabularyTerm(), newProperty.getMaterialValue(), sample,
+                            newProperty.getIntegerArrayValue(), newProperty.getRealArrayValue(),
+                            newProperty.getStringArrayValue(),
+                            newProperty.getTimestampArrayValue(), newProperty.getJsonValue());
+                if(existingPropertyValues.containsKey(existingProperty) && !existingPropertyValues.get(existingProperty).equals(newProperty.tryGetUntypedValue()))
                 {
                     existingProperty.setAuthor(author);
                     // TODO: create modified property history entry
@@ -530,6 +554,27 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
         return set;
+    }
+
+    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties,
+            PropertyTypePE propertyType, String propertyValue)
+    {
+        for (T oldProperty : oldProperties)
+        {
+            if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(propertyType)
+            )
+            {
+                if(oldProperty.getVocabularyTerm() != null){
+                    if(oldProperty.getVocabularyTerm().getCode().equals(propertyValue))
+                    {
+                        return oldProperty;
+                    }
+                    continue;
+                }
+                return oldProperty;
+            }
+        }
+        return null;
     }
 
     private static <T extends EntityPropertyPE> Set<T> findDeletedProperties(
@@ -576,7 +621,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(managedProperty.getValue(), null, null, null, null,
+            existingProperty.setUntypedValue(managedProperty.getStringValue(), null, null, null, null,
                     null, null, null, null);
             existingProperty.setAuthor(author);
         }
@@ -640,9 +685,15 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return null;
     }
 
-    private static boolean isNullOrBlank(String value)
+    private static boolean isNullOrBlank(Serializable value)
     {
-        return value == null || value.trim().length() == 0;
+        if(value == null) {
+            return true;
+        }
+        if(value.getClass().isArray()) {
+            return  ((Serializable[]) value).length == 0;
+        }
+        return value.toString().trim().length() == 0;
     }
 
     //
@@ -711,7 +762,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 }
 
                 evaluator.updateFromRegistrationForm(managedProperty, person, bindingsList);
-                return managedProperty.getValue();
+                return managedProperty.getStringValue();
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

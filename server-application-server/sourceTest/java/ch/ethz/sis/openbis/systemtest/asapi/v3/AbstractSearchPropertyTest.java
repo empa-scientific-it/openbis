@@ -21,6 +21,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.cond
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -995,7 +996,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     }
 
     protected SamplePermId createSample(final String sessionToken, final String code,
-            final EntityTypePermId entityTypeId, final Map<String, String> propertyMap)
+            final EntityTypePermId entityTypeId, final Map<String, Serializable> propertyMap)
     {
         final SampleCreation sampleCreation = new SampleCreation();
         sampleCreation.setCode(code);

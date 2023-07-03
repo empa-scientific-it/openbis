@@ -20,6 +20,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1210,7 +1211,7 @@ public class GetSampleTest extends AbstractSampleTest
         Sample sample = samples.get(0);
         assertEquals(sample.getPermId().getPermId(), "200811050919915-8");
 
-        Map<String, String> properties = sample.getProperties();
+        Map<String, Serializable> properties = sample.getProperties();
         assertEquals(properties.get("$PLATE_GEOMETRY"), "384_WELLS_16X24");
         v3api.logout(sessionToken);
     }

@@ -74,10 +74,18 @@ public class VocabularyTermStringCellRenderer implements GridCellRenderer<BaseEn
                 return cell.toString();
             } else
             {
-
                 VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) cell;
-                VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
-                return VocabularyPropertyColRenderer.renderTerm(vocabularyTerm);
+                List<VocabularyTerm> vocabularyTerms = vocabularyTermTableCell.getVocabularyTerm();
+                StringBuilder builder = new StringBuilder();
+                for (VocabularyTerm vocabularyTerm : vocabularyTerms)
+                {
+                    if (builder.length() > 0)
+                    {
+                        builder.append(", ");
+                    }
+                    builder.append(VocabularyPropertyColRenderer.renderTerm(vocabularyTerm));
+                }
+                return builder.toString();
             }
         }
     }

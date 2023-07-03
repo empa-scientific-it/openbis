@@ -15,29 +15,14 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -55,7 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public class EntityHelper
 {
     /**
-     * Returns <code>true</code> if both entities are <code>null</code> or have the same id (which could be <code>null</code>).
+     * Returns <code>true</code> if both entities are <code>null</code> or have the same id (which
+     * could be <code>null</code>).
      */
     public static <T extends IIdHolder> boolean equalEntities(T entity1OrNull, T entity2OrNull)
     {
@@ -100,7 +86,8 @@ public class EntityHelper
     }
 
     /**
-     * @return finds and returns an {@link IEntityProperty} for a specified code. Returns <code>null</code> if no matching property is found.
+     * @return finds and returns an {@link IEntityProperty} for a specified code. Returns
+     *         <code>null</code> if no matching property is found.
      */
     public static IEntityProperty tryFindProperty(Iterable<IEntityProperty> properties,
             final String propertyCode)
@@ -204,13 +191,16 @@ public class EntityHelper
             Sample sample, Map<String, String> properties)
     {
         List<IEntityProperty> props = translatePropertiesMapToList(properties);
-        ExperimentIdentifier experimentIdentifier = ExperimentIdentifierFactory.tryGetExperimentIdentifier(sample);
-        ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.tryGetProjectIdentifier(sample);
+        ExperimentIdentifier experimentIdentifier =
+                ExperimentIdentifierFactory.tryGetExperimentIdentifier(sample);
+        ProjectIdentifier projectIdentifier =
+                ProjectIdentifierFactory.tryGetProjectIdentifier(sample);
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample.getIdentifier());
         Sample container = sample.getContainer();
         String containerIdentifier = container == null ? null : container.getIdentifier();
         SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(new TechId(sample), props, experimentIdentifier, projectIdentifier,
+                new SampleUpdatesDTO(new TechId(sample), props, experimentIdentifier,
+                        projectIdentifier,
                         Collections.<NewAttachment> emptySet(), sample.getVersion(),
                         sampleIdentifier, containerIdentifier, null);
         server.updateSample(sessionToken, updates);
@@ -234,27 +224,51 @@ public class EntityHelper
     }
 
     /**
-     * Creates a property with specified code and value. An already existing property with same code will be removed.
+     * Creates a property with specified code and value. An already existing property with same code
+     * will be removed.
      */
     public static void createOrUpdateProperty(IEntityPropertiesHolder holder, String propertyCode,
             String propertyValue)
     {
-        IEntityProperty newProperty = createNewProperty(propertyCode, propertyValue);
+        IEntityProperty entityProperty =
+                EntityHelper.tryFindProperty(holder.getProperties(), propertyCode);
         List<IEntityProperty> properties = holder.getProperties();
-        for (int i = 0; i < properties.size(); i++)
+        if (entityProperty != null && entityProperty.getPropertyType().isMultiValue())
         {
-            IEntityProperty property = properties.get(i);
-            PropertyType propertyType = property.getPropertyType();
-            if (propertyType.getCode().equalsIgnoreCase(propertyCode))
+            properties.removeIf(
+                    prop -> prop.getPropertyType().getCode().equalsIgnoreCase(propertyCode));
+            if (propertyValue != null && propertyValue.startsWith("["))
             {
-                properties.set(i, newProperty);
-                return;
+                String[] values = propertyValue.substring(1, propertyValue.length() - 1).split(",");
+                for (String value : values)
+                {
+                    IEntityProperty newProperty = createNewProperty(propertyCode, value.trim());
+                    properties.add(newProperty);
+                }
+            } else
+            {
+                IEntityProperty newProperty = createNewProperty(propertyCode, propertyValue);
+                properties.add(newProperty);
             }
+        } else
+        {
+            IEntityProperty newProperty = createNewProperty(propertyCode, propertyValue);
+            for (int i = 0; i < properties.size(); i++)
+            {
+                IEntityProperty property = properties.get(i);
+                PropertyType propertyType = property.getPropertyType();
+                if (propertyType.getCode().equalsIgnoreCase(propertyCode))
+                {
+                    properties.set(i, newProperty);
+                    return;
+                }
+            }
+            properties.add(newProperty);
         }
-        properties.add(newProperty);
+
     }
 
-    public static IEntityProperty createNewProperty(String propertyCode, String propertyValue)
+    public static IEntityProperty createNewProperty(String propertyCode, Serializable propertyValue)
     {
         IEntityProperty property = createNewProperty(propertyCode);
         property.setValue(propertyValue);

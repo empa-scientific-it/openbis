@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -160,20 +161,20 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     }
 
     protected static Function<PropertyType, String> getPropertiesMappingFunction(
-            final XLSExport.TextFormatting textFormatting, final Map<String, String> properties)
+            final XLSExport.TextFormatting textFormatting, final Map<String, Serializable> properties)
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
                 ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
                         ? getProperty(properties, propertyType) != null
-                                ? properties.get(propertyType.getCode()).replaceAll("<[^>]+>", "")
+                                ? ((String)properties.get(propertyType.getCode())).replaceAll("<[^>]+>", "")
                                 : null
                         : getProperty(properties, propertyType)
                 : propertyType -> getProperty(properties, propertyType);
     }
 
-    private static String getProperty(final Map<String, String> properties, final PropertyType propertyType)
+    private static String getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
     {
-        return properties.get(propertyType.getCode());
+        return (String) properties.get(propertyType.getCode());
     }
 
 }

@@ -1,0 +1,18 @@
+1	DESCRIPTION	A Description	Description	1	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
+2	GENE_SYMBOL	Gene Symbol, e.g. BMP15	Gene Symbol	1	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
+3	NUCLEOTIDE_SEQUENCE	A sequence of nucleotides	Nucleotide Sequence	1	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
+4	REFSEQ	NCBI Reference Sequence code, applicable to sequences of type: DNA, RNA, protein	RefSeq	1	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
+5	OFFSET	Offset from the start of the sequence	Offset	2	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
+6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	6	2008-11-05 09:18:00.622+01	1	1	t	\N	\N	\N	\N	\N	f
+7	EYE_COLOR	The color of the eyes	Eye color	1	2008-11-05 09:18:16.559+01	2	\N	f	\N	\N	\N	\N	\N	f
+8	SIZE	The size of the object	Size	2	2008-11-05 09:18:16.559+01	2	\N	f	\N	\N	\N	\N	\N	f
+9	VOLUME	The volume of this person	Volume	3	2008-11-05 09:18:16.559+01	2	\N	f	\N	\N	\N	\N	\N	f
+10	IS_VALID	Can the material be used?	Valid?	4	2008-11-05 09:18:16.559+01	2	\N	f	\N	\N	\N	\N	\N	f
+11	PURCHASE_DATE	When material has been bought	Purchased	5	2008-11-05 09:18:16.559+01	2	\N	f	\N	\N	\N	\N	\N	f
+13	GENDER	The gender of the living organism	Gender	6	2008-11-05 09:18:31.545+01	2	4	f	\N	\N	\N	\N	\N	f
+14	COMMENT	Any other comments	Comment	1	2008-11-05 09:18:31.545+01	2	\N	f	\N	\N	\N	\N	\N	f
+15	ORGANISM	The organism from which cells come	Organism	6	2008-11-05 09:18:31.545+01	2	3	f	\N	\N	\N	\N	\N	f
+25	BACTERIUM	bacterium	bacterium	7	2009-08-18 17:52:05.435021+02	2	\N	f	6	\N	\N	\N	\N	f
+26	ANY_MATERIAL	any_material	any_material	7	2009-08-18 17:52:47.771005+02	2	\N	f	\N	\N	\N	\N	\N	f
+27	DYNAMIC_DESCRIPTION	A Dynamic	Dynamic_Description	1	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
+28	TEST_VOCABULARY	The test controlled vocabulary property	Organism	6	2008-11-05 09:18:31.545+01	2	6	f	\N	\N	\N	\N	\N	f

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyFetchOptions;
@@ -24,7 +25,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolde
 /**
  * @author pkupczyk
  */
-public interface IPropertyTranslator extends ITranslator<Long, ObjectHolder<Map<String, String>>, PropertyFetchOptions>
+public interface IPropertyTranslator extends ITranslator<Long, ObjectHolder<Map<String, Serializable>>, PropertyFetchOptions>
 {
 
 }

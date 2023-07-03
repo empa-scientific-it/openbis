@@ -345,7 +345,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
         {
             if (bindings.containsKey(""))
             {
-                managedProperty.setValue(bindings.get(""));
+                managedProperty.setStringValue(bindings.get(""));
             }
         } else
         {

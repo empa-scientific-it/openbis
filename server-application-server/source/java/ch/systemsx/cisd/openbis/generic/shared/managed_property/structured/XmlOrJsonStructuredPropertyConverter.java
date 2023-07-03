@@ -56,7 +56,7 @@ public class XmlOrJsonStructuredPropertyConverter implements IStructuredProperty
             return jsonConverter.convertToElements(property);
         } else
         {
-            throw new UserFailureException("Illegal managed property value '" + property.getValue()
+            throw new UserFailureException("Illegal managed property value '" + property.getStringValue()
                     + "'.");
         }
     }

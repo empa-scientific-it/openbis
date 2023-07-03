@@ -42,4 +42,6 @@ public class PropertyTypeRecord extends ObjectBaseRecord
 
     public String meta_data;
 
+    public Boolean is_multi_value;
+
 }

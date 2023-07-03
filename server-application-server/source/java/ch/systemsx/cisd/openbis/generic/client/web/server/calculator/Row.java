@@ -77,26 +77,26 @@ public final class Row
      * 
      * @throws IllegalArgumentException if no column with specified ID exists.
      */
-    public VocabularyColumn colAsVocabulary(String columnID)
-    {
-        Comparable<?> value = provider.getValue(columnID, rowValues);
-
-        if (value instanceof VocabularyTermTableCell)
-        {
-            VocabularyTermTableCell cell = (VocabularyTermTableCell) value;
-
-            if (cell.getVocabularyTerm() != null)
-            {
-                return new VocabularyColumn(cell.getVocabularyTerm());
-            } else
-            {
-                return null;
-            }
-        } else
-        {
-            return null;
-        }
-    }
+//    public VocabularyColumn colAsVocabulary(String columnID)
+//    {
+//        Comparable<?> value = provider.getValue(columnID, rowValues);
+//
+//        if (value instanceof VocabularyTermTableCell)
+//        {
+//            VocabularyTermTableCell cell = (VocabularyTermTableCell) value;
+//
+//            if (cell.getVocabularyTerm() != null)
+//            {
+//                return new VocabularyColumn(cell.getVocabularyTerm());
+//            } else
+//            {
+//                return null;
+//            }
+//        } else
+//        {
+//            return null;
+//        }
+//    }
 
     /**
      * Returns all column definitions which have a property with specified key.
