@@ -139,6 +139,7 @@ Vocabulary Term
 |VOCABULARY_TYPE||||
 |--- |--- |--- |--- |
 |Version|Code|Description||
+|--- |--- |--- |--- |
 |1|$STORAGE.STORAGE_VALIDATION_LEVEL|Validation Level||
 |Version|Code|Label|Description|
 |1|RACK|Rack Validation||
