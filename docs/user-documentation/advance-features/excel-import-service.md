@@ -119,638 +119,151 @@ nature of the defined elements themselves.
 
 Vocabulary
 
-<table style="width:99%;">
-<colgroup>
-<col style="width: 49%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Version|Yes|
+|Code|Yes|
+|Description|Yes|
 
 Vocabulary Term
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Label</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Version|Yes|
+|Code|Yes|
+|Label|Yes|
+|Description|Yes|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>VOCABULARY_TYPE</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Description</strong></td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$STORAGE.STORAGE_VALIDATION_LEVEL</td>
-<td>Validation Level</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Label</strong></td>
-<td><strong>Description</strong></td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>RACK</td>
-<td>Rack Validation</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>BOX</td>
-<td>Box Validation</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>BOX_POSITION</td>
-<td>Box Position Validation</td>
-<td><br />
-</td>
-</tr>
-</tbody>
-</table>
+|||||
+|--- |--- |--- |--- |
+|VOCABULARY_TYPE||||
+|Version|Code|Description||
+|1|$STORAGE.STORAGE_VALIDATION_LEVEL|Validation Level||
+|Version|Code|Label|Description|
+|1|RACK|Rack Validation||
+|1|BOX|Box Validation||
+|1|BOX_POSITION|Box Position Validation||
 
 Experiment Type
 ---------------
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Validation script</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Ontology Id</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Ontology Version</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Ontology Annotation Id</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Version|Yes|
+|Code|Yes|
+|Description|Yes|
+|Validation script|Yes|
+|Ontology Id|No|
+|Ontology Version|No|
+|Ontology Annotation Id|No|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>EXPERIMENT_TYPE</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td style="text-align: left;"><strong>Code</strong></td>
-<td style="text-align: left;"><strong>Description</strong></td>
-<td><strong>Validation script</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>2</td>
-<td style="text-align: left;">DEFAULT_EXPERIMENT</td>
-<td style="text-align: left;"><br />
-</td>
-<td>date_range_validation.py</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-</tbody>
-</table>
+||||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|EXPERIMENT_TYPE|||||||||||
+|Version|Code|Description|Validation script||||||||
+|2|DEFAULT_EXPERIMENT||date_range_validation.py||||||||
 
 ### Sample Type
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Auto generate codes</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Validation script</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Generate code prefix</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Ontology Id</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Ontology Version</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Ontology Annotation Id</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Version|Yes|
+|Code|Yes|
+|Description|Yes|
+|Auto generate codes|Yes|
+|Validation script|Yes|
+|Generate code prefix|Yes|
+|Ontology Id|No|
+|Ontology Version|No|
+|Ontology Annotation Id|No|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>SAMPLE_TYPE</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Auto generate codes</strong></td>
-<td><strong>Validation script</strong></td>
-<td><strong>Generated code prefix</strong></td>
-</tr>
-<tr class="odd">
-<td>2</td>
-<td>STORAGE_POSITION</td>
-<td><br />
-</td>
-<td>TRUE</td>
-<td>storage_position_validation.py</td>
-<td>STO</td>
-</tr>
-</tbody>
-</table>
+|||||||
+|--- |--- |--- |--- |--- |--- |
+|SAMPLE_TYPE||||||
+|Version|Code|Description|Auto generate codes|Validation script|Generated code prefix|
+|2|STORAGE_POSITION||TRUE|storage_position_validation.py|STO|
 
 ### Dataset Type
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Validation script</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Ontology Id</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Ontology Version</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Ontology Annotation Id</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Version|Yes|
+|Code|Yes|
+|Description|Yes|
+|Validation script|Yes|
+|Ontology Id|No|
+|Ontology Version|No|
+|Ontology Annotation Id|No|
+
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>DATASET_TYPE</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Validation script</strong></td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>RAW_DATA</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-</tbody>
-</table>
+|||||
+|--- |--- |--- |--- |
+|DATASET_TYPE||||
+|Version|Code|Description|Validation script|
+|1|RAW_DATA|||
 
 ### Property Type
 
 A property type can exist unassigned to an entity type or assigned to an
 entity type.
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory Assigned</th>
-<th>Mandatory Unassigned</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Mandatory</td>
-<td>No</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Show in edit views</td>
-<td>No</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Section</td>
-<td>No</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Property label</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Data type</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Vocabulary code</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Description</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Metadata</td>
-<td>No</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Dynamic script</td>
-<td>No</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Ontology Id</td>
-<td>No</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Ontology Version</td>
-<td>No</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Ontology Annotation Id</td>
-<td>No</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory Assigned|Mandatory Unassigned|
+|--- |--- |--- |
+|Version|Yes|Yes|
+|Code|Yes|Yes|
+|Mandatory|No|Yes|
+|Show in edit views|No|Yes|
+|Section|No|Yes|
+|Property label|Yes|Yes|
+|Data type|Yes|Yes|
+|Vocabulary code|Yes|Yes|
+|Description|Yes|Yes|
+|Metadata|No|No|
+|Dynamic script|No|No|
+|Ontology Id|No|No|
+|Ontology Version|No|No|
+|Ontology Annotation Id|No|No|
 
 A property type requires a data type to be defined, valid data types
 are.
 
-<table>
-<thead>
-<tr class="header">
-<th>Data type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>INTEGER</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>REAL</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>VARCHAR</td>
-<td>Text of any length but displayed as a single line field.</td>
-</tr>
-<tr class="even">
-<td>MULTILINE_VARCHAR</td>
-<td>Text of any length but displayed as a multi line field.</td>
-</tr>
-<tr class="odd">
-<td>HYPERLINK</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>BOOLEAN</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>CONTROLLEDVOCABULARY</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>XML</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>TIMESTAMP</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>DATE</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>SAMPLE</td>
-<td>Sample of any type.</td>
-</tr>
-<tr class="even">
-<td>SAMPLE:&lt;SAMPLE_TYPE&gt;</td>
-<td>Sample of the indicated type.</td>
-</tr>
-</tbody>
-</table>
-
-  
+|Data type|Description|
+|--- |--- |
+|INTEGER||
+|REAL||
+|VARCHAR|Text of any length but displayed as a single line field.|
+|MULTILINE_VARCHAR|Text of any length but displayed as a multi line field.|
+|HYPERLINK||
+|BOOLEAN||
+|CONTROLLEDVOCABULARY||
+|XML||
+|TIMESTAMP||
+|DATE||
+|SAMPLE|Sample of any type.|
+|SAMPLE:<SAMPLE_TYPE>|Sample of the indicated type.|
 
 **Example Unassigned Property**
 
 In this case, the property is registered without being assigned to a
 type, and  the block of property types uses the PROPERTY\_TYPE block.
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>PROPERTY_TYPE</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Mandatory</strong></td>
-<td><strong>Show in edit views</strong></td>
-<td><strong>Section</strong></td>
-<td><strong>Property label</strong></td>
-<td><strong>Data type</strong></td>
-<td><strong>Vocabulary code</strong></td>
-<td><strong>Description</strong></td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$WELL.COLOR_ENCODED_ANNOTATION</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td><br />
-</td>
-<td>Color Annotation</td>
-<td>CONTROLLEDVOCABULARY</td>
-<td>$WELL.COLOR_ENCODED_ANNOTATIONS</td>
-<td>Color Annotation for plate wells</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>ANNOTATION.SYSTEM.COMMENTS</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td><br />
-</td>
-<td>Comments</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Comments</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>ANNOTATION.REQUEST.QUANTITY_OF_ITEMS</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td><br />
-</td>
-<td>Quantity of Items</td>
-<td>INTEGER</td>
-<td><br />
-</td>
-<td>Quantity of Items</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>$BARCODE</td>
-<td>FALSE</td>
-<td>FALSE</td>
-<td><br />
-</td>
-<td>Custom Barcode</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Custom Barcode</td>
-</tr>
-</tbody>
-</table>
+||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|PROPERTY_TYPE|||||||||
+|Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|
+|1|$WELL.COLOR_ENCODED_ANNOTATION|FALSE|TRUE||Color Annotation|CONTROLLEDVOCABULARY|$WELL.COLOR_ENCODED_ANNOTATIONS|Color Annotation for plate wells|
+|1|ANNOTATION.SYSTEM.COMMENTS|FALSE|TRUE||Comments|VARCHAR||Comments|
+|1|ANNOTATION.REQUEST.QUANTITY_OF_ITEMS|FALSE|TRUE||Quantity of Items|INTEGER||Quantity of Items|
+|2|$BARCODE|FALSE|FALSE||Custom Barcode|VARCHAR||Custom Barcode|
+
 
 **Example Assigned**
 
@@ -758,148 +271,16 @@ In this case the property types are assigned to a sample type and the
 block of property types belong to the entity type block (SAMPLE\_TYPE in
 this case).
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>SAMPLE_TYPE</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Auto generate codes</strong></td>
-<td><strong>Validation script</strong></td>
-<td><strong>Generated code prefix</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>ENTRY</td>
-<td><br />
-</td>
-<td>TRUE</td>
-<td><br />
-</td>
-<td>ENTRY</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Mandatory</strong></td>
-<td><strong>Show in edit views</strong></td>
-<td><strong>Section</strong></td>
-<td><strong>Property label</strong></td>
-<td><strong>Data type</strong></td>
-<td><strong>Vocabulary code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Metadata</strong></td>
-<td><strong>Dynamic script</strong></td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$NAME</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>General info</td>
-<td>Name</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Name</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>$SHOW_IN_PROJECT_OVERVIEW</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>General info</td>
-<td>Show in project overview</td>
-<td>BOOLEAN</td>
-<td><br />
-</td>
-<td>Show in project overview page</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$DOCUMENT</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>General info</td>
-<td>Document</td>
-<td>MULTILINE_VARCHAR</td>
-<td><br />
-</td>
-<td>Document</td>
-<td>{ "custom_widget" : "Word Processor" }</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>$ANNOTATIONS_STATE</td>
-<td>FALSE</td>
-<td>FALSE</td>
-<td><br />
-</td>
-<td>Annotations State</td>
-<td>XML</td>
-<td><br />
-</td>
-<td>Annotations State</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-</tbody>
-</table>
+||||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|SAMPLE_TYPE|||||||||||
+|Version|Code|Description|Auto generate codes|Validation script|Generated code prefix||||||
+|1|ENTRY||TRUE||ENTRY||||||
+|Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
+|1|$NAME|FALSE|TRUE|General info|Name|VARCHAR||Name|||
+|1|$SHOW_IN_PROJECT_OVERVIEW|FALSE|TRUE|General info|Show in project overview|BOOLEAN||Show in project overview page|||
+|1|$DOCUMENT|FALSE|TRUE|General info|Document|MULTILINE_VARCHAR||Document|{ "custom_widget" : "Word Processor" }||
+|1|$ANNOTATIONS_STATE|FALSE|FALSE||Annotations State|XML||Annotations State|||
 
 ### Entity Type Validation Script and Property Type Dynamic Script
 
@@ -915,233 +296,23 @@ column. See the example columns below.
 
 **Example**
 
-**<span
 ![image info](img/932.png)
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>SAMPLE_TYPE</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Auto generate codes</strong></td>
-<td><strong>Validation scriptƒgre</strong></td>
-<td><strong>Generated code prefix</strong></td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>2</td>
-<td>STORAGE_POSITION</td>
-<td><br />
-</td>
-<td>TRUE</td>
-<td>storage_position_validation.py</td>
-<td>STO</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Version</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Mandatory</strong></td>
-<td><strong>Show in edit views</strong></td>
-<td><strong>Section</strong></td>
-<td><strong>Property label</strong></td>
-<td><strong>Data type</strong></td>
-<td><strong>Vocabulary code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Metadata</strong></td>
-<td><strong>Dynamic script</strong></td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_CODE</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage Code</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Storage Code</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_RACK_ROW</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage Rack Row</td>
-<td>INTEGER</td>
-<td><br />
-</td>
-<td>Number of Rows</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_RACK_COLUMN</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage Rack Column</td>
-<td>INTEGER</td>
-<td><br />
-</td>
-<td>Number of Columns</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_BOX_NAME</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage Box Name</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Box Name</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_BOX_SIZE</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage Box Size</td>
-<td>CONTROLLEDVOCABULARY</td>
-<td>$STORAGE_POSITION.STORAGE_BOX_SIZE</td>
-<td>Box Size</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_BOX_POSITION</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage Box Position</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Box Position</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$STORAGE_POSITION.STORAGE_USER</td>
-<td>FALSE</td>
-<td>TRUE</td>
-<td>Physical Storage</td>
-<td>Storage User Id</td>
-<td>VARCHAR</td>
-<td><br />
-</td>
-<td>Storage User Id</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>$XMLCOMMENTS</td>
-<td>FALSE</td>
-<td>FALSE</td>
-<td><br />
-</td>
-<td>Comments</td>
-<td>XML</td>
-<td><br />
-</td>
-<td>Comments log</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>1</td>
-<td>$ANNOTATIONS_STATE</td>
-<td>FALSE</td>
-<td>FALSE</td>
-<td><br />
-</td>
-<td>Annotations State</td>
-<td>XML</td>
-<td><br />
-</td>
-<td>Annotations State</td>
-<td><br />
-</td>
-<td><p><br />
-</p>
-<p><br />
-</p></td>
-</tr>
-</tbody>
-</table>
+||||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|SAMPLE_TYPE|||||||||||
+|Version|Code|Description|Auto generate codes|Validation scriptƒgre|Generated code prefix||||||
+|2|STORAGE_POSITION||TRUE|storage_position_validation.py|STO||||||
+|Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
+|1|$STORAGE_POSITION.STORAGE_CODE|FALSE|TRUE|Physical Storage|Storage Code|VARCHAR||Storage Code|||
+|1|$STORAGE_POSITION.STORAGE_RACK_ROW|FALSE|TRUE|Physical Storage|Storage Rack Row|INTEGER||Number of Rows|||
+|1|$STORAGE_POSITION.STORAGE_RACK_COLUMN|FALSE|TRUE|Physical Storage|Storage Rack Column|INTEGER||Number of Columns|||
+|1|$STORAGE_POSITION.STORAGE_BOX_NAME|FALSE|TRUE|Physical Storage|Storage Box Name|VARCHAR||Box Name|||
+|1|$STORAGE_POSITION.STORAGE_BOX_SIZE|FALSE|TRUE|Physical Storage|Storage Box Size|CONTROLLEDVOCABULARY|$STORAGE_POSITION.STORAGE_BOX_SIZE|Box Size|||
+|1|$STORAGE_POSITION.STORAGE_BOX_POSITION|FALSE|TRUE|Physical Storage|Storage Box Position|VARCHAR||Box Position|||
+|1|$STORAGE_POSITION.STORAGE_USER|FALSE|TRUE|Physical Storage|Storage User Id|VARCHAR||Storage User Id|||
+|1|$XMLCOMMENTS|FALSE|FALSE||Comments|XML||Comments log|||
+|1|$ANNOTATIONS_STATE|FALSE|FALSE||Annotations State|XML||Annotations State|||
 
 ### Entity Types Versioning
 
@@ -1200,421 +371,99 @@ Label with an Attribute is encouraged to use the property code instead.
 
 ### Space
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Code|Yes|
+|Description|Yes|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>SPACE</strong></td>
-<td style="text-align: left;"><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Code</strong></td>
-<td style="text-align: left;"><strong>Description</strong></td>
-</tr>
-<tr class="odd">
-<td>ELN_SETTINGS</td>
-<td style="text-align: left;">ELN Settings</td>
-</tr>
-<tr class="even">
-<td>DEFAULT_LAB_NOTEBOOK</td>
-<td style="text-align: left;">Default Lab Notebook</td>
-</tr>
-<tr class="odd">
-<td>METHODS</td>
-<td style="text-align: left;">Folder for methods</td>
-</tr>
-<tr class="even">
-<td>MATERIALS</td>
-<td style="text-align: left;">Folder for th materials</td>
-</tr>
-<tr class="odd">
-<td>STOCK_CATALOG</td>
-<td style="text-align: left;">Folder for the catalog</td>
-</tr>
-<tr class="even">
-<td>STOCK_ORDERS</td>
-<td style="text-align: left;">Folder for orders</td>
-</tr>
-<tr class="odd">
-<td>PUBLICATIONS</td>
-<td style="text-align: left;">Folder for publications</td>
-</tr>
-</tbody>
-</table>
+|||
+|--- |--- |
+|SPACE||
+|Code|Description|
+|ELN_SETTINGS|ELN Settings|
+|DEFAULT_LAB_NOTEBOOK|Default Lab Notebook|
+|METHODS|Folder for methods|
+|MATERIALS|Folder for th materials|
+|STOCK_CATALOG|Folder for the catalog|
+|STOCK_ORDERS|Folder for orders|
+|PUBLICATIONS|Folder for publications|
 
 ### Project
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Identifier</td>
-<td>Yes on UPDATES, ignored on INSERT</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Space</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Description</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Identifier|Yes on UPDATES, ignored on INSERT|
+|Code|Yes|
+|Space|Yes|
+|Description|Yes|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>PROJECT</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Identifier</strong></td>
-<td style="text-align: left;"><strong>Code</strong></td>
-<td><strong>Description</strong></td>
-<td><strong>Space</strong></td>
-</tr>
-<tr class="odd">
-<td>/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT</td>
-<td style="text-align: left;">DEFAULT_PROJECT</td>
-<td>Default Project</td>
-<td>DEFAULT_LAB_NOTEBOOK</td>
-</tr>
-<tr class="even">
-<td>/METHODS/PROTOCOLS</td>
-<td style="text-align: left;">PROTOCOLS</td>
-<td>Protocols</td>
-<td>METHODS</td>
-</tr>
-<tr class="odd">
-<td>/STOCK_CATALOG/PRODUCTS</td>
-<td style="text-align: left;">PRODUCTS</td>
-<td>Products</td>
-<td>STOCK_CATALOG</td>
-</tr>
-<tr class="even">
-<td>/STOCK_CATALOG/SUPPLIERS</td>
-<td style="text-align: left;">SUPPLIERS</td>
-<td>Suppliers</td>
-<td>STOCK_CATALOG</td>
-</tr>
-<tr class="odd">
-<td>/STOCK_CATALOG/REQUESTS</td>
-<td style="text-align: left;">REQUESTS</td>
-<td>Requests</td>
-<td>STOCK_CATALOG</td>
-</tr>
-<tr class="even">
-<td>/STOCK_ORDERS/ORDERS</td>
-<td style="text-align: left;">ORDERS</td>
-<td>Orders</td>
-<td>STOCK_ORDERS</td>
-</tr>
-<tr class="odd">
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td style="text-align: left;">TEMPLATES</td>
-<td>Templates</td>
-<td>ELN_SETTINGS</td>
-</tr>
-<tr class="even">
-<td>/PUBLICATIONS/PUBLIC_REPOSITORIES</td>
-<td style="text-align: left;">PUBLIC_REPOSITORIES</td>
-<td>Public Repositories</td>
-<td>PUBLICATIONS</td>
-</tr>
-</tbody>
-</table>
+|||||
+|--- |--- |--- |--- |
+|PROJECT||||
+|Identifier|Code|Description|Space|
+|/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT|DEFAULT_PROJECT|Default Project|DEFAULT_LAB_NOTEBOOK|
+|/METHODS/PROTOCOLS|PROTOCOLS|Protocols|METHODS|
+|/STOCK_CATALOG/PRODUCTS|PRODUCTS|Products|STOCK_CATALOG|
+|/STOCK_CATALOG/SUPPLIERS|SUPPLIERS|Suppliers|STOCK_CATALOG|
+|/STOCK_CATALOG/REQUESTS|REQUESTS|Requests|STOCK_CATALOG|
+|/STOCK_ORDERS/ORDERS|ORDERS|Orders|STOCK_ORDERS|
+|/ELN_SETTINGS/TEMPLATES|TEMPLATES|Templates|ELN_SETTINGS|
+|/PUBLICATIONS/PUBLIC_REPOSITORIES|PUBLIC_REPOSITORIES|Public Repositories|PUBLICATIONS|
 
 ### Experiment
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Identifier</td>
-<td>Yes on UPDATES, ignored on INSERT</td>
-</tr>
-<tr class="even">
-<td>Code</td>
-<td>Yes</td>
-</tr>
-<tr class="odd">
-<td>Project</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>Property Code</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Property Label</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|Identifier|Yes on UPDATES, ignored on INSERT|
+|Code|Yes|
+|Project|Yes|
+|Property Code|No|
+|Property Label|No|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>EXPERIMENT</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Experiment type</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td><strong>COLLECTION</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Identifier</strong></td>
-<td style="text-align: left;"><strong>Code</strong></td>
-<td><strong>Project</strong></td>
-<td><strong>Name</strong></td>
-<td><strong>Default object type</strong></td>
-</tr>
-<tr class="odd">
-<td>/METHODS/PROTOCOLS/GENERAL_PROTOCOLS</td>
-<td style="text-align: left;">GENERAL_PROTOCOLS</td>
-<td>/METHODS/PROTOCOLS</td>
-<td>General Protocols</td>
-<td>GENERAL_PROTOCOL</td>
-</tr>
-<tr class="even">
-<td>/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION</td>
-<td style="text-align: left;">PRODUCT_COLLECTION</td>
-<td>/STOCK_CATALOG/PRODUCTS</td>
-<td>Product Collection</td>
-<td>PRODUCT</td>
-</tr>
-<tr class="odd">
-<td>/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION</td>
-<td style="text-align: left;">SUPPLIER_COLLECTION</td>
-<td>/STOCK_CATALOG/SUPPLIERS</td>
-<td>Supplier Collection</td>
-<td>SUPPLIER</td>
-</tr>
-<tr class="even">
-<td>/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION</td>
-<td style="text-align: left;">REQUEST_COLLECTION</td>
-<td>/STOCK_CATALOG/REQUESTS</td>
-<td>Request Collection</td>
-<td>REQUEST</td>
-</tr>
-<tr class="odd">
-<td>/STOCK_ORDERS/ORDERS/ORDER_COLLECTION</td>
-<td style="text-align: left;">ORDER_COLLECTION</td>
-<td>/STOCK_ORDERS/ORDERS</td>
-<td>Order Collection</td>
-<td>ORDER</td>
-</tr>
-<tr class="even">
-<td>/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION</td>
-<td style="text-align: left;">TEMPLATES_COLLECTION</td>
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td>Template Collection</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td>/PUBLICATIONS/PUBLIC_REPOSITORIES/PUBLICATIONS_COLLECTION</td>
-<td style="text-align: left;">PUBLICATIONS_COLLECTION</td>
-<td>/PUBLICATIONS/PUBLIC_REPOSITORIES</td>
-<td>Publications Collection</td>
-<td>PUBLICATION</td>
-</tr>
-</tbody>
-</table>
+||||||
+|--- |--- |--- |--- |--- |
+|EXPERIMENT|||||
+|Experiment type|||||
+|COLLECTION|||||
+|Identifier|Code|Project|Name|Default object type|
+|/METHODS/PROTOCOLS/GENERAL_PROTOCOLS|GENERAL_PROTOCOLS|/METHODS/PROTOCOLS|General Protocols|GENERAL_PROTOCOL|
+|/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION|PRODUCT_COLLECTION|/STOCK_CATALOG/PRODUCTS|Product Collection|PRODUCT|
+|/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION|SUPPLIER_COLLECTION|/STOCK_CATALOG/SUPPLIERS|Supplier Collection|SUPPLIER|
+|/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION|REQUEST_COLLECTION|/STOCK_CATALOG/REQUESTS|Request Collection|REQUEST|
+|/STOCK_ORDERS/ORDERS/ORDER_COLLECTION|ORDER_COLLECTION|/STOCK_ORDERS/ORDERS|Order Collection|ORDER|
+|/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION|TEMPLATES_COLLECTION|/ELN_SETTINGS/TEMPLATES|Template Collection||
+|/PUBLICATIONS/PUBLIC_REPOSITORIES/PUBLICATIONS_COLLECTION|PUBLICATIONS_COLLECTION|/PUBLICATIONS/PUBLIC_REPOSITORIES|Publications Collection|PUBLICATION|
 
 ### Sample
 
-<table>
-<thead>
-<tr class="header">
-<th>Headers</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>$</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Identifier</td>
-<td>Yes on UPDATES, ignored on INSERT</td>
-</tr>
-<tr class="odd">
-<td>Code</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Project</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Experiment</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Auto generate code</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Parents</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Children</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>Property Code</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>Property Label</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
+|Headers|Mandatory|
+|--- |--- |
+|$|No|
+|Identifier|Yes on UPDATES, ignored on INSERT|
+|Code|No|
+|Project|No|
+|Experiment|No|
+|Auto generate code|No|
+|Parents|No|
+|Children|No|
+|Property Code|No|
+|Property Label|No|
 
 **Example**
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>SAMPLE</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Sample type</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td><strong>ORDER</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>$</strong></td>
-<td style="text-align: left;"><strong>Identifier</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Space</strong></td>
-<td><strong>Project</strong></td>
-<td><strong>Experiment</strong></td>
-<td><strong>Order Status</strong></td>
-</tr>
-<tr class="odd">
-<td><br />
-</td>
-<td style="text-align: left;">/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE</td>
-<td>ORDER_TEMPLATE</td>
-<td>ELN_SETTINGS</td>
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td>/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION</td>
-<td>Not yet ordered</td>
-</tr>
-</tbody>
-</table>
+||||||||
+|--- |--- |--- |--- |--- |--- |--- |
+|SAMPLE|||||||
+|Sample type|||||||
+|ORDER|||||||
+|$|Identifier|Code|Space|Project|Experiment|Order Status|
+||/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE|ORDER_TEMPLATE|ELN_SETTINGS|/ELN_SETTINGS/TEMPLATES|/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION|Not yet ordered|
 
 #### Defining Parent and Children in Samples
 
@@ -1631,132 +480,17 @@ samples. Samples can be addressed by:
 Parents and children SHOULD be separated by an end of line, each sample
 should be in its own line.
 
-<table>
-<tbody>
-<tr class="odd">
-<td><strong>SAMPLE</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>Sample type</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="odd">
-<td><strong>ORDER</strong></td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-<td><br />
-</td>
-</tr>
-<tr class="even">
-<td><strong>$</strong></td>
-<td style="text-align: left;"><strong>Parents</strong></td>
-<td style="text-align: left;"><strong>Children</strong></td>
-<td style="text-align: left;"><strong>Identifier</strong></td>
-<td><strong>Code</strong></td>
-<td><strong>Space</strong></td>
-<td><strong>Project</strong></td>
-<td><strong>Experiment</strong></td>
-<td><strong>Order Status</strong></td>
-</tr>
-<tr class="odd">
-<td><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;">/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_A</td>
-<td>ORDER_TEMPLATE</td>
-<td>ELN_SETTINGS</td>
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td>/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION</td>
-<td>Not yet ordered</td>
-</tr>
-<tr class="even">
-<td>$B</td>
-<td style="text-align: left;"><p><br />
-</p></td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;">/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_B</td>
-<td>ORDER_TEMPLATE</td>
-<td>ELN_SETTINGS</td>
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td>/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION</td>
-<td>Not yet ordered</td>
-</tr>
-<tr class="odd">
-<td><br />
-</td>
-<td style="text-align: left;"><p>/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_A</p>
-<p>$B</p></td>
-<td style="text-align: left;">/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_D</td>
-<td style="text-align: left;">/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_C</td>
-<td>ORDER_TEMPLATE</td>
-<td>ELN_SETTINGS</td>
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td>/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION</td>
-<td>Not yet ordered</td>
-</tr>
-<tr class="even">
-<td><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;"><br />
-</td>
-<td style="text-align: left;">/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_D</td>
-<td>ORDER_TEMPLATE</td>
-<td>ELN_SETTINGS</td>
-<td>/ELN_SETTINGS/TEMPLATES</td>
-<td>/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION</td>
-<td>Not yet ordered</td>
-</tr>
-</tbody>
-</table>
+||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|SAMPLE|||||||||
+|Sample type|||||||||
+|ORDER|||||||||
+|$|Parents|Children|Identifier|Code|Space|Project|Experiment|Order Status|
+||||/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_A|ORDER_TEMPLATE|ELN_SETTINGS|/ELN_SETTINGS/TEMPLATES|/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION|Not yet ordered|
+|$B|||/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_B|ORDER_TEMPLATE|ELN_SETTINGS|/ELN_SETTINGS/TEMPLATES|/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION|Not yet ordered|
+||/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_A
+$B|/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_D|/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_C|ORDER_TEMPLATE|ELN_SETTINGS|/ELN_SETTINGS/TEMPLATES|/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION|Not yet ordered|
+||||/ELN_SETTINGS/TEMPLATES/ORDER_TEMPLATE_D|ORDER_TEMPLATE|ELN_SETTINGS|/ELN_SETTINGS/TEMPLATES|/ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION|Not yet ordered|
 
 ### Properties and Sample Variables
 
