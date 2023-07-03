@@ -84,7 +84,9 @@ the following command:
 
 [TABLE]
 
-  
+> :warning:   **Please note the following configuration options:
+1. -v /Users/juanf/jupyterhub-local/home:/home
+   This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.
 
 To stop a running docker container, run "**docker kill
 container\_ID". **
