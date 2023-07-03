@@ -81,7 +81,7 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     private Date modificationDate;
 
     @JsonProperty
-    private Map<String, String> properties;
+    private Map<String, Serializable> properties;
 
     @JsonProperty
     private Map<String, Material> materialProperties;
@@ -223,7 +223,7 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
@@ -237,7 +237,7 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
 
     // Method automatically generated with DtoGenerator
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
@@ -288,7 +288,7 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? getProperties().get(propertyName) : null;
+        return getProperties() != null ? (String) getProperties().get(propertyName) : null;
     }
 
     @Override
@@ -296,7 +296,7 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     {
         if (properties == null)
         {
-            properties = new HashMap<String, String>();
+            properties = new HashMap<>();
         }
         properties.put(propertyName, propertyValue);
     }

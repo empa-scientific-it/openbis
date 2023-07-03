@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -46,7 +47,7 @@ public class MaterialCreation implements ICreation, IObjectCreation, ICreationId
 
     private List<? extends ITagId> tagIds;
 
-    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, Serializable> properties = new HashMap<>();
 
     private CreationId creationId;
 
@@ -89,17 +90,17 @@ public class MaterialCreation implements ICreation, IObjectCreation, ICreationId
     @Override
     public String getProperty(String propertyName)
     {
-        return properties != null ? properties.get(propertyName) : null;
+        return properties != null ? (String) properties.get(propertyName) : null;
     }
 
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
 
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return properties;
     }

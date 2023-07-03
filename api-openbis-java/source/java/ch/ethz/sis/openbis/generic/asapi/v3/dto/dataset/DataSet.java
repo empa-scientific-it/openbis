@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
@@ -117,7 +118,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private Sample sample;
 
     @JsonProperty
-    private Map<String, String> properties;
+    private Map<String, Serializable> properties;
 
     @JsonProperty
     private Map<String, Material> materialProperties;
@@ -465,7 +466,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
@@ -479,7 +480,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
 
     // Method automatically generated with DtoGenerator
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
@@ -941,7 +942,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? getProperties().get(propertyName) : null;
+        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override
@@ -949,7 +950,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     {
         if (properties == null)
         {
-            properties = new HashMap<String, String>();
+            properties = new HashMap<String, Serializable>();
         }
         properties.put(propertyName, propertyValue);
     }

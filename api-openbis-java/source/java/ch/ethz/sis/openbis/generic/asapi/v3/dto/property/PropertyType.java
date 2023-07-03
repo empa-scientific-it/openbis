@@ -96,6 +96,9 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
     @JsonProperty
     private Map<String, String> metaData;
 
+    @JsonProperty
+    private Boolean multiValue;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public PropertyTypeFetchOptions getFetchOptions()
@@ -355,6 +358,19 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isMultiValue()
+    {
+        return multiValue;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setMultiValue(Boolean multiValue)
+    {
+        this.multiValue = multiValue;
     }
 
     // Method automatically generated with DtoGenerator

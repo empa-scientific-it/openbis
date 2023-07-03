@@ -15,10 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -62,7 +64,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
 
     private List<? extends ITagId> tagIds;
 
-    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, Serializable> properties = new HashMap<>();
 
     private ISampleId containerId;
 
@@ -243,17 +245,17 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     @Override
     public String getProperty(String propertyName)
     {
-        return properties != null ? properties.get(propertyName) : null;
+        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
 
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return properties;
     }

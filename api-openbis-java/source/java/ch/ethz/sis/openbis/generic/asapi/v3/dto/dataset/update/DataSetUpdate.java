@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -77,7 +78,7 @@ public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPrope
     private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
 
     @JsonProperty
-    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
     @JsonProperty
     private IdListUpdateValue<IDataSetId> containerIds = new IdListUpdateValue<IDataSetId>();
@@ -229,19 +230,19 @@ public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPrope
     @JsonIgnore
     public String getProperty(String propertyName)
     {
-        return properties != null ? properties.get(propertyName) : null;
+        return properties != null ? (String) properties.get(propertyName) : null;
     }
 
     @Override
     @JsonIgnore
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
 
     @Override
     @JsonIgnore
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return properties;
     }

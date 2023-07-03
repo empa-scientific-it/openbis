@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.PropertyValueDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -71,7 +73,7 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
 
         private boolean isStub;
 
-        private HashMap<String, String> properties = new HashMap<String, String>();
+        private HashMap<String, Serializable> properties = new HashMap<>();
 
         private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
 
@@ -125,14 +127,19 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
             return experimentTypeCode;
         }
 
-        public HashMap<String, String> getProperties()
+        public HashMap<String, Serializable> getProperties()
         {
             return properties;
         }
 
         public void putProperty(String propCode, String value)
         {
-            properties.put(propCode, value);
+            if(properties.containsKey(propCode)) {
+                properties.put(propCode, properties.get(propCode) + ", " + value);
+            } else
+            {
+                properties.put(propCode, value);
+            }
         }
 
         public List<Metaproject> getMetaprojects()
@@ -173,7 +180,8 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
 
     private EntityRegistrationDetails registrationDetails;
 
-    private HashMap<String, String> properties;
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
+    private HashMap<String, Serializable> properties;
 
     private List<Metaproject> metaprojects;
 
@@ -267,7 +275,7 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
         return registrationDetails;
     }
 
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return Collections.unmodifiableMap(properties);
     }
@@ -378,7 +386,7 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
         this.registrationDetails = registrationDetails;
     }
 
-    private void setProperties(HashMap<String, String> properties)
+    private void setProperties(HashMap<String, Serializable> properties)
     {
         this.properties = properties;
     }

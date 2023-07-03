@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -58,12 +59,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.experiment.Experiment")
-public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IEntityTypeHolder, IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISamplesHolder, ITagsHolder
+public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder,
+        IEntityTypeHolder, IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder,
+        IModifierHolder, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder,
+        IRegistratorHolder, ISamplesHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -125,7 +130,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     private List<HistoryEntry> unknownHistory;
 
     @JsonProperty
-    private Map<String, String> properties;
+    private Map<String, Serializable> properties;
 
     @JsonProperty
     private Map<String, Material> materialProperties;
@@ -478,7 +483,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
@@ -492,7 +497,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
@@ -626,7 +631,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? getProperties().get(propertyName) : null;
+        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override
@@ -634,7 +639,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     {
         if (properties == null)
         {
-            properties = new HashMap<String, String>();
+            properties = new HashMap<String, Serializable>();
         }
         properties.put(propertyName, propertyValue);
     }

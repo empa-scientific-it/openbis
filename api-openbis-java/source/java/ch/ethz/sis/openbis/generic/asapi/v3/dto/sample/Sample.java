@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
@@ -117,7 +118,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     private Experiment experiment;
 
     @JsonProperty
-    private Map<String, String> properties;
+    private Map<String, Serializable> properties;
 
     @JsonProperty
     private Map<String, Material> materialProperties;
@@ -429,7 +430,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
@@ -443,7 +444,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     // Method automatically generated with DtoGenerator
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
@@ -940,7 +941,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? getProperties().get(propertyName) : null;
+        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override
@@ -948,7 +949,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     {
         if (properties == null)
         {
-            properties = new HashMap<String, String>();
+            properties = new HashMap<>();
         }
         properties.put(propertyName, propertyValue);
     }

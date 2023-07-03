@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
@@ -28,9 +29,9 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public interface IPropertiesHolder
 {
 
-    Map<String, String> getProperties();
+    Map<String, Serializable> getProperties();
 
-    void setProperties(Map<String, String> properties);
+    void setProperties(Map<String, Serializable> properties);
 
     String getProperty(String propertyName);
 
