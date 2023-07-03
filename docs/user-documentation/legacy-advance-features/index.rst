@@ -1,5 +1,5 @@
-General Users
-=============
+Legacy Advance Features
+=======================
 
 .. toctree::
    :maxdepth: 4
