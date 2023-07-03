@@ -5,3 +5,4 @@ Advance Features
    :maxdepth: 4
 
    jupiterhub-for-openbis
+   command-line-tool
