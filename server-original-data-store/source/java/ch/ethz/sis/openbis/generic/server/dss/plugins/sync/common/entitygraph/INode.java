@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public interface INode
 
     public Space getSpace();
 
-    public Map<String, String> getPropertiesOrNull();
+    public Map<String, Serializable> getPropertiesOrNull();
 
     public List<EdgeNodePair> getConnections();
     

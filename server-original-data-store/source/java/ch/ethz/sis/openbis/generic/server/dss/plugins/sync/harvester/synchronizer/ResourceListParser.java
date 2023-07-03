@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier.TYPE_SEPARATOR_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier.TYPE_SEPARATOR_SUFFIX;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -364,7 +365,7 @@ public class ResourceListParser
         incomingDataSet.setConnections(parseConnections(xdNode));
         List<NewProperty> properties = parseDataSetProperties(xdNode);
         ds.setDataSetProperties(properties);
-        Map<String, String> props = new HashMap<>();
+        Map<String, Serializable> props = new HashMap<>();
         for (NewProperty property : properties)
         {
             props.put(property.getPropertyCode(), property.getValue());

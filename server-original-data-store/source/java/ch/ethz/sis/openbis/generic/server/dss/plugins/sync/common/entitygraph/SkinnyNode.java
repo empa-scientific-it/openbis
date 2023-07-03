@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +81,7 @@ public class SkinnyNode implements INode
     }
 
     @Override
-    public Map<String, String> getPropertiesOrNull()
+    public Map<String, Serializable> getPropertiesOrNull()
     {
         return null;
         //throw new UnsupportedOperationException();

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -170,7 +171,7 @@ public class EntityGraph<N extends INode>
             }
             return differentiatorStr;
         }
-        Map<String, String> propertiesOrNull = node.getPropertiesOrNull();
+        Map<String, Serializable> propertiesOrNull = node.getPropertiesOrNull();
         String s = "props =";
         if (propertiesOrNull != null)
         {

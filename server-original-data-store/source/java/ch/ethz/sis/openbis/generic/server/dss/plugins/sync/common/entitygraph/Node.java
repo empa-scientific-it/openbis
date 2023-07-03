@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -82,7 +83,7 @@ public class Node<T extends IRegistrationDateHolder & IPermIdHolder & ICodeHolde
     }
 
     @Override
-    public Map<String, String> getPropertiesOrNull()
+    public Map<String, Serializable> getPropertiesOrNull()
     {
         if (IPropertiesHolder.class.isAssignableFrom(entity.getClass()) == false)
         {

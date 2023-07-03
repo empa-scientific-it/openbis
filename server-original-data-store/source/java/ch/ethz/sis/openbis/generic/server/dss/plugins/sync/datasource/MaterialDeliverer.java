@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.datasource;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,7 @@ public class MaterialDeliverer extends AbstractEntityDeliverer<Material>
             addRegistrationDate(writer, material);
             addRegistrator(writer, material);
             addType(writer, material.getType());
-            HashMap<String, String> allProperties = new HashMap<>(material.getProperties());
+            HashMap<String, Serializable> allProperties = new HashMap<>(material.getProperties());
             Map<String, Material> materialProperties = material.getMaterialProperties();
             Set<Entry<String, Material>> entrySet = materialProperties.entrySet();
             for (Entry<String, Material> entity : entrySet)

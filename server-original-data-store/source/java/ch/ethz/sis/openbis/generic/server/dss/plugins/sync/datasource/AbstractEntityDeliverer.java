@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.datasource;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -99,20 +100,20 @@ abstract class AbstractEntityDeliverer<T> implements IDeliverer
         return context.getV3api();
     }
 
-    protected void addProperties(XMLStreamWriter writer, Map<String, String> properties, DeliveryExecutionContext context) throws XMLStreamException
+    protected void addProperties(XMLStreamWriter writer, Map<String, Serializable> properties, DeliveryExecutionContext context) throws XMLStreamException
     {
         if (properties.isEmpty() == false)
         {
             writer.writeStartElement("x:properties");
-            Set<Entry<String, String>> entrySet = properties.entrySet();
-            for (Entry<String, String> entry : entrySet)
+            Set<Entry<String, Serializable>> entrySet = properties.entrySet();
+            for (Entry<String, Serializable> entry : entrySet)
             {
                 writer.writeStartElement("x:property");
                 writer.writeStartElement("x:code");
                 writer.writeCharacters(entry.getKey());
                 writer.writeEndElement();
                 writer.writeStartElement("x:value");
-                String value = entry.getValue();
+                String value = (String) entry.getValue();
                 extractFileServicePath(context, value);
                 writer.writeCharacters(value);
                 writer.writeEndElement();
