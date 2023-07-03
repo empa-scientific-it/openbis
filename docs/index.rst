@@ -12,6 +12,7 @@ The complete solution for managing your research data.
    General Users </user-documentation/general-users/index>
    General Admin Users </user-documentation/general-admin-users/index>
    Advance Features </user-documentation/advance-features/index>
+   Legacy Advance Features </user-documentation/legacy-advance-features/index>
 
 User Documentation
 ^^^^^^^^^^^^^^^^^^
