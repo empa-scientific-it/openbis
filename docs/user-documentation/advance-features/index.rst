@@ -7,3 +7,4 @@ Advance Features
    jupiterhub-for-openbis
    command-line-tool
    openbis-data-modelling
+   excel-import-service
