@@ -91,7 +91,7 @@ the following command:
 
 To stop a running docker container, run "**docker kill container\_ID". **
 
-The container\_ID can be found by running the command **"docker ps".**
+The container\_ID can be found by running the command **"docker ps"**.
 
 How to extend the official JupyterHub for openBIS image
 -------------------------------------------------------
