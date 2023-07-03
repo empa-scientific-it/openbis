@@ -89,6 +89,7 @@ the following command:
 > This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.
 > 3. OPENBIS_URL= https://129.132.228.42:8443 - By defaut docker is in bridge mode, which means that your docker container accesses your local machine network directly through it. If you have a local openBIS installation please use your IP address; if you use a server installation use the typical address you use to access it.
 
+
 To stop a running docker container, run "**docker kill
 container\_ID". **
 
