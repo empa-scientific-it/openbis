@@ -85,7 +85,10 @@ the following command:
 [TABLE]
 
 > :warning:   **Please note the following configuration options:** 
-> 1. -v /Users/juanf/jupyterhub-local/home:/home** - This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.
+> 1. -v /Users/juanf/jupyterhub-local/home:/home
+> This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.
+> 2. -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates
+> This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.
 
 To stop a running docker container, run "**docker kill
 container\_ID". **
