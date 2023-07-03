@@ -1,7 +1,7 @@
 JupyterHub for openBIS
 ======================
 
-> :warning:   **This guide is not meant to substitute the official Docker documentation. Standard Docker commands are present in sections that are not necessarily related with them**. 
+> :warning: **This guide is not meant to substitute the official Docker documentation. Standard Docker commands are present in sections that are not necessarily related with them**. 
 
 ## Overview
 
@@ -253,10 +253,7 @@ using.
 Now we can create a new image using as a starting point the latest from
 the official repository.
 
-**![(warning)](/s/-5iwf5w/9004/9r8qvy/_/images/icons/emoticons/warning.svg)** It
-is best practice to include both the name of the user and the creation
-date in the image name. This will help when dealing with many versions
-created by different users at different times.
+> :warning: **It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times**.
 
     $ docker build -t jupyterhub-openbis-sis-juanextensions-recipe-20180406 .
     Sending build context to Docker daemon  4.957GB
@@ -279,10 +276,7 @@ How to start a jupyterhub-openbis docker image on a productive JupyterHub serve
 
   
 
-**![(warning)](/s/-5iwf5w/9004/9r8qvy/_/images/icons/emoticons/warning.svg)** You
-can only have **ONE** jupyterhub-openbis image running on a server at
-one given time, since JupyterHub makes use of certain ports on the
-machine that are also configured in openBIS.
+> :warning: **You can only have **ONE** jupyterhub-openbis image running on a server at one given time, since JupyterHub makes use of certain ports on the machine that are also configured in openBIS**.
 
 1. Find the jupyterhub-openbis-start.sh file in your server (please ask
 your admin).
@@ -312,10 +306,7 @@ Other useful Docker commands
 
 ### Save an image as a tar file to share it
 
-**![(warning)](/s/-5iwf5w/9004/9r8qvy/_/images/icons/emoticons/warning.svg)** It
-is best practice to include both the name of the user and the creation
-date in the image name. This will help when dealing with many versions
-created by different users at different times.
+> :warning: **It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times**.
 
     $ docker save jupyterhub-openbis-sis-20180405 > jupyterhub-openbis-sis-20180405.tar
     $ ls -lah
