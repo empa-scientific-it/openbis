@@ -34,7 +34,7 @@ public interface OperationsAPI
             @NonNull Integer limit) throws Exception;
 
     @NonNull
-    Boolean write(@NonNull String owner, @NonNull String destination, @NonNull Long offset,
+    Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset,
             @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
 
     @NonNull
