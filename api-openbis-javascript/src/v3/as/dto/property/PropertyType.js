@@ -20,6 +20,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrator = null;
 		prototype.registrationDate = null;
 		prototype.metaData = null;
+		prototype.multiValue = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -142,6 +143,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setMetaData = function(metaData) {
 			this.metaData = metaData;
+		};
+		prototype.isMultiValue = function() {
+			return this.multiValue;
+		};
+		prototype.setMultiValue = function(multiValue) {
+			this.multiValue = multiValue;
 		};
 	}, {
 		fetchOptions : "PropertyTypeFetchOptions",
