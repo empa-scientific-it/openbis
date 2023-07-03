@@ -919,14 +919,18 @@ var FormUtil = new function() {
 		}
 		return termCode;
 	}
-	
+
 	this.getFieldForPropertyType = function(propertyType, timestampValue) {
+	    return this.getFieldForPropertyType(propertyType, timestampValue, false);
+	}
+	
+	this.getFieldForPropertyType = function(propertyType, timestampValue, isMultiValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
 			$component = this._getBoolean2Field(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			var vocabulary = profile.getVocabularyByCode(propertyType.vocabulary.code);
-			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
+			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory, isMultiValue);
 		} else if (propertyType.dataType === "HYPERLINK") {
 			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "INTEGER") {
@@ -1040,16 +1044,27 @@ var FormUtil = new function() {
 	this.getDropDownForTerms = function(id, terms, alt, isRequired) {
 		return this._getDropDownFieldForVocabulary(id, terms, alt, isRequired);
 	}
-	
+
 	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
-		var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
+	    return this._getDropDownFieldForVocabulary(code, terms, alt, isRequired, false);
+	}
+	
+	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired, isMultiValue) {
+	    var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
+	    if(isMultiValue) {
+	        $component.attr('multiple', 'multiple');
+	    }
 		$component.attr('id', this.prepareId(code));
 		
 		if (isRequired) {
 			$component.attr('required', '');
 		}
-		
-		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(alt));
+
+		var labelOption = $("<option>").attr('value', '').attr('disabled', '').text(alt);
+		if(!isMultiValue) {
+		    labelOption = labelOption.attr('selected', '');
+		}
+		$component.append(labelOption);
 		$component.append($("<option>").attr('value', '').text('(empty)'));
         var $options = [];
 		for(var i = 0; i < terms.length; i++) {
