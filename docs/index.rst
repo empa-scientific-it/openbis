@@ -14,6 +14,13 @@ The complete solution for managing your research data.
    Advance Features </user-documentation/advance-features/index>
    Legacy Advance Features </user-documentation/legacy-advance-features/index>
 
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+   :caption: Software Developer Documentation
+
+   Development Environment </software-developer-documentation/development-environment/index>
+
 User Documentation
 ^^^^^^^^^^^^^^^^^^
    - :doc:`General Users </user-documentation/general-users/index>`
@@ -23,7 +30,7 @@ User Documentation
 
 Software Developer Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   - Development Environment
+   - :doc:`Development Environment </software-developer-documentation/development-environment/index>`
    - APIS
    - Server-side Extensions
    - Client-side Extensions
