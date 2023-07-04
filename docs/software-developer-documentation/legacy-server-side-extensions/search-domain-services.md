@@ -1,14 +1,6 @@
 Search Domain Services
 ======================
 
-+------+---------------+
-| Item | Character     |
-+======+===============+
-| 1    | Puss in Boots |
-+------+---------------+
-| 2    | Cinderella    |
-+------+---------------+
-
 A search domain service is a DSS plugin which allows to query some
 domain specific search services. For example, a search service on a
 database of nucleotide acid sequences. Currently only one search service
