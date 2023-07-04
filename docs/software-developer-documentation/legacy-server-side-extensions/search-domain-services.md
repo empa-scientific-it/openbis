@@ -108,22 +108,14 @@ of a data set or in a sequence stored as a property of an experiment, a
 sample or a data set. In any case the following informations can be
 retrieved for each match:
 
-|BLAST output column|Access in Java|Description|
-|--- |--- |--- |
-|score|SearchDomainSearchResult.getScore().getScore()|Score. See http://homepages.ulb.ac.be/~dgonze/TEACHING/stat_scores.pdf for an explanation of score, bit-score and evalue.|
-|bitscore|SearchDomainSearchResult.getScore().getBitScore()||
-|evalue|SearchDomainSearchResult.getScore().getEvalue()||
-|sstart|SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getSequenceStart()|Start of alignment in
-  found sequence|
-|send|SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getSequenceEnd()|End of alignment in
-  found sequence|
-|qstart|SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getQueryStart()|Start of alignment in
-  search string.|
-|qend|SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getQueryEnd()|End of alignment in
-  search string.|
-|mismatch|SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getNumberOfMismatches()|Number of mismatches.|
-|gaps|SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getTotalNumberOfGaps()|Total number of gap.|
-
- 
-
- 
+|BLAST output column|Access in Java                                                                          |Description                                                                                                                                                                                          |
+|-------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|score              |SearchDomainSearchResult.getScore().getScore()                                          |=HYPERLINK("http://homepages.ulb.ac.be/~dgonze/TEACHING/stat_scores.pdf","Score. See http://homepages.ulb.ac.be/~dgonze/TEACHING/stat_scores.pdf for an explanation of score, bit-score and evalue.")|
+|bitscore           |SearchDomainSearchResult.getScore().getBitScore()                                       |                                                                                                                                                                                                     |
+|evalue             |SearchDomainSearchResult.getScore().getEvalue()                                         |                                                                                                                                                                                                     |
+|sstart             |SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getSequenceStart()     |Start of alignment in  found sequence                                                                                                                                                                |
+|send               |SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getSequenceEnd()       |End of alignment in  found sequence                                                                                                                                                                  |
+|qstart             |SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getQueryStart()        |Start of alignment in  search string.                                                                                                                                                                |
+|qend               |SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getQueryEnd()          |End of alignment in  search string.                                                                                                                                                                  |
+|mismatch           |SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getNumberOfMismatches()|Number of mismatches.                                                                                                                                                                                |
+|gaps               |SearchDomainSearchResult.getResultLocation().getAlignmentMatch().getTotalNumberOfGaps() |Total number of gap.                                                                                                                                                                                 |
