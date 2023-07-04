@@ -433,8 +433,6 @@ class.
 -   Main Key:  
     -   on-error-decision
 
-&nbsp;
-
 -   Required Sub Keys:
     -   class : The class the implements the decision
 
