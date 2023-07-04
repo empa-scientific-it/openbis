@@ -23,6 +23,7 @@ The complete solution for managing your research data.
    APIS </software-developer-documentation/apis/index>
    Server-Side Extensions </software-developer-documentation/server-side-extensions/index>
    Client-Side Extensions </software-developer-documentation/client-side-extensions/index>
+   Legacy Server-Side Extensions </software-developer-documentation/legacy-server-side-extensions/index>
 
 User Documentation
 ^^^^^^^^^^^^^^^^^^
@@ -37,7 +38,7 @@ Software Developer Documentation
    - :doc:`APIS </software-developer-documentation/apis/index>`
    - :doc:`Server-Side Extensions </software-developer-documentation/server-side-extensions/index>`
    - :doc:`Client-Side Extensions </software-developer-documentation/client-side-extensions/index>`
-   - Legacy Server-side Extensions
+   - :doc:`Legacy Server-Side Extensions </software-developer-documentation/legacy-server-side-extensions/index>`
    
 System Admin Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
