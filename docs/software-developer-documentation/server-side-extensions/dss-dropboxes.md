@@ -17,8 +17,6 @@ is returned to its original state in the event of an error.
 By deafult python 2.5 is used, but it's possible to use python version
 2.7.
 
-  
-
 Dropboxes are dss core plugins: [Core
 Plugins](/display/openBISDoc2010/Core+Plugins)
 
@@ -435,8 +433,6 @@ class.
 -   Main Key:  
     -   on-error-decision
 
-&nbsp;
-
 -   Required Sub Keys:
     -   class : The class the implements the decision
 
@@ -512,8 +508,6 @@ for a particular property, optionally restricted by entity type (sample
 type or data set type). This provides an easy-to-use interface for a
 common case. More complex searches, however, need to use the more
 powerful API.
-
-  
 
 ### Authorization Service
 
@@ -626,8 +620,6 @@ Error Handling
 
 ### Automatic Retry (auto recovery)
 
-  
-
 OpenBIS has a complex mechanism to ensure that the data registration via
 dropboxes is atomic. When error occurs during data registration, the
 dropbox will try several times before it gives up on the process. The
@@ -717,8 +709,6 @@ Validation scripts
 See [Jython
 DataSetValidator](/display/openBISDoc2010/Jython+DataSetValidator).
 
-  
-
 Global Thread Parameters
 ------------------------
 
@@ -742,10 +732,6 @@ the `getGlobalState`. Here we show an example how to use:
         threadPropertyDict = getThreadProperties(transaction)
         incomingRootDir = threadPropertyDict[u'incoming-root-dir']
 
-  
-
-  
-
 Sending Emails from a Drop box
 ------------------------------
 
@@ -756,10 +742,6 @@ Sending Emails from a Drop box
 
     def process(transaction):
         transaction.getRegistrationContext().getPersistentMap().put(PERSISTANT_KEY_MAP, [fcId])
-
-  
-
-  
 
 Java Dropboxes
 --------------
@@ -891,8 +873,6 @@ implementation of this interface.
                 throws NotImplementedException;
     }
 
-  
-
 Sending Emails in a drop box (simple)
 -------------------------------------
 
@@ -906,8 +886,6 @@ Sending Emails in a drop box (simple)
 
       transaction.getGlobalState().getMailClient().sendEmailMessage("This is the subject", \
                     "This is the body", replyTo, fromAddress, recipient1, recipient2);
-
-  
 
 ### Java Dropbox Example
 
@@ -968,8 +946,6 @@ Restart the DSS
 Calling an Aggregation Service from a drop box
 ----------------------------------------------
 
-  
-
 **drop box code**
 
     '''
@@ -997,8 +973,6 @@ Calling an Aggregation Service from a drop box
         # Actual call
         # Parameters: String sessionToken, String dataStoreCode,String serviceKey, Map<String, Object> parameters)
         s.createReportFromAggregationService(session_token, dss, service_key, d)
-
-  
 
 Known limitations
 -----------------
