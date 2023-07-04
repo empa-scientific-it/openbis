@@ -1,7 +1,7 @@
-openBIS V3 API
-==============
+APIS
+====
 
 .. toctree::
    :maxdepth: 4
 
-   openbis-v3-api
+   java-javascript-v3-api
