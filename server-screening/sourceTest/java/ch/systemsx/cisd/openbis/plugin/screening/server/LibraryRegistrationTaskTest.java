@@ -183,6 +183,6 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
         IEntityProperty property =
                 EntityHelper.tryFindProperty(newMaterial.getProperties(),
                         ScreeningConstants.GENE_SYMBOLS);
-        return property.getValue();
+        return property.getStringValue();
     }
 }
