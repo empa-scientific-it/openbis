@@ -1000,7 +1000,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             int i = -1;
             for (final IEntityProperty sampleProperty : sampleProperties)
             {
-                if (StringUtils.equals(sampleProperty.getValue(), properties[++i].getValue()) == false
+                if (StringUtils.equals(sampleProperty.getStringValue(), properties[++i].getStringValue()) == false
                         || StringUtils.equals(getPropertyTypeCode(sampleProperty),
                                 getPropertyTypeCode(properties[i])) == false)
                 {

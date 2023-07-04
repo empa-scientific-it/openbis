@@ -130,7 +130,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                             if (property.getPropertyType().getCode().equals(DESCRIPTION))
                             {
                                 assertEquals(sample.getCode(),
-                                        property.getValue().substring(0, sample.getCode().length()));
+                                        property.getStringValue().substring(0, sample.getCode().length()));
                                 found = true;
                                 break;
                             }
@@ -166,7 +166,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         {
                             assertEquals(NEW_SAMPLE_CODE, loadedSample.getCode());
                             assertEquals(NEW_SAMPLE_CODE,
-                                    property.getValue().substring(0, NEW_SAMPLE_CODE.length()));
+                                    property.getStringValue().substring(0, NEW_SAMPLE_CODE.length()));
 
                             found = true;
                             break;
@@ -237,9 +237,9 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                             if (property.getPropertyType().getCode().equals(propertyTypeCode))
                             {
                                 assertTrue(dateBefore.getTime() < Long.parseLong(property
-                                        .getValue()));
+                                        .getStringValue()));
                                 assertTrue(dateAfter.getTime() > Long
-                                        .parseLong(property.getValue()));
+                                        .parseLong(property.getStringValue()));
                                 found = true;
                                 break;
                             }
@@ -287,7 +287,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         {
                             if (property.getPropertyType().getCode().equals(DESCRIPTION))
                             {
-                                String[] dynPropertyValue = property.getValue().split("\\s+");
+                                String[] dynPropertyValue = property.getStringValue().split("\\s+");
 
                                 assertEquals(NEW_SAMPLE_CODE, dynPropertyValue[0]);
 
