@@ -254,8 +254,8 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
         JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
         evaluator.updateFromUI(managedProperty, person, action1);
-        assertNotNull(managedProperty.getValue());
-        String[] inputTokens1 = managedProperty.getValue().split("\\|");
+        assertNotNull(managedProperty.getStringValue());
+        String[] inputTokens1 = managedProperty.getStringValue().split("\\|");
         assertEquals("a1", inputTokens1[0]);
         assertEquals("t1=null", inputTokens1[1]);
         assertEquals("t2=v2", inputTokens1[2]);
@@ -263,8 +263,8 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
         assertEquals("combo=cv1", inputTokens1[4]);
 
         evaluator.updateFromUI(managedProperty, person, action2);
-        assertNotNull(managedProperty.getValue());
-        String[] inputTokens2 = managedProperty.getValue().split("\\!");
+        assertNotNull(managedProperty.getStringValue());
+        String[] inputTokens2 = managedProperty.getStringValue().split("\\!");
         assertEquals("a2", inputTokens2[0]);
         assertEquals("t1=v11", inputTokens2[1]);
         assertEquals("t2=v22", inputTokens2[2]);
@@ -292,7 +292,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromUI(property, person, action);
 
-        assertEquals("jbravo;Johny Bravo", property.getValue());
+        assertEquals("jbravo;Johny Bravo", property.getStringValue());
     }
 
     private void checkInputFieldWidget(IManagedInputWidgetDescription widget,
@@ -440,7 +440,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, person, bindings);
 
-        assertEquals("42", property.getValue());
+        assertEquals("42", property.getStringValue());
     }
 
     @Test
@@ -457,7 +457,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, person, bindings);
 
-        assertEquals("42", property.getValue());
+        assertEquals("42", property.getStringValue());
     }
 
     @Test
@@ -476,7 +476,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, person, bindings);
 
-        assertEquals("42", property.getValue());
+        assertEquals("42", property.getStringValue());
     }
 
     @Test
@@ -499,7 +499,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, person, bindings);
 
-        assertEquals("b1 b2 original", property.getValue());
+        assertEquals("b1 b2 original", property.getStringValue());
     }
 
     @Test
@@ -515,7 +515,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, person, bindings);
 
-        assertEquals("jbravo;Johny Bravo", property.getValue());
+        assertEquals("jbravo;Johny Bravo", property.getStringValue());
     }
 
     @Test
@@ -531,7 +531,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, person, bindings);
 
-        assertEquals("jbravo;jbravo", property.getValue());
+        assertEquals("jbravo;jbravo", property.getStringValue());
     }
 
     @Test
@@ -546,6 +546,6 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromBatchInput(property, null, bindings);
 
-        assertNull(property.getValue());
+        assertNull(property.getStringValue());
     }
 }
