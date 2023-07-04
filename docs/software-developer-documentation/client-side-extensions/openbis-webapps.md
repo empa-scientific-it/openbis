@@ -147,19 +147,41 @@ A full list of supported properties is presented below.
 |Property Key|Description|Allowed values|
 |--- |--- |--- |
 |openbisui-contexts|Place where the webapp is shown in the OpenBIS UI.|modules-menu
+
+
 webapp is an item in the modules top menu
+
+
+
 experiment-details-view
+
+
 webapp is a tab in the experiment details view
 requires experiment-entity-types to be defined
+
+
 sample-details-view
+
+
 webapp is a tab in the sample details view
-requires sample-entity-types to be defined 
+requires sample-entity-types to be defined 
+
+
 data-set-details-view
+
+
 webapp is a tab in the data set details view
-requires data-set-entity-types to be defined 
-material-details-view 
+requires data-set-entity-types to be defined
+
+
+material-details-view
+
+
 webapp is a tab in the material details view
-requires material-entity-types to be defined 
+requires material-entity-types to be defined
+
+
+
 Accepts a comma separated list of values with regular expressions, e.g. "modules-menu, .*-details-view"|
 |label|The label. It will be shown in the GUI.|String|
 |sorting|Sorting of the webapp. Webapps are sorted by "sorting" and "folder name" ascending with nulls last (webapps without sorting are presented last).|Integer|
@@ -167,6 +189,7 @@ Accepts a comma separated list of values with regular expressions, e.g. "modules
 |sample-entity-types|Types of samples the webapp should be displayed for.|Accepts a comma separated list of values with regular expressions, e.g. "TYPE_A_1, TYPE_A_2, TYPE_B_.*"|
 |data-set-entity-types|Types of data sets the webapp should be displayed for.|Accepts a comma separated list of values with regular expressions, e.g. "TYPE_A_1, TYPE_A_2, TYPE_B_.*"|
 |material-entity-types|Types of materials the webapp should be displayed for.|Accepts a comma separated list of values with regular expressions, e.g. "TYPE_A_1, TYPE_A_2, TYPE_B_.*"|
+
 
 #### Creating embedded webapps
 
