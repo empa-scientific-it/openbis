@@ -992,221 +992,86 @@ capability use multiple lines in the file.
 
 This is the default map:
 
-| Capability                       | Parameter | Default Role                         | Comment                                                                                                                                                                                         |
-|----------------------------------|-----------|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `WRITE_CUSTOM_COLUMN`              | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `DELETE_CUSTOM_COLUMN`             | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_FILTER`                     | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `DELETE_FILTER`                    | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_DATASET`                    | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_DATASET_PROPERTIES`         | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `DELETE_DATASET`                   | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_EXPERIMENT_SAMPLE`          | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `WRITE_EXPERIMENT_ATTACHMENT`      | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `WRITE_EXPERIMENT_PROPERTIES`      | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `DELETE_EXPERIMENT`                | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_SAMPLE`                     | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `WRITE_SAMPLE_ATTACHMENT`          | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `WRITE_SAMPLE_PROPERTIES`          | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `DELETE_SAMPLE`                    | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `DELETE_SAMPLE_ATTACHMENT`         | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_DATASET`                    | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_DATASET_PROPERTIES`         | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `DELETE_DATASET`                   | 
-         | `SPACE_POWER_USER`                     | Delete datasets (this capability IS NOT enough to delete datasets with deletion_disallow flag set to true in their type - see `FORCE_DELETE_DATASET`)                                             |
-| `FORCE_DELETE_DATASET`             | 
-         | `INSTANCE_DISABLED`                    | Delete datasets  (this capability IS enough to delete datasets with deletion_disallow flag set to true in their type - see `DELETE_DATASET`)                                                      |
-| `ARCHIVE_DATASET`                  | 
-         | `SPACE_POWER_USER`                     | Move dataset from data store into archive                                                                                                                                                       |
-| `UNARCHIVE_DATASET`                | 
-         | `SPACE_USER`                           | Copy back dataset from archive to data store                                                                                                                                                    |
-| `LOCK_DATA_SETS`                   | 
-         | `SPACE_ADMIN`                          | Prevent data sets from being archived                                                                                                                                                           |
-| `UNLOCK_DATA_SETS`                 | 
-         | `SPACE_ADMIN`                          | Release locked data sets                                                                                                                                                                        |
-| `WRITE_EXPERIMENT_SAMPLE_MATERIAL` | 
-         | `INSTANCE_ADMIN`                       | Registration / update of experiments, samples and materials in one go                                                                                                                           |
-| `REGISTER_SPACE`                   | 
-         | `SPACE_ADMIN`                          | The user will become space admin of the freshly created space                                                                                                                                   |
-| `DELETE_SPACE`                     | 
-         | `SPACE_ADMIN`                          | 
-                                                                                                                                                                                               |
-| `UPDATE_SPACE`                     | 
-         | `SPACE_ADMIN`                          | 
-                                                                                                                                                                                               |
-| `REGISTER_PROJECT`                 | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_PROJECT`                    | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_SAMPLE_ATTACHMENT`          | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `DELETE_PROJECT`                   | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_PROJECT_ATTACHMENT`         | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `REGISTER_VOCABULARY`              | 
-         | `INSTANCE_ADMIN`                       | 
-                                                                                                                                                                                               |
-| `WRITE_VOCABULARY`                 | 
-         | `INSTANCE_ADMIN`                       | 
-                                                                                                                                                                                               |
-| `DELETE_VOCABULARY`                | 
-         | `INSTANCE_ADMIN`                       | 
-                                                                                                                                                                                               |
-| `WRITE_VOCABULARY_TERM`            | 
-         | `SPACE_POWER_USER`                     | 
-                                                                                                                                                                                               |
-| `WRITE_UNOFFICIAL_VOCABULARY_TERM` | 
-         | `SPACE_USER`                           | 
-                                                                                                                                                                                               |
-| `PURGE`                            | 
-         | `SPACE_ADMIN`                          | Permanently delete experiments, samples and datasets in the trashcan (this capability IS NOT enough to delete datasets with deletion_disallow flag set to true in their type - see `FORCE_PURGE`) |
-| `FORCE_PURGE`                      | 
-         | `INSTANCE_DISABLED`                    | Permanently delete experiments, samples and datasets in the trashcan (this capability IS enough to delete datasets with deletion_disallow flag set to true in their type - see `PURGE`)           |
-| `RESTORE`                          | 
-         | `SPACE_USER`                           | Get back experiments, samples and datasets from the trashcan                                                                                                                                    |
-| `ASSIGN_EXPERIMENT_TO_PROJECT`     | 
-         |  `SPACE_POWER_USER, SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ASSIGN_PROJECT_TO_SPACE`          | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ASSIGN_SAMPLE_TO_EXPERIMENT`      | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | Re-assign a sample to a new experiment (called in 'register experiment', 'update experiment', 'update sample'')                                                                                 |
-| `UNASSIGN_SAMPLE_FROM_EXPERIMENT`  | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ASSIGN_SAMPLE_TO_SPACE`           | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | Re-assign a sample to a new space (called in 'update sample')                                                                                                                                   |
-| `ASSIGN_DATASET_TO_EXPERIMENT`     | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ASSIGN_DATASET_TO_SAMPLE`         | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `SHARE_SAMPLE`                     | 
-         | `INSTANCE_ADMIN`, `INSTANCE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `UNSHARE_SAMPLE`                   | 
-         | `INSTANCE_ADMIN`, `INSTANCE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ADD_PARENT_TO_SAMPLE`             | 
-         |  `SPACE_USER`, `SPACE_ETL_SERVER`        | 
-                                                                                                                                                                                               |
-| `ADD_PARENT_TO_SAMPLE`             | `SAMPLE`    | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `ADD_PARENT_TO_SAMPLE`             | `PARENT`    | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `REMOVE_PARENT_FROM_SAMPLE`        | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `REMOVE_PARENT_FROM_SAMPLE`        | `SAMPLE`    | `SPACE_POWER_USER`, `SPACE_ETL_SERVER`   | 
-                                                                                                                                                                                               |
-| `REMOVE_PARENT_FROM_SAMPLE`        | `PARENT`    | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `ADD_CONTAINER_TO_SAMPLE`          | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `REMOVE_CONTAINER_FROM_SAMPLE`     | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ADD_PARENT_TO_DATASET`            | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `REMOVE_PARENT_FROM_DATASET`       | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ADD_CONTAINER_TO_DATASET`         | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `REMOVE_CONTAINER_FROM_DATASET`    | 
-         |  `SPACE_POWER_USER`, `SPACE_ETL_SERVER`  | 
-                                                                                                                                                                                               |
-| `ASSIGN_ROLE_TO_SPACE_VIA_DSS`     | 
-         | `SPACE_ADMIN`, `INSTANCE_ETL_SERVER`     | 
-                                                                                                                                                                                               |
-| `CREATE_SPACES_VIA_DSS`            | 
-         | `SPACE_ADMIN`, `INSTANCE_ETL_SERVER`     | 
-                                                                                                                                                                                               |
-| `CREATE_PROJECTS_VIA_DSS`          | 
-         | `SPACE_POWER_USER`, `SPACE_ETL_SERVER`   | 
-                                                                                                                                                                                               |
-| `UPDATE_PROJECTS_VIA_DSS`          | 
-         | `SPACE_POWER_USER`, `SPACE_ETL_SERVER`   | 
-                                                                                                                                                                                               |
-| `CREATE_EXPERIMENTS_VIA_DSS`       | 
-         | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `UPDATE_EXPERIMENTS_VIA_DSS`       | 
-         | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `CREATE_SPACE_SAMPLES_VIA_DSS`     | 
-         | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `UPDATE_SPACE_SAMPLES_VIA_DSS`     | 
-         | `SPACE_USER, SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `CREATE_INSTANCE_SAMPLES_VIA_DSS`  | 
-         | `INSTANCE_ETL_SERVER`                  | 
-                                                                                                                                                                                               |
-| `UPDATE_INSTANCE_SAMPLES_VIA_DSS`  | 
-         | `INSTANCE_ETL_SERVER`                  | 
-                                                                                                                                                                                               |
-| `CREATE_MATERIALS_VIA_DSS`         | 
-         | `INSTANCE_ETL_SERVER`                  | 
-                                                                                                                                                                                               |
-| `UPDATE_MATERIALS_VIA_DSS`         | 
-         | `INSTANCE_ETL_SERVER`                  | 
-                                                                                                                                                                                               |
-| `CREATE_DATA_SETS_VIA_DSS`         | 
-         | `SPACE_USER`, `SPACE_ETL_SERVER`         | 
-                                                                                                                                                                                               |
-| `UPDATE_DATA_SETS_VIA_DSS`         | 
-         | `SPACE_POWER_USER`, `SPACE_ETL_SERVER`   | 
-                                                                                                                                                                                               |
-| `SEARCH_ON_BEHALF_OF_USER`         | 
-         | `INSTANCE_OBSERVER`                    | All search or list operations being performed on behalf of another user. Supposed to be used by a service user for server-to-server communication tasks.                                        |
+|Capability                      |Parameter|Default Role                       |Comment                                                                                                                                                                                        |
+|--------------------------------|---------|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`WRITE_CUSTOM_COLUMN`             |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`DELETE_CUSTOM_COLUMN`            |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_FILTER`                    |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`DELETE_FILTER`                   |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_DATASET`                   |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_DATASET_PROPERTIES`        |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`DELETE_DATASET`                  |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_EXPERIMENT_SAMPLE`         |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`WRITE_EXPERIMENT_ATTACHMENT`     |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`WRITE_EXPERIMENT_PROPERTIES`     |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`DELETE_EXPERIMENT`               |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_SAMPLE`                    |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`WRITE_SAMPLE_ATTACHMENT`         |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`WRITE_SAMPLE_PROPERTIES`         |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`DELETE_SAMPLE`                   |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`DELETE_SAMPLE_ATTACHMENT`        |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_DATASET`                   |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_DATASET_PROPERTIES`        |         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`DELETE_DATASET`                  |         |`SPACE_POWER_USER`                  |Delete datasets (this capability IS NOT enough to delete datasets with deletion_disallow flag set to true in their type - see `FORCE_DELETE_DATASET`)                                            |
+|`FORCE_DELETE_DATASET`            |         |`INSTANCE_DISABLED                  |Delete datasets (this capability IS enough to delete datasets with deletion_disallow flag set to true in their type - see `DELETE_DATASET`)                                                      |
+|`ARCHIVE_DATASET`                 |         |`SPACE_POWER_USER`                  |Move dataset from data store into archive                                                                                                                                                      |
+|`UNARCHIVE_DATASET`               |         |`SPACE_USER`                        |Copy back dataset from archive to data store                                                                                                                                                   |
+|`LOCK_DATA_SETS`                  |         |`SPACE_ADMIN`                       |Prevent data sets from being archived                                                                                                                                                          |
+|`UNLOCK_DATA_SETS`                |         |`SPACE_ADMIN`                       |Release locked data sets                                                                                                                                                                       |
+|`WRITE_EXPERIMENT_SAMPLE_MATERIAL`|         |`INSTANCE_ADMIN`                    |Registration / update of experiments, samples and materials in one go                                                                                                                          |
+|`REGISTER_SPACE`                  |         |`SPACE_ADMIN`                       |The user will become space admin of the freshly created space                                                                                                                                  |
+|`DELETE_SPACE`                    |         |`SPACE_ADMIN`                       |                                                                                                                                                                                               |
+|`UPDATE_SPACE`                    |         |`SPACE_ADMIN`                       |                                                                                                                                                                                               |
+|`REGISTER_PROJECT`                |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_PROJECT`                   |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_SAMPLE_ATTACHMENT`         |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`DELETE_PROJECT`                  |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_PROJECT_ATTACHMENT`        |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`REGISTER_VOCABULARY`             |         |`INSTANCE_ADMIN`                    |                                                                                                                                                                                               |
+|`WRITE_VOCABULARY`                |         |`INSTANCE_ADMIN`                    |                                                                                                                                                                                               |
+|`DELETE_VOCABULARY`               |         |`INSTANCE_ADMIN`                    |                                                                                                                                                                                               |
+|`WRITE_VOCABULARY_TERM`           |         |`SPACE_POWER_USER`                  |                                                                                                                                                                                               |
+|`WRITE_UNOFFICIAL_VOCABULARY_TERM`|         |`SPACE_USER`                        |                                                                                                                                                                                               |
+|`PURGE                           |         |`SPACE_ADMIN`                       |Permanently delete experiments, samples and datasets in the trashcan (this capability IS NOT enough to delete datasets with deletion_disallow flag set to true in their type - see `FORCE_PURGE`)|
+|`FORCE_PURGE`                     |         |`INSTANCE_DISABLED`                  |Permanently delete experiments, samples and datasets in the trashcan (this capability IS enough to delete datasets with deletion_disallow flag set to true in their type - see `PURGE`)          |
+|`RESTORE`                         |         |`SPACE_USER`                        |Get back experiments, samples and datasets from the trashcan                                                                                                                                   |
+|`ASSIGN_EXPERIMENT_TO_PROJECT`    |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`ASSIGN_PROJECT_TO_SPACE`         |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`ASSIGN_SAMPLE_TO_EXPERIMENT`     |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER`|Re-assign a sample to a new experiment (called in 'register experiment', 'update experiment', 'update sample'')                                                                                |
+|`UNASSIGN_SAMPLE_FROM_EXPERIMENT` |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER`|                                                                                                                                                                                               |
+|`ASSIGN_SAMPLE_TO_SPACE`          |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |Re-assign a sample to a new space (called in 'update sample')                                                                                                                                  |
+|`ASSIGN_DATASET_TO_EXPERIMENT`    |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`ASSIGN_DATASET_TO_SAMPLE`        |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`SHARE_SAMPLE`                    |         |`INSTANCE_ADMIN, `INSTANCE_ETL_SERVER`|                                                                                                                                                                                               |
+|`UNSHARE_SAMPLE`                  |         |`INSTANCE_ADMIN, `INSTANCE_ETL_SERVER`|                                                                                                                                                                                               |
+|`ADD_PARENT_TO_SAMPLE`            |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`ADD_PARENT_TO_SAMPLE`            |SAMPLE   |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`ADD_PARENT_TO_SAMPLE`            |PARENT   |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`REMOVE_PARENT_FROM_SAMPLE`       |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`REMOVE_PARENT_FROM_SAMPLE`       |SAMPLE   |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`REMOVE_PARENT_FROM_SAMPLE`       |PARENT   |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`ADD_CONTAINER_TO_SAMPLE`         |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`REMOVE_CONTAINER_FROM_SAMPLE`    |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`ADD_PARENT_TO_DATASET`           |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`REMOVE_PARENT_FROM_DATASET`      |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`ADD_CONTAINER_TO_DATASET`        |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`REMOVE_CONTAINER_FROM_DATASET`   |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`ASSIGN_ROLE_TO_SPACE_VIA_DSS`    |         |`SPACE_ADMIN, `INSTANCE_ETL_SERVER`   |                                                                                                                                                                                               |
+|`CREATE_SPACES_VIA_DSS`           |         |`SPACE_ADMIN, `INSTANCE_ETL_SERVER`   |                                                                                                                                                                                               |
+|`CREATE_PROJECTS_VIA_DSS`         |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`UPDATE_PROJECTS_VIA_DSS`         |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`CREATE_EXPERIMENTS_VIA_DSS`      |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`UPDATE_EXPERIMENTS_VIA_DSS`      |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`CREATE_SPACE_SAMPLES_VIA_DSS`    |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`UPDATE_SPACE_SAMPLES_VIA_DSS`    |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`CREATE_INSTANCE_SAMPLES_VIA_DSS` |         |`INSTANCE_ETL_SERVER`                |                                                                                                                                                                                               |
+|`UPDATE_INSTANCE_SAMPLES_VIA_DSS` |         |`INSTANCE_ETL_SERVER`                |                                                                                                                                                                                               |
+|`CREATE_MATERIALS_VIA_DSS`        |         |`INSTANCE_ETL_SERVER`                |                                                                                                                                                                                               |
+|`UPDATE_MATERIALS_VIA_DSS`        |         |`INSTANCE_ETL_SERVER`                |                                                                                                                                                                                               |
+|`CREATE_DATA_SETS_VIA_DSS`        |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
+|`UPDATE_DATA_SETS_VIA_DSS`        |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
+|`SEARCH_ON_BEHALF_OF_USER`        |         |`INSTANCE_OBSERVER`                  |All search or list operations being performed on behalf of another user. Supposed to be used by a service user for server-to-server communication tasks.                                       |
+
 
 Older versions of openBIS used to allow changing entity relationships to
 regular `SPACE_USER`. If you want to get this behavior back, put these
