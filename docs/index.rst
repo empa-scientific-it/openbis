@@ -25,6 +25,15 @@ The complete solution for managing your research data.
    Client-Side Extensions </software-developer-documentation/client-side-extensions/index>
    Legacy Server-Side Extensions </software-developer-documentation/legacy-server-side-extensions/index>
 
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+   :caption: System Admin Documentation
+
+   Installation </system-admin-documentation/installation/index>
+   Docker Installation </system-admin-documentation/docker-installation/index>
+   Advanced Features </system-admin-documentation/advanced-features/index>
+
 User Documentation
 ^^^^^^^^^^^^^^^^^^
    - :doc:`General Users </user-documentation/general-users/index>`
@@ -42,6 +51,6 @@ Software Developer Documentation
    
 System Admin Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   - Installation
-   - Docker Installation
-   - Advanced Features
+   - :doc:`Installation </system-admin-documentation/installation/index>`
+   - :doc:`Docker Installation </system-admin-documentation/docker-installation/index>`
+   - :doc:`Advanced Features </system-admin-documentation/advanced-features/index>`
