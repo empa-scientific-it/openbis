@@ -447,6 +447,14 @@ like to have default values for those parameters.  
 
 
 Updated on December 8, 2022
+
+## Datasets tables
+
+Since openBIS version 20.10.7, a dataset table has been added to the Experiment/Collection and Object pages.
+
+This table shows the metadata of the datasets. The content of the datasets can be navigated through the main menu.
+
+![image info](img/dataset-table-exp-step-1024x455.png)
  
 ## Data Access
 
