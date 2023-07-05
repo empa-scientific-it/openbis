@@ -5,4 +5,4 @@ Docker Installation
    :maxdepth: 4
 
    docker-system-requirements
-   docker-installation-and configuration
+   docker-installation-and-configuration
