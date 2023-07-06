@@ -190,7 +190,7 @@ the pre-filled cell shown above.
 
  
 
-## Using a local Jupyter installation with openBIS
+### Using a local Jupyter installation with openBIS
 
 It is also possible to use a local Jupyter installation with openBIS. In
 this case, it is possible to download an extension for JupyterLab that
