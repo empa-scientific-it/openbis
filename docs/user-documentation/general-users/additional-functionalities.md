@@ -43,7 +43,7 @@ Here we give an overview of the main functionalities of the tables.
 
  
 
-## Filters
+### Filters
 
 Two filter options are available form the **Filters** button: **Filter
 Per Column** and **Global Filter**. The first allows to filter on
@@ -60,7 +60,7 @@ terms across the entire table using the **AND** or **OR** operator. 
 
 >  
 
-## Sorting
+### Sorting
 
 It is possible to sort individual columns or also multiple columns. For
 multi-column sorting, you should click on the column header and press
@@ -73,7 +73,7 @@ each column, as shown below.
 
 >  
 
-## Exports
+### Exports
 
 Tables can be exported in different ways, using the export button shown
 below.
@@ -147,7 +147,7 @@ below.
 >
 >  
 
-## Columns
+### Columns
 
 Users can select which properties to display in the table clicking on
 the **Columns** button. It is also possible to show all properties or
@@ -161,7 +161,7 @@ This information is stored in the database for each user.
 
  
 
-### **Spreadsheets**
+#### **Spreadsheets**
 
 If a table contains *Objects* which have a spreadsheet field which is
 filled in, a spreadsheet icon is displayed in the table. Upon clicking
@@ -175,7 +175,7 @@ on the icon, the content of the spreadsheet can be expanded.  
 >
 >  
 
-### Text fields
+#### Text fields
 
 If a table contains Objects which have long text fields, only the
 beginning of the text is shown and can be expanded. If the text contains
@@ -188,7 +188,7 @@ the text becomes visible by clicking on the icon.
 >
 >  
 
-## **Selection of entries in table**
+### **Selection of entries in table**
 
 Single entries in a table can be selected using the checkbox in the row.
 By clicking the checkbox in the table header, all entries of the table
@@ -224,14 +224,6 @@ In *Object* tables inside *Experiments/Collections* there is an
  
 
 ![image info](img/operations-column-1024x405.png)
-
- 
-
- 
-
- 
-
- 
 
 Updated on April 26, 2023
  
@@ -721,3 +713,18 @@ from one *Object*/*Collection* to another, the PermID of the old and new
 *Objects*/*Collections* are shown in the history table.
 
 Updated on November 10, 2022
+
+## Spreadsheet
+
+The spreadsheet component needs to be enabled by a group admin or lab manager who can edit the ELN Settings, as described here: [Enable Rich Text Editor or Spreadsheet Widgets](../general-admin-users/admins-documentation/new-entity-type-registration.md)
+
+![image info](img/Screenshot-2020-03-09-at-17.13.07.png)
+
+The spreadsheet supports some basic Excel functionalities, such as mathematical formulas (e.g. =SUM(A1+A2)).
+It is possible to import an openBIS Object into the spreadsheet, with the **import** button, on the spreadsheet itself:
+
+![image info](img/Screen-Shot-2019-09-17-at-13.18.40.png)
+
+Please note that if the Object is updated in openBIS, it will NOT be automatically updated in the spreadsheet.
+
+Updated on March 4, 2022
