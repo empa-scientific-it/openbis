@@ -696,37 +696,30 @@ Updated on April 25, 2023
  
 ## Project Overview
 
-[](# "Print this article")
+In the Project page you have the options to see:
 
-  
-All *Experiments* and *Experimental Ste*ps have a **Show in project
-overview** checkbox. When selected, these *Experiments* and/or
-*Experimental Steps* will be shown in the *Project* form, as shown
-below.
+1.  Default Experiments and Experimental Steps with the field *Show in
+    project overview = true***.** This is a way to mark the most
+    relevant Experiments and Experimental steps and see them at a glance
+    on the project page (**Show Overview**).
+2.  All experiments belonging to the project (**Show
+    Experiments/Collections**).
 
- 
+The two options are available from the *More..* dropdown on the Project
+page.
 
-This allows users to have a better overview of a *Project* and highlight
-the most important findings.
+![](img/proejct-more-dropdown.png)
 
- 
+Below you see an example of an overview in a Project page.
 
-![image info](img/project-overview-1-1024x516.png)
+![](img/proejct-page-overview-1024x640.png)
 
- 
+Below you see an example of the visualisation of Experiments and
+Collections in a Project page.
 
-If the *Experiments* and *Object* tables are not shown in the project
-page, you need to select **Show Experiments** and **Show Objects** from
-the More.. drop down.
+![](img/project-page-experiments-view-1024x488.png)
 
- 
-
-![image info](img/show-experiments-objects-in-projects.png)
-menu.
-
- 
-
-Updated on April 25, 2023
+Updated on July 5, 2023
  
 ## Edit and Delete Projects, Experiments, Experimental Steps
 
