@@ -1,7 +1,7 @@
-openBIS V3 API
-==============
+Java/Javascript openBIS V3 API
+==============================
 
-### I. Architecture
+## I. Architecture
 
 Open BIS consists of two main components: an Application Server and one
 or more Data Store Servers. The Application Server manages the system’s
@@ -9,7 +9,7 @@ meta data, while the Data Store Server(s) manage the file store(s). Each
 Data Store Server manages its own file store. Here we will refer to the
 Application Server as the "AS" and the Data Store Server as the "DSS."
 
-#### One AS, one or more DSS
+### One AS, one or more DSS
 
 Why is there only one Application Server but multiple Data Store
 Servers? It is possible to have only one Data Store Server, but in a
@@ -25,7 +25,7 @@ system. 
 
 ![image info](img/139.png)
 
-#### The Java API
+### The Java API
 
 The Java V3 API consists of two interfaces:
 
@@ -39,16 +39,16 @@ All V3 API jars are packed in openBIS-API-V3-&lt;VERSION&gt;.zip which
 is part of openBIS-clients-and-APIs-&lt;VERSION&gt;.zip (the latest
 version can be downloaded at [Sprint Releases](#) &gt; Clients and APIs)
 
-#### The Javascript API
+### The Javascript API
 
 The Javascript V3 API consists of a module hosted at
 &lt;OPENBIS\_URL&gt;/resources/api/v3/openbis.js, for instance
 <http://localhost/openbis>/ resources/api/v3/openbis.js. Please check
 the openbis.js file itself for more details.
 
-### II. API Features
+## II. API Features
 
-#### Current Features - AS
+### Current Features - AS
 
 The current implementation of the V3 openBIS API contains the following
 features:
@@ -75,12 +75,12 @@ features:
 -   Queries: create/update/get/search/delete/execute queries
 -   Generating codes/permids
 
-#### Current Features - DSS
+### Current Features - DSS
 
 -   Search data set files
 -   Download data set files
 
-#### Missing/Planned Features
+### Missing/Planned Features
 
 The current implementation of the V3 openBIS API does not yet include
 the following features:
@@ -91,7 +91,7 @@ the following features:
 -   Update features: Updating datasets share id, size, status, storage
     confirmation, post registration status
 
-### III. Accessing the API 
+## III. Accessing the API 
 
 In order to use V3 API you have to know the url of an openBIS instance
 you want to connect to. Moreover, before calling any of the API methods
@@ -153,7 +153,7 @@ Connecting in Java
 
     }
 
-#### Connecting in Javascript
+### Connecting in Javascript
 
 We have put a lot of effort to make the use of the API in Javascript and
 Java almost identical. The DTOs which are a big part of the API are
@@ -213,7 +213,7 @@ be conceptually consistent.
 
   
 
-###   IV. AS Methods  
+##   IV. AS Methods  
 
 The sections below describe how to use different methods of the V3 API.
 Each section describes a group of similar methods. For instance, we have
@@ -239,7 +239,7 @@ page template to make them shorter and more readable. Please
 check "Accessing the API" section for examples on how to get a reference
 to V3 API, authenticate or build a simple html page.
 
-#### Login
+### Login
 
 OpenBIS provides the following login methods:
 
@@ -254,7 +254,7 @@ All login methods return a session token if the provided parameters were
 correct. In case a given user does not exist or the provided password
 was incorrect the login methods return null.
 
-##### Example
+#### Example
 
 **V3LoginExample.java**
 
@@ -300,7 +300,7 @@ was incorrect the login methods return null.
         });
     </script>
 
-#### Personal Access Tokens
+### Personal Access Tokens
 
 A personal access token (in short: PAT) can be thought of as a longer
 lived session token which can be used for integrating openBIS with
@@ -346,12 +346,12 @@ Example of how to create and use a PAT:
         }
     }
 
-#### Session Information
+### Session Information
 
 OpenBIS provides a method to obtain the session information for an
 already log in user:
 
-##### Example
+#### Example
 
 **V3CreationExample.java**
 
@@ -370,7 +370,7 @@ already log in user:
         }
     }
 
-#### Creating entities
+### Creating entities
 
 The methods for creating entities in V3 API are called: createSpaces,
 createProjects, createExperiments, createSamples, createMaterials,
@@ -384,7 +384,7 @@ NOTE: Creating data sets via V3 API is not available yet. The new V3
 dropboxes are planned but not implemented yet. Please use V2 dropboxes
 until V3 version is out.
 
-##### Example
+#### Example
 
 **V3CreationExample.java**
 
@@ -434,7 +434,7 @@ until V3 version is out.
         });
     </script>
 
-##### Properties example
+#### Properties example
 
 **V3CreationWithPropertiesExample.java**
 
@@ -497,7 +497,7 @@ until V3 version is out.
         });
     </script>
 
-##### Different ids example
+#### Different ids example
 
 **V3CreationWithDifferentIdsExample.java**
 
@@ -553,7 +553,7 @@ until V3 version is out.
             });
     </script>
 
-##### Parent child example
+#### Parent child example
 
 The following example creates parent and child samples for a sample type
 which allow automatic code generation:
@@ -611,7 +611,7 @@ which allow automatic code generation:
             });
     </script>
 
-#### Updating entities
+### Updating entities
 
 The methods for updating entities in V3 API are called: updateSpaces,
 updateProjects, updateExperiments, updateSamples, updateDataSets,
@@ -626,7 +626,7 @@ updated. Please note that some of the entity fields cannot be changed
 once an entity is created, for instance sample code becomes immutable
 after creation.
 
-##### Example
+#### Example
 
 **V3UpdateExample.java**
 
@@ -672,7 +672,7 @@ after creation.
             });
     </script>
 
-##### Properties example
+#### Properties example
 
 **V3UpdateWithPropertiesExample.java**
 
@@ -727,7 +727,7 @@ after creation.
         });
     </script>
 
-##### Parents example
+#### Parents example
 
 **V3UpdateWithParentsExample.java**
 
@@ -797,7 +797,7 @@ after creation.
             });
     </script>
 
-#### Getting authorization rights for entities
+### Getting authorization rights for entities
 
 If the user isn't allowed to create or update an entity an exception is
 thrown. But often a client application wants to know in advance whether
@@ -814,7 +814,7 @@ with `new ExperimentIdentifier("/MY-SPACE/PROJECT1/DUMMY")` would return
 rights containing `CREATE` if the user is allowed to create an
 experiment in the project `/MY-SPACE/PROJECT1`.
 
-#### Freezing entities
+### Freezing entities
 
 An entity (Space, Project, Experiment, Sample, Data Set) can be frozen.
 There are two types of frozen: *Core* and *surface*. A frozen core means
@@ -838,7 +838,7 @@ freezing event.
 The following tables show all freezing possibilities and what is actual
 frozen.
 
-##### Space
+#### Space
 
 |Freezing method|Description|
 |--- |--- |
@@ -847,7 +847,7 @@ The description can not be set or changed.|
 |freezeForProjects|Same as freeze() plus no projects can be added to or removed from the specified space.|
 |freezeForSamples|Same as freeze() plus no samples can be added to or removed from the specified space.|
 
-##### Project
+#### Project
 
 |Freezing method|Description|
 |--- |--- |
@@ -857,7 +857,7 @@ No attachments can be added or removed.|
 |freezeForExperiments|Same as freeze() plus no experiments can be added to or removed from the specified project.|
 |freezeForSamples|Same as freeze() plus no samples can be added to or removed from the specified project.|
 
-##### Experiment
+#### Experiment
 
 |Freezing method|Description|
 |--- |--- |
@@ -867,7 +867,7 @@ No attachments can be added or removed.|
 |freezeForSamples|Same as freeze() plus no samples can be added to or removed from the specified experiment.|
 |freezeForDataSets|Same as freeze() plus no data sets can be added to or removed from the specified experiment.|
 
-##### Sample
+#### Sample
 
 |Freezing method|Description|
 |--- |--- |
@@ -879,7 +879,7 @@ No attachments can be added or removed.|
 |freezeForParents|Same as freeze() plus no parent samples can be added to or removed from the specified sample.|
 |freezeForDataSets|Same as freeze() plus no data sets can be added to or removed from the specified sample.|
 
-##### Data Set
+#### Data Set
 
 |Freezing method|Description|
 |--- |--- |
@@ -891,7 +891,7 @@ Content copies can be still added or removed for frozen link data sets.|
 |freezeForComponents|Same as freeze() plus no component data sets can be added to or removed from the specified data set.|
 |freezeForContainers|Same as freeze() plus no container data sets can be added to or removed from the specified data set.|
 
-#### Searching entities
+### Searching entities
 
 The methods for searching entities in V3 API are called: `searchSpaces`,
 `searchProjects`, `searchExperiments`, `searchSamples`,
@@ -937,7 +937,7 @@ Results can be sorted ascending or descending. Sorting by multiple
 fields is also possible (e.g. first sort by type and then by
 identifier). A code example on how to use sorting is presented below.
 
-##### Example
+#### Example
 
 **V3SearchExample.java**
 
@@ -997,7 +997,7 @@ identifier). A code example on how to use sorting is presented below.
             });
     </script>
 
-##### Example with pagination and sorting
+#### Example with pagination and sorting
 
 **V3SearchWithPaginationAndSortingExample.java**
 
@@ -1062,7 +1062,7 @@ identifier). A code example on how to use sorting is presented below.
             });
     </script>
 
-#####  Example with OR operator
+####  Example with OR operator
 
 By default all specified search criteria have to be fulfilled. If only
 one criteria needs to be fulfilled use `criteria.withOrOperator()` as in
@@ -1126,7 +1126,7 @@ the following example:
             });
     </script>
 
-##### Example with nested logical operators
+#### Example with nested logical operators
 
 The following code finds samples with perm ID that ends with "6" AND
 (with code that contains "-" OR that starts with "C") AND (with
@@ -1195,7 +1195,7 @@ experiment OR of type whose code starts with "MASTER").
             });
     </script>
 
-##### Example with recursive fetch options
+#### Example with recursive fetch options
 
 In order to get all descendent/acsendents of a sample fetch options can
 be used recursively by
@@ -1287,7 +1287,7 @@ example:
         });
     </script>
 
-##### Global search
+#### Global search
 
 There are two kinds or global search:
 
@@ -1368,7 +1368,7 @@ of meta data (entity attribute or property). Example:
 
   
 
-#### Getting entities
+### Getting entities
 
 The methods for getting entities in V3 API are called: getSpaces,
 getProjects, getExperiments, getSamples, getDataSets, getMaterials,
@@ -1380,7 +1380,7 @@ ids. If no entity was found for a given id or entity exists but you
 don't have access to it then there is no entry for such an id in the
 returned map.
 
-##### Example
+#### Example
 
 **V3GetExample.java**
 
@@ -1445,7 +1445,7 @@ returned map.
             });
     </script>
 
-#### Deleting entities
+### Deleting entities
 
 The methods for deleting entities in V3 API are called: deleteSpaces,
 deleteProjects, deleteExperiments, deleteSamples, deleteDataSets,
@@ -1459,7 +1459,7 @@ confirming the logical deletion to remove the entities permanently or
 reverting the logical deletion to take the entities out from the trash
 can.
 
-##### Example
+#### Example
 
 **V3DeleteExample.java**
 
@@ -1518,7 +1518,7 @@ can.
             });
     </script>
 
-#### Searching entity types
+### Searching entity types
 
 The following search methods allows to search for entity types including
 all assigned property
@@ -1583,7 +1583,7 @@ sample types and assigned property types:
             });
     </script>
 
-#### Modifications
+### Modifications
 
 The API allows to ask for the latest modification (UPDATE or
 CREATE\_OR\_DELETE) for groups of objects of various kinds (see
@@ -1649,21 +1649,21 @@ project and sample update:
             });
     </script>
 
-#### Custom AS Services
+### Custom AS Services
 
 In order to extend openBIS API new custom services can be established by
 core plugins of type `services` (see [Custom Application Server
 Services](/pages/viewpage.action?pageId=80699473)). The API offers a
 method to search for a service and to execute a service.
 
-##### Search for custom services
+#### Search for custom services
 
 As with any other search method `searchCustomASServices()` needs a
 search criteria `CustomASServiceSearchCriteria` and fetch options
 `CustomASServiceFetchOptions`. The following example returns all
 available custom AS services.
 
-###### Example 
+##### Example 
 
 **V3SearchCustomASServicesExample.java**
 
@@ -1705,7 +1705,7 @@ available custom AS services.
             });
     </script>
 
-##### Execute a custom service
+#### Execute a custom service
 
 In order to execute a custom AS service its code is needed. In addition
 a set of key-value pairs can be provided. The key has to be a string
@@ -1718,7 +1718,7 @@ The result can be any object (again it has to be Java serializable in
 the Java case). In a Java client the result will usually be casted for
 further processing.
 
-###### Example 
+##### Example 
 
 **V3ExecuteCustomASServiceExample.java**
 
@@ -1753,7 +1753,7 @@ further processing.
             });
     </script>
 
-#### Archiving / unarchiving data sets
+### Archiving / unarchiving data sets
 
 The API provides the following methods for handling the data set
 archiving: archiveDataSets and unarchiveDataSets. Both methods schedule
@@ -1762,9 +1762,9 @@ archiveDataSets/unarchiveDataSets method call finishes the requested
 data sets are only scheduled for the archiving/unarchiving but are not
 in the archive/store yet.
 
-##### Archiving data sets  
+#### Archiving data sets  
 
-###### Example 
+##### Example 
 
 **V3ArchiveDataSetsExample.java**
 
@@ -1824,9 +1824,9 @@ in the archive/store yet.
         });
     </script>
 
-##### Unarchiving data sets
+#### Unarchiving data sets
 
-###### Example 
+##### Example 
 
 **V3UnarchiveDataSetsExample.java**
 
@@ -1876,7 +1876,7 @@ in the archive/store yet.
         });
     </script>
 
-####  Executing Operations 
+###  Executing Operations 
 
 The V3 API provides you with methods that allow you to create, update,
 get, search and delete entities, archive and unarchive datasets, execute
@@ -1948,7 +1948,7 @@ More details on each of these methods in presented in the sections
 below. Please note that all of the described methods are available in
 both Javascript and Java.
 
-##### Method executeOperations
+#### Method executeOperations
 
 This method can be used to execute one or many operations either
 synchronously or asynchronously. Operations are always executed in a
@@ -1962,7 +1962,7 @@ IApplicationServerApi.createSpaces method is represented by
 CreateSpacesOperation class, IApplicationServerApi.updateSpaces method
 by UpdateSpacesOperation class etc.
 
-###### **Asynchronous operation execution**
+##### **Asynchronous operation execution**
 
 An asynchronous executeOperations invocation only schedules operations
 for the execution and then immediately returns. Results of the scheduled
@@ -2054,7 +2054,7 @@ states:
             });
     </script>
 
-###### **Synchronous operation execution**
+##### **Synchronous operation execution**
 
 A synchronous executeOperations invocation immediately executes all the
 operations. Any exceptions thrown by the executed operations can be
@@ -2142,7 +2142,7 @@ states:
             });
     </script>
 
-###### **Notifications**
+##### **Notifications**
 
 The executeOperations method can notify about finished or failed
 operation executions. At the moment the only supported notification
@@ -2226,7 +2226,7 @@ For failed executions an email contains:
             });
     </script>
 
-##### Method getOperationExecutions / searchOperationExecutions
+#### Method getOperationExecutions / searchOperationExecutions
 
 Operation execution information can be fetched by an owner of an
 execution (i.e. a person that called executeOperations method) or an
@@ -2613,7 +2613,7 @@ related information are done with two separate V3 maintenance tasks
             });
     </script>
 
-#####  Method updateOperationExecutions / deleteOperationExecutions
+####  Method updateOperationExecutions / deleteOperationExecutions
 
 The updateOperationExecutions and deleteOperationExecutions methods can
 be used to explicitly delete some part of information or delete all the
@@ -2845,14 +2845,14 @@ availability time expires.
             });
     </script>
 
-##### Configuration
+#### Configuration
 
 Many aspects of the operation execution behavior can be configured via
 service.properties file.  
 More details on what exactly can be configured can be found in the file
 itself.
 
-#### Semantic Annotations 
+### Semantic Annotations 
 
 If terms like: semantic web, RDF, OWL are new to you, then it is highly
 recommended to read the following tutorial first:
@@ -2900,7 +2900,7 @@ methods and specify appropriate withType().withSemanticAnnotations()
 condition in SampleSearchCriteria or withSemanticAnnotations() condition
 in SampleTypeSearchCriteria. 
 
-#### Web App Settings
+### Web App Settings
 
 The web app settings functionality is a user specific key-value map
 where a user specific configuration can be stored. The settings are
@@ -3041,7 +3041,7 @@ user or by an instance admin.
             });
     </script>
 
-#### Imports
+### Imports
 
 The imports that are normally accesible via "Import" menu in the generic
 openBIS UI can be also used programatically from within a V3 custom AS
@@ -3222,7 +3222,7 @@ to import that file is presented below.
         sampleType = parameters.get("sampleType")
         return context.getImportService().createSamples(context.getSessionToken(), "importWebappUploadKey", sampleType, None, None, None, False, False, None);
 
-#### Generate identifiers
+### Generate identifiers
 
 V3 API provides 2 methods for generating unique identifiers:
 
@@ -3273,9 +3273,9 @@ V3 API provides 2 methods for generating unique identifiers:
             });
     </script>
 
-### V. DSS Methods
+## V. DSS Methods
 
-#### Search files
+### Search files
 
 The searchFiles method can be used to search for data set files at a
 single data store (Java version) or at multiple data stores at the same
@@ -3289,7 +3289,7 @@ When searching across multiple data stores the results from each data
 store are combined together and returned back as a single regular search
 result object as if it was returned by only one data store.
 
-##### Example 
+#### Example 
 
 **V3SearchDataSetFilesExample.java**
 
@@ -3380,7 +3380,7 @@ result object as if it was returned by only one data store.
             });
     </script>
 
-####  Downloading files, folders, and datasets
+###  Downloading files, folders, and datasets
 
 Datasets that are created in Open BIS can be accessed by V3 API in a
 number of different ways. It's possible to download individual files,
@@ -3397,7 +3397,7 @@ The API provides two methods for downloading:
     used by a helper class to download files in parallel streams in
     chunks. It is based on the [SIS File Transfer Protocol](#).
 
-#### Simple Downloading
+### Simple Downloading
 
 By setting the DataSetFileDownloadOptions it's possible to change how
 data is downloaded - data can be downloaded file by file, or by folder,
@@ -3410,13 +3410,13 @@ already be inside Open BIS. It is necessary to know the dataset code at
 the very minimum. It is helpful to also know the file path to the file
 desired to download.
 
-##### Download a single file located inside a dataset
+#### Download a single file located inside a dataset
 
 Here is how to download a single file and print out the contents, when
 the dataset code and the file path are known. Here a search is not
 necessary since the file path and dataset code are known.
 
-###### A note about recursion
+##### A note about recursion
 
 Note that when only downloading one file, it is better to set the
 recursive flag to false in DataSetFileDownloadOptions, although it makes
@@ -3494,7 +3494,7 @@ the directory.
         }
     }
 
-##### Download a folder located inside a dataset
+#### Download a folder located inside a dataset
 
 The example below demonstrates how to download a folder and all its
 contents, when the dataset code and the folder path are known. The goal
@@ -3570,7 +3570,7 @@ the directory object.
         }
     }
 
-##### Search for a dataset and download all its contents, file by file
+#### Search for a dataset and download all its contents, file by file
 
 Here is an example that demonstrates how to search for datasets and
 download the contents file by file. Here recursion is not used - see
@@ -3671,7 +3671,7 @@ this example.
         }
     }
 
-##### Download a whole dataset recursively
+#### Download a whole dataset recursively
 
 Here is a simplified way to download a dataset. Instead of downloading
 files one by one, it is possible to download the entire dataset
@@ -3735,7 +3735,7 @@ DataSetFileDownloadOptions object.
         }
     }
 
-##### Search and list all the files inside a data store 
+#### Search and list all the files inside a data store 
 
 Here is an example that demonstrates how to list all the files in a data
 store. By simply leaving the following line as is:
@@ -3823,7 +3823,7 @@ the whole data store. 
         }
     } 
 
-#### Fast Downloading
+### Fast Downloading
 
 Fast downloading is based on the [SIS File Transfer Protocol](#) and
 library. Downloading is done in two steps:
@@ -3948,7 +3948,7 @@ Here is a complete example:
         }
     }
 
-##### What happens under the hood?
+#### What happens under the hood?
 
 The files to be downloaded are chunked into chunks of maximum size 1 MB.
 On the DSS a special web service (`FileTransferServerServlet`) provides
@@ -3973,7 +3973,7 @@ It is possible that the actual number of streams is zero if the server
 is currently too busy with downloading (that is, there is no free
 dowload stream available). The FastDownloader will retry it later.
 
-##### Customizing Fast Dowloading
+#### Customizing Fast Dowloading
 
 There are three ways to customizing the FastDownloader:
 
@@ -3991,7 +3991,7 @@ There are three ways to customizing the FastDownloader:
     three times. The first retry is a second later. For each following
     retry the waiting time is increases by the factor two.
 
-#### Register Data Sets
+### Register Data Sets
 
 To register datasets using the Java or JavaScript API use one of the
 following examples as a template.
@@ -4108,8 +4108,7 @@ Example (Javascript)**
     </body>
     </html>
 
-VI. Web application context
----------------------------
+## VI. Web application context
 
 When making web applications and embedding them into an openBIS tab on
 the core UI is often required to have information about the context
