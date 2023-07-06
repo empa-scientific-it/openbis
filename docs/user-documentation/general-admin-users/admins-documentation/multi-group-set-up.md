@@ -69,7 +69,7 @@ and **Horizon**, **Snf** do not belong to any group in the Lab notebook.
 
  
 
-## Instance Settings
+### Instance Settings
 
  
 
@@ -89,7 +89,7 @@ and **Horizon**, **Snf** do not belong to any group in the Lab notebook.
 
  
 
-## Group Settings
+### Group Settings
 
  
 
