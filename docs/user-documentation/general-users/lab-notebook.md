@@ -706,8 +706,6 @@ Available roles are:
 3.  **Admin**: can create, modify and delete entities in Space or
     Project
 
- 
-
 The roles can be granted to:
 
 1.  **User**: the user needs to be already registered in openBIS. The
@@ -715,22 +713,16 @@ The roles can be granted to:
 2.  **Group**: the name of a user group existing in openBIS needs to be
     entered.
 
- 
-
- 
-
 ![image info](img/manage-access-labnotebook-space.png)
-
- 
 
 ![image info](img/manage-access-project.png)
 
- 
-
- 
-
- 
-
- 
-
 Updated on April 25, 2023
+
+## Rich Test Editor
+
+### EMBED IMAGES IN TEXT FIELDS
+
+To embed an image in the a text field with the Rich Text Editor (RTE) enabled, you can simply drag & drop a .png or .jpg file and resize the image by clicking on and dragging the corners.
+
+![image info](img/picture-inserted-in-RTE-1024x697.png)
