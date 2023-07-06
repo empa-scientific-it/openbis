@@ -49,14 +49,15 @@ function ZenodoExportView(exportController, exportModel) {
         $container.append($form);
 
         exportModel.tree = TreeUtil.getCompleteTree($tree);
+        exportModel.tableModel = ExportUtil.getTableModel();
+
+        this.paintTitleTextBox($container);
+        if (exportModel.tableModel.getValues().length > 0) {
+            ExportUtil.paintGroupCheckboxes($container, "zenodo-groups");
+        }
 
         var $formTitle = $('<h2>').append('Zenodo Export Builder');
         $header.append($formTitle);
-
-        this.paintTitleTextBox($container);
-        ExportUtil.paintGroupCheckboxes($container, "zenodo-groups");
-
-        exportModel.tableModel = ExportUtil.getTableModel();
 
         var $exportButton = $('<input>', { 'type': 'submit', 'class': 'btn btn-primary', 'value': 'Export Selected',
             'onClick': '$("form[name=\'zenodoExportForm\']").submit()'});

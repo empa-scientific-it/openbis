@@ -53,7 +53,7 @@ function ZenodoExportController(parentController) {
             Util.showInfo('Please enter a title.');
         } else if (!this.isValid(toExport)) {
             Util.showInfo('Not only spaces and the root should be selected. It will result in an empty export file.');
-        } else if (checkedGroups.length === 0) {
+        } else if (groupRows.length > 0 && checkedGroups.length === 0) {
             Util.showInfo('At least one group should be selected.');
         } else {
             Util.blockUI();
