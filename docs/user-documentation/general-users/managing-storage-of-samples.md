@@ -148,7 +148,7 @@ Updated on April 25, 2023
 
  
 
-## Delete single storage positions
+### Delete single storage positions
 
  
 
@@ -175,7 +175,7 @@ from the trashcan (see
 
  
 
-## Remove one of multiple positions in the same box
+### Remove one of multiple positions in the same box
 
  
 
@@ -200,7 +200,7 @@ steps:
 
  
 
-## Delete multiple storage positions
+### Delete multiple storage positions
 
  
 
