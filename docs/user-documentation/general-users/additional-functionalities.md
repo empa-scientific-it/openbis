@@ -713,3 +713,18 @@ from one *Object*/*Collection* to another, the PermID of the old and new
 *Objects*/*Collections* are shown in the history table.
 
 Updated on November 10, 2022
+
+## Spreadsheet
+
+The spreadsheet component needs to be enabled by a group admin or lab manager who can edit the ELN Settings, as described here: [Enable Rich Text Editor or Spreadsheet Widgets](../general-admin-users/admins-documentation/new-entity-type-registration.md)
+
+![image info](img/Screenshot-2020-03-09-at-17.13.07.png)
+
+The spreadsheet supports some basic Excel functionalities, such as mathematical formulas (e.g. =SUM(A1+A2)).
+It is possible to import an openBIS Object into the spreadsheet, with the **import** button, on the spreadsheet itself:
+
+![image info](img/Screen-Shot-2019-09-17-at-13.18.40.png)
+
+Please note that if the Object is updated in openBIS, it will NOT be automatically updated in the spreadsheet.
+
+Updated on March 4, 2022
