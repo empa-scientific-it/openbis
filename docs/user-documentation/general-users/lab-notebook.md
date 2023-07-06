@@ -120,16 +120,10 @@ Updated on April 25, 2023
  
 ## Add parents and children to Experimental Steps
 
-[](# "Print this article")
-
- 
-
 In the default *Experimental Step* and in the *Entry*, there is a
 **Parents** section where it is possible to specify links to materials
 and methods from the *Inventory* or to any other *Object*, e.g. another
 *Experimental Step* or *Entry*.
-
- 
 
 **Parents** are all samples/materials used in an experimental procedure,
 standard protocols from the inventory followed in the experimental
@@ -137,34 +131,22 @@ procedure, the equipment used. It is also possible to set one
 *Experimental Step/Entry* as parent of a second *Experimental
 Step/Entry,* to keep the connection between the two.
 
- 
-
 The name of this section and which parents should be shown in the form,
 is customisable by the *lab manager* or *group admin* as described in
 [Customise Parents and Children Sections in Object
 Forms](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/customise-parents-and-children-sections-in-object-forms/)
 
+### Adding a parent
 
-## Adding a parent 
+![](img/Screenshot-2021-09-21-at-19.00.58.png)
 
- 
-
-![image info](img/Screenshot-2021-09-21-at-19.00.58.png)
-
-
-### Adding a parent of a predefined type in the form
-
- 
+#### Adding a parent of a predefined type in the form
 
 In the screenshot above, **General protocol** is predefined as parent
 type in the form. We have two options to add a parent of this predefined
 type:
 
- 
-
-#### **1. Search**
-
- 
+##### **1. Search**
 
 1.  1.  Click on the **Search** button.
     2.  Enter the **name** or **code** of the entry you want to add as
@@ -173,59 +155,36 @@ type:
 
 The parent will be added only when you **save** the entity.
 
- 
-![image info](img/exp-step-search-parent-1024x201.png)
+![](img/exp-step-search-parent-1024x201.png)
 
+##### ![](img/exp-step-parent-added-after-search-1024x332.png)
 
-![image info](img/exp-step-parent-added-after-search-1024x332.png)
-
-#### **2. Paste**
-
- 
+##### **2. Paste**
 
 1.  1.  You may copy the identifier of an entry you want to add as
         parent from a file, or from an advanced search or from another
         ELN page. You can paste the identifier(s) in the **Paste** text
         field.
-    2.  click the **+Add** button
+    2.  Click the **+Add** button
 
- 
+![](img/Screenshot-2021-09-21-at-19.29.33-1024x186.png)
 
- 
-![image info](img/Screenshot-2021-09-21-at-19.29.33-1024x186.png)
-   
-
-
-
-### Adding parent of any available type
-
- 
+#### Adding parent of any available type
 
 If you want to add a parent that is not specified in the *Experimental
 Step* form, you can use the **Search Any** or **Paste Any** options next
 to **Parents.**
 
- 
+![](img/Screenshot-2021-09-21-at-19.40.53.png)
 
- 
-
-![image info](img/Screenshot-2021-09-21-at-19.40.53.png)
-
-
-
-#### 1. Search Any
-
- 
+##### 1. Search Any
 
 1.  Click **Search Any**
 2.  Select the *Object* type for which you want to add a parent
 3.  Search by **code** or **name** as explained above
 4.  Click the **+ Add** button
 
-
-#### 2. Paste Any
-
- 
+##### 2. Paste Any
 
 There are cases where you may want to add several parents of the same
 type or also of different types. In this case, we recommend to use the
@@ -234,18 +193,9 @@ the desired entries from the table and the **Copy Identifiers** button
 will become visible. You can copy the identifiers and paste them in the
 **Paste Any** field in the *Experimental Step* page, as shown below.
 
- 
+![](img/search-and-paste-parents-1024x572.png)
 
- 
-
- 
-
-![image info](img/search-and-paste-parents-1024x572.png)
-
- 
-
-
-### Adding parent via barcodes
+#### Adding parent via barcodes
 
 If you want to add a parent that is registered in openBIS and has a
 barcode associated with it by scanning the barcode:
@@ -254,37 +204,29 @@ barcode associated with it by scanning the barcode:
 
 1.Click on the **barcode** icon in the Parents section
 
-![image info](img/add-parent-via-barcode.png)
+![](img/add-parent-via-barcode.png)
 
 2\. A **Barcode Reader** window opens
 
-![image info](img/add-parent-via-barcode-2.png)
+![](img/add-parents-with-barcodes-1024x233.png)
 
-3\. Scan the barcode of the entry you want to add as parent
+3\. Scan the barcode/QR code of the entry you want to add as parent with
+a scanner or with the camera of a mobile device
 
 4\. Click on the **Add Objects** button
 
-5\. **Close** 
+5\. **Close**
 
- 
-
- 
-
-## Removing a parent 
-
- 
+### Removing a parent
 
 To remove a parent, choose **Remove*** *from the **Operations*** *drop
 down in the parent table, as shown below.
 
  
 
-![image info](img/remove-parents-1024x313.png)
+![](img/remove-parents-1024x313.png)
 
-
-## **Adding and Removing Children**
-
- 
+### **Adding and Removing Children**
 
 Children of *Experimental Steps* are usually derivative *Experimental
 Steps,* or products of the *Experimental Step.* As for the **Parents**
@@ -293,13 +235,10 @@ manager* in the **ELN Settings** ([Customise Parents and Children
 Sections in Object
 Forms)](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/customise-parents-and-children-sections-in-object-forms/).
 
- 
-
 The procedure for adding and removing children is the same as explained
 for parents.
 
-
-### Children Generator
+#### Children Generator
 
 The **Children Generator** creates a matrix of all the parents entered
 in the* Experimental Step*, as shown below. Combinations of parents
@@ -308,9 +247,9 @@ needed to generate children can then be selected by the user. The
 to be specified. The children will then be automatically generated by
 openBIS upon registration of the *Experimental Step*.
 
-![image info](img/children-generator-1024x477.png)
+![](img/children-generator-1024x477.png)
 
-## Parent-child relationships between entries in lab notebook
+### Parent-child relationships between entries in lab notebook
 
 In the Lab Notebook section, if you create a new *Object* from an
 existing *Object*, independently of the type, this will be automatically
@@ -319,28 +258,17 @@ Experimental Step (measurement 4) from an existing Experimental Step
 (measurement 3), this will be automatically set as child of measurement
 3, as shown below.
 
- 
-
-![image info](img/ELN-new-exp-step-from-exp-step-1.png)
-
+![](img/ELN-new-exp-step-from-exp-step-1.png)
 
 If you do not wish to have this relationship established, you need to
 create the new Object starting from the Experiment level, as shown
 below.
 
- 
+![](img/ELN-new-exp-step-from-experiment.png) 
 
-![image info](img/ELN-new-exp-step-from-experiment.png)
-
-Updated on April 25, 2023
+Updated on July 5, 2023
  
 ## How to use protocols in Experimental Steps
-
-[](# "Print this article")
-
- 
-
- 
 
 When adding protocols to an *Experimental Step*, two options are
 available:
