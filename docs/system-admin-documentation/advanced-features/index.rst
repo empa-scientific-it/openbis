@@ -8,4 +8,4 @@ Advanced Features
    authentication-system
    share-ids
    maintenance-tasks
-   synchronization-of-openbis-databases
+   openbis-sync
