@@ -1,7 +1,6 @@
-Personal Access Tokens
-======================
+# Personal Access Tokens
 
-#### Background
+## Background
 
 "Personal access token" (in short: PAT) is an openBIS feature that was
 introduced to simplify integration of openBIS with other systems. Such
@@ -33,7 +32,7 @@ Depending on a use case and a type of the integration that could cause
 smaller or bigger headaches for the developers of the external system.
 Fortunately, "Personal access tokens" come to a rescue.
 
-#### What are "Personal access tokens" ?
+## What are "Personal access tokens" ?
 
 A personal access token (in short: PAT) is very similar to a session
 token but there are also some important differences.
@@ -67,12 +66,12 @@ Differences:
     transition period from one soon to be expired PAT to a new PAT that
     replaces it without losing the session's state
 
-#### Who can create a "Personal access token" ?
+## Who can create a "Personal access token" ?
 
 Any openBIS user can manage its own PATs. Instance admin users can
 manage all PATs in the system.
 
-#### Where can I use "Personal access tokens" ?
+## Where can I use "Personal access tokens" ?
 
 Endpoints that support PATs:
 
@@ -99,7 +98,7 @@ DSS:
 -   Session Workspace Provider
 -   SFTP
 
-#### Where "Personal access tokens" are stored ?
+## Where "Personal access tokens" are stored ?
 
 PATs are stored in "personal-access-tokens.json" JSON file. By default
 the file is located in the main openBIS folder where it survives openBIS
@@ -109,7 +108,7 @@ The location can be changed using "personal-access-tokens-file-path"
 property in AS service.properties. The JSON file is read at the openBIS
 start up.
 
-#### How long should my "Personal Access Tokens" be valid ?
+## How long should my "Personal Access Tokens" be valid ?
 
 Because of security reasons PATs should not be valid indefinitely.
 Instead, each PAT should have a well defined validity period after which
@@ -128,7 +127,7 @@ under the hood to the same openBIS session. Therefore, even if one of
 such PATs expires the session is kept active and its state is
 maintained.
 
-#### Configuration
+## Configuration
 
 "Personal access tokens" functionality is enabled by default. To
 configure it please use AS service.properties:
@@ -145,7 +144,7 @@ configure it please use AS service.properties:
     # set validity warning period (in seconds) - owners of personal access tokens that are going to expire within this warning period are going to receive email notifications (default: 5 days)
     personal-access-tokens-validity-warning-period = 259200
 
-#### Typical Application Workflow
+## Typical Application Workflow
 
 Most typical use case for Personal Access Tokens is to run code on a
 third party service against openBIS.
@@ -275,7 +274,7 @@ management.
 
     }
 
-#### V3 API 
+## V3 API 
 
 Code examples for personal access tokens can be found in the main V3 API
 documentation: [openBIS V3

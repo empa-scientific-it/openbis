@@ -1,4 +1,4 @@
-# How to access openBIS from MATLAB
+# Matlab (V3 API) - How to access openBIS from MATLAB
 
 ## Preamble
 [openBIS](https://wiki-bsse.ethz.ch/display/bis/Home) is a research data management system developed by [ETH SIS](https://sis.id.ethz.ch/). Data stored in openBIS can be accessed directly via the web UI or programmatically using APIs. For example, [pyBIS](https://sissource.ethz.ch/sispub/openbis/tree/master/pybis) is a project that provides a Python 3 module for interacting with openBIS. 

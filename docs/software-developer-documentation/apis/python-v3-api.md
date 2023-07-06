@@ -1,4 +1,4 @@
-# Welcome to pyBIS!
+# Python (V3 API) - Welcome to pyBIS!
 
 pyBIS is a Python module for interacting with openBIS. pyBIS is designed to be most useful in a [Jupyter Notebook](https://jupyter.org) or IPython environment, especially if you are developing Python scripts for automatisation. Jupyter Notebooks offer some sort of IDE for openBIS, supporting TAB completition and immediate data checks, making the life of a researcher hopefully easier.
 
@@ -24,7 +24,7 @@ pip install jupyter
 pip install jupyterlab
 ```
 
-# General Usage
+## General Usage
 
 ### TAB completition and other hints in Jupyter / IPython
 
