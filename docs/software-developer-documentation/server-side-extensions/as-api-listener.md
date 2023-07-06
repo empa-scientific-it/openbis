@@ -1,5 +1,4 @@
-API Listener Core Plugin (V3 API)]
-==================================
+# API Listener Core Plugin (V3 API)
 
 Introduction
 ------------
