@@ -13,7 +13,7 @@ Additional *Spaces* can be created by an *Instance admin*.
 
  
 
-## Create a new Inventory Space from the ELN UI
+### Create a new Inventory Space from the ELN UI
 
  
 
@@ -44,7 +44,7 @@ codes only accept alphanumeric characters, –, . , \_.
 
  
 
-### Multi-group instances
+#### Multi-group instances
 
  
 
@@ -71,7 +71,7 @@ create a new *Space*:
 
  
 
-## Create a new Inventory Space from the core UI
+### Create a new Inventory Space from the core UI
 
  
 
@@ -91,7 +91,7 @@ In the core UI:
 ![image info](img/spaces-admin-UI-300x158.png)
 
 
-### Set Inventory Spaces
+#### Set Inventory Spaces
 
   
 When new *Spaces* are created in the core UI, they are automatically
@@ -123,7 +123,7 @@ Updated on April 26, 2023
 [](# "Print this article")
 
 
-## Create a new Lab Notebook Space from the ELN UI
+### Create a new Lab Notebook Space from the ELN UI
 
  
 
@@ -151,7 +151,7 @@ accept alphanumeric characters, –, . , \_.
 
 ![image info](img/create-space.png)
 
-### Multi-group instances
+#### Multi-group instances
 
  
 
@@ -196,7 +196,7 @@ assigned by an *Instance admin*.
 
  
 
-## Create a new Lab Notebook Space from the core UI
+### Create a new Lab Notebook Space from the core UI
 
  
 
