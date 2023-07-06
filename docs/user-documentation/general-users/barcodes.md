@@ -1,3 +1,5 @@
+# Barcodes
+
 ## Barcodes
 
 The barcode functionality must be enabled in openBIS by a *lab manager*
