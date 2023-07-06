@@ -116,7 +116,7 @@ on the eln-lims-dropbox folder.
 
  
 
-## Dropbox with markerfile
+### Dropbox with markerfile
 
  
 
@@ -149,7 +149,7 @@ The marker file should be named:
  
 
 
-### **How to create the Marker file in Windows**
+#### **How to create the Marker file in Windows**
 
  
 
@@ -166,7 +166,7 @@ You can create the Marker file in Windows using a text editor such as
  
 
 
-### **How to create the Marker file on Mac**
+#### **How to create the Marker file on Mac**
 
  
 
@@ -191,7 +191,7 @@ other text editor will also work.
 
  
 
-## Dropbox monitor
+### Dropbox monitor
 
  
 
@@ -223,7 +223,7 @@ the log with the error is shown.
 
  
 
-## Registration of metadata for datasets via dropbox
+### Registration of metadata for datasets via dropbox
 
  
 
