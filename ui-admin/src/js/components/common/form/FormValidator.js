@@ -43,6 +43,21 @@ class FormValidator {
     }
   }
 
+  validateBooleanNotSet(object, name, label) {
+    const field = object[name]
+    if (
+        field.value === null ||
+        field.value === undefined ||
+        field.value === true
+      ) {
+        this.addError(
+          object,
+          name,
+          messages.get(messages.VALIDATION_BOOLEAN_NOT_SET, label)
+        )
+      }
+    }
+
   validateDateNotEmpty(object, name, label) {
     if (!this.isFullMode()) {
       return

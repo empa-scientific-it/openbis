@@ -237,6 +237,10 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
         enabled:
           !assignmentInternal || AppController.getInstance().isSystemUser()
       }),
+      isMultiValue: FormUtil.createField({
+        value: _.get(propertyType, 'multiValue', false),
+        enabled: false
+      }),
       showInEditView: FormUtil.createField({
         value: _.get(loadedAssignment, 'showInEditView', true),
         enabled:

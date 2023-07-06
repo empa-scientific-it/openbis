@@ -122,6 +122,10 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
           },
           sampleType: {
             value: _.get(newExisting, 'sampleType.code', null)
+          },
+          isMultiValue: {
+            value: _.get(newExisting, 'multiValue', false),
+            enabled: false
           }
         }
 
@@ -343,6 +347,11 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
       mandatory: {
         ...dest.mandatory,
         value: _.get(src, 'mandatory.value', false)
+      },
+      isMultiValue: {
+        ...dest.isMultiValue,
+        value: _.get(src, 'isMultiValue.value', false),
+        enabled: _.get(src, 'isMultiValue.enabled', true)
       },
       showInEditView: {
         ...dest.showInEditView,

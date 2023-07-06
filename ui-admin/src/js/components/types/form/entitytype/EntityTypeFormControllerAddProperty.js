@@ -69,6 +69,9 @@ export default class EntityTypeFormControllerAddProperty {
       showInEditView: FormUtil.createField({
         value: true
       }),
+      isMultiValue: FormUtil.createField({
+        value: false
+      }),
       showRawValueInForms: FormUtil.createField({
         value: false
       }),
