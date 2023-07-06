@@ -1,10 +1,5 @@
 # openBIS Sync
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A), last modified by [Elmer
-    Franz-Josef (ID)](%20%20%20%20/display/~felmer%0A) on [Nov 05,
-    2020](/pages/diffpagesbyversion.action?pageId=53745977&selectedPageVersions=1&selectedPageVersions=2 "Show changes")
-
 ## Introduction
 
 This allows to synchronize two openBIS instances. One instance (called
