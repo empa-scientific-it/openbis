@@ -15,6 +15,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.schema = null;
 		prototype.transformation = null;
 		prototype.metaData = null;
+		prototype.multiValue = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -88,6 +89,12 @@ define([ "stjs" ], function(stjs) {
 		prototype.setMetaData = function(metaData) {
 			this.metaData = metaData;
 		};
+		prototype.isMultiValue = function() {
+            return this.multiValue;
+        };
+        prototype.setMultiValue = function(multiValue) {
+            this.multiValue = multiValue;
+        };
 	}, {
 		dataType : "DataType",
 		vocabularyId : "IVocabularyId",
