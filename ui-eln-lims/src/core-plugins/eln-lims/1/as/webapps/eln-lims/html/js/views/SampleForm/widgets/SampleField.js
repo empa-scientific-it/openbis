@@ -18,7 +18,8 @@ function SampleField(isRequired,
 					 placeholder,
 					 sampleTypeCode,
 					 initialValue,
-					 isDisabled) {
+					 isDisabled,
+					 isMultiValue) {
     var _this = this;
 	var isRequired = isRequired;
 	var placeholder = placeholder;
@@ -28,7 +29,11 @@ function SampleField(isRequired,
     var initialised = false;
 	var storedParams = null;
 	var changeListener = null;
-    var initialValue = initialValue;
+    var initialValue = initialValue ? initialValue.split(',').map(x => x.trim()) : initialValue;
+    var isSingleValue = true;
+    if (isMultiValue) {
+        isSingleValue = false;
+    }
 
 	//
 	// Form API
@@ -49,25 +54,31 @@ function SampleField(isRequired,
 	this.val = function(samplePermId) {
 	    if(!initialised) {
 	        if(samplePermId) {
-	            initialValue = samplePermId;
-	        }
+                if(Array.isArray(samplePermId)) {
+                    initialValue = samplePermId;
+                } else {
+                    initialValue = [samplePermId];
+                }
+            }
 	        return;
 	    } else if(samplePermId === undefined) {
 	        var selected = $plainSelect.select2('data');
 	        if(selected && selected[0]) {
-	            return selected[0].id;
+	            return selected.map(x => x.id);
 	        } else {
 	            return null;
 	        }
 	    } else {
             require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
             function(SamplePermId, SampleFetchOptions) {
-                var id1 = new SamplePermId(samplePermId);
-        	    var fetchOptions = new SampleFetchOptions();
-        	    fetchOptions.withProperties();
-        	    mainController.openbisV3.getSamples([ id1 ], fetchOptions).done(function(map) {
-        	        _this.setValue(map[id1]);
-        	    });
+				for (let singlePermId of samplePermId) {
+					var id1 = new SamplePermId(singlePermId);
+	        	    var fetchOptions = new SampleFetchOptions();
+	        	    fetchOptions.withProperties();
+	        	    mainController.openbisV3.getSamples([ id1 ], fetchOptions).done(function(map) {
+	        	        _this.setValue(Object.values(map)[0]);
+	        	    });
+				}
             });
 	    }
 	}
@@ -147,15 +158,15 @@ function SampleField(isRequired,
     }
 
     Util.onIsInPage($plainSelect[0], function() {
-            $plainSelect.select2({
-        	    width: '100%',
-        	    theme: "bootstrap",
-        	    maximumSelectionLength: 1,
-        	    minimumInputLength: 2,
-        	    placeholder : placeholder,
-        	    ajax: {
-        	        delay: 1000,
-        		    processResults: function (data) {
+
+            var selectOptions = {
+                width: '100%',
+                theme: "bootstrap",
+                minimumInputLength: 2,
+                placeholder : placeholder,
+                ajax: {
+                    delay: 1000,
+                    processResults: function (data) {
                         var results = [];
 
                         for(var dIdx = 0; dIdx < data.length; dIdx++) {
@@ -188,33 +199,39 @@ function SampleField(isRequired,
                                 "more": false
                             }
                         };
-        			},
-        		    transport: function (params, success, failure) {
-        			    storedParams = params;
+                    },
+                    transport: function (params, success, failure) {
+                        storedParams = params;
 
-        				// Searches
-        				var searches = [searchSample];
+                        // Searches
+                        var searches = [searchSample];
                         var searchesResults = [];
 
-        				var action = null;
-        				action = function(result) {
-        					searchesResults.push(result);
-        				    if(searches.length > 0) {
-        					    var search = searches.shift();
-        					    search(action);
-        					} else {
-        					    success(searchesResults);
-        				    }
-        				};
+                        var action = null;
+                        action = function(result) {
+                            searchesResults.push(result);
+                            if(searches.length > 0) {
+                                var search = searches.shift();
+                                search(action);
+                            } else {
+                                success(searchesResults);
+                            }
+                        };
 
-        			    var search = searches.shift();
-        			    search(action);
-        			    return {
-        				    abort : function () { /*Not implemented*/ }
-        			    }
-        		    }
-        	    }
-            });
+                        var search = searches.shift();
+                        search(action);
+                        return {
+                            abort : function () { /*Not implemented*/ }
+                        }
+                    }
+                }
+            };
+
+            if(isSingleValue) {
+                selectOptions['maximumSelectionLength'] = 1;
+            }
+
+            $plainSelect.select2(selectOptions);
 
             $plainSelect.on('select2:select', function (e) {
                 if(changeListener) {
@@ -223,7 +240,7 @@ function SampleField(isRequired,
             });
             $plainSelect.on('select2:unselect', function (e) {
                 if(changeListener) {
-                    changeListener(null, "");
+                    changeListener(null, _this.val() ?? "");
                 }
             });
             initialised = true;

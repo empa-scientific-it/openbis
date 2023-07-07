@@ -585,7 +585,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						if(propertyType.dataType === "BOOLEAN") {
 							FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
-						} else if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+						} else if(propertyTypeV3.isMultiValue()) {
 						    if(value) {
 						        var valueArray = value.split(',');
 						        valueArray = valueArray.map(function(item){ return item.trim(); });

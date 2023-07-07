@@ -962,7 +962,7 @@ var FormUtil = new function() {
 		    } else {
 		        sampleTypePlaceholder = " of type " + Util.getDisplayNameFromCode(sampleTypeCode);
 		    }
-		    $component = new SampleField(propertyType.mandatory, "Select " + ELNDictionary.Sample + sampleTypePlaceholder, sampleTypeCode);
+		    $component = new SampleField(propertyType.mandatory, "Select " + ELNDictionary.Sample + sampleTypePlaceholder, sampleTypeCode, undefined, undefined, isMultiValue);
 		}
 		
 		return $component;
