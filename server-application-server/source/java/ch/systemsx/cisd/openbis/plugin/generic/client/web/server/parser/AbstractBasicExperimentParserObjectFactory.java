@@ -66,10 +66,6 @@ public abstract class AbstractBasicExperimentParserObjectFactory<T extends NewBa
                     getPropertyValue(lineTokens, propertyModel, propertyDefault);
             if (StringUtils.isBlank(propertyValue) == false)
             {
-                //                final IEntityProperty property = new EntityProperty();
-                //                property.setPropertyType(createPropertyType(unmatchedProperty));
-                //                property.setValue(isDeletionMark(propertyValue) ? null : propertyValue);
-                //                properties.add(property);
                 PropertyType propertyType = createPropertyType(unmatchedProperty);
                 if (isDeletionMark(propertyValue))
                 {

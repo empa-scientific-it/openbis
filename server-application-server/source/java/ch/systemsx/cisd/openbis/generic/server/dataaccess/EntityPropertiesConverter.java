@@ -296,8 +296,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         List<T> entityProperties = new ArrayList<>();
         if (propertyType.isMultiValue()) {
-            for(String val : value.split(",")) {
-                String singleValue = val.trim();
+            String val = value;
+            if(val.startsWith("[")) {
+                val = val.substring(1, val.length()-1);
+            }
+            for(String v : val.split(",")) {
+                String singleValue = v.trim();
                 final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
                 setPropertyValue(entityProperty, propertyType, singleValue);
                 entityProperties.add(entityProperty);
@@ -525,11 +529,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             PropertyTypePE propertyType = newProperty.getEntityTypePropertyType().getPropertyType();
             T existingProperty;
-            if(newProperty.getVocabularyTerm() != null) {
-                existingProperty = tryFind(oldProperties, propertyType, newProperty.getVocabularyTerm().getCode());
+            if(propertyType.isMultiValue()) {
+                existingProperty = tryFindMulti(oldProperties, propertyType, newProperty);
             } else {
                 existingProperty = tryFind(oldProperties, propertyType);
             }
+
 
             if (existingProperty != null)
             {
@@ -556,22 +561,27 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
-    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties,
-            PropertyTypePE propertyType, String propertyValue)
+    private static <T extends EntityPropertyPE> T tryFindMulti(Collection<T> oldProperties,
+            PropertyTypePE propertyType, T newProperty)
     {
+        String propertyValue = newProperty.tryGetUntypedValue();
         for (T oldProperty : oldProperties)
         {
-            if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(propertyType)
-            )
+            if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(propertyType))
             {
-                if(oldProperty.getVocabularyTerm() != null){
-                    if(oldProperty.getVocabularyTerm().getCode().equals(propertyValue))
-                    {
-                        return oldProperty;
-                    }
-                    continue;
+                String oldValue = oldProperty.tryGetUntypedValue();
+                if(oldValue != null && oldValue.equals(propertyValue))
+                {
+                    return oldProperty;
                 }
-                return oldProperty;
+//                if(oldProperty.getVocabularyTerm() != null){
+//                    if(oldProperty.getVocabularyTerm().getCode().equals(propertyValue))
+//                    {
+//                        return oldProperty;
+//                    }
+//                    continue;
+//                }
+//                return oldProperty;
             }
         }
         return null;

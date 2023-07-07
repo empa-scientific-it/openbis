@@ -69,6 +69,9 @@ public class PropertyTypeCreation implements ICreation, IObjectCreation
     @JsonProperty
     private Map<String, String> metaData;
 
+    @JsonProperty
+    private Boolean multiValue;
+
     @JsonIgnore
     public String getCode()
     {
@@ -207,6 +210,19 @@ public class PropertyTypeCreation implements ICreation, IObjectCreation
     public void setMetaData(Map<String, String> metaData)
     {
         this.metaData = metaData;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isMultiValue()
+    {
+        return multiValue;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setMultiValue(Boolean multiValue)
+    {
+        this.multiValue = multiValue;
     }
 
     @Override

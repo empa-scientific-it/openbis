@@ -86,6 +86,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         propertyTypePE.setSampleType(tryGetSampleType(propertyType.getSampleType()));
         propertyTypePE.setRegistrator(findPerson());
         propertyTypePE.setManagedInternally(propertyType.isManagedInternally());
+        propertyTypePE.setMultiValue(propertyType.isMultiValue());
 
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {
