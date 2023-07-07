@@ -719,7 +719,7 @@ The roles can be granted to:
 
 Updated on April 25, 2023
 
-## Rich Test Editor
+## Rich Text Editor
 
 ### EMBED IMAGES IN TEXT FIELDS
 
