@@ -57,8 +57,6 @@ ALTER TABLE ONLY deletions
 ALTER TABLE ONLY data_set_copies_history
     ADD CONSTRAINT dsch_pk PRIMARY KEY (id);
 ALTER TABLE ONLY data_set_properties
-    ADD CONSTRAINT dspr_bk_uk UNIQUE (ds_id, dstpt_id);
-ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_pk PRIMARY KEY (id);
 ALTER TABLE ONLY data_set_properties_history
     ADD CONSTRAINT dsprh_pk PRIMARY KEY (id);
@@ -238,8 +236,6 @@ ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT sample_type_property_types_unique UNIQUE (id, is_unique);
 ALTER TABLE ONLY sample_relationships_history
     ADD CONSTRAINT samprelh_pk PRIMARY KEY (id);
-ALTER TABLE ONLY sample_properties
-    ADD CONSTRAINT sapr_bk_uk UNIQUE (samp_id, stpt_id);
 ALTER TABLE ONLY sample_properties
     ADD CONSTRAINT sapr_pk PRIMARY KEY (id);
 ALTER TABLE ONLY sample_properties_history

@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author pkupczyk
@@ -78,6 +80,7 @@ public class DataSetUpdate implements IUpdate, IObjectUpdate<IDataSetId>, IPrope
     private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
 
     @JsonProperty
+    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
     private Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
     @JsonProperty

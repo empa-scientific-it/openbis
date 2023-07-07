@@ -20,6 +20,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,6 +34,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue.Li
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author Jakub Straszewski
@@ -49,6 +51,7 @@ public class MaterialUpdate implements IUpdate, IObjectUpdate<IMaterialId>, IPro
     private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
 
     @JsonProperty
+    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
     private Map<String, Serializable> properties = new HashMap<>();
 
     @Override

@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -47,6 +48,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -118,6 +121,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private Sample sample;
 
     @JsonProperty
+    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
     private Map<String, Serializable> properties;
 
     @JsonProperty
