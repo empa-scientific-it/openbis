@@ -132,6 +132,7 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     creation.setDataType(property.dataType.value)
     creation.setSchema(property.schema.value)
     creation.setTransformation(property.transformation.value)
+    creation.setMultiValue(property.isMultiValue.value)
 
     if (
       property.dataType.value === openbis.DataType.CONTROLLEDVOCABULARY &&
