@@ -260,7 +260,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return result;
     }
 
-    private final <T extends EntityPropertyPE> List<T> tryConvertProperty(final PersonPE registrator,
+    private final <T extends EntityPropertyPE> List<T> tryConvertProperty(
+            final PersonPE registrator,
             final EntityTypePE entityTypePE, final IEntityProperty property)
     {
         final String propertyCode = property.getPropertyType().getCode();
@@ -282,40 +283,46 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
             final String validatedValue =
                     propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
-            results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE, validatedValue));
+            results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
+                    validatedValue));
             return results;
-
 
         }
         return null;
     }
 
-    private final <T extends EntityPropertyPE> List<T> createEntityProperty(final PersonPE registrator,
+    private final <T extends EntityPropertyPE> List<T> createEntityProperty(
+            final PersonPE registrator,
             final PropertyTypePE propertyType,
             final EntityTypePropertyTypePE entityTypePropertyType, final String value)
     {
         List<T> entityProperties = new ArrayList<>();
-        if (propertyType.isMultiValue()) {
-            String val = value;
-            if(val.startsWith("[")) {
-                val = val.substring(1, val.length()-1);
+        String val = value;
+        if (propertyType.isMultiValue())
+        {
+            if (val.startsWith("["))
+            {
+                val = val.substring(1, val.length() - 1);
             }
-            for(String v : val.split(",")) {
+            for (String v : val.split(","))
+            {
                 String singleValue = v.trim();
                 final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
                 setPropertyValue(entityProperty, propertyType, singleValue);
                 entityProperties.add(entityProperty);
             }
-        } else {
+        } else
+        {
             final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
-            setPropertyValue(entityProperty, propertyType, value);
+            setPropertyValue(entityProperty, propertyType, val);
             entityProperties.add(entityProperty);
         }
         return entityProperties;
     }
 
     private <T extends EntityPropertyPE> T getEntityPropertyBase(final PersonPE registrator,
-            final EntityTypePropertyTypePE entityTypePropertyType) {
+            final EntityTypePropertyTypePE entityTypePropertyType)
+    {
         final T entityPropertyBase = EntityPropertyPE.createEntityProperty(entityKind);
         entityPropertyBase.setRegistrator(registrator);
         entityPropertyBase.setAuthor(registrator);
@@ -529,12 +536,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             PropertyTypePE propertyType = newProperty.getEntityTypePropertyType().getPropertyType();
             T existingProperty;
-            if(propertyType.isMultiValue()) {
+            if (propertyType.isMultiValue())
+            {
                 existingProperty = tryFindMulti(oldProperties, propertyType, newProperty);
-            } else {
+            } else
+            {
                 existingProperty = tryFind(oldProperties, propertyType);
             }
-
 
             if (existingProperty != null)
             {
@@ -542,11 +550,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                         ? ((EntityPropertyWithSampleDataTypePE) newProperty).getSampleValue()
                         : null;
                 existingProperty.setUntypedValue(newProperty.getValue(),
-                            newProperty.getVocabularyTerm(), newProperty.getMaterialValue(), sample,
-                            newProperty.getIntegerArrayValue(), newProperty.getRealArrayValue(),
-                            newProperty.getStringArrayValue(),
-                            newProperty.getTimestampArrayValue(), newProperty.getJsonValue());
-                if(existingPropertyValues.containsKey(existingProperty) && !existingPropertyValues.get(existingProperty).equals(newProperty.tryGetUntypedValue()))
+                        newProperty.getVocabularyTerm(), newProperty.getMaterialValue(), sample,
+                        newProperty.getIntegerArrayValue(), newProperty.getRealArrayValue(),
+                        newProperty.getStringArrayValue(),
+                        newProperty.getTimestampArrayValue(), newProperty.getJsonValue());
+                if (existingPropertyValues.containsKey(
+                        existingProperty) && !existingPropertyValues.get(existingProperty)
+                        .equals(newProperty.tryGetUntypedValue()))
                 {
                     existingProperty.setAuthor(author);
                     // TODO: create modified property history entry
@@ -570,18 +580,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(propertyType))
             {
                 String oldValue = oldProperty.tryGetUntypedValue();
-                if(oldValue != null && oldValue.equals(propertyValue))
+                if (oldValue != null && oldValue.equals(propertyValue))
                 {
                     return oldProperty;
                 }
-//                if(oldProperty.getVocabularyTerm() != null){
-//                    if(oldProperty.getVocabularyTerm().getCode().equals(propertyValue))
-//                    {
-//                        return oldProperty;
-//                    }
-//                    continue;
-//                }
-//                return oldProperty;
             }
         }
         return null;
@@ -631,7 +633,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(managedProperty.getStringValue(), null, null, null, null,
+            existingProperty.setUntypedValue(managedProperty.getStringValue(), null, null, null,
+                    null,
                     null, null, null, null);
             existingProperty.setAuthor(author);
         }
@@ -697,11 +700,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private static boolean isNullOrBlank(Serializable value)
     {
-        if(value == null) {
+        if (value == null)
+        {
             return true;
         }
-        if(value.getClass().isArray()) {
-            return  ((Serializable[]) value).length == 0;
+        if (value.getClass().isArray())
+        {
+            return ((Serializable[]) value).length == 0;
         }
         return value.toString().trim().length() == 0;
     }
@@ -821,6 +826,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();
             String samplePermId = value;
+            if (samplePermId.startsWith("["))
+            {
+                samplePermId = samplePermId.substring(1, samplePermId.length() - 1);
+            }
             if (value.startsWith("/"))
             {
                 samplePermId = entityInfoProvider.getSamplePermId(value);
@@ -953,16 +962,20 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            SimpleDateFormat format=new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
+            SimpleDateFormat format =
+                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
             return Arrays.stream(value.split(SEPARATOR))
                     .map(x -> parseDateFromString(x, format))
                     .toArray(Date[]::new);
         }
 
-        private Date parseDateFromString(String date, final SimpleDateFormat format) {
-            try {
+        private Date parseDateFromString(String date, final SimpleDateFormat format)
+        {
+            try
+            {
                 return format.parse(date);
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 throw new IllegalArgumentException("Wrong date format:" + date, e);
             }
         }
