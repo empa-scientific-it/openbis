@@ -287,6 +287,7 @@ task dropboxApiJavadoc(type: Javadoc) {
     source project(':server-original-data-store').files('source/java').getAsFileTree().matching {
         include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.java"
         include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.java"
+        include "ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class"
     }
     classpath = configurations.dropboxApiJavadoc
 }
