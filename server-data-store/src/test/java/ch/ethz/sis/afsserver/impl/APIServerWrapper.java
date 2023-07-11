@@ -34,17 +34,24 @@ public class APIServerWrapper extends AbstractPublicAPIWrapper
     private static final Logger logger = LogManager.getLogger(APIServerWrapper.class);
 
     private APIServer apiServer;
+    private String interactiveSessionKey;
+    private String transactionManagerKey;
+    private String sessionToken;
+
     private final ApiResponseBuilder apiResponseBuilder;
 
-    public APIServerWrapper(APIServer apiServer) {
+    public APIServerWrapper(APIServer apiServer, String interactiveSessionKey, String transactionManagerKey, String sessionToken) {
         this.apiServer = apiServer;
+        this.interactiveSessionKey = interactiveSessionKey;
+        this.transactionManagerKey = transactionManagerKey;
+        this.sessionToken = sessionToken;
         this.apiResponseBuilder = new ApiResponseBuilder();
     }
 
     public <E> E process(Class<E> responseType, String method, Map<String, Object> params) {
         PerformanceAuditor performanceAuditor = new PerformanceAuditor();
         // Random Session token just works for tests with dummy authentication
-        ApiRequest request = new ApiRequest("test", method, params, UUID.randomUUID().toString(), null, null);
+        ApiRequest request = new ApiRequest("test", method, params, sessionToken, interactiveSessionKey, transactionManagerKey);
 
         try {
             Response response = apiServer.processOperation(request, apiResponseBuilder, performanceAuditor);

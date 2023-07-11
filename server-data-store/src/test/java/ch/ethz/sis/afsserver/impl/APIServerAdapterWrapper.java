@@ -82,7 +82,8 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
             {
                 requestParameters.put("interactiveSessionKey", List.of(interactiveSessionKey));
             }
-            if (transactionManagerKey != null) {
+            if (transactionManagerKey != null)
+            {
                 requestParameters.put("transactionManagerKey", List.of(transactionManagerKey));
             }
             if (sessionToken != null)

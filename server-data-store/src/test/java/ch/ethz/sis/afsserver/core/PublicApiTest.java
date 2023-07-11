@@ -38,6 +38,8 @@ public abstract class PublicApiTest extends AbstractTest
 
     public abstract PublicAPI getPublicAPI() throws Exception;
 
+    public abstract PublicAPI getPublicAPI(String interactiveSessionKey, String transactionManagerKey) throws Exception;
+
     public static final String ROOT = IOUtils.PATH_SEPARATOR_AS_STRING;
 
     public static final String FILE_A = "A.txt";
@@ -128,5 +130,84 @@ public abstract class PublicApiTest extends AbstractTest
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(1, list.size());
         assertEquals(FILE_B, list.get(0).getName());
+    }
+
+
+    @Test
+    public void operation_state_begin_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test
+    public void operation_state_prepare_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+    }
+
+    @Test
+    public void operation_state_rollback_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.rollback();
+    }
+
+    @Test
+    public void operation_state_commit_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.commit();
+    }
+
+    @Test
+    public void operation_state_commitPrepared_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.commit();
+    }
+
+    @Test
+    public void operation_state_commit_reuse_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.commit();
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test
+    public void operation_state_rollback_reuse_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.rollback();
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void operation_state_begin_reuse_fails() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test
+    public void operation_state_prepare_reuse_succeed() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.begin(sessionToken);
     }
 }

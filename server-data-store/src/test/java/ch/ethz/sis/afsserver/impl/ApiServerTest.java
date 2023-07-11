@@ -28,6 +28,8 @@ import ch.ethz.sis.afsserver.worker.WorkerFactory;
 import ch.ethz.sis.shared.pool.Pool;
 import ch.ethz.sis.shared.startup.Configuration;
 
+import java.util.UUID;
+
 public class ApiServerTest extends PublicApiTest {
 
     protected APIServer getAPIServer() throws Exception {
@@ -54,6 +56,15 @@ public class ApiServerTest extends PublicApiTest {
 
     @Override
     public PublicAPI getPublicAPI() throws Exception {
-        return new APIServerWrapper(getAPIServer());
+        String sessionToken = UUID.randomUUID().toString();
+        return new APIServerWrapper(getAPIServer(), null, null, sessionToken);
+    }
+
+    @Override
+    public PublicAPI getPublicAPI(String interactiveSessionKey, String transactionManagerKey)
+            throws Exception
+    {
+        String sessionToken = UUID.randomUUID().toString();
+        return new APIServerWrapper(getAPIServer(), interactiveSessionKey, transactionManagerKey, sessionToken);
     }
 }
