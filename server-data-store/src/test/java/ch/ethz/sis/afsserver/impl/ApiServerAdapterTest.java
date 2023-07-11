@@ -22,8 +22,22 @@ import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.startup.Configuration;
+import org.junit.Test;
+
+import java.util.UUID;
 
 public class ApiServerAdapterTest extends ApiServerTest {
+
+
+    public UUID sessionToken = UUID.randomUUID();
+
+    public PublicAPI getPublicAPI(String interactiveSessionKey, String transactionManagerKey) throws Exception {
+        APIServer apiServer = getAPIServer();
+        Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
+        JsonObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
+        ApiServerAdapter apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
+        return new APIServerAdapterWrapper(apiServerAdapter, interactiveSessionKey, transactionManagerKey, this.sessionToken.toString());
+    }
 
     @Override
     public PublicAPI getPublicAPI() throws Exception {
@@ -31,6 +45,75 @@ public class ApiServerAdapterTest extends ApiServerTest {
         Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
         JsonObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
         ApiServerAdapter apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
-        return new APIServerAdapterWrapper(apiServerAdapter);
+        return new APIServerAdapterWrapper(apiServerAdapter, null, null, sessionToken.toString());
+    }
+
+    @Test
+    public void operation_state_begin_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test
+    public void operation_state_prepare_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+    }
+
+    @Test
+    public void operation_state_rollback_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.rollback();
+    }
+
+    @Test
+    public void operation_state_commit_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.commit();
+    }
+
+    @Test
+    public void operation_state_commitPrepared_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.commit();
+    }
+
+    @Test
+    public void operation_state_commit_reuse_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.commit();
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test
+    public void operation_state_rollback_reuse_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.rollback();
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void operation_state_begin_reuse_fails() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.begin(sessionToken);
+    }
+
+    @Test
+    public void operation_state_prepare_reuse_succeed() throws Exception {
+        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        publicAPI.begin(sessionToken);
+        publicAPI.prepare();
+        publicAPI.begin(sessionToken);
     }
 }

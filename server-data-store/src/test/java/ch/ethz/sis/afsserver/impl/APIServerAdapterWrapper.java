@@ -36,10 +36,24 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
 
     private ApiServerAdapter apiServerAdapter;
 
+    private String interactiveSessionKey;
+
+    private String transactionManagerKey;
+
+    private String sessionToken;
 
     public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter)
     {
         this.apiServerAdapter = apiServerAdapter;
+    }
+
+    public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter, String interactiveSessionKey,
+            String transactionManagerKey, String sessionToken)
+    {
+        this.apiServerAdapter = apiServerAdapter;
+        this.interactiveSessionKey = interactiveSessionKey;
+        this.transactionManagerKey = transactionManagerKey;
+        this.sessionToken = sessionToken;
     }
 
     public Map<String, List<String>> getURIParameters(Map<String, Object> args)
@@ -64,7 +78,17 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
         {
             HttpMethod httpMethod = ApiServerAdapter.getHttpMethod(apiMethod);
             Map<String, List<String>> requestParameters = getURIParameters(params);
-            requestParameters.put("sessionToken", List.of(UUID.randomUUID().toString()));
+            if (interactiveSessionKey != null)
+            {
+                requestParameters.put("interactiveSessionKey", List.of(interactiveSessionKey));
+            }
+            if (transactionManagerKey != null) {
+                requestParameters.put("transactionManagerKey", List.of(transactionManagerKey));
+            }
+            if (sessionToken != null)
+            {
+                requestParameters.put("sessionToken", List.of(sessionToken));
+            }
             requestParameters.put("method", List.of(apiMethod));
 
             byte[] requestBody = null;
@@ -82,7 +106,7 @@ public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper
 
 
 
-            HttpResponse response = apiServerAdapter.process(httpMethod, requestParameters, null);
+            HttpResponse response = apiServerAdapter.process(httpMethod, requestParameters, requestBody);
             String contentType = response.getContentType();
             byte[] body = response.getBody();
 

@@ -100,53 +100,59 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
     @Override
     public void begin(UUID transactionId) throws Exception
     {
-        //TODO: Unused
+        Map<String, Object> args = Map.of(
+                "transactionId", transactionId);
+        process(null, "begin", args);
     }
 
     @Override
     public Boolean prepare() throws Exception
     {
-        //TODO: Unused
-        return true;
+        Map<String, Object> args = Map.of();
+        return process(Boolean.class, "prepare", args);
     }
 
     @Override
     public void commit() throws Exception
     {
-        //TODO: Unused
+        Map<String, Object> args = Map.of();
+        process(null, "commit", args);
     }
 
     @Override
     public void rollback() throws Exception
     {
-        //TODO: Unused
+        Map<String, Object> args = Map.of();
+        process(null, "rollback", args);
     }
 
     @Override
     public List<UUID> recover() throws Exception
     {
-        //TODO: Unused
-        return null;
+        Map<String, Object> args = Map.of();
+        return process(List.class, "recover", args);
     }
 
     @Override
     public String login(String userId, String password) throws Exception
     {
-        //TODO: Unused
-        return null;
+        Map<String, Object> args = Map.of(
+                "userId", userId,
+                "password", password);
+        return process(String.class, "login", args);
     }
 
     @Override
     public Boolean isSessionValid() throws Exception
     {
-        //TODO: Unused
-        return null;
+        Map<String, Object> args = Map.of();
+        return process(Boolean.class, "isSessionValid", args);
     }
 
     @Override
     public Boolean logout() throws Exception
     {
-        //TODO: Unused
-        return null;
+        Map<String, Object> args = Map.of();
+        return process(Boolean.class, "logout", args);
     }
 }
