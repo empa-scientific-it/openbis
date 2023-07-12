@@ -144,8 +144,9 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 	}
 
 	var fromJsonObjectWithTypeOrArrayOrMap = function(jsonType, jsonObject, objectMap, modulesMap) {
-		if (jsonObject instanceof Array) {
-			if (jsonType && _.isString(jsonType) && jsonObject.length == 2) {
+		if (Array.isArray(jsonObject)) {
+		    // properties are <String, Serializable>
+			if (jsonType && _.isString(jsonType) && jsonObject.length == 2 && jsonType != 'Serializable') {
 				return jsonObject[1];
 			} else {
 				var array = [];

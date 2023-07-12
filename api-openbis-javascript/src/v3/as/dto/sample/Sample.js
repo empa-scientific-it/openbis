@@ -561,7 +561,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		experiment : "Experiment",
 		properties : {
 			name : "Map",
-			arguments : [ "String", "String" ]
+			arguments : [ "String", "Serializable" ]
 		},
 		materialProperties : {
 			name : "Map",
