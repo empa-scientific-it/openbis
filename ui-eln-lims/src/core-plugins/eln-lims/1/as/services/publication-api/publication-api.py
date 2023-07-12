@@ -125,6 +125,9 @@ def createPublicationSamples(parameters, sessionToken, v3):
 
     groupCodes = getGroupsForRelatedIdentifiers(parameters)
 
+    if len(groupCodes) == 0:
+        groupCodes = ['GENERAL']
+
     sampleCreations = []
     for groupCode in groupCodes:
         sampleCreation = SampleCreation()
