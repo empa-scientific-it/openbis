@@ -426,7 +426,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		},
 		properties : {
 			name : "Map",
-			arguments : [ "String", "String" ]
+			arguments : [ "String", "Serializable" ]
 		},
 		materialProperties : {
 			name : "Map",
