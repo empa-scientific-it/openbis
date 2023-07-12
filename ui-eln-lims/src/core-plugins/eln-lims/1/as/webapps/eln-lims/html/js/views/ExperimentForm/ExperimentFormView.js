@@ -565,7 +565,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                                 $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                             }
                         } else if(propertyType.dataType === "SAMPLE") {
-                            var $component = new SampleField(false, '', false, value, true);
+                            var $component = new SampleField(false, '', false, value, true, propertyTypeV3.isMultiValue());
                             $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                         } else {
                     	    $controlGroup = FormUtil.createPropertyField(propertyType, value);
@@ -587,10 +587,15 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						} else if(propertyTypeV3.isMultiValue()) {
 						    if(value) {
-						        var valueArray = value.split(',');
-						        valueArray = valueArray.map(function(item){ return item.trim(); });
-						        $component.val(valueArray);
-						    }
+                                var valueArray;
+                                if(Array.isArray(value)) {
+                                    valueArray = value;
+                                } else {
+                                    valueArray = value.split(',');
+                                    valueArray = valueArray.map(function(item){ return item.trim(); });
+                                }
+                                $component.val(valueArray);
+                            }
 						} else {
 							$component.val(value);
 						}

@@ -29,11 +29,23 @@ function SampleField(isRequired,
     var initialised = false;
 	var storedParams = null;
 	var changeListener = null;
-    var initialValue = initialValue ? initialValue.split(',').map(x => x.trim()) : initialValue;
     var isSingleValue = true;
     if (isMultiValue) {
         isSingleValue = false;
     }
+    this.getInitialValue = function(value) {
+        if(value) {
+            if(Array.isArray(value)) {
+                return value;
+            } else {
+                return initialValue.split(',').map(x => x.trim());
+            }
+        } else {
+            return value;
+        }
+    }
+    var initialValue = this.getInitialValue(initialValue);
+
 
 	//
 	// Form API

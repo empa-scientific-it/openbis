@@ -872,6 +872,9 @@ var FormUtil = new function() {
 		}
 		
 		if(text) {
+		    if(typeof(text) != 'string') { // Array case
+                text = text.join(", ");
+            }
 			text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
 		}
 
