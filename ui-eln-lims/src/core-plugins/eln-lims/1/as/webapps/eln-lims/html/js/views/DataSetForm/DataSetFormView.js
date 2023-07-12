@@ -801,7 +801,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                     $fieldset.append($controlGroup);
                                 }
                             } else if(propertyType.dataType === "SAMPLE") {
-                                var $component = new SampleField(false, '', false, value, true);
+                                var $component = new SampleField(false, '', false, value, true, propertyTypeV3.isMultiValue());
                                 $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                                 $fieldset.append($controlGroup);
                             } else {
@@ -820,10 +820,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						$controlGroup.append($controlLabel);
 						$controlGroup.append($controls);
 						
-						var $component = FormUtil.getFieldForPropertyType(propertyType, value);
+						var $component = FormUtil.getFieldForPropertyType(propertyType, value, propertyTypeV3.isMultiValue());
 						
 						//Update model
-						var changeEvent = function(propertyType) {
+						var changeEvent = function(propertyType, isMultiValue) {
 							return function(jsEvent, newValue) {
 								var propertyTypeCode = null;
 								propertyTypeCode = propertyType.code;
@@ -843,7 +843,39 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 									if(newValue !== undefined && newValue !== null) {
 									    _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(newValue));
 									} else {
-									    _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(field.val()));
+                                        var lastSelected = Util.getEmptyIfNull($('option', this).filter(':selected:last').val());
+                                        var dataLast = field.data('last');
+                                         if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValue) {
+                                            var props = _this._getDataSetProperty(propertyTypeCode);
+                                            if (field.val()) {
+                                            if(props !== undefined) {
+                                                if(props != '' && field.val().includes('')) {
+                                                    _this._setDataSetProperty(propertyTypeCode, '');
+                                                    field.val([]);
+                                                } else {
+                                                    if(props == '' && field.val().includes('')) {
+                                                        var removedEmpty = field.val().filter(x => x != '');
+                                                        _this._setDataSetProperty(propertyTypeCode, removedEmpty);
+                                                        field.val(removedEmpty);
+                                                    } else {
+                                                        _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(field.val()));
+                                                    }
+                                                }
+                                            } else {
+                                                if(field.val().includes('')) {
+                                                    _this._setDataSetProperty(propertyTypeCode, '');
+                                                    field.val([]);
+                                                } else {
+                                                    _this._setDataSetProperty(propertyTypeCode, field.val());
+                                                }
+                                            }
+                                             } else {
+                                                _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(field.val()));
+                                             }
+                                        } else {
+                                            _this._setDataSetProperty(propertyTypeCode, Util.getEmptyIfNull(field.val()));
+                                        }
+                                        field.data('last', field.val());
 									}
 								}
 							}
@@ -854,7 +886,18 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							if(propertyType.dataType === "BOOLEAN") {
 							    FormUtil.setFieldValue(propertyType, $component, value);
 							} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
-							} else {
+							} else if(propertyTypeV3.isMultiValue()) {
+                                if(value) {
+                                    var valueArray;
+                                    if(Array.isArray(value)) {
+                                        valueArray = value;
+                                    } else {
+                                        valueArray = value.split(',');
+                                        valueArray = valueArray.map(function(item){ return item.trim(); });
+                                    }
+                                    $component.val(valueArray);
+                                }
+                            } else {
 								$component.val(value);
 							}
 						} else {
@@ -893,7 +936,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                         } else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 							$component.on("dp.change", changeEvent(propertyType));
 						} else {
-							$component.change(changeEvent(propertyType));
+							$component.change(changeEvent(propertyType, propertyTypeV3.isMultiValue()));
 						}
 						
 						$controls.append($component);
@@ -1018,6 +1061,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	        return this._dataSetFormModel.dataSetV3.getType().getCode();
 	    }
 	}
+
+	this._getDataSetProperty = function(key) {
+    	    if(!this._dataSetFormModel.dataSetV3) {
+                this._dataSetFormModel.dataSetV3 = { properties : {} };
+            }
+            this._dataSetFormModel.dataSetV3.properties[key];
+    	}
 
 	this._setDataSetProperty = function(key, val) {
 	    if(!this._dataSetFormModel.dataSetV3) {

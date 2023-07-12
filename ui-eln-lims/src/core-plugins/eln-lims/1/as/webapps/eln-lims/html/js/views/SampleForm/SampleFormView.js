@@ -741,7 +741,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						continue;
 					}
 				} else {
-					// var $component = FormUtil.getFieldForPropertyType(propertyType, value);
 					var $component = FormUtil.getFieldForPropertyType(propertyType, value, propertyTypeV3.isMultiValue());
 
 					//Update values if is into edit mode
@@ -787,7 +786,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								if(newValue !== undefined && newValue !== null) {
 									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
 								} else {
-									// _this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
 									var lastSelected = Util.getEmptyIfNull($('option', this).filter(':selected:last').val());
                                     var dataLast = field.data('last');
                                      if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValue) {
