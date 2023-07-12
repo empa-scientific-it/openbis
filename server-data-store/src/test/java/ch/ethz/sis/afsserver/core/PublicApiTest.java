@@ -136,7 +136,7 @@ public abstract class PublicApiTest extends AbstractTest
     @Test
     public void operation_state_begin_succeed() throws Exception {
         UUID sessionToken = UUID.randomUUID();
-        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        PublicAPI publicAPI = getPublicAPI("1234", null);
         publicAPI.begin(sessionToken);
     }
 
@@ -160,7 +160,7 @@ public abstract class PublicApiTest extends AbstractTest
     @Test
     public void operation_state_commit_succeed() throws Exception {
         UUID sessionToken = UUID.randomUUID();
-        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        PublicAPI publicAPI = getPublicAPI("1234", null);
         publicAPI.begin(sessionToken);
         publicAPI.commit();
     }
@@ -197,7 +197,7 @@ public abstract class PublicApiTest extends AbstractTest
     @Test(expected = RuntimeException.class)
     public void operation_state_begin_reuse_fails() throws Exception {
         UUID sessionToken = UUID.randomUUID();
-        PublicAPI publicAPI = getPublicAPI("1234", "5678");
+        PublicAPI publicAPI = getPublicAPI("1234", null);
         publicAPI.begin(sessionToken);
         publicAPI.begin(sessionToken);
     }

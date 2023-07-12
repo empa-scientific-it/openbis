@@ -39,6 +39,13 @@ import static ch.ethz.sis.afsserver.server.APIServerErrorType.MethodNotFound;
 
 /*
  * This class should be used as delegate by specific server transport classes
+ *
+ * The API Server allows the following modes of operation:
+ * | Mode                | Authorization Keys    | Description                                                                                                                                                                                                                                                                                                                                                                                               |
+ * |---------------------|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ * | Non Interactive     | sessionToken          | Use cases: Standard mode of operation to develop command line applications and user interfaces. Batch call requests are executed on a single transaction. The system starts automatically every Batch call with a begin and ends it with a commit or rollback if exceptions happen. If the user tries to use transaction methods manually on a Batch call the server will reject the complete Batch call. |
+ * | Interactive         | interactiveSessionKey | Use cases: Non-standard use cases that require to leave a transaction opened, attached to a particular sessionToken between Batch calls. The system will not execute the transaction control methods automatically, standard transaction methods begin and commit should be used manually. Rollback can be used manually but the server will still use it automatically if errors happen.                 |
+ * | Transaction Manager | transactionManagerKey | Use cases: Implementing a two phase transaction manager to execute transactions between two systems. Is meant to be used together in conjunction with Interactive mode. Allows the usage of the two phase transaction methods prepare and recover.                                                                                                                                                        |
  */
 public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Response, API> {
 
