@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static ch.ethz.sis.afsserver.server.APIServerErrorType.IncorrectParameters;
 import static ch.ethz.sis.afsserver.server.APIServerErrorType.MethodNotFound;
 
-/*
+/**
  * This class should be used as delegate by specific server transport classes
  *
  * The API Server allows the following modes of operation:
