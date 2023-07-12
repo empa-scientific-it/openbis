@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.business.search.sort;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -128,7 +129,7 @@ public class SearchResultSorterByScore implements ISearchResultSorter
             {
                 for (String propertykey : entity.getProperties().keySet())
                 {
-                    String propertyValue = entity.getProperties().get(propertykey);
+                    Serializable propertyValue = entity.getProperties().get(propertykey);
                     if (isPartialMatch(propertyValue, partialTerm))
                     { // If property matches partially
                         score += 100 * boost.getPropertyBoost(propertykey);
@@ -234,22 +235,24 @@ public class SearchResultSorterByScore implements ISearchResultSorter
         return term.replace("*", "").replace("?", "");
     }
 
-    public boolean isExactMatch(String value, String term)
+    public boolean isExactMatch(Serializable value, String term)
     {
-        if (value != null && term != null)
+        if (value != null && !value.getClass().isArray() && term != null)
         {
-            return value.equalsIgnoreCase(term);
+            String valueStr = (String) value;
+            return valueStr.equalsIgnoreCase(term);
         } else
         {
             return false;
         }
     }
 
-    public boolean isPartialMatch(String value, Pattern pattern)
+    public boolean isPartialMatch(Serializable value, Pattern pattern)
     {
-        if (value != null && pattern != null)
+        if (value != null && !value.getClass().isArray() && pattern != null)
         {
-            return pattern.matcher(value).matches();
+            String valueStr = (String) value;
+            return pattern.matcher(valueStr).matches();
         } else
         {
             return false;

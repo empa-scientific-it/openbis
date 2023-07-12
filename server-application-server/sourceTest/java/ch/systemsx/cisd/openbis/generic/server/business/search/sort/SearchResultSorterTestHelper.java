@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.business.search.sort;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

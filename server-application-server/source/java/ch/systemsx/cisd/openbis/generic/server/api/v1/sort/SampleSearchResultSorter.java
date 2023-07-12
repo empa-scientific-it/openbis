@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.api.v1.sort;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

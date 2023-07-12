@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.SAMPLE_PROPERTIES_TABLE, uniqueConstraints = {
-        @UniqueConstraint(columnNames = { ColumnNames.SAMPLE_COLUMN, ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN }) })
+@Table(name = TableNames.SAMPLE_PROPERTIES_TABLE)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SamplePropertyPE extends EntityPropertyWithSampleDataTypePE
 {

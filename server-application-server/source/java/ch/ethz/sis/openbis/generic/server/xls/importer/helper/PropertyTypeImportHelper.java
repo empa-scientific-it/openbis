@@ -47,13 +47,16 @@ import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyType
 
 public class PropertyTypeImportHelper extends BasicImportHelper
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PropertyTypeImportHelper.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, PropertyTypeImportHelper.class);
 
-    private enum Attribute implements IAttribute {
+    private enum Attribute implements IAttribute
+    {
         Version("Version", true),
         Code("Code", true),
         Mandatory("Mandatory", false),
-        DefaultValue("Default Value", false),  // Ignored, only used by PropertyAssignmentImportHelper
+        DefaultValue("Default Value",
+                false),  // Ignored, only used by PropertyAssignmentImportHelper
         ShowInEditViews("Show in edit views", false),
         Section("Section", false),
         PropertyLabel("Property label", true),
@@ -64,21 +67,26 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         DynamicScript("Dynamic script", false),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        OntologyAnnotationId("Ontology Annotation Id", false),
+        MultiValued("Multivalued", false);
 
         private final String headerName;
 
         private final boolean mandatory;
 
-        Attribute(String headerName, boolean mandatory) {
+        Attribute(String headerName, boolean mandatory)
+        {
             this.headerName = headerName;
             this.mandatory = mandatory;
         }
 
-        public String getHeaderName() {
+        public String getHeaderName()
+        {
             return headerName;
         }
-        public boolean isMandatory() {
+
+        public boolean isMandatory()
+        {
             return mandatory;
         }
     }
@@ -91,7 +99,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     private final AttributeValidator<Attribute> attributeValidator;
 
-    public PropertyTypeImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options, Map<String, Integer> versions)
+    public PropertyTypeImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode,
+            ImportOptions options, Map<String, Integer> versions)
     {
         super(mode, options);
         this.versions = versions;
@@ -101,7 +110,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     }
 
     @Override
-    protected void validateLine(Map<String, Integer> headers, List<String> values) {
+    protected void validateLine(Map<String, Integer> headers, List<String> values)
+    {
         // Validate Unambiguous
         String code = getValueByColumnName(headers, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(headers, values, Attribute.PropertyLabel);
@@ -110,31 +120,37 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String vocabularyCode = getValueByColumnName(headers, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(headers, values, Attribute.Metadata);
 
-        String propertyData = code + propertyLabel + description + dataType + vocabularyCode + metadata;
+        String propertyData =
+                code + propertyLabel + description + dataType + vocabularyCode + metadata;
         if (this.propertyCache.get(code) == null)
         {
             this.propertyCache.put(code, propertyData);
         }
         if (!propertyData.equals(this.propertyCache.get(code)))
         {
-            throw new UserFailureException("Unambiguous property " + code + " found, has been declared before with different attributes.");
+            throw new UserFailureException(
+                    "Unambiguous property " + code + " found, has been declared before with different attributes.");
         }
     }
 
-    @Override protected ImportTypes getTypeName()
+    @Override
+    protected ImportTypes getTypeName()
     {
         return ImportTypes.PROPERTY_TYPE;
     }
 
-    @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
+    @Override
+    protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
         String newVersion = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        return VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code));
+        return VersionUtils.isNewVersion(newVersion,
+                VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code));
     }
 
-    @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
+    @Override
+    protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
@@ -142,7 +158,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         VersionUtils.updateVersion(version, versions, ImportTypes.PROPERTY_TYPE.getType(), code);
     }
 
-    @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
+    @Override
+    protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
@@ -152,7 +169,9 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         return delayedExecutor.getPropertyType(propertyTypePermId, fetchOptions) != null;
     }
 
-    @Override protected void createObject(Map<String, Integer> header, List<String> values, int page, int line)
+    @Override
+    protected void createObject(Map<String, Integer> header, List<String> values, int page,
+            int line)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
@@ -160,6 +179,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
+        String multiValued = getValueByColumnName(header, values, Attribute.MultiValued);
 
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -169,7 +189,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         if (dataType.startsWith(SAMPLE_DATA_TYPE_PREFIX))
         {
             creation.setDataType(DataType.SAMPLE);
-            if (dataType.contains(SAMPLE_DATA_TYPE_MANDATORY_TYPE)) {
+            if (dataType.contains(SAMPLE_DATA_TYPE_MANDATORY_TYPE))
+            {
                 String sampleType = dataType.split(SAMPLE_DATA_TYPE_MANDATORY_TYPE)[1];
                 creation.setSampleTypeId(new EntityTypePermId(sampleType, EntityKind.SAMPLE));
             }
@@ -188,10 +209,20 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             creation.setMetaData(JSONHandler.parseMetaData(metadata));
         }
 
+        if (multiValued != null && !multiValued.isEmpty())
+        {
+            creation.setMultiValue(Boolean.parseBoolean(multiValued));
+        } else
+        {
+            creation.setMultiValue(false);
+        }
+
         delayedExecutor.createPropertyType(creation, page, line);
     }
 
-    @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
+    @Override
+    protected void updateObject(Map<String, Integer> header, List<String> values, int page,
+            int line)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
         String propertyLabel = getValueByColumnName(header, values, Attribute.PropertyLabel);
@@ -228,12 +259,14 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         PropertyTypeFetchOptions propertyTypeFetchOptions = new PropertyTypeFetchOptions();
         propertyTypeFetchOptions.withVocabulary();
         propertyTypeFetchOptions.withSampleType();
-        PropertyType propertyType = delayedExecutor.getPropertyType(propertyTypePermId, propertyTypeFetchOptions);
+        PropertyType propertyType =
+                delayedExecutor.getPropertyType(propertyTypePermId, propertyTypeFetchOptions);
         if (vocabularyCode != null && !vocabularyCode.isEmpty())
         {
             if (vocabularyCode.equals(propertyType.getVocabulary().getCode()) == false)
             {
-                operationLog.warn("PROPERTY TYPE [" + code+ "] : Vocabulary types can't be updated. Ignoring the update.");
+                operationLog.warn(
+                        "PROPERTY TYPE [" + code + "] : Vocabulary types can't be updated. Ignoring the update.");
                 //   throw new UserFailureException("Vocabulary types can't be updated.");
             }
         }
@@ -246,7 +279,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             }
             if (dataType.equals(currentDataType) == false)
             {
-                operationLog.warn("PROPERTY TYPE [" + code + "] : Data Types can't be converted with Master Data XLS. Ignoring the update.");
+                operationLog.warn(
+                        "PROPERTY TYPE [" + code + "] : Data Types can't be converted with Master Data XLS. Ignoring the update.");
                 // update.convertToDataType(DataType.valueOf(dataType));
             }
         }
@@ -257,7 +291,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         delayedExecutor.updatePropertyType(update, page, line);
     }
 
-    @Override protected void validateHeader(Map<String, Integer> headers)
+    @Override
+    protected void validateHeader(Map<String, Integer> headers)
     {
         attributeValidator.validateHeaders(Attribute.values(), headers);
     }

@@ -69,7 +69,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         DynamicScript("Dynamic script", false),
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
-        OntologyAnnotationId("Ontology Annotation Id", false);
+        OntologyAnnotationId("Ontology Annotation Id", false),
+        MultiValued("Multivalued", false),;
 
         private final String headerName;
 

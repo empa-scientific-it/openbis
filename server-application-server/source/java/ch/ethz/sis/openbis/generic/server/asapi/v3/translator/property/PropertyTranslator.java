@@ -78,17 +78,8 @@ public abstract class PropertyTranslator extends
             {
                 if(objectProperties.containsKey(record.propertyCode)) {
                     Serializable current = objectProperties.get(record.propertyCode);
-                    Serializable[] vocabs;
-                    if(current.getClass().isArray()) {
-                        Serializable[] values = (Serializable[]) current;
-                        vocabs = new Serializable[values.length + 1];
-                        System.arraycopy(values, 0, vocabs, 0, values.length);
-                        vocabs[values.length] = record.vocabularyPropertyValue;
-                    } else {
-                        vocabs = new Serializable[] {current, record.vocabularyPropertyValue};
-                    }
-                    objectProperties.put(record.propertyCode, vocabs);
-
+                    Serializable newValue = composeMultiValueProperty(current, record.vocabularyPropertyValue);
+                    objectProperties.put(record.propertyCode, newValue);
                 } else {
                     objectProperties.put(record.propertyCode, record.vocabularyPropertyValue);
                 }
@@ -96,7 +87,14 @@ public abstract class PropertyTranslator extends
             {
                 if (visibaleSamples.contains(record.sample_id))
                 {
-                    objectProperties.put(record.propertyCode, record.sample_perm_id);
+                    if(objectProperties.containsKey(record.propertyCode)) {
+                        Serializable current = objectProperties.get(record.propertyCode);
+                        Serializable newValue = composeMultiValueProperty(current, record.sample_perm_id);
+                        objectProperties.put(record.propertyCode, newValue);
+                    } else
+                    {
+                        objectProperties.put(record.propertyCode, record.sample_perm_id);
+                    }
                 }
             } else if (record.integerArrayPropertyValue != null)
             {
@@ -124,6 +122,19 @@ public abstract class PropertyTranslator extends
         }
 
         return properties;
+    }
+
+    private Serializable composeMultiValueProperty(Serializable current, Serializable newValue) {
+        Serializable[] result;
+        if(current.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) current;
+            result = new Serializable[values.length + 1];
+            System.arraycopy(values, 0, result, 0, values.length);
+            result[values.length] = newValue;
+        } else {
+            result = new Serializable[] {current, newValue};
+        }
+        return result;
     }
 
     private String convertArrayToString(String[] array)

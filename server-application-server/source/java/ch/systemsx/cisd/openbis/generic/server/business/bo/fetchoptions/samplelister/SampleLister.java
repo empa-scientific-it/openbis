@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplel
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,41 +55,41 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class SampleLister implements ISampleLister
 {
     private static final Comparator<Sample> SAMPLE_COMPARATOR = new Comparator<Sample>()
+    {
+        @Override
+        public int compare(Sample s1, Sample s2)
         {
-            @Override
-            public int compare(Sample s1, Sample s2)
-            {
-                return s1.getIdentifier().compareTo(s2.getIdentifier());
-            }
-        };
+            return s1.getIdentifier().compareTo(s2.getIdentifier());
+        }
+    };
 
     private static final Comparator<SampleRecord> SAMPLE_COMPARATOR2 =
             new Comparator<SampleRecord>()
+            {
+                @Override
+                public int compare(SampleRecord s1, SampleRecord s2)
                 {
-                    @Override
-                    public int compare(SampleRecord s1, SampleRecord s2)
-                    {
-                        return getIdentifier(s1).compareTo(getIdentifier(s2));
-                    }
+                    return getIdentifier(s1).compareTo(getIdentifier(s2));
+                }
 
-                    private String getIdentifier(SampleRecord sampleRecord)
-                    {
-                        String spaceCode = sampleRecord.sp_code;
-                        String sampleCode = sampleRecord.s_code;
-                        return spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
-                                + sampleCode;
-                    }
-                };
+                private String getIdentifier(SampleRecord sampleRecord)
+                {
+                    String spaceCode = sampleRecord.sp_code;
+                    String sampleCode = sampleRecord.s_code;
+                    return spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
+                            + sampleCode;
+                }
+            };
 
     private static final IKeyExtractor<Long, SampleRecord> ID_EXTRACTOR =
             new IKeyExtractor<Long, SampleRecord>()
+            {
+                @Override
+                public Long getKey(SampleRecord s)
                 {
-                    @Override
-                    public Long getKey(SampleRecord s)
-                    {
-                        return s.s_id;
-                    }
-                };
+                    return s.s_id;
+                }
+            };
 
     private final ISampleListingQuery query;
 
@@ -300,7 +301,13 @@ public class SampleLister implements ISampleLister
                 {
                     sampleRecord.properties = new HashMap<String, String>();
                 }
-                sampleRecord.properties.put(propertyRecord.code, propertyRecord.getValue());
+                String value = propertyRecord.getValue();
+                if (sampleRecord.properties.containsKey(propertyRecord.code))
+                {
+                    String ss = sampleRecord.properties.get(propertyRecord.code);
+                    value = ss + ", " + value;
+                }
+                sampleRecord.properties.put(propertyRecord.code, value);
             }
         }
     }
@@ -320,13 +327,13 @@ public class SampleLister implements ISampleLister
         TableMap<Long, MetaprojectRecord> metaprojectRecords =
                 new TableMap<Long, MetaprojectRecord>(metaprojects,
                         new IKeyExtractor<Long, MetaprojectRecord>()
+                        {
+                            @Override
+                            public Long getKey(MetaprojectRecord mr)
                             {
-                                @Override
-                                public Long getKey(MetaprojectRecord mr)
-                                {
-                                    return mr.id;
-                                }
-                            });
+                                return mr.id;
+                            }
+                        });
 
         for (EntityMetaprojectRelationRecord record : sampleMetaprojectRelations)
         {
@@ -369,7 +376,8 @@ public class SampleLister implements ISampleLister
         initializer.setCode(sampleCode);
         if (sampleRecord.samp_proj_code != null)
         {
-            initializer.setIdentifier("/" + spaceCode + "/" + sampleRecord.samp_proj_code + "/" + sampleCode);
+            initializer.setIdentifier(
+                    "/" + spaceCode + "/" + sampleRecord.samp_proj_code + "/" + sampleCode);
         } else
         {
             initializer.setIdentifier(spaceCode == null ? "/" + sampleCode : "/" + spaceCode + "/"
@@ -453,8 +461,10 @@ public class SampleLister implements ISampleLister
             EnumSet<SampleFetchOption> fetchOptions)
     {
         EnumSet<SampleFetchOption> result =
-                EnumSet.of(fetchOptions.contains(SampleFetchOption.PROPERTIES) ? SampleFetchOption.PROPERTIES
-                        : SampleFetchOption.BASIC);
+                EnumSet.of(fetchOptions.contains(SampleFetchOption.PROPERTIES) ?
+                        SampleFetchOption.PROPERTIES
+                        :
+                        SampleFetchOption.BASIC);
         if (fetchOptions.contains(SampleFetchOption.METAPROJECTS))
         {
             result.add(SampleFetchOption.METAPROJECTS);

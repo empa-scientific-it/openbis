@@ -198,7 +198,12 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
 
         public void putProperty(String propCode, String value)
         {
-            properties.put(propCode, value);
+            if(properties.containsKey(propCode)) {
+                properties.put(propCode, properties.get(propCode) + ", " + value);
+            } else
+            {
+                properties.put(propCode, value);
+            }
         }
 
         public List<Metaproject> getMetaprojects()
