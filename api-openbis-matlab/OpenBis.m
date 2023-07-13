@@ -39,7 +39,7 @@ classdef OpenBis
         function login(obj)
             %login
             % Login to openBIS with username and password
-            [url, user, pw] = user_url_pw_inputdlg;
+            [user, pw] = user_pass_input;
             obj.pybis.login(user, pw, pyargs('save_token', 1))
         end
 
