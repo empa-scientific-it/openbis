@@ -1,3 +1,8 @@
+## Changes with pybis-1.35.8
+
+- Fixed a typo in the set attribute method 
+
+
 ## Changes with pybis-1.35.7
 
 - Improvements to fast download scheme 
