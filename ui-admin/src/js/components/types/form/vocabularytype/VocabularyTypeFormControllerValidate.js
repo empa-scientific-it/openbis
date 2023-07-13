@@ -2,6 +2,8 @@ import PageControllerValidate from '@src/js/components/common/page/PageConroller
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 import messages from '@src/js/common/messages.js'
 
+const URL_TEMPLATE_PATTERN = /^.*\$\{term\}.*$/
+
 export default class VocabularyTypeFormControllerValidate extends PageControllerValidate {
   validate(validator) {
     const { vocabulary, terms } = this.context.getState()
@@ -52,6 +54,8 @@ export default class VocabularyTypeFormControllerValidate extends PageController
     } else {
       validator.validateCode(vocabulary, 'code', messages.get(messages.CODE))
     }
+
+    validator.validatePattern(vocabulary, 'urlTemplate', messages.get(messages.URL_TEMPLATE_PATTERN), URL_TEMPLATE_PATTERN)
 
     return validator.withErrors(vocabulary)
   }

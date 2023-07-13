@@ -165,7 +165,7 @@ TEST_TERM_6_DTO.setOfficial(false)
 const TEST_VOCABULARY_DTO = new openbis.Vocabulary()
 TEST_VOCABULARY_DTO.setCode('TEST_VOCABULARY')
 TEST_VOCABULARY_DTO.setDescription('TEST_DESCRIPTION')
-TEST_VOCABULARY_DTO.setUrlTemplate('TEST_URL_TEMPLATE')
+TEST_VOCABULARY_DTO.setUrlTemplate('http://test-url-template/${term}')
 TEST_VOCABULARY_DTO.setTerms([
   TEST_TERM_1_DTO,
   TEST_TERM_2_DTO,

@@ -222,6 +222,7 @@ class VocabularyTypeFormParametersVocabulary extends React.PureComponent {
         <TextField
           reference={this.references.urlTemplate}
           label={messages.get(messages.URL_TEMPLATE)}
+          description={messages.get(messages.URL_TEMPLATE_HINT)}
           name='urlTemplate'
           error={error}
           disabled={!enabled}
