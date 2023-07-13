@@ -25,28 +25,43 @@ classdef OpenBis
     methods
         
         %% Constructor method
-        function obj = OpenBis(varargin)
+        function obj = OpenBis(url)
             % OpenBis   Constructor method for class OpenBis
-            % Creates the Python Openbis object and logs into the server
-            % Optional positional input arguments:
-            % url ... URL of the openBIS server (incl. port)
-            % user ... user name for openBIS
-            % pw ... password for openBIS
+            % Creates the Python Openbis object for openBIS server
             % Usage:
-            % obi = OpenBis() --> opens UI to enter URL, user name and password
-            % obi = OpenBis('server_url', 'user_name', 'user_password')
-            
-            if nargin > 0
-                url = varargin{1};
-                user = varargin{2};
-                pw = varargin{3};
-            else
-                [url, user, pw] = user_url_pw_inputdlg;
-            end
-            
+            % url ... URL of the openBIS server
+            % Example
+            % obi = OpenBis('server_url')
             o = py.pybis.Openbis(url, pyargs('verify_certificates', 0));
-            o.login(user, pw, pyargs('save_token', 1));
             obj.pybis = o;
+        end
+
+        function login(obj)
+            %login
+            % Login to openBIS with username and password
+            [url, user, pw] = user_url_pw_inputdlg;
+            obj.pybis.login(user, pw, pyargs('save_token', 1))
+        end
+
+        function set_token(obj, token)
+            %set_token
+            % Login to openBIS with a session token
+            obj.pybis.set_token(token)
+        end
+
+        function get_or_create_personal_access_token(obj, sessionName)
+            %get_or_create_personal_access_token
+            % Creates a new personal access token (PAT).  If a PAT with the 
+            % given sessionName already exists and its expiry date (validToDate) 
+            % is not within the warning period, the existing PAT is returned instead.
+            pat = obj.pybis.get_or_create_personal_access_token(pyargs('sessionName', sessionName));
+            obj.pybis.set_token(pat.permId, pyargs('save_token', 1))
+        end
+
+        function get_personal_access_tokens(obj)
+            %get_personal_access_tokens
+            % Return registered PATs
+            obj.pybis.get_personal_access_tokens()
         end
         
         function logout(obj)
@@ -56,7 +71,6 @@ classdef OpenBis
             % obi.logout()
             %
             % After logout, the session token is no longer valid.
-            
             obj.pybis.logout();
         end
         
