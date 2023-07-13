@@ -137,11 +137,20 @@ class PropertyHolder:
         data_type = property_type["dataType"]
         if data_type == "CONTROLLEDVOCABULARY":
             terms = property_type["terms"]
-            value = str(value).upper()
-            if value not in terms.df["code"].values:
-                raise ValueError(
-                    f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
-                )
+            if "multiValue" in property_type and property_type["multiValue"] is True:
+                if type(value) != list:
+                    value = [value]
+                for single_value in value:
+                    if str(single_value).upper() not in terms.df["code"].values:
+                        raise ValueError(
+                            f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
+                        )
+            else:
+                value = str(value).upper()
+                if value not in terms.df["code"].values:
+                    raise ValueError(
+                        f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
+                    )
         elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
             if not check_datatype(data_type, value):
                 raise ValueError(f"Value must be of type {data_type}")
