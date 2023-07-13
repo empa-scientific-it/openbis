@@ -70,7 +70,6 @@ class Search(OpenbisCommand):
         self.save_path = save_path
         self.load_global_config(dm)
         self.props = "*"
-        self.attrs = ["parents", "children"]
         super(Search, self).__init__(dm)
 
     def search_samples(self):
@@ -87,26 +86,30 @@ class Search(OpenbisCommand):
         return CommandResult(returncode=0, output="Search completed.")
 
     def _get_samples_children(self, identifier):
-        return self.openbis.get_samples(identifier, attrs=["children"])
+        return self.openbis.get_samples(identifier, attrs=["children", "dataSets"])
+
+    def _get_sample_with_datasets(self, identifier):
+        return self.openbis.get_sample(identifier, withDataSetIds=True)
 
     def _search_samples(self):
         """Helper method to search samples"""
 
         if "object_code" in self.filters:
             results = self.openbis.get_samples(identifier=self.filters['object_code'],
-                                               attrs=self.attrs, props=self.props)
+                                               attrs=["parents", "children", "dataSets"], props=self.props)
         else:
-            args = self._get_filtering_args(self.props)
+            args = self._get_filtering_args(self.props, ["parents", "children", "dataSets"])
             results = self.openbis.get_samples(**args)
 
         if self.recursive:
             click_echo(f"Recursive search enabled. It may take time to produce results.")
             output = _dfs(results.objects, 'identifier',
                           self._get_samples_children,
-                          self.openbis.get_sample)  # samples provide identifiers as children
+                          self._get_sample_with_datasets)  # samples provide identifiers as children
             search_results = self.openbis._sample_list_for_response(props=self.props,
                                                                     response=[sample.data for sample
                                                                               in output],
+                                                                    attrs=["parents", "children", "dataSets"],
                                                                     parsed=True)
         else:
             search_results = results
@@ -121,12 +124,11 @@ class Search(OpenbisCommand):
                                  output="Configuration fileservice_url needs to be set for download.")
 
         if self.recursive:
-            click_echo(f"Recursive search enabled. It may take time to produce results.")
             search_results = self._search_samples()  # Look for samples recursively
             o = []
             for sample in search_results.objects:  # get datasets
                 o += sample.get_datasets(
-                    attrs=self.attrs, props=self.props)
+                    attrs=["parents", "children"], props=self.props)
             output = _dfs(o, 'permId',  # datasets provide permIds as children
                           self._get_datasets_children,
                           self.openbis.get_dataset)  # look for child datasets
@@ -137,9 +139,9 @@ class Search(OpenbisCommand):
         else:
             if "object_code" in self.filters:
                 results = self.openbis.get_sample(self.filters['object_code']).get_datasets(
-                    attrs=self.attrs, props=self.props)
+                    attrs=["parents", "children"], props=self.props)
             else:
-                args = self._get_filtering_args(self.props)
+                args = self._get_filtering_args(self.props, ["parents", "children"])
                 results = self.openbis.get_datasets(**args)
             datasets = results
 
@@ -153,7 +155,7 @@ class Search(OpenbisCommand):
 
         return CommandResult(returncode=0, output="Search completed.")
 
-    def _get_filtering_args(self, props):
+    def _get_filtering_args(self, props, attrs):
         where = None
         if self.filters['property_code'] is not None and self.filters['property_value'] is not None:
             where = {
@@ -166,7 +168,7 @@ class Search(OpenbisCommand):
                     experiment=self.filters['experiment'],
                     type=self.filters['type_code'],
                     where=where,
-                    attrs=self.attrs,
+                    attrs=attrs,
                     props=props)
 
         if self.filters['registration_date'] is not None:

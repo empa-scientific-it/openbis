@@ -2497,6 +2497,9 @@ class Openbis:
         if props is not None:
             fetchopts["properties"] = get_fetchoption_for_entity("properties")
 
+        if "dataSets" in attrs:
+            fetchopts["dataSets"] = get_fetchoptions("dataSets")
+
         request = {
             "method": "searchSamples",
             "params": [
@@ -4660,7 +4663,7 @@ class Openbis:
         )
 
     def get_sample(
-            self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
+            self, sample_ident, only_data=False, withAttachments=False, props=None, withDataSetIds=False, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4700,6 +4703,9 @@ class Openbis:
 
         for key in ["parents", "children", "container", "components"]:
             fetchopts[key] = {"@type": "as.dto.sample.fetchoptions.SampleFetchOptions"}
+
+        if withDataSetIds:
+            fetchopts["dataSets"] = get_fetchoptions("dataSets")
 
         request = {
             "method": "getSamples",
@@ -4801,7 +4807,7 @@ class Openbis:
                 samples["container"] = samples["container"].map(
                     extract_nested_identifier
                 )
-                for column in ["parents", "children", "components"]:
+                for column in ["parents", "children", "components", "dataSets"]:
                     if column in samples:
                         samples[column] = samples[column].map(extract_identifiers)
                 samples["permId"] = samples["permId"].map(extract_permid)
