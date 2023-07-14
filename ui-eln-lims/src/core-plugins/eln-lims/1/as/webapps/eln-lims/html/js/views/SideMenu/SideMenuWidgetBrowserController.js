@@ -1854,7 +1854,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
         var loadSamplesPromise = this._loadNodesExperimentSamples({
             node: samplesFolderNode,
             offset: 0,
-            limit: 0,
+            limit: this.LOAD_LIMIT,
         })
 
         var dataSetsFolderNode = this._createExperimentDataSetsNode()
@@ -1871,7 +1871,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             loadDataSetsPromise = this._loadNodesExperimentDataSets({
                 node: dataSetsFolderNode,
                 offset: 0,
-                limit: 0,
+                limit: this.LOAD_LIMIT,
             })
         } else {
             loadDataSetsPromise = Promise.resolve({
@@ -1883,7 +1883,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
 
         var results = {
             nodes: [],
-            totalCount: 0
+            totalCount: 0,
         }
 
         if (samplesResults.totalCount > 0) {
@@ -1961,11 +1961,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                 },
                 sampleFetchOptions,
                 (searchResult) => {
-                    var results = { nodes: [], totalCount: searchResult.totalCount }
-
-                    searchResult.objects.forEach((sample) => {
+                    var results = this._filterResultsByFunction(params, searchResult, (sample) => {
                         if (this._isExperimentSample(sample)) {
-                            results.nodes.push(this._createSampleNode(sample))
+                            return this._createSampleNode(sample)
+                        } else {
+                            return null
                         }
                     })
 
@@ -1978,7 +1978,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     async _loadNodesExperimentDataSets(params) {
         var datasetRules = {
             [Util.guid()]: { type: "Experiment", name: "ATTR.PERM_ID", value: params.node.experimentPermId },
-            [Util.guid()]: { type: "Sample", name: "NULL.NULL", value : "NULL" }
+            [Util.guid()]: { type: "Sample", name: "NULL.NULL", value: "NULL" },
         }
         var datasetSubcriteria = []
 
@@ -2037,11 +2037,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                 },
                 datasetFetchOptions,
                 (searchResult) => {
-                    var results = { nodes: [], totalCount: searchResult.totalCount }
-
-                    searchResult.objects.forEach((dataSet) => {
+                    var results = this._filterResultsByFunction(params, searchResult, (dataSet) => {
                         if (this._isExperimentDataSet(dataSet)) {
-                            results.nodes.push(this._createDataSetNode(dataSet))
+                            return this._createDataSetNode(dataSet)
+                        } else {
+                            return null
                         }
                     })
 
@@ -2058,7 +2058,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
         var loadChildrenPromise = this._loadNodesSampleChildren({
             node: childrenFolderNode,
             offset: 0,
-            limit: 0,
+            limit: this.LOAD_LIMIT,
         })
 
         var dataSetsFolderNode = this._createSampleDataSetsNode()
@@ -2075,7 +2075,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
             loadDataSetsPromise = this._loadNodesSampleDataSets({
                 node: dataSetsFolderNode,
                 offset: 0,
-                limit: 0,
+                limit: this.LOAD_LIMIT,
             })
         } else {
             loadDataSetsPromise = Promise.resolve({
@@ -2087,7 +2087,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
 
         var results = {
             nodes: [],
-            totalCount: 0
+            totalCount: 0,
         }
 
         if (childrenResults.totalCount > 0) {
@@ -2199,11 +2199,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                 },
                 sampleFetchOptions,
                 (searchResult) => {
-                    var results = { nodes: [], totalCount: searchResult.totalCount }
-
-                    searchResult.objects.forEach((sample) => {
+                    var results = this._filterResultsByFunction(params, searchResult, (sample) => {
                         if (this._isChildSample(sample)) {
-                            results.nodes.push(this._createSampleNode(sample))
+                            return this._createSampleNode(sample)
+                        } else {
+                            return null
                         }
                     })
 
@@ -2271,11 +2271,11 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
                 },
                 datasetFetchOptions,
                 (searchResult) => {
-                    var results = { nodes: [], totalCount: searchResult.totalCount }
-
-                    searchResult.objects.forEach((dataSet) => {
+                    var results = this._filterResultsByFunction(params, searchResult, (dataSet) => {
                         if (this._isSampleDataSet(dataSet)) {
-                            results.nodes.push(this._createDataSetNode(dataSet))
+                            return this._createDataSetNode(dataSet)
+                        } else {
+                            return null
                         }
                     })
 
@@ -3043,6 +3043,28 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
         }
     }
 
+    _filterResultsByFunction(params, results, filterFunction) {
+        var filteredResults = { nodes: [] }
+
+        results.objects.forEach((object) => {
+            var node = filterFunction(object)
+
+            if (node) {
+                filteredResults.nodes.push(node)
+            }
+        })
+
+        if (params.offset === 0 && params.limit >= results.totalCount) {
+            // all available results have been loaded from the server, as the total count let's use the number of results that passed the client-side filtering (that's more accurate)
+            filteredResults.totalCount = filteredResults.nodes.length
+        } else {
+            // otherwise we have to use the total count from the server as we cannot tell how much of them would pass the client-side filtering without loading them all
+            filteredResults.totalCount = results.totalCount
+        }
+
+        return filteredResults
+    }
+
     _isLabNotebookSpace(space) {
         var showLabNotebook = SettingsManagerUtils.isEnabledForGroup(
             space.getCode(),
@@ -3090,13 +3112,12 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     }
 
     _isExperimentWithChildren(experiment) {
-        var experimentIdentifier = experiment.getIdentifier().getIdentifier();
-        var experimentSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
-        var isInventorySpace = profile.isInventorySpace(experimentSpaceCode);
+        var experimentIdentifier = experiment.getIdentifier().getIdentifier()
+        var experimentSpaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier)
+        var isInventorySpace = profile.isInventorySpace(experimentSpaceCode)
 
-        var isInventoryCollectionExperiment = experiment.getType().getCode() === "COLLECTION" ||
-                                    isInventorySpace;
-        return !isInventoryCollectionExperiment;
+        var isInventoryCollectionExperiment = experiment.getType().getCode() === "COLLECTION" || isInventorySpace
+        return !isInventoryCollectionExperiment
     }
 
     _isExperimentSample(sample) {
