@@ -404,7 +404,45 @@ function MainController(profile) {
 		
 		CKEditorManager.destroy();
 		this.sideMenu.removeSubSideMenu();
-		
+
+		//
+		// Permanent URLs
+		//
+		if (shouldURLBePushToHistory) {
+			var menuUniqueId = this.sideMenu.getCurrentNodeId();
+			var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
+			history.pushState(null, "", url); //History Push State
+
+			var toPush = null;
+			if(shouldStateBePushToHistory) {
+				toPush = {
+						header : null,
+						content : null,
+						auxContent : null
+				}
+
+				if(this.views.header) {
+					toPush.header = this.views.header;
+					toPush.header.detach();
+				}
+
+				if(this.views.content) {
+					toPush.content = this.views.content;
+					toPush.content.detach();
+				}
+
+				if(this.views.auxContent) {
+					toPush.auxContent = this.views.auxContent;
+					toPush.auxContent.detach();
+				}
+			}
+
+			this.backStack.push({
+				view : toPush,
+				url : url
+			});
+		}
+
 		//
 		//
 		//
@@ -894,46 +932,7 @@ function MainController(profile) {
 		} catch(err) {
 			Util.manageError(err);
 		}
-		
 
-		
-		//
-		// Permanent URLs
-		//
-		if (shouldURLBePushToHistory) {
-			var menuUniqueId = this.sideMenu.getCurrentNodeId();
-			var url = Util.getURLFor(menuUniqueId, newViewChange, arg);
-			history.pushState(null, "", url); //History Push State
-			
-			var toPush = null;
-			if(shouldStateBePushToHistory) {
-				toPush = {
-						header : null,
-						content : null,
-						auxContent : null
-				}
-				
-				if(this.views.header) {
-					toPush.header = this.views.header;
-					toPush.header.detach();
-				}
-				
-				if(this.views.content) {
-					toPush.content = this.views.content;
-					toPush.content.detach();
-				}
-				
-				if(this.views.auxContent) {
-					toPush.auxContent = this.views.auxContent;
-					toPush.auxContent.detach();
-				}
-			}
-			
-			this.backStack.push({
-				view : toPush,
-				url : url
-			});
-		}
 		
 		//
 		// Refresh Functionality

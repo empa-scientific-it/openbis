@@ -59,7 +59,7 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.permId, "Experiment", data.permId);
+				return FormUtil.getFormLink(data.permId, "Experiment", data.identifier);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
