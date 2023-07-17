@@ -1277,7 +1277,6 @@ class Openbis:
 
         if DEBUG_LEVEL >= LOG_DEBUG:
             print(json.dumps(request))
-        print(f"Full url:{full_url} REQ:{request}")
         try:
             resp = requests.post(
                 full_url, json.dumps(request), verify=self.verify_certificates
@@ -1292,12 +1291,10 @@ class Openbis:
             ) from exc
         if resp.ok:
             resp = resp.json()
-            print(f"RESPONSE:{resp}")
             if "error" in resp:
                 print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
-                print(f'RESULT:{resp["result"]}')
                 return resp["result"]
             else:
                 raise ValueError("request did not return either result nor error")
@@ -1339,9 +1336,6 @@ class Openbis:
         }
         token = self._post_request(self.as_v3, login_request)
         if token is None or (is_different_login() and token == self.token):
-            print(self.as_v3)
-            print(login_request)
-            print(token)
             raise ValueError("login to openBIS failed")
         self.token = token
         if save_token:
