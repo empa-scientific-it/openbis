@@ -327,6 +327,18 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			node.visit(function(n) {_this._expandDeep(n);});
 		})
 	}
+
+	this._getDataSetType = function(dataset) {
+        var type = dataset.dataSetTypeCode;
+        if(type) {
+            return type;
+        }
+        type = dataset.type;
+        if(type) {
+            return dataset.type.code;
+        }
+        return type;
+    }
 	
 	this.repaintFilesAsTree = function($container) {
 		$container.empty();
@@ -347,7 +359,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			var dataset = this._dataSetViewerModel.entityDataSets[datasetCode];
 			var onClick = "mainController.changeView('showViewDataSetPageFromPermId', '" + datasetCode + "');";
 			var dataSetTitle = "<span id=\"dataSetPosInTree-" + dataSetPosInTree + "\" onclick=\"" + onClick + "\">"
-					+ dataset.dataSetTypeCode + " : " + displayName + "</span>";
+					+ this._getDataSetType(dataset) + " : " + displayName + "</span>";
 			treeModel.push({ title : dataSetTitle, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
 			dataSetPosInTree += 1;
 		}

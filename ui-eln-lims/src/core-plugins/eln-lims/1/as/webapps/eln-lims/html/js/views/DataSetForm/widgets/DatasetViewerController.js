@@ -75,13 +75,25 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 			}
 		}
 	}
+
+	this._getDataSetType = function(dataset) {
+        var type = dataset.dataSetTypeCode;
+        if(type) {
+            return type;
+        }
+        type = dataset.type;
+        if(type) {
+            return dataset.type.code;
+        }
+        return type;
+    }
 	
 	this.updateDatasets = function(datasets) {
 		var _this = this;
 		var datasetPermIds = [];
 		
 		for(var i = 0; i < datasets.length; i++) { //DataSets for entity
-            var type = datasets[i].dataSetTypeCode;
+            var type = this._getDataSetType(datasets[i]);
             if (type && (profile.showDataset(type) || profile.showDatasetOnNav(type))) {
                 datasetPermIds.push(datasets[i].code);
             }
