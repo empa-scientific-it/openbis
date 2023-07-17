@@ -1,7 +1,10 @@
+## Changes with pybis-1.35.9
+
+- Changed get_samples method to also include dataset ids depending on the params 
+
 ## Changes with pybis-1.35.8
 
-- Fixed a typo in the set attribute method 
-
+- Fixed a typo in the set attribute method
 
 ## Changes with pybis-1.35.7
 
