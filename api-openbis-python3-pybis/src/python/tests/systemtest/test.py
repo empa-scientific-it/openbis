@@ -23,7 +23,7 @@ class TestCase(testcase.TestCase):
 
     def execute(self):
 
-        self.installOpenbis(technologies=['eln-lims', 'flow'])
+        self.installOpenbis(technologies=['eln-lims', 'eln-lims-life-sciences', 'flow'])
         # self.installPybis()
         self.openbisController = self.createOpenbisController()
         # self.openbisController.createTestDatabase("openbis")
