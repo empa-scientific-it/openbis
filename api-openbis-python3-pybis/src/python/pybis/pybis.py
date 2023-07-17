@@ -1267,6 +1267,7 @@ class Openbis:
         """internal method, used to handle all post requests and serializing / deserializing
         data
         """
+
         if "id" not in request:
             request["id"] = "2"
         if "jsonrpc" not in request:
@@ -1276,7 +1277,7 @@ class Openbis:
 
         if DEBUG_LEVEL >= LOG_DEBUG:
             print(json.dumps(request))
-
+        print(f"Full url:{full_url}")
         try:
             resp = requests.post(
                 full_url, json.dumps(request), verify=self.verify_certificates
@@ -1335,10 +1336,10 @@ class Openbis:
             "params": [username, password],
         }
         token = self._post_request(self.as_v3, login_request)
-        print(self.as_v3)
-        print(login_request)
-        print(token)
         if token is None or (is_different_login() and token == self.token):
+            print(self.as_v3)
+            print(login_request)
+            print(token)
             raise ValueError("login to openBIS failed")
         self.token = token
         if save_token:
