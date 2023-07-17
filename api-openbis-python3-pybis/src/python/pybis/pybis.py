@@ -1291,12 +1291,13 @@ class Openbis:
                 "Could not connecto to the openBIS server. Please check your internet connection, the specified hostname and port."
             ) from exc
         if resp.ok:
-            print(f"RESPONSE:{resp}")
             resp = resp.json()
+            print(f"RESPONSE:{resp}")
             if "error" in resp:
                 print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
+                print(f'RESULT:{resp["result"]}')
                 return resp["result"]
             else:
                 raise ValueError("request did not return either result nor error")
