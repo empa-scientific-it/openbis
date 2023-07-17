@@ -1277,7 +1277,7 @@ class Openbis:
 
         if DEBUG_LEVEL >= LOG_DEBUG:
             print(json.dumps(request))
-        print(f"Full url:{full_url}")
+        print(f"Full url:{full_url} REQ:{request}")
         try:
             resp = requests.post(
                 full_url, json.dumps(request), verify=self.verify_certificates
