@@ -27,9 +27,9 @@ from datetime import datetime
 
 import click
 from dateutil.relativedelta import relativedelta
-from pybis import Openbis
 from requests import ConnectionError
 
+from pybis import Openbis
 from .click_util import click_echo
 from .data_mgmt_runner import DataMgmtRunner
 from ..dm.command_result import CommandResult
@@ -270,19 +270,15 @@ def repository_clear(ctx, settings):
 
 # data_set: type, properties
 
-
-_search_params = [
-    click.option('-object_type', '--object_type', 'type_code', default=None,
-                 help='Object type code to filter by'),
+_dataset_search_params = [
     click.option('-space', '--space', default=None, help='Space code'),
-    click.option('-project', '--project', default=None, help='Full project identification code'),
-    click.option('-experiment', '--experiment', default=None, help='Full experiment code'),
-    click.option('-object', '--object', 'object_code', default=None,
-                 help='Object identification information, it can be permId or identifier'),
-    click.option('-type', '--type', 'type_code', default=None, help='Type code'),
+    click.option('-project', '--project', default=None, help='Project identification code'),
+    click.option('-collection', '--collection', default=None, help='Collection code'),
+    click.option('-id', '--id', 'dataset_id', default=None,
+                 help='Dataset identification information, it can be permId or identifier'),
+    click.option('-type', '--type', 'type_code', default=None, help='Dataset type code'),
     click.option('-property', 'property_code', default=None, help='Property code'),
-    click.option('-property-value', 'property_value', default=None,
-                 help='Property value'),
+    click.option('-property-value', 'property_value', default=None, help='Property value'),
     click.option('-registration-date', '--registration-date', 'registration_date', default=None,
                  help='Registration date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
     click.option('-modification-date', '--modification-date', 'modification_date', default=None,
@@ -290,6 +286,29 @@ _search_params = [
     click.option('-save', '--save', default=None, help='Filename to save results'),
     click.option('-r', '--recursive', 'recursive', is_flag=True, default=False,
                  help='Search data recursively'),
+]
+
+_search_by_sample_params = [
+    click.option('-object-type', '--object-type', 'object_type_code', default=None,
+                 help='Object type code to filter by'),
+    click.option('-object-space', '--object-space', 'object_space', default=None,
+                 help='Object space code'),
+    click.option('-object-project', '--object-project', 'object_project', default=None,
+                 help='Full object project identification code'),
+    click.option('-object-collection', '--object-collection', 'object_collection', default=None,
+                 help='Full object collection code'),
+    click.option('-object-id', '--object-id', 'object_id', default=None,
+                 help='Object identification information, it can be permId or identifier'),
+    click.option('-object-property', 'object_property_code', default=None,
+                 help='Object property code'),
+    click.option('-object-property-value', 'object_property_value', default=None,
+                 help='Object property value'),
+    click.option('-object-registration-date', '--object-registration-date',
+                 'object_registration_date', default=None,
+                 help='Registration date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
+    click.option('-object-modification-date', '--object-modification-date',
+                 'object_modification_date', default=None,
+                 help='Modification date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
 ]
 
 
@@ -331,33 +350,48 @@ def data_set_clear(ctx, data_set_settings):
     return ctx.obj['runner'].run("data_set_clear", lambda dm: _clear(ctx, data_set_settings))
 
 
+def _pair_is_not_set(param1, param2):
+    return (param1 is None and param2 is not None) or (param1 is not None and param2 is None)
+
+
 @data_set.command('search', short_help="Search for datasets using a filtering criteria.")
-@add_params(_search_params)
+@add_params(_dataset_search_params + _search_by_sample_params)
 @click.pass_context
-def data_set_search(ctx, type_code, space, project, experiment, registration_date,
-                    modification_date, object_code, property_code, property_value, save, recursive):
+def data_set_search(ctx, type_code, space, project, collection, registration_date,
+                    modification_date, dataset_id, property_code, property_value, save, recursive,
+                    object_type_code, object_space, object_project, object_collection, object_id,
+                    object_property_code, object_property_value, object_registration_date,
+                    object_modification_date):
     """Standard Data Store: Search data sets given the filtering criteria or object identifier.
     Results of this command can be used in `obis download`."""
-    filtering_arguments = [type_code, space, project, experiment, registration_date,
-                           modification_date,
-                           property_code, property_value]
-    if all(v is None for v in filtering_arguments + [object_code]):
+    filtering_arguments = [type_code, space, project, collection, registration_date,
+                           modification_date, property_code, property_value,
+                           object_type_code, object_space, object_project, object_collection,
+                           object_id, object_property_code, object_property_value,
+                           object_registration_date, object_modification_date]
+    if all(v is None for v in filtering_arguments + [dataset_id]):
         click_echo("You must provide at least one filtering criteria!")
         return -1
-    if (property_code is None and property_value is not None) or (
-            property_code is not None and property_value is None):
-        click_echo("Property code and property value need to be specified!")
+    if _pair_is_not_set(property_code, property_value) or _pair_is_not_set(object_property_code,
+                                                                           object_property_value):
+        click_echo("Property code and property value pair needs to be specified!")
         return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    if object_code is not None:
+    if dataset_id is not None:
         if any(v is not None for v in filtering_arguments):
-            click_echo("Object parameter detected! Other filtering arguments will be omitted!")
-        filters = dict(object_code=object_code)
+            click_echo("Dataset id parameter detected! Other filtering arguments will be omitted!")
+        filters = dict(dataset_id=dataset_id)
     else:
         filters = dict(type_code=type_code, space=space,
-                       project=project, experiment=experiment, property_code=property_code,
+                       project=project, experiment=collection, property_code=property_code,
                        registration_date=registration_date, modification_date=modification_date,
-                       property_value=property_value)
+                       property_value=property_value, object_type_code=object_type_code,
+                       object_space=object_space, object_project=object_project,
+                       object_collection=object_collection, object_id=object_id,
+                       object_property_code=object_property_code,
+                       object_property_value=object_property_value,
+                       object_registration_date=object_registration_date,
+                       object_modification_date=object_modification_date)
     return ctx.obj['runner'].run("data_set_search",
                                  lambda dm: dm.search_data_set(filters, recursive, save)),
 
@@ -409,15 +443,35 @@ def object_clear(ctx, object_settings):
     return ctx.obj['runner'].run("object_clear", lambda dm: _clear(ctx, object_settings))
 
 
-@object.command('search', short_help="Search for samples using a filtering criteria.")
-@add_params(_search_params)
+_object_search_params = [
+    click.option('-space', '--space', default=None, help='Space code'),
+    click.option('-project', '--project', default=None, help='Full project identification code'),
+    click.option('-collection', '--collection', default=None, help='Full collection code'),
+    click.option('-object', '--object', 'object_id', default=None,
+                 help='Object identification information, it can be permId or identifier'),
+    click.option('-type', '--type', 'type_code', default=None, help='Type code'),
+    click.option('-property', 'property_code', default=None, help='Property code'),
+    click.option('-property-value', 'property_value', default=None,
+                 help='Property value'),
+    click.option('-registration-date', '--registration-date', 'registration_date', default=None,
+                 help='Registration date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
+    click.option('-modification-date', '--modification-date', 'modification_date', default=None,
+                 help='Modification date, it can be in the format "oYYYY-MM-DD" (e.g. ">2023-01-01")'),
+    click.option('-save', '--save', default=None, help='Filename to save results'),
+    click.option('-r', '--recursive', 'recursive', is_flag=True, default=False,
+                 help='Search data recursively'),
+]
+
+
+@object.command('search', short_help="Search for objects using a filtering criteria.")
+@add_params(_object_search_params)
 @click.pass_context
-def object_search(ctx, type_code, space, project, experiment, registration_date,
-                  modification_date, object_code, property_code, property_value, save, recursive):
+def object_search(ctx, type_code, space, project, collection, registration_date,
+                  modification_date, object_id, property_code, property_value, save, recursive):
     """Standard Data Store: Search for objects using a filtering criteria or object identifier."""
-    filtering_arguments = [type_code, space, project, experiment, registration_date,
+    filtering_arguments = [type_code, space, project, collection, registration_date,
                            modification_date, property_code, property_value]
-    if all(v is None for v in filtering_arguments + [object_code]):
+    if all(v is None for v in filtering_arguments + [object_id]):
         click_echo("You must provide at least one filtering criteria!")
         return -1
     if (property_code is None and property_value is not None) or (
@@ -425,13 +479,13 @@ def object_search(ctx, type_code, space, project, experiment, registration_date,
         click_echo("Property code and property value need to be specified!")
         return -1
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
-    if object_code is not None:
+    if object_id is not None:
         if any(v is not None for v in filtering_arguments):
             click_echo("Object parameter detected! Other filtering arguments will be omitted!")
-        filters = dict(object_code=object_code)
+        filters = dict(object_code=object_id)
     else:
         filters = dict(type_code=type_code, space=space,
-                       project=project, experiment=experiment, property_code=property_code,
+                       project=project, experiment=collection, property_code=property_code,
                        registration_date=registration_date, modification_date=modification_date,
                        property_value=property_value)
     return ctx.obj['runner'].run("object_search",

@@ -13,10 +13,12 @@
 #   limitations under the License.
 #
 
-# from queue import Queue
-# from threading import Thread
 import concurrent.futures
 
+import pandas as pd
+
+from pybis.property_reformatter import is_of_openbis_supported_date_format
+from pybis.sample import Sample
 from .openbis_command import OpenbisCommand
 from ..command_result import CommandResult
 from ..utils import cd
@@ -27,7 +29,7 @@ def _dfs(objects, prop, func, func_specific):
     """Helper function that perform DFS search over children graph of objects"""
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=5) as pool_simple, concurrent.futures.ThreadPoolExecutor(
-            max_workers=20) as pool_full:
+        max_workers=20) as pool_full:
         stack = [getattr(openbis_obj, prop) for openbis_obj in
                  objects]  # datasets and samples provide children in different formats
         visited = set()
@@ -51,6 +53,76 @@ def _dfs(objects, prop, func, func_specific):
                     stack += [child]
 
     return output
+
+
+def _get_datasets_of_samples(get_dataset_method, samples):
+    output = []
+    with concurrent.futures.ThreadPoolExecutor(
+            max_workers=5) as pool_simple:
+        output = pool_simple.map(get_dataset_method, samples)
+
+    return output
+
+
+def flatten(matrix):
+    flat_list = []
+    for row in matrix:
+        flat_list += row
+    return flat_list
+
+
+def _check_date(sign, date1, date2):
+    if is_of_openbis_supported_date_format(date1) and is_of_openbis_supported_date_format(date2):
+        timestamp1 = pd.to_datetime(date1)
+        timestamp2 = pd.to_datetime(date2)
+        if sign == "=":
+            return timestamp2 == timestamp1
+        elif sign == ">":
+            return timestamp2 > timestamp1
+        elif sign == "<":
+            return timestamp2 < timestamp1
+        raise ValueError(f"Unknown sign {sign}")
+    else:
+        raise ValueError("Dates are not in a supported formats!")
+
+
+def _filter_dataset(dataset, filters):
+    if filters.get("space", None) is not None:
+        space = filters["space"]
+        if dataset.sample is not None and dataset.sample.space.code != space:
+            return False
+        if dataset.experiment is not None and dataset.experiment.project.space.code != space:
+            return False
+    if filters.get("type_code", None) is not None:
+        if dataset.type.code != filters["type_code"]:
+            return False
+    if filters.get("project", None) is not None:
+        project = filters["project"]
+        if dataset.sample is not None and dataset.sample.project.code != project:
+            return False
+        if dataset.experiment is not None and dataset.experiment.project.code != project:
+            return False
+    if filters.get("experiment", None) is not None:
+        if dataset.experiment is not None and dataset.experiment.code != filters["experiment"]:
+            return False
+    if filters.get("property_code", None) is not None:
+        prop_code = filters["property_code"]
+        prop_value = filters["property_value"]
+        if dataset.props is not None and dataset.props[prop_code.lower()] != prop_value:
+            return False
+    if filters.get("registration_date", None) is not None:
+        registration_date = filters["registration_date"]
+        sign = "="
+        if registration_date[0] in [">", "<", "="]:
+            sign, registration_date = registration_date[0], registration_date[1:]
+        return _check_date(sign, registration_date, dataset.registrationDate)
+    if filters.get("modification_date", None) is not None:
+        modification_date = filters["modification_date"]
+        sign = "="
+        if modification_date[0] in [">", "<", "="]:
+            sign, modification_date = modification_date[0], modification_date[1:]
+        return _check_date(sign, modification_date, dataset.modificationDate)
+    return True
 
 
 class Search(OpenbisCommand):
@@ -96,7 +168,8 @@ class Search(OpenbisCommand):
 
         if "object_code" in self.filters:
             results = self.openbis.get_samples(identifier=self.filters['object_code'],
-                                               attrs=["parents", "children", "dataSets"], props=self.props)
+                                               attrs=["parents", "children", "dataSets"],
+                                               props=self.props)
         else:
             args = self._get_filtering_args(self.props, ["parents", "children", "dataSets"])
             results = self.openbis.get_samples(**args)
@@ -109,7 +182,8 @@ class Search(OpenbisCommand):
             search_results = self.openbis._sample_list_for_response(props=self.props,
                                                                     response=[sample.data for sample
                                                                               in output],
-                                                                    attrs=["parents", "children", "dataSets"],
+                                                                    attrs=["parents", "children",
+                                                                           "dataSets"],
                                                                     parsed=True)
         else:
             search_results = results
@@ -123,27 +197,52 @@ class Search(OpenbisCommand):
             return CommandResult(returncode=-1,
                                  output="Configuration fileservice_url needs to be set for download.")
 
-        if self.recursive:
-            search_results = self._search_samples()  # Look for samples recursively
-            o = []
-            for sample in search_results.objects:  # get datasets
-                o += sample.get_datasets(
-                    attrs=["parents", "children"], props=self.props)
-            output = _dfs(o, 'permId',  # datasets provide permIds as children
-                          self._get_datasets_children,
-                          self.openbis.get_dataset)  # look for child datasets
+        main_filters = self.filters.copy()
+
+        object_filters = {k[7:]: v for (k, v) in main_filters.items() if k.startswith('object_')}
+        dataset_filters = {k: v for (k, v) in main_filters.items() if not k.startswith('object_')}
+        if object_filters:
+            if 'id' in object_filters:
+                object_filters['object_code'] = object_filters['id']
+                del object_filters['id']
+            self.filters = object_filters
+            search_results = self._search_samples()
+            datasets = [x for x in _get_datasets_of_samples(Sample.get_datasets, search_results) if
+                        x.totalCount > 0]
+            for thing in datasets:
+                for obj in thing.objects:
+                    if not _filter_dataset(obj, dataset_filters):
+                        for i in range(len(thing.response)):
+                            if thing.response[i]['permId']['permId'] == obj.permId:
+                                del thing.response[i]
+                                break
+            datasets = [x.response for x in datasets]
             datasets = self.openbis._dataset_list_for_response(props=self.props,
-                                                               response=[dataset.data for dataset
-                                                                         in output],
+                                                               response=flatten(datasets),
                                                                parsed=True)
         else:
-            if "object_code" in self.filters:
-                results = self.openbis.get_sample(self.filters['object_code']).get_datasets(
-                    attrs=["parents", "children"], props=self.props)
+            if self.recursive:
+                search_results = self._search_samples()  # Look for samples recursively
+                o = []
+                for sample in search_results.objects:  # get datasets
+                    o += sample.get_datasets(
+                        attrs=["parents", "children"], props=self.props)
+                output = _dfs(o, 'permId',  # datasets provide permIds as children
+                              self._get_datasets_children,
+                              self.openbis.get_dataset)  # look for child datasets
+                datasets = self.openbis._dataset_list_for_response(props=self.props,
+                                                                   response=[dataset.data for
+                                                                             dataset
+                                                                             in output],
+                                                                   parsed=True)
             else:
-                args = self._get_filtering_args(self.props, ["parents", "children"])
-                results = self.openbis.get_datasets(**args)
-            datasets = results
+                if "dataset_id" in self.filters:
+                    results = self.openbis.get_sample(self.filters['dataset_id']).get_datasets(
+                        attrs=["parents", "children"], props=self.props)
+                else:
+                    args = self._get_filtering_args(self.props, ["parents", "children"])
+                    results = self.openbis.get_datasets(**args)
+                datasets = results
 
         click_echo(f"Data sets found: {len(datasets)}")
         if self.save_path is not None:
