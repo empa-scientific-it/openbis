@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.10
+
+- Fixed issue with changing properties for linked datasets 
+
 ## Changes with pybis-1.35.9
 
 - Changed get_samples method to also include dataset ids depending on the params 
