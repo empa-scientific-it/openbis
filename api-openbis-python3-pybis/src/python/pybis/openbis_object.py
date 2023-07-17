@@ -71,9 +71,10 @@ class OpenBisObject:
         # put the properties in the self.p namespace (without checking them)
         if "properties" in data:
             for key, value in data["properties"].items():
-                data_type = self.p._property_names[key.lower()]['dataType']
-                if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
-                    value = self.formatter.to_array(data_type, value)
+                if self.p.type:
+                    data_type = self.p._property_names[key.lower()]['dataType']
+                    if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                        value = self.formatter.to_array(data_type, value)
                 self.p.__dict__[key.lower()] = value
 
         # object is already saved to openBIS, so it is not new anymore
