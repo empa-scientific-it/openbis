@@ -23,15 +23,13 @@ class TestCase(testcase.TestCase):
 
     def execute(self):
 
-        self.installOpenbis()
+        self.installOpenbis(technologies=['eln-lims', 'flow'])
         # self.installPybis()
         self.openbisController = self.createOpenbisController()
         # self.openbisController.createTestDatabase("openbis")
         self.openbisController.allUp()
 
         os.system('pytest --junitxml=test_results_pybis.xml $WORKSPACE/api-openbis-python3-pybis/src/python/tests')
-
-
 
 
 TestCase(settings, __file__).runTest()
