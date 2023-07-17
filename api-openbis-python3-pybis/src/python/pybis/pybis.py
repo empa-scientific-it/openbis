@@ -1335,6 +1335,9 @@ class Openbis:
             "params": [username, password],
         }
         token = self._post_request(self.as_v3, login_request)
+        print(self.as_v3)
+        print(login_request)
+        print(token)
         if token is None or (is_different_login() and token == self.token):
             raise ValueError("login to openBIS failed")
         self.token = token
