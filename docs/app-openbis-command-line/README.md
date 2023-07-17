@@ -232,23 +232,44 @@ it comes to integration with other tools.
 obis data_set search [OPTIONS]
 
 Options:
-  -object_type, --object_type TEXT              
-                                  Object type code to filter by
   -space, --space TEXT            Space code
-  -project, --project TEXT        Full project identification code
-  -experiment, --experiment TEXT  Full experiment code
-  -object, --object TEXT          Object identification information, it can be permId or identifier
-  -type, --type TEXT              Type code
-  -registration-date, --registration-date TEXT
-                                  Registration date, it can be in the format
-                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
-  -modification-date, --modification-date TEXT
-                                  Modification date, it can be in the format
-                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
+  -project, --project TEXT        Project identification code
+  -collection, --collection TEXT  Collection code
+  -id, --id TEXT                  Dataset identification information, it can
+                                  be permId or identifier
+  -type, --type TEXT              Dataset type code
   -property TEXT                  Property code
   -property-value TEXT            Property value
-  -save, --save TEXT              Directory name to save results
+  -registration-date, --registration-date TEXT
+                                  Registration date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-01")
+  -modification-date, --modification-date TEXT
+                                  Modification date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-01")
+  -save, --save TEXT              Filename to save results
   -r, --recursive                 Search data recursively
+  
+Search by sample object parameters:  
+  -object-type, --object-type TEXT
+                                  Object type code to filter by
+  -object-space, --object-space TEXT
+                                  Object space code
+  -object-project, --object-project TEXT
+                                  Full object project identification code
+  -object-collection, --object-collection TEXT
+                                  Full object collection code
+  -object-id, --object-id TEXT    Object identification information, it can be
+                                  permId or identifier
+  -object-property TEXT           Object property code
+  -object-property-value TEXT     Object property value
+  -object-registration-date, --object-registration-date TEXT
+                                  Registration date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-01")
+  -object-modification-date, --object-modification-date TEXT
+                                  Modification date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-01")
+  --help                          Show this message and exit.
+
 ```
 
 With `data_set search` command, obis connects to a configured OpenBIS instance and searches for all
@@ -258,6 +279,10 @@ At least one search option must be specified.
 Search results can be downloaded into a file by using `save` option.
 
 Recursive option enables searching for datasets of children samples or datasets
+
+-object* filtering parameters allows to search for datasets owned by objects specified by these params, 
+i.e. obis will find objects fitting these criterias (as if it was an `object search` command) and then it will extract 
+dataset data.
 
 *Note: Filtering by `-project` may not work when `Project Samples` are disabled in OpenBIS
 configuration.*
@@ -310,21 +335,23 @@ data set is connected directly to an object - gets or sets given properties to i
 obis object search [OPTIONS]
 
 Options:
-  -type, --type TEXT              Type code to filter by
   -space, --space TEXT            Space code
   -project, --project TEXT        Full project identification code
-  -experiment, --experiment TEXT  Full experiment 
-  -object, --object TEXT          Object identification information, it can be permId or identifier
-  -registration-date, --registration-date TEXT
-                                  Registration date, it can be in the format
-                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
-  -modification-date, --modification-date TEXT
-                                  Modification date, it can be in the format
-                                  "oYYYY-MM-DD" (e.g. ">2023-01-31", "=2023-01-31", "<2023-01-31")
+  -collection, --collection TEXT  Full collection code
+  -object, --object TEXT          Object identification information, it can be
+                                  permId or identifier
+  -type, --type TEXT              Type code
   -property TEXT                  Property code
   -property-value TEXT            Property value
-  -save, --save TEXT              File name to save results in csv format
+  -registration-date, --registration-date TEXT
+                                  Registration date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-01")
+  -modification-date, --modification-date TEXT
+                                  Modification date, it can be in the format
+                                  "oYYYY-MM-DD" (e.g. ">2023-01-01")
+  -save, --save TEXT              Filename to save results
   -r, --recursive                 Search data recursively
+
 ```
 
 With `object search` command, obis connects to a configured OpenBIS instance and searches for all
