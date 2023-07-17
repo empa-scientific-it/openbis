@@ -26,7 +26,7 @@ class TestCase(testcase.TestCase):
         self.installOpenbis()
         # self.installPybis()
         self.openbisController = self.createOpenbisController()
-        self.openbisController.createTestDatabase("openbis")
+        # self.openbisController.createTestDatabase("openbis")
         self.openbisController.allUp()
 
         os.system('pytest --junitxml=test_results_pybis.xml $WORKSPACE/api-openbis-python3-pybis/src/python/tests')
