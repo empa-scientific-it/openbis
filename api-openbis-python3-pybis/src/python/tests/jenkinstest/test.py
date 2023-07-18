@@ -13,7 +13,6 @@
 #   limitations under the License.
 #
 
-# import os
 
 import settings
 import testcase
@@ -23,15 +22,13 @@ import util as util
 class TestCase(testcase.TestCase):
 
     def execute(self):
-
         self.installOpenbis(technologies=['eln-lims', 'eln-lims-life-sciences', 'flow'])
         # pybis should be installed on the jenkins job configuration level
         self.openbisController = self.createOpenbisController()
         self.openbisController.allUp()
-
-        util.executeCommand(['pytest', '--junitxml=test_results_pybis.xml', 'api-openbis-python3-pybis/src/python/tests'])
         # run tests
-        # os.system('pytest --junitxml=test_results_pybis.xml api-openbis-python3-pybis/src/python/tests')
+        util.executeCommand(['pytest', '--junitxml=test_results_pybis.xml',
+                             'api-openbis-python3-pybis/src/python/tests'])
 
 
 TestCase(settings, __file__).runTest()
