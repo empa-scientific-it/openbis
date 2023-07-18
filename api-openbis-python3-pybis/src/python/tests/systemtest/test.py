@@ -23,10 +23,9 @@ class TestCase(testcase.TestCase):
     def execute(self):
 
         self.installOpenbis(technologies=['eln-lims', 'eln-lims-life-sciences', 'flow'])
-        self.installPybis()
+        # pybis should be installed from the job configuration level
         self.openbisController = self.createOpenbisController()
         self.openbisController.allUp()
-        print("Start tests")
         util.executeCommand(['pytest', '--junitxml=test_results_pybis.xml', '$WORKSPACE/api-openbis-python3-pybis/src/python/tests'])
         # os.system('pytest --junitxml=test_results_pybis.xml $WORKSPACE/api-openbis-python3-pybis/src/python/tests')
 
