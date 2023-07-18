@@ -27,7 +27,7 @@ class TestCase(testcase.TestCase):
         # pybis should be installed from the job configuration level
         self.openbisController = self.createOpenbisController()
         self.openbisController.allUp()
-        os.system('pytest --junitxml=test_results_pybis.xml $WORKSPACE/api-openbis-python3-pybis/src/python/tests')
+        os.system('pytest --junitxml=test_results_pybis.xml api-openbis-python3-pybis/src/python/tests')
 
 
 TestCase(settings, __file__).runTest()
