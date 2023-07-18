@@ -36,7 +36,7 @@ def test_get_datasets(space):
     dataset.save()
 
     try:
-        current_datasets = o.get_datasets(start_with=1, count=1)
+        current_datasets = o.get_datasets(count=1)
         assert current_datasets is not None
         assert len(current_datasets) == 1
     finally:
@@ -326,12 +326,11 @@ def create_array_properties(openbis, code_prefix):
 
 
 def test_dataset_array_properties(space):
-
     create_array_properties(space.openbis, "DATASET")
 
     dataset_code = 'TEST_ARRAY_DATASET'
     dataset_type = space.openbis.new_dataset_type(
-         code = dataset_code
+        code=dataset_code
     )
     dataset_type.save()
 
@@ -344,10 +343,10 @@ def test_dataset_array_properties(space):
 
     testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
     dataset = space.openbis.new_dataset(
-        type = dataset_code,
+        type=dataset_code,
         sample="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props = { 'dataset_array_integer': [1, 2, 3]}
+        props={'dataset_array_integer': [1, 2, 3]}
     )
     dataset.save()
 
@@ -355,10 +354,14 @@ def test_dataset_array_properties(space):
     dataset.props['dataset_array_real'] = [3.1, 2.2, 1.3]
     dataset.props['dataset_array_string'] = ["aa", "bb", "cc"]
     dataset.props['dataset_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
-                                               '2023-05-18 11:17:05']
+                                                '2023-05-18 11:17:05']
     dataset.props['dataset_json'] = "{ \"key\": [1, 1, 1] }"
     dataset.save()
 
-    assert dataset.props['sample_array_integer'] == [3, 2, 1]
-    assert dataset.props['sample_array_real'] == [3.1, 2.2, 1.3]
-
+    assert dataset.props['dataset_array_integer'] == [3, 2, 1]
+    assert dataset.props['dataset_array_real'] == [3.1, 2.2, 1.3]
+    assert dataset.props['dataset_array_string'] == ["aa", "bb", "cc"]
+    assert dataset.props['dataset_json'] == "{ \"key\": [1, 1, 1] }"
+    assert dataset.props['dataset_array_timestamp'] == ['2023-05-18 11:17:03',
+                                                        '2023-05-18 11:17:04',
+                                                        '2023-05-18 11:17:05']

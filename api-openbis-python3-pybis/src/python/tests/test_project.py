@@ -12,15 +12,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import json
+import os
 import random
-import re
+import time
 
 import pytest
-import time
-import os
-from pybis import DataSet
-from pybis import Openbis
 
 
 def test_create_delete_project(space):
@@ -55,7 +51,7 @@ def test_create_project_with_attachment(space):
 
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
     project_name = "project_" + timestamp + "_" + str(random.randint(0, 1000))
-    filename = os.path.join(os.path.dirname(__file__), "testfile")
+    filename = os.path.join(os.path.dirname(__file__), "testdir/testfile")
 
     if not os.path.exists(filename):
         raise ValueError("File not found: {}".format(filename))
