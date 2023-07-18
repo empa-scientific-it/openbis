@@ -26,10 +26,11 @@ from pybis.things import Things
 def test_get_datasets(space):
     # test paging
     o = space.openbis
-
+    testfile_path = os.path.join(os.path.dirname(__file__), "testfile")
     dataset = o.new_dataset(
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
         props={"$name": "some good name"},
     )
     dataset.save()
@@ -41,6 +42,15 @@ def test_get_datasets(space):
     finally:
         dataset.delete()
 
+def test_create_datasets_no_file(space):
+    o = space.openbis
+    with pytest.raises(Exception) as exc:
+        o.new_dataset(
+            type="RAW_DATA",
+            experiment="/DEFAULT/DEFAULT/DEFAULT",
+            props={"$name": "some good name"},
+        )
+    assert str(exc.value) == "please provide at least one file"
 
 def test_create_delete_dataset(space):
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
