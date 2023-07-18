@@ -24,9 +24,10 @@ class TestCase(testcase.TestCase):
     def execute(self):
 
         self.installOpenbis(technologies=['eln-lims', 'eln-lims-life-sciences', 'flow'])
-        # pybis should be installed from the job configuration level
+        # pybis should be installed on the jenkins job configuration level
         self.openbisController = self.createOpenbisController()
         self.openbisController.allUp()
+        # run tests
         os.system('pytest --junitxml=test_results_pybis.xml api-openbis-python3-pybis/src/python/tests')
 
 
