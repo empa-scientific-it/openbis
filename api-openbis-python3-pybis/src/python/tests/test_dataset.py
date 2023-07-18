@@ -26,7 +26,7 @@ from pybis.things import Things
 def test_get_datasets(space):
     # test paging
     o = space.openbis
-    testfile_path = os.path.join(os.path.dirname(__file__), "testfile")
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
     dataset = o.new_dataset(
         type="RAW_DATA",
         experiment="/DEFAULT/DEFAULT/DEFAULT",
@@ -40,7 +40,8 @@ def test_get_datasets(space):
         assert current_datasets is not None
         assert len(current_datasets) == 1
     finally:
-        dataset.delete()
+        dataset.delete("test_get_datasets", True)
+
 
 def test_create_datasets_no_file(space):
     o = space.openbis
@@ -52,10 +53,11 @@ def test_create_datasets_no_file(space):
         )
     assert str(exc.value) == "please provide at least one file"
 
+
 def test_create_delete_dataset(space):
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
     o = space.openbis
-    testfile_path = os.path.join(os.path.dirname(__file__), "testfile")
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
 
     dataset = o.new_dataset(
         type="RAW_DATA",
@@ -231,7 +233,7 @@ def test_create_new_dataset_v3_directory(space):
     dataset.save()
 
     assert dataset.permId is not None
-    assert dataset.file_list == ["testdir/testfile"]
+    assert dataset.file_list == ["original/DEFAULT/testdir/testfile"]
 
 
 def test_dataset_property_in_isoformat_date(space):
