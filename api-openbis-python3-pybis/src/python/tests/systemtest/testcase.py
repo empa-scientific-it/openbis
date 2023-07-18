@@ -314,12 +314,12 @@ class TestCase(object):
 
     def installPybis(self):
         # install the local pybis in editable-mode (-e)
-        util.executeCommand(['pip', 'install', '-e', '../api-openbis-python3-pybis/src/python'],
+        util.executeCommand(['pip3', 'install', '-e', '../api-openbis-python3-pybis/src/python'],
                             "Installation of pybis failed.")
 
     def installObis(self):
         # install the local obis in editable-mode (-e)
-        util.executeCommand(['pip', 'install', '-e', '../app-openbis-command-line/src/python'],
+        util.executeCommand(['pip3', 'install', '-e', '../app-openbis-command-line/src/python'],
                             "Installation of obis failed.")
 
     def getTemplatesFolder(self):

@@ -26,7 +26,7 @@ def test_token(openbis_instance):
     assert openbis_instance.is_session_active() is True
 
 
-def http_only(openbis_instance):
+def http_only():
     with pytest.raises(Exception):
         new_instance = Openbis("http://localhost")
         assert new_instance is None

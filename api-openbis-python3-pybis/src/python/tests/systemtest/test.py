@@ -13,10 +13,9 @@
 #   limitations under the License.
 #
 
-import os
-
 import settings
 import testcase
+import util as util
 
 
 class TestCase(testcase.TestCase):
@@ -24,12 +23,12 @@ class TestCase(testcase.TestCase):
     def execute(self):
 
         self.installOpenbis(technologies=['eln-lims', 'eln-lims-life-sciences', 'flow'])
-        # self.installPybis()
+        self.installPybis()
         self.openbisController = self.createOpenbisController()
-        # self.openbisController.createTestDatabase("openbis")
         self.openbisController.allUp()
-
-        os.system('pytest --junitxml=test_results_pybis.xml $WORKSPACE/api-openbis-python3-pybis/src/python/tests')
+        print("Start tests")
+        util.executeCommand(['pytest', '--junitxml=test_results_pybis.xml', '$WORKSPACE/api-openbis-python3-pybis/src/python/tests'])
+        # os.system('pytest --junitxml=test_results_pybis.xml $WORKSPACE/api-openbis-python3-pybis/src/python/tests')
 
 
 TestCase(settings, __file__).runTest()

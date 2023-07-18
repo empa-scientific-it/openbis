@@ -15,12 +15,11 @@
 """
 Setup infrastructure common for all tests.
 """
-import sys
 import os.path
-import time
+import sys
 
 # Default base URL of the CI server which hosts the artifacts.
-ci_base_url = 'http://bs-ci01.ethz.ch:8090'
+ci_base_url = 'http://localhost:8080'
 
 reuseRepository = False
 devMode = False
