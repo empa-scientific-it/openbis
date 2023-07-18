@@ -118,7 +118,7 @@ property [javax.net](http://javax.net).ssl.trustStore. Example:
 Connecting in Java
 
 **V3ConnectionExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
@@ -151,6 +151,7 @@ Connecting in Java
 
 
     }
+```
 
 ### Connecting in Javascript
 
