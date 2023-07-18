@@ -166,7 +166,7 @@ some things had to be done a bit differently. But even then we tried to
 be conceptually consistent.
 
 **V3ConnectionExample.html**
-
+```html
     <!DOCTYPE html>
     <html>
     <head>
@@ -211,7 +211,7 @@ be conceptually consistent.
         </script>
     </body>
     </html>
-
+```
   
 
 ##   IV. AS Methods  
