@@ -272,6 +272,7 @@ class TestCase(object):
         consoleProperties['DSS_ROOT_DIR'] = "%s/data" % installPath
         for technology in technologies:
             consoleProperties[technology.upper()] = True
+        print(f"CONSOLE_PROPERTIES:{consoleProperties}")
         util.writeProperties(consolePropertiesFile, consoleProperties)
         util.executeCommand("%s/%s/run-console.sh" % (self.playgroundFolder, installerFileName),
                             "Couldn't install openBIS", consoleInput='admin\nadmin')

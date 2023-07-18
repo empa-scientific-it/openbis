@@ -26,9 +26,20 @@ from pybis.things import Things
 def test_get_datasets(space):
     # test paging
     o = space.openbis
-    current_datasets = o.get_datasets(start_with=1, count=1)
-    assert current_datasets is not None
-    assert len(current_datasets) == 1
+
+    dataset = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    try:
+        current_datasets = o.get_datasets(start_with=1, count=1)
+        assert current_datasets is not None
+        assert len(current_datasets) == 1
+    finally:
+        dataset.delete()
 
 
 def test_create_delete_dataset(space):
