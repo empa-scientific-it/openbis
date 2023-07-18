@@ -112,8 +112,9 @@ property [javax.net](http://javax.net).ssl.trustStore. Example:
  
 
 **Using openBIS trust store in Java clients**
-
+```bash
     java -Djavax.net.ssl.trustStore=/home/openbis/openbis/servers/openBIS-server/jetty/etc/openBIS.keystore -jar the-client.jar
+```
 
 Connecting in Java
 
