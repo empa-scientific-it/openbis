@@ -1,4 +1,3 @@
-
 !["openBIS"](./docs/logos/openbis-logo.png "openBIS")
 
 # Repository organization
@@ -158,7 +157,7 @@ The project does not uses modules yet. Add '--add-opens' statements manually whe
 ## Development of NG UI
 
 1. Generate openBIS JS bundle by running in command line
-    1. cd /<OPENBIS_PROJECT_ROOT>/core-plugin-openbis
+    1. cd /<OPENBIS_PROJECT_ROOT>/api-openbis-javascript
     2. ./gradlew :bundleOpenbisStaticResources
 2. Start openBIS in your chosen IDE (NG UI assumes it will run
    at: http://localhost:8888/openbis-test/):
@@ -168,7 +167,7 @@ The project does not uses modules yet. Add '--add-opens' statements manually whe
     1. cd /<OPENBIS_PROJECT_ROOT>/ui-admin
     2. npm install
     3. npm run dev
-4. Open in your chosen browser a url, by default: http://localhost:8124/ng-ui-path
+4. Open in your chosen browser a url, by default: http://localhost:9999/admin
 
 ## Setting up IntelliJ Idea
 
