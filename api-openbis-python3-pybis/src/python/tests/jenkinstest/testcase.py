@@ -45,9 +45,9 @@ class TestCase(object):
     
     #!/usr/bin/python
     import settings
-    import systemtest.testcase
+    import jenkinstest.testcase
 
-    class TestCase(systemtest.testcase.TestCase):
+    class TestCase(jenkinstest.testcase.TestCase):
     
         def execute(self):
             ....
