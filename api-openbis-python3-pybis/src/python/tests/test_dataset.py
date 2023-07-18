@@ -23,8 +23,7 @@ import pytest
 from pybis.things import Things
 
 
-def test_get_datasets(space):
-    # test paging
+def test_get_datasets_count(space):
     o = space.openbis
     testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
     dataset = o.new_dataset(
@@ -40,7 +39,35 @@ def test_get_datasets(space):
         assert current_datasets is not None
         assert len(current_datasets) == 1
     finally:
-        dataset.delete("test_get_datasets", True)
+        dataset.delete("test_get_datasets_count", True)
+
+
+def test_get_datasets_paging(space):
+    o = space.openbis
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    dataset1 = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset1.save()
+
+    dataset2 = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset2.save()
+
+    try:
+        current_datasets = o.get_datasets(start_with=1, count=1)
+        assert current_datasets is not None
+        assert len(current_datasets) == 1
+    finally:
+        dataset1.delete("test_get_datasets_paging", True)
+        dataset2.delete("test_get_datasets_paging", True)
 
 
 def test_create_datasets_no_file(space):
