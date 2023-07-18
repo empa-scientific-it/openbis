@@ -310,7 +310,7 @@ PATs please read: [Personal Access
 Tokens](/pages/viewpage.action?pageId=122140993).
 
 Example of how to create and use a PAT:
-
+```java
     import java.util.Arrays;
     import java.util.Date;
     import java.util.List;
@@ -346,7 +346,7 @@ Example of how to create and use a PAT:
             v3api.searchSpaces(pat.getHash(), new SpaceSearchCriteria(), new SpaceFetchOptions());
         }
     }
-
+```
 ### Session Information
 
 OpenBIS provides a method to obtain the session information for an
