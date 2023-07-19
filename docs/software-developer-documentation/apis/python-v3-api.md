@@ -190,7 +190,7 @@ https://osxfuse.github.io
 
 **Unix Cent OS 7**
 
-```python
+```bash
 $ sudo yum install epel-release
 $ sudo yum --enablerepo=epel -y install fuse-sshfs
 $ user="$(whoami)"
