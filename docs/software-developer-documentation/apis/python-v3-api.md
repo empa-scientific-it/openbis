@@ -11,7 +11,7 @@ pyBIS is a Python module for interacting with openBIS. pyBIS is designed to be m
 
 ## Installation
 
-```
+```python
 pip install --upgrade pybis
 ```
 
