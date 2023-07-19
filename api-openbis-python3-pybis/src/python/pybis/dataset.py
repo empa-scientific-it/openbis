@@ -1245,9 +1245,14 @@ class DataSetUploadQueue:
             file_size = os.path.getsize(filename)
 
             if self.multipart is True:
-                file = {filename: open(filename, "rb")}
-                resp = requests.post(upload_url, files=file, verify=verify_certificates)
-                resp.raise_for_status()
+                from requests_toolbelt.multipart.encoder import MultipartEncoder
+                with open(filename, "rb") as f:
+                    m = MultipartEncoder(
+                        fields={filename: (filename, f, 'application/octet-stream')})
+                    headers = {'Content-Type': m.content_type}
+                    r = requests.post(upload_url, data=m, headers=headers,
+                                      verify=verify_certificates)
+                    r.raise_for_status()
             else:
                 # upload the file to our DSS session workspace
                 with open(filename, "rb") as f:
