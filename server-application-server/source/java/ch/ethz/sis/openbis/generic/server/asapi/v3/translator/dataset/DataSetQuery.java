@@ -117,7 +117,7 @@ public interface DataSetQuery extends ObjectQuery
                     + "left join material_types mt on m.maty_id = mt.id "
                     + "join data_set_type_property_types etpt on p.dstpt_id = etpt.id "
                     + "join property_types pt on etpt.prty_id = pt.id "
-                    + "where p.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class },
+                    + "where p.ds_id = any(?{1}) order by id", parameterBindings = { LongSetMapper.class },
             resultSetBinding = PropertyRecordDataObjectBinding.class, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet dataSetIds);
 

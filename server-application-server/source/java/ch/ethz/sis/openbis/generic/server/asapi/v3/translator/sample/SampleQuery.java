@@ -82,7 +82,7 @@ public interface SampleQuery extends ObjectQuery
                     + "left join material_types mt on m.maty_id = mt.id "
                     + "join sample_type_property_types etpt on p.stpt_id = etpt.id "
                     + "join property_types pt on etpt.prty_id = pt.id "
-                    + "where p.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class },
+                    + "where p.samp_id = any(?{1}) order by id", parameterBindings = { LongSetMapper.class },
             resultSetBinding = PropertyRecordDataObjectBinding.class,  fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet sampleIds);
 
