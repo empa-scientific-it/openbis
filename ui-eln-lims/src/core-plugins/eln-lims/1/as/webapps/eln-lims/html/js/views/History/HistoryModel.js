@@ -67,10 +67,20 @@ function HistoryModel(entity) {
 
                 if (entryType === "PROPERTY") {
                     var validFromPropertyChanges = _this._getPropertyChanges(validFromChanges, entry.propertyName)
-                    validFromPropertyChanges.newValue = entry.propertyValue
+                    if(validFromPropertyChanges.propertyType.multiValue) {
+//                        validFromPropertyChanges.newValue = (validFromPropertyChanges.newValue ?? []).concat(entry.propertyValue);
+                        _this._setMultiValueProperty(validFromPropertyChanges, 'newValue', entry.propertyValue);
+                    } else {
+                        validFromPropertyChanges.newValue = entry.propertyValue
+                    }
                     if (validToChanges) {
                         var validToPropertyChanges = _this._getPropertyChanges(validToChanges, entry.propertyName)
-                        validToPropertyChanges.oldValue = entry.propertyValue
+                        if(validToPropertyChanges.propertyType.multiValue) {
+//                            validToPropertyChanges.oldValue = (validToPropertyChanges.oldValue ?? []).concat(entry.propertyValue);
+                            _this._setMultiValueProperty(validToPropertyChanges, 'oldValue', entry.propertyValue);
+                        } else {
+                            validToPropertyChanges.oldValue = entry.propertyValue
+                        }
                     }
                 } else if (entryType === "RELATION") {
                     if (!entry.relationType) {
@@ -377,4 +387,18 @@ function HistoryModel(entity) {
             return relatedObjectId.permId
         }
     }
+
+    this._setMultiValueProperty = function(propertyChange, valueType, value) {
+        if(propertyChange[valueType]) {
+            if(propertyChange.propertyType.dataType == "CONTROLLEDVOCABULARY") {
+                var lastVal = propertyChange[valueType][propertyChange[valueType].length-1];
+                lastVal = lastVal.substring(0, lastVal.lastIndexOf(' ['));
+                propertyChange[valueType][propertyChange[valueType].length-1] = lastVal;
+            }
+            propertyChange[valueType] = propertyChange[valueType].concat(value);
+        } else {
+            propertyChange[valueType] = [value];
+        }
+    }
+
 }
