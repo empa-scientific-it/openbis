@@ -31,8 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISamplesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
@@ -60,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -131,7 +129,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     private List<HistoryEntry> unknownHistory;
 
     @JsonProperty
-    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> properties;
 
     @JsonProperty
@@ -633,7 +631,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
+        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override

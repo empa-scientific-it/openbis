@@ -28,12 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
@@ -121,7 +116,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private Sample sample;
 
     @JsonProperty
-    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> properties;
 
     @JsonProperty
@@ -946,7 +941,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
+        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override

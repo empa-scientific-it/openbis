@@ -34,16 +34,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -121,7 +118,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     private Experiment experiment;
 
     @JsonProperty
-    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> properties;
 
     @JsonProperty
@@ -945,7 +942,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
+        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override

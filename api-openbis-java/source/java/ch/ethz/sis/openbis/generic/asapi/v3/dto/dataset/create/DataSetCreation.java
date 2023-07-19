@@ -26,8 +26,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.create.IObjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICreationIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.IDataStoreId;
@@ -71,7 +70,7 @@ public class DataSetCreation implements ICreation, ICreationIdHolder, IObjectCre
 
     private List<? extends ITagId> tagIds;
 
-    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
+    @JsonDeserialize(contentUsing =  PropertiesDeserializer.class)
     private Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
     private List<? extends IDataSetId> containerIds;
@@ -267,7 +266,7 @@ public class DataSetCreation implements ICreation, ICreationIdHolder, IObjectCre
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
+        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override

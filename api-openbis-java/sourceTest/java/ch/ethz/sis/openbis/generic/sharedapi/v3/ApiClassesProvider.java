@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
@@ -59,8 +60,9 @@ public class ApiClassesProvider
     };
 
     private static final Set<Class<?>> NON_SERIALIZABLE_CLASSES =
-            new HashSet<>(Arrays.asList(FastDownloader.class, FastDownloadResult.class, FastDownloadUtils.class,
-                    SampleIdDeserializer.class));
+            new HashSet<>(Arrays.asList(FastDownloader.class, FastDownloadResult.class,
+                    FastDownloadUtils.class, SampleIdDeserializer.class,
+                    PropertiesDeserializer.class));
 
     public static Collection<Class<?>> getPublicClasses()
     {
@@ -80,20 +82,24 @@ public class ApiClassesProvider
 
         Reflections reflections = new Reflections(configBuilder);
 
-        Multimap<String, String> map = reflections.getStore().get(SubTypesScanner.class.getSimpleName());
+        Multimap<String, String> map =
+                reflections.getStore().get(SubTypesScanner.class.getSimpleName());
 
-        Collection<String> nonInnerClassesAndTestClasses = Collections2.filter(map.values(), new Predicate<String>()
-            {
-
-                @Override
-                public boolean apply(String item)
+        Collection<String> nonInnerClassesAndTestClasses =
+                Collections2.filter(map.values(), new Predicate<String>()
                 {
-                    return false == (item.contains("$") || item.endsWith("Test"));
-                }
-            });
+
+                    @Override
+                    public boolean apply(String item)
+                    {
+                        return false == (item.contains("$") || item.endsWith("Test"));
+                    }
+                });
         Collection<String> uniqueClassNames = new TreeSet<String>(nonInnerClassesAndTestClasses);
-        Collection<Class<?>> uniqueClasses = ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames))
-                .stream().filter(c -> Modifier.isPublic(c.getModifiers())).collect(Collectors.toList());
+        Collection<Class<?>> uniqueClasses =
+                ImmutableSet.copyOf(ReflectionUtils.forNames(uniqueClassNames))
+                        .stream().filter(c -> Modifier.isPublic(c.getModifiers()))
+                        .collect(Collectors.toList());
         Set<Class<?>> nonSerializableConcreteClasses = new HashSet<Class<?>>();
 
         for (Class<?> uniqueClass : uniqueClasses)
@@ -112,7 +118,8 @@ public class ApiClassesProvider
 
         if (false == nonSerializableConcreteClasses.isEmpty())
         {
-            Assert.fail("Non serializable classes found:\n" + StringUtils.join(nonSerializableConcreteClasses, ",\n"));
+            Assert.fail("Non serializable classes found:\n" + StringUtils.join(
+                    nonSerializableConcreteClasses, ",\n"));
         }
 
         return uniqueClasses;

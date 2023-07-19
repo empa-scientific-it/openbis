@@ -20,8 +20,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertySerializableDeserializer;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.Util;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -65,7 +64,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
 
     private List<? extends ITagId> tagIds;
 
-    @JsonDeserialize(contentUsing = PropertySerializableDeserializer.class)
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, Serializable> properties = new HashMap<>();
 
     private ISampleId containerId;
@@ -247,7 +246,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? Util.getPropertyAsString(getProperties().get(propertyName)) : null;
+        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override

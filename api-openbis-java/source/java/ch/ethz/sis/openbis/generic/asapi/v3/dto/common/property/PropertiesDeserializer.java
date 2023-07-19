@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PropertySerializableDeserializer extends JsonDeserializer<Serializable>
+public class PropertiesDeserializer extends JsonDeserializer<Serializable>
 {
     @Override
     public Serializable deserialize(JsonParser p, DeserializationContext ctxt)
@@ -42,5 +42,25 @@ public class PropertySerializableDeserializer extends JsonDeserializer<Serializa
         }
     }
 
+    public static String getPropertyAsString(Serializable propertyValue) {
+        if(propertyValue == null) {
+            return null;
+        } else {
+            if(propertyValue.getClass().isArray()) {
+                Serializable[] values = (Serializable[]) propertyValue;
+                StringBuilder builder = new StringBuilder("[");
+                for(Serializable value : values) {
+                    if(builder.length() > 1) {
+                        builder.append(", ");
+                    }
+                    builder.append(value);
+                }
+                builder.append("]");
+                return builder.toString();
+            } else {
+                return (String) propertyValue;
+            }
+        }
+    }
 
 }
