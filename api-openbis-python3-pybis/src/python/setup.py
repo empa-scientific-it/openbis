@@ -26,7 +26,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="PyBIS",
-    version="1.35.11",
+    version="1.36.0rc1",
     author="ID SIS • ETH Zürich",
     author_email="openbis-support@id.ethz.ch",
     description="openBIS connection and interaction, optimized for using with Jupyter",
@@ -38,6 +38,7 @@ setup(
     install_requires=[
         "pytest",
         "requests",
+        "requests_toolbelt",
         "urllib3",
         "pandas",
         "texttable",

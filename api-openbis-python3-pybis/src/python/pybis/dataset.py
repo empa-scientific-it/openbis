@@ -1246,9 +1246,6 @@ class DataSetUploadQueue:
             file_size = os.path.getsize(filename)
 
             if self.multipart is True:
-                # file = {filename: open(filename, "rb")}
-                # resp = requests.post(upload_url, files=file, verify=verify_certificates)
-                # resp.raise_for_status()
                 with open(filename, "rb") as f:
                     m = MultipartEncoder(
                         fields={filename: (filename, f, 'application/octet-stream')})

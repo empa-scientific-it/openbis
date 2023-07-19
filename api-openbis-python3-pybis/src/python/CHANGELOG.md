@@ -1,3 +1,7 @@
+## Changes with pybis-1.36.0
+
+- Added dependency to requests-toolbelt
+
 ## Changes with pybis-1.35.11
 
 - Improvements to dataset upload performance
