@@ -31,7 +31,7 @@ data_files = [
 
 setup(
     name="obis",
-    version="0.4.2rc5",
+    version="0.4.2rc6",
     description="Local data management with assistance from OpenBIS.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -42,7 +42,7 @@ setup(
     packages=["obis", "obis.dm", "obis.dm.commands", "obis.scripts"],
     data_files=data_files,
     package_data={"obis": ["dm/git-annex-attributes"]},
-    install_requires=["pyOpenSSL", "pytest", "pybis==1.35.10", "click"],
+    install_requires=["pyOpenSSL", "pytest", "pybis==1.35.11", "click"],
     entry_points={"console_scripts": ["obis=obis.scripts.cli:main"]},
     zip_safe=False,
     python_requires=">=3.3",

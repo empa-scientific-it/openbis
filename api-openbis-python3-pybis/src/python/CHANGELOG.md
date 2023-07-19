@@ -1,3 +1,7 @@
+## Changes with pybis-1.35.11
+
+- Improvements to dataset upload performance
+
 ## Changes with pybis-1.35.10
 
 - Fixed issue with changing properties for linked datasets 

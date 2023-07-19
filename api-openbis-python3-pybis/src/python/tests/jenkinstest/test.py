@@ -27,7 +27,7 @@ class TestCase(testcase.TestCase):
         self.openbisController = self.createOpenbisController()
         self.openbisController.allUp()
         # run tests
-        util.executeCommand(['pytest', '--junitxml=test_results_pybis.xml',
+        util.executeCommand(['pytest', '--verbose', '--junitxml=test_results_pybis.xml',
                              'api-openbis-python3-pybis/src/python/tests'])
 
 
