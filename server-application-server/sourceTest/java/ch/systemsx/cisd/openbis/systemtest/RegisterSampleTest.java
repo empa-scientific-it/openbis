@@ -139,7 +139,7 @@ public class RegisterSampleTest extends BaseTest
         // When
         assertUserFailureException(Void -> genericServer.registerSample(systemSessionToken, newSample, Collections.emptySet()),
                 // Then
-                "Vocabulary value 'UNKNOWN' is not valid.");
+                "Vocabulary value 'UNKNOWN' of property 'VOCA_PROP' is not valid.");
     }
 
     @Test

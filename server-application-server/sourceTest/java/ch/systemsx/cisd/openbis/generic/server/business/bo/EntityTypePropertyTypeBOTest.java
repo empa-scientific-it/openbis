@@ -135,7 +135,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                     one(propertiesConverter).createValidatedProperty(with(propertyType),
                             with(any(ExperimentTypePropertyTypePE.class)),
                             with(any(PersonPE.class)), with(validatedValue));
-                    will(returnValue(property));
+                    will(returnValue(List.of(property)));
 
                     one(entityPropertyTypeDAO).createProperties(property, experimentIds);
                     one(entityPropertyTypeDAO).updateEntityModificationTimestamps(with(experimentIds));
