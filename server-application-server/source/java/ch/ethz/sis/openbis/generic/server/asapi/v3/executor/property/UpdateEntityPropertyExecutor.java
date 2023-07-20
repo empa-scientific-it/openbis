@@ -127,7 +127,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                                     entityInformationProvider, managedPropertyEvaluatorFactory);
                     converters.put(entityKind, converter);
                 }
-
+                System.out.println("||> UPDATING PROPERTIES OF SAMPLE:" + propertiesHolder.toString());
                 update(context, propertiesHolder, properties, converters.get(entityKind));
             }
 
@@ -458,12 +458,15 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             Map<String, Serializable> properties,
             EntityPropertiesConverter converter)
     {
+        System.out.println("||> properties:");
+        properties.forEach((key, value) -> System.out.println("||> " +key + ":" + value));
         List<IEntityProperty> entityProperties = new LinkedList<IEntityProperty>();
         for (Map.Entry<String, Serializable> entry : properties.entrySet())
         {
             entityProperties.add(EntityHelper.createNewProperty(entry.getKey(), entry.getValue()));
         }
-
+        System.out.println("||> entityProperties:");
+        entityProperties.forEach(ent -> System.out.println(ent));
         Set<? extends EntityPropertyPE> existingProperties = propertiesHolder.getProperties();
         Map<String, List<Object>> existingPropertyValuesByCode =
                 new HashMap<String, List<Object>>();
@@ -474,13 +477,16 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             existingPropertyValuesByCode.computeIfAbsent(propertyCode, s -> new ArrayList<>());
             existingPropertyValuesByCode.get(propertyCode).add(getValue(existingProperty));
         }
-
+        System.out.println("||> existingPropertyValuesByCode:");
+        existingPropertyValuesByCode.forEach((key, value) -> System.out.println("||> " +key + ":" + value));
         Set<? extends EntityPropertyPE> convertedProperties =
                 convertProperties(context, propertiesHolder.getEntityType(), existingProperties,
                         entityProperties, converter);
-
+        System.out.println("||> convertedProperties:");
+        convertedProperties.forEach(ent -> System.out.println(ent));
         if (isEqualsMultiple(existingPropertyValuesByCode, convertedProperties) == false)
         {
+            System.out.println("||> isEqualsMultiple == false");
             propertiesHolder.setProperties(convertedProperties);
         }
     }
