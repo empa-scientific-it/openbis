@@ -16,7 +16,7 @@ case, OpenBIS is aware of its existence and the data can be used for provenance 
 
 ## 2. Installation
 
-```
+```bashbash
 pip3 install obis
 ```
 
@@ -25,13 +25,13 @@ Since `obis` is based on `pybis`, the pip command will also install pybis and al
 ## 3. Quick start guide
 
 **Configure your openBIS Instance**
-```
+```bashbash
 # global settings to be use for all obis repositories
 obis config -g set openbis_url=https://localhost:8888
 obis config -g set user=admin
 ```
 **Download Physical Dataset**
-```
+```bashbash
 # create a physical (-p) obis repository with a folder name
 obis init -p data1
 cd data1
@@ -41,7 +41,7 @@ obis config get is_physical
 obis download 20230228091119011-58
 ```
 **Upload Physical Dataset**
-```
+```bashbash
 # create a physical (-p) obis repository with a folder name
 obis init -p data1
 cd data1
@@ -57,7 +57,7 @@ obis upload 20230228133001314-59 RAW_DATA -f your_file_a -f your_file_b
 
 $ obis --help
 
-```
+```bashbash
 Usage: obis [OPTIONS] COMMAND [ARGS]...
 
 Options:
@@ -90,7 +90,7 @@ Commands:
 
 To show detailed help for a specific command, type `obis <command> --help` :
 
-```
+```bashbash
 $ obis commit --help
 Usage: obis commit [OPTIONS] [REPOSITORY]
 
@@ -168,7 +168,7 @@ and get/set properties of objects/collections represented by datasets in current
 
 **collection**
 
-```
+```bashbash
 obis collection get [key1] [key2] ...
 obis collection set [key1]=[value1], [key2]=[value2] ...
 ```
@@ -181,7 +181,7 @@ data set is connected directly to a collection - gets or sets given properties t
 
 **config**
 
-```
+```bashbash
 obis config get [key]
 obis config set [key]=[value]
 ```
@@ -195,7 +195,7 @@ it comes to integration with other tools.
 
 **Example `.obis/config.json`**
 
-```
+```bashbash
 {
     "fileservice_url": null,
     "git_annex_hash_as_checksum": true,
@@ -207,7 +207,7 @@ it comes to integration with other tools.
 
 **data_set**
 
-```
+```bashbash
 obis data_set search [OPTIONS]
 
 Options:
@@ -243,7 +243,7 @@ configuration.*
 
 **download**
 
-```
+```bashbash
 obis download [options] [data_set_id]
 
 Options:
@@ -262,7 +262,7 @@ and the `fileservice_url` needs to be configured.
 
 **init**
 
-```
+```bashbash
 obis init -p [folder]
 ```
 
@@ -272,7 +272,7 @@ If not, it will use the current folder.
 
 **object get / set**
 
-```
+```bashbash
 obis collection get [key1] [key2] ...
 obis collection set [key1]=[value1], [key2]=[value2] ...
 ```
@@ -285,7 +285,7 @@ data set is connected directly to an object - gets or sets given properties to i
 
 **object search**
 
-```
+```bashbash
 obis object search [OPTIONS]
 
 Options:
@@ -319,7 +319,7 @@ configuration.*
 
 **upload**
 
-```
+```bashbash
 obis upload [sample_id] [data_set_type] [OPTIONS]
 ```
 
@@ -331,7 +331,7 @@ data set.
 
 **Create an obis repository to work in Standard Data Store mode**
 
-```
+```bashbash
 # global settings to be use for all obis repositories
 obis config -g set openbis_url=https://localhost:8888
 obis config -g set user=admin
@@ -351,7 +351,7 @@ obis upload 20230228133001314-59 RAW_DATA -f results.csv -f results_space.csv
 
 **download datasets of an object and check properties**
 
-```
+```bashbash
 # assuming we are in a configured obis repository
 obis download 20230228091119011-58
 # set object name to XYZ
@@ -380,25 +380,25 @@ openBIS.
 With `get` you retrieve one or more settings. If the `key` is omitted, you retrieve all settings of
 the `type`:
 
-```
+```bashbash
 obis [type] [options] get [key]
 ```
 
 With `set` you set one or more settings:
 
-```
+```bashbash
 obis [type] [options] set [key1]=[value1], [key2]=[value2], ...
 ```
 
 With `clear` you unset one or more settings:
 
-```
+```bashbash
 obis [type] [options] clear [key1]
 ```
 
 With the type `settings` you can get all settings at once:
 
-```
+```bashbash
 obis settings [options] get
 ```
 
@@ -433,7 +433,7 @@ it comes to integration with other tools.
 
 **Example `.obis/config.json`**
 
-```
+```bashbash
 {
     "fileservice_url": null,
     "git_annex_hash_as_checksum": true,
@@ -444,7 +444,7 @@ it comes to integration with other tools.
 
 **Example `.obis/data_set.json`**
 
-```
+```bashbash
 {
     "properties": {
         "K1": "v1",
@@ -458,7 +458,7 @@ it comes to integration with other tools.
 
 **init**
 
-```
+```bashbash
 obis init [folder]
 ```
 
@@ -467,7 +467,7 @@ If not, it will use the current folder.
 
 **init_analysis**
 
-```
+```bashbash
 obis init_analysis [options] [folder]
 ```
 
@@ -477,7 +477,7 @@ with the `-p` option.
 
 **commit**
 
-```
+```bashbash
 obis commit [options]
 ```
 
@@ -486,7 +486,7 @@ define a commit message, the user will be asked to provide one.
 
 **sync**
 
-```
+```bashbash
 obis sync
 ```
 
@@ -496,7 +496,7 @@ applicable, e.g. use "git annex add" instead of "git add".
 
 **status**
 
-```
+```bashbash
 obis status [folder]
 ```
 
@@ -505,7 +505,7 @@ parameter. It shows file changes and whether the repository needs to be synchron
 
 **clone**
 
-```
+```bashbash
 obis clone [options] [data_set_id]
 ```
 
@@ -522,7 +522,7 @@ _Note_: This command does not work when `obis_metadata_folder` is set.
 
 **move**
 
-```
+```bashbash
 obis move [options] [data_set_id]
 ```
 
@@ -532,7 +532,7 @@ Note: This command does not work when `obis_metadata_folder` is set.
 
 **addref / removeref**
 
-```
+```bashbash
 obis addref
 obis removeref
 ```
@@ -543,7 +543,7 @@ was moved or copied without using the `move` or `copy` commands.
 **token**
 
 
-```
+```bashbash
 obis token get <session_name> [--validity-days] [--validity-weeks] [--validity-months]
 ```
 
@@ -558,7 +558,7 @@ obis configuration and used for every subsequent request.
 
 **Create an obis repository and commit to openBIS**
 
-```
+```bashbash
 # global settings to be use for all obis repositories
 obis config -g set openbis_url=https://localhost:8888
 obis config -g set user=admin
@@ -575,7 +575,7 @@ obis commit -m 'message'
 
 **Commit to git and sync manually**
 
-```
+```bashbash
 # assuming we are in a configured obis repository
 echo content >> example_file
 git annex add example_file
@@ -585,7 +585,7 @@ obis sync
 
 **Create an analysis repository**
 
-```
+```bashbash
 # assuming we have a repository 'data1'
 obis init_analysis -p data1 analysis1
 cd analysis1
