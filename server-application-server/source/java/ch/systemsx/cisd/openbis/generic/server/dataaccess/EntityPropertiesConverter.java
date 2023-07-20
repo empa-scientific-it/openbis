@@ -16,12 +16,13 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,6 +70,9 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
  */
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            EntityPropertiesConverter.class);
     private static final IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>
             EXTENDED_ETPT_KEY_EXTRACTOR =
             new IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>()
@@ -339,6 +343,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
+        operationLog.info("||> convertProperties" + Arrays.toString(properties));
         return convertProperties(properties, entityTypeCode, registrator, true, true);
     }
 
@@ -375,6 +380,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 list.addAll(convertedPropertyOrNull);
             }
         }
+        operationLog.info("||> convertProperties POST");
+        list.forEach(l -> operationLog.info(l));
         return list;
     }
 

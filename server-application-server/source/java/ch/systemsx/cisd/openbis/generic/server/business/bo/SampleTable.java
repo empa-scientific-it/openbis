@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -66,6 +69,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
  */
 public final class SampleTable extends AbstractSampleBusinessObject implements ISampleTable
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SampleTable.class);
     private List<SamplePE> samples;
 
     private boolean dataChanged;
@@ -340,6 +346,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         ExperimentPE oldExperiment = sample.getExperiment();
         ProjectPE oldProject = sample.getProject();
 
+        operationLog.info("||> prepareBatchUpdate for:"+sample);
         updateProperties(sample, updates.getProperties());
         checkPropertiesBusinessRules(sample, propertiesCache);
 
