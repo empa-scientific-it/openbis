@@ -318,7 +318,7 @@ public class CreateSampleTest extends AbstractSampleTest
                                        {
                                            v3api.createSamples(sessionToken, Arrays.asList(creation));
                                        }
-                                   }, "Vocabulary value 'NON_EXISTENT_ORGANISM' is not valid. It must exist in 'ORGANISM' controlled vocabulary",
+                                   }, "Vocabulary value 'NON_EXISTENT_ORGANISM' of property 'ORGANISM' is not valid. It must exist in 'ORGANISM' controlled vocabulary [FLY, DOG, GORILLA, RAT, HUMAN]",
                 patternContains("updating properties (1/1)", toDblQuotes("'identifier' : '/CISD/SAMPLE_WITH_INCORRECT_PROPERTY_VALUE'")));
     }
 

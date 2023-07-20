@@ -421,7 +421,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
                 {
                     v3api.createDataSets(sessionToken, Arrays.asList(creation));
                 }
-            }, "Vocabulary value 'NON_EXISTENT_GENDER' is not valid. It must exist in 'GENDER' controlled vocabulary");
+            }, "Vocabulary value 'NON_EXISTENT_GENDER' of property 'GENDER' is not valid. It must exist in 'GENDER' controlled vocabulary [MALE, FEMALE]");
     }
 
     @Test
