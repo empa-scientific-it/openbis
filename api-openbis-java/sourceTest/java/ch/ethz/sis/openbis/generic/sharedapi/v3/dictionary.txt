@@ -146,6 +146,7 @@ DeletionSortOptions
 DeletionTechId
 DeletionType
 desc
+deserialize
 downloadFiles
 DtoGenerator
 ECMAScriptEngineFactory
@@ -302,6 +303,7 @@ getProject
 getProjectId
 getProjects
 getProperties
+getPropertyAsString
 getPropertyName
 getPropertyValue
 getRealArrayProperty
@@ -441,6 +443,7 @@ isEmpty
 isListable
 isMeasured
 isModified
+isMultiValue
 isOfficial
 isOpenbis
 ISpaceHolder
@@ -558,6 +561,7 @@ ProjectSearchCriteria
 ProjectSortOptions
 ProjectUpdate
 PROPERTY
+PropertiesDeserializer
 PropertyFetchOptions
 PropertyHistoryEntry
 ProprietaryStorageFormatPermId
@@ -696,6 +700,7 @@ setMeasured
 setMetaData
 setModificationDate
 setModifier
+setMultiValue
 setMultilineVarcharProperty
 setName
 setOfficial

@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.create.AttachmentCreation;
@@ -100,7 +101,9 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.fastdownload.FastDownloadUtils;
  */
 public class ToStringCheck
 {
-    private static final Set<Class<?>> IGNORED_CLASSES = new HashSet<>(Arrays.asList(FastDownloadUtils.class, SampleIdDeserializer.class));
+    private static final Set<Class<?>> IGNORED_CLASSES = new HashSet<>(
+            Arrays.asList(FastDownloadUtils.class, SampleIdDeserializer.class,
+                    PropertiesDeserializer.class));
 
     @Test
     public void testMissingToStringMethods() throws Exception
@@ -135,7 +138,8 @@ public class ToStringCheck
 
     private boolean filter(Class<?> clazz)
     {
-        return Modifier.isPublic(clazz.getModifiers()) && false == Modifier.isAbstract(clazz.getModifiers()) 
+        return Modifier.isPublic(clazz.getModifiers()) && false == Modifier.isAbstract(
+                clazz.getModifiers())
                 && IGNORED_CLASSES.contains(clazz) == false;
     }
 
@@ -174,7 +178,8 @@ public class ToStringCheck
     @Test
     public void testFetchOptionsToStringBuilder() throws Exception
     {
-        FetchOptionsToStringBuilder builder = new FetchOptionsToStringBuilder("Sample", new SampleFetchOptions());
+        FetchOptionsToStringBuilder builder =
+                new FetchOptionsToStringBuilder("Sample", new SampleFetchOptions());
         builder.addFetchOption("Type", new SampleTypeFetchOptions());
         builder.addFetchOption("Project", new ProjectFetchOptions());
         assertEquals(builder.toString(), "Sample\n    with Type\n    with Project\n");
@@ -259,7 +264,8 @@ public class ToStringCheck
         ContentCopyCreation o = new ContentCopyCreation();
         o.setExternalDmsId(new ExternalDmsPermId("test-dms-id"));
         o.setExternalId("test-external-id");
-        assertEquals(o.toString(), "ContentCopyCreation[externalDmsId=TEST-DMS-ID,externalId=test-external-id]");
+        assertEquals(o.toString(),
+                "ContentCopyCreation[externalDmsId=TEST-DMS-ID,externalId=test-external-id]");
     }
 
     @Test
@@ -268,7 +274,8 @@ public class ToStringCheck
         LinkedDataCreation o = new LinkedDataCreation();
         o.setExternalDmsId(new ExternalDmsPermId("test-dms-id"));
         o.setExternalCode("test-external-code");
-        assertEquals(o.toString(), "LinkedDataCreation[externalDmsId=TEST-DMS-ID,externalCode=test-external-code]");
+        assertEquals(o.toString(),
+                "LinkedDataCreation[externalDmsId=TEST-DMS-ID,externalCode=test-external-code]");
     }
 
     @Test
@@ -328,23 +335,30 @@ public class ToStringCheck
     @Test
     public void testAsynchronousOperationExecutionResults() throws Exception
     {
-        AsynchronousOperationExecutionResults o = new AsynchronousOperationExecutionResults(new OperationExecutionPermId());
-        assertEquals(o.toString(), "AsynchronousOperationExecutionResults[executionId=" + o.getExecutionId().getPermId() + "]");
+        AsynchronousOperationExecutionResults o =
+                new AsynchronousOperationExecutionResults(new OperationExecutionPermId());
+        assertEquals(o.toString(),
+                "AsynchronousOperationExecutionResults[executionId=" + o.getExecutionId()
+                        .getPermId() + "]");
     }
 
     @Test
     public void testOperationExecutionProgress() throws Exception
     {
         OperationExecutionProgress o = new OperationExecutionProgress("test-message", 123, 234);
-        assertEquals(o.toString(), "OperationExecutionProgress[message=test-message,numItemsProcessed=123,totalItemsToProcess=234]");
+        assertEquals(o.toString(),
+                "OperationExecutionProgress[message=test-message,numItemsProcessed=123,totalItemsToProcess=234]");
     }
 
     @Test
     public void testSynchronousOperationExecutionResults() throws Exception
     {
-        CreateSamplesOperationResult result1 = new CreateSamplesOperationResult(Arrays.asList(new SamplePermId("test-perm-id-1")));
-        CreateExperimentsOperationResult result2 = new CreateExperimentsOperationResult(Arrays.asList(new ExperimentPermId("test-perm-id-2")));
-        SynchronousOperationExecutionResults o = new SynchronousOperationExecutionResults(Arrays.asList(result1, result2));
+        CreateSamplesOperationResult result1 =
+                new CreateSamplesOperationResult(Arrays.asList(new SamplePermId("test-perm-id-1")));
+        CreateExperimentsOperationResult result2 = new CreateExperimentsOperationResult(
+                Arrays.asList(new ExperimentPermId("test-perm-id-2")));
+        SynchronousOperationExecutionResults o =
+                new SynchronousOperationExecutionResults(Arrays.asList(result1, result2));
         assertEquals(o.toString(),
                 "SynchronousOperationExecutionResults[results={CreateSamplesOperationResult[TEST-PERM-ID-1],CreateExperimentsOperationResult[TEST-PERM-ID-2]}]");
     }
@@ -379,7 +393,8 @@ public class ToStringCheck
         SearchDomainServiceExecutionResult o = new SearchDomainServiceExecutionResult();
         o.setEntityKind(EntityKind.SAMPLE);
         o.setEntityPermId("test-perm-id");
-        assertEquals(o.toString(), "SearchDomainServiceExecutionResult[entityKind=SAMPLE,entityPermId=test-perm-id]");
+        assertEquals(o.toString(),
+                "SearchDomainServiceExecutionResult[entityKind=SAMPLE,entityPermId=test-perm-id]");
     }
 
     @Test
@@ -393,9 +408,11 @@ public class ToStringCheck
     @Test
     public void testVocabularyTermReplacement() throws Exception
     {
-        VocabularyTermReplacement o = new VocabularyTermReplacement(new VocabularyTermPermId("test-code-1", "test-vocab-1"),
+        VocabularyTermReplacement o = new VocabularyTermReplacement(
+                new VocabularyTermPermId("test-code-1", "test-vocab-1"),
                 new VocabularyTermPermId("test-code-2", "test-vocab-2"));
-        assertEquals(o.toString(), "VocabularyTermReplacement[replacedId=TEST-CODE-1 (TEST-VOCAB-1),replacementId=TEST-CODE-2 (TEST-VOCAB-2)]");
+        assertEquals(o.toString(),
+                "VocabularyTermReplacement[replacedId=TEST-CODE-1 (TEST-VOCAB-1),replacementId=TEST-CODE-2 (TEST-VOCAB-2)]");
     }
 
     @Test
