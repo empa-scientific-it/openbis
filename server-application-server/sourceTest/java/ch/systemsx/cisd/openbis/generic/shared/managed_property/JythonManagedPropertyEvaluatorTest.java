@@ -284,7 +284,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
     {
         JythonManagedPropertyEvaluator evaluator =
                 new JythonManagedPropertyEvaluator("def updateFromUI(action):\n"
-                        + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
+                        + "  property.setStringValue(person.getUserId() + ';' + person.getUserName())");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("jbravo", "Johny", "Bravo");
@@ -448,7 +448,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
     {
         JythonManagedPropertyEvaluator evaluator =
                 new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
-                        + "  property.setValue(bindings.get(''))");
+                        + "  property.setStringValue(bindings.get(''))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("test", null, null);
@@ -466,7 +466,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
         JythonManagedPropertyEvaluator evaluator =
                 new JythonManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 'B']\n"
                         + "def updateFromBatchInput(bindings):\n"
-                        + "  property.setValue(bindings.get('A') + bindings.get('B'))");
+                        + "  property.setStringValue(bindings.get('A') + bindings.get('B'))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("test", null, null);
@@ -486,7 +486,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
                 new JythonManagedPropertyEvaluator(
                         "def batchColumnNames():\n return ['BC1', 'BC2']\n"
                                 + "def updateFromBatchInput(bindings):\n"
-                                + "  property.setValue(bindings.get('BC1') + ' ' + "
+                                + "  property.setStringValue(bindings.get('BC1') + ' ' + "
                                 + "bindings.get('BC2') + ' ' + "
                                 + "bindings.get(originalColumnNameBindingKey('OC')))");
         ManagedProperty property = new ManagedProperty();
@@ -507,7 +507,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
     {
         JythonManagedPropertyEvaluator evaluator =
                 new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
-                        + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
+                        + "  property.setStringValue(person.getUserId() + ';' + person.getUserName())");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("jbravo", "Johny", "Bravo");
@@ -523,7 +523,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
     {
         JythonManagedPropertyEvaluator evaluator =
                 new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
-                        + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
+                        + "  property.setStringValue(person.getUserId() + ';' + person.getUserName())");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("jbravo", null, null);
@@ -539,7 +539,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
     {
         JythonManagedPropertyEvaluator evaluator =
                 new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
-                        + "  property.setValue(person)");
+                        + "  property.setStringValue(person)");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         Map<String, String> bindings = new HashMap<String, String>();

@@ -207,7 +207,8 @@ public class CreatePropertyTypeExecutor
                     propertyType.setSchema(creation.getSchema());
                     propertyType.setTransformation(creation.getTransformation());
                     propertyType.setMetaData(creation.getMetaData());
-                    propertyType.setMultiValue(creation.isMultiValue());
+                    propertyType.setMultiValue(
+                            creation.isMultiValue() != null && creation.isMultiValue());
                     propertyTypes.add(propertyType);
                 }
 

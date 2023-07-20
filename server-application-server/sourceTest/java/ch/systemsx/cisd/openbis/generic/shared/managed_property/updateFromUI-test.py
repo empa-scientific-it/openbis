@@ -6,7 +6,7 @@ def updateFromUI(action):
             if inputValue is None:
                 inputValue = 'null'
             value = value + input.getLabel() + '=' + inputValue + '|'
-        property.setValue(value)
+        property.setStringValue(value)
     elif action.getName() == 'a2':
         value = 'a2!'
         for input in action.getInputWidgetDescriptions():
@@ -14,6 +14,6 @@ def updateFromUI(action):
             if inputValue is None:
                 inputValue = 'null'
             value = value + input.getLabel() + '=' + inputValue + '!'
-        property.setValue(value)
+        property.setStringValue(value)
     else:
         raise ValidationException('action ' + action.getName() + ' is not supported')
