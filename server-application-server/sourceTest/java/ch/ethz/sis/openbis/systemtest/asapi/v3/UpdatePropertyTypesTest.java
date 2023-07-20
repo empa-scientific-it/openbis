@@ -93,7 +93,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
         creation.setLabel("Test label");
         creation.setDescription("Test description");
         creation.setManagedInternally(propertyTypeCode.startsWith("$"));
-
+        creation.setMultiValue(false);
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(registratorSessionToken, Arrays.asList(creation));
         assertEquals(ids.size(), 1);
 
@@ -366,6 +366,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
             {
                 typeCreation.setVocabularyId(new VocabularyPermId("ORGANISM"));
             }
+            typeCreation.setMultiValue(false);
             propertyTypes.add(typeCreation);
         }
         v3api.createPropertyTypes(sessionToken, propertyTypes);
@@ -514,6 +515,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
         creation.setLabel("Test");
         creation.setDescription("Testing");
         creation.setDataType(DataType.XML);
+        creation.setMultiValue(false);
         PropertyTypePermId permId = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation)).get(0);
         v3api.logout(sessionToken);
         return permId;

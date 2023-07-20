@@ -112,6 +112,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
         propertyTypeCreation.setLabel("Test label");
         propertyTypeCreation.setDescription("Test description");
         propertyTypeCreation.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyTypeCreation.setMultiValue(false);
         List<PropertyTypePermId> propertyTypeIds = v3api.createPropertyTypes(systemSessionToken, Arrays.asList(propertyTypeCreation));
 
         PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
@@ -201,6 +202,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
         propertyTypeCreation.setLabel("Test label");
         propertyTypeCreation.setDescription("Test description");
         propertyTypeCreation.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyTypeCreation.setMultiValue(false);
         List<PropertyTypePermId> propertyTypeIds = v3api.createPropertyTypes(systemSessionToken, Arrays.asList(propertyTypeCreation));
 
         PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
@@ -307,6 +309,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
         propertyTypeCreation.setLabel("Test label");
         propertyTypeCreation.setDescription("Test description");
         propertyTypeCreation.setManagedInternally(propertyTypeCode.startsWith("$"));
+        propertyTypeCreation.setMultiValue(false);
         List<PropertyTypePermId> propertyTypeIds = v3api.createPropertyTypes(systemSessionToken, Arrays.asList(propertyTypeCreation));
 
         PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();

@@ -106,7 +106,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setLabel("Test label");
         creation.setDescription("Test description");
         creation.setManagedInternally(propertyTypeCode.startsWith("$"));
-
+        creation.setMultiValue(false);
         assertExceptionMessage(new IDelegatedAction()
             {
                 @Override
@@ -129,7 +129,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDescription("only for testing");
         creation.setLabel("Test Property");
         creation.setManagedInternally(true);
-
+        creation.setMultiValue(false);
         // When
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
@@ -162,7 +162,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDescription("only for testing");
         creation.setDataType(DataType.REAL);
         creation.setManagedInternally(true);
-
+        creation.setMultiValue(false);
         assertUserFailureException(new IDelegatedAction()
             {
                 @Override
@@ -183,7 +183,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDescription("only for testing");
         creation.setDataType(DataType.REAL);
         creation.setManagedInternally(false);
-
+        creation.setMultiValue(false);
         assertUserFailureException(new IDelegatedAction()
             {
                 @Override
@@ -207,7 +207,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         HashMap<String, String> metaData = new HashMap<>();
         metaData.put("greeting", "hello { meta data }");
         creation.setMetaData(metaData);
-
+        creation.setMultiValue(false);
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
         assertEquals(ids.toString(), "[TEST-PROPERTY]");
 
@@ -235,7 +235,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setLabel("Test Property");
         creation.setSchema(EXAMPLE_SCHEMA);
         creation.setTransformation(EXAMPLE_XSLT);
-
+        creation.setMultiValue(false);
         // When
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
@@ -270,7 +270,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDescription("only for testing");
         creation.setLabel("Test Vocabulary Property");
         creation.setVocabularyId(new VocabularyPermId("test_vocabulary"));
-
+        creation.setMultiValue(false);
         // When
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
@@ -306,7 +306,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDescription("only for testing");
         creation.setLabel("Test Material Property");
         creation.setMaterialTypeId(new EntityTypePermId("SIRNA", EntityKind.MATERIAL));
-
+        creation.setMultiValue(false);
         // When
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
@@ -342,7 +342,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDescription("only for testing");
         creation.setLabel("Test Sample Property");
         creation.setSampleTypeId(new EntityTypePermId("WELL", EntityKind.SAMPLE));
-
+        creation.setMultiValue(false);
         // When
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
@@ -377,7 +377,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDataType(DataType.DATE);
         creation.setDescription("only for testing");
         creation.setLabel("Test Date Property");
-
+        creation.setMultiValue(false);
         // When
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
 
@@ -599,6 +599,7 @@ public class CreatePropertyTypeTest extends AbstractTest
                     creation.setLabel("test label");
                     creation.setDescription("test description");
                     creation.setDataType(DataType.REAL);
+                    creation.setMultiValue(false);
                     v3api.createPropertyTypes(sessionToken, Arrays.asList(creation));
                 }
             }, new PropertyTypePermId("TEST"));
@@ -614,13 +615,13 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setLabel("label1");
         creation.setDescription("description1");
         creation.setDataType(DataType.BOOLEAN);
-
+        creation.setMultiValue(false);
         PropertyTypeCreation creation2 = new PropertyTypeCreation();
         creation2.setCode("LOG_TEST_2");
         creation2.setLabel("label2");
         creation2.setDescription("description2");
         creation2.setDataType(DataType.BOOLEAN);
-
+        creation.setMultiValue(false);
         v3api.createPropertyTypes(sessionToken, Arrays.asList(creation, creation2));
 
         assertAccessLog(
@@ -641,6 +642,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setLabel("Test");
         creation.setDescription("Testing");
         creation.setDataType(DataType.REAL);
+        creation.setMultiValue(false);
         return creation;
     }
 

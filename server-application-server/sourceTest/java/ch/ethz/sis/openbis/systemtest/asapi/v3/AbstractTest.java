@@ -1508,6 +1508,7 @@ public class AbstractTest extends SystemTestCase
         {
             creation.setVocabularyId(vocabularyPermId);
         }
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1525,6 +1526,7 @@ public class AbstractTest extends SystemTestCase
         creation.setSampleTypeId(sampleTypeId);
         creation.setLabel("label");
         creation.setDescription("description");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1537,6 +1539,7 @@ public class AbstractTest extends SystemTestCase
         creation.setVocabularyId(vocabularyId);
         creation.setLabel("label");
         creation.setDescription("description");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1718,6 +1721,7 @@ public class AbstractTest extends SystemTestCase
         creation.setDataType(DataType.DATE);
         creation.setLabel("Date");
         creation.setDescription("Date property type.");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1728,6 +1732,7 @@ public class AbstractTest extends SystemTestCase
         creation.setDataType(DataType.TIMESTAMP);
         creation.setLabel("Timestamp");
         creation.setDescription("Timestamp property type.");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1744,6 +1749,7 @@ public class AbstractTest extends SystemTestCase
         creation.setDataType(DataType.BOOLEAN);
         creation.setLabel("Boolean");
         creation.setDescription("Boolean property type.");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1754,6 +1760,7 @@ public class AbstractTest extends SystemTestCase
         creation.setDataType(DataType.INTEGER);
         creation.setLabel("Integer");
         creation.setDescription("Integer property type.");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1764,6 +1771,7 @@ public class AbstractTest extends SystemTestCase
         creation.setDataType(DataType.REAL);
         creation.setLabel("Real");
         creation.setDescription("Real property type.");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
@@ -1774,6 +1782,7 @@ public class AbstractTest extends SystemTestCase
         creation.setDataType(DataType.VARCHAR);
         creation.setLabel("Varchar");
         creation.setDescription("Varchar property type.");
+        creation.setMultiValue(false);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 

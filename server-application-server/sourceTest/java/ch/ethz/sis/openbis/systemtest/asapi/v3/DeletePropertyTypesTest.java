@@ -70,7 +70,7 @@ public class DeletePropertyTypesTest extends AbstractTest
         creation.setLabel("Test label");
         creation.setDescription("Test description");
         creation.setManagedInternally(propertyTypeCode.startsWith("$"));
-
+        creation.setMultiValue(false);
         List<PropertyTypePermId> ids = v3api.createPropertyTypes(registratorSessionToken, Arrays.asList(creation));
         assertEquals(ids.size(), 1);
 

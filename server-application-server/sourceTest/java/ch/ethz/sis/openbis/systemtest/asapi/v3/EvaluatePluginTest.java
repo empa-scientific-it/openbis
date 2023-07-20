@@ -255,6 +255,7 @@ public class EvaluatePluginTest extends AbstractTest
         pTypeCreation.setDataType(DataType.VARCHAR);
         pTypeCreation.setLabel("Children and Components");
         pTypeCreation.setDescription("Chilrden & components");
+        pTypeCreation.setMultiValue(false);
         PropertyTypePermId pTypeId = v3api.createPropertyTypes(systemSessionToken, Arrays.asList(pTypeCreation)).get(0);
 
         SampleTypeCreation sTypeCreation = new SampleTypeCreation();
@@ -531,7 +532,7 @@ public class EvaluatePluginTest extends AbstractTest
             propertyTypeCreation.setLabel(propertyCode);
             propertyTypeCreation.setDescription(propertyCode);
             propertyTypeCreation.setDataType(DataType.VARCHAR);
-
+            propertyTypeCreation.setMultiValue(false);
             v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
 
             PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();

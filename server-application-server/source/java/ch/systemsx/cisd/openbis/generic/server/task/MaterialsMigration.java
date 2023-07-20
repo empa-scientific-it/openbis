@@ -348,6 +348,7 @@ public class MaterialsMigration implements IMaintenanceTask {
                         if (oldPropertyType.getMaterialType() != null) {
                             propertyTypeCreation.setSampleTypeId(new EntityTypePermId(PREFIX + oldPropertyType.getMaterialType().getCode(), EntityKind.SAMPLE));
                         }
+                        propertyTypeCreation.setMultiValue(false);
                         createPropertyTypes.put(PREFIX + oldPropertyType.getCode(), propertyTypeCreation);
 
                         v3.createPropertyTypes(sessionToken, List.of(propertyTypeCreation));
