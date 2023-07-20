@@ -272,6 +272,8 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         for (Entry<String, EvaluationContext> entry : contexts.entrySet())
         {
             String code = entry.getKey().toUpperCase();
+            List<KeyValue<Map<String, String>>> tmpSubColumnBindings =
+                    new ArrayList<KeyValue<Map<String, String>>>();
             for (KeyValue<Map<String, String>> kv : subColumnBindings)
             {
                 if (kv.getKey().equals(code) == false)
@@ -281,9 +283,10 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                     {
                         map2.put(kv2.getKey(), kv2.getValue());
                     }
-                    subColumnBindings.add(new KeyValue<Map<String, String>>(code, map2));
+                    tmpSubColumnBindings.add(new KeyValue<Map<String, String>>(code, map2));
                 }
             }
+            subColumnBindings.addAll(tmpSubColumnBindings);
         }
         return subColumnBindings;
     }
