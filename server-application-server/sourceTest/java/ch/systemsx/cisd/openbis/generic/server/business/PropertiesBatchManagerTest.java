@@ -60,14 +60,14 @@ public class PropertiesBatchManagerTest extends AssertJUnit
                 ScriptType.MANAGED_PROPERTY,
                 "def updateFromBatchInput(columnValues):\n"
                         + "  if columnValues.get('') is None:\n" + "    return\n"
-                        + "  property.setValue(columnValues.get('') + ' alpha')");
+                        + "  property.setStringValue(columnValues.get('') + ' alpha')");
         builder.assign(MANAGED_SUBCOLUMNS).script(
                 ScriptType.MANAGED_PROPERTY,
                 "def batchColumnNames():\n  return ['1', '2']\n"
                         + "def updateFromBatchInput(columnValues):\n"
                         + "  if columnValues.get('1') is None:\n" + "    return\n"
                         + "  if columnValues.get('2') is None:\n" + "    return\n"
-                        + "  property.setValue(columnValues.get('1') + columnValues.get('2'))");
+                        + "  property.setStringValue(columnValues.get('1') + columnValues.get('2'))");
         NewBasicExperiment e1 = new NewBasicExperiment();
         PropertyBuilder p1 = new PropertyBuilder(UN_MANAGED).value("hello");
         PropertyBuilder p2 = new PropertyBuilder(MANAGED_NO_SUBCOLUMNS_NO_UPDATE).value("hi");
@@ -93,7 +93,7 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         builder.assign(MANAGED_ACCESS_OTHER_COLUMNS).script(
                 ScriptType.MANAGED_PROPERTY,
                 "def updateFromBatchInput(columnValues):\n"
-                        + "  property.setValue(columnValues.get(originalColumnNameBindingKey('"
+                        + "  property.setStringValue(columnValues.get(originalColumnNameBindingKey('"
                         + UN_MANAGED + "')) + ' ' + columnValues.get(''))");
         NewBasicExperiment e1 = new NewBasicExperiment();
         PropertyBuilder p1 = new PropertyBuilder(UN_MANAGED).value("hello");
@@ -113,7 +113,7 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         builder.assign(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).script(
                 ScriptType.MANAGED_PROPERTY,
                 "def updateFromBatchInput(columnValues):\n"
-                        + "  property.setValue(str(int(columnValues.get('')) + 42))");
+                        + "  property.setStringValue(str(int(columnValues.get('')) + 42))");
         NewSample s1 = new NewSample();
         PropertyBuilder p1 = new PropertyBuilder(MANAGED_NO_SUBCOLUMNS_BUT_UPDATE).value("1");
         addProperties(s1, p1);

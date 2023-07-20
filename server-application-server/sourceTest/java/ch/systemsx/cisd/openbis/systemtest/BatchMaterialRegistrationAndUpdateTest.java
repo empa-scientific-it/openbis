@@ -82,7 +82,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         script.setName("batch script");
         script.setScript("def batchColumnNames():\n  return ['A', 'B']\n"
                 + "def updateFromBatchInput(bindings):\n"
-                + "  property.setValue(bindings.get('A') + ' & ' + bindings.get('B'))\n"
+                + "  property.setStringValue(bindings.get('A') + ' & ' + bindings.get('B'))\n"
                 + "def configureUI():\n  None");
         commonClientService.registerScript(script);
         NewETPTAssignment assignment = new NewETPTAssignment();
