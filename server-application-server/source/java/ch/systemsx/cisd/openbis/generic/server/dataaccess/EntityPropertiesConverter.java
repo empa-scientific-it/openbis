@@ -344,6 +344,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final PersonPE registrator)
     {
         operationLog.info("||> convertProperties" + Arrays.toString(properties));
+        System.out.println("|||> convertProperties" + Arrays.toString(properties));
         return convertProperties(properties, entityTypeCode, registrator, true, true);
     }
 
@@ -381,7 +382,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
         operationLog.info("||> convertProperties POST");
-        list.forEach(l -> operationLog.info(l));
+        list.forEach(l -> operationLog.info("||> "+l));
+        list.forEach(l -> System.out.println("|||> "+l));
         return list;
     }
 
@@ -661,6 +663,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author,
             Set<String> propertiesToUpdate)
     {
+        operationLog.info("||> updateProperties " + entityType + " " + entityType + " ");
+        propertiesToUpdate.forEach(l -> operationLog.info("||> "+l));
+        newProperties.forEach(l -> operationLog.info("||> "+l));
+
+        propertiesToUpdate.forEach(l -> System.out.println("|||> "+l));
+        newProperties.forEach(l -> System.out.println("|||> "+l));
         // all new properties should be among propertiesToUpdate (no need to check it)
         final Set<T> set = updateProperties(oldProperties, entityType, newProperties, author);
         // add old properties that are not among propertiesToUpdate (preserve those properties)

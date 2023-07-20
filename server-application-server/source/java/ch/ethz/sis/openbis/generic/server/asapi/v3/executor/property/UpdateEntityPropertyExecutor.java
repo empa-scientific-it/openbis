@@ -20,9 +20,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -66,8 +63,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecutor
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            UpdateEntityPropertyExecutor.class);
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -133,7 +128,6 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                                     entityInformationProvider, managedPropertyEvaluatorFactory);
                     converters.put(entityKind, converter);
                 }
-                operationLog.info(String.format("||> UPDATING PROPERTIES OF SAMPLE:%s", propertiesHolder.toString()));
                 update(context, propertiesHolder, properties, converters.get(entityKind));
             }
 
@@ -464,15 +458,11 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             Map<String, Serializable> properties,
             EntityPropertiesConverter converter)
     {
-        operationLog.info("||> properties:");
-        properties.forEach((key, value) -> operationLog.info("||> " +key + ":" + value));
         List<IEntityProperty> entityProperties = new LinkedList<IEntityProperty>();
         for (Map.Entry<String, Serializable> entry : properties.entrySet())
         {
             entityProperties.add(EntityHelper.createNewProperty(entry.getKey(), entry.getValue()));
         }
-        operationLog.info("||> entityProperties:");
-        entityProperties.forEach(ent -> operationLog.info(ent));
         Set<? extends EntityPropertyPE> existingProperties = propertiesHolder.getProperties();
         Map<String, List<Object>> existingPropertyValuesByCode =
                 new HashMap<String, List<Object>>();
@@ -483,16 +473,11 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
             existingPropertyValuesByCode.computeIfAbsent(propertyCode, s -> new ArrayList<>());
             existingPropertyValuesByCode.get(propertyCode).add(getValue(existingProperty));
         }
-        operationLog.info("||> existingPropertyValuesByCode:");
-        existingPropertyValuesByCode.forEach((key, value) -> operationLog.info("||> " +key + ":" + value));
         Set<? extends EntityPropertyPE> convertedProperties =
                 convertProperties(context, propertiesHolder.getEntityType(), existingProperties,
                         entityProperties, converter);
-        operationLog.info("||> convertedProperties:");
-        convertedProperties.forEach(ent -> operationLog.info(ent));
         if (isEqualsMultiple(existingPropertyValuesByCode, convertedProperties) == false)
         {
-            operationLog.info("||> isEqualsMultiple == false");
             propertiesHolder.setProperties(convertedProperties);
         }
     }
