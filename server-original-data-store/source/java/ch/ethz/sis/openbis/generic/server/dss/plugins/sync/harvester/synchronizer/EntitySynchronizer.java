@@ -1643,6 +1643,7 @@ public class EntitySynchronizer
         }
 
         createSampleUpdates(builder, samplesToUpdate, sampleWithUpdatedParents);
+        operationLog.info("||> CREATE_SAMPLE_UPDATES:" + builder.getDetails());
     }
 
     private ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample findKnownSample(
