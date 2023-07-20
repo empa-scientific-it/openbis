@@ -198,7 +198,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
                     plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "",
-                    String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()) };
+                    String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase() };
             warnings.addAll(addRow(rowNumber++, false, exportableKind, permId,
                     compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
         }

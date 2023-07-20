@@ -231,7 +231,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         assertEquals(null, dpVocabulary.getValue());
         assertEquals(term2, dpVocabulary.getVocabularyTerm());
         final String expectedDpVocabularyErrorValue =
-                expectedErrorMessage("Vocabulary value 'FAKE_TERM' is not valid. "
+                expectedErrorMessage("Vocabulary value 'FAKE_TERM' of property 'DPVOCABULARYERROR' is not valid. "
                         + "It must exist in '" + vocabulary.getCode()
                         + "' controlled vocabulary [T1, T2, T3]");
         assertEquals(expectedDpVocabularyErrorValue, dpVocabularyError.getValue());
