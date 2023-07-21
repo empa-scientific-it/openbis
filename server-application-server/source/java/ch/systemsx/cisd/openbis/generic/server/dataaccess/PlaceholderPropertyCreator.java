@@ -29,8 +29,10 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PlaceholderPropertyCreator.class);
+
     /**
-     * Adds placeholders for <var>dynamicProperties</var> to <var>definedProperties</var> if they don't exist yet.
+     * Adds placeholders for <var>dynamicProperties</var> to <var>definedProperties</var> if they
+     * don't exist yet.
      */
     @Override
     public void addDynamicPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
@@ -41,7 +43,8 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
     }
 
     /**
-     * Adds placeholders for <var>managedProperties</var> to <var>definedProperties</var> if they don't exist yet.
+     * Adds placeholders for <var>managedProperties</var> to <var>definedProperties</var> if they
+     * don't exist yet.
      */
     @Override
     public void addManagedPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
@@ -52,16 +55,20 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
     }
 
     /**
-     * Adds <var>placeholderProperties</var> with specified <var>placeholderValue</var>to <var>definedProperties</var> if they don't exist yet.
+     * Adds <var>placeholderProperties</var> with specified <var>placeholderValue</var>to
+     * <var>definedProperties</var> if they don't exist yet.
      */
     private void addPlaceholders(Set<IEntityProperty> definedProperties,
             Set<String> placeholderProperties, String placeholderValue)
     {
         for (String p : placeholderProperties)
         {
-            if (definedProperties.contains(p) == false)
+            if (definedProperties.stream()
+                    .anyMatch(x -> x.getPropertyType().getCode().equals(p)) == false)
+            //            if (definedProperties.contains(p) == false)
             {
-                operationLog.info("||> addPlaceholders contains BEFORE:|" + p + "| " + placeholderValue);
+                operationLog.info(
+                        "||> addPlaceholders contains BEFORE:|" + p + "|" + placeholderValue);
                 definedProperties.forEach(operationLog::info);
                 final IEntityProperty entityProperty = new EntityProperty();
                 entityProperty.setValue(placeholderValue);
