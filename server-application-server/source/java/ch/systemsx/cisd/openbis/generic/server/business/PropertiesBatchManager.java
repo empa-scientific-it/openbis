@@ -274,17 +274,14 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             String code = entry.getKey().toUpperCase();
             List<KeyValue<Map<String, String>>> tmpSubColumnBindings =
                     new ArrayList<KeyValue<Map<String, String>>>();
-            for (KeyValue<Map<String, String>> kv : subColumnBindings)
-            {
-                if (kv.getKey().equals(code) == false)
+            boolean hasKey = subColumnBindings.stream().anyMatch(x -> x.getKey().equals(code));
+            if(!hasKey) {
+                Map<String, String> map2 = new HashMap<String, String>();
+                for (KeyValue<String> kv2 : originalColumnBindings)
                 {
-                    Map<String, String> map2 = new HashMap<String, String>();
-                    for (KeyValue<String> kv2 : originalColumnBindings)
-                    {
-                        map2.put(kv2.getKey(), kv2.getValue());
-                    }
-                    tmpSubColumnBindings.add(new KeyValue<Map<String, String>>(code, map2));
+                    map2.put(kv2.getKey(), kv2.getValue());
                 }
+                tmpSubColumnBindings.add(new KeyValue<Map<String, String>>(code, map2));
             }
             subColumnBindings.addAll(tmpSubColumnBindings);
         }
