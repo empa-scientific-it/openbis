@@ -149,9 +149,9 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     {
         List<IEntityProperty> newProperties = new ArrayList<IEntityProperty>();
 
-        List<KeyValue<Map<String, String>>> subColumnBindings =
+        Map<String, Map<String, String>> subColumnBindings =
                 createColumnBindingsMap(propertiesBean.getProperties(), contexts);
-        for (KeyValue<Map<String, String>> entry : subColumnBindings)
+        for (Entry<String, Map<String, String>> entry : subColumnBindings.entrySet())
         {
             String code = entry.getKey();
             EvaluationContext evalContext = contexts.get(code);
@@ -206,45 +206,19 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         return entityProperty;
     }
 
-    private static final class KeyValue<T>
-    {
-        private final String key;
-
-        private final T value;
-
-        KeyValue(String key, T value)
-        {
-            this.key = key;
-            this.value = value;
-
-        }
-
-        public String getKey()
-        {
-            return key;
-        }
-
-        public T getValue()
-        {
-            return value;
-        }
-
-    }
-
-    private List<KeyValue<Map<String, String>>> createColumnBindingsMap(
-            IEntityProperty[] properties,
+    private Map<String, Map<String, String>> createColumnBindingsMap(IEntityProperty[] properties,
             Map<String, EvaluationContext> contexts)
     {
-        List<KeyValue<Map<String, String>>> subColumnBindings =
-                new ArrayList<KeyValue<Map<String, String>>>();
+        Map<String, Map<String, String>> subColumnBindings =
+                new HashMap<String, Map<String, String>>();
 
-        List<KeyValue<String>> originalColumnBindings = new ArrayList<KeyValue<String>>();
+        Map<String, String> originalColumnBindings = new HashMap<String, String>();
         for (IEntityProperty property : properties)
         {
             final String code = property.getPropertyType().getCode().toUpperCase();
             final String value = property.getStringValue();
-            originalColumnBindings.add(new KeyValue<String>(
-                    ManagedPropertyFunctions.originalColumnNameBindingKey(code), value));
+            originalColumnBindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey(code),
+                    value);
 
             int indexOfColon = code.indexOf(':');
             String propertyCode = code;
@@ -254,36 +228,30 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 propertyCode = code.substring(0, indexOfColon);
                 subColumn = code.substring(indexOfColon + 1);
             }
-
-            final Map<String, String> bindings = new HashMap<String, String>();
-            subColumnBindings.add(new KeyValue<Map<String, String>>(propertyCode, bindings));
+            Map<String, String> bindings = subColumnBindings.get(propertyCode);
+            if (bindings == null)
+            {
+                bindings = new HashMap<String, String>();
+                subColumnBindings.put(propertyCode, bindings);
+            }
             bindings.put(subColumn, value);
         }
         // add original column bindings to all bindings
-        for (KeyValue<Map<String, String>> bindings : subColumnBindings)
+        for (Map<String, String> bindings : subColumnBindings.values())
         {
-            for (KeyValue<String> originalColumnEntry : originalColumnBindings)
+            for (Entry<String, String> originalColumnEntry : originalColumnBindings.entrySet())
             {
-                bindings.getValue()
-                        .put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
+                bindings.put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
             }
         }
 
         for (Entry<String, EvaluationContext> entry : contexts.entrySet())
         {
             String code = entry.getKey().toUpperCase();
-            List<KeyValue<Map<String, String>>> tmpSubColumnBindings =
-                    new ArrayList<KeyValue<Map<String, String>>>();
-            boolean hasKey = subColumnBindings.stream().anyMatch(x -> x.getKey().equals(code));
-            if(!hasKey) {
-                Map<String, String> map2 = new HashMap<String, String>();
-                for (KeyValue<String> kv2 : originalColumnBindings)
-                {
-                    map2.put(kv2.getKey(), kv2.getValue());
-                }
-                tmpSubColumnBindings.add(new KeyValue<Map<String, String>>(code, map2));
+            if (false == subColumnBindings.containsKey(code))
+            {
+                subColumnBindings.put(code, new HashMap<String, String>(originalColumnBindings));
             }
-            subColumnBindings.addAll(tmpSubColumnBindings);
         }
         return subColumnBindings;
     }
