@@ -3028,6 +3028,7 @@ user or by an instance admin.
 
 **WebAppSettingsExample.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3095,9 +3096,11 @@ user or by an instance admin.
             System.out.println(settings2);
         }
     }
+```
 
 **WebAppSettingsExample.html**
 
+```html
     <script>
         require([ "jquery", "openbis", "as/dto/person/update/PersonUpdate", "as/dto/person/id/Me", "as/dto/webapp/create/WebAppSettingCreation", "as/dto/person/fetchoptions/PersonFetchOptions" ], 
             function($, openbis, PersonUpdate, Me, WebAppSettingCreation, PersonFetchOptions) {
@@ -3156,6 +3159,7 @@ user or by an instance admin.
                 });
             });
     </script>
+```
 
 ### Imports
 
@@ -3254,15 +3258,12 @@ message like "Registration of 1 sample(s) is complete." while the
 asynchronous version could return a message like "When the import is
 complete the confirmation or failure report will be sent by email.".
 
-  
-
 An example webapp to upload a file with samples and a custom AS service
 to import that file is presented below.
 
-  
-
 **ImportSamplesWebAppExample.html**
 
+```html
     <!DOCTYPE html>
     <html>
     <head>
@@ -3331,14 +3332,17 @@ to import that file is presented below.
 
     </body>
     </html>
+```
 
 **ImportSamplesServiceExample.py**
 
+```python
     def process(context, parameters):
         sampleType = parameters.get("sampleType")
         return context.getImportService().createSamples(context.getSessionToken(), "importWebappUploadKey", sampleType, None, None, None, False, False, None);
 
 ### Generate identifiers
+```
 
 V3 API provides 2 methods for generating unique identifiers:
 
@@ -3350,10 +3354,9 @@ V3 API provides 2 methods for generating unique identifiers:
     (e.g. "MY-PREFIX-147"); this method uses a dedicated sequence for
     each entity kind.
 
-  
-
 **GenerateIdentifiersExample.java**
 
+```java
     import java.util.List;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -3370,9 +3373,11 @@ V3 API provides 2 methods for generating unique identifiers:
             System.out.println(codes); // example output: [MY-PREFIX-782, MY-PREFIX-783, MY-PREFIX-784]
         }
     }
+```
 
 **GenerateIdentifiersExample.html**
 
+```html
     <script>
         require([ "jquery", "openbis", "as/dto/entitytype/EntityKind" ], function($, openbis, EntityKind) {
                 $(document).ready(function() {
@@ -3388,6 +3393,7 @@ V3 API provides 2 methods for generating unique identifiers:
                 });
             });
     </script>
+```
 
 ## V. DSS Methods
 
@@ -3409,6 +3415,7 @@ result object as if it was returned by only one data store.
 
 **V3SearchDataSetFilesExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
     import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
@@ -3438,11 +3445,12 @@ result object as if it was returned by only one data store.
             }
         }
     }
-
+```
  
 
 **V3SearchDataSetFilesAtAllDataStoresExample.html**
 
+```html
     <script>
         require([ "openbis", "dss/dto/datasetfile/search/DataSetFileSearchCriteria", "dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions" ], 
             function(DataSetFileSearchCriteria, DataSetFileFetchOptions) {
@@ -3467,9 +3475,11 @@ result object as if it was returned by only one data store.
                 });
             });
     </script>
+```
 
 **V3SearchDataSetFilesAtChosenDataStoresExample.html**
 
+```html
     <script>
         require([ "openbis", "dss/dto/datasetfile/search/DataSetFileSearchCriteria", "dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions" ], 
             function(DataSetFileSearchCriteria, DataSetFileFetchOptions) {
@@ -3495,6 +3505,7 @@ result object as if it was returned by only one data store.
                 });
             });
     </script>
+```
 
 ###  Downloading files, folders, and datasets
 
@@ -3545,6 +3556,7 @@ the directory.
 
 **Download a single file**
 
+```java
     import java.io.InputStream;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3609,6 +3621,7 @@ the directory.
             }
         }
     }
+```
 
 #### Download a folder located inside a dataset
 
@@ -3624,6 +3637,7 @@ the directory object.
 
 **Download a folder**
 
+```java
     import java.io.InputStream;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3685,6 +3699,7 @@ the directory object.
             }      
         }
     }
+```
 
 #### Search for a dataset and download all its contents, file by file
 
@@ -3706,6 +3721,7 @@ this example.
 
 **Search & download a whole dataset, file by file**
 
+```java
     import java.io.InputStream;
     import java.util.LinkedList;
     import java.util.List;
@@ -3786,6 +3802,7 @@ this example.
             }
         }
     }
+```
 
 #### Download a whole dataset recursively
 
@@ -3796,6 +3813,7 @@ DataSetFileDownloadOptions object.
 
 **Download a whole dataset recursively**
 
+```java
     import java.io.InputStream;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3850,6 +3868,7 @@ DataSetFileDownloadOptions object.
             }
         }
     }
+```
 
 #### Search and list all the files inside a data store 
 
@@ -3864,6 +3883,7 @@ the whole data store. 
 
 **Search and list all files inside a data store**
 
+```java
     import java.io.InputStream;
     import java.util.LinkedList;
     import java.util.List;
@@ -3937,7 +3957,8 @@ the whole data store. 
                 System.out.println(file.getInputStream());
             }
         }
-    } 
+    }
+```
 
 ### Fast Downloading
 
@@ -3967,6 +3988,7 @@ Here is a complete example:
 
 **Search and list all files inside a data store**
 
+```java
     import java.io.File;
     import java.nio.file.Path;
     import java.util.ArrayList;
@@ -4063,6 +4085,7 @@ Here is a complete example:
             v3.logout(sessionToken);
         }
     }
+```
 
 #### What happens under the hood?
 
@@ -4116,6 +4139,7 @@ following examples as a template.
 
 **Register Data Set**
 
+```java
     import java.util.UUID;
     import org.eclipse.jetty.client.HttpClient;
     import org.eclipse.jetty.client.api.Request;
@@ -4164,12 +4188,14 @@ following examples as a template.
             openbisV3.logout();
         }
     }
+```
 
 **  
 Example (Javascript)**
 
 **Register Data Set**
 
+```html
     <!DOCTYPE html>
     <html>
     <head>
@@ -4223,6 +4249,7 @@ Example (Javascript)**
         </script>
     </body>
     </html>
+```
 
 ## VI. Web application context
 
@@ -4244,6 +4271,7 @@ web application will do nothing.
 
 **WebAppContextExample.html**
 
+```html
     <script>
         require(['openbis'], function(openbis) {
                 var openbisV3 = new openbis();
@@ -4262,3 +4290,4 @@ web application will do nothing.
                 });
             });
     </script>
+```
