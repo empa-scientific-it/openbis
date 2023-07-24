@@ -256,7 +256,7 @@ correct. In case a given user does not exist or the provided password
 was incorrect the login methods return null.
 
 #### Example
-
+```java
 **V3LoginExample.java**
 
     public class V3LoginExample
@@ -278,7 +278,8 @@ was incorrect the login methods return null.
             System.out.println(sessionToken);
         }
     }
-
+```
+```html
 **V3LoginExample.html**
 
     <script>
@@ -300,6 +301,7 @@ was incorrect the login methods return null.
             });
         });
     </script>
+```
 
 ### Personal Access Tokens
 
@@ -353,7 +355,7 @@ OpenBIS provides a method to obtain the session information for an
 already log in user:
 
 #### Example
-
+```java
 **V3CreationExample.java**
 
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
@@ -370,6 +372,7 @@ already log in user:
             System.out.println("Creator Person: " + sessionInformation.getCreatorPerson());
         }
     }
+```
 
 ### Creating entities
 
@@ -386,7 +389,7 @@ dropboxes are planned but not implemented yet. Please use V2 dropboxes
 until V3 version is out.
 
 #### Example
-
+```java
 **V3CreationExample.java**
 
     import java.util.List;
@@ -413,7 +416,8 @@ until V3 version is out.
             System.out.println("Perm ids: " + permIds);    
         }
     }
-
+```
+```html
 **V3CreationExample.html**
 
     <script>
@@ -434,9 +438,10 @@ until V3 version is out.
                 });
         });
     </script>
+```
 
 #### Properties example
-
+```java
 **V3CreationWithPropertiesExample.java**
 
     import java.util.Arrays;
@@ -468,7 +473,8 @@ until V3 version is out.
             v3.createSamples(sessionToken, Arrays.asList(sample));
         }
     }
-
+```
+```html
 **V3CreationWithPropertiesExample.html**
 
     <script>
@@ -497,9 +503,10 @@ until V3 version is out.
             });
         });
     </script>
+```
 
 #### Different ids example
-
+```java
 **V3CreationWithDifferentIdsExample.java**
 
     import java.util.Arrays;
@@ -528,9 +535,10 @@ until V3 version is out.
             v3.createSamples(sessionToken, Arrays.asList(sample));
         }
     }
+```
 
 **V3CreationWithDifferentIdsExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/id/ExperimentPermId" ], 
             function(SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, ExperimentPermId) {
@@ -553,14 +561,14 @@ until V3 version is out.
                 });
             });
     </script>
-
+```
 #### Parent child example
 
 The following example creates parent and child samples for a sample type
 which allow automatic code generation:
 
 **V3CreationParentAndChildExample**
-
+```java
     import java.util.Arrays;
     import java.util.List;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
@@ -589,9 +597,9 @@ which allow automatic code generation:
             System.out.println("Perm ids: " + permIds);
         }
     }
-
+```
 **V3CreationParentAndChildExample.html**
-
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/common/id/CreationId" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, CreationId) {
@@ -611,7 +619,7 @@ which allow automatic code generation:
                 });
             });
     </script>
-
+```
 ### Updating entities
 
 The methods for updating entities in V3 API are called: updateSpaces,
@@ -630,7 +638,7 @@ after creation.
 #### Example
 
 **V3UpdateExample.java**
-
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -652,9 +660,9 @@ after creation.
             System.out.println("Updated");
         }
     }
-
+```
 **V3UpdateExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SampleIdentifier", "as/dto/experiment/id/ExperimentIdentifier" ], 
             function(SampleUpdate, SampleIdentifier, ExperimentIdentifier) {
@@ -672,11 +680,11 @@ after creation.
                 });
             });
     </script>
-
+```
 #### Properties example
 
 **V3UpdateWithPropertiesExample.java**
-
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
@@ -703,9 +711,9 @@ after creation.
             System.out.println("Updated");
         }
     }
-
+```
 **V3UpdateWithPropertiesExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SampleIdentifier" ], function(SampleUpdate, SampleIdentifier) {
 
@@ -727,11 +735,11 @@ after creation.
             });
         });
     </script>
-
+```
 #### Parents example
 
 **V3UpdateWithParentsExample.java**
-
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
@@ -765,9 +773,9 @@ after creation.
             System.out.println("Updated");
         }
     }
-
+```
 **V3UpdateWithParentsExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SampleIdentifier" ], 
             function(SampleUpdate, SampleIdentifier) {
@@ -797,7 +805,7 @@ after creation.
                 });
             });
     </script>
-
+```
 ### Getting authorization rights for entities
 
 If the user isn't allowed to create or update an entity an exception is
@@ -941,7 +949,7 @@ identifier). A code example on how to use sorting is presented below.
 #### Example
 
 **V3SearchExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -971,9 +979,9 @@ identifier). A code example on how to use sorting is presented below.
             }
         }
     }
-
+```
 **V3SearchExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -997,11 +1005,11 @@ identifier). A code example on how to use sorting is presented below.
                 });
             });
     </script>
-
+```
 #### Example with pagination and sorting
 
 **V3SearchWithPaginationAndSortingExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1033,9 +1041,9 @@ identifier). A code example on how to use sorting is presented below.
             System.out.println(result.getTotalCount());
         }
     }
-
+```
 **V3SearchWithPaginationAndSortingExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1062,7 +1070,7 @@ identifier). A code example on how to use sorting is presented below.
                 });
             });
     </script>
-
+```
 ####  Example with OR operator
 
 By default all specified search criteria have to be fulfilled. If only
@@ -1070,7 +1078,7 @@ one criteria needs to be fulfilled use `criteria.withOrOperator()` as in
 the following example:
 
 **V3SearchWithOrOperatorExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1100,9 +1108,9 @@ the following example:
             }
         }
     }
-
+```
 **V3SearchWithOrOperatorExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1126,7 +1134,7 @@ the following example:
                 });
             });
     </script>
-
+```
 #### Example with nested logical operators
 
 The following code finds samples with perm ID that ends with "6" AND
@@ -1134,7 +1142,7 @@ The following code finds samples with perm ID that ends with "6" AND
 experiment OR of type whose code starts with "MASTER").
 
 **V3SearchWithNestedLogicalOperatorsExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1166,9 +1174,9 @@ experiment OR of type whose code starts with "MASTER").
             }
         }
     }
-
+```
 **V3SearchWithNestedLogicalOperatorsExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1195,7 +1203,7 @@ experiment OR of type whose code starts with "MASTER").
                 });
             });
     </script>
-
+```
 #### Example with recursive fetch options
 
 In order to get all descendent/acsendents of a sample fetch options can
@@ -1204,7 +1212,7 @@ using `fetchOptions.withChildrenUsing(fetchOptions) `as in the following
 example:
 
 **V3SearchWithRecursiveFetchOptionsExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1249,9 +1257,9 @@ example:
             return sample.getCode() + " -> (" + builder.toString() + ")";
         }
     }
-
+```
 **V3SearchWithRecursiveFetchOptionsExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1287,7 +1295,7 @@ example:
                 }
         });
     </script>
-
+```
 #### Global search
 
 There are two kinds or global search:
@@ -1305,7 +1313,7 @@ by specifying a text snippet (or complete words) to be found in any type
 of meta data (entity attribute or property). Example:  
 
 **V3GlobalSearchExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
@@ -1337,11 +1345,11 @@ of meta data (entity attribute or property). Example:
             }
         }
     }
-
+```
   
 
 **V3GlobalSearchExample.html**
-
+```html
     <script>
         require([ "as/dto/global/search/GlobalSearchCriteria", "as/dto/global/search/GlobalSearchObjectKind", "as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions" ], 
             function(GlobalSearchCriteria, GlobalSearchObjectKind, GlobalSearchObjectFetchOptions) {
@@ -1366,7 +1374,7 @@ of meta data (entity attribute or property). Example:
                 });
             });
     </script>
-
+```
   
 
 ### Getting entities
@@ -1384,7 +1392,7 @@ returned map.
 #### Example
 
 **V3GetExample.java**
-
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -1417,9 +1425,9 @@ returned map.
             map.get(id5); // returns null
         }
     }
-
+```
 **V3GetExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
             function(SampleIdentifier, SamplePermId, SampleFetchOptions) {
@@ -1445,7 +1453,7 @@ returned map.
                 });
             });
     </script>
-
+```
 ### Deleting entities
 
 The methods for deleting entities in V3 API are called: deleteSpaces,
@@ -1463,7 +1471,7 @@ can.
 #### Example
 
 **V3DeleteExample.java**
-
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
@@ -1492,9 +1500,10 @@ can.
             v3.revertDeletions(sessionToken, Arrays.asList(deletionId));
         }
     }
+```
 
 **V3DeleteExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/delete/SampleDeletionOptions" ], 
             function(SampleIdentifier, SampleDeletionOptions) {
@@ -1518,7 +1527,7 @@ can.
                 });
             });
     </script>
-
+```
 ### Searching entity types
 
 The following search methods allows to search for entity types including
@@ -1528,7 +1537,7 @@ and `searchSampleTypes`. Here is an example which will search for all
 sample types and assigned property types:
 
 **V3SearchTypesExample.java**
-
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -1557,9 +1566,9 @@ sample types and assigned property types:
             }
         }
     }
-
+```
 **V3SearchTypesExample.html**
-
+```html
     <script>
         require([ "as/dto/sample/search/SampleTypeSearchCriteria", "as/dto/sample/fetchoptions/SampleTypeFetchOptions" ], 
             function(SampleTypeSearchCriteria, SampleTypeFetchOptions) {
@@ -1583,7 +1592,7 @@ sample types and assigned property types:
                 });
             });
     </script>
-
+```
 ### Modifications
 
 The API allows to ask for the latest modification (UPDATE or
