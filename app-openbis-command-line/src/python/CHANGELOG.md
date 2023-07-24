@@ -4,7 +4,7 @@
 * Added recursive search to object and data_set search commands
 * Updated documentation regarding authentication
 * Added dataset ids to sample search results
-* changed pybis dependency to version == 1.35.11
+* changed pybis dependency to version == 1.36.0
 
 # New in version 0.4.1
 

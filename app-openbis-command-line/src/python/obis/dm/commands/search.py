@@ -18,7 +18,6 @@ import concurrent.futures
 import pandas as pd
 
 from pybis.property_reformatter import is_of_openbis_supported_date_format
-from pybis.sample import Sample
 from .openbis_command import OpenbisCommand
 from ..command_result import CommandResult
 from ..utils import cd
@@ -27,11 +26,11 @@ from ...scripts.click_util import click_echo
 
 def _dfs(objects, prop, func, func_specific):
     """Helper function that perform DFS search over children graph of objects"""
+    # TODO: improve performance of this - make it similar to _dfs_samples
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=5) as pool_simple, concurrent.futures.ThreadPoolExecutor(
         max_workers=20) as pool_full:
-        stack = [getattr(openbis_obj, prop) for openbis_obj in
-                 objects]  # datasets and samples provide children in different formats
+        stack = [openbis_obj[prop] for openbis_obj in objects]  # datasets and samples provide children in different formats
         visited = set()
         stack.reverse()
         output = []
@@ -55,12 +54,26 @@ def _dfs(objects, prop, func, func_specific):
     return output
 
 
-def _get_datasets_of_samples(get_dataset_method, samples):
-    output = []
-    with concurrent.futures.ThreadPoolExecutor(
-            max_workers=5) as pool_simple:
-        output = pool_simple.map(get_dataset_method, samples)
-
+def _dfs_samples(data_base, prop, func):
+    """Helper function that perform DFS search over children graph of objects"""
+    output = data_base
+    ids = [x['children'] for x in data_base if x['children']]
+    ids = [x[prop][prop] for x in flatten(ids)]
+    visited = set([x[prop][prop] for x in data_base])
+    while ids:
+        data = func(ids)
+        data = list(data.values())
+        output += data
+        ids = []
+        children = []
+        for obj in data:
+            key = obj[prop][prop]
+            children += [x[prop][prop] for x in obj['children']]
+            if key not in visited:
+                visited.add(key)
+        for child in children:
+            if child not in visited:
+                ids += [child]
     return output
 
 
@@ -145,7 +158,13 @@ class Search(OpenbisCommand):
         super(Search, self).__init__(dm)
 
     def search_samples(self):
-        search_results = self._search_samples()
+        search_results = self._search_samples(raw_response=True)
+
+        search_results = self.openbis._sample_list_for_response(props=self.props,
+                                                                response=search_results,
+                                                                attrs=["parents", "children",
+                                                                       "dataSets"],
+                                                                parsed=True)
 
         click_echo(f"Objects found: {len(search_results)}")
         if self.save_path is not None:
@@ -163,30 +182,35 @@ class Search(OpenbisCommand):
     def _get_sample_with_datasets(self, identifier):
         return self.openbis.get_sample(identifier, withDataSetIds=True)
 
-    def _search_samples(self):
+    def _get_sample_with_datasets2(self, identifier):
+        return self.openbis.get_sample(identifier, withDataSetIds=True, raw_response=True)
+
+    def _search_samples(self, raw_response=False):
         """Helper method to search samples"""
+
+        if self.recursive:
+            raw_response = True
 
         if "object_code" in self.filters:
             results = self.openbis.get_samples(identifier=self.filters['object_code'],
                                                attrs=["parents", "children", "dataSets"],
+                                               raw_response=raw_response,
                                                props=self.props)
         else:
             args = self._get_filtering_args(self.props, ["parents", "children", "dataSets"])
+            args["raw_response"] = raw_response
             results = self.openbis.get_samples(**args)
 
         if self.recursive:
             click_echo(f"Recursive search enabled. It may take time to produce results.")
-            output = _dfs(results.objects, 'identifier',
-                          self._get_samples_children,
-                          self._get_sample_with_datasets)  # samples provide identifiers as children
-            search_results = self.openbis._sample_list_for_response(props=self.props,
-                                                                    response=[sample.data for sample
-                                                                              in output],
-                                                                    attrs=["parents", "children",
-                                                                           "dataSets"],
-                                                                    parsed=True)
+            output2 = _dfs_samples(results['objects'], 'identifier', self._get_sample_with_datasets2)
+
+            search_results = output2
         else:
-            search_results = results
+            if raw_response:
+                search_results = results['objects']
+            else:
+                search_results = results
         return search_results
 
     def _get_datasets_children(self, permId):
@@ -203,22 +227,26 @@ class Search(OpenbisCommand):
         dataset_filters = {k: v for (k, v) in main_filters.items() if not k.startswith('object_')}
         if object_filters:
             if 'id' in object_filters:
-                object_filters['object_code'] = object_filters['id']
+                if object_filters['id'] is not None:
+                    object_filters['object_code'] = object_filters['id']
                 del object_filters['id']
             self.filters = object_filters
-            search_results = self._search_samples()
-            datasets = [x for x in _get_datasets_of_samples(Sample.get_datasets, search_results) if
-                        x.totalCount > 0]
-            for thing in datasets:
-                for obj in thing.objects:
-                    if not _filter_dataset(obj, dataset_filters):
-                        for i in range(len(thing.response)):
-                            if thing.response[i]['permId']['permId'] == obj.permId:
-                                del thing.response[i]
-                                break
-            datasets = [x.response for x in datasets]
+            search_results = self._search_samples(raw_response=True)
+            click_echo(f"Samples found: {len(search_results)}")
+
+            datasets = [x["dataSets"] for x in search_results]
+            datasets = flatten(datasets)
+            datasets = [x['permId']['permId'] for x in datasets]
+            datasets = self.openbis.get_dataset(permIds=datasets)
+
+            filtered_datasets = []
+            for dataset in datasets:
+                if _filter_dataset(dataset, dataset_filters):
+                    filtered_datasets += [dataset]
+
             datasets = self.openbis._dataset_list_for_response(props=self.props,
-                                                               response=flatten(datasets),
+                                                               response=[x.data for x in
+                                                                         filtered_datasets],
                                                                parsed=True)
         else:
             if self.recursive:
@@ -264,7 +292,7 @@ class Search(OpenbisCommand):
         args = dict(space=self.filters['space'],
                     project=self.filters['project'],
                     # Not Supported with Project Samples disabled
-                    experiment=self.filters['experiment'],
+                    experiment=self.filters['collection'],
                     type=self.filters['type_code'],
                     where=where,
                     attrs=attrs,

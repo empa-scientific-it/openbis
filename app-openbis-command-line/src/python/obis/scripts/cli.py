@@ -485,7 +485,7 @@ def object_search(ctx, type_code, space, project, collection, registration_date,
         filters = dict(object_code=object_id)
     else:
         filters = dict(type_code=type_code, space=space,
-                       project=project, experiment=collection, property_code=property_code,
+                       project=project, collection=collection, property_code=property_code,
                        registration_date=registration_date, modification_date=modification_date,
                        property_value=property_value)
     return ctx.obj['runner'].run("object_search",
