@@ -231,7 +231,7 @@ def getFilesWithIllegalCharacters(folder):
         for f in files:
             result.extend(getFilesWithIllegalCharacters(f))
 
-    return False;
+    return result
 
 
 def getHiddenFiles(folder):
