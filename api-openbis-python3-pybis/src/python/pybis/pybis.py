@@ -2380,6 +2380,7 @@ class Openbis:
             attrs=None,
             props=None,
             where=None,
+            raw_response=False,
             **properties,
     ):
         """Returns a DataFrame of all samples for a given space/project/experiment (or any combination).
@@ -2512,6 +2513,8 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
 
         parse_jackson(resp)
+        if raw_response:
+            return resp
 
         response = resp["objects"]
 
@@ -4663,7 +4666,8 @@ class Openbis:
         )
 
     def get_sample(
-            self, sample_ident, only_data=False, withAttachments=False, props=None, withDataSetIds=False, **kvals
+            self, sample_ident, only_data=False, withAttachments=False, props=None,
+            withDataSetIds=False, raw_response=False, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4729,6 +4733,9 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         else:
+            if raw_response:
+                parse_jackson(resp)
+                return resp
             return self._sample_list_for_response(
                 response=list(resp.values()), props=props, parsed=False
             )

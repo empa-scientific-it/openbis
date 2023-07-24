@@ -1,6 +1,7 @@
 ## Changes with pybis-1.36.0
 
-- Added dependency to requests-toolbelt
+- Reverted breaking changes to dataset upload functionality
+- Performance improvements to get_sample and get_samples methods 
 
 ## Changes with pybis-1.35.11
 
