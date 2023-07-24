@@ -29,9 +29,11 @@ Each extension currently contains a single file with name "plugin.js".
 Contains a section called  PLUGINS\_CONFIGURATION indicating the plugins
 to be loaded from the plugins folder.
 
+```js
     var PLUGINS_CONFIGURATION = {
         extraPlugins : ["life-sciences", "flow", "microscopy"]
     }
+```
 
 ### plugin.js file
 
@@ -105,6 +107,7 @@ Pattern](https://en.wikipedia.org/wiki/Interceptor_pattern)
 
 An example with only type configurations extensions is show below.
 
+```js
     function MyTechnology() {
        this.init();
     }
@@ -153,12 +156,14 @@ An example with only type configurations extensions is show below.
     });
 
     profile.plugins.push(new MyTechnology());
+```
 
 ### Toolbar Extensions
 
 An example with only toolbar extensions is shown below, variables with a
 dollar sign '$' indicate they are jquery components:
 
+```js
     function MyTechnology() {
        this.init();
     }
@@ -198,6 +203,7 @@ dollar sign '$' indicate they are jquery components:
     });
 
     profile.plugins.push(new MyTechnology());
+```
 
 ### Extra Views as Utilities
 
