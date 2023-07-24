@@ -163,6 +163,7 @@ as the recommend way to manage getting the most up to date personal
 access token for an application and user. Including creation and renewal
 management.
 
+```java
         private static final String URL = "https://openbis-sis-ci-sprint.ethz.ch/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
         private static final int TIMEOUT = 10000;
 
@@ -273,6 +274,7 @@ management.
         }
 
     }
+```
 
 ## V3 API 
 
