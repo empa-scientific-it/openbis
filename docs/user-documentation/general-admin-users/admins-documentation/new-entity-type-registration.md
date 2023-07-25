@@ -123,7 +123,7 @@ masterdata. An example template file for this can be found here:
 
 More extensive documentation on the XLS format for masterdata and
 metadata registration can be found
-[here](https://unlimited.ethz.ch/display/openBISDoc2010/Excel+Import+Service).
+[here](https://openbis.readthedocs.io/en/latest/user-documentation/advance-features/excel-import-service.html).
 
 Updated on January 13, 2023
  
