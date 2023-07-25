@@ -18,7 +18,7 @@ def configureUI():
       factory.createElement("testElement").addAttribute("key1", "value1").addAttribute("key2", "value2")
   ]
   
-  property.value = converter.convertToString(elements)
+  property.setValue(converter.convertToString(elements))
 
 
   
@@ -32,6 +32,6 @@ def configureUI():
       factory.createElement("nested1").addAttribute("na1", "na2")
   ]
   elements[2].addAttribute("key2", "modifiedvalue")
-  property.value = converter.convertToString(elements)
+  property.setValue(converter.convertToString(elements))
   
 
