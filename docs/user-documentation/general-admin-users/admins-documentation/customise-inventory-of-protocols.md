@@ -3,7 +3,7 @@ Customise Inventory Of Protocols
  
 ## Create Collections of Protocols
 
-[](# "Print this article")
+
 
   
 *Collections* are folders used to organise *Objects* in the **Methods**
@@ -43,7 +43,7 @@ Updated on April 26, 2023
  
 ## Enable Protocols in Settings
 
-[](# "Print this article")
+
 
   
 If a new *Object type* for a protocol is created by an *Instance admin*

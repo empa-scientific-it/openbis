@@ -3,7 +3,7 @@ Data Upload
  
 ## Data upload via web UI
 
-[](# "Print this article")
+
 
  
 
@@ -47,7 +47,7 @@ Updated on March 23, 2023
  
 ## Data upload via dropbox
 
-[](# "Print this article")
+
 
  
 

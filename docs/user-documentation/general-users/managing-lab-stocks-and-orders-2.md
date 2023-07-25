@@ -1,6 +1,6 @@
 # Managing Lab Stocks and Orders
 
-[](# "Print this article")
+
 
   
 It is possible to use openBIS to manage stocks of products and create

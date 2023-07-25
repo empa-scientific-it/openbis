@@ -3,7 +3,7 @@ New Entity Type Registration
  
 ## Enable Rich Text Editor or Spreadsheet Widgets
 
-[](# "Print this article")
+
 
   
 For certain fields, it is possible to enable the use of a Rich Text
@@ -37,7 +37,7 @@ Updated on October 19, 2022
  
 ## Enable Objects in dropdowns
 
-[](# "Print this article")
+
 
  
 
@@ -59,7 +59,7 @@ Updated on October 19, 2022
  
 ## Register masterdata via Excel
 
-[](# "Print this article")
+
 
  
 
@@ -129,7 +129,7 @@ Updated on January 13, 2023
  
 ## Properties overview
 
-[](# "Print this article")
+
 
  
 
@@ -145,7 +145,7 @@ Updated on March 1, 2022
  
 ## Internal properties and vocabularies
 
-[](# "Print this article")
+
 
  
 

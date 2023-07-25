@@ -3,7 +3,7 @@ Customise Inventory Of Materials And Samples
  
 ## Create Collections of Materials
 
-[](# "Print this article")
+
 
  
 
@@ -84,7 +84,7 @@ Updated on April 26, 2023
  
 ## Delete Collections
 
-[](# "Print this article")
+
 
  
 
@@ -110,7 +110,7 @@ Updated on February 6, 2023
  
 ## Enable Storage Widget on Sample Forms
 
-[](# "Print this article")
+
 
   
 When a new *Object type* is created by an *Instance admin (*see [New
@@ -149,7 +149,7 @@ Updated on April 26, 2023
  
 ## Configure Lab Storage
 
-[](# "Print this article")
+
 
   
 Fridges and freezers can be configured in the **Settings**, under
@@ -197,7 +197,7 @@ Updated on April 26, 2023
  
 ## Add metadata to Storage Positions
 
-[](# "Print this article")
+
 
  
 

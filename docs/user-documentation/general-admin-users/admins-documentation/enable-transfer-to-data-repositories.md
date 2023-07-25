@@ -1,6 +1,6 @@
 # Enable Transfer to Data Repositories
 
-[](# "Print this article")
+
 
   
 Currently openBIS offers an integration with the **Zenodo** data

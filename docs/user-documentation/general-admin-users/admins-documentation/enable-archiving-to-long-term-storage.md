@@ -1,6 +1,6 @@
 # Enable archiving to Long Term Storage
 
-[](# "Print this article")
+
 
  
 

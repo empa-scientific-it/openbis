@@ -3,7 +3,7 @@ User Registration
  
 ## openBIS roles
 
-[](# "Print this article")
+
 
 
  
@@ -117,7 +117,7 @@ Updated on April 26, 2023
  
 ## User Profile
 
-[](# "Print this article")
+
 
 In the User Profile, a user who is logged in into openBIS can find the
 following information:
@@ -156,7 +156,7 @@ Updated on June 28, 2022
  
 ## Assign home space to a user
 
-[](# "Print this article")
+
 
  
 

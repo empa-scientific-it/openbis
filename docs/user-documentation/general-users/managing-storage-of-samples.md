@@ -3,7 +3,7 @@ Managing Storage Of Samples
  
 ## Allocate storage positions to samples
 
-[](# "Print this article")
+
 
   
 If we want to track the storage position of samples, openBIS provides a
@@ -110,7 +110,7 @@ Updated on April 26, 2023
  
 ## Batch update storage positions
 
-[](# "Print this article")
+
 
  
 
@@ -143,7 +143,7 @@ Updated on April 25, 2023
  
 ## Delete storage positions
 
-[](# "Print this article")
+
 
 
  

@@ -1,6 +1,6 @@
 # General Overview
 
-[](# "Print this article")
+
 
   
 The openBIS platform has three primary functionalities:  

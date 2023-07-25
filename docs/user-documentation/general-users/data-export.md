@@ -3,7 +3,7 @@ Data Export
  
 ## Export to File
 
-[](# "Print this article")
+
 
 
 ### Export Lab Notebooks
@@ -65,7 +65,7 @@ Updated on April 25, 2023
  
 ## Export to Zenodo
 
-[](# "Print this article")
+
 
   
 Currently openBIS offers an integration with the **Zenodo** data
@@ -143,7 +143,7 @@ Updated on April 25, 2023
  
 ## Export to ETH Research Collection
 
-[](# "Print this article")
+
 
  
 

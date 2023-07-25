@@ -50,7 +50,7 @@ Updated on April 25, 2023
  
 ## Register single entries in a Collection
 
-[](# "Print this article") 
+ 
 
 In this example, we will see how to register one *Object* of type
 **Sample** in the **Raw Samples** *Collection.* The same procedure
@@ -84,7 +84,7 @@ Updated on April 25, 2023
  
 ## Batch register entries in a Collection
 
-[](# "Print this article")
+
 
 It is possible to register several samples at once via file upload. Two
 methods are currently available:
@@ -236,7 +236,7 @@ Updated on April 25, 2023
  
 ## Batch register entries in several Collections
 
-[](# "Print this article")
+
 
 It is possible to batch register *Objects* that belong to different
 *Collections*.
@@ -291,7 +291,7 @@ Updated on April 25, 2023
  
 ## Batch update entries in a Collection
 
-[](# "Print this article")
+
 
 It is possible to modify the values of one or more fields in several
 objects simultaneously via batch update. This can be done in two ways:
@@ -375,7 +375,7 @@ Updated on April 25, 2023
  
 ## Batch update entries in several Collections
 
-[](# "Print this article")
+
 
 It is possible to batch update *Objects* that belong to different
 *Collections*.
@@ -431,7 +431,7 @@ Updated on April 25, 2023
  
 ## Copy entries
 
-[](# "Print this article")
+
  
 To create a copy of an existing entry, select **Copy** from the
 **More..** drop down menu in the *Collection* page.
@@ -450,7 +450,7 @@ Updated on July 27, 2022
  
 ## Move entries to a different Collection
 
-[](# "Print this article")
+
 
 You can move entries to a different *Collection* either from the e*ntry*
 form or from a *Collection* table.

@@ -3,7 +3,7 @@ Multi Group Set Up
  
 ## General ELN Settings
 
-[](# "Print this article")
+
 
  
 
@@ -152,7 +152,7 @@ Updated on April 26, 2023
  
 ## Group ELN Settings
 
-[](# "Print this article")
+
 
  
 

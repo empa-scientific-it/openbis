@@ -115,7 +115,7 @@ Updated on April 26, 2023
  
 ## Create new ELN Spaces
 
-[](# "Print this article")
+
 
 
 ### Create a new Lab Notebook Space from the ELN UI
@@ -217,7 +217,7 @@ Updated on April 26, 2023
  
 ## Delete Spaces
 
-[](# "Print this article")
+
 
  
 
@@ -260,7 +260,7 @@ Updated on April 26, 2023
  
 ## Move Spaces between Lab Notebook and Inventory
 
-[](# "Print this article")
+
 
  
 

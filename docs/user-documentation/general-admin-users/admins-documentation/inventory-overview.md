@@ -1,6 +1,6 @@
 # Inventory overview
 
-[](# "Print this article")
+
 
 The default Inventory contains two
 folders: **Materials** and **Methods**.

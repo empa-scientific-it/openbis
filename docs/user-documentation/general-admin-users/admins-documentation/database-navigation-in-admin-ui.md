@@ -1,6 +1,6 @@
 # Database navigation in admin UI
 
-[](# "Print this article")
+
 
  
 

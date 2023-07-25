@@ -3,7 +3,7 @@ Lab Notebook
  
 ## Register Projects
 
-[](# "Print this article")
+
 
   
 In a personal folder, users can register one or more *Projects* they
@@ -36,7 +36,7 @@ Updated on April 25, 2023
  
 ## Register Experiments
 
-[](# "Print this article")
+
 
   
 Inside one *Project*, a user can register several *Experiments*, which
@@ -66,7 +66,7 @@ Updated on April 25, 2023
  
 ## Register Experimental Steps
 
-[](# "Print this article")
+
 
   
 As mentioned above, the various steps executed when performing an
@@ -302,7 +302,7 @@ Updated on April 26, 2023
  
 ## Move Experimental Steps
 
-[](# "Print this article")
+
 
  
 
@@ -329,7 +329,7 @@ Updated on April 25, 2023
  
 ## Copy Experimental Steps
 
-[](# "Print this article")
+
 
  
 
@@ -352,7 +352,7 @@ Updated on April 25, 2023
  
 ## Use templates for Experimental Steps
 
-[](# "Print this article")
+
 
  
 
@@ -386,7 +386,7 @@ This table shows the metadata of the datasets. The content of the datasets can b
  
 ## Data Access
 
-[](# "Print this article")
+
 
   
 *Datasets* are displayed on the left hand-side of the
@@ -549,7 +549,7 @@ Updated on May 5, 2023
  
 ## Move Datasets
 
-[](# "Print this article")
+
 
  
 
@@ -583,7 +583,7 @@ Updated on April 25, 2023
  
 ## Move one Experiment to a different Project
 
-[](# "Print this article")
+
 
  
 
@@ -651,7 +651,7 @@ Updated on July 5, 2023
  
 ## Edit and Delete Projects, Experiments, Experimental Steps
 
-[](# "Print this article")
+
 
  
 
@@ -686,7 +686,7 @@ Updated on April 25, 2023
  
 ## Share Lab Notebooks and Projects
 
-[](# "Print this article")
+
 
   
 It is possible to share either a complete lab notebook or single

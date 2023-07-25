@@ -3,7 +3,7 @@ History Overview
  
 ## History of deletions
 
-[](# "Print this article")
+
 
  
 
@@ -51,7 +51,7 @@ Updated on October 9, 2022
  
 ## History of freezing
 
-[](# "Print this article")
+
 
  
 
