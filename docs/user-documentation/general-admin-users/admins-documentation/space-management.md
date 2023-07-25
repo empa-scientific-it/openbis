@@ -2,16 +2,11 @@ Space Management
 ====
  
 ## Create new Inventory Spaces
-
-[](# "Print this article")
-
   
 The default Inventory contains two
 folders: **Materials** and **Methods**. These are openBIS *Spaces*.
 
 Additional *Spaces* can be created by an *Instance admin*.
-
- 
 
 ### Create a new Inventory Space from the ELN UI
 
