@@ -276,7 +276,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public Long getIntegerProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Long.parseLong(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Long.parseLong(propertyValue);
     }
 
     @Override
@@ -313,7 +313,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public Double getRealProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Double.parseDouble(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Double.parseDouble(propertyValue);
     }
 
     @Override
@@ -340,7 +340,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public Boolean getBooleanProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Boolean.parseBoolean(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Boolean.parseBoolean(propertyValue);
     }
 
     @Override
@@ -389,7 +389,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public SamplePermId getSampleProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : new SamplePermId(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : new SamplePermId(propertyValue);
     }
 
     @Override
@@ -402,7 +402,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public Long[] getIntegerArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
     }
 
     @Override
@@ -415,7 +415,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public Double[] getRealArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
     }
 
     @Override
@@ -428,7 +428,7 @@ public class SampleCreation implements ICreation, ICreationIdHolder, IProperties
     public String[] getStringArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
     }
 
     @Override

@@ -913,7 +913,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            if (value == null || value.isBlank())
+            if (value == null || value.trim().isEmpty())
             {
                 return null;
             }
@@ -929,7 +929,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            if (value == null || value.isBlank())
+            if (value == null || value.trim().isEmpty())
             {
                 return null;
             }
@@ -945,7 +945,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            if (value == null || value.isBlank())
+            if (value == null || value.trim().isEmpty())
             {
                 return null;
             }

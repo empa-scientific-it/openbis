@@ -346,7 +346,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Long getIntegerProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Long.parseLong(propertyValue);
     }
@@ -385,7 +385,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Double getRealProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Double.parseDouble(propertyValue);
     }
@@ -416,7 +416,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Boolean getBooleanProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Boolean.parseBoolean(propertyValue);
     }
@@ -467,7 +467,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public SamplePermId getSampleProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 new SamplePermId(propertyValue);
     }
@@ -482,7 +482,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Long[] getIntegerArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong)
                         .toArray(Long[]::new);
@@ -501,7 +501,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Double[] getRealArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble)
                         .toArray(Double[]::new);
@@ -520,7 +520,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public String[] getStringArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
     }

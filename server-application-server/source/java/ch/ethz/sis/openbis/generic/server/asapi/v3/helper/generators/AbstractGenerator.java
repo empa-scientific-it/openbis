@@ -265,7 +265,7 @@ public class AbstractGenerator
                 + "    public SamplePermId getSampleProperty(String propertyName)\n"
                 + "    {\n"
                 + "        String propertyValue = getProperty(propertyName);\n"
-                + "        return (propertyValue == null || propertyValue.isBlank()) ? null : new SamplePermId(propertyValue);\n"
+                + "        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : new SamplePermId(propertyValue);\n"
                 + "    }");
 
         gen.addAdditionalMethod("@Override\n"
@@ -367,7 +367,7 @@ public class AbstractGenerator
                 + "    public " + type + " " + methodName + "(String propertyName)" + throwsOptional + "\n"
                 + "    {\n"
                 + "        String propertyValue = getProperty(propertyName);\n"
-                + "        return (propertyValue == null || propertyValue.isBlank()) ? null : " + translationFunction + ";\n"
+                + "        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : " + translationFunction + ";\n"
                 + "    }";
     }
 
