@@ -218,6 +218,6 @@ Updated on April 25, 2023
   
 The MATLAB toolbox for openBIS allows to access data stored in openBIS
 directly from MATALB. Full documentation can be found here: [MATLAB
-API](https://sissource.ethz.ch/sispub/openbis/-/tree/master/api-openbis-matlab)
+API](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/matlab-v3-api.html)
 
 Updated on April 17, 2023
