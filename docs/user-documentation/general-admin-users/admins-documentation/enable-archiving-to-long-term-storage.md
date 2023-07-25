@@ -35,6 +35,6 @@ ELN Settings:
 
 More information on archiving and unarchiving datasets can be found
 here: [Data
-archiving](https://openbis.ch/index.php/docs/user-documentation-20-10-3/data-archiving/)
+archiving](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-archiving.html)
 
 Updated on April 26, 2023
