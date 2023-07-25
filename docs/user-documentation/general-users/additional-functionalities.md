@@ -391,11 +391,140 @@ password and save.
 
 1.  **Freeze Space only**
 
-[TABLE]
+| 
 
- 
+                                               | 
+Allowed
+ | 
+Not allowed
+ |
+|--------------------------------------------------------|-----------|---------------|
+| 
+Create new Project
+                                   | 
 
- 
+  | 
+x
+           |
+| 
+Create new Experiment/Collection
+                     | 
+x
+       | 
+
+      |
+| 
+Create new Object
+                                    | 
+
+  | 
+x
+           |
+| 
+Create new Dataset in existing Experiment/Collection
+ | 
+x
+       | 
+
+      |
+| 
+Create new Dataset in existing Object
+                | 
+x
+       | 
+
+      |
+| 
+Edit existing Project
+                                | 
+x
+       | 
+
+      |
+| 
+Edit existing Experiment/Collection
+                  | 
+x
+       | 
+
+      |
+| 
+Edit existing Object
+                                 | 
+x
+       | 
+
+      |
+| 
+Edit existing Dataset
+                                | 
+x
+       | 
+
+      |
+| 
+Delete Space
+                                         | 
+
+  | 
+x
+           |
+| 
+Delete Project
+                                       | 
+
+  | 
+x
+           |
+| 
+Delete Experiment/Collection
+                         | 
+x
+       | 
+
+      |
+| 
+Delete Object
+                                        | 
+x
+       | 
+
+      |
+| 
+Delete Dataset
+                                       | 
+x
+       | 
+
+      |
+| 
+Move Experiment/Collection
+                           | 
+x
+       | 
+
+      |
+| 
+Move Object
+                                          | 
+x
+       | 
+
+      |
+| 
+Copy Object
+                                          | 
+
+  | 
+x
+           |
+| 
+Export
+                                               | 
+x
+       | 
+
+      |
 
 1.  **Freeze Project only**
 
