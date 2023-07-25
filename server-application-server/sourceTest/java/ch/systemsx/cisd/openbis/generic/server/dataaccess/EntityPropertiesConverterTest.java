@@ -225,7 +225,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     script.setScript("def batchColumnNames():\n return ['A']\n"
                             + "def updateFromBatchInput(bindings):\n None\n"
                             + "def updateFromRegistrationForm(bindings):\n"
-                            + " property.setStringValue('Hello ' + bindings.get(0).get('A'))");
+                            + " property.setValue('Hello ' + bindings.get(0).get('A'))");
                     sampleTypePropertyTypePE.setScript(script);
 
                     final SampleTypePE sampleType2 = createSampleType(SAMPLE_TYPE2_CODE);

@@ -666,7 +666,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(managedProperty.getStringValue(), null, null, null,
+            existingProperty.setUntypedValue(managedProperty.getValue(), null, null, null,
                     null,
                     null, null, null, null);
             existingProperty.setAuthor(author);
@@ -816,7 +816,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 }
 
                 evaluator.updateFromRegistrationForm(managedProperty, person, bindingsList);
-                return managedProperty.getStringValue();
+                return managedProperty.getValue();
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

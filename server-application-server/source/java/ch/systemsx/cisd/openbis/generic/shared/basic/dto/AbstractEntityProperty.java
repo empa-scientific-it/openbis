@@ -115,7 +115,7 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     }
 
     @Override
-    public void setStringValue(String value)
+    public void setValue(String value)
     {
     }
 

@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -263,7 +262,7 @@ public class ManagedPropertySection extends DisposableTabContent
             return null; // make eclipse happy
         } else
         {
-            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getStringValue());
+            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getValue());
             // if there is a script error than value will contain error message
             if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
                     && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))
@@ -307,7 +306,7 @@ public class ManagedPropertySection extends DisposableTabContent
             return null; // make eclipse happy
         } else
         {
-            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getStringValue());
+            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getValue());
             // if there is a script error than value will contain error message
             if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
                     && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))

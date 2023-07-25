@@ -74,7 +74,7 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     @Override
     public boolean isSpecialValue()
     {
-        return ManagedProperty.isSpecialValue(getStringValue());
+        return ManagedProperty.isSpecialValue(this.getValue());
     }
 
     //
@@ -150,13 +150,13 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     }
 
     @Override
-    public String getStringValue()
+    public String getValue()
     {
         return (String) entityProperty.getValue();
     }
 
     @Override
-    public void setStringValue(String value)
+    public void setValue(String value)
     {
         entityProperty.setValue(value);
     }

@@ -41,7 +41,7 @@ public class GenericEntityProperty extends AbstractEntityProperty
     }
 
     @Override
-    public void setStringValue(String value)
+    public void setValue(String value)
     {
         this.value = value;
     }

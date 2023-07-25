@@ -191,7 +191,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             ManagedProperty managedProperty = new ManagedProperty();
             managedProperty.setPropertyTypeCode(code);
             evaluator.updateFromBatchInput(managedProperty, person, bindings);
-            entityProperty.setValue(managedProperty.getStringValue());
+            entityProperty.setValue(managedProperty.getValue());
         }
         return entityProperty;
     }

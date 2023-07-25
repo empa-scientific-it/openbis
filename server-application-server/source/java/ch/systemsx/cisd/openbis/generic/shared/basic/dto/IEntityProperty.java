@@ -48,7 +48,7 @@ public interface IEntityProperty extends Serializable, Comparable<IEntityPropert
 
     public String getStringValue();
 
-    public void setStringValue(final String value);
+    public void setValue(final String value);
 
     public Serializable getValue();
 
