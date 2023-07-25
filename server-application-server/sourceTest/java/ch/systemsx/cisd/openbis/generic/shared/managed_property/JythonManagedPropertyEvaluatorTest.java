@@ -255,7 +255,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromUI(managedProperty, person, action1);
         assertNotNull(managedProperty.getValue());
-        String[] inputTokens1 = managedProperty.getValue().split("\\|");
+        String[] inputTokens1 = ((String)managedProperty.getValue()).split("\\|");
         assertEquals("a1", inputTokens1[0]);
         assertEquals("t1=null", inputTokens1[1]);
         assertEquals("t2=v2", inputTokens1[2]);
@@ -264,7 +264,7 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 
         evaluator.updateFromUI(managedProperty, person, action2);
         assertNotNull(managedProperty.getValue());
-        String[] inputTokens2 = managedProperty.getValue().split("\\!");
+        String[] inputTokens2 = ((String)managedProperty.getValue()).split("\\!");
         assertEquals("a2", inputTokens2[0]);
         assertEquals("t1=v11", inputTokens2[1]);
         assertEquals("t2=v22", inputTokens2[2]);

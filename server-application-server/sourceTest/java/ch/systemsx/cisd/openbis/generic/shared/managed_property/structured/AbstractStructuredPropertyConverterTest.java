@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.structured;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
         }
 
         @Override
-        public void setValue(String value)
+        public void setValue(Serializable value)
         {
             throw new UnsupportedOperationException();
         }
