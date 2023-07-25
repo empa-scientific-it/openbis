@@ -38,6 +38,8 @@ class UserManagerConfig
 
     private List<String> instanceAdmins;
 
+    private List<String> usersToBeIgnored;
+
     public List<String> getGlobalSpaces()
     {
         return globalSpaces;
@@ -96,6 +98,16 @@ class UserManagerConfig
     public void setInstanceAdmins(List<String> instanceAdmins)
     {
         this.instanceAdmins = instanceAdmins;
+    }
+
+    public List<String> getUsersToBeIgnored()
+    {
+        return usersToBeIgnored;
+    }
+
+    public void setUsersToBeIgnored(List<String> usersToBeIgnored)
+    {
+        this.usersToBeIgnored = usersToBeIgnored;
     }
 
     public boolean getReuseHomeSpace()

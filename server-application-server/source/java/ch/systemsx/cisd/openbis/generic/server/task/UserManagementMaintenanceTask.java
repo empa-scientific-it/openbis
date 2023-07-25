@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
@@ -151,15 +153,23 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         Log4jSimpleLogger logger = new Log4jSimpleLogger(operationLog);
         Set<String> knownUsers = new HashSet<>();
         UserManager userManager = createUserManager(config, logger, report);
+        Set<String> usersToBeIgnored = getUsersToBeIgnored(config);
         for (UserGroup group : config.getGroups())
         {
-            addGroup(userManager, group);
+            addGroup(userManager, group, usersToBeIgnored);
             addAllTo(knownUsers, group.getUsers());
             addAllTo(knownUsers, config.getInstanceAdmins());
         }
-        userManager.manage(knownUsers);
+        knownUsers.removeAll(usersToBeIgnored);
+        userManager.manage(knownUsers, usersToBeIgnored);
         handleReport(report);
         operationLog.info("finished");
+    }
+
+    private Set<String> getUsersToBeIgnored(UserManagerConfig config)
+    {
+        List<String> usersToBeIgnored = config.getUsersToBeIgnored();
+        return usersToBeIgnored != null ?  new TreeSet<String>(usersToBeIgnored) : Collections.emptySet();
     }
 
     private static void addAllTo(Collection<String> set, Collection<String> setToBeAddedOrNull)
@@ -170,7 +180,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         }
     }
 
-    private void addGroup(UserManager userManager, UserGroup group)
+    private void addGroup(UserManager userManager, UserGroup group, Set<String> usersToBeIgnored)
     {
         String key = group.getKey();
         if (shareIdsMappingFile != null)
@@ -188,7 +198,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         {
             for (String user : users)
             {
-                principalsByUserId.put(user, new Principal(user, "", "", ""));
+                addPrincipal(principalsByUserId, new Principal(user, "", "", ""), usersToBeIgnored);
             }
         }
         List<String> ldapGroupKeys = group.getLdapGroupKeys();
@@ -210,7 +220,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
                         }
                         for (Principal principal : principals)
                         {
-                            principalsByUserId.put(principal.getUserId(), principal);
+                            addPrincipal(principalsByUserId, principal, usersToBeIgnored);
                         }
                     } catch (Throwable e)
                     {
@@ -225,6 +235,14 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         } else
         {
             userManager.addGroup(group, principalsByUserId);
+        }
+    }
+
+    private void addPrincipal(Map<String, Principal> principalsByUserId, Principal principal, Set<String> usersToBeIgnored)
+    {
+        if (usersToBeIgnored.contains(principal.getUserId()) == false)
+        {
+            principalsByUserId.put(principal.getUserId(), principal);
         }
     }
 

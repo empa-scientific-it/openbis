@@ -251,7 +251,7 @@ public class UserManager
         logger.log(LogLevel.INFO, principalsByUserId.size() + " users for " + (group.isEnabled() ? "" : "disabled ") + "group " + groupCode);
     }
 
-    public void manage(Set<String> knownUsers)
+    public void manage(Set<String> knownUsers, Set<String> usersToBeIgnored)
     {
         String sessionToken = null;
         try
@@ -272,7 +272,7 @@ public class UserManager
             {
                 String groupCode = entry.getKey();
                 Map<String, Principal> users = entry.getValue();
-                manageGroup(sessionToken, groupCode, users, currentState, report);
+                manageGroup(sessionToken, groupCode, users, usersToBeIgnored, currentState, report);
             }
             updateHomeSpaces(sessionToken, currentState, report);
             removeUsersFromGlobalGroup(sessionToken, currentState, report);
@@ -650,17 +650,17 @@ public class UserManager
     }
 
     private void manageGroup(String sessionToken, String groupCode, Map<String, Principal> groupUsers,
-            CurrentState currentState, UserManagerReport report)
+            Set<String> usersToBeIgnored, CurrentState currentState, UserManagerReport report)
     {
         try
         {
             Context context = new Context(sessionToken, service, currentState, report);
             if (currentState.groupExists(groupCode))
             {
-                manageKnownGroup(context, groupCode, groupUsers);
+                manageKnownGroup(context, groupCode, groupUsers, usersToBeIgnored);
             } else
             {
-                manageNewGroup(context, groupCode, groupUsers);
+                manageNewGroup(context, groupCode, groupUsers, usersToBeIgnored);
             }
             createSamples(context, groupCode);
             createExperiments(context, groupCode);
@@ -794,13 +794,13 @@ public class UserManager
         }
     }
 
-    private void manageKnownGroup(Context context, String groupCode, Map<String, Principal> groupUsers)
+    private void manageKnownGroup(Context context, String groupCode, Map<String, Principal> groupUsers, Set<String> usersToBeIgnored)
     {
         createCommonSpaces(context, groupCode);
-        manageUsers(context, groupCode, groupUsers);
+        manageUsers(context, groupCode, groupUsers, usersToBeIgnored);
     }
 
-    private void manageNewGroup(Context context, String groupCode, Map<String, Principal> groupUsers)
+    private void manageNewGroup(Context context, String groupCode, Map<String, Principal> groupUsers, Set<String> usersToBeIgnored)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
 
@@ -809,7 +809,7 @@ public class UserManager
 
         createCommonSpaces(context, groupCode);
 
-        manageUsers(context, groupCode, groupUsers);
+        manageUsers(context, groupCode, groupUsers, usersToBeIgnored);
     }
 
     private void createCommonSpaces(Context context, String groupCode)
@@ -829,11 +829,12 @@ public class UserManager
         }
     }
 
-    private void manageUsers(Context context, String groupCode, Map<String, Principal> groupUsers)
+    private void manageUsers(Context context, String groupCode, Map<String, Principal> groupUsers, Set<String> usersToBeIgnored)
     {
         UserGroup group = groupsByCode.get(groupCode);
         Map<String, Person> currentUsersOfGroup = context.getCurrentState().getCurrentUsersOfGroup(groupCode);
         Set<String> usersToBeRemoved = new TreeSet<>(currentUsersOfGroup.keySet());
+        usersToBeRemoved.removeAll(usersToBeIgnored);
         AuthorizationGroup globalGroup = context.getCurrentState().getGlobalGroup();
         String adminGroupCode = createAdminGroupCode(groupCode);
         boolean createUserSpace = group == null || group.isCreateUserSpace();

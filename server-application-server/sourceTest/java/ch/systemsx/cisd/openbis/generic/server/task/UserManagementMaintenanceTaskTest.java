@@ -256,6 +256,35 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
     }
 
     @Test
+    public void testExecuteWithTwoUsersOneIgnored()
+    {
+        // Given
+        UserManagementMaintenanceTaskWithMocks task = new UserManagementMaintenanceTaskWithMocks()
+                .withUserManagerReport(new UserManagerReport(new MockTimeProvider(0, 1000)));
+        FileUtilities.writeToFile(configFile, "");
+        task.setUp("", properties);
+        FileUtilities.writeToFile(configFile, "{\"usersToBeIgnored\":[\"beta\"], "
+                + "\"groups\": [{\"key\":\"ABC\", \"users\":[\"alpha\", \"beta\"]}]}");
+        
+        // When
+        task.execute();
+        
+        // Then
+        assertEquals("INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Setup plugin \n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Plugin '' initialized. Configuration file: "
+                + configFile.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - manage 1 groups\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: []\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:null, enabled:true, ldapGroupKeys:null, users:[alpha, beta], admins:null] with users [alpha=alpha]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for group ABC\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
+                logRecorder.getLogContent());
+    }
+
+    @Test
     public void testExecuteEmptyLdapGroupKeys()
     {
         // Given
@@ -679,7 +708,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
             }
 
             @Override
-            public void manage(Set<String> knownUsers)
+            public void manage(Set<String> knownUsers, Set<String> usersToBeIgnored)
             {
                 report.addGroup("dummy group, known users: " + knownUsers);
             }

@@ -771,6 +771,45 @@ public class UserManagerTest extends AbstractTest
     }
 
     @Test
+    public void testRemoveUserToBeIgnoredFromAGroup()
+    {
+        // Given
+        // 1. create group G2 with users U1 (admin), U2 and U3
+        MockLogger logger = new MockLogger();
+        Map<Role, List<String>> commonSpaces = commonSpaces();
+        UserManager userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        List<String> globalSpaces = Arrays.asList("A", "B");
+        userManager.setGlobalSpaces(globalSpaces);
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1), users(U1, U2, U3));
+        assertEquals(manage(userManager).getErrorReport(), "");
+        // 2. remove U2 from group G2
+        userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        userManager.setGlobalSpaces(globalSpaces);
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1), users(U1, U3));
+
+        // When
+        UserManagerReport report = manage(userManager, Collections.singleton(U2.getUserId()));
+
+        // Then
+        assertEquals(report.getErrorReport(), "");
+        assertEquals(report.getAuditLog(), "");
+        UserManagerExpectationsBuilder builder = createBuilder();
+        builder.groups("G2").commonSpaces(commonSpaces).users(U1, U2, U3);
+        builder.space("A").observer(U1).observer(U2).observer(U3);
+        builder.space("B").observer(U1).observer(U2).observer(U3);
+        builder.space("G2_ALPHA").admin(U1).user(U2, U3);
+        builder.space("G2_BETA").admin(U1).user(U2, U3);
+        builder.space("G2_GAMMA").admin(U1).observer(U2, U3);
+        builder.space("G2_U1").admin(U1).non(U2, U3);
+        builder.space("G2_U2").admin(U1).admin(U2).non(U3);
+        builder.space("G2_U3").admin(U1).non(U2).admin(U3);
+        builder.homeSpace(U1, "G2_U1");
+        builder.homeSpace(U2, "G2_U2");
+        builder.homeSpace(U3, "G2_U3");
+        builder.assertExpectations();
+    }
+
+    @Test
     public void testMoveUserToAnotherGroup()
     {
         // Given
@@ -2124,11 +2163,16 @@ public class UserManagerTest extends AbstractTest
 
     private UserManagerReport manage(UserManager userManager, String... knownUsers)
     {
-        userManager.manage(new TreeSet<>(Arrays.asList(knownUsers)));
+        return manage(userManager, Collections.emptySet(), knownUsers);
+    }
+
+    private UserManagerReport manage(UserManager userManager, Set<String> usersToBeIgnored, String... knownUsers)
+    {
+        userManager.manage(new TreeSet<>(Arrays.asList(knownUsers)), usersToBeIgnored);
         daoFactory.getSessionFactory().getCurrentSession().flush();
         return report;
     }
-
+    
     private Map<String, Principal> users(Principal... principals)
     {
         Map<String, Principal> map = new TreeMap<>();
