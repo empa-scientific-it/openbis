@@ -729,37 +729,38 @@ This is an extension of the previous example showing how to specify user
 input for actions like add, edit and delete:
 
 ```java
-    def configureUI():
-        """code from previous example is not repeated here"""
+def configureUI():
+    """code from previous example is not repeated here"""
 
-        factory = inputWidgetFactory()
-     
-        if len(lines) > 0:
-            header = lines[0].split(",")
-     
-            """define an action labelled 'Add' for adding a new row to the table"""
-            addAction = uiDesc.addTableAction('Add').setDescription('Add new row to the table')
-            """for every header column add a text input field with the same label as column title"""
-            widgets = []
-            for i in range(0, len(header)):
-                widgets.append(factory.createTextInputField(header[i]))
-            addAction.addInputWidgets(widgets)
-     
-            """define an action labelled 'Edit' for editing a selected row of the table"""
-            editAction = uiDesc.addTableAction('Edit').setDescription('Edit selected table row')
-            editAction.setRowSelectionRequiredSingle()
-            """for every header column add a text input field that is bounded with a column"""
-            widgets = []
-            for i in range(0, len(header)):
-                columnName = header[i]
-                widgets.append(factory.createTextInputField(columnName))
-                editAction.addBinding(columnName, columnName)
-            editAction.addInputWidgets(widgets)
-     
-            """define an action labelled "Delete" for deleting selected rows from the table - no input fields are needed"""
-            deleteAction = uiDesc.addTableAction('Delete')\
-                                 .setDescription('Are you sure you want to delete selected rows from the table?')
-            deleteAction.setRowSelectionRequired()
+    factory = inputWidgetFactory()
+    
+    if len(lines) > 0:
+        header = lines[0].split(",")
+    
+        """define an action labelled 'Add' for adding a new row to the table"""
+        addAction = uiDesc.addTableAction('Add').setDescription('Add new row to the table')
+        """for every header column add a text input field with the same label as column title"""
+        widgets = []
+        for i in range(0, len(header)):
+            widgets.append(factory.createTextInputField(header[i]))
+        addAction.addInputWidgets(widgets)
+    
+        """define an action labelled 'Edit' for editing a selected row of the table"""
+        editAction = uiDesc.addTableAction('Edit').setDescription('Edit selected table row')
+        editAction.setRowSelectionRequiredSingle()
+        """for every header column add a text input field that is bounded with a column"""
+        widgets = []
+        for i in range(0, len(header)):
+            columnName = header[i]
+            widgets.append(factory.createTextInputField(columnName))
+            editAction.addBinding(columnName, columnName)
+        editAction.addInputWidgets(widgets)
+    
+        """define an action labelled "Delete" for deleting selected rows from the table - no input fields are needed"""
+        deleteAction = uiDesc.addTableAction('Delete')\
+                                .setDescription('Are you sure you want to delete selected rows from the table?')
+        deleteAction.setRowSelectionRequired()
+
 ```
 
 The picture below shows updated detail view of sample S1. For every
@@ -787,53 +788,53 @@ This is an extension of the previous example showing how to specify
 behaviour of actions defined in `configureUI()` function:
 
 ```java
-    def configureUI():
-        """code from previous example is not repeated here"""
+def configureUI():
+    """code from previous example is not repeated here"""
 
-    def updateFromUI(action):
-     
-        """get the property value as String and split it using newline character"""
-        value = property.getValue()
-        lines = []
-        if value != None:
-            lines = value.split("\n")
-         
-        """for 'Add' action add a new line with values from input fields"""
-        if action.getName() == 'Add':
-            newLine = extractNewLineFromActionInput(action)
-            lines.append(newLine)
-        elif action.getName() == 'Edit':
-            """
-            For 'Edit' action find the line corresponding to selected row
-            and replace it with a line with values from input fields.
-            NOTE: line index is one bigger than selected row index because of header.
-            """
-            lineIndex = action.getSelectedRows()[0] + 1
-            lines.pop(lineIndex)
-            newLine = extractNewLineFromActionInput(action)
-            lines.insert(lineIndex, newLine)
-        elif action.getName() == 'Delete':
-            """
-            For 'Delete' action delete the lines corresponding to selected rows.
-            NOTE: deletion of rows is implemented here in reversed order
-            """
-            rowIds = list(action.getSelectedRows())
-            rowIds.reverse()
-            for rowId in rowIds:
-                lines.pop(rowId + 1)
-     
-        """in the end update the property value concatenating all the lines"""
-        value = "\n".join(lines)
-        property.setValue(value)
-     
-    def extractNewLineFromActionInput(action):
-        inputValues = []
-        for input in action.getInputWidgetDescriptions():
-            inputValue = ""
-            if input.getValue():
-                inputValue = input.getValue()
-            inputValues.append(inputValue)
-        return ",".join(inputValues)
+def updateFromUI(action):
+    
+    """get the property value as String and split it using newline character"""
+    value = property.getValue()
+    lines = []
+    if value != None:
+        lines = value.split("\n")
+        
+    """for 'Add' action add a new line with values from input fields"""
+    if action.getName() == 'Add':
+        newLine = extractNewLineFromActionInput(action)
+        lines.append(newLine)
+    elif action.getName() == 'Edit':
+        """
+        For 'Edit' action find the line corresponding to selected row
+        and replace it with a line with values from input fields.
+        NOTE: line index is one bigger than selected row index because of header.
+        """
+        lineIndex = action.getSelectedRows()[0] + 1
+        lines.pop(lineIndex)
+        newLine = extractNewLineFromActionInput(action)
+        lines.insert(lineIndex, newLine)
+    elif action.getName() == 'Delete':
+        """
+        For 'Delete' action delete the lines corresponding to selected rows.
+        NOTE: deletion of rows is implemented here in reversed order
+        """
+        rowIds = list(action.getSelectedRows())
+        rowIds.reverse()
+        for rowId in rowIds:
+            lines.pop(rowId + 1)
+    
+    """in the end update the property value concatenating all the lines"""
+    value = "\n".join(lines)
+    property.setValue(value)
+    
+def extractNewLineFromActionInput(action):
+    inputValues = []
+    for input in action.getInputWidgetDescriptions():
+        inputValue = ""
+        if input.getValue():
+            inputValue = input.getValue()
+        inputValues.append(inputValue)
+    return ",".join(inputValues)
 ```
 
 ##### updateFromBatchInput(), batchColumNames() and inputWidgets()
