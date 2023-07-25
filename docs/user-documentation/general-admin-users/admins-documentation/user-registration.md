@@ -129,7 +129,7 @@ following information:
 3.  **Email**
 4.  **openBIS session token**
 5.  **Zenodo API Token** ([Export to
-    Zenodo](https://openbis.ch/index.php/docs/user-documentation-20-10-3/data-export/export-to-zenodo/))
+    Zenodo](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-export.html#export-to-zenodo))
 
  
 
