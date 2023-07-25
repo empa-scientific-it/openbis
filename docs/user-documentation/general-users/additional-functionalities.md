@@ -391,8 +391,8 @@ password and save.
 
 1.  **Freeze Space only**
 
-|--- |--- |--- |
 ||Allowed|Not allowed|
+|--- |--- |--- |
 |Create new Project||x|
 |Create new Experiment/Collection|x||
 |Create new Object||x|
@@ -414,8 +414,8 @@ password and save.
 
 1.  **Freeze Project only**
 
-|--- |--- |--- |
 ||Allowed|Not allowed|
+|--- |--- |--- |
 |Create new Experiment/Collection||x|
 |Create new Object||x|
 |Create new Dataset in existing Experiment/Collection|x||
@@ -435,8 +435,8 @@ password and save.
 
 **3. Freeze Experiment/Collection only**
 
-|--- |--- |--- |
 ||Allowed|Not allowed|
+|--- |--- |--- |
 |Create new Object||x|
 |Create new Dataset in existing Experiment/Collection||x|
 |Create new Dataset in existing Object||x|
@@ -453,8 +453,8 @@ password and save.
 
 **4. Freeze Object only**
 
-|--- |--- |--- |
 ||Allowed|Not allowed|
+|--- |--- |--- |
 |Create new Dataset in existing Object||x|
 |Edit existing Object||x|
 |Edit existing Dataset in Object|x||
@@ -465,9 +465,9 @@ password and save.
 |Export|x||
 
 **5. Freeze Dataset only **  
-  
-|--- |--- |--- |
+
 ||Allowed|Not allowed|
+|--- |--- |--- |
 |Edit existing Dataset||x|
 |Delete Dataset||x|
 |Move Dataset||x|
