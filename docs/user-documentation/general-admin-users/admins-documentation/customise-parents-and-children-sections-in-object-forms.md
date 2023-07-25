@@ -1,11 +1,5 @@
 # Customise Parents and Children Sections in Object Forms
 
-
-
- 
-
- 
-
 The **Parents** and **Children** sections are automatically created in
 all *Object* forms. It is possible to customise or remove these
 sections, from the **Settings**, under **Utilities**.
@@ -18,7 +12,7 @@ Protocol to the form, we use the **Search** or **Paste** options next to
 General Protocol. If we want to add another parent, for example a
 **Sample**, we need to use the **Search Any** or **Paste Any** next to
 Parents. See also [Add parents and children to Experimental
-Steps.](https://openbis.ch/index.php/docs/user-documentation-20-10-3/lab-notebook/add-parents-and-children-to-experimental-steps/)
+Steps.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps)
 
  
 
