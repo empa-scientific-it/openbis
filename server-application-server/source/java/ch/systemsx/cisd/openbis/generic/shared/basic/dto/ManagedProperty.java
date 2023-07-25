@@ -19,6 +19,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 
+import java.io.Serializable;
+
 /**
  * A holder of information specific to a managed property value.
  * 
@@ -29,16 +31,23 @@ public class ManagedProperty implements IManagedProperty
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static boolean isSpecialValue(String valueOrNull)
+    public static boolean isSpecialValue(Serializable valueOrNull)
     {
-        return valueOrNull != null
-                && (valueOrNull.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX) || valueOrNull
+        if(valueOrNull != null) {
+            if(valueOrNull.getClass().isArray()) {
+                return false;
+            } else {
+                String value = valueOrNull.toString();
+                return (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX) || value
                         .equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE));
+            }
+        }
+        return false;
     }
 
     // NOTE: defaults are set for testing - scripts should override them
 
-    private String value = BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE;
+    private Serializable value = BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE;
 
     private String propertyTypeCode = null;
 
@@ -80,7 +89,7 @@ public class ManagedProperty implements IManagedProperty
     }
 
     @Override
-    public String getValue()
+    public Serializable getValue()
     {
         return value;
     }
@@ -92,7 +101,7 @@ public class ManagedProperty implements IManagedProperty
     }
 
     @Override
-    public void setValue(String value)
+    public void setValue(Serializable value)
     {
         this.value = value;
     }

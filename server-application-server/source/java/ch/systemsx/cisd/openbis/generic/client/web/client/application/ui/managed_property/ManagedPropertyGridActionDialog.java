@@ -121,7 +121,7 @@ public final class ManagedPropertyGridActionDialog extends
             inputDescription.setValue(value);
         }
         // old value was escaped going to the client - unescape it before sending back to the server
-        managedProperty.setValue(StringEscapeUtils.unescapeHtml(managedProperty.getValue()));
+        managedProperty.setValue(StringEscapeUtils.unescapeHtml((String)managedProperty.getValue()));
         viewContext.getService().updateManagedProperty(TechId.create(entity),
                 entity.getEntityKind(), managedProperty, managedAction, callback);
     }

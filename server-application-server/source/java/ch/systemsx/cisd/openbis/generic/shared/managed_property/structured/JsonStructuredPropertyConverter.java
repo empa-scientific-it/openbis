@@ -127,7 +127,7 @@ public class JsonStructuredPropertyConverter implements IStructuredPropertyConve
 
     public boolean canHandle(IManagedProperty property)
     {
-        return canHandle(property.getValue());
+        return canHandle((String)property.getValue());
     }
 
     public boolean canHandle(String string)
@@ -138,7 +138,7 @@ public class JsonStructuredPropertyConverter implements IStructuredPropertyConve
     @Override
     public List<IElement> convertToElements(IManagedProperty property)
     {
-        return convertStringToElements(property.getValue());
+        return convertStringToElements((String)property.getValue());
     }
 
     @Override

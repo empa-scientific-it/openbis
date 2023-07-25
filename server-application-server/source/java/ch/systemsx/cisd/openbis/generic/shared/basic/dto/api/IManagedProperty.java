@@ -43,10 +43,10 @@ public interface IManagedProperty extends Serializable
     boolean isSpecialValue();
 
     /** Returns the current value of the property. */
-    String getValue();
+    Serializable getValue();
 
     /** Set the value of the property. */
-    void setValue(String value);
+    void setValue(Serializable value);
 
     /**
      * Return an object which allows to manage data for the user interface (input as well as output).

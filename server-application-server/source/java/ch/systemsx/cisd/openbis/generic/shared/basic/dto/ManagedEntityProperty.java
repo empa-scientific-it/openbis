@@ -150,7 +150,7 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     }
 
     @Override
-    public String getValue()
+    public String getStringValue()
     {
         return (String) entityProperty.getValue();
     }

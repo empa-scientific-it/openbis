@@ -71,8 +71,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            EntityPropertiesConverter.class);
     private static final IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>
             EXTENDED_ETPT_KEY_EXTRACTOR =
             new IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>()
@@ -268,7 +266,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final PersonPE registrator,
             final EntityTypePE entityTypePE, final IEntityProperty property)
     {
-        operationLog.info("||> tryConvertProperty START");
         final String propertyCode = property.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
         final String valueOrNull = property.tryGetAsString();
@@ -281,8 +278,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, propertyCode);
         }
-        operationLog.info("||> tryConvertProperty " + propertyCode + " " +
-                propertyType + " val:|" + valueOrNull + "| isBlank:" + isNullOrBlank(valueOrNull));
         if (isNullOrBlank(valueOrNull) == false)
         {
             List<T> results = new ArrayList<>();
@@ -290,12 +285,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
             final String validatedValue =
                     propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
-            operationLog.info("||> tryConvertProperty translated:" + translatedValue + " validated:"+validatedValue);
             results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
                     validatedValue));
-            operationLog.info("||> tryConvertProperty POST1");
-            results.forEach(operationLog::info);
-            operationLog.info("||> tryConvertProperty POST2");
             return results;
         }
         return null;
@@ -308,18 +299,15 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         List<T> entityProperties = new ArrayList<>();
         String val = value;
-        operationLog.info("||> createEntityProperty=" + val + " " + propertyType.isMultiValue() + " " + propertyType);
         if (propertyType.isMultiValue())
         {
             if (val.startsWith("["))
             {
-                operationLog.info("||> createEntityProperty array:" + val);
                 val = val.substring(1, val.length() - 1);
             }
             for (String v : val.split(","))
             {
                 String singleValue = v.trim();
-                operationLog.info("||> createEntityProperty single=" + singleValue);
                 final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
                 setPropertyValue(entityProperty, propertyType, singleValue);
                 entityProperties.add(entityProperty);
@@ -328,12 +316,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
             setPropertyValue(entityProperty, propertyType, val);
-            operationLog.info("||> createEntityProperty single:" + entityProperty);
             entityProperties.add(entityProperty);
         }
-        operationLog.info("||> createEntityProperty POST1");
-        entityProperties.forEach(operationLog::info);
-        operationLog.info("||> createEntityProperty POST2");
         return entityProperties;
     }
 
@@ -356,8 +340,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final IEntityProperty[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
-        operationLog.info("||> convertProperties" + Arrays.toString(properties));
-        System.out.println("|||> convertProperties" + Arrays.toString(properties));
         return convertProperties(properties, entityTypeCode, registrator, true, true);
     }
 
@@ -372,30 +354,19 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         Set<String> dynamicProperties = getDynamicProperties(entityTypePE);
         Set<String> managedProperties = getManagedProperties(entityTypePE);
-        operationLog.info("||> convertProperties dynamicProperties");
-        dynamicProperties.forEach(operationLog::info);
-        operationLog.info("||> convertProperties managedProperties");
-        managedProperties.forEach(operationLog::info);
         Set<IEntityProperty> definedProperties =
                 new LinkedHashSet<IEntityProperty>(Arrays.asList(properties));
-        operationLog.info("||> convertProperties definedProps1");
-        definedProperties.forEach(operationLog::info);
         if (createDynamicPropertiesPlaceholders)
         {
             placeholderCreator.addDynamicPropertiesPlaceholders(definedProperties,
                     dynamicProperties);
-            operationLog.info("||> convertProperties definedProps2");
-            definedProperties.forEach(operationLog::info);
         }
         if (createManagedPropertiesPlaceholders)
         {
             placeholderCreator.addManagedPropertiesPlaceholders(definedProperties,
                     managedProperties);
-            operationLog.info("||> convertProperties definedProps3");
-            definedProperties.forEach(operationLog::info);
         }
         final List<T> list = new ArrayList<T>();
-        operationLog.info("||> convertProperties PRE");
         for (final IEntityProperty property : definedProperties)
         {
             final List<T> convertedPropertyOrNull =
@@ -405,9 +376,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 list.addAll(convertedPropertyOrNull);
             }
         }
-        operationLog.info("||> convertProperties POST");
-        list.forEach(l -> operationLog.info("||> "+l));
-        list.forEach(l -> System.out.println("|||> "+l));
         return list;
     }
 
@@ -666,7 +634,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         T existingProperty = tryFind(oldProperties, managedProperty.getPropertyTypeCode());
         if (existingProperty != null)
         {
-            existingProperty.setUntypedValue(managedProperty.getValue(), null, null, null,
+            existingProperty.setUntypedValue((String) managedProperty.getValue(), null, null, null,
                     null,
                     null, null, null, null);
             existingProperty.setAuthor(author);
@@ -687,12 +655,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author,
             Set<String> propertiesToUpdate)
     {
-        operationLog.info("||> updateProperties " + entityType + " " + entityType + " ");
-        propertiesToUpdate.forEach(l -> operationLog.info("||> "+l));
-        newProperties.forEach(l -> operationLog.info("||> "+l));
-
-        propertiesToUpdate.forEach(l -> System.out.println("|||> "+l));
-        newProperties.forEach(l -> System.out.println("|||> "+l));
         // all new properties should be among propertiesToUpdate (no need to check it)
         final Set<T> set = updateProperties(oldProperties, entityType, newProperties, author);
         // add old properties that are not among propertiesToUpdate (preserve those properties)
@@ -816,7 +778,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 }
 
                 evaluator.updateFromRegistrationForm(managedProperty, person, bindingsList);
-                return managedProperty.getValue();
+                return (String) managedProperty.getValue();
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

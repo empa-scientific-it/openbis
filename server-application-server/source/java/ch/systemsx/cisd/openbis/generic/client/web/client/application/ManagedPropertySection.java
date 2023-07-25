@@ -262,7 +262,7 @@ public class ManagedPropertySection extends DisposableTabContent
             return null; // make eclipse happy
         } else
         {
-            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getValue());
+            final String value = StringEscapeUtils.unescapeHtml((String)managedProperty.getValue());
             // if there is a script error than value will contain error message
             if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
                     && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))
@@ -306,7 +306,7 @@ public class ManagedPropertySection extends DisposableTabContent
             return null; // make eclipse happy
         } else
         {
-            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getValue());
+            final String value = StringEscapeUtils.unescapeHtml((String)managedProperty.getValue());
             // if there is a script error than value will contain error message
             if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
                     && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))
