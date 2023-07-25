@@ -79,16 +79,6 @@ following steps.
 
 ![image info](img/80.png)
 
- 
-
- 
-
- 
-
- 
-
- 
-
 -   No labels
  
 Dynamic Properties
@@ -163,26 +153,23 @@ You can test your script on selected entities
 
 1.  Show a value of a Sample property which is named 'Multiplicity'
 
-  
-
+```java
     entity.propertyValue('Multiplicity')
-
+```
   
 
-2\. Takes an existing property and multiplies the value by 1.5
+2. Takes an existing property and multiplies the value by 1.5
 
+```java
     float(entity.propertyValue('CONCENTRATION_ORIGINAL_ILLUMINA'))*1.5
-
-  
-
-  
+```  
 
 #### Advanced Examples
 
 1.  Show all entity properties as one dynamic property:
 
-  
 
+```java
     def get_properties(e):  
         """Automatically creates entity description"""
         properties = e.properties()
@@ -196,14 +183,12 @@ You can test your script on selected entities
         
     def calculate(): 
         """Main script function. The result will be used as the value of appropriate dynamic property."""
-        return get_properties(entity) 
+        return get_properties(entity)
+```
 
-  
+2. Calculate a new float value based some other values
 
-2\. Calculate a new float value based some other values
-
-  
-
+```java
     import java.lang.String as String
 
     def calculateValue():  
@@ -223,13 +208,11 @@ You can test your script on selected entities
     def calculate(): 
         """Main script function. The result will be used as the value of appropriate dynamic property."""
         return calculateValue()
+```  
 
-  
+3. Calculate a time difference between two time stamps:
 
-3\. Calculate a time difference between two time stamps:
-
-  
-
+```java
     from datetime import datetime
     def dateTimeSplitter(openbisDate):
       dateAndTime, tz = openbisDate.rsplit(" ", 1)
@@ -246,12 +229,13 @@ You can test your script on selected entities
         return str(diffTime)
       except:
         return "N/A"
+```
 
   
 
-4\. Illumina NGS Low Plexity Pooling Checker: checks if the complexity
-of a pooled sample is good enough for a successful run:
+4. Illumina NGS Low Plexity Pooling Checker: checks if the complexity of a pooled sample is good enough for a successful run:
 
+```java
     def checkBarcodes():
       '''
       'parents' are a HashSet of SamplePropertyPE
@@ -304,11 +288,8 @@ of a pooled sample is good enough for a successful run:
       return returnString
     def calculate(): 
         """Main script function. The result will be used as the value of appropriate dynamic property."""
-        return checkBarcodes() 
-
-  
-
-  
+        return checkBarcodes()
+```  
 
 #### Data Types
 
@@ -535,7 +516,9 @@ access to a variable named `property` which holds an object of type
 ` IManagedProperty `. Methods of this class are explained below. To
 access the property object from the script, use the following syntax:
 
+```java
     property.<requested method>
+```
 
 #### Predefined Functions
 
@@ -608,6 +591,7 @@ This example shows how to configure a fixed table (without using value
 stored in the property at all) that will be shown in detail view of an
 entity.
 
+```java
     def configureUI():
         """create table builder and add 3 columns"""
         tableBuilder = createTableBuilder()
@@ -633,6 +617,7 @@ entity.
         property.setOwnTab(True)
         uiDesc = property.getUiDescription()
         uiDesc.useTableOutput(tableBuilder.getTableModel())
+```
 
 Let's assume, that a property type with label *Fixed Table* was assigned
 to sample type CELL\_PLATE as a managed property using the example
@@ -652,6 +637,7 @@ openBIS entities (see [Linking to openBIS
 entities](#ManagedProperties-LinkingtoopenBISentities) for more
 details):
 
+```java
     def configureUI():
         """create table builder with 4 columns (any column names can be used)"""
         tableBuilder = createTableBuilder()
@@ -677,6 +663,7 @@ details):
         property.setOwnTab(True)
         uiDesc = property.getUiDescription()
         uiDesc.useTableOutput(tableBuilder.getTableModel())
+```
 
 If linked entity doesn't exist in the database the perm id
 ((`code (type)` for materials) will be shown as plain text (not
@@ -692,6 +679,7 @@ Otherwise clickable links will be displayed with link text equal to:
 This example shows how to configure a table representation of a property
 value holding a CSV document (many lines with comma separated values):
 
+```java
     def configureUI():
         """get the property value as String and split it using newline character""" 
         value = property.getValue()
@@ -713,6 +701,7 @@ value holding a CSV document (many lines with comma separated values):
         property.setOwnTab(True)
         uiDesc = property.getUiDescription()
         uiDesc.useTableOutput(tableBuilder.getTableModel())
+```
 
 Let's assume, that:
 
@@ -739,6 +728,7 @@ Managed property value will be visible as text in the left panel
 This is an extension of the previous example showing how to specify user
 input for actions like add, edit and delete:
 
+```java
     def configureUI():
         """code from previous example is not repeated here"""
 
@@ -769,7 +759,8 @@ input for actions like add, edit and delete:
             """define an action labelled "Delete" for deleting selected rows from the table - no input fields are needed"""
             deleteAction = uiDesc.addTableAction('Delete')\
                                  .setDescription('Are you sure you want to delete selected rows from the table?')
-            deleteAction.setRowSelectionRequired()    
+            deleteAction.setRowSelectionRequired()
+```
 
 The picture below shows updated detail view of sample S1. For every
 action defined in the script there is a button in bottom toolbar of the
@@ -795,6 +786,7 @@ response to user's action.
 This is an extension of the previous example showing how to specify
 behaviour of actions defined in `configureUI()` function:
 
+```java
     def configureUI():
         """code from previous example is not repeated here"""
 
@@ -842,6 +834,7 @@ behaviour of actions defined in `configureUI()` function:
                 inputValue = input.getValue()
             inputValues.append(inputValue)
         return ",".join(inputValues)
+```
 
 ##### updateFromBatchInput(), batchColumNames() and inputWidgets()
 
@@ -852,6 +845,7 @@ entity type which has managed properties.
 
 This example assumes one column in the file for the managed property.
 
+```java
     def updateFromBatchInput(bindings):
         property.setValue('hello ' + bindings.get(''))
 
@@ -861,6 +855,7 @@ This example assumes one column in the file for the managed property.
         row = builder.addRow()
         row.setCell('Greetings', property.getValue())
         property.getUiDescription().useTableOutput(builder.getTableModel())
+```
 
 The following input file for a batch upload for samples of a type where
 property `MANGED-TEXT`
@@ -878,6 +873,7 @@ would create in sample detailed view
 This example takes two columns from the batch input file for creation of
 one managed property.
 
+```java
     def batchColumnNames():
         return ['Unit', 'Value']
 
@@ -889,6 +885,7 @@ one managed property.
         builder.addHeader('Value')
         builder.addRow().setCell('Value', property.getValue())
         property.getUiDescription().useTableOutput(builder.getTableModel())
+```
 
 Assuming a sample type is assigned to the property `MANAGED-TEXT` with
 this script. On the batch upload form a click on *Download file
@@ -927,13 +924,13 @@ are all non-mandatory single-line fields with labels specified by the
 batch column names. More is possible if the function `batchColumnsNames`
 is replaced by function `inputWidgets` as in the following example:
 
+```java
     def inputWidgets():
         factory = inputWidgetFactory()
         unit = factory.createComboBoxInputField('Unit', ['cm', 'mm']).setMandatory(True)
         value = factory.createTextInputField('Value').setMandatory(True)
         return [unit, value]
-
- 
+``` 
 
 The field 'Managed Text' in the registration form will be as shown in
 the following screen shot:
@@ -950,8 +947,10 @@ Here is a (overly) simple example:
 
 ###### Example 8
 
+```java
     def configureUI():
       property.getUiDescription().useHtmlOutput("<p>hello<br>foo</p>")
+```
 
 ##### Accessing information about a person that performs an update operation
 
@@ -962,8 +961,10 @@ update operation can be access in a managed property script. The
 information is stored in the 'person' variable that is available in both
 'updateFromUI' and 'updateFromBatchInput' functions.
 
+```java
     def updateFromBatchInput(bindings):
         property.setValue('userId: ' + person.getUserId() + ', userName: ' + person.getUserName())
+```
 
 #### Storing structured content in managed properties
 
@@ -1031,9 +1032,9 @@ the example code below. It is extracted from a Jython script and
 demonstrates the basics of constructing and serializing structured
 content within a managed property.
 
+```java
     factory = elementFactory()
     converter = xmlPropertyConverter()
-      
       
     def initialCreationOfPropertyValue():
       
@@ -1073,22 +1074,25 @@ content within a managed property.
 
       # update the property value to reflect the modified data structure
       property.value = converter.convertToString(elements)
+```
 
 At the end of the function `initialCreationOfPropertyValue()`, the
 variable `property.value` will contain an XML representation of the
 created data structure, which will look like
 
+```xml
     <root>
       <Sample permId="samplePermId"/>
       <Material permId="type (typeCode)"/>
       <testElement key1="value1" key2="value2"/>
     </root>
+```
 
 The function `updateDataStructure()` assumes that the
 `initialCreationOfPropertyValue()` has already been called and modifies
-the data structure to what would translate to the following XML snippet
-:
+the data structure to what would translate to the following XML snippet:
 
+```xml
     <root>
       <Sample permId="modifiedLink"/>
       <Material permId="type (typeCode)">
@@ -1096,6 +1100,7 @@ the data structure to what would translate to the following XML snippet
       </Material>
       <testElement key1="value1" key2="modifiedvalue"/>
     </root>
+```
 
 #### Unofficial API
 
@@ -1111,6 +1116,7 @@ The following example shows a complete implementation of a managed
 property script for handling list of log entries. The property value is
 stored as an XML document.
 
+```java
     from java.util import Date
      
     """
@@ -1249,6 +1255,7 @@ stored as an XML document.
          
         """Update value of the managed property to XML string created from modified list of elements."""
         property.value = converter.convertToString(elements)
+```
 
 ### Creating and Deploying Java Plugins
 
