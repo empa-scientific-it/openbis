@@ -65,10 +65,7 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
         {
             if (definedProperties.stream()
                     .anyMatch(x -> x.getPropertyType().getCode().equals(p)) == false)
-            //            if (definedProperties.contains(p) == false)
             {
-                operationLog.info(
-                        "||> addPlaceholders contains BEFORE:|" + p + "|" + placeholderValue);
                 definedProperties.forEach(operationLog::info);
                 final IEntityProperty entityProperty = new EntityProperty();
                 entityProperty.setValue(placeholderValue);
@@ -76,7 +73,6 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
                 propertyType.setCode(p);
                 entityProperty.setPropertyType(propertyType);
                 definedProperties.add(entityProperty);
-                operationLog.info("||> addPlaceholders AFTER:" + p);
                 definedProperties.forEach(operationLog::info);
             }
         }
