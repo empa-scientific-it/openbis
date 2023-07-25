@@ -3843,6 +3843,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			creation.setDataType(dataType);
 			creation.setDescription("description");
 			creation.setLabel("label");
+			creation.setMultiValue(false);
 
 			if (dataType === c.DataType.CONTROLLEDVOCABULARY)
 			{

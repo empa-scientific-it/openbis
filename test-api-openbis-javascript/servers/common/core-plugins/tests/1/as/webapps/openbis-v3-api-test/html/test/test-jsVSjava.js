@@ -33,6 +33,7 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
             IDataStoreServerApi: "Java class ignored: ",
             PhysicalDataCreation: "Java class ignored: ",
             SampleIdDeserializer: "Java class ignored: ",
+            PropertiesDeserializer: "Java class missing jsonObjectAnnotation",
             DataSetFileDownload: "Java class not implemented in JS: ",
             DataSetFileDownloadOptions: "Java class not implemented in JS: ",
             FastDownloader: "Java class not implemented in JS: ",
