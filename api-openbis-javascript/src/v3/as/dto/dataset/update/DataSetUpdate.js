@@ -263,7 +263,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		},
 		properties : {
 			name : "Map",
-			arguments : [ "String", "String" ]
+			arguments : [ "String", "Serializable" ]
 		},
 		tagIds : {
 			name : "IdListUpdateValue",
