@@ -391,7 +391,6 @@ password and save.
 
 1.  **Freeze Space only**
 
-||||
 |--- |--- |--- |
 ||Allowed|Not allowed|
 |Create new Project||x|
@@ -415,49 +414,64 @@ password and save.
 
 1.  **Freeze Project only**
 
- 
-
- 
-
-[TABLE]
-
- 
-
- 
+|--- |--- |--- |
+||Allowed|Not allowed|
+|Create new Experiment/Collection||x|
+|Create new Object||x|
+|Create new Dataset in existing Experiment/Collection|x||
+|Create new Dataset in existing Object|x||
+|Edit Project||x|
+|Edit existing Experiment/Collection|x||
+|Edit existing Object|x||
+|Edit existing Dataset|x||
+|Delete Project||x|
+|Delete Experiment/Collection||x|
+|Delete Object||x|
+|Delete Dataset||x|
+|Move Experiment/Collection||x|
+|Move Object||x|
+|Copy Object||x|
+|Export|x||
 
 **3. Freeze Experiment/Collection only**
 
- 
-
- 
-
-[TABLE]
-
- 
-
- 
+|--- |--- |--- |
+||Allowed|Not allowed|
+|Create new Object||x|
+|Create new Dataset in existing Experiment/Collection||x|
+|Create new Dataset in existing Object||x|
+|Edit existing Experiment/Collection||x|
+|Edit existing Object|x||
+|Edit existing Dataset|x||
+|Delete Experiment/Collection||x|
+|Delete Object||x|
+|Delete Dataset||x|
+|Move Experiment/Collection||x|
+|Move Object||x|
+|Copy Object||x|
+|Export|x||
 
 **4. Freeze Object only**
 
- 
-
- 
-
-[TABLE]
-
- 
-
- 
-
- 
+|--- |--- |--- |
+||Allowed|Not allowed|
+|Create new Dataset in existing Object||x|
+|Edit existing Object||x|
+|Edit existing Dataset in Object|x||
+|Delete Object||x|
+|Delete Dataset||x|
+|Move Object||x|
+|Copy Object|x (only if the Experiment is not frozen)||
+|Export|x||
 
 **5. Freeze Dataset only **  
   
-
- 
-
-[TABLE]
-
+|--- |--- |--- |
+||Allowed|Not allowed|
+|Edit existing Dataset||x|
+|Delete Dataset||x|
+|Move Dataset||x|
+|Export|x||
 
 Updated on April 25, 2023
  
