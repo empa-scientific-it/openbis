@@ -296,5 +296,5 @@ code).
 
 ![image info](img/502.png)
 
-> :warning: **Legacy Syntax**
+> :warning: **Legacy Syntax:**
 > Older versions of openBIS required to put string parameters in ticks, like '${param}'. Current versions of openBIS don't need this anymore, so you can use ${param} without the ticks. However, the syntax with ticks is still accept for backward compatibility.
