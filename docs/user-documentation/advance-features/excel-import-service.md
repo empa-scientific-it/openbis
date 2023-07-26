@@ -1,11 +1,5 @@
 # Excel Import Service
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A), last modified on [Dec 05,
-    2022](/pages/diffpagesbyversion.action?pageId=53745981&selectedPageVersions=7&selectedPageVersions=8 "Show changes")
-
-  
-
 ## Introduction
 
 The Excel import service reads xls definitions for both types and
@@ -327,18 +321,21 @@ version.
 
 For every TYPE found in the Excel sheet the next algorithm is performed:
 
-    IF ENTITY OR (TYPE.Version > STORED_VERSION) OR (TYPE.Version == FORCE): // If is a new version
-        IF ITEM NOT EXISTS in openBIS:
-            CREATE ITEM                             
-        ELSE: // Doesn't exist branch
-            IF FAIL_IF_EXISTS:
-                THROW EXCEPTION
-            IF UPDATE_IF_EXISTS:
-                UPDATE ITEM
-            ELSE IF IGNORE_EXISTING:
-                PASS // Ignore as requested
-    ELSE:
-        PASS // Ignore object that have not been updated
+```py
+IF ENTITY OR (TYPE.Version > STORED_VERSION) OR (TYPE.Version == FORCE): // If is a new version
+    IF ITEM NOT EXISTS in openBIS:
+        CREATE ITEM                             
+    ELSE: // Doesn't exist branch
+        IF FAIL_IF_EXISTS:
+            THROW EXCEPTION
+        IF UPDATE_IF_EXISTS:
+            UPDATE ITEM
+        ELSE IF IGNORE_EXISTING:
+            PASS // Ignore as requested
+ELSE:
+    PASS // Ignore object that have not been updated
+```
+
 
   
 
@@ -510,22 +507,22 @@ be contained in ***scripts* directory** under master-data.
 
 Contents of initialize-master-data.py:
 
-    from ch.ethz.sis.openbis.generic.server.asapi.v3 import ApplicationServerApi
-    from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
-    from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
-    from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
-    from ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl import MasterDataRegistrationHelper
-    import sys
+```python
+from ch.ethz.sis.openbis.generic.server.asapi.v3 import ApplicationServerApi
+from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
+from ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl import MasterDataRegistrationHelper
+import sys
 
-    helper = MasterDataRegistrationHelper(sys.path)
-    api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
-    sessionToken = api.loginAsSystem()
-    props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays()) \
-        .withParameter('xls_name', 'ELN-LIMS-LIFE-SCIENCES').withParameter('update_mode', 'UPDATE_IF_EXISTS') \
-        .withParameter('scripts', helper.getAllScripts())
-    result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
-
-  
+helper = MasterDataRegistrationHelper(sys.path)
+api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
+sessionToken = api.loginAsSystem()
+props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays()) \
+    .withParameter('xls_name', 'ELN-LIMS-LIFE-SCIENCES').withParameter('update_mode', 'UPDATE_IF_EXISTS') \
+    .withParameter('scripts', helper.getAllScripts())
+result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
+```  
 
 There are following parameters to fill (Easiest is to use
 MasterDataRegistrationHelper to evaluate parameter values):
