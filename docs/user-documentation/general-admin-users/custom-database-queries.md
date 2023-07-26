@@ -170,14 +170,20 @@ A SQL query can have parameters which are defined later by the user
 running the query. A parameter is of the form `${<parameter name>`}.
 Example:
 
-    select * from my_table where code = ${my table code}
+```sql
+select * from my_table where code = ${my table code}
+```
 
 The parameter name will appear in the text field when running the query.
 Optionally, you can provide key-value pairs which are "metadata" for the
 parameter name and separated by '::' from the name. These metadata keys
 are defined:
 
-[TABLE]
+|Metadata key|Explanation|Example|
+|--- |--- |--- |
+|type|Sets the data type of this parameter. Valid values are VARCHAR (or STRING), CHAR, INTEGER, BIGINT, FLOAT, DOUBLE, BOOLEAN, TIME, DATE or TIMESTAMP.|${code::type=VARCHAR}|
+|list|Coma-separated list of allowed values for the parameter.|${color::list=red,green,blue}|
+|query|A SQL query which is run to determine the allowed values for the parameter. The query is expected to return exactly one column. You should specify only fast queries here with a reasonably small number of returned rows as the UI will block until this query has returned.|${name::query=select last_name from users}|
 
 It is possible to combine multiple keys like
 this: `${estimate::type=integer::list=1,3,7,12`}.
@@ -232,8 +238,9 @@ the SQL statement should be one of the following **magic** words:
 -   `data_set_key`  
     They should denote a perm ID of specified type.  
     Example:
-
-        select id, perm_id as data_set_key from data_sets
+    ```sql
+    select id, perm_id as data_set_key from data_sets
+    ```
 
 Be careful with this feature: The table is shown with the hyperlinks
 even if the value isn't a perm ID of specified type.
