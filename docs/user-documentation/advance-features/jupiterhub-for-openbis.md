@@ -63,10 +63,11 @@ How to run the official JupyterHub for openBIS image in your local machine
 
 1\. After downloading the jupyterhub-openbis, find the id of your image.
 
-    $ docker images
-    REPOSITORY                                              TAG                 IMAGE ID            CREATED             SIZE
-    openbis/jupyterhub-openbis-sis-20180405                 latest              585a9adf333b        23 hours ago        4.75GB
-
+```bash
+$ docker images
+REPOSITORY                                              TAG                 IMAGE ID            CREATED             SIZE
+openbis/jupyterhub-openbis-sis-20180405                 latest              585a9adf333b        23 hours ago        4.75GB
+```
   
 
 2\. Run the image with one of the two following commands:
