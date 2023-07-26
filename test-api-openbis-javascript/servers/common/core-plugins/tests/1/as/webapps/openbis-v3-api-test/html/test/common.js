@@ -579,6 +579,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			creation.setLabel("Testing");
 			creation.setDescription("testing");
 			creation.setDataType(c.DataType.VARCHAR);
+			creation.setMultiValue(false);
 			return facade.createPropertyTypes([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
