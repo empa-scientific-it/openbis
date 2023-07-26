@@ -59,7 +59,7 @@ How to run the official JupyterHub for openBIS image in your local machine
 
 1. After downloading the jupyterhub-openbis, find the id of your image.
 
-```bash
+```shell
 $ docker images
 REPOSITORY                                              TAG                 IMAGE ID            CREATED             SIZE
 openbis/jupyterhub-openbis-sis-20180405                 latest              585a9adf333b        23 hours ago        4.75GB
@@ -110,7 +110,7 @@ It can probably be done but we are currently not supporting it.
 
 ### Check Available Octave Libraries
 
-```bash
+```shell
 pkg list
 ```
 
@@ -122,7 +122,7 @@ It can probably be done but we are currently not supporting it.
 
 ### Check Available Python 3 Libraries
 
-```bash
+```shell
 pip freeze
 ```
 
@@ -138,8 +138,10 @@ recommended to do so.
 
 ### Check Available R Libraries
 
-    my_packages <- library()$results
-    head(my_packages, 1000000)
+```python
+my_packages <- library()$results
+head(my_packages, 1000000)
+```
 
 ![image info](img/259.png)
 
@@ -155,7 +157,7 @@ Modify a currently running container - From Console (for admins)
 
 1. Find the container id of the image currently running.
 
-```bash
+```shell
 $ docker ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS                                                      NAMES
 a2b76d1dd204        jupyterhub-openbis-sis-20180405   "./vagrant/initial..."   4 seconds ago       Up 2 seconds        0.0.0.0:8000-8002->8000-8002/tcp, 0.0.0.0:8081->8081/tcp   nervous_leakey
@@ -163,15 +165,15 @@ a2b76d1dd204        jupyterhub-openbis-sis-20180405   "./vagrant/initial..."   4
 
 2. Log into the container.
 
-```bash
-$ docker exec -it a2b76d1dd204 bash
+```shell
+$ docker exec -it a2b76d1dd204 shell
 ```
 
 ### Add Python Library
 
 Add a new library to Python 3
 
-```bash
+```shell
 # First we should move to the environment used by JupyterHub
 [root@a2b76d1dd204 /]# export PATH=/vagrant_installation/miniconda3/bin:$PATH
 [root@a2b76d1dd204 /]# export LC_ALL=en_US.utf8
@@ -197,7 +199,7 @@ lost.
 
 Add a new library to R
 
-```bash
+```shell
 # First we should move to the environment used by JupyterHub
 [root@a2b76d1dd204 /]# export PATH=/vagrant_installation/miniconda3/bin:$PATH
 [root@a2b76d1dd204 /]# export LC_ALL=en_US.utf8
@@ -219,7 +221,8 @@ If you know that you have made significant changes that you want to keep
 until you build a new docker recipe, you have the option to save the
 running container as a new image. 
 
-```bash
+
+```shell
 bs-mbpr28:jupyterhub_reference_installation juanf$ docker ps
 CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                                                      NAMES
 a2b76d1dd204        jupyterhub-openbis-sis-20180405   "./vagrant/initial..."   37 minutes ago      Up 37 minutes       0.0.0.0:8000-8002->8000-8002/tcp, 0.0.0.0:8081->8081/tcp   lucid_stonebraker
@@ -232,6 +235,7 @@ jupyterhub-openbis-sis-juanextensions-20180406   latest              5dd0036664c
 jupyterhub-openbis-sis-20180405                  latest              585a9adf333b        23 hours ago        4.75GB
 ```
 
+
 Extend a docker image using a docker recipe (for maintenance)
 -------------------------------------------------------------
 
@@ -241,7 +245,7 @@ latest official docker image distributed by SIS.
 Using our last example, let's create a file called "Dockerfile" and with
 the content shown below.
 
-```bash
+```shell
 # vim:set ft=dockerfile:
 FROM openbis/jupyterhub-openbis-sis-20180405
 ## Adding Python 3 library
@@ -259,7 +263,7 @@ the official repository.
 
 > :warning: **It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times**.
 
-```bash
+```shell
 $ docker build -t jupyterhub-openbis-sis-juanextensions-recipe-20180406 .
 Sending build context to Docker daemon  4.957GB
 Step 1/2 : FROM openbis/jupyterhub-openbis-sis-20180405
@@ -288,25 +292,31 @@ your admin).
 
 2. Find the container id of the image that is currently running.
 
-    $ docker ps
-    CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS                                                      NAMES
-    a2b76d1dd204        jupyterhub-openbis-sis-20180405   "./vagrant/initial..."   4 seconds ago       Up 2 seconds        0.0.0.0:8000-8002->8000-8002/tcp, 0.0.0.0:8081->8081/tcp   nervous_leakey
+```shell
+$ docker ps
+CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS                                                      NAMES
+a2b76d1dd204        jupyterhub-openbis-sis-20180405   "./vagrant/initial..."   4 seconds ago       Up 2 seconds        0.0.0.0:8000-8002->8000-8002/tcp, 0.0.0.0:8081->8081/tcp   nervous_leakey
+```
+
 
 3. Stop the current container.
 
-    $ docker kill a2b76d1dd204
-    a2b76d1dd204
+```shell
+$ docker kill a2b76d1dd204
+a2b76d1dd204
+```
+
 
 4. Edit the  jupyterhub-openbis-start.sh file in your server and update
 the name of the image it runs to the one of your choice
 
-```bash
+```shell
 docker run -v /Users/juanf/Documents/programming/git/jupyter-openbis-integration/jupyterhub_reference_installation/home:/home -v /Users/juanf/Documents/programming/git/jupyter-openbis-integration/jupyterhub_reference_installation/vagrant/config/certificates:/vagrant/config/certificates -e OPENBIS_URL=https://129.132.229.37:8443 -e JUPYTERHUB_INTEGRATION_SERVICE_PORT=8002 -e JUPYTERHUB_PORT=8000 -e CERTIFICATE_KEY=/vagrant/config/certificates/default.key -e CERTIFICATE_CRT=/vagrant/config/certificates/default.crt -p 8000:8000 -p 8081:8081 -p 8001:8001 -p 8002:8002 jupyterhub-openbis-sis-20180405 ./vagrant/initialize/start_jupyterhub.sh
 ```
 
 5. Start the new image.
 
-```bash
+```shell
 $ ./jupyterhub-openbis-start.sh
 ```
 
@@ -317,7 +327,7 @@ Other useful Docker commands
 
 > :warning: **It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times**.
 
-```bash
+```shell
 $ docker save jupyterhub-openbis-sis-20180405 > jupyterhub-openbis-sis-20180405.tar
 $ ls -lah
 total 9681080
@@ -326,7 +336,7 @@ total 9681080
 
 ### Load an image from a tar file
 
-```bash
+```shell
 $ docker load < jupyterhub-openbis-sis-20180405.tar
 8feeda13d3ce: Loading layer [==================================================>]  27.65kB/27.65kB
 622cd2c170f3: Loading layer [==================================================>]    152MB/152MB
@@ -341,13 +351,13 @@ jupyterhub-openbis-sis-20180405   latest              585a9adf333b        24 hou
 
 ### Remove an image
 
-```bash
+```shell
 $ docker rmi jupyterhub-openbis-sis-juanextensions-recipe-20180406
 ```
 
 ### Remove all stopped containers
 
-```bash
+```shell
 $ docker rm $(docker ps -aq)
 ```
 
