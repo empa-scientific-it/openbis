@@ -2411,6 +2411,17 @@ var FormUtil = new function() {
         }
     }
 
+    this.renderArrayGridValue = function(params) {
+        if(!params.value || params.value === null){
+            return ""
+        }else{
+            if(Array.isArray(params.value)) {
+                return params.value.toString();
+            }
+            return String(params.value)
+        }
+    }
+
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
         return this.renderCustomWidgetGridValue(row, params, propertyType)
     }

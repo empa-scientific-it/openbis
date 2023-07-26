@@ -1236,7 +1236,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                             return function(params){
                                 return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
                             }
-                        })(propertyType)
+                        })(propertyType);
+                        renderValue = function(row, params){
+                            return FormUtil.renderArrayGridValue(params);
+                        };
+                    } else if(propertyType.dataType === "SAMPLE"){
+                        renderValue = function(row, params){
+                            return FormUtil.renderArrayGridValue(params);
+                        };
                     } else if (propertyType.dataType === "DATE" || propertyType.dataType === "TIMESTAMP") {
                         renderFilter = (function(propertyType){
                             return function(params) {
