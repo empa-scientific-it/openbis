@@ -25,12 +25,14 @@ Since `obis` is based on `pybis`, the pip command will also install pybis and al
 ## 3. Quick start guide
 
 **Configure your openBIS Instance**
+
 ```bash
 # global settings to be use for all obis repositories
 obis config -g set openbis_url=https://localhost:8888
 obis config -g set user=admin
 ```
 **Download Physical Dataset**
+
 ```bash
 # create a physical (-p) obis repository with a folder name
 obis init -p data1
@@ -40,7 +42,9 @@ obis config get is_physical
 # download dataset giving a single permId
 obis download 20230228091119011-58
 ```
+
 **Upload Physical Dataset**
+
 ```bash
 # create a physical (-p) obis repository with a folder name
 obis init -p data1
@@ -55,9 +59,9 @@ obis upload 20230228133001314-59 RAW_DATA -f your_file_a -f your_file_b
 
 ### 4.1 Help is your friend!
 
+```bash
 $ obis --help
 
-```bash
 Usage: obis [OPTIONS] COMMAND [ARGS]...
 
 Options:
@@ -542,7 +546,6 @@ was moved or copied without using the `move` or `copy` commands.
 
 **token**
 
-
 ```bash
 obis token get <session_name> [--validity-days] [--validity-weeks] [--validity-months]
 ```
@@ -610,7 +613,6 @@ scripts. An alternative way to authorize is to generate personal access token (P
 configured to last for a long periods of time.
 
 PAT generation is explained in depth in `token` command section.
-
 
 ## 7. Big Data Link Services
 
