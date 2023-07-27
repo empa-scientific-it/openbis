@@ -267,7 +267,7 @@ public class UserManager
             }
             CurrentState currentState = loadCurrentState(sessionToken, service);
             manageInstanceAdmins(sessionToken, currentState, report);
-            removeGroups(sessionToken, currentState, groupsToBeRemoved, report);
+            removeGroups(sessionToken, currentState, groupsToBeRemoved, usersToBeIgnored, report);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {
                 String groupCode = entry.getKey();
@@ -348,13 +348,15 @@ public class UserManager
     }
 
     private void removeGroups(String sessionToken, CurrentState currentState, List<AuthorizationGroup> groups,
-            UserManagerReport report)
+            Set<String> usersToBeIgnored, UserManagerReport report)
     {
         List<IAuthorizationGroupId> groupIds = new ArrayList<>();
         Context context = new Context(sessionToken, service, currentState, report);
         for (AuthorizationGroup group : groups)
         {
-            removeUsersFromGroup(context, group.getCode(), extractUserIds(group));
+            Set<String> users = extractUserIds(group);
+            users.removeAll(usersToBeIgnored);
+            removeUsersFromGroup(context, group.getCode(), users);
             groupIds.add(group.getPermId());
             report.removeGroup(group.getCode());
             String adminGroupCode = group.getCode() + ADMIN_POSTFIX;
