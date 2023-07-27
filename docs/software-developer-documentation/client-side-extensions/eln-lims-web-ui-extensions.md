@@ -85,7 +85,7 @@ Pattern](https://en.wikipedia.org/wiki/Interceptor_pattern)
     -   beforeViewPaint
     -   afterViewPaint
 
-&nbsp;
+ 
 
 -   Template methods are only needed to add custom components to from
     views. Best examples of how to use these can be found in

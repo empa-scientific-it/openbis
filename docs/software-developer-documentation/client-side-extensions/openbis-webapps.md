@@ -246,7 +246,7 @@ Notes about subtab identifiers:
     webapp core-plugin folder, i.e.
     \[technology\]/\[version\]/as/webapps/\[WEBAPP\_CODE\])
 
-Cross communication openBIS &gt; DSS
+Cross communication openBIS > DSS
 ------------------------------------
 
 ### Background

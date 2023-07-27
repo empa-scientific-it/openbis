@@ -35,7 +35,7 @@ and one script type to perform validations on entities:
 2.  **Managed Property Handler** (for properties referred to as *Managed
     Properties*)
 
-&nbsp;
+ 
 
 1.  -   for properties that will be **indirectly modified by users**,
     -   the script alters default handling of a property by openBIS by
@@ -44,7 +44,7 @@ and one script type to perform validations on entities:
             view (e.g. as a table),
         -   **input fields** for modifying the property,
 
-    &nbsp;
+     
 
     -   -   **translation** and/or **validation** of user input.
 
@@ -59,22 +59,22 @@ To create a property that should be handled by a script perform the
 following steps.
 
 1.  Define a property type with appropriate name and data type
-    (Administration-&gt;Property Types-&gt;New).
+    (Administration->Property Types->New).
 2.  Define a script that will handle the property
-    (Administration-&gt;Scripts) or deploy a Java plugin. For details
+    (Administration->Scripts) or deploy a Java plugin. For details
     and examples of usage go to pages:  
     -   [Dynamic Properties](/display/openBISDoc2010/Dynamic+Properties)
     -   [Managed Properties](/display/openBISDoc2010/Managed+Properties)
     -   [Entity validation
         scripts](/display/openBISDoc2010/Entity+validation+scripts)
 3.  Assign the created property type to chosen entity type using the
-    created script (e.g. for samples: Administration-&gt;Property
-    Types-&gt;Assign to Sample Type):  
+    created script (e.g. for samples: Administration->Property
+    Types->Assign to Sample Type):  
     -   select Handled By Script checkbox,
     -   select the appropriate Script Type
     -   choose the Script
 4.  The validation scripts are assigned to the type in the "Edit Type"
-    section. (e.g Admin-&gt;Types-&gt;Samples. Select sample and click
+    section. (e.g Admin->Types->Samples. Select sample and click
     edit.)
 
 ![image info](img/80.png)
@@ -352,7 +352,7 @@ procedure: Jython scripts and Java plugins.
 
 ### Defining a Jython validation script
 
-1.  Go to Admin -&gt; Plugins -&gt; Add Plugin.
+1.  Go to Admin -> Plugins -> Add Plugin.
 2.  Select "Entity Validator" as the plugin type 
 3.  Choose name, entity kind, and description.
 4.  Prepare a script (see paragraph "Script specification" below)
@@ -406,8 +406,8 @@ does not have any properties defined:
 To make the validation active per entity type you have to select the
 validation script for each type:
 
--   Admin -&gt; Types -&gt; &lt;Entity Kind&gt; you selected also in the
-    script definition -&gt;
+-   Admin -> Types -> <Entity Kind> you selected also in the
+    script definition ->
 -   Select a Sample Type and edit it
 -   You find a property which is called 'Validation Script' (see screen
     shot below). Just select your defined Script and hit save.
@@ -504,7 +504,7 @@ To create a Managed Property:
 ### Creating scripts
 
 To browse and edit existing scripts or add new ones, select
-Administration-&gt;Scripts from the top menu.
+Administration->Scripts from the top menu.
 
 The scripts should be written in standard Jython syntax. The following
 functions are invoked by openBIS, some of them are mandatory:
@@ -529,14 +529,14 @@ script:
     table model builder. It will be used in `configureUI` to create
     tabular data to be shown in openBIS GUI.
 
-&nbsp;
+ 
 
 -   `ValidationException ValidationException(String message)`: Creates a
     Validation Exception with specified message which should be raised
     in functions `updateFromUI` and `updateFromBatchInput` in case of
     invalid input.
 
-&nbsp;
+ 
 
 -   ` IManagedInputWidgetDescriptionFactory inputWidgetFactory()`:
     returns a factory that can be used to create descriptions of input
@@ -544,7 +544,7 @@ script:
     [IManagedInputWidgetDescription](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/basic/dto/api/IManagedInputWidgetDescription.html)
     and [example](#ManagedProperties-Example3)).
 
-&nbsp;
+ 
 
 -   ` IElementFactory elementFactory()`: returns a factory that can be
     used to create
@@ -552,7 +552,7 @@ script:
     See [\#Storing structured content in managed
     properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
 
-&nbsp;
+ 
 
 -   ` IStructuredPropertyConverter xmlPropertyConverter()`: returns a
     converter that can translate

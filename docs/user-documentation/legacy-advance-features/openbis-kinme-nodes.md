@@ -31,7 +31,7 @@ Usage
 -----
 
 All openBIS KNIME nodes can be found in Node Repository under Community
-Nodes -&gt; openBIS:
+Nodes -> openBIS:
 
 ![image info](img/145.png)
 
@@ -100,7 +100,7 @@ user will be asked for the passwords after loading a workflow.
  
 
 If user ID and password are entered directly in the node setting dialog
-the KNIME master key on the preferences page **KNIME -&gt; Master Key**
+the KNIME master key on the preferences page **KNIME -> Master Key**
 should be activated. Otherwise passwords will be stored unencrypted!
 
 ### openBIS Query Reader
@@ -284,8 +284,8 @@ with `knime-`. The specifications of such services are the following:
     exception with stack trace will be created and thrown in KNIME. It
     will appear in KNIME log. For each row either the first cell isn't
     empty or the five other cells are not empty. In the first case the
-    value of the first column is of the form &lt;exception
-    class&gt;:&lt;exception message&gt;. If the first column is empty
+    value of the first column is of the form <exception
+    class>:<exception message>. If the first column is empty
     the row represents a stack trace entry where the other columns are
     interpreted as class name, method name, file name, and line number.
 

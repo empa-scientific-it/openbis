@@ -120,13 +120,13 @@ on the eln-lims-dropbox folder.
 
  
 
-In case of uploads of data &gt;100GB we recommend to configure the
+In case of uploads of data >100GB we recommend to configure the
 **eln-lims-dropbox-marker**. The set up and configuration need to be
 done by a *system admin*. The process of data preparation is the same as
 described above, however in this case the data move to the openBIS final
 storage only starts when a markerfile is placed in the
 eln-lims-dropbox-marker folder. The marker file is an empty file with
-this name:  **.MARKER\_is\_finished\_&lt;folder-to-upload-name&gt;.
+this name:  **.MARKER\_is\_finished\_<folder-to-upload-name>.
 **Please note the “.” at the start of the name, which indicates that
 this is a hidden file. This file should also not have any extension. For
 example, if the folder to be uploaded has the following name:
@@ -185,7 +185,7 @@ other text editor will also work.
     Shift + . (period)**.
 5.  The file you saved before has an extension, that needs to be
     removed. If the extension is not shown in your Finder, go to Finder
-    &gt; Preferences menu, select the Advanced tab, and check the “Show
+    > Preferences menu, select the Advanced tab, and check the “Show
     all filename extensions” box.
 6.  Remove the extension from the file.
 

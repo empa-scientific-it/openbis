@@ -136,7 +136,7 @@ Excel file.
 Please note that codes are not case-sensitive, but labels are.
 
 Codes and labels of vocabulary terms can be seen under
-**Utilities -&gt; Vocabulary Browser**.
+**Utilities -> Vocabulary Browser**.
 
 #### Assign parents
 
@@ -205,7 +205,7 @@ together, as shown in the template provided above:
         completely remove the **identifier** column from the file.
 2.  **Lists**. In fields that have lists to choose from (called
     **Controlled Vocabularies**), the code of the term needs to be
-    entered. Term codes can be seen under **Utilities -&gt; Vocabulary
+    entered. Term codes can be seen under **Utilities -> Vocabulary
     Browser**.
 3.  **Parents**. Use the following syntax to enter parents:
     **identifier1, identifier2, identifier3.**

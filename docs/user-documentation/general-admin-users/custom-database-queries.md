@@ -105,7 +105,7 @@ Server](#) for an explanation on how to do this.
 Running a Parametrized Query
 ----------------------------
 
-1.  Choose menu item **Queries -&gt; Run Predefined Query**. The tab
+1.  Choose menu item **Queries -> Run Predefined Query**. The tab
     *Predefined Query* opens.
 2.  Choose a query using the query combo box. Queries specified for all
     configured databases are selected transparently using the same combo
@@ -130,7 +130,7 @@ Running a SELECT statement
 This feature is only for users with *creator role*. It is useful for
 exploring the database by ad hoc queries.
 
-1.  Choose menu item **Queries -&gt; Run Custom SQL Query**. The tab
+1.  Choose menu item **Queries -> Run Custom SQL Query**. The tab
     *Custom SQL Query* opens.
 2.  Enter a SELECT statement in the text area, select database and click
     on the **Execute** button. The result appears below in tabular form.
@@ -142,7 +142,7 @@ This feature is only for users with *creator role*.
 
 ### Define a Query
 
-1.  Choose menu item **Queries -&gt; Browse Query Definitions**. The tab
+1.  Choose menu item **Queries -> Browse Query Definitions**. The tab
     *Query Definitions* opens. It shows all definitions where the user
     has access rights.
 2.  Click on **Add Query Definition** for defining a new parametrized
@@ -247,7 +247,7 @@ the SQL statement should be one of the following **magic** words:
 
 ### Edit a Query
 
-1.  Choose menu item **Queries -&gt; Browse Query Definitions**. The tab
+1.  Choose menu item **Queries -> Browse Query Definitions**. The tab
     *Query Definitions* opens.
 2.  Select a query and click on button **Edit**. The same dialog as for
     defining a query pops up.
@@ -272,7 +272,7 @@ experiment of type `EXP`).
 ### How to create/edit entity custom queries
 
 Entity custom queries can be created and edited in the same way as
-`Generic` queries (**Queries -&gt; Browse Query Definitions**), but the
+`Generic` queries (**Queries -> Browse Query Definitions**), but the
 value of **`Query Type`** field should be set to Experiment, Sample,
 Data Set or Material.
 

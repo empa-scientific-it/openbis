@@ -74,7 +74,7 @@ In the core UI:
 
  
 
-1.  Select **Admin -&gt; Spaces**
+1.  Select **Admin -> Spaces**
 2.  Click **Add Space** at the bottom of the page
 3.  Enter the *Space* **Code**, e.g. **EQUIPMENT**
 4.  **Save**
@@ -199,7 +199,7 @@ In the core UI:  
 
  
 
-1.  Select **Admin -&gt; Spaces**
+1.  Select **Admin -> Spaces**
 2.  Click **Add Space** at the bottom of the page
 3.  Enter the Space **Code**, e.g. **EQUIPMENT**
 4.  **Save**

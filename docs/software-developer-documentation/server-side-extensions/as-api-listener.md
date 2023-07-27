@@ -32,7 +32,7 @@ It is required to provide an 'operation-listener.class' indicating the
 class name of the listener that will be loaded.
 
 Additionally any number of properties following the
-pattern 'operation-listener.&lt;your-custom-name&gt;' can be provided.
+pattern 'operation-listener.<your-custom-name>' can be provided.
 Custom properties are provided to help maintainability, they give an
 opportunity to the integrator to only need to compile the listener once
 and configure it differently for different instances.

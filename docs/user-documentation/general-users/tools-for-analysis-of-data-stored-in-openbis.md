@@ -40,7 +40,7 @@ Jupyter notebooks can be opened at every level of the openBIS hierarchy
 
 If you get a similar error as the one shown below when you try to launch
 a notebook from an entity, you need to start the JupyterHub server by
-going to the main menu **Utilities** -&gt; **Jupyter Workspace**. This
+going to the main menu **Utilities** -> **Jupyter Workspace**. This
 error appears when the JupyterHub server is restarted (e.g. after an
 upgrade), because the user profile needs to be recreated.
 

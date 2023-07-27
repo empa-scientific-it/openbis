@@ -60,7 +60,7 @@ explained above:
 
  
 
-1.  Go to the **Tools** section and select **Import -&gt; All** from the
+1.  Go to the **Tools** section and select **Import -> All** from the
     menu.
 2.  Upload the file you exported before using the **CHOOSE FILE**
     button.

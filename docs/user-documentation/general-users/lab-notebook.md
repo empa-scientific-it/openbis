@@ -475,7 +475,7 @@ you want to access.
 
 Note: if you encounter the error message “*SSH connection failed: Could
 not find a part of the path*.” you can fix this by disabling the cache
-(Drives -&gt; Advanced -&gt; Enable Caching), and disabling log files.
+(Drives -> Advanced -> Enable Caching), and disabling log files.
 The error is caused by an attempt to create files in a folder not
 available to Windows.
 

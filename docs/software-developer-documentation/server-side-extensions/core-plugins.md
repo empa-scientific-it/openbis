@@ -283,7 +283,7 @@ rules:
 ## Using Java libraries in Core Plugins
 
 OpenBIS allows you to include Java libraries in core plugin folders. The
-\*.jar files have to be stored in "&lt;code plugin folder&gt;/lib"
+\*.jar files have to be stored in "<code plugin folder>/lib"
 folder. For instance, in order to use "my-lib.jar" in "my-dropbox" a
 following file structure is needed:
 

@@ -45,8 +45,8 @@ Catalog**. 
 To build the catalog of all suppliers used for purchasing products by
 the lab:
 
-> 1.  Go to the **Supplier Collection** folder under **Stock** *-&gt;*
->     **Stock Catalog***-&gt;* **Suppliers** in the main menu.
+> 1.  Go to the **Supplier Collection** folder under **Stock** *->*
+>     **Stock Catalog***->* **Suppliers** in the main menu.
 > 2.  Click on the **+ New Supplier** button in the *Collection* page.
 > 3.  Follow the steps explained in the [Register
 >     Entries](https://openbis.ch/index.php/docs/user-documentation-20-10-3/inventory-of-materials-and-methods/register-single-entries-in-a-collection/)
@@ -66,8 +66,8 @@ Collection.](https://openbis.ch/index.php/docs/user-documentation-20-10-3/invent
 
 To build the catalog of all products purchased in the lab:
 
-> 1.  Go to the **Product Collection** folder under **Stock** *-&gt;*
->     **Stock Catalog***-&gt;* **Products** in the main menu.
+> 1.  Go to the **Product Collection** folder under **Stock** *->*
+>     **Stock Catalog***->* **Products** in the main menu.
 > 2.  Click the **+ New Product** button in the *Collection* page.
 
 
@@ -100,8 +100,8 @@ Collection.](https://openbis.ch/index.php/docs/user-documentation-20-10-3/invent
 Every lab member can create requests for products that need to be
 ordered:
 
-> 1.  Go to the **Request Collection** folder under **Stock** *-&gt;*
->     **Stock Catalog***-&gt;* **Requests** in the main menu.
+> 1.  Go to the **Request Collection** folder under **Stock** *->*
+>     **Stock Catalog***->* **Requests** in the main menu.
 > 2.  Click the **+ New Request** button in the *Collection* page.
 
  
@@ -159,8 +159,8 @@ based on the requests created in the Stock Catalog by every lab member.
 
 To create orders of products from requests created in the Stock Catalog:
 
-> 1.  Go to the **Order Collection** folder under **Stock** *-&gt;*
->     **Stock Orders***-&gt;* **Orders** in the main menu.
+> 1.  Go to the **Order Collection** folder under **Stock** *->*
+>     **Stock Orders***->* **Orders** in the main menu.
 > 2.  Click the **+ New Order** button in the *Collection* page.
 
 ![image info](img/stock-new-order-1.png)

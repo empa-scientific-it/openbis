@@ -115,10 +115,10 @@ Instead, each PAT should have a well defined validity period after which
 it should be replaced with a new PAT with a different hash. To make this
 transition as smooth as possible please use the following guide:
 
--   create PAT\_1 with sessionName = &lt;MY\_SESSION&gt; and use it in
+-   create PAT\_1 with sessionName = <MY\_SESSION> and use it in
     your integration
 -   when PAT\_1 is soon to be expired, create PAT\_2 with the same
-    sessionName = &lt;MY\_SESSION&gt; (both PAT\_1 and PAT\_2 will work
+    sessionName = <MY\_SESSION> (both PAT\_1 and PAT\_2 will work
     at this point and will refer to the same openBIS session)
 -   replace PAT\_1 with PAT\_2 in your integration
 

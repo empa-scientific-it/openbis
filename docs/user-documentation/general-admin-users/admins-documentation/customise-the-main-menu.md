@@ -73,7 +73,7 @@ The main menu can be customised from the **Settings**, under
     Profile](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html#user-profile))
     will be hidden.
 12. **showZenodoExportBuilder**: if unselected, the **Zenodo
-    Export** under **Utilities -&gt; Exports** in the main menu 
+    Export** under **Utilities -> Exports** in the main menu 
     ([Export to
     Zenodo](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-export.html#export-to-zenodo))
     will be hidden.

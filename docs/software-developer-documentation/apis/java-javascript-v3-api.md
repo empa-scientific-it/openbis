@@ -34,14 +34,14 @@ The Java V3 API consists of two interfaces:
 Please check our JavaDoc for more
 details: <https://openbis.ch/javadoc/20.10.x/javadoc-api-v3/index.html>
 
-All V3 API jars are packed in openBIS-API-V3-&lt;VERSION&gt;.zip which
-is part of openBIS-clients-and-APIs-&lt;VERSION&gt;.zip (the latest
-version can be downloaded at [Sprint Releases](#) &gt; Clients and APIs)
+All V3 API jars are packed in openBIS-API-V3-<VERSION>.zip which
+is part of openBIS-clients-and-APIs-<VERSION>.zip (the latest
+version can be downloaded at [Sprint Releases](#) > Clients and APIs)
 
 ### The Javascript API
 
 The Javascript V3 API consists of a module hosted at
-&lt;OPENBIS\_URL&gt;/resources/api/v3/openbis.js, for instance
+<OPENBIS\_URL>/resources/api/v3/openbis.js, for instance
 <http://localhost/openbis>/ resources/api/v3/openbis.js. Please check
 the openbis.js file itself for more details.
 
@@ -3981,8 +3981,8 @@ library. Downloading is done in two steps:
 
         new FastDownloader(downloadSession).downloadTo(destinationFolder);
 
-    The files are stored in the destination folder in &lt;data set
-    code&gt;/&lt;relative file path as in the data store on openBIS&gt;.
+    The files are stored in the destination folder in <data set
+    code>/<relative file path as in the data store on openBIS>.
 
 Here is a complete example:
 
