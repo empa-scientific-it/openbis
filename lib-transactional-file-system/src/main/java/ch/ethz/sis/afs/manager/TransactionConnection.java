@@ -15,20 +15,40 @@
  */
 package ch.ethz.sis.afs.manager;
 
-import ch.ethz.sis.afs.api.TransactionalFileSystem;
-import ch.ethz.sis.afs.dto.Transaction;
-import ch.ethz.sis.afs.dto.operation.*;
-import ch.ethz.sis.afs.exception.AFSExceptions;
-import ch.ethz.sis.afs.api.dto.File;
-import ch.ethz.sis.afs.manager.operation.*;
-import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.afs.dto.Lock;
-import ch.ethz.sis.afs.dto.LockType;
-
-import java.util.*;
-
 import static ch.ethz.sis.shared.collection.List.safe;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import ch.ethz.sis.afs.api.TransactionalFileSystem;
+import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.dto.Transaction;
+import ch.ethz.sis.afs.dto.operation.CopyOperation;
+import ch.ethz.sis.afs.dto.operation.CreateOperation;
+import ch.ethz.sis.afs.dto.operation.DeleteOperation;
+import ch.ethz.sis.afs.dto.operation.ListOperation;
+import ch.ethz.sis.afs.dto.operation.MoveOperation;
+import ch.ethz.sis.afs.dto.operation.Operation;
+import ch.ethz.sis.afs.dto.operation.OperationName;
+import ch.ethz.sis.afs.dto.operation.ReadOperation;
+import ch.ethz.sis.afs.dto.operation.WriteOperation;
+import ch.ethz.sis.afs.exception.AFSExceptions;
+import ch.ethz.sis.afs.manager.operation.CopyOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.DeleteOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.ListOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.MoveOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.NonModifyingOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.OperationExecutor;
+import ch.ethz.sis.afs.manager.operation.ReadOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.WriteOperationExecutor;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.shared.io.IOUtils;
+import lombok.NonNull;
 
 public class TransactionConnection implements TransactionalFileSystem {
 
@@ -301,6 +321,18 @@ public class TransactionConnection implements TransactionalFileSystem {
         if (prepared) {
             movedSourceToTarget.put(source, target);
             movedTargetToSource.put(target, source);
+        }
+        return prepared;
+    }
+
+    @Override
+    public boolean create(@NonNull String source, final boolean directory) throws Exception
+    {
+        source = getSafePath(OperationName.Create, source);
+        final CreateOperation operation = new CreateOperation(transaction.getUuid(), source, directory);
+        boolean prepared = prepare(operation, source, null);
+        if (prepared) {
+            written.add(source);
         }
         return prepared;
     }

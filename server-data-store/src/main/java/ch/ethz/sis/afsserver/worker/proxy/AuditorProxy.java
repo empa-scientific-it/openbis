@@ -15,13 +15,13 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsserver.worker.AbstractProxy;
-import ch.ethz.sis.afsserver.server.performance.Event;
-import lombok.NonNull;
-
 import java.util.List;
 import java.util.UUID;
+
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsserver.server.performance.Event;
+import ch.ethz.sis.afsserver.worker.AbstractProxy;
+import lombok.NonNull;
 
 public class AuditorProxy extends AbstractProxy {
 
@@ -114,6 +114,13 @@ public class AuditorProxy extends AbstractProxy {
     public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.move(sourceOwner, source, targetOwner, target));
+    }
+
+    @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory) throws Exception
+    {
+        auditBefore();
+        return auditAfter(nextProxy.create(owner, source, directory));
     }
 
     private void auditBefore() {

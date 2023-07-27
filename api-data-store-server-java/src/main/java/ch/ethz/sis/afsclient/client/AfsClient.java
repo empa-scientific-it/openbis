@@ -1,14 +1,5 @@
 package ch.ethz.sis.afsclient.client;
 
-import ch.ethz.sis.afsapi.api.ClientAPI;
-import ch.ethz.sis.afsapi.api.PublicAPI;
-import ch.ethz.sis.afsapi.dto.ApiResponse;
-import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
-import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
-import lombok.NonNull;
-
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -21,8 +12,22 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
+
+import ch.ethz.sis.afsapi.api.ClientAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.ApiResponse;
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
+import lombok.NonNull;
 
 public final class AfsClient implements PublicAPI, ClientAPI
 {
@@ -189,6 +194,14 @@ public final class AfsClient implements PublicAPI, ClientAPI
         return request("POST", "move", Boolean.class,
                 Map.of("sourceOwner", sourceOwner, "source", source,
                         "targetOwner", targetOwner, "target", target));
+    }
+
+    @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
+            throws Exception
+    {
+        validateSessionToken();
+        return request("POST", "create", Boolean.class, Map.of("owner", owner, "source", source, "directory", String.valueOf(directory)));
     }
 
     @Override

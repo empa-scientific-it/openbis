@@ -15,14 +15,14 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.util.List;
+import java.util.UUID;
+
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import lombok.NonNull;
-
-import java.util.List;
-import java.util.UUID;
 
 public class LogProxy extends AbstractProxy {
 
@@ -99,6 +99,14 @@ public class LogProxy extends AbstractProxy {
     public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         logger.traceAccess(null, sourceOwner, source, targetOwner, target);
         return logger.traceExit(nextProxy.move(sourceOwner, source, targetOwner, target));
+    }
+
+    @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
+            throws Exception
+    {
+        logger.traceAccess(null, owner, source, directory);
+        return logger.traceExit(nextProxy.create(owner, source, directory));
     }
 
 }

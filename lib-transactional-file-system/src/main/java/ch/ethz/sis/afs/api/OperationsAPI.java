@@ -15,10 +15,10 @@
  */
 package ch.ethz.sis.afs.api;
 
+import java.util.List;
+
 import ch.ethz.sis.afs.api.dto.File;
 import lombok.NonNull;
-
-import java.util.List;
 
 public interface OperationsAPI {
 
@@ -28,16 +28,14 @@ public interface OperationsAPI {
     @NonNull
     byte[] read(@NonNull String source, @NonNull long offset, @NonNull int limit) throws Exception;
 
-    @NonNull
     boolean write(@NonNull String source, @NonNull long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
 
-    @NonNull
     boolean delete(@NonNull String source) throws Exception;
 
-    @NonNull
     boolean copy(@NonNull String source, @NonNull String target) throws Exception;
 
-    @NonNull
     boolean move(@NonNull String source, @NonNull String target) throws Exception;
+
+    boolean create(@NonNull String source, boolean directory) throws Exception;
 
 }

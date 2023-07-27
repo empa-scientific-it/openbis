@@ -48,4 +48,7 @@ public interface OperationsAPI
     Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
             @NonNull String target) throws Exception;
 
+    @NonNull
+    Boolean create(@NonNull String owner, @NonNull String source, @NonNull Boolean directory) throws Exception;
+
 }

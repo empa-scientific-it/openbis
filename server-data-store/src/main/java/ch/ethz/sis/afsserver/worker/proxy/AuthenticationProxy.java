@@ -15,14 +15,14 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.util.List;
+import java.util.UUID;
+
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthenticationInfoProvider;
 import lombok.NonNull;
-
-import java.util.List;
-import java.util.UUID;
 
 public class AuthenticationProxy extends AbstractProxy {
 
@@ -136,6 +136,13 @@ public class AuthenticationProxy extends AbstractProxy {
     public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         validateSessionAvailable();
         return nextProxy.move(sourceOwner, source, targetOwner, target);
+    }
+
+    @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory) throws Exception
+    {
+        validateSessionAvailable();
+        return nextProxy.create(owner, source, directory);
     }
 
     //

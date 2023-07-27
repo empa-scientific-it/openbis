@@ -15,11 +15,12 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.util.List;
+
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
-
-import java.util.List;
+import lombok.NonNull;
 
 public class ValidationProxy extends AbstractProxy {
 
@@ -60,6 +61,12 @@ public class ValidationProxy extends AbstractProxy {
     @Override
     public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception {
         return nextProxy.move(sourceOwner, source, targetOwner, target);
+    }
+
+    @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory) throws Exception
+    {
+        return nextProxy.create(owner, source, directory);
     }
 
     private void validateReadSize(String source, Integer limit) {

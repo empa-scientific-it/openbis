@@ -15,13 +15,14 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsserver.worker.AbstractProxy;
-import ch.ethz.sis.shared.io.IOUtils;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsserver.worker.AbstractProxy;
+import ch.ethz.sis.shared.io.IOUtils;
+import lombok.NonNull;
 
 public class ExecutorProxy extends AbstractProxy {
 
@@ -105,4 +106,9 @@ public class ExecutorProxy extends AbstractProxy {
         return workerContext.getConnection().move(getPath(sourceOwner, source), getPath(targetOwner, target));
     }
 
+    @Override public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
+            throws Exception
+    {
+        return workerContext.getConnection().create(source, directory);
+    }
 }

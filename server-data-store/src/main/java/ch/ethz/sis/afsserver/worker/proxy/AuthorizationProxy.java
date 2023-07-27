@@ -15,16 +15,17 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afsapi.dto.File;
+import java.util.List;
+import java.util.Set;
+
 import ch.ethz.sis.afs.dto.operation.OperationName;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.shared.io.FilePermission;
 import ch.ethz.sis.shared.io.IOUtils;
-
-import java.util.List;
-import java.util.Set;
+import lombok.NonNull;
 
 public class AuthorizationProxy extends AbstractProxy {
 
@@ -82,4 +83,13 @@ public class AuthorizationProxy extends AbstractProxy {
         validateUserRights(targetOwner, target, IOUtils.writePermissions, OperationName.Move);
         return nextProxy.move(sourceOwner, source, targetOwner, target);
     }
+
+    @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
+            throws Exception
+    {
+        validateUserRights(owner, source, IOUtils.writePermissions, OperationName.Create);
+        return nextProxy.create(owner, source, directory);
+    }
+
 }
