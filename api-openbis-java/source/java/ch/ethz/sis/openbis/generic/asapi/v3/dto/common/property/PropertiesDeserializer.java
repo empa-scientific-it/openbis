@@ -35,10 +35,10 @@ public class PropertiesDeserializer extends JsonDeserializer<Serializable>
         JsonNode node = p.readValueAsTree();
         if(node.isArray()) {
             ArrayList<String> list = new ArrayList<>();
-            node.forEach(value -> list.add(value.textValue()));
+            node.forEach(value -> list.add(value.asText()));
             return list.toArray(new String[0]);
         } else {
-            return node.textValue();
+            return node.asText();
         }
     }
 
