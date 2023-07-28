@@ -38,11 +38,13 @@ public class CreateOperationExecutor implements OperationExecutor<CreateOperatio
 
     private static final CreateOperationExecutor INSTANCE;
 
-    static {
+    static
+    {
         INSTANCE = new CreateOperationExecutor();
     }
 
-    private CreateOperationExecutor() {
+    private CreateOperationExecutor()
+    {
     }
 
     public static CreateOperationExecutor getInstance() {
@@ -52,7 +54,6 @@ public class CreateOperationExecutor implements OperationExecutor<CreateOperatio
     //
     // Operation
     //
-
 
     @Override
     public boolean prepare(final @NonNull Transaction transaction, final CreateOperation operation) throws Exception {

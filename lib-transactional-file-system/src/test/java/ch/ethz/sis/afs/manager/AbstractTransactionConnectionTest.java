@@ -160,4 +160,9 @@ public abstract class AbstractTransactionConnectionTest extends AbstractTest {
     public boolean move(String source, String target) throws Exception {
         return transaction.move(source, target);
     }
+
+    public boolean create(final String source, final boolean directory) throws Exception {
+        return transaction.create(source, directory);
+    }
+
 }
