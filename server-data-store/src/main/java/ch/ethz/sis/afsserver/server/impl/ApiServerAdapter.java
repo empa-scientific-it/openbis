@@ -65,6 +65,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
             case "read":
             case "isSessionValid":
                 return GET; // all parameters from GET methods come on the query string
+            case "create":
             case "write":
             case "move":
             case "copy":
@@ -148,6 +149,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                         case "transactionId":
                             methodParameters.put(entry.getKey(), UUID.fromString(value));
                             break;
+                        case "directory":
                         case "recursively":
                             methodParameters.put(entry.getKey(), Boolean.valueOf(value));
                             break;

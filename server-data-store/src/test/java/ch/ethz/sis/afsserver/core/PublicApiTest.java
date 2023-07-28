@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public abstract class PublicApiTest extends AbstractTest
@@ -130,6 +131,34 @@ public abstract class PublicApiTest extends AbstractTest
         List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(1, list.size());
         assertEquals(FILE_B, list.get(0).getName());
+    }
+
+    @Test
+    public void create_directory() throws Exception
+    {
+        getPublicAPI().create(owner, FILE_B, Boolean.TRUE);
+
+        final List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
+        assertEquals(2, list.size());
+
+        final List<File> matchedFiles = list.stream().filter(file -> file.getName().equals(FILE_B)).toList();
+        assertEquals(1, matchedFiles.size());
+        assertTrue(matchedFiles.get(0).getDirectory());
+    }
+
+    @Test
+    public void create_file() throws Exception
+    {
+        getPublicAPI().create(owner, FILE_B, Boolean.FALSE);
+
+        final List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
+
+        final List<File> matchedFiles = list.stream().filter(file -> file.getName().equals(FILE_B)).toList();
+        assertEquals(1, matchedFiles.size());
+        assertFalse(matchedFiles.get(0).getDirectory());
+
+        byte[] bytes = getPublicAPI().read(owner, FILE_B, 0L, 0);
+        assertEquals(0, bytes.length);
     }
 
 

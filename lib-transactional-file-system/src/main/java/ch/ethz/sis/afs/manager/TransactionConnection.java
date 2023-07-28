@@ -39,6 +39,7 @@ import ch.ethz.sis.afs.dto.operation.ReadOperation;
 import ch.ethz.sis.afs.dto.operation.WriteOperation;
 import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afs.manager.operation.CopyOperationExecutor;
+import ch.ethz.sis.afs.manager.operation.CreateOperationExecutor;
 import ch.ethz.sis.afs.manager.operation.DeleteOperationExecutor;
 import ch.ethz.sis.afs.manager.operation.ListOperationExecutor;
 import ch.ethz.sis.afs.manager.operation.MoveOperationExecutor;
@@ -63,7 +64,8 @@ public class TransactionConnection implements TransactionalFileSystem {
         operationExecutors = Map.of(OperationName.Copy, CopyOperationExecutor.getInstance(),
                 OperationName.Delete, DeleteOperationExecutor.getInstance(),
                 OperationName.Move, MoveOperationExecutor.getInstance(),
-                OperationName.Write, WriteOperationExecutor.getInstance());
+                OperationName.Write, WriteOperationExecutor.getInstance(),
+                OperationName.Create, CreateOperationExecutor.getInstance());
     }
 
     private LockManager<UUID, String> lockManager;

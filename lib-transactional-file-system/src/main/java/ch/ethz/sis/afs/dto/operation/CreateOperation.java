@@ -45,7 +45,7 @@ public class CreateOperation implements Operation
     {
         this.owner = owner;
         this.locks = List.of(new Lock<>(owner, source, LockType.Exclusive));
-        this.name = OperationName.Write;
+        this.name = OperationName.Create;
         this.source = source;
         this.directory = directory;
     }
