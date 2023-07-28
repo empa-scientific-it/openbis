@@ -497,6 +497,25 @@ datastore.prototype.move = function(sourceOwner, source, targetOwner, target, ac
 	
 }
 
+/**
+ * Create a file/directory within DSS
+ */
+DataStoreServer.prototype.create = function(owner, source, directory, action){
+	const data =  this.fillCommonParameters({
+		"method": "create",
+		"owner" : owner,
+		"source": source,
+		"directory": directory
+	});
+	this._internal.sendHttpRequest(
+		"POST",
+		"text/plain",
+		this._internal.datastoreUrl,
+		encodeParams(data),
+		(response) => action(response)
+	);
+}
+
 
 /**
  * ==================================================================================

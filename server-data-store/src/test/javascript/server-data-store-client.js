@@ -223,5 +223,13 @@ window.onload = function() {
 			}));
 		}
 	};
+
+	document.getElementById("create-submit").onclick = function() {
+		datastoreServer.create(owner, document.getElementById("create-path").value.trim(), document.getElementById("create-directory").value,
+			(_ => {
+				showEntries();
+			}));
+	};
+
 }
 
