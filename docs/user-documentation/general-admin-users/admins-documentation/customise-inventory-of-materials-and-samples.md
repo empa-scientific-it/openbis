@@ -25,7 +25,7 @@ to adopt the following steps:
 1.  Create an *Object* *type* called Sample. This can only be done by an
     *Instance admin*, from the admin interface, as explained here: [New
     Entity Type
-    Registration](https://openbis.ch/index.php/docs/admin-documentation/new-entity-type-registration/)
+    Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)
 2.  Create a first folder called Samples inside the **Materials** folder
     *(Project)*
 3.  Create a second folder called Raw Samples** ***(Collection)*
@@ -70,7 +70,7 @@ To register the *Collection* folder, inside the *Project* folder:
 >     this case, **Sample**.
 > 6.  Select the **Default collection view** (see **[Customise
 >     Collection
->     View](https://openbis.ch/index.php/docs/user-documentation-20-10-3/lab-notebook/customise-collection-view/))**
+>     View](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#customise-collection-view))**
 
  
 
@@ -115,13 +115,13 @@ Updated on February 6, 2023
   
 When a new *Object type* is created by an *Instance admin (*see [New
 Entity Type
-Registration)](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/new-entity-type-registration/)*,*
+Registration)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)*,*
 the storage widget is disabled by default.
 
   
 If we want to track storage positions for this particular *Object type*
 as described in [Allocate storage positions to
-samples](https://openbis.ch/index.php/docs/user-documentation/managing-storage-of-samples/allocate-storage-to-samples/),
+samples](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/managing-storage-of-samples.html#allocate-storage-positions-to-samples),
 the **Storage** should be enabled in the **Settings**, under
 **Utilities**. This can be done by a *group admin*.
 
@@ -218,6 +218,6 @@ Storage positions by default have the following metadata:
 It is possible to add additional information. This can be done by an
 *Instance Admin* by editing the *Object* Type **STORAGE\_POSITION** in
 the admin interface (see [New Entity Type
-Registration](https://openbis.ch/index.php/docs/admin-documentation/new-entity-type-registration/)).
+Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)).
 
 Updated on February 6, 2023
