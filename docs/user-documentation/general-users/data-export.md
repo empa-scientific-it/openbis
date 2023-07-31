@@ -75,11 +75,11 @@ repository ([https://zenodo.org/).](https://zenodo.org/)
 This enables data direct data transfer from openBIS to Zenodo. First of
 all the connection to Zenodo needs to be configured by a *system admin*
 in the DSS service.properties (see [How to configure the openBIS
-DSS)](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server)
+DSS)](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
 If this is configured, a lab manager, who has admin rights for the
 **Settings,** needs to enable it in the ELN, as explained in [Enable
 Transfer to Data
-Repositories](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/enable-transfer-to-data-repositories/)**.**
+Repositories](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/enable-transfer-to-data-repositories.html)**.**
 
 ###  Create Zenodo Personal Access Token
 
