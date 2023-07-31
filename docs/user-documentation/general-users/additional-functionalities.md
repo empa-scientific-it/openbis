@@ -312,7 +312,7 @@ menu. This shows all controlled vocabularies registered in openBIS and
 the terms they contain. Vocabularies are predefined lists of values to
 choose from in given fields. Vocabularies can be created/modified by an
 openBIS *Instance admin* (see [New Entity Type
-Registration](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/new-entity-type-registration/)).
+Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)).
 
 This information is needed for filling the forms for **Batch
 Upload **or**Batch Update** of *Objects* via TSV file. If an *Object*
