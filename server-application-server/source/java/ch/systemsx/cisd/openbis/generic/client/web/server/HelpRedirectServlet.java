@@ -74,7 +74,7 @@ public class HelpRedirectServlet extends AbstractController
     {
         final String isSpecificString =
                 request.getParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
-        boolean isSpecific = new Boolean(isSpecificString);
+        boolean isSpecific = Boolean.parseBoolean(isSpecificString);
         return isSpecific;
     }
 

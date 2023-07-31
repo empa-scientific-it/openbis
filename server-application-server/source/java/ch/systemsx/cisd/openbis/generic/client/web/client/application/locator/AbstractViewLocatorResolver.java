@@ -56,7 +56,7 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
             String paramName)
     {
         String value = getMandatoryParameter(locator, paramName);
-        return new Boolean(value);
+        return Boolean.parseBoolean(value);
     }
 
     protected static final Boolean getOptionalBooleanParameter(ViewLocator locator, String paramName)
@@ -66,7 +66,7 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
         {
             return null;
         }
-        return new Boolean(value);
+        return Boolean.parseBoolean(value);
     }
 
     protected static final boolean getOptionalBooleanParameter(ViewLocator locator,
