@@ -66,7 +66,7 @@ The main menu can be customised from the **Settings**, under
     will be hidden.
 10. **showUserManager**: if unselected, the **User Manager** under
     **Utilities** in the main menu ([User
-    Registration](https://openbis.ch/index.php/docs/admin-documentation/user-registration/))
+    Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html))
     will be hidden.
 11. **showUserProfile**: if unselected, the **User Profile** under
     **Utilities** in the main menu ([User
