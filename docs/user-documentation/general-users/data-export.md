@@ -35,7 +35,7 @@ corresponding *Project, Experiment, Object and Datasets* (see below).
 A link to download the zip file is sent via email to the user. Email
 notification needs to be configured by a *system admin* during or after
 installation, as explained in [Configure Data Store
-Server](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server)
+Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
 [.](https://wiki-bsse.ethz.ch/display/openBISDoc1906/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server)
 
 
