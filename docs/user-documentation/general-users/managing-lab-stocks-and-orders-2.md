@@ -1,7 +1,4 @@
 # Managing Lab Stocks and Orders
-
-
-
   
 It is possible to use openBIS to manage stocks of products and create
 orders of products to buy for the lab. 
@@ -10,11 +7,8 @@ Every lab member can register products and place requests of products to
 buy. The requests can be converted into orders by the lab manager or the
 person responsible for purchases in the lab. The orders created with
 openBIS contain the information that can be sent to the suppliers.
-
   
 ![image info](img/stock-navigation-menu.png)
-
- 
 
 In the **Stock Catalog** folder, a lab can create one collection of all
 products purchased in the lab and one collection of all suppliers used
@@ -49,16 +43,15 @@ the lab:
 >     **Stock Catalog***->* **Suppliers** in the main menu.
 > 2.  Click on the **+ New Supplier** button in the *Collection* page.
 > 3.  Follow the steps explained in the [Register
->     Entries](https://openbis.ch/index.php/docs/user-documentation-20-10-3/inventory-of-materials-and-methods/register-single-entries-in-a-collection/)
+>     Entries](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#register-single-entries-in-a-collection)
 >     documentation page.
 >
->  
 
 ![image info](img/stock-new-supplier.png)
 
 To register several suppliers at once, follow the steps described in
 [Batch register entries in a
-Collection.](https://openbis.ch/index.php/docs/user-documentation-20-10-3/inventory-of-materials-and-methods/batch-register-entries-in-a-collection/)
+Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection)
 
 ####  Catalog of products
 
@@ -79,7 +72,7 @@ To build the catalog of all products purchased in the lab:
 > parent. Select the correct supplier from the list of suppliers
 > registered in the **Supplier Collection.** The process for adding
 > parents is the same as described for Experimental Steps: [Add
-> parents](https://openbis.ch/index.php/docs/user-documentation-20-10-3/lab-notebook/add-parents-and-children-to-experimental-steps/).
+> parents](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps).
 >
 >  
 
@@ -90,7 +83,7 @@ To build the catalog of all products purchased in the lab:
 
 To register several suppliers at once, follow the steps described in
 [Batch register entries in a
-Collection.](https://openbis.ch/index.php/docs/user-documentation-20-10-3/inventory-of-materials-and-methods/batch-register-entries-in-a-collection/)
+Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection)
 
 
 ### Creating requests for products to order
@@ -125,7 +118,7 @@ ordered:
 > 1\. add a product that is already present in the catalog. This process
 > is the same as described for adding parents in Experimental Steps:
 > [Add
-> parents](https://openbis.ch/index.php/docs/user-documentation-20-10-3/lab-notebook/add-parents-and-children-to-experimental-steps/).
+> parents](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps).
 > The quantity, i.e. how many units of the product are requested, needs
 > to be specified.
 >
@@ -190,10 +183,10 @@ To create orders of products from requests created in the Stock Catalog:
 >
 >   3. If an **order** **template** form is available (see [Create
 > Templates for
-> Objects](https://openbis.ch/index.php/docs/admin-documentation-20-10-3/create-templates-for-objects/)),
+> Objects](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/create-templates-for-objects.html)),
 > this template can be used and most fields will be automatically filled
 > (see [Use templates for Experimental
-> Steps](https://openbis.ch/index.php/docs/user-documentation-20-10-3/lab-notebook/use-templates-for-experimental-steps/)).
+> Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#use-templates-for-experimental-steps)).
 > If no template is available, the relevant fields in the form need to
 > be filled in with the relevant information.
 
