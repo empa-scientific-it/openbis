@@ -171,7 +171,7 @@ Space** for that user in the lab notebook, as shown below.
 
 When users are registered via the ELN UI, a *Space* with their username
 is created (see [User
-Registration)](https://openbis.ch/index.php/docs/admin-documentation/user-registration/)
+Registration)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html)
 and this is automatically set as home space for the user.
 
 The same happens in multi-group instances where spaces are created for
