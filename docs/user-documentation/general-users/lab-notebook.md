@@ -134,7 +134,7 @@ Step/Entry,* to keep the connection between the two.
 The name of this section and which parents should be shown in the form,
 is customisable by the *lab manager* or *group admin* as described in
 [Customise Parents and Children Sections in Object
-Forms](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/customise-parents-and-children-sections-in-object-forms/)
+Forms](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.html)
 
 ### Adding a parent
 
@@ -233,7 +233,7 @@ Steps,* or products of the *Experimental Step.* As for the **Parents**
 section, this section can also be customised by a *group admin* or *lab
 manager* in the **ELN Settings** ([Customise Parents and Children
 Sections in Object
-Forms)](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/customise-parents-and-children-sections-in-object-forms/).
+Forms)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.html).
 
 The procedure for adding and removing children is the same as explained
 for parents.
@@ -357,7 +357,7 @@ Updated on April 25, 2023
  
 
 Templates need to be defined by the lab manager in the [**ELN
-Settings**](https://openbis.ch/index.php/docs/admin-documentation/create-templates-for-objects/).
+Settings**](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/create-templates-for-objects.html).
 If templates have been created for a given *Experimental Step*, you can
 choose from the list of available templates by clicking the **Template**
 button on the *Object* form, as shown below.  
