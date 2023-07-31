@@ -11,7 +11,7 @@ graphical overview of lab storages. 
 
 Lab storages need to be configured by a *lab manager* or *group admin*,
 as explained here: [Configure Lab
-Storage](https://openbis.ch/index.php/docs/admin-documentation/customise-inventory-of-materials-and-samples/configure-lab-storage/)
+Storage](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#configure-lab-storage)
 
   
 This can be done in two ways:
@@ -35,7 +35,7 @@ below:
 2. In the widget that opens, select the appropriate **Storage** from the
 dropdown menu. Storage must be configured by a lab manager or group
 admin as explained in [Configure Lab
-Storages](https://openbis.ch/index.php/docs/admin-documentation/customise-inventory-of-materials-and-samples/configure-lab-storage/)
+Storages](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#configure-lab-storage)
 
 ![image info](img/storage-selection-1024x202.png)
 
@@ -125,9 +125,9 @@ from the Object Browser:
 ![image info](img/Batch-update-storage-positions.png)
 3.  Use the table **Filter** to select the storage positions you want to
     update
-    (see [Tables](https://openbis.ch/index.php/docs/user-documentation/additional-functionalities/tables/))
+    (see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
 4.  Export the table (see
-    [Tables](https://openbis.ch/index.php/docs/user-documentation/additional-functionalities/tables/))
+    [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
 5.  Edit the file to make the changes needed (e.g. change the name of a
     box, change the storage, change a box position, change box size etc)
 6.  Select **XLS Batch Update Objects** from the **More..** dropdown.
@@ -169,7 +169,7 @@ To delete a single storage position from a sample:
 Please note that the storage position deleted in this way is moved to
 the trashcan. To delete the position permanently, this has to be deleted
 from the trashcan (see
-[Trashcan](https://openbis.ch/index.php/docs/user-documentation-20-10-3/additional-functionalities/trashcan/)).
+[Trashcan](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#trashcan)).
 
  
 
@@ -220,7 +220,7 @@ the **Object Browser**.
 
 3\. **Filter** the table to find the storage positions you want to
 delete
-(see [Tables](https://openbis.ch/index.php/docs/user-documentation-20-10-3/additional-functionalities/tables/))
+(see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
 
 4\. Select the positions you want to delete from the table and click the
 **Delete** button (see picture below)
@@ -229,7 +229,7 @@ delete
 
 6\. The deleted storage positions will be moved to the trashcan and
 should be removed from there to be permanently deleted (see
-[Trashcan) ](https://openbis.ch/index.php/docs/user-documentation-20-10-3/additional-functionalities/trashcan/)
+[Trashcan) ](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#trashcan)
 
  
 
