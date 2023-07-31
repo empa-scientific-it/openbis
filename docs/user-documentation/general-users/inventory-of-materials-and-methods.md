@@ -309,7 +309,7 @@ objects simultaneously via batch update. This can be done in two ways:
 ![image info](img/Batch-update-entries-one-collection-column-selection-1024x584.png)
 
 3\. If you have several entries you can filter the table
-(see [Tables](https://openbis.ch/index.php/docs/user-documentation-20-10-3/additional-functionalities/tables/))
+(see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
 
 4\. **Export** the table choosing the options **Import Compatible= YES;
 Selected Columns; All pages/Current page/Selected rows** (depending on
