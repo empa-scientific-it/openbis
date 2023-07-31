@@ -4,7 +4,7 @@
 
 The barcode functionality must be enabled in openBIS by a *lab manager*
 or *group admin*: [Enable
-Barcodes](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/enable-barcodes/).
+Barcodes](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/enable-barcodes.html).
 
 ### Barcodes for individual samples
 
