@@ -403,7 +403,7 @@ such as [Cyberduck](https://cyberduck.io/) or other.
 Please check our documentation for SFTP server
 configuration: [Installation and Administrators Guide of the openBIS
 Data Store
-Server](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-ExampleSFTPclientconfiguration)
+Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
 
  
 
@@ -680,7 +680,7 @@ Please be aware that, by default, only users with *Space Admin and
 Instance Admin*  role have permission to delete. Default permissions can
 be modified only by a *system admin* (see [Changing the openBIS
 capability role
-map](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrator+Guide+of+the+openBIS+Server#InstallationandAdministratorGuideoftheopenBISServer-ChangingtheCapability-Rolemap))
+map](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#changing-the-capability-role-map))
 
 Updated on April 25, 2023
  
