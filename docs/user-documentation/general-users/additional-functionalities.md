@@ -598,7 +598,7 @@ as metadata in openBIS.
 Custom imports are not available by default, but need to be enabled on
 the server side by a *system admin*, and a dropbox script needs to be
 associated with an import (see [Custom
-Imports](https://unlimited.ethz.ch/display/openBISDoc2010/Custom+Import)).
+Imports](https://openbis.readthedocs.io/en/latest/software-developer-documentation/legacy-server-side-extensions/custom-import.html)).
 
  
 
