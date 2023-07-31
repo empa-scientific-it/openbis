@@ -11,7 +11,7 @@
 openBIS supports archiving of datasets to Strongbox
 ([https://www.strongboxdata.com/](https://www.strongboxdata.com/)) as
 described in [Datasets
-Archiving](https://unlimited.ethz.ch/display/openBISDoc2010/Archiving+Datasets)
+Archiving](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/archive-datasets.html)
 
  
 
