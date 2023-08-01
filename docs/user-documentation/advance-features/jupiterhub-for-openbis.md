@@ -77,9 +77,9 @@ the following command:
 
     docker run -v /Users/juanf/jupyterhub-local/home:/home -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates -e OPENBIS_URL=https://129.132.228.42:8443 -e JUPYTERHUB_INTEGRATION_SERVICE_PORT=8002 -e JUPYTERHUB_PORT=8000 -e CERTIFICATE_KEY=/vagrant/config/certificates/default.key -e CERTIFICATE_CRT=/vagrant/config/certificates/default.crt -p 8000:8000 -p 8081:8081 -p 8001:8001 -p 8002:8002 585a9adf333b ./vagrant/initialize/start_jupyterhub.sh
 
-| :warning: WARNING          |
+| :warning: **Please note the following configuration options:** |
 |:---------------------------|
-| I should warn you ...      |
+| 1. -v /Users/juanf/jupyterhub-local/home:/home - <br />This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.<br />2. -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates - <br />This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.<br />3. OPENBIS_URL= https://129.132.228.42:8443 - By defaut docker is in bridge mode, which means that your docker container accesses your local machine network directly through it. If you have a local openBIS installation please use your IP address; if you use a server installation use the typical address you use to access it. |
 
 > :warning:   **Please note the following configuration options:** 
 > 1. -v /Users/juanf/jupyterhub-local/home:/home - 
