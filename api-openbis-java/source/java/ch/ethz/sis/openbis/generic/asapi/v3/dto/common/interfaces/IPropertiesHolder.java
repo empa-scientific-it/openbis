@@ -33,9 +33,9 @@ public interface IPropertiesHolder
 
     void setProperties(Map<String, Serializable> properties);
 
-    String getProperty(String propertyName);
+    Serializable getProperty(String propertyName);
 
-    void setProperty(String propertyName, String propertyValue);
+    void setProperty(String propertyName, Serializable propertyValue);
 
     Long getIntegerProperty(String propertyName);
 
@@ -61,13 +61,13 @@ public interface IPropertiesHolder
 
     void setBooleanProperty(String propertyName, Boolean propertyValue);
 
-    String getControlledVocabularyProperty(String propertyName);
+    String[] getControlledVocabularyProperty(String propertyName);
 
-    void setControlledVocabularyProperty(String propertyName, String propertyValue);
+    void setControlledVocabularyProperty(String propertyName, String[] propertyValue);
 
-    SamplePermId getSampleProperty(String propertyName);
+    SamplePermId[] getSampleProperty(String propertyName);
 
-    void setSampleProperty(String propertyName, SamplePermId propertyValue);
+    void setSampleProperty(String propertyName, SamplePermId[] propertyValue);
 
     String getHyperlinkProperty(String propertyName);
 

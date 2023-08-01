@@ -134,7 +134,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
         IPropertiesHolder holder = new IPropertiesHolder()
             {
                 @Override
-                public void setProperty(String propertyName, String propertyValue)
+                public void setProperty(String propertyName, Serializable propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
@@ -170,26 +170,26 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public String getControlledVocabularyProperty(String propertyName)
+                public String[] getControlledVocabularyProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
                 public void setControlledVocabularyProperty(String propertyName,
-                        String propertyValue)
+                        String[] propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public SamplePermId getSampleProperty(String propertyName)
+                public SamplePermId[] getSampleProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+                public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }

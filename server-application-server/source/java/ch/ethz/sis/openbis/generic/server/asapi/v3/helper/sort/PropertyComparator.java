@@ -17,6 +17,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 
+import java.io.Serializable;
+
 /**
  * @author pkupczyk
  */
@@ -33,6 +35,27 @@ public class PropertyComparator<OBJECT extends IPropertiesHolder> extends Abstra
     @Override
     protected String getValue(OBJECT o)
     {
-        return o.getProperty(propertyName);
+        return getAsString(o.getProperty(propertyName));
     }
+
+    protected String getAsString(Serializable value) {
+        if(value == null) {
+            return null;
+        }
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            StringBuilder buffer = new StringBuilder("[");
+            for(Serializable serializable : values) {
+                if(buffer.length() > 1) {
+                    buffer.append(",");
+                }
+                buffer.append((String) serializable);
+            }
+            buffer.append("]");
+            return buffer.toString();
+        }
+        return (String) value;
+    }
+
+
 }

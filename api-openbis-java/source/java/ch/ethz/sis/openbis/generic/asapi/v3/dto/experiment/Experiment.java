@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
@@ -136,7 +137,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     private Map<String, Material> materialProperties;
 
     @JsonProperty
-    private Map<String, Sample> sampleProperties;
+    private Map<String, Sample[]> sampleProperties;
 
     @JsonProperty
     private Set<Tag> tags;
@@ -526,7 +527,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    public Map<String, Sample> getSampleProperties()
+    public Map<String, Sample[]> getSampleProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSampleProperties())
         {
@@ -539,7 +540,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     }
 
     // Method automatically generated with DtoGenerator
-    public void setSampleProperties(Map<String, Sample> sampleProperties)
+    public void setSampleProperties(Map<String, Sample[]> sampleProperties)
     {
         this.sampleProperties = sampleProperties;
     }
@@ -635,7 +636,7 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     }
 
     @Override
-    public void setProperty(String propertyName, String propertyValue)
+    public void setProperty(String propertyName, Serializable propertyValue)
     {
         if (properties == null)
         {
@@ -762,28 +763,49 @@ public class Experiment implements Serializable, IAttachmentsHolder, ICodeHolder
     }
 
     @Override
-    public String getControlledVocabularyProperty(String propertyName)
+    public String[] getControlledVocabularyProperty(String propertyName)
     {
-        return getProperty(propertyName);
+        if(getProperties() == null || getProperties().get(propertyName) == null) {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> (String)x).toArray(String[]::new);
+        } else {
+            String propertyValue = (String) value;
+            return new String[]{ propertyValue };
+        }
     }
 
     @Override
-    public void setControlledVocabularyProperty(String propertyName, String propertyValue)
+    public void setControlledVocabularyProperty(String propertyName, String[] propertyValue)
     {
         setProperty(propertyName, propertyValue);
     }
 
     @Override
-    public SamplePermId getSampleProperty(String propertyName)
+    public SamplePermId[] getSampleProperty(String propertyName)
     {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : new SamplePermId(propertyValue);
+        if(getProperties() == null || getProperties().get(propertyName) == null) {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> new SamplePermId((String)x)).toArray(SamplePermId[]::new);
+        } else {
+            String propertyValue = (String) value;
+            return new SamplePermId[]{new SamplePermId(propertyValue)};
+        }
     }
 
     @Override
-    public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+    public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
     {
-        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());
+        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue)
+                .map(ObjectPermId::getPermId)
+                .toArray(String[]::new));
     }
 
     @Override

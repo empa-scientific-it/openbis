@@ -22,7 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.ITranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolder;
 
-public interface ISamplePropertyTranslator extends ITranslator<Long, ObjectHolder<Map<String, Sample>>, SampleFetchOptions>
+public interface ISamplePropertyTranslator extends ITranslator<Long, ObjectHolder<Map<String, Sample[]>>, SampleFetchOptions>
 {
 
 }

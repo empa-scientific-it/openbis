@@ -33,7 +33,8 @@ import java.util.*;
  * @author pkupczyk
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "cast" })
-public class SortAndPage {
+public class SortAndPage
+{
 
     private Set processed = new HashSet();
 
@@ -81,7 +82,11 @@ public class SortAndPage {
             } else if (objects instanceof Collection)
             {
                 sorted = new ArrayList(objects);
-                Collections.sort((List) sorted, comparator);
+                if (sorted.isEmpty() == false && ((ArrayList<?>) sorted).get(0).getClass()
+                        .isArray() == false)
+                {
+                    Collections.sort((List) sorted, comparator);
+                }
             }
 
             return sorted;
@@ -174,14 +179,17 @@ public class SortAndPage {
                                 sortAndPage(((Map) value).values(), c, subFo);
                             } else
                             {
-                                if (subFo.getSortBy() != null && subFo.getSortBy().getSortings() != null &&
+                                if (subFo.getSortBy() != null && subFo.getSortBy()
+                                        .getSortings() != null &&
                                         !subFo.getSortBy().getSortings().isEmpty())
                                 {
-                                    throw new IllegalArgumentException("Nested sort options can be used only "
-                                            + "for sorting nested collection or map types.");
+                                    throw new IllegalArgumentException(
+                                            "Nested sort options can be used only "
+                                                    + "for sorting nested collection or map types.");
                                 }
 
-                                Collection newValue = sortAndPage(Collections.singleton(value), c, subFo);
+                                Collection newValue =
+                                        sortAndPage(Collections.singleton(value), c, subFo);
                                 if (setMethod != null)
                                 {
                                     setMethod.invoke(object, newValue.iterator().next());
@@ -191,7 +199,9 @@ public class SortAndPage {
                     }
                 } catch (Exception e)
                 {
-                    throw new RuntimeException("Sorting and paging failed for object: + " + object + " and fieldName: " + fieldName, e);
+                    throw new RuntimeException(
+                            "Sorting and paging failed for object: + " + object + " and fieldName: " + fieldName,
+                            e);
                 }
             }
         }
@@ -230,18 +240,22 @@ public class SortAndPage {
                 {
                     if (sorting.getField() != null)
                     {
-                        ComparatorFactory comparatorFactory = ComparatorFactory.getInstance(sortByClass);
+                        ComparatorFactory comparatorFactory =
+                                ComparatorFactory.getInstance(sortByClass);
 
                         if (comparatorFactory == null)
                         {
-                            throw new IllegalArgumentException("Comparator factory for sort by " + sortByClass + " not found");
+                            throw new IllegalArgumentException(
+                                    "Comparator factory for sort by " + sortByClass + " not found");
                         }
 
-                        Comparator aComparator = comparatorFactory.getComparator(sorting.getField(), sorting.getParameters(), criteria);
+                        Comparator aComparator = comparatorFactory.getComparator(sorting.getField(),
+                                sorting.getParameters(), criteria);
 
                         if (aComparator == null)
                         {
-                            throw new IllegalArgumentException("Comparator for field " + sorting.getField() + " not found");
+                            throw new IllegalArgumentException(
+                                    "Comparator for field " + sorting.getField() + " not found");
                         }
 
                         comparators[index] = aComparator;
@@ -251,24 +265,24 @@ public class SortAndPage {
                 }
 
                 return new Comparator()
+                {
+                    @Override
+                    public int compare(Object o1, Object o2)
                     {
-                        @Override
-                        public int compare(Object o1, Object o2)
+                        for (int i = 0; i < sortings.size(); i++)
                         {
-                            for (int i = 0; i < sortings.size(); i++)
-                            {
-                                Comparator c = comparators[i];
-                                int d = directions[i];
+                            Comparator c = comparators[i];
+                            int d = directions[i];
 
-                                int result = d * c.compare(o1, o2);
-                                if (result != 0)
-                                {
-                                    return result;
-                                }
+                            int result = d * c.compare(o1, o2);
+                            if (result != 0)
+                            {
+                                return result;
                             }
-                            return 0;
                         }
-                    };
+                        return 0;
+                    }
+                };
             }
         }
 
@@ -338,7 +352,8 @@ public class SortAndPage {
                         continue;
                     }
 
-                    if (method.getName().startsWith("has") && false == method.getName().equals("hashCode"))
+                    if (method.getName().startsWith("has") && false == method.getName()
+                            .equals("hashCode"))
                     {
                         String fieldName = method.getName().substring(3);
 
@@ -350,7 +365,8 @@ public class SortAndPage {
                         fieldNames.add(fieldName);
                     } else if (method.getName().equals("sortBy"))
                     {
-                        if (sortByClass == null || sortByClass.isAssignableFrom(method.getReturnType()))
+                        if (sortByClass == null || sortByClass.isAssignableFrom(
+                                method.getReturnType()))
                         {
                             sortByClass = method.getReturnType();
                         }
@@ -358,7 +374,9 @@ public class SortAndPage {
                 }
             } catch (Exception e)
             {
-                throw new RuntimeException("Finding methods for fetch options class: " + clazz.getName() + " failed.", e);
+                throw new RuntimeException(
+                        "Finding methods for fetch options class: " + clazz.getName() + " failed.",
+                        e);
             }
         }
 
@@ -397,7 +415,9 @@ public class SortAndPage {
 
             for (PropertyDescriptor descriptor : descriptors)
             {
-                String fieldName = descriptor.getName().substring(0, 1).toUpperCase() + descriptor.getName().substring(1);
+                String fieldName =
+                        descriptor.getName().substring(0, 1).toUpperCase() + descriptor.getName()
+                                .substring(1);
                 getMethods.put(fieldName, descriptor.getReadMethod());
                 setMethods.put(fieldName, descriptor.getWriteMethod());
             }

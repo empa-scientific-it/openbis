@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -1400,7 +1403,7 @@ public class CreateSampleTest extends AbstractSampleTest
         fetchOptions.withProperties();
         fetchOptions.withSampleProperties();
         Sample sample2 = v3api.getSamples(sessionToken, sampleIds, fetchOptions).get(sampleIds.get(0));
-        Sample sampleProperty = sample2.getSampleProperties().get(propertyType.getPermId());
+        Sample sampleProperty = sample2.getSampleProperties().get(propertyType.getPermId())[0];
         assertEquals(sampleProperty.getPermId().getPermId(), "200811050947161-652");
         assertEquals(sampleProperty.getIdentifier().getIdentifier(), "/MP");
         assertEquals(sample2.getSampleProperties().size(), 1);
@@ -1433,7 +1436,7 @@ public class CreateSampleTest extends AbstractSampleTest
         fetchOptions.withProperties();
         fetchOptions.withSampleProperties();
         Sample sample2 = v3api.getSamples(sessionToken, sampleIds, fetchOptions).get(sampleIds.get(0));
-        Sample sampleProperty = sample2.getSampleProperties().get(propertyType.getPermId());
+        Sample sampleProperty = sample2.getSampleProperties().get(propertyType.getPermId())[0];
         assertEquals(sampleProperty.getPermId().getPermId(), "200811050919915-8");
         assertEquals(sampleProperty.getIdentifier().getIdentifier(), "/CISD/CL1");
         assertEquals(sample2.getSampleProperties().size(), 1);
@@ -1665,6 +1668,169 @@ public class CreateSampleTest extends AbstractSampleTest
         Sample sample2 = v3api.getSamples(sessionToken, sampleIds, fetchOptions).get(sampleIds.get(0));
         assertEquals(sample2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
         assertEquals(sample2.getTimestampArrayProperty(propertyType.getPermId()), new ZonedDateTime[]{time1, time2});
+        assertEquals(sample2.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithMultiValuePropertyVocabulary()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("TYPE-" + System.currentTimeMillis());
+        propertyTypeCreation.setDataType(DataType.CONTROLLEDVOCABULARY);
+        propertyTypeCreation.setLabel("label");
+        propertyTypeCreation.setDescription("description");
+        propertyTypeCreation.setMultiValue(true);
+        propertyTypeCreation.setVocabularyId(new VocabularyPermId("ORGANISM"));
+        PropertyTypePermId propertyType = v3api.createPropertyTypes(sessionToken, Collections.singletonList(propertyTypeCreation)).get(0);
+
+        EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        SampleCreation sample = new SampleCreation();
+        sample.setCode("SAMPLE_WITH_MULTI_VOCAB_PROPERTY");
+        sample.setTypeId(sampleType);
+        sample.setSpaceId(new SpacePermId("CISD"));
+        sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        sample.setControlledVocabularyProperty(propertyType.getPermId(), new String[] {"DOG", "HUMAN"});
+
+        // When
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+
+        // Then
+        assertEquals(sampleIds.size(), 1);
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        Sample sample2 = v3api.getSamples(sessionToken, sampleIds, fetchOptions).get(sampleIds.get(0));
+        assertEquals(sample2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+        String[] vocabProperties = sample2.getControlledVocabularyProperty(propertyType.getPermId());
+        Arrays.sort(vocabProperties);
+        assertEquals(vocabProperties, new String[] {"DOG", "HUMAN"});
+        assertEquals(sample2.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithMultiValuePropertySample() {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        //Create new sample that will be used as property
+        PropertyTypePermId propertyType1 = createASamplePropertyType(sessionToken, null);
+        EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
+
+        SampleCreation sample = new SampleCreation();
+        sample.setCode("NEW_SAMPLE_WITH_SOME_SAMPLE_PROPERTY");
+        sample.setTypeId(sampleType1);
+        sample.setSpaceId(new SpacePermId("CISD"));
+        sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        sample.setProperty(propertyType1.getPermId(), "200811050919915-8");
+
+        List<SamplePermId> testSampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+
+        assertEquals(testSampleIds.size(), 1);
+
+        // Create multi-value sample property
+        final PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("TYPE-" + System.currentTimeMillis());
+        propertyTypeCreation.setDataType(DataType.SAMPLE);
+        propertyTypeCreation.setLabel("label");
+        propertyTypeCreation.setDescription("description");
+        propertyTypeCreation.setMultiValue(true);
+        PropertyTypePermId propertyType = v3api.createPropertyTypes(sessionToken, Collections.singletonList(propertyTypeCreation)).get(0);
+
+        EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        // Create a sample with multi-value sample property
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("SAMPLE_WITH_MULTI_SAMPLE_PROPERTY");
+        sampleCreation.setTypeId(sampleType);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        sampleCreation.setProperty(propertyType.getPermId(), new String[] {"/CISD/CL1", testSampleIds.get(0).getPermId()});
+
+        // When
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+
+        // Then
+        assertEquals(sampleIds.size(), 1);
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        Sample sample2 = v3api.getSamples(sessionToken, sampleIds, fetchOptions).get(sampleIds.get(0));
+        assertEquals(sample2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+
+        Map<String, Sample[]> sampleProperties = sample2.getSampleProperties();
+
+        Sample[] samples = sampleProperties.get(propertyType.getPermId());
+        Serializable[] sampleProps = Arrays.stream(samples).map(x -> x.getPermId().getPermId()).sorted().toArray(String[]::new);
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+
+        sampleProps = (Serializable[]) sample2.getProperties().get(propertyType.getPermId());
+        Arrays.sort(sampleProps);
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+        assertEquals(sample2.getProperties().size(), 2);
+    }
+
+    @Test
+    public void testCreateWithMultiValuePropertySample2() {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        //Create sample
+        PropertyTypePermId propertyType1 = createASamplePropertyType(sessionToken, null);
+        EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
+
+        SampleCreation sample = new SampleCreation();
+        sample.setCode("SAMPLE_WITH_SOME_SAMPLE_PROPERTY");
+        sample.setTypeId(sampleType1);
+        sample.setSpaceId(new SpacePermId("CISD"));
+        sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        sample.setProperty(propertyType1.getPermId(), "200811050919915-8");
+
+        List<SamplePermId> testSampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+
+        assertEquals(testSampleIds.size(), 1);
+
+
+        final PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("TYPE-" + System.currentTimeMillis());
+        propertyTypeCreation.setDataType(DataType.SAMPLE);
+        propertyTypeCreation.setLabel("label");
+        propertyTypeCreation.setDescription("description");
+        propertyTypeCreation.setMultiValue(true);
+        PropertyTypePermId propertyType = v3api.createPropertyTypes(sessionToken, Collections.singletonList(propertyTypeCreation)).get(0);
+
+        EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType, PLATE_GEOMETRY);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("SAMPLE_WITH_MULTI_SAMPLE_PROPERTY2");
+        sampleCreation.setTypeId(sampleType);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
+        sampleCreation.setSampleProperty(propertyType.getPermId(), new SamplePermId[]{ new SamplePermId("/CISD/CL1"), testSampleIds.get(0)});
+
+        // When
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+
+        // Then
+        assertEquals(sampleIds.size(), 1);
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
+        Sample sample2 = v3api.getSamples(sessionToken, sampleIds, fetchOptions).get(sampleIds.get(0));
+        assertEquals(sample2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
+
+        Map<String, Sample[]> sampleProperties = sample2.getSampleProperties();
+
+        Sample[] samples = sampleProperties.get(propertyType.getPermId());
+        Serializable[] sampleProps = Arrays.stream(samples).map(x -> x.getPermId().getPermId()).sorted().toArray(String[]::new);
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+
+        sampleProps = (Serializable[]) sample2.getProperties().get(propertyType.getPermId());
+        Arrays.sort(sampleProps);
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
         assertEquals(sample2.getProperties().size(), 2);
     }
 

@@ -15,11 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,16 +27,16 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectHolde
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleTranslator;
 
 public abstract class SamplePropertyTranslator extends
-        AbstractCachingTranslator<Long, ObjectHolder<Map<String, Sample>>, SampleFetchOptions> implements ISamplePropertyTranslator
+        AbstractCachingTranslator<Long, ObjectHolder<Map<String, Sample[]>>, SampleFetchOptions> implements ISamplePropertyTranslator
 {
 
     @Autowired
     private ISampleTranslator sampleTranslator;
 
     @Override
-    protected ObjectHolder<Map<String, Sample>> createObject(TranslationContext context, Long objectId, SampleFetchOptions fetchOptions)
+    protected ObjectHolder<Map<String, Sample[]>> createObject(TranslationContext context, Long objectId, SampleFetchOptions fetchOptions)
     {
-        return new ObjectHolder<Map<String, Sample>>();
+        return new ObjectHolder<Map<String, Sample[]>>();
     }
 
     @Override
@@ -56,20 +52,22 @@ public abstract class SamplePropertyTranslator extends
         }
 
         Map<Long, Sample> samples = sampleTranslator.translate(context, propertyValues, fetchOptions);
-        Map<Long, Map<String, Sample>> sampleProperties = new HashMap<Long, Map<String, Sample>>();
+        Map<Long, Map<String, Sample[]>> sampleProperties = new HashMap<Long, Map<String, Sample[]>>();
+        Map<Long, Map<String, List<Sample>>> samplePropertiesTmp = new HashMap<Long, Map<String, List<Sample>>>();
 
-        for (SamplePropertyRecord record : records)
-        {
-            Map<String, Sample> properties = sampleProperties.get(record.objectId);
-            if (properties == null)
-            {
-                properties = new HashMap<String, Sample>();
-                sampleProperties.put(record.objectId, properties);
-            }
+        for (SamplePropertyRecord record : records) {
+            Map<String, List<Sample>> properties =
+                    samplePropertiesTmp.computeIfAbsent(record.objectId, k -> new HashMap<>());
             Sample sample = samples.get(record.propertyValue);
-            if (sample != null)
-            {
-                properties.put(record.propertyCode, sample);
+            properties.computeIfAbsent(record.propertyCode, x -> new ArrayList<>());
+            properties.get(record.propertyCode).add(sample);
+        }
+
+        for(Map.Entry<Long, Map<String, List<Sample>>> entry : samplePropertiesTmp.entrySet()) {
+            sampleProperties.computeIfAbsent(entry.getKey(), x -> new HashMap<>());
+            Map<String, Sample[]> properties = sampleProperties.get(entry.getKey());
+            for(Map.Entry<String, List<Sample>> property : entry.getValue().entrySet()) {
+                properties.put(property.getKey(), property.getValue().toArray(new Sample[0]));
             }
         }
 
@@ -78,15 +76,15 @@ public abstract class SamplePropertyTranslator extends
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void updateObject(TranslationContext context, Long objectId, ObjectHolder<Map<String, Sample>> result, Object relations,
+    protected void updateObject(TranslationContext context, Long objectId, ObjectHolder<Map<String, Sample[]>> result, Object relations,
             SampleFetchOptions fetchOptions)
     {
-        Map<Long, Map<String, Sample>> sampleProperties = (Map<Long, Map<String, Sample>>) relations;
-        Map<String, Sample> objectProperties = sampleProperties.get(objectId);
+        Map<Long, Map<String, Sample[]>> sampleProperties = (Map<Long, Map<String, Sample[]>>) relations;
+        Map<String, Sample[]> objectProperties = sampleProperties.get(objectId);
 
         if (objectProperties == null)
         {
-            objectProperties = new HashMap<String, Sample>();
+            objectProperties = new HashMap<String, Sample[]>();
         }
 
         result.setObject(objectProperties);
