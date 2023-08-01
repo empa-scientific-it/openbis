@@ -8,6 +8,10 @@ Introduction
 blablabla
 ```
 
+```{note}
+blablabla
+```
+
 openBIS application server can be configured to query any relational
 database server via SQL. There are three ways to use this feature in
 openBIS Web application:
