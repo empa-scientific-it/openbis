@@ -88,9 +88,7 @@ archived yet.
 |remove-datasets-from-store|If true the archived data set will be removed from the store. Default: false|
 |data-set-type|Data set type of the data sets to be archived. If undefined all data set of all types might be archived.|
 |older-than|Minimum number of days a data set to be archived hasn't been accessed. Default: 30|
-|archive-candidate-discoverer.class|Discoverer of candidates to be archived:
-<ul><li>`ch.systemsx.cisd.etlserver.plugins.AgeArchiveCandidateDiscoverer`: All data sets with an access time stamp older than specified by property older-than are candidates. This is the default discoverer.</li>
-<ul><li>`ch.systemsx.cisd.etlserver.plugins.TagArchiveCandidateDiscoverer`: All data sets which are marked by one of the tags specified by the property `archive-candidate-discoverer.tags` are candidates.</li></ul> |
+|archive-candidate-discoverer.class|Discoverer of candidates to be archived:<ul><li>`ch.systemsx.cisd.etlserver.plugins.AgeArchiveCandidateDiscoverer`: All data sets with an access time stamp older than specified by property older-than are candidates. This is the default discoverer.</li><li>`ch.systemsx.cisd.etlserver.plugins.TagArchiveCandidateDiscoverer`: All data sets which are marked by one of the tags specified by the property `archive-candidate-discoverer.tags` are candidates.</li></ul> |
 |policy.class|A policy specifies which data set candidates should be archived. If undefined all candidates will be archived. Has to be a fully-qualified name of a Java class implementing ch.systemsx.cisd.etlserver.IAutoArchiverPolicy.|
 |policy.*|Properties specific for the policy specified by `policy.class`. More about policies can be found here.|
 
