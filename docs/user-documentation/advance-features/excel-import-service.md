@@ -46,7 +46,9 @@ The names of the files and worksheets are ignored by the service, the
 user is advised to use descriptive names that they can quickly
 remember/refer to later.
 
-> :red_circle: **If there are dependencies between files they should be submitted together or an error will be shown.**
+```{warning}
+If there are dependencies between files they should be submitted together or an error will be shown.
+```
 
 **Example:**
 
@@ -92,10 +94,13 @@ element (table, clipart) will cause the import to fail.
     eliminated.
 
   
+```{warning}
+If any content is placed after two consecutive empty rows it will result in an error. This is to alert the user and avoid silently ignoring content.
+```
 
-> :red_circle: **If any content is placed after two consecutive empty rows it will result in an error. This is to alert the user and avoid silently ignoring content.**
-
-> :red_circle: **Header rows **NEED TO BE** a valid attribute of the entity or entity type, property label or property code.**
+```{warning}
+Header rows **NEED TO BE** a valid attribute of the entity or entity type, property label or property code.
+```
 
 Any unintended header will result in an error. This is to avoid possible
 misspellings and avoid silently ignoring content.
@@ -349,10 +354,13 @@ General Rules:
     either the vocabulary term code or the vocabulary term label.
 
   
+```{warning}
+If a mandatory header is missing it results in an error.
+```
 
-> :red_circle: **If a mandatory header is missing it results in an error.**
-
-> :red_circle: **Repeated headers will result in an error, in case a Property shares Label with an Attribute is encouraged to use the property code instead.**
+```{warning}
+Repeated headers will result in an error, in case a Property shares Label with an Attribute is encouraged to use the property code instead.
+```
 
 ### Space
 
@@ -457,8 +465,9 @@ samples. Samples can be addressed by:
 2.  Identifiers
 
   
-
-> :red_circle: **Parents and children SHOULD be separated by an end of line, each sample should be in its own line.**
+```{warning}
+Parents and children SHOULD be separated by an end of line, each sample should be in its own line.
+```
 
 |SAMPLE|||||||||
 |--- |--- |--- |--- |--- |--- |--- |--- |--- |
