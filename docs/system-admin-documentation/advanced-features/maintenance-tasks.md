@@ -794,7 +794,8 @@ Some rules:
 -   Material type codes and property type codes have to be in upper
     case.
 
-> :warning: **If you put a foreign key constraint on the material code of one of the material properties, you need to define the constraint checking as DEFERRED in order to not get a constraint violation. The reason is that this task will *not* order the `INSERT` statements by its dependencies, but in alphabetical order.**
+> :warning: 
+> **If you put a foreign key constraint on the material code of one of the material properties, you need to define the constraint checking as DEFERRED in order to not get a constraint violation. The reason is that this task will *not* order the `INSERT` statements by its dependencies, but in alphabetical order.**
 
 ### UsageReportingTask
 
