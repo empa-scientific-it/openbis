@@ -232,7 +232,7 @@ the SQL statement should be one of the following **magic** words:
     select id, perm_id as data_set_key from data_sets
     ```
 
-> :warning: **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
+!!! warning **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
 
 ### Edit a Query
 
