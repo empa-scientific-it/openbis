@@ -234,6 +234,11 @@ the SQL statement should be one of the following **magic** words:
 .. warning::
     **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
 
+.. warning::
+
+   Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
+   :dudir:`footer`.
+
 ### Edit a Query
 
 1.  Choose menu item **Queries -> Browse Query Definitions**. The tab
