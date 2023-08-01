@@ -4,12 +4,6 @@ Custom Database Queries
 Introduction
 ------------
 
-.. note::
-
-    MkDocs is a great choice for building technical documentation.
-    However, Read the Docs also supports :doc:`Sphinx </intro/getting-started-with-sphinx>`,
-    another tool for writing and building documentation.
-
 openBIS application server can be configured to query any relational
 database server via SQL. There are three ways to use this feature in
 openBIS Web application:
@@ -240,8 +234,8 @@ the SQL statement should be one of the following **magic** words:
 .. warning::
     **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
 
-> [!NOTE]
-> This is a note. 
+> :warning:
+> **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
 
 ### Edit a Query
 
