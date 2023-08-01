@@ -1689,7 +1689,7 @@ public class CreateSampleTest extends AbstractSampleTest
         EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("SAMPLE_WITH_MULTI_VOCAB_PROPERTY");
+        sample.setCode("SAMPLE_WITH_MULTI_VOCAB_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1721,7 +1721,7 @@ public class CreateSampleTest extends AbstractSampleTest
         EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("NEW_SAMPLE_WITH_SOME_SAMPLE_PROPERTY");
+        sample.setCode("SAMPLE_WITH_SOME_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType1);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1744,7 +1744,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
         // Create a sample with multi-value sample property
         SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setCode("SAMPLE_WITH_MULTI_SAMPLE_PROPERTY");
+        sampleCreation.setCode("SAMPLE_WITH_MULTI_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sampleCreation.setTypeId(sampleType);
         sampleCreation.setSpaceId(new SpacePermId("CISD"));
         sampleCreation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1765,11 +1765,11 @@ public class CreateSampleTest extends AbstractSampleTest
 
         Sample[] samples = sampleProperties.get(propertyType.getPermId());
         Serializable[] sampleProps = Arrays.stream(samples).map(x -> x.getPermId().getPermId()).sorted().toArray(String[]::new);
-        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", testSampleIds.get(0).getPermId()});
 
         sampleProps = (Serializable[]) sample2.getProperties().get(propertyType.getPermId());
         Arrays.sort(sampleProps);
-        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", testSampleIds.get(0).getPermId()});
         assertEquals(sample2.getProperties().size(), 2);
     }
 
@@ -1783,7 +1783,7 @@ public class CreateSampleTest extends AbstractSampleTest
         EntityTypePermId sampleType1 = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("SAMPLE_WITH_SOME_SAMPLE_PROPERTY");
+        sample.setCode("SAMPLE_WITH_SOME_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType1);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1805,14 +1805,14 @@ public class CreateSampleTest extends AbstractSampleTest
         EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType, PLATE_GEOMETRY);
 
         SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setCode("SAMPLE_WITH_MULTI_SAMPLE_PROPERTY2");
+        sampleCreation.setCode("SAMPLE_WITH_MULTI_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sampleCreation.setTypeId(sampleType);
         sampleCreation.setSpaceId(new SpacePermId("CISD"));
         sampleCreation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
         sampleCreation.setSampleProperty(propertyType.getPermId(), new SamplePermId[]{ new SamplePermId("/CISD/CL1"), testSampleIds.get(0)});
 
         // When
-        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleCreation));
 
         // Then
         assertEquals(sampleIds.size(), 1);
@@ -1826,11 +1826,11 @@ public class CreateSampleTest extends AbstractSampleTest
 
         Sample[] samples = sampleProperties.get(propertyType.getPermId());
         Serializable[] sampleProps = Arrays.stream(samples).map(x -> x.getPermId().getPermId()).sorted().toArray(String[]::new);
-        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", testSampleIds.get(0).getPermId()});
 
         sampleProps = (Serializable[]) sample2.getProperties().get(propertyType.getPermId());
         Arrays.sort(sampleProps);
-        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", sample2.getPermId().getPermId()});
+        assertEquals(sampleProps, new Serializable[]{"200811050919915-8", testSampleIds.get(0).getPermId()});
         assertEquals(sample2.getProperties().size(), 2);
     }
 

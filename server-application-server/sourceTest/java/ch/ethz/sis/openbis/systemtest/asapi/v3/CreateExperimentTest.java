@@ -1035,7 +1035,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         EntityTypePermId experimentType = createAnExperimentType(sessionToken, true, propertyType, PLATE_GEOMETRY);
 
         ExperimentCreation creation = new ExperimentCreation();
-        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        creation.setCode("EXPERIMENT_WITH_MULTI_VOCAB_PROPERTY-" + System.currentTimeMillis());
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
         creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1068,7 +1068,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY");
+        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1096,7 +1096,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         EntityTypePermId experimentType = createAnExperimentType(sessionToken, true, propertyType, PLATE_GEOMETRY);
 
         ExperimentCreation creation = new ExperimentCreation();
-        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
         creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1135,7 +1135,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY");
+        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -1163,7 +1163,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         EntityTypePermId experimentType = createAnExperimentType(sessionToken, true, propertyType, PLATE_GEOMETRY);
 
         ExperimentCreation creation = new ExperimentCreation();
-        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
+        creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
         creation.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");

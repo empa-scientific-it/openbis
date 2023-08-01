@@ -2293,7 +2293,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY");
+        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
@@ -2359,7 +2359,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
         EntityTypePermId sampleType = createASampleType(sessionToken, true, propertyType1, PLATE_GEOMETRY);
 
         SampleCreation sample = new SampleCreation();
-        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY");
+        sample.setCode("SAMPLE_WITH_SAMPLE_PROPERTY-" + System.currentTimeMillis());
         sample.setTypeId(sampleType);
         sample.setSpaceId(new SpacePermId("CISD"));
         sample.setProperty(PLATE_GEOMETRY.getPermId(), "384_WELLS_16X24");
