@@ -4,14 +4,6 @@ Custom Database Queries
 Introduction
 ------------
 
-```{warning}
-blablabla
-```
-
-```{note}
-blablabla
-```
-
 openBIS application server can be configured to query any relational
 database server via SQL. There are three ways to use this feature in
 openBIS Web application:
@@ -196,8 +188,10 @@ are defined:
 It is possible to combine multiple keys like
 this: `${estimate::type=integer::list=1,3,7,12`}.
 
-> :warning: **Why to provide a data type**
-> Providing a data type with `type=...` is not mandatory. In a future version of the software we may add additional client-side validation based on this value, but in the current version we don't do that yet. If you do *not* provide a data type, openBIS will ask the database for the type of the particular query parameter. This works fine for most databases, but not for all. Oracle is a well-known example that cannot provide this information. So if your query source is an Oracle database and you do not provide a data type, you will get an error saying` "Unsupported feature`". To fix this, you have to rovide the data type.
+```{warning}
+**Why to provide a data type**
+Providing a data type with `type=...` is not mandatory. In a future version of the software we may add additional client-side validation based on this value, but in the current version we don't do that yet. If you do *not* provide a data type, openBIS will ask the database for the type of the particular query parameter. This works fine for most databases, but not for all. Oracle is a well-known example that cannot provide this information. So if your query source is an Oracle database and you do not provide a data type, you will get an error saying` "Unsupported feature`". To fix this, you have to rovide the data type.
+```
 
 #### Array Literals for PostgreSQL data sources
 
@@ -239,11 +233,9 @@ the SQL statement should be one of the following **magic** words:
     ```sql
     select id, perm_id as data_set_key from data_sets
     ```
-.. warning::
-    **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
-
-> :warning:
-> **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
+```{warning}
+**Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
+```
 
 ### Edit a Query
 
@@ -296,5 +288,7 @@ code).
 
 ![image info](img/502.png)
 
-> :warning: **Legacy Syntax:**
-> Older versions of openBIS required to put string parameters in ticks, like '${param}'. Current versions of openBIS don't need this anymore, so you can use ${param} without the ticks. However, the syntax with ticks is still accept for backward compatibility.
+```{warning}
+**Legacy Syntax:**
+Older versions of openBIS required to put string parameters in ticks, like '${param}'. Current versions of openBIS don't need this anymore, so you can use ${param} without the ticks. However, the syntax with ticks is still accept for backward compatibility.
+```
