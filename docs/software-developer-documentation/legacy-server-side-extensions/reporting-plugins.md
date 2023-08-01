@@ -110,18 +110,10 @@ TABLE\_MODEL
 
 ### AggregationService
 
-Import Note on Authorization
+| :warning: **Import Note on Authorization** |
+|:---------------------------|
+| In AggregationServices and IngestionServices, the service programmer needs to ensure proper authorization by himself. He can do so by using the methods from [IAuthorizationService](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/dss/generic/shared/api/internal/authorization/IAuthorizationService.html). The user id, which is needed when calling these methods, can be obtained from `DataSetProcessingContext` (when using Java), or the variable `userId` (when using Jython). |
 
-In AggregationServices and IngestionServices, the service programmer
-needs to ensure proper authorization by himself. He can do so by using
-the methods from
-[IAuthorizationService](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/dss/generic/shared/api/internal/authorization/IAuthorizationService.html).
-The user id, which is needed when calling these methods, can be obtained
-from `DataSetProcessingContext` (when using Java), or the
-variable `userId` (when using Jython).
-
-**  
-**
 
 **Type: **AGGREGATION\_TABLE\_MODEL
 
