@@ -658,7 +658,7 @@ doesn't work for RsyncArchiver, TarArchiver or ZipArchiver.
     interval = 60 s
     email-addresses = email1@bsse.ethz.ch, email2@bsse.ethz.ch
 
-**Notes: **This is a consistency check task. It checks consistency for
+**Notes:** This is a consistency check task. It checks consistency for
 datasets with the flag present-in-archive.
 
 ### DataSetAndPathInfoDBConsistencyCheckTask 
@@ -882,7 +882,7 @@ archiving](/pages/viewpage.action?pageId=80699422).
     class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.CleanUpUnarchivingScratchShareTask
     interval = 60 s
 
-**Notes: **Recommended cleanup task to run on every instance.
+**Notes:** Recommended cleanup task to run on every instance.
 
 ### DataSetRegistrationSummaryTask 
 
