@@ -1266,7 +1266,7 @@ application server should access this database as a user which is member
 of a read-only group. The name of this read-only group is project
 specific.
 
-> :note: It is possible to configure openBIS to query multiple project-specific databases.
+> :information_source: It is possible to configure openBIS to query multiple project-specific databases.
 
 #### Create Read-Only User in PostgreSQL
 
