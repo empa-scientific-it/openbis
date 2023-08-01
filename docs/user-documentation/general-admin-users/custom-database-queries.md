@@ -234,8 +234,8 @@ the SQL statement should be one of the following **magic** words:
 .. warning::
     **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
 
-> **Warning**
-> This is a warning
+> [!NOTE]
+> This is a note. 
 
 ### Edit a Query
 
