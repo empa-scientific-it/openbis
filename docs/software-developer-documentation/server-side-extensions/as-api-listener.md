@@ -58,13 +58,13 @@ is provided with the V3 API jar and provides 3 methods:
     session token used for the operation, the operation result and any
     exception that happened during the operation.
 
-```{warning} Implicit Requirements
+```{warning}
+Implicit Requirements
+
 **Requirement 1:  The Listener should be Thread Safe Code**
 
 A single instance of the Listener is created during the server startup.
-
 Since a single instance is used to serve all requests thread safe code is a requirement.
-
 We strongly suggest to not to keep any state.
 
 **Requirement 2: The Listener should not throw Exceptions**
