@@ -188,18 +188,8 @@ are defined:
 It is possible to combine multiple keys like
 this: `${estimate::type=integer::list=1,3,7,12`}.
 
-Why to provide a data type
-
-Providing a data type with `type=...` is not mandatory. In a future
-version of the software we may add additional client-side validation
-based on this value, but in the current version we don't do that yet. If
-you do *not* provide a data type, openBIS will ask the database for the
-type of the particular query parameter. This works fine for most
-databases, but not for all. Oracle is a well-known example that cannot
-provide this information. So if your query source is an Oracle database
-and you do not provide a data type, you will get an error
-saying` "Unsupported feature`". To fix this, you have to provide the
-data type.
+> :warning: **Why to provide a data type**
+> Providing a data type with `type=...` is not mandatory. In a future version of the software we may add additional client-side validation based on this value, but in the current version we don't do that yet. If you do *not* provide a data type, openBIS will ask the database for the type of the particular query parameter. This works fine for most databases, but not for all. Oracle is a well-known example that cannot provide this information. So if your query source is an Oracle database and you do not provide a data type, you will get an error saying` "Unsupported feature`". To fix this, you have to rovide the data type.
 
 #### Array Literals for PostgreSQL data sources
 
