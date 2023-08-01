@@ -1,7 +1,9 @@
 define([
          'test/test-login',
          'test/test-jsVSjava',
-         'test/test-create', 'test/test-update', 'test/test-search',
+         'test/test-create',
+         'test/test-update',
+         'test/test-search',
 
          'test/test-freezing',
          'test/test-get',

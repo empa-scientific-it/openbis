@@ -3682,7 +3682,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fCleanup = function(facade, samples) {
-				debugger;
 				if (samples) {
 					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
 				}
@@ -3723,7 +3722,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fCleanup = function(facade, samples) {
-				debugger;
 				if (samples) {
 					cleanup(c, facade, samples[0].getPermId(), propertyTypeId, sampleTypeId);
 				}
@@ -3775,7 +3773,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var testDataType = function(i) {
-				debugger;
 				var dataType = dataTypes[i];
 				var fSearch = function(facade) {
 					return createPropertyType(c, facade, dataType).then(function(propertyTypeIds) {
@@ -3785,13 +3782,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				}
 
 				var fCheck = function() {
-					debugger;
 					c.fail("Expected exception not thrown for data type " + dataType + ".");
 					fRecursion(i);
 				}
 
 				testSearch(c, fSearch, fCheck, function(e) {
-					debugger;
 					c.ok("Expected exception thrown for data type " + dataType + ".");
 					fRecursion(i);
 				});
