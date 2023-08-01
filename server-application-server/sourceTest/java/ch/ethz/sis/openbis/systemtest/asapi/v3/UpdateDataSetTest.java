@@ -1211,7 +1211,8 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         fetchOptions.withSampleProperties();
         DataSet dataSet = v3api.getDataSets(sessionToken, Arrays.asList(dataSetPermId), fetchOptions).get(dataSetPermId);
         assertEquals(dataSet.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(dataSet.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        assertEquals(dataSet.getSampleProperties().get(propertyType.getPermId()).length, 1);
+        assertEquals(dataSet.getSampleProperties().get(propertyType.getPermId())[0].toString(), "Sample 200811050924898-997");
     }
 
     @Test
@@ -1241,7 +1242,8 @@ public class UpdateDataSetTest extends AbstractDataSetTest
         fetchOptions.withHistory().withAuthor();
         DataSet dataSet = v3api.getDataSets(sessionToken, Arrays.asList(dataSetPermId), fetchOptions).get(dataSetPermId);
         assertEquals(dataSet.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(dataSet.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        assertEquals(dataSet.getSampleProperties().get(propertyType.getPermId()).length, 1);
+        assertEquals(dataSet.getSampleProperties().get(propertyType.getPermId())[0].toString(), "Sample 200811050924898-997");
 
         List<HistoryEntry> history = dataSet.getHistory();
         assertEquals(history.size(), 3);

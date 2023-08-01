@@ -918,7 +918,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.withHistory().withAuthor();
         Sample sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(sample.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        assertEquals(sample.getSampleProperties().get(propertyType.getPermId()).length, 1);
+        assertEquals(sample.getSampleProperties().get(propertyType.getPermId())[0].toString(), "Sample 200811050924898-997");
 
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 1);
@@ -952,7 +953,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.withHistory().withAuthor();
         Sample sample = v3api.getSamples(sessionToken, Arrays.asList(samplePermId), fetchOptions).get(samplePermId);
         assertEquals(sample.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(sample.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        assertEquals(sample.getSampleProperties().get(propertyType.getPermId()).length, 1);
+        assertEquals(sample.getSampleProperties().get(propertyType.getPermId())[0].toString(), "Sample 200811050924898-997");
 
         List<HistoryEntry> history = sample.getHistory();
         assertEquals(history.size(), 2);

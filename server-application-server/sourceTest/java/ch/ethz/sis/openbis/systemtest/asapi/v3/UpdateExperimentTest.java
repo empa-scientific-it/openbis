@@ -1157,8 +1157,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                         .get(experimentPermId);
         assertEquals(experiment.getProperties().toString(),
                 "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(experiment.getSampleProperties().toString(),
-                "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        assertEquals(experiment.getSampleProperties().get(propertyType.getPermId()).length, 1);
+        assertEquals(experiment.getSampleProperties().get(propertyType.getPermId())[0].toString(), "Sample 200811050924898-997");
     }
 
     @Test
@@ -1193,8 +1193,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                         .get(experimentPermId);
         assertEquals(experiment.getProperties().toString(),
                 "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(experiment.getSampleProperties().toString(),
-                "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        assertEquals(experiment.getSampleProperties().get(propertyType.getPermId()).length, 1);
+        assertEquals(experiment.getSampleProperties().get(propertyType.getPermId())[0].toString(), "Sample 200811050924898-997");
 
         List<HistoryEntry> history = experiment.getHistory();
         assertEquals(history.size(), 3);

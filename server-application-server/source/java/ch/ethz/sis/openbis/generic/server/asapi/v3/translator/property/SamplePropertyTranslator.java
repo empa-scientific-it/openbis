@@ -56,11 +56,14 @@ public abstract class SamplePropertyTranslator extends
         Map<Long, Map<String, List<Sample>>> samplePropertiesTmp = new HashMap<Long, Map<String, List<Sample>>>();
 
         for (SamplePropertyRecord record : records) {
-            Map<String, List<Sample>> properties =
-                    samplePropertiesTmp.computeIfAbsent(record.objectId, k -> new HashMap<>());
             Sample sample = samples.get(record.propertyValue);
-            properties.computeIfAbsent(record.propertyCode, x -> new ArrayList<>());
-            properties.get(record.propertyCode).add(sample);
+            if(sample != null)
+            {
+                Map<String, List<Sample>> properties =
+                        samplePropertiesTmp.computeIfAbsent(record.objectId, k -> new HashMap<>());
+                properties.computeIfAbsent(record.propertyCode, x -> new ArrayList<>());
+                properties.get(record.propertyCode).add(sample);
+            }
         }
 
         for(Map.Entry<Long, Map<String, List<Sample>>> entry : samplePropertiesTmp.entrySet()) {
