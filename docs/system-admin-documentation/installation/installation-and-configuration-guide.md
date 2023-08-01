@@ -487,9 +487,7 @@ openBIS database. They are all mandatory.
 | `database.owner`                   | ID of the user owning the data. This should generally be openbis. The openbis role and password need to be created. In case of an empty string it is the same user who started up openBIS Application Server.         |
 | `database.owner-password`          | Password of the owner.                                                                                                                                                                                                |
 
-The credentials for the database user with the privilege to create a new
-database depends on the installation and configuration of the PostgreSQL
-database.
+> :warning: **The credentials for the database user with the privilege to create a new database depends on the installation and configuration of the PostgreSQL database.**
 
 ## Start Server
 
@@ -503,8 +501,7 @@ are configured). Log files can be found in
 `<installation folder>/servers/openBIS-server/jetty/logs`. Also the
 following command shows the log: `<installation folder>/bin/bislog.sh`
 
-The first user logged in into the system will have full administrator
-rights (role `INSTANCE_ADMIN`).
+> :warning: **The first user logged in into the system will have full administrator rights (role `INSTANCE_ADMIN`).**
 
 ## Stop Server
 
@@ -1269,8 +1266,7 @@ application server should access this database as a user which is member
 of a read-only group. The name of this read-only group is project
 specific.
 
-It is possible to configure openBIS to query multiple project-specific
-databases.
+> :note: It is possible to configure openBIS to query multiple project-specific databases.
 
 #### Create Read-Only User in PostgreSQL
 
