@@ -870,7 +870,9 @@ method on the update object. Example:
      sample.freezeForChildren();
      v3.updateSamples(sessionToken, Arrays.asList(sample));
 
-> :warning: **Freezing can not be reverted.**
+```{warning}
+Freezing can not be reverted.
+```
 
 The timestamp of freezing, the types of freezing, the user and the
 identifier of the frozen entity will be stored in the database as a
