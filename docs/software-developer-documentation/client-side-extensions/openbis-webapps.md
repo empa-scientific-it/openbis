@@ -25,8 +25,9 @@ openBIS. The name of the webapp defines the URL used to access it. See
 the example below. The file index.html is used as a welcome page if the
 user does not specifically request a particular page.
 
-> :warning: **An openBIS webapp is *not* a J2EE webapp. It has more in common with an app for mobile devices.**
-
+```{warning}
+An openBIS webapp is *not* a J2EE webapp. It has more in common with an app for mobile devices.
+```
  
 
 ### Example
@@ -279,7 +280,9 @@ Even if the web app is accessible from other URLs, not using the URL
 configured on the DSS service.properties will lead to the DSS not
 recognizing the app.
 
-> :warning: **As a consequence the DSS will not set the necessary header and the client will reject the responses.**
+```{warning}
+As a consequence the DSS will not set the necessary header and the client will reject the responses.
+```
 
 ### Basic Configuration
 
@@ -304,7 +307,9 @@ using a reverse proxy like Apache or NGNIX. This way the web security
 sandbox is respected. On this case the "Access-Control-Allow-Origin"
 header is unnecessary and will also work out of the box.
 
-> :warning: **Even with this configuration, sometimes happens that a web app call the DSS using an auto detected URL given by openBIS. This auto detected URL not necessarily respects your proxy configuration, giving a different port or hostname to the DSS.**
+```{warning}
+Even with this configuration, sometimes happens that a web app call the DSS using an auto detected URL given by openBIS. This auto detected URL not necessarily respects your proxy configuration, giving a different port or hostname to the DSS.
+```
 
 On this case you will need to solve the problems with one of the methods
 explained above or modify your web app.
