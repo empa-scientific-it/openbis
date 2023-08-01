@@ -81,13 +81,6 @@ the following command:
 |:---------------------------|
 | **1.** -v /Users/juanf/jupyterhub-local/home:/home <br />This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.<br />**2.** -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates <br />This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.<br />**3.** OPENBIS_URL= https://129.132.228.42:8443 <br />By defaut docker is in bridge mode, which means that your docker container accesses your local machine network directly through it. If you have a local openBIS installation please use your IP address; if you use a server installation use the typical address you use to access it. |
 
-> :warning:   **Please note the following configuration options:** 
-> 1. -v /Users/juanf/jupyterhub-local/home:/home - 
-> This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.
-> 2. -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates - 
-> This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.
-> 3. OPENBIS_URL= https://129.132.228.42:8443 - By defaut docker is in bridge mode, which means that your docker container accesses your local machine network directly through it. If you have a local openBIS installation please use your IP address; if you use a server installation use the typical address you use to access it.
-
 To stop a running docker container, run "**docker kill container\_ID"**.
 
 The container\_ID can be found by running the command **"docker ps"**.
