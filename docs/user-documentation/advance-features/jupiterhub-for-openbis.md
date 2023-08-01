@@ -1,7 +1,9 @@
 JupyterHub for openBIS
 ======================
 
-> :warning: **This guide is not meant to substitute the official Docker documentation. Standard Docker commands are present in sections that are not necessarily related with them**. 
+```{warning}
+This guide is not meant to substitute the official Docker documentation. Standard Docker commands are present in sections that are not necessarily related with them.
+```
 
 ## Overview
 
@@ -13,7 +15,9 @@ them. It is aimed at users who are not familiar with Docker, but it
 should not be considered a substitute of the official Docker
 documentation.
 
-> :warning: **We advise non expert users, to first test the instructions provided in this guide on their local machine, to familiarise themselves with the process, before making changes on the JupyterHub server**.
+```{warning}
+We advise non expert users, to first test the instructions provided in this guide on their local machine, to familiarise themselves with the process, before making changes on the JupyterHub server.
+```
 
 Docker images are stateless, which means that after rebooting all
 changes made will not be saved. This guarantees a stable environment,
@@ -77,9 +81,15 @@ the following command:
 
     docker run -v /Users/juanf/jupyterhub-local/home:/home -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates -e OPENBIS_URL=https://129.132.228.42:8443 -e JUPYTERHUB_INTEGRATION_SERVICE_PORT=8002 -e JUPYTERHUB_PORT=8000 -e CERTIFICATE_KEY=/vagrant/config/certificates/default.key -e CERTIFICATE_CRT=/vagrant/config/certificates/default.crt -p 8000:8000 -p 8081:8081 -p 8001:8001 -p 8002:8002 585a9adf333b ./vagrant/initialize/start_jupyterhub.sh
 
-| :warning: **Please note the following configuration options:** |
-|:---------------------------|
-| **1.** -v /Users/juanf/jupyterhub-local/home:/home <br />This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.<br />**2.** -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates <br />This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.<br />**3.** OPENBIS_URL= https://129.132.228.42:8443 <br />By defaut docker is in bridge mode, which means that your docker container accesses your local machine network directly through it. If you have a local openBIS installation please use your IP address; if you use a server installation use the typical address you use to access it. |
+```{warning}
+**Please note the following configuration options:**
+1. -v /Users/juanf/jupyterhub-local/home:/home
+This option is only required if you want to store the changes you are making. You need to have a home directory for this. It is not necessary for testing, as the image will provide a default one. This directory should contain a "vagrant" sub directory.
+2. -v /Users/juanf/jupyterhub-local/config/certificates:/vagrant/config/certificates
+This option is only required in production environments where you need valid certificates. It is not necssary for testing, as the image will provide a default one.
+3. OPENBIS_URL= https://129.132.228.42:8443
+By defaut docker is in bridge mode, which means that your docker container accesses your local machine network directly through it. If you have a local openBIS installation please use your IP address; if you use a server installation use the typical address you use to access it.
+```
 
 To stop a running docker container, run "**docker kill container\_ID"**.
 
@@ -258,7 +268,9 @@ using.
 Now we can create a new image using as a starting point the latest from
 the official repository.
 
-> :warning: **It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times.**
+```{warning}
+It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times.
+```
 
 ```shell
 $ docker build -t jupyterhub-openbis-sis-juanextensions-recipe-20180406 .
@@ -282,7 +294,9 @@ openbis/jupyterhub-openbis-sis-20180405                 latest              585a
 How to start a jupyterhub-openbis docker image on a productive JupyterHub server
 --------------------------------------------------------------------------------
 
-> :warning: **You can only have **ONE** jupyterhub-openbis image running on a server at one given time, since JupyterHub makes use of certain ports on the machine that are also configured in openBIS.**
+```{warning}
+You can only have **ONE** jupyterhub-openbis image running on a server at one given time, since JupyterHub makes use of certain ports on the machine that are also configured in openBIS.
+```
 
 1. Find the jupyterhub-openbis-start.sh file in your server (please ask
 your admin).
@@ -322,7 +336,9 @@ Other useful Docker commands
 
 ### Save an image as a tar file to share it
 
-> :warning: **It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times.**
+```{warning}
+It is best practice to include both the name of the user and the creation date in the image name. This will help when dealing with many versions created by different users at different times.
+```
 
 ```shell
 $ docker save jupyterhub-openbis-sis-20180405 > jupyterhub-openbis-sis-20180405.tar
