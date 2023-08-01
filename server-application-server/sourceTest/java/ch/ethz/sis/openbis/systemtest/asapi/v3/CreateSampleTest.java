@@ -1751,7 +1751,7 @@ public class CreateSampleTest extends AbstractSampleTest
         sampleCreation.setProperty(propertyType.getPermId(), new String[] {"/CISD/CL1", testSampleIds.get(0).getPermId()});
 
         // When
-        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sample));
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleCreation));
 
         // Then
         assertEquals(sampleIds.size(), 1);
