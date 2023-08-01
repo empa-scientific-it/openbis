@@ -569,7 +569,7 @@ define([ "stjs", "util/Exceptions", "as/dto/common/Relationship" ], function(stj
 		},
 		sampleProperties : {
 			name : "Map",
-			arguments : [ "String", "Sample" ]
+			arguments : [ "String", "Sample[]" ]
 		},
 		parents : {
 			name : "List",

@@ -619,7 +619,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		},
 		sampleProperties : {
 			name : "Map",
-			arguments : [ "String", "Sample" ]
+			arguments : [ "String", "Sample[]" ]
 		},
 		dataProductionDate : "Date",
 		metaData: {
