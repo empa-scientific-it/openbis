@@ -755,25 +755,27 @@ makes several assumptions on the database schema:
     -   REAL: fixed or floating point number 
     -   all other data types are mapped to text.
 
+
 The general format of the mapping file is as follows:
-
-\[<Material Type Code>: <table Name>, <code column
-name>\]
-
-<Property Type Code>: <column name>
-
-<Property Type Code>: <column name>
-
-...
-
-\[<Material Type Code>: <table Name>, <code column
-name>\]
+```
+[<Material Type Code>: <table Name>, <code column
+name>]
 
 <Property Type Code>: <column name>
 
 <Property Type Code>: <column name>
 
 ...
+
+[<Material Type Code>: <table Name>, <code column
+name>]
+
+<Property Type Code>: <column name>
+
+<Property Type Code>: <column name>
+
+...
+```
 
  Example:
 
