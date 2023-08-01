@@ -111,7 +111,7 @@ To register several entries of the same type with an Excel file:
     **More*** *drop-down menu (see figure above)
 3.  Download the **template** file and fill in the relevant information.
     (Example file:
-    [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](https://openbis.ch/wp-content/uploads/2022/02/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
+    [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
 4.  Upload the file.
 
 #### **Codes**
@@ -151,7 +151,7 @@ corresponding Excel cell. A new line in an Excel cell is entered with
 the keyboard shortcuts **Alt** + **Enter.**
 
 Example file:
-[SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE\_POSITION-template](https://openbis.ch/wp-content/uploads/2022/02/SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE_POSITION-template-1.xlsx)
+[SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE_POSITION-template-1.xlsx)
 
 ** Note:** no other separators (e.g “,” or  “;”) should be used,
 otherwise an error will be thrown.
@@ -267,7 +267,7 @@ You can then download the template that will allow you to register
 *Space, Project, Collection* need to be entered in the file. The
 complete path for *Projects* and *Collections* need to be used, as shown
 in this example file:
-[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](https://openbis.ch/wp-content/uploads/2022/03/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template.xlsx)
+[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](att/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template.xlsx)
 
 ### TSV Batch Register Objects
 
@@ -406,7 +406,7 @@ complete path for *Projects* and *Collections* need to be used. In
 addition, identifiers for the *Objects* need to be provided: identifiers
 are unique in openBIS, by providing them openBIS will know which
 *Objects* have to be updated. Example file:
-[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](https://openbis.ch/wp-content/uploads/2022/03/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template-1.xlsx)
+[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](att/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template-1.xlsx)
 
 ### TSV Batch Update Objects
 

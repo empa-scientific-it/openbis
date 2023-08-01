@@ -1,0 +1,31 @@
+﻿Order Form
+
+Order Information
+- Date: 2022-06-21 17:19:15
+- Status: NOT_YET_ORDERED
+- Code: ORD1
+
+
+Costumer Information
+- Ship To: Lab X
+- Bill To: Mr Smith
+- Address: ETH Zurich
+
+
+Supplier Information
+- Supplier: Sigma-Aldrich
+
+
+Requested Products
+Quantity		Name		Catalog Num		Unit Price
+2		DMSO		89765		40 CHF
+
+
+
+Total Price:
+80 CHF
+
+
+
+Additional Information
+N/A

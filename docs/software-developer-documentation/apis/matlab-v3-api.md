@@ -5,18 +5,18 @@
 [MATLAB](https://ch.mathworks.com/products/matlab.html) is a high-level numerical computing environment that is popular in many areas of science. This repository provides a toolbox to access data in openBIS directly from MATLAB.
 
 ## Setup
-The toolbox interacts with openBIS by calling pyBIS functions directly from MATLAB. Therefore, both Python and MATLAB have to be installed and configured properly. Please consult the [MATLAB - Python compatibility table](https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/support/sysreq/files/python-compatibility.pdf) to choose the correct versions. Also note that Python 2.7 is no longer supported!
+The toolbox interacts with openBIS by calling pyBIS functions directly from MATLAB. Therefore, both Python and MATLAB have to be installed and configured properly. Please consult the [MATLAB - Python compatibility table](att/python-compatibility.pdf) to choose the correct versions. Also note that Python 2.7 is no longer supported!
  
 #### macOS
 On macOS, the setup has been tested with a Miniconda Python distribution. 
-1. Download and install [Miniconda3](https://conda.io/miniconda.html) (use a Python version according to the [MATLAB - Python compatibility table](https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/support/sysreq/files/python-compatibility.pdf))
+1. Download and install [Miniconda3](https://conda.io/miniconda.html) (use a Python version according to the [MATLAB - Python compatibility table](att/python-compatibility.pdf))
 2. Open the terminal and install pyBIS with pip: `pip install pybis`
 3. Find the path to your Python executable: `which python`
 4. Open MATLAB and set the Python executable. On Matlab R2019b or later, use the command: `pyenv('Version', 'Path/to/python')`. Replace with the path found in previous step. On earlier versions of Matlab, the `pyenv` command is called `pyversion`.
 
 #### Windows 10
 On Windows using the Anaconda or Miniconda approach did not work (for some reason, MATLAB could not find the Python modules). On the other hand, using the standard Python installation seems to work.
-1. Download and install Python [here](https://www.python.org/downloads/windows/) (use a Python version according to the [MATLAB - Python compatibility table](https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/support/sysreq/files/python-compatibility.pdf)). Make sure to choose the **64-bit version**. 
+1. Download and install Python [here](https://www.python.org/downloads/windows/) (use a Python version according to the [MATLAB - Python compatibility table](att/python-compatibility.pdf)). Make sure to choose the **64-bit version**. 
 2. During the installation, make sure Python is added to the Path and registered as default Python interpreter. To do this, select the little tick box `Add Python 3.x to PATH` in the installation window:
 ![Python_install_windows](img/Python_install_windows.png)
 

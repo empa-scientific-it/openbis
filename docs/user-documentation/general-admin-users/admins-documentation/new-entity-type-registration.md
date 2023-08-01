@@ -89,7 +89,7 @@ below. Three options can be chosen for the import:
  
 
 An example template of an Excel masterdata file can be found here:
-[masterdata-template](https://openbis.ch/wp-content/uploads/2022/02/masterdata-template.xls)
+[masterdata-template](att/masterdata-template.xls)
 
 Please note that in the template we used separate spreadsheets for each
 type (Sample, Experiment, Dataset), but it is also possible to have
@@ -117,7 +117,7 @@ new property is added to the type.
 
 The import on the admin UI allows to register entities in addition to
 masterdata. An example template file for this can be found here:
-[masterdata-metadata](https://openbis.ch/wp-content/uploads/2022/02/masterdata-metadata.xls)
+[masterdata-metadata](att/masterdata-metadata.xls)
 
  
 

@@ -135,7 +135,7 @@ bottom of the  error message you can see:
 
  
 
-![](https://openbis.ch/wp-content/uploads/2022/03/invalid-session-token-error-1024x58.jpg)
+![](att/invalid-session-token-error-1024x58.jpg)
 
  
 

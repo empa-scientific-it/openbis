@@ -225,8 +225,8 @@ In the example presented in the picture above, there are 2 products to
 buy from fluka and 1 product to buy from Sigma-Aldrich. In this case the
 two attached files have been printed from the Order form in openBIS,
 using the **Print Order** button:
-[order\_ORD1\_p0; ](https://openbis.ch/wp-content/uploads/2022/02/order_ORD1_p0.txt)
-[order\_ORD1\_p1](https://openbis.ch/wp-content/uploads/2022/02/order_ORD1_p1.txt)
+[order\_ORD1\_p0; ](att/order_ORD1_p0.txt)
+[order\_ORD1\_p1](att/order_ORD1_p1.txt)
 
  
 

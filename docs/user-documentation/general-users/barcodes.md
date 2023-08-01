@@ -112,9 +112,9 @@ possible to indicate the size of the barcode, so it can fit.
 We provide two example documents that can be used to test the printer.
 
 -   Split barcodes example PDF:
-    [printer-test-code128-split-50-15](https://openbis.ch/wp-content/uploads/2021/08/printer-test-code128-split-50-15.pdf)
+    [printer-test-code128-split-50-15](att/printer-test-code128-split-50-15.pdf)
 -   Continuous barcodes example PDF:
-    [printer-test-code128-continuous-50-15](https://openbis.ch/wp-content/uploads/2021/08/printer-test-code128-continuous-50-15.pdf)
+    [printer-test-code128-continuous-50-15](att/printer-test-code128-continuous-50-15.pdf)
 
 
 Please consider that these examples likely do not correspond to the
@@ -150,15 +150,15 @@ Open a notepad and scan the barcodes provided in the examples below. The
 scanner should read them and type the correct output.
 
 -   Barcode Code 128.
-    [scanner-test-code128-50-15](https://openbis.ch/wp-content/uploads/2021/08/scanner-test-code128-50-15.pdf).
+    [scanner-test-code128-50-15](att/scanner-test-code128-50-15.pdf).
     This should give as output “20210720122856003-454071” without
     quotes.
 -   Barcode QR Code.
-    [scanner-test-qrcode-50-50](https://openbis.ch/wp-content/uploads/2021/08/scanner-test-qrcode-50-50.pdf).
+    [scanner-test-qrcode-50-50](att/scanner-test-qrcode-50-50.pdf).
     This should give as output “20210720122856003-454071” without
     quotes.
 -   Barcode Micro QR Code.
-    [scanner-test-microqrcode-30-30](https://openbis.ch/wp-content/uploads/2021/08/scanner-test-microqrcode-30-30.pdf).
+    [scanner-test-microqrcode-30-30](att/scanner-test-microqrcode-30-30.pdf).
     This should give as output “20210720122856003-454071” without
     quotes.
 
