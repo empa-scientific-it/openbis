@@ -57,9 +57,7 @@ will be established. This is needed for editing additional node
 parameters. For example, the combo boxes of the reader nodes have to be
 populated.
 
-For a data set registration node the credentials combo box is only
-filled if all nodes of the upstream part of the workflow are
-successfully configured.
+> :warning: **For a data set registration node the credentials combo box is only filled if all nodes of the upstream part of the workflow are successfully configured.**
 
  
 
@@ -99,9 +97,7 @@ user will be asked for the passwords after loading a workflow.
 
  
 
-If user ID and password are entered directly in the node setting dialog
-the KNIME master key on the preferences page **KNIME -> Master Key**
-should be activated. Otherwise passwords will be stored unencrypted!
+> :warning: **If user ID and password are entered directly in the node setting dialog the KNIME master key on the preferences page KNIME -> Master Key should be activated. Otherwise passwords will be stored unencrypted!**
 
 ### openBIS Query Reader
 
