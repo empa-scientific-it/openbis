@@ -234,10 +234,8 @@ the SQL statement should be one of the following **magic** words:
 .. warning::
     **Be careful with this feature**: The table is shown with the hyperlinks even if the value isn't a perm ID of specified type.
 
-.. warning::
-
-   Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
-   :dudir:`footer`.
+> [!WARNING]  
+> Critical content demanding immediate user attention due to potential risks.
 
 ### Edit a Query
 
