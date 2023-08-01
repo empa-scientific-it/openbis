@@ -207,7 +207,9 @@ where <entity kind> is either EXPERIMENT, SAMPLE or DATA_SET (Materials are 
 
 **Description**: Deletes data sets which have been deleted on AS.
 
-> :information_source: If this task isn't configured neither in service.properties nor as a core plugin it will be established automatically by using default configuration and running every 5 minutes.
+```{note}
+If this task isn't configured neither in service.properties nor as a core plugin it will be established automatically by using default configuration and running every 5 minutes.
+```
 
 **Configuration**:
 
@@ -474,9 +476,11 @@ within a specific time window. It reads archives from the final
 destination and checks if they are consistent with path info database
 entries.
 
-WARNING: the task assumes MultiDataSetArchiver task is configured (the
+```{warning}
+The task assumes MultiDataSetArchiver task is configured (the
 task uses some of the multi data set archiver configuration properties
 e.g. final destination location).
+```
 
 **Configuration**:
 
@@ -796,8 +800,9 @@ Some rules:
 -   Material type codes and property type codes have to be in upper
     case.
 
-> :warning: 
-> **If you put a foreign key constraint on the material code of one of the material properties, you need to define the constraint checking as DEFERRED in order to not get a constraint violation. The reason is that this task will *not* order the `INSERT` statements by its dependencies, but in alphabetical order.**
+```{warning}
+If you put a foreign key constraint on the material code of one of the material properties, you need to define the constraint checking as DEFERRED in order to not get a constraint violation. The reason is that this task will *not* order the `INSERT` statements by its dependencies, but in alphabetical order.
+```
 
 ### UsageReportingTask
 
@@ -1066,9 +1071,9 @@ The data sets are processed in the inverse order they are registered.
 Only a maximum number of data sets are processed in one run. This is
 specified by `chunk-size`.
 
-> :warning: 
-> **Under normal circumstances this maintenance task is never needed, because the content of a physical data set is **never** changed by openBIS itself.<br /><br />Only in the rare cases that the content of physical data sets have to be changed this maintenance task allows to refresh the file meta data in the pathinfo database.**
-  
+```{warning}
+Under normal circumstances this maintenance task is never needed, because the content of a physical data set is **never** changed by openBIS itself.<br /><br />Only in the rare cases that the content of physical data sets have to be changed this maintenance task allows to refresh the file meta data in the pathinfo database.
+```  
 
 **Configuration**:
 
