@@ -59,34 +59,10 @@ is provided with the V3 API jar and provides 3 methods:
     exception that happened during the operation.
 
 
-| :warning: Implicit Requirements |
+| :red_circle: Implicit Requirements |
 |:---------------------------|
 | **Requirement 1:  The Listener should be Thread Safe Code**<br /><br />A single instance of the Listener is created during the server startup.<br /><br />Since a single instance is used to serve all requests thread safe code is a requirement.<br /><br />We strongly suggest to not to keep any state.<br /><br />**Requirement 2: The Listener should not throw Exceptions**<br /><br />If the listener throw an exception it will make the API call fail.<br /><br />**Requirement 3: The Listener should use IOperation and IOperationResult as indicated below**<br /><br />All API Operations go through every listener so the method signatures should use IOperation and IOperationResult.<br /><br />Please use instanceof for safe casting. |
 
-Implicit Requirements
-
-**Requirement 1:  The Listener should be Thread Safe Code**
-
-A single instance of the Listener is created during the server startup.
-
-Since a single instance is used to serve all requests thread safe code
-is a requirement.
-
-We strongly suggest to not to keep any state.
-
-**Requirement 2: The Listener should not throw Exceptions**
-
-If the listener throw an exception it will make the API call fail.
-
-**Requirement 3: The Listener should use IOperation and IOperationResult
-as indicated below**
-
-All API Operations go through every listener so the method signatures
-should use IOperation and IOperationResult.
-
-Please use instanceof for safe casting.
-
-  
 
 **IOperationListener**
 
