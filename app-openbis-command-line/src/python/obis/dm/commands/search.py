@@ -30,7 +30,8 @@ def _dfs(objects, prop, func, func_specific):
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=5) as pool_simple, concurrent.futures.ThreadPoolExecutor(
         max_workers=20) as pool_full:
-        stack = [openbis_obj[prop] for openbis_obj in objects]  # datasets and samples provide children in different formats
+        stack = [openbis_obj[prop] for openbis_obj in
+                 objects]  # datasets and samples provide children in different formats
         visited = set()
         stack.reverse()
         output = []
@@ -180,10 +181,8 @@ class Search(OpenbisCommand):
         return self.openbis.get_samples(identifier, attrs=["children", "dataSets"])
 
     def _get_sample_with_datasets(self, identifier):
-        return self.openbis.get_sample(identifier, withDataSetIds=True)
-
-    def _get_sample_with_datasets2(self, identifier):
-        return self.openbis.get_sample(identifier, withDataSetIds=True, raw_response=True)
+        return self.openbis.get_sample(identifier, withDataSetIds=True, raw_response=True,
+                                       props=self.props)
 
     def _search_samples(self, raw_response=False):
         """Helper method to search samples"""
@@ -202,8 +201,8 @@ class Search(OpenbisCommand):
             results = self.openbis.get_samples(**args)
 
         if self.recursive:
-            click_echo(f"Recursive search enabled. It may take time to produce results.")
-            output2 = _dfs_samples(results['objects'], 'identifier', self._get_sample_with_datasets2)
+            click_echo("Recursive search enabled. It may take time to produce results.")
+            output2 = _dfs_samples(results['objects'], 'identifier', self._get_sample_with_datasets)
 
             search_results = output2
         else:
@@ -237,7 +236,7 @@ class Search(OpenbisCommand):
             datasets = [x["dataSets"] for x in search_results]
             datasets = flatten(datasets)
             datasets = [x['permId']['permId'] for x in datasets]
-            datasets = self.openbis.get_dataset(permIds=datasets)
+            datasets = self.openbis.get_dataset(permIds=datasets, props=self.props)
 
             filtered_datasets = []
             for dataset in datasets:
