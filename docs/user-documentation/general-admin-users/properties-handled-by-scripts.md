@@ -939,7 +939,7 @@ is replaced by function `inputWidgets` as in the following example:
         unit = factory.createComboBoxInputField('Unit', ['cm', 'mm']).setMandatory(True)
         value = factory.createTextInputField('Value').setMandatory(True)
         return [unit, value]
-``` 
+```
 
 The field 'Managed Text' in the registration form will be as shown in
 the following screen shot:
