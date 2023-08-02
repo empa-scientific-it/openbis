@@ -289,15 +289,17 @@ following file structure is needed:
 
 **service.properties**
 
-    my-technology
-        1
-          dss
-            drop-boxes
-              my-dropbox
-                lib
-                  my-lib.jar
-                dropbox.py
-                plugin.properties
+```
+my-technology
+    1
+        dss
+        drop-boxes
+            my-dropbox
+            lib
+                my-lib.jar
+            dropbox.py
+            plugin.properties
+```
 
 Having this structure, Java classes from "my-lib.jar" can be imported
 and used in "dropbox.py" script.
