@@ -63,11 +63,14 @@ the files to be stored have to be larger than a minimum size.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.ArchivingByRequestTask
-    interval = 1 d
-    minimum-container-size-in-bytes =  20000000000
-    maximum-container-size-in-bytes = 200000000000
-    configuration-file-path = ../../../data/groups.json
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.ArchivingByRequestTask
+interval = 1 d
+minimum-container-size-in-bytes =  20000000000
+maximum-container-size-in-bytes = 200000000000
+configuration-file-path = ../../../data/groups.json
+```
+
 
 **Notes:**  In practice every instance using multi dataset archiving
 feature and also the ELN-LIMS should have this enabled.
@@ -96,14 +99,17 @@ archived yet.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask
-    interval = 10 days
-    archive-candidate-discoverer.class = ch.systemsx.cisd.etlserver.plugins.TagArchiveCandidateDiscoverer
-    archive-candidate-discoverer.tags = /admin-user/archive
-    policy.class = ch.systemsx.cisd.etlserver.plugins.GroupingPolicy
-    policy.minimal-archive-size = 1500000
-    policy.maximal-archive-size = 3000000
-    policy.grouping-keys = Space#DataSetType, Space#Experiment:merge
+```
+class = ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask
+interval = 10 days
+archive-candidate-discoverer.class = ch.systemsx.cisd.etlserver.plugins.TagArchiveCandidateDiscoverer
+archive-candidate-discoverer.tags = /admin-user/archive
+policy.class = ch.systemsx.cisd.etlserver.plugins.GroupingPolicy
+policy.minimal-archive-size = 1500000
+policy.maximal-archive-size = 3000000
+policy.grouping-keys = Space#DataSetType, Space#Experiment:merge
+```
+
 
 ### BlastDatabaseCreationMaintenanceTask 
 
@@ -164,11 +170,14 @@ properties need to scanned they should be added to the plugin.properties
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask
-    interval = 1 h
-    dataset-types = BLAST-.+
-    entity-sequence-properties = SAMPLE+OLIGO+SEQUENCE, EXPERIMENT+YEAST+PLASMID_SEQUENCE
-    blast-tools-directory = /usr/local/ncbi/blast/bin
+```
+class = ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask
+interval = 1 h
+dataset-types = BLAST-.+
+entity-sequence-properties = SAMPLE+OLIGO+SEQUENCE, EXPERIMENT+YEAST+PLASMID_SEQUENCE
+blast-tools-directory = /usr/local/ncbi/blast/bin
+```
+
 
 ### DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask 
 
@@ -195,9 +204,12 @@ If this task isn't configured neither in service.properties nor as a core plugin
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask
-    interval = 60
-    last-seen-data-set-file = lastSeenDataSetForDeletion.txt
+```
+class = ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask
+interval = 60
+last-seen-data-set-file = lastSeenDataSetForDeletion.txt
+```
+
 
 ### DeleteFromArchiveMaintenanceTask 
 
@@ -220,9 +232,12 @@ AS. This tasks needs the archive plugin to be configured in
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.DeleteFromArchiveMaintenanceTask
-    interval = 3600
-    status-filename = ../archive-cleanup-status.txt
+```
+class = ch.systemsx.cisd.etlserver.plugins.DeleteFromArchiveMaintenanceTask
+interval = 3600
+status-filename = ../archive-cleanup-status.txt
+```
+
 
 ### DeleteFromExternalDBMaintenanceTask 
 
@@ -250,10 +265,13 @@ by DSS.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.DeleteFromExternalDBMaintenanceTask
-    interval = 300
-    data-source = proteomics-db
-    data-set-table-name = data_sets 
+```
+class = ch.systemsx.cisd.etlserver.plugins.DeleteFromExternalDBMaintenanceTask
+interval = 300
+data-source = proteomics-db
+data-set-table-name = data_sets
+```
+ 
 
 ### EventsSearchMaintenanceTask
 
@@ -277,8 +295,11 @@ There are no specific configuration parameters for this task.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.events_search.EventsSearchMaintenanceTask
-    interval = 1 day
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.events_search.EventsSearchMaintenanceTask
+interval = 1 day
+```
+
 
 ### ExperimentBasedArchivingTask 
 
@@ -306,12 +327,15 @@ some criteria. This tasks needs the archive plugin to be configured in
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.ExperimentBasedArchivingTask
-    interval = 86400
-    minimum-free-space-in-MB = 2048
-    monitored-dir = /my-data/
-    estimated-data-set-size-in-KB.RAW_DATA = 12000
-    estimated-data-set-size-in-KB.DEFAULT = 35000
+```
+class = ch.systemsx.cisd.etlserver.plugins.ExperimentBasedArchivingTask
+interval = 86400
+minimum-free-space-in-MB = 2048
+monitored-dir = /my-data/
+estimated-data-set-size-in-KB.RAW_DATA = 12000
+estimated-data-set-size-in-KB.DEFAULT = 35000
+```
+
      
 
 If there is not enough free space the task archives all data sets
@@ -363,11 +387,14 @@ are organized hierachical in accordance to their experiment and samples
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.HierarchicalStorageUpdater
-    storeroot-dir = ${root-dir}
-    hierarchy-root-dir = ../../mirror
-    link-naming-strategy.template = ${space}/${project}/${experiment}/${sample}/${dataSetType}-${dataSet}
-    link-naming-strategy.component-template = ${space}/${project}/${experiment}/${containerSample}/${containerDataSetType}-${containerDataSet}/${dataSetType}-${dataSet} 
+```
+class = ch.systemsx.cisd.etlserver.plugins.HierarchicalStorageUpdater
+storeroot-dir = ${root-dir}
+hierarchy-root-dir = ../../mirror
+link-naming-strategy.template = ${space}/${project}/${experiment}/${sample}/${dataSetType}-${dataSet}
+link-naming-strategy.component-template = ${space}/${project}/${experiment}/${containerSample}/${containerDataSetType}-${containerDataSet}/${dataSetType}-${dataSet} 
+```
+
 
 ### MultiDataSetDeletionMaintenanceTask 
 
@@ -401,10 +428,13 @@ configured.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetDeletionMaintenanceTask
-    interval = 1 d
-    last-seen-event-id-file = ${storeroot-dir}/MultiDataSetDeletionMaintenanceTask-last-seen-event-id.txt
-    mapping-file = etc/mapping.tsv 
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetDeletionMaintenanceTask
+interval = 1 d
+last-seen-event-id-file = ${storeroot-dir}/MultiDataSetDeletionMaintenanceTask-last-seen-event-id.txt
+mapping-file = etc/mapping.tsv 
+```
+
 
 **NOTE**: Should be configured on any instance using the multi dataset
 archiver when the archive data should be deletable.
@@ -429,9 +459,12 @@ otherwise random unarchiving events triggered by the users.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetUnarchivingMaintenanceTask
-    interval = 1 d
-    start = 01:00  
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetUnarchivingMaintenanceTask
+interval = 1 d
+start = 01:00  
+```
+
 
 ### MultiDataSetArchiveSanityCheckMaintenanceTask
 
@@ -464,12 +497,15 @@ e.g. final destination location).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiveSanityCheckMaintenanceTask
-    interval = 3600
-    check-from-date = 2022-09-01 00:00
-    check-to-date = 2022-10-01 00:00
-    notify-emails = test1@email.com, test2@email.com
-    status-file = ../../multi-dataset-sanity-check-statuses.json
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiveSanityCheckMaintenanceTask
+interval = 3600
+check-from-date = 2022-09-01 00:00
+check-to-date = 2022-10-01 00:00
+notify-emails = test1@email.com, test2@email.com
+status-file = ../../multi-dataset-sanity-check-statuses.json
+```
+
 
 ### PathInfoDatabaseFeedingTask 
 
@@ -501,9 +537,12 @@ data set is the starting point when the task is executed next time.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.path.PathInfoDatabaseFeedingTask
-    execute-only-once = true
-    compute-checksum = true  
+```
+class = ch.systemsx.cisd.etlserver.path.PathInfoDatabaseFeedingTask
+execute-only-once = true
+compute-checksum = true 
+```
+ 
 
 ### PostRegistrationMaintenanceTask
 
@@ -527,15 +566,18 @@ post-registration tasks for each freshly registered data set.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask
-    interval = 60
-    cleanup-tasks-folder = ../cleanup-tasks
-    ignore-data-sets-before-date = 2011-01-27
-    last-seen-data-set-file = ../last-seen-data-set
-    post-registration-tasks = eager-shuffling, eager-archiving
-    eager-shuffling.class = ch.systemsx.cisd.etlserver.postregistration.EagerShufflingTask
-    eager-shuffling.share-finder.class = ch.systemsx.cisd.openbis.dss.generic.shared.ExperimentBasedShareFinder
-    eager-archiving.class = ch.systemsx.cisd.etlserver.postregistration.ArchivingPostRegistrationTask
+```
+class = ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask
+interval = 60
+cleanup-tasks-folder = ../cleanup-tasks
+ignore-data-sets-before-date = 2011-01-27
+last-seen-data-set-file = ../last-seen-data-set
+post-registration-tasks = eager-shuffling, eager-archiving
+eager-shuffling.class = ch.systemsx.cisd.etlserver.postregistration.EagerShufflingTask
+eager-shuffling.share-finder.class = ch.systemsx.cisd.openbis.dss.generic.shared.ExperimentBasedShareFinder
+eager-archiving.class = ch.systemsx.cisd.etlserver.postregistration.ArchivingPostRegistrationTask
+```
+
 
 ### RevokeUserAccessMaintenanceTask
 
@@ -569,8 +611,11 @@ on the server.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.RevokeUserAccessMaintenanceTask
-    interval = 60 s
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.RevokeUserAccessMaintenanceTask
+interval = 60 s
+```
+
 
 ### UserManagementMaintenanceTask
 
@@ -601,9 +646,12 @@ Instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Managemen
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.UserManagementMaintenanceTask
-    start = 02:42
-    interval = 1 day
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.UserManagementMaintenanceTask
+start = 02:42
+interval = 1 day
+```
+
 
 ## Consistency and other Reports
 
@@ -626,9 +674,12 @@ doesn't work for RsyncArchiver, TarArchiver or ZipArchiver.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.DataSetArchiverOrphanFinderTask
-    interval = 60 s
-    email-addresses = email1@bsse.ethz.ch, email2@bsse.ethz.ch
+```
+class = ch.systemsx.cisd.etlserver.plugins.DataSetArchiverOrphanFinderTask
+interval = 60 s
+email-addresses = email1@bsse.ethz.ch, email2@bsse.ethz.ch
+```
+
 
 **Notes:** This is a consistency check task. It checks consistency for
 datasets with the flag present-in-archive.
@@ -661,11 +712,14 @@ years. It does the check only during the night and continues next night.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.path.DataSetAndPathInfoDBConsistencyCheckTask
-    interval = 1 days
-    start = 23:15
-    pausing-time-point = 5:00
-    checking-time-interval = 3653 days
+```
+class = ch.systemsx.cisd.etlserver.path.DataSetAndPathInfoDBConsistencyCheckTask
+interval = 1 days
+start = 23:15
+pausing-time-point = 5:00
+checking-time-interval = 3653 days
+```
+
 
 ### MaterialExternalDBSyncTask
 
@@ -693,14 +747,17 @@ materials.
 
 **service.properties of AS**
 
-    <task id>.class = ch.systemsx.cisd.openbis.generic.server.task.MaterialExternalDBSyncTask
-    <task id>.interval = 120
-    <task id>.read-timestamp-sql = select timestamp from timestamp
-    <task id>.update-timestamp-sql = update timestamp set timestamp = ?
-    <task id>.insert-timestamp-sql = insert into timestamp values(?)
-    <task id>.mapping-file = ../report-mapping.txt
-    <task id>.database-driver = org.postgresql.Driver
-    <task id>.database-url = jdbc:postgresql://localhost/material_reporting
+```
+<task id>.class = ch.systemsx.cisd.openbis.generic.server.task.MaterialExternalDBSyncTask
+<task id>.interval = 120
+<task id>.read-timestamp-sql = select timestamp from timestamp
+<task id>.update-timestamp-sql = update timestamp set timestamp = ?
+<task id>.insert-timestamp-sql = insert into timestamp values(?)
+<task id>.mapping-file = ../report-mapping.txt
+<task id>.database-driver = org.postgresql.Driver
+<task id>.database-url = jdbc:postgresql://localhost/material_reporting
+```
+
 
 #### Mapping File
 
@@ -752,13 +809,16 @@ name>]
 
 **mapping.txt**
 
-    # Some comments
-    [GENE: GENE, GENE_ID]
-    GENE_SYMBOLS: symbol
+```
+# Some comments
+[GENE: GENE, GENE_ID]
+GENE_SYMBOLS: symbol
 
-    [SIRNA: si_rna, code]
-    INHIBITOR_OF: suppressed_gene
-    SEQUENCE: Nucleotide_sequence
+[SIRNA: si_rna, code]
+INHIBITOR_OF: suppressed_gene
+SEQUENCE: Nucleotide_sequence
+```
+
 
 Some rules:
 
@@ -786,10 +846,13 @@ Instances](/pages/viewpage.action?pageId=80699449).
 In order to be able to send an e-mail the following properties in
 `service.properties` have to be defined:
 
-    mail.from = openbis@<host>
-    mail.smtp.host = <SMTP host>
-    mail.smtp.user = <can be empty>
-    mail.smtp.password = <can be empty>
+```
+mail.from = openbis@<host>
+mail.smtp.host = <SMTP host>
+mail.smtp.user = <can be empty>
+mail.smtp.password = <can be empty>
+```
+
 
 **Configuration**:
 
@@ -806,9 +869,12 @@ In order to be able to send an e-mail the following properties in
 
 **Example**:
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.UsageReportingTask
-    interval = 7 days
-    email-addresses = ab@c.de, a@bc.de
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.UsageReportingTask
+interval = 7 days
+email-addresses = ab@c.de, a@bc.de
+```
+
 
   
 
@@ -830,7 +896,7 @@ in `service.properties` of AS.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.BatchSampleRegistrationTempCodeUpdaterTask
+`class = ch.systemsx.cisd.openbis.generic.server.task.BatchSampleRegistrationTempCodeUpdaterTask`
 
 ### CleanUpUnarchivingScratchShareTask 
 
@@ -847,8 +913,11 @@ archiving](/pages/viewpage.action?pageId=80699422).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.CleanUpUnarchivingScratchShareTask
-    interval = 60 s
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.CleanUpUnarchivingScratchShareTask
+interval = 60 s
+```
+
 
 **Notes:** Recommended cleanup task to run on every instance.
 
@@ -867,10 +936,13 @@ type.
 In order to be able to send an e-mail the following properties in
 `service.properties` have to be defined:
 
-    mail.from = openbis@<host>
-    mail.smtp.host = <SMTP host>
-    mail.smtp.user = <can be empty>
-    mail.smtp.password = <can be empty>
+```
+mail.from = openbis@<host>
+mail.smtp.host = <SMTP host>
+mail.smtp.user = <can be empty>
+mail.smtp.password = <can be empty>
+```
+
 
 **Configuration:**
 
@@ -895,11 +967,14 @@ day of month. If only weekly reports are needed the parameter
 
 **service.properties of AS**
 
-    <task id>.class = ch.systemsx.cisd.openbis.generic.server.task.DataSetRegistrationSummaryTask
-    <task id>.interval = 86400
-    <task id>.start = 1:00
-    <task id>.data-set-types = RAW_DATA, MZXML_DATA
-    <task id>.email-addresses = albert.einstein@princeton.edu, charles.darwin@evolution.org 
+```
+<task id>.class = ch.systemsx.cisd.openbis.generic.server.task.DataSetRegistrationSummaryTask
+<task id>.interval = 86400
+<task id>.start = 1:00
+<task id>.data-set-types = RAW_DATA, MZXML_DATA
+<task id>.email-addresses = albert.einstein@princeton.edu, charles.darwin@evolution.org 
+```
+
 
 This means that on the 1st day of every month at 1:00 AM openBIS sends
 to the specified e-mail recipients a report about the data sets of types
@@ -923,8 +998,11 @@ RAW\_DATA and MZXML\_DATA that have been uploaded in the previous month.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask
-    interval = 3600
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask
+interval = 3600
+```
+
 
 ### DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask
 
@@ -948,9 +1026,12 @@ materials changed since the last re-evaluation.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask
-    interval = 7 days
-    initial-timestamp = 2012-12-31
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask
+interval = 7 days
+initial-timestamp = 2012-12-31
+```
+
 
 ### FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask 
 
@@ -989,10 +1070,13 @@ by the maintenance task. 
 
 **plugin.properties**
 
-    <task id>.class = ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask
-    <task id>.interval = 86400
-    <task id>.data-set-chunk-size = 1000
-    <task id>.time-limit = 1h
+```
+<task id>.class = ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask
+<task id>.interval = 86400
+<task id>.data-set-chunk-size = 1000
+<task id>.time-limit = 1h
+```
+
 
 **NOTE**: Useful in scenarios where the path info feeding sub task of
 post registration task fails.
@@ -1019,9 +1103,12 @@ data source for key 'path-info-db'. 
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.path.PathInfoDatabaseChecksumCalculationTask
-    execute-only-once = true
-    checksum-type = SHA-256
+```
+class = ch.systemsx.cisd.etlserver.path.PathInfoDatabaseChecksumCalculationTask
+execute-only-once = true
+checksum-type = SHA-256
+```
+
 
 ### PathInfoDatabaseRefreshingTask
 
@@ -1056,10 +1143,13 @@ Under normal circumstances this maintenance task is never needed, because the co
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.path.PathInfoDatabaseRefreshingTask
-    interval = 30 min
-    time-stamp-of-youngest-data-set = 2014-01-01 00:00:00
-    data-set-type = HCS_IMAGE
+```
+class = ch.systemsx.cisd.etlserver.path.PathInfoDatabaseRefreshingTask
+interval = 30 min
+time-stamp-of-youngest-data-set = 2014-01-01 00:00:00
+data-set-type = HCS_IMAGE
+```
+
 
 ### RemoveUnusedUnofficialTermsMaintenanceTask
 
@@ -1082,9 +1172,12 @@ Terms](/pages/viewpage.action?pageId=80699498).
 
 **service.properties of AS**
 
-    <task id>.class = ch.systemsx.cisd.openbis.generic.server.task.RemoveUnusedUnofficialTermsMaintenanceTask
-    <task id>.interval = 86400
-    <task id>.older-than-days = 30
+```
+<task id>.class = ch.systemsx.cisd.openbis.generic.server.task.RemoveUnusedUnofficialTermsMaintenanceTask
+<task id>.interval = 86400
+<task id>.older-than-days = 30
+```
+
 
 ### ResetArchivePendingTask
 
@@ -1100,8 +1193,11 @@ command in the DSS data set command queues referring to it.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.ResetArchivePendingTask
-    interval = 60 s
+```
+class = ch.systemsx.cisd.etlserver.plugins.ResetArchivePendingTask
+interval = 60 s
+```
+
 
 ### SessionWorkspaceCleanUpMaintenanceTask
 
@@ -1118,8 +1214,11 @@ plugin is detected then the automatic configuration is skipped.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaintenanceTask
-    interval = 1 day
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaintenanceTask
+interval = 1 day
+```
+
 
 ### MaterialsMigration
 
@@ -1144,12 +1243,15 @@ service.properties
 
 **service.properties**
 
-    maintenance-plugins = materials-migration
+```
+maintenance-plugins = materials-migration
 
-    materials-migration.class = ch.systemsx.cisd.openbis.generic.server.task.MaterialsMigration
-    materials-migration.execute-only-once = true
-    materials-migration.doMaterialsMigrationInsertNew = true
-    materials-migration.doMaterialsMigrationDeleteOld = true
+materials-migration.class = ch.systemsx.cisd.openbis.generic.server.task.MaterialsMigration
+materials-migration.execute-only-once = true
+materials-migration.doMaterialsMigrationInsertNew = true
+materials-migration.doMaterialsMigrationDeleteOld = true
+```
+
 
   
 
@@ -1188,21 +1290,26 @@ with
 
 **specify\_thumbnail\_generation.py**
 
-    from ch.systemsx.cisd.openbis.dss.etl.dto.api.impl import MaximumIntensityProjectionGenerationAlgorithm
-    from sets import Set
+```py
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.impl import MaximumIntensityProjectionGenerationAlgorithm
+from sets import Set
 
-    def _get_series_num():
-        series_numbers = Set()
-        for image_info in image_data_set_structure.getImages():
-            series_numbers.add(image_info.tryGetSeriesNumber())
-        return series_numbers.pop()
 
-    def process(transaction, parameters, tableBuilder):
-        seriesNum = _get_series_num()
-        if int(seriesNum) % 2 == 0:
-            image_config.setImageGenerationAlgorithm(
-                    MaximumIntensityProjectionGenerationAlgorithm(
-                        "MICROSCOPY_IMG_THUMBNAIL", 256, 128, "thumbnail.png"))
+def _get_series_num():
+series_numbers = Set()
+for image_info in image_data_set_structure.getImages():
+    series_numbers.add(image_info.tryGetSeriesNumber())
+return series_numbers.pop()
+
+def process(transaction, parameters, tableBuilder):
+seriesNum = _get_series_num()
+if int(seriesNum) % 2 == 0:
+    image_config.setImageGenerationAlgorithm(
+            MaximumIntensityProjectionGenerationAlgorithm(
+                "MICROSCOPY_IMG_THUMBNAIL", 256, 128, "thumbnail.png"))
+```
+
+
 
 ### DeleteFromImagingDBMaintenanceTask
 
@@ -1222,8 +1329,11 @@ with the same configuration parameters.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.etl.DeleteFromImagingDBMaintenanceTask
-    data-source = imaging-db
+```
+class = ch.systemsx.cisd.openbis.dss.etl.DeleteFromImagingDBMaintenanceTask
+data-source = imaging-db
+```
+
      
 
 ## Proteomics Maintenance Tasks
