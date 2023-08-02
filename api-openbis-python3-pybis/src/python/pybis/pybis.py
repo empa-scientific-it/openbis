@@ -1795,7 +1795,7 @@ class Openbis:
                 roles["group"] = roles["authorizationGroup"].map(extract_code)
                 roles["space"] = roles["space"].map(extract_code)
                 roles["project"] = roles["project"].map(extract_code)
-            return roles[attrs]
+            return roles[roles.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -1963,7 +1963,7 @@ class Openbis:
                 groups["modificationDate"] = groups["modificationDate"].map(
                     format_timestamp
                 )
-            return groups[attrs]
+            return groups[groups.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -2122,7 +2122,7 @@ class Openbis:
                     pats[date] = pats[date].map(format_timestamp)
                 for person in ["owner", "registrator", "modifier"]:
                     pats[person] = pats[person].map(extract_person)
-            return pats[attrs]
+            return pats[pats.columns.intersection(attrs)]
 
         if save_to_disk:
             save_pats_to_disk(hostname=self.hostname, url=self.url, resp=resp)
@@ -2219,7 +2219,7 @@ class Openbis:
                     format_timestamp
                 )
                 persons["space"] = persons["space"].map(extract_nested_permid)
-            return persons[attrs]
+            return persons[persons.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -2311,7 +2311,7 @@ class Openbis:
                     format_timestamp
                 )
                 spaces["registrator"] = spaces["registrator"].map(extract_userId)
-            return spaces[attrs]
+            return spaces[spaces.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -2756,7 +2756,7 @@ class Openbis:
                             ) or experiment.get("properties", {}).get(prop.upper(), "")
                             experiments.loc[i, prop.upper()] = val
                         display_attrs.append(prop.upper())
-            return experiments[display_attrs]
+            return experiments[experiments.columns.intersection(display_attrs)]
 
         return Things(
             openbis_obj=self,
@@ -3245,7 +3245,7 @@ class Openbis:
                 projects["modifier"] = projects["modifier"].map(extract_person)
                 projects["permId"] = projects["permId"].map(extract_permid)
                 projects["identifier"] = projects["identifier"].map(extract_identifier)
-            return projects[attrs]
+            return projects[projects.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -3364,7 +3364,7 @@ class Openbis:
                 terms["modificationDate"] = terms["modificationDate"].map(
                     format_timestamp
                 )
-            return terms[attrs]
+            return terms[terms.columns.intersection(attrs)]
 
         things = Things(
             openbis_obj=self,
@@ -3465,7 +3465,7 @@ class Openbis:
                     format_timestamp
                 )
                 vocs["registrator"] = vocs["registrator"].map(extract_person)
-            return vocs[attrs]
+            return vocs[vocs.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -3610,7 +3610,7 @@ class Openbis:
                     lambda x: "" if x is None else x
                 )
                 tags["owner"] = tags["owner"].map(extract_person)
-            return tags[attrs]
+            return tags[tags.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -3700,7 +3700,7 @@ class Openbis:
                 annotations = DataFrame(columns=attrs)
             else:
                 annotations = DataFrame(response)
-            return annotations[attrs]
+            return annotations[annotations.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -3783,7 +3783,7 @@ class Openbis:
                 annotations = DataFrame(columns=attrs)
             else:
                 annotations = DataFrame(response)
-            return annotations[attrs]
+            return annotations[annotations.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -3857,7 +3857,7 @@ class Openbis:
                 plugins["entityKinds"] = plugins["entityKinds"].map(
                     lambda x: "" if x is None else x
                 )
-            return plugins[attrs]
+            return plugins[plugins.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -4069,7 +4069,7 @@ class Openbis:
                 df["semanticAnnotations"] = df["semanticAnnotations"].map(
                     extract_nested_permids
                 )
-            return df[attrs]
+            return df[df.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -4205,7 +4205,7 @@ class Openbis:
                 entity_types["validationPlugin"] = entity_types["validationPlugin"].map(
                     extract_nested_permid
                 )
-            return entity_types[attrs]
+            return entity_types[entity_types.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -4352,7 +4352,7 @@ class Openbis:
                 types["modificationDate"] = types["modificationDate"].map(
                     format_timestamp
                 )
-            return types[attrs]
+            return types[types.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
@@ -4646,7 +4646,7 @@ class Openbis:
                             ) or dataSet.get("properties", {}).get(prop.upper(), "")
                             datasets.loc[i, prop.upper()] = val
                         display_attrs.append(prop.upper())
-            return datasets[display_attrs]
+            return datasets[datasets.columns.intersection(display_attrs)]
 
         def create_objects(response):
             return objects
@@ -4845,7 +4845,7 @@ class Openbis:
                                 samples.loc[i, prop.upper()] = ""
                         display_attrs.append(prop.upper())
 
-            return samples[display_attrs]
+            return samples[samples.columns.intersection(display_attrs)]
 
         def create_objects(response):
             return list(
@@ -4973,7 +4973,7 @@ class Openbis:
                 parse_jackson(objects)
                 entities = DataFrame(objects)
                 entities["permId"] = entities["permId"].map(extract_permid)
-            return entities[attrs]
+            return entities[entities.columns.intersection(attrs)]
 
         return Things(
             openbis_obj=self,
