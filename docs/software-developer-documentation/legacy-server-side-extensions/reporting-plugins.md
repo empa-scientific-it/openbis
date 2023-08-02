@@ -56,17 +56,20 @@ TABLE\_MODEL
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DecoratingTableModelReportingPlugin
-    label = Analysis Summary
-    dataset-types = HCS_IMAGE_ANALYSIS_DATA
-    reporting-plugin.class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TSVViewReportingPlugin
-    reporting-plugin.separator = ,
-    transformation.class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.EntityLinksDecorator
-    transformation.link-columns = BARCODE, GENE
-    transformation.BARCODE.entity-kind = SAMPLE
-    transformation.BARCODE.default-space = DEMO
-    transformation.GENE.entity-kind = MATERIAL
-    transformation.GENE.material-type = GENE
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DecoratingTableModelReportingPlugin
+label = Analysis Summary
+dataset-types = HCS_IMAGE_ANALYSIS_DATA
+reporting-plugin.class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TSVViewReportingPlugin
+reporting-plugin.separator = ,
+transformation.class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.EntityLinksDecorator
+transformation.link-columns = BARCODE, GENE
+transformation.BARCODE.entity-kind = SAMPLE
+transformation.BARCODE.default-space = DEMO
+transformation.GENE.entity-kind = MATERIAL
+transformation.GENE.material-type = GENE
+```
+
 
 ##### Transformations
 
@@ -101,12 +104,15 @@ TABLE\_MODEL
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.GenericDssLinkReportingPlugin
-    label = Summary
-    dataset-types = MS_DATA
-    download-url = https://my.domain.org:8443
-    data-set-regex = summary.*
-    data-set-path = report
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.GenericDssLinkReportingPlugin
+label = Summary
+dataset-types = MS_DATA
+download-url = https://my.domain.org:8443
+data-set-regex = summary.*
+data-set-path = report
+```
+
 
 ### AggregationService
 
@@ -136,50 +142,56 @@ This subclass must implement the method
 
 **ExampleAggregationServicePlugin**
 
-    package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
-    import java.io.File;
-    import java.util.Map;
-    import java.util.Properties;
-    import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-    import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-    import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
-    import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+```java
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+import java.io.File;
+import java.util.Map;
+import java.util.Properties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+/**
+    * @author Chandrasekhar Ramakrishnan
+    */
+public class ExampleAggregationServicePlugin extends AggregationService
+{
+    private static final long serialVersionUID = 1L;
     /**
-     * @author Chandrasekhar Ramakrishnan
-     */
-    public class ExampleAggregationServicePlugin extends AggregationService
+        * Create a new plugin.
+        * 
+        * @param properties
+        * @param storeRoot
+        */
+    public ExampleAggregationServicePlugin(Properties properties, File storeRoot)
     {
-        private static final long serialVersionUID = 1L;
-        /**
-         * Create a new plugin.
-         * 
-         * @param properties
-         * @param storeRoot
-         */
-        public ExampleAggregationServicePlugin(Properties properties, File storeRoot)
-        {
-            super(properties, storeRoot);
-        }
-        @Override
-        public TableModel createReport(Map<String, Object> parameters, DataSetProcessingContext context)
-        {
-            SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-            builder.addHeader("String");
-            builder.addHeader("Integer");
-            IRowBuilder row = builder.addRow();
-            row.setCell("String", "Hello");
-            row.setCell("Integer", 20);
-            row = builder.addRow();
-            row.setCell("String", parameters.get("name").toString());
-            row.setCell("Integer", 30);
-            return builder.getTableModel();
-        }
+        super(properties, storeRoot);
     }
+    @Override
+    public TableModel createReport(Map<String, Object> parameters, DataSetProcessingContext context)
+    {
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader("String");
+        builder.addHeader("Integer");
+        IRowBuilder row = builder.addRow();
+        row.setCell("String", "Hello");
+        row.setCell("Integer", 20);
+        row = builder.addRow();
+        row.setCell("String", parameters.get("name").toString());
+        row.setCell("Integer", 30);
+        return builder.getTableModel();
+    }
+}
+```
+
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ExampleAggregationServicePlugin
-    label = My Report
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ExampleAggregationServicePlugin
+label = My Report
+```
+
 
 #### JythonAggregationService
 
@@ -200,9 +212,12 @@ Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonAggregationService
-    label = My Report
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonAggregationService
+label = My Report
+script-path = script.py
+```
+
 
 ### IngestionService
 
@@ -232,54 +247,60 @@ This subclass must implement the method 
 
 **ExampleDbModifyingAggregationService.java**
 
-    package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
-    import java.io.File;
-    import java.util.Map;
-    import java.util.Properties;
-    import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
-    import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-    import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-    import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-    import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
-    import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+```java
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+import java.io.File;
+import java.util.Map;
+import java.util.Properties;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+/**
+    * An example aggregation service
+    * 
+    * @author Chandrasekhar Ramakrishnan
+    */
+public class ExampleDbModifyingAggregationService extends IngestionService<DataSetInformation>
+{
+    private static final long serialVersionUID = 1L;
     /**
-     * An example aggregation service
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    public class ExampleDbModifyingAggregationService extends IngestionService<DataSetInformation>
+        * @param properties
+        * @param storeRoot
+        */
+    public ExampleDbModifyingAggregationService(Properties properties, File storeRoot)
     {
-        private static final long serialVersionUID = 1L;
-        /**
-         * @param properties
-         * @param storeRoot
-         */
-        public ExampleDbModifyingAggregationService(Properties properties, File storeRoot)
-        {
-            super(properties, storeRoot);
-        }
-        @Override
-        public TableModel process(IDataSetRegistrationTransactionV2 transaction,
-                Map<String, Object> parameters, DataSetProcessingContext context)
-        {
-            transaction.createNewSpace("NewDummySpace", null);
-            SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-            builder.addHeader("String");
-            builder.addHeader("Integer");
-            IRowBuilder row = builder.addRow();
-            row.setCell("String", "Hello");
-            row.setCell("Integer", 20);
-            row = builder.addRow();
-            row.setCell("String", parameters.get("name").toString());
-            row.setCell("Integer", 30);
-            return builder.getTableModel();
-        }
+        super(properties, storeRoot);
     }
+    @Override
+    public TableModel process(IDataSetRegistrationTransactionV2 transaction,
+            Map<String, Object> parameters, DataSetProcessingContext context)
+    {
+        transaction.createNewSpace("NewDummySpace", null);
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader("String");
+        builder.addHeader("Integer");
+        IRowBuilder row = builder.addRow();
+        row.setCell("String", "Hello");
+        row.setCell("Integer", 20);
+        row = builder.addRow();
+        row.setCell("String", parameters.get("name").toString());
+        row.setCell("Integer", 30);
+        return builder.getTableModel();
+    }
+}
+```
+
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ExampleDbModifyingAggregationService
-    label = My Report
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ExampleDbModifyingAggregationService
+label = My Report
+```
+
 
 #### JythonIngestionService
 
@@ -302,9 +323,12 @@ Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonIngestionService
-    label = My Report
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonIngestionService
+label = My Report
+script-path = script.py
+```
+
 
 ### JythonBasedReportingPlugin
 
@@ -325,10 +349,13 @@ Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedReportingPlugin
-    label = My Report
-    dataset-types = MS_DATA, UNKNOWN
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedReportingPlugin
+label = My Report
+dataset-types = MS_DATA, UNKNOWN
+script-path = script.py
+```
+
 
 ### TSVViewReportingPlugin
 
@@ -354,10 +381,13 @@ file. This reporting plugin works only for one data set. 
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TSVViewReportingPlugin
-    label = My Report
-    dataset-types = MS_DATA, UNKNOWN
-    separator = ;
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TSVViewReportingPlugin
+label = My Report
+dataset-types = MS_DATA, UNKNOWN
+separator = ;
+```
+
 
 Screening Reporting Plugins
 ---------------------------
@@ -383,10 +413,13 @@ There is some extra support for screening.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedReportingPlugin
-    label = My Report
-    dataset-types = HCS_IMAGE
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedReportingPlugin
+label = My Report
+dataset-types = HCS_IMAGE
+script-path = script.py
+```
+
 
 ### ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin
 
@@ -411,10 +444,13 @@ Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedReportingPlugin
-    label = My Report
-    dataset-types = HCS_IMAGE
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedReportingPlugin
+label = My Report
+dataset-types = HCS_IMAGE
+script-path = script.py
+```
+
 
 ### ScreeningJythonBasedReportingPlugin
 
@@ -436,6 +472,8 @@ There is some extra support for screening.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedAggregationServiceReportingPlugin
-    label = My Report
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningJythonBasedAggregationServiceReportingPlugin
+label = My Report
+script-path = script.py
+```
