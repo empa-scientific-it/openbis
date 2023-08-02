@@ -324,74 +324,77 @@ argument: The string array of vocabulary terms.
 
 #### Example for an Aggregation Service Report Reader
 
-    from ch.systemsx.cisd.openbis.knime.server import AggregationCommand
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
-    EXPERIMENT = 'Experiment'
-    DATA_SET_COLUMN = 'Data Set'
-    PATH_COLUMN = 'Path'
-    SIZE_COLUMN = 'Size'
-    def scan(tableBuilder, dataSetCode, node):
-        if node.isDirectory():
-            for child in node.childNodes:
-                scan(tableBuilder, dataSetCode, child)
-        else:
-            row = tableBuilder.addRow()
-            row.setCell(DATA_SET_COLUMN, dataSetCode)
-            row.setCell(PATH_COLUMN, node.relativePath)
-            row.setCell(SIZE_COLUMN, node.fileLength)
-    class MyAggregationCommand(AggregationCommand):
-        def defineParameters(self, builder):
-            builder.parameter(EXPERIMENT).experiment()
-            
-        def aggregate(self, parameters, tableBuilder):
-            experiment = searchService.getExperiment(parameters.get(EXPERIMENT))
-            searchCriteria = SearchCriteria()
-            subCriteria = SearchCriteria()
-            subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experiment.permId))
-            searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(subCriteria))
-            dataSets = searchService.searchForDataSets(searchCriteria)
-            tableBuilder.addHeader(DATA_SET_COLUMN)
-            tableBuilder.addHeader(PATH_COLUMN)
-            tableBuilder.addHeader(SIZE_COLUMN)
-            for dataSet in dataSets:
-                dataSetCode = dataSet.dataSetCode
-                try:
-                    content = contentProvider.getContent(dataSetCode)
-                    scan(tableBuilder, dataSetCode, content.rootNode)
-                finally:
-                    if content != None:
-                        content.close()
-            
-    def aggregate(parameters, tableBuilder):
-        MyAggregationCommand().handleRequest(parameters, tableBuilder)
+```py
+from ch.systemsx.cisd.openbis.knime.server import AggregationCommand
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
+EXPERIMENT = 'Experiment'
+DATA_SET_COLUMN = 'Data Set'
+PATH_COLUMN = 'Path'
+SIZE_COLUMN = 'Size'
+def scan(tableBuilder, dataSetCode, node):
+    if node.isDirectory():
+        for child in node.childNodes:
+            scan(tableBuilder, dataSetCode, child)
+    else:
+        row = tableBuilder.addRow()
+        row.setCell(DATA_SET_COLUMN, dataSetCode)
+        row.setCell(PATH_COLUMN, node.relativePath)
+        row.setCell(SIZE_COLUMN, node.fileLength)
+class MyAggregationCommand(AggregationCommand):
+    def defineParameters(self, builder):
+        builder.parameter(EXPERIMENT).experiment()
+        
+    def aggregate(self, parameters, tableBuilder):
+        experiment = searchService.getExperiment(parameters.get(EXPERIMENT))
+        searchCriteria = SearchCriteria()
+        subCriteria = SearchCriteria()
+        subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experiment.permId))
+        searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(subCriteria))
+        dataSets = searchService.searchForDataSets(searchCriteria)
+        tableBuilder.addHeader(DATA_SET_COLUMN)
+        tableBuilder.addHeader(PATH_COLUMN)
+        tableBuilder.addHeader(SIZE_COLUMN)
+        for dataSet in dataSets:
+            dataSetCode = dataSet.dataSetCode
+            try:
+                content = contentProvider.getContent(dataSetCode)
+                scan(tableBuilder, dataSetCode, content.rootNode)
+            finally:
+                if content != None:
+                    content.close()
+        
+def aggregate(parameters, tableBuilder):
+    MyAggregationCommand().handleRequest(parameters, tableBuilder)
+```
+
 
 #### Example for an Aggregated Data File Importer
 
- 
+```java
+import os.path
+from java.util import Date
+from ch.systemsx.cisd.openbis.knime.server import AggregationFileCommand
 
-    import os.path
-    from java.util import Date
-    from ch.systemsx.cisd.openbis.knime.server import AggregationFileCommand
+class MyAggregationFileCommand(AggregationFileCommand):
+    def defineParameters(self, builder):
+        builder.parameter('Greeting Type').vocabulary(['Hi', 'Hello'])
+        builder.parameter('Name')
+        builder.parameter('Sample').sample()
+        
+    def createFile(self, parameters):
+        sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace()
+        filename = "report.txt"
+        output = open(os.path.join(sessionWorkspace.getAbsolutePath(), filename), "w")
+        name = parameters.get('Name')
+        sample = searchService.getSample(parameters.get('Sample'))
+        output.write(str(parameters.get('Greeting Type')) + " " + str(name) + "!\n\n" + Date().toString() + "\n")
+        output.write(sample.getSampleType())
+        output.close()
+        return filename
 
-    class MyAggregationFileCommand(AggregationFileCommand):
-        def defineParameters(self, builder):
-            builder.parameter('Greeting Type').vocabulary(['Hi', 'Hello'])
-            builder.parameter('Name')
-            builder.parameter('Sample').sample()
-            
-        def createFile(self, parameters):
-            sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace()
-            filename = "report.txt"
-            output = open(os.path.join(sessionWorkspace.getAbsolutePath(), filename), "w")
-            name = parameters.get('Name')
-            sample = searchService.getSample(parameters.get('Sample'))
-            output.write(str(parameters.get('Greeting Type')) + " " + str(name) + "!\n\n" + Date().toString() + "\n")
-            output.write(sample.getSampleType())
-            output.close()
-            return filename
-
-    def aggregate(parameters, tableBuilder):
-        MyAggregationFileCommand().handleRequest(parameters, tableBuilder)
+def aggregate(parameters, tableBuilder):
+    MyAggregationFileCommand().handleRequest(parameters, tableBuilder)
+```
