@@ -176,51 +176,54 @@ webapp that makes use of this context information is presented below:
 
 **webapp.html**
 
-    <html>
-    <head>
-        <!-- include jquery library required by the openbis.js -->
-        <script src="/openbis/resources/js/jquery.js"></script>
-        <!-- include openbis library to gain access to the openbisWebAppContext and openbis objects -->
-        <script src="/openbis/resources/js/openbis.js"></script>
-    </head>
-    <body>
+```html
+<html>
+<head>
+    <!-- include jquery library required by the openbis.js -->
+    <script src="/openbis/resources/js/jquery.js"></script>
+    <!-- include openbis library to gain access to the openbisWebAppContext and openbis objects -->
+    <script src="/openbis/resources/js/openbis.js"></script>
+</head>
+<body>
 
 
-    <div id="log"></div>
+<div id="log"></div>
 
 
-    <script>
-        $(document).ready(function(){
+<script>
+    $(document).ready(function(){
 
 
-            // create a context object to access the context information
-            var c = new openbisWebAppContext();
-            $("#log").append("SessionId: " + c.getSessionId() + "<br/>");
-            $("#log").append("EntityKind: " + c.getEntityKind() + "<br/>");
-            $("#log").append("EntityType: " + c.getEntityType() + "<br/>");
-            $("#log").append("EntityIdentifier: " + c.getEntityIdentifier() + "<br/>");
-            $("#log").append("EntityPermId: " + c.getEntityPermId() + "<br/>");
+        // create a context object to access the context information
+        var c = new openbisWebAppContext();
+        $("#log").append("SessionId: " + c.getSessionId() + "<br/>");
+        $("#log").append("EntityKind: " + c.getEntityKind() + "<br/>");
+        $("#log").append("EntityType: " + c.getEntityType() + "<br/>");
+        $("#log").append("EntityIdentifier: " + c.getEntityIdentifier() + "<br/>");
+        $("#log").append("EntityPermId: " + c.getEntityPermId() + "<br/>");
 
 
-            // create an OpenBIS facade to call JSON RPC services
-            var o = new openbis();
+        // create an OpenBIS facade to call JSON RPC services
+        var o = new openbis();
 
 
-            // reuse the current sessionId that we received in the context for all the facade calls
-            o.useSession(c.getSessionId());
+        // reuse the current sessionId that we received in the context for all the facade calls
+        o.useSession(c.getSessionId());
 
-            // call one of the OpenBIS facade methods
-            o.listProjects(function(response){
-                $("#log").append("<br/>Projects:<br/>"); 
-                $.each(response.result, function(index, value){
-                     $("#log").append(value.code + "<br/>");  
-                });
+        // call one of the OpenBIS facade methods
+        o.listProjects(function(response){
+            $("#log").append("<br/>Projects:<br/>"); 
+            $.each(response.result, function(index, value){
+                    $("#log").append(value.code + "<br/>");  
             });
         });
+    });
 
-    </script>
-    </body>
-    </html>
+</script>
+</body>
+</html>
+```
+
 
 #### Linking to subtabs of other entity detail views
 
@@ -359,16 +362,19 @@ Example:
 
 Full Example
 
-    <!DOCTYPE html>
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <title>Embedded Grid Example</title>
-    </head>
-    <body>
-    <iframe src="http://localhost:8888/openbis-test/index.html?viewMode=GRID#action=AGGREGATION_SERVICE&serviceKey=sp-233&dss=standard&gridSettingsId=myTestGridSettingsId&gridHeaderText=myTestGridHeaderText&name=hello" width="100%" height="95%" style="border: none">
-    </body>
-    </html>
+```html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Embedded Grid Example</title>
+</head>
+<body>
+<iframe src="http://localhost:8888/openbis-test/index.html?viewMode=GRID#action=AGGREGATION_SERVICE&serviceKey=sp-233&dss=standard&gridSettingsId=myTestGridSettingsId&gridHeaderText=myTestGridHeaderText&name=hello" width="100%" height="95%" style="border: none">
+</body>
+</html>
+```
+
 
 Image Viewer component
 ----------------------
