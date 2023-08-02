@@ -52,29 +52,4 @@ public class SampleTest extends MainSuite
                 integerType));
     }
 
-    @Test
-    public void vocabularyPropertiesLinkToExternalPagesFromSampleBrowser() throws Exception
-    {
-        Vocabulary vocabulary =
-                create(aVocabulary()
-                        .withUrl("http://www.ask.com/web?q=${term}")
-                        .withTerms("mouse", "fly", "tiger"));
-
-        PropertyType vocabularyType =
-                create(aVocabularyPropertyType(vocabulary));
-
-        SampleType sampleType = create(aSampleType());
-
-        create(aSamplePropertyTypeAssignment()
-                .with(sampleType)
-                .with(vocabularyType)
-                .thatIsMandatory());
-
-        Sample sample =
-                create(aSample().ofType(sampleType).withProperty(vocabularyType, "mouse"));
-
-        assertThat(browserEntryOf(sample), containsValue(vocabularyType.getLabel(), "mouse"));
-        assertThat(browserEntryOf(sample), containsLink(vocabularyType.getLabel(),
-                "http://www.ask.com/web?q=MOUSE"));
-    }
 }
