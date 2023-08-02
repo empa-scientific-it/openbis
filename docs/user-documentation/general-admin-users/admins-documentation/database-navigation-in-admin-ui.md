@@ -68,26 +68,13 @@ By default, the sorting is done by **Code** in alphabetical order. Other
 options are: sorting by code in reverse alphabetical order; sorting by
 ascending date; sorting by descending date.
 
- 
 
+ 
+![image info](img/Screenshot-2022-11-30-at-17.25.24.png)
+ 
 ![image info](img/Screenshot-2022-11-30-at-17.25.06.png)
-
- 
-
- 
-
- 
-
- 
 
 ![image info](img/Screenshot-2022-11-30-at-17.25.37.png)
 
- 
-
- 
-
- 
-
- 
 
 Updated on December 5, 2022
