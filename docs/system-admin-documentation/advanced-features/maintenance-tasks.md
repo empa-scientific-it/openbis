@@ -1039,7 +1039,7 @@ specified by `chunk-size`.
 
 ```{warning}
 Under normal circumstances this maintenance task is never needed, because the content of a physical data set is **never** changed by openBIS itself.<br /><br />Only in the rare cases that the content of physical data sets have to be changed this maintenance task allows to refresh the file meta data in the pathinfo database.
-```  
+```
 
 **Configuration**:
 
