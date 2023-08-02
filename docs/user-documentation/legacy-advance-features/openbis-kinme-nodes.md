@@ -373,7 +373,7 @@ def aggregate(parameters, tableBuilder):
 
 #### Example for an Aggregated Data File Importer
 
-```java
+```py
 import os.path
 from java.util import Date
 from ch.systemsx.cisd.openbis.knime.server import AggregationFileCommand
