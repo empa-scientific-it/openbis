@@ -59,7 +59,7 @@ populated.
 
 ```{warning}
 For a data set registration node the credentials combo box is only filled if all nodes of the upstream part of the workflow are successfully configured.
-``` 
+```
 
 The OK button closes the node setting dialog. The connection parameters
 and all other parameters will be stored and used when executing a
