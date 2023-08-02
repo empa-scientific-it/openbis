@@ -188,29 +188,31 @@ You can test your script on selected entities
 
 2. Calculate a new float value based some other values
 
-```java
-    import java.lang.String as String
 
-    def calculateValue():  
-      nM = 0
-      uLDNA = 0
-      if entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA') != '' and \
-         entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA') != '' :
-        nM =  float(entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA')) /  \
-               float(entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA')) *  \
-               1000000 / 650
-        if float(entity.propertyValue('UL_STOCK')) !='' :
-          uLDNA =  float(entity.propertyValue('UL_STOCK')) * 2 / nM    
-          uLEB = float(entity.propertyValue('UL_STOCK')) - uLDNA
-          return String.format("%16.1f", uLEB)
-      return 0
-     
-    def calculate(): 
-        """Main script function. The result will be used as the value of appropriate dynamic property."""
-        return calculateValue()
+```java
+import java.lang.String as String
+
+def calculateValue():
+    nM = 0
+    uLDNA = 0
+    if entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA') != '' and \
+        entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA') != '' :
+    nM =  float(entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA')) /  \
+            float(entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA')) *  \
+            1000000 / 650
+    if float(entity.propertyValue('UL_STOCK')) !='' :
+        uLDNA =  float(entity.propertyValue('UL_STOCK')) * 2 / nM
+        uLEB = float(entity.propertyValue('UL_STOCK')) - uLDNA
+        return String.format("%16.1f", uLEB)
+    return 0
+
+def calculate():
+    """Main script function. The result will be used as the value of appropriate dynamic property."""
+    return calculateValue()
 ```
 
 3. Calculate a time difference between two time stamps:
+
 
 ```java
     from datetime import datetime
