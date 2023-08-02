@@ -248,6 +248,7 @@ and 2 folders.
 For example, the metadata.json file for the default RAW\_DATA dataset
 type would be:
 
+```
 { “properties” :
 
 { “$NAME” : “my raw data”,
@@ -255,7 +256,7 @@ type would be:
 “NOTES” : “This is a test for metadata upload via dropbox” }
 
 }
-
+```
  
 
 It is possible to download the template metadata.json file for each
