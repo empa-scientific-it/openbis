@@ -149,17 +149,15 @@ properties need to scanned they should be added to the plugin.properties
 
 **Configuration**:
 
-| Property Key               | Description                                                                                                                                                                                                                                                                      |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| dataset-types              | Comma-separated list of regular expressions of data set types. All FASTA and FASTQ files from those data sets are handled. All data sets of types not matching at least one of the regular expression are not handled.                                                           |
-| entity-sequence-properties | Comma-separated list of descriptions of entity properties with sequences. A description is of the form
-<entity kind>+<entity type code>+<property type code>
-where <entity kind> is either EXPERIMENT, SAMPLE or DATA_SET (Materials are not supported). |
-| file-types                 | Space separated list of file types. Data set files of those file types have to be FASTA or FASTQ files. Default: .fasta .fa .fsa .fastq                                                                                                                                          |
-| blast-tools-directory      | Path in the file system where all BLAST tools are located. If it is not specified or empty the tools directory has to be in the PATH environment variable.                                                                                                                       |
-| blast-databases-folder     | Path to the folder where all BLAST databases are stored. Default: <data store root>/blast-databases                                                                                                                                                                        |
-| blast-temp-folder          | Path to the folder where temporary FASTA files are stored. Default: <blast-databases-folder>/tmp                                                                                                                                                                           |
-| last-seen-data-set-file    | Path to the file which stores the id of the last seen data set. Default: <data store root>/last-seen-data-set-for-BLAST-database-creation                                                                                                                                  |
+|Property Key|Description|
+|--- |--- |
+|dataset-types|Comma-separated list of regular expressions of data set types. All FASTA and FASTQ files from those data sets are handled. All data sets of types not matching at least one of the regular expression are not handled.|
+|entity-sequence-properties|Comma-separated list of descriptions of entity properties with sequences. A description is of the form<br /><br />`<entity kind>+<entity type code>+<property type code>`<br /><br />where `<entity kind>` is either `EXPERIMENT`, `SAMPLE` or `DATA_SET` (Materials are not supported).|
+|file-types|Space separated list of file types. Data set files of those file types have to be FASTA or FASTQ files. Default: `.fasta` `.fa` `.fsa` `.fastq`|
+|blast-tools-directory|Path in the file system where all BLAST tools are located. If it is not specified or empty the tools directory has to be in the PATH environment variable.|
+|blast-databases-folder|Path to the folder where all BLAST databases are stored. Default: `<data store root>/blast-databases`|
+|blast-temp-folder|Path to the folder where temporary FASTA files are stored.  Default: `<blast-databases-folder>/tmp` |
+|last-seen-data-set-file|Path to the file which stores the id of the last seen data set. Default: `<data store root>/last-seen-data-set-for-BLAST-database-creation` |
 
 
 **Example**:
@@ -186,12 +184,12 @@ If this task isn't configured neither in service.properties nor as a core plugin
 
 **Configuration**:
 
-| Property Key                       | Description                                                                                                                                                                                       |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| last-seen-data-set-file            | Path to a file which will store the code of the last data set handled. Default: deleteDatasetsAlreadyDeletedFromApplicationServerTaskLastSeen                                                     |
-| timing-parameters.max-retries      | Maximum number of retries in case of currently not available filesystem of the share containing the data set. Default:11                                                                          |
-| timing-parameters.failure-interval | Waiting time (in seconds) between retries. Default: 10                                                                                                                                            |
-| chunk-size                         | Number of data sets deleted together. The task is split into deletion tasks with maximum number of data sets. Default: No chunk size. That is, all data sets to be deleted are deleted in one go. |
+|Property Key|Description|
+|--- |--- |
+|last-seen-data-set-file|Path to a file which will store the code of the last data set handled. Default: <br />`deleteDatasetsAlreadyDeletedFromApplicationServerTaskLastSeen` |
+|timing-parameters.max-retries|Maximum number of retries in case of currently not available filesystem of the share containing the data set. Default:11|
+|timing-parameters.failure-interval|Waiting time (in seconds) between retries. Default: 10|
+|chunk-size|Number of data sets deleted together. The task is split into deletion tasks with maximum number of data sets. Default: No chunk size. That is, all data sets to be deleted are deleted in one go.|
 
 **Example**:
 
@@ -238,14 +236,15 @@ by DSS.
 
 **Configuration**:
 
-| Property Key              | Description                                                                                                                                                                                                                                        |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| data-source               | Key of a data source configured in service.properties or in a core plugin of type 'data-sources'. A data source defines the credentials to access the database.                                                                                    |
-| synchronization-table     | Name of the table which stores the technical ID of the last data set deletion event on AS. This is ID is used to ask AS for all new data set deletion events. Default value: EVENTS                                                                |
-| last-seen-event-id-column | Name of the column in the database table defined by property synchronization-table which stores the ID of the last data set deletion event. Default value: LAST_SEEN_DELETION_EVENT_ID                                                             |
-| data-set-table-name       | Comma-separated list of table names which contain stuff related to data sets to be deleted. In case of cascading deletion only the tables at the beginning of the cascade should be mentioned. Default value: image_data_sets, analysis_data_sets. |
-| data-set-perm-id          | Name of the column in all tables defined by data-set-table-name which stores the data set code. Default value: PERM_ID                                                                                                                             |
-| chunk-size                | Maximum number of entries deleted in one maintenance task run. Default: Unlimited                                                                                                                                                                  |
+|Property Key|Description|
+|--- |--- |
+|data-source|Key of a data source configured in `service.properties` or in a core plugin of type 'data-sources'. A data source defines the credentials to access the database.|
+|synchronization-table|Name of the table which stores the technical ID of the last data set deletion event on AS. This is ID is used to ask AS for all new data set deletion events. Default value: `EVENTS` |
+|last-seen-event-id-column|Name of the column in the database table defined by property `synchronization-table` which stores the ID of the last data set deletion event. Default value: `LAST_SEEN_DELETION_EVENT_ID` |
+|data-set-table-name|Comma-separated list of table names which contain stuff related to data sets to be deleted. In case of cascading deletion only the tables at the beginning of the cascade should be mentioned. Default value: `image_data_sets`, `analysis_data_sets`.|
+|data-set-perm-id|Name of the column in all tables defined by `data-set-table-name` which stores the data set code. Default value: `PERM_ID`|
+|chunk-size|Maximum number of entries deleted in one maintenance task run. Default: Unlimited|
+
 
 **Example**:
 
@@ -299,7 +298,7 @@ some criteria. This tasks needs the archive plugin to be configured in
 |-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | excluded-data-set-types                             | Comma-separated list of data set types. Data sets of such types are not archived. Default: No data set type is excluded.                                                                                                                                                                                                     |
 | estimated-data-set-size-in-KB.<data set type> | Specifies for the data set type <data set type> the average size in KB. If <data set type> is DEFAULT it will be used for all data set types with unspecified estimated size.                                                                                                                                    |
-| free-space-provider.class                           | Fully qualified class name of the free space provider (implementing ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider). Depending on the free space provider additional properties, all starting with prefix free-space-provider.,  might be needed. Default: ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider |
+| free-space-provider.class                           | Fully qualified class name of the free space provider (implementing `ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider`). Depending on the free space provider additional properties, all starting with prefix `free-space-provider`.,  might be needed. Default: `ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider` |
 | monitored-dir                                       | Path to the directory to be monitored by the free space provider.                                                                                                                                                                                                                                                            |
 | minimum-free-space-in-MB                            | Minimum free space in MB. If the free space is below this limit the task archives data sets. Default: 1 GB                                                                                                                                                                                                                   |
 
@@ -348,21 +347,17 @@ are organized hierachical in accordance to their experiment and samples
 
 **Configuration**:
 
-| Property Key                                | Description                                                                                                                                                                                                                                                                                                                                                           |
-|---------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| storeroot-dir-link-path                     | Path to the root directory of the store as to be used for creating symbolic links. This should be used if the path to the store as seen by clients is different than seen by DSS.                                                                                                                                                                                     |
-| storeroot-dir                               | Path to the root directory of the store. Used if storeroot-dir-link-path is not specified.                                                                                                                                                                                                                                                                            |
-| hierarchy-root-dir                          | Path to the root directory of mirrored store.                                                                                                                                                                                                                                                                                                                         |
-| link-naming-strategy.class                  | Fully qualified class name of the strategy to generate the hierarchy (implementing ch.systemsx.cisd.etlserver.plugins.IHierarchicalStorageLinkNamingStrategy). Depending on the actual strategy additional properties, all starting with prefix link-naming-strategy.,  mighty be needed. Default: ch.systemsx.cisd.etlserver.plugins.TemplateBasedLinkNamingStrategy |
-| link-source-subpath.<data set type>   | Link source subpath for the specified data set type. Only files and folder in this relative path inside a data set will be mirrored. Default: The complete data set folder will be mirroed.                                                                                                                                                                           |
-| link-from-first-child.<data set type> | Flag which specifies whether only the first child of or the complete folder (either the data set or the one specified by link-source-subpath.<data set type>). Default: False                                                                                                                                                                                   |
-| with-meta-data                              | Flag, which specifies whether directories with meta-data.tsv and a link should be created or only links. The default behavior is to create links-only. Default: false                                                                                                                                                                                                 |
-| link-naming-strategy.template               | The exact form of link paths produced by TemplateBasedLinkNamingStrategy is defined by this template.
-The variables dataSet, dataSetType, sample, experiment, project and space will be recognized and replaced in the actual link path.
-Default: ${space}/${project}/${experiment}/${dataSetType}+${sample}+${dataSet}                                               |
-| link-naming-strategy.component-template     | If defined, specifies the form of link paths for component datasets. If undefined, component datasets links are formatted with link-naming-strategy.template.
-Works as link-naming-strategy.template, but has these additional variables: containerDataSetType, containerDataSet, containerSample.
-Default: Undefined.                                                |
+|Property Key|Description|
+|--- |--- |
+|storeroot-dir-link-path|Path to the root directory of the store as to be used for creating symbolic links. This should be used if the path to the store as seen by clients is different than seen by DSS.|
+|storeroot-dir|Path to the root directory of the store. Used if storeroot-dir-link-path is not specified.|
+|hierarchy-root-dir|Path to the root directory of mirrored store.|
+|link-naming-strategy.class|Fully qualified class name of the strategy to generate the hierarchy (implementing `ch.systemsx.cisd.etlserver.plugins.IHierarchicalStorageLinkNamingStrategy`). Depending on the actual strategy additional properties, all starting with prefix `link-naming-strategy`.,  mighty be needed. Default: `ch.systemsx.cisd.etlserver.plugins.TemplateBasedLinkNamingStrategy` |
+|link-source-subpath.<data set type>|Link source subpath for the specified data set type. Only files and folder in this relative path inside a data set will be mirrored. Default: The complete data set folder will be mirroed.|
+|link-from-first-child.<data set type>|Flag which specifies whether only the first child of or the complete folder (either the data set or the one specified by link-source-subpath.<data set type>). Default: False|
+|with-meta-data|Flag, which specifies whether directories with meta-data.tsv and a link should be created or only links. The default behavior is to create links-only. Default: false|
+|link-naming-strategy.template|The exact form of link paths produced by TemplateBasedLinkNamingStrategy is defined by this template.<br /><br />The variables `dataSet`, `dataSetType`, `sample`, `experiment`, project and space will be recognized and replaced in the actual link path.<br /><br />Default: `${space}`/`${project}`/`${experiment}`/`${dataSetType}+${sample}+${dataSet}` |
+|link-naming-strategy.component-template|If defined, specifies the form of link paths for component datasets. If undefined, component datasets links are formatted with `link-naming-strategy.template`.<br /><br />Works as `link-naming-strategy.template`, but has these additional variables: `containerDataSetType`, `containerDataSet`, `containerSample.<br /><br />Default: Undefined.|
 
 **Example**:
 
@@ -494,13 +489,13 @@ data set is the starting point when the task is executed next time.
 
 **Configuration**:
 
-| Property Key         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| compute-checksum     | If true the CRC32 checksum (and optionally a checksum of the type specified by checksum-type) of all files will be calculated and stored in pathinfo database. Default value: false                                                                                                                                                                                                                                                          |
-| checksum-type        | Optional checksum type. If specified and compute-checksum = true two checksums are calculated: CRC32 checksum and the checksum of specified type. The type and the checksum are stored in the pathinfo database. An allowed type has to be supported by MessageDigest.getInstance(<checksum type>). For more details see http://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html#getInstance-java.lang.String-.      |
-| data-set-chunk-size  | Number of data sets requested from AS in one chunk if it is used as a maintenance task. Default: 1000                                                                                                                                                                                                                                                                                                                                        |
-| max-number-of-chunks | Maximum number of chunks of size data-set-chunk-size are processed if it is used as a maintenance task. If it is <= 0 and time-limit isn't defined all data sets are processed. Default: 0                                                                                                                                                                                                                                                |
-| time-limit           | Limit of execution time of this task if it is used as a maintenance task. The task is stopped before reading next chunk if the time has been used up. If it is specified it is an alternative way to limit the number of data sets to be processed instead of specifying  max-number-of-chunks. This parameter can be specified with one of the following time units: ms, msec, s, sec, m, min, h, hours, d, days. Default time unit is sec. |
+|Property Key|Description|
+|--- |--- |
+|compute-checksum|If `true` the CRC32 checksum (and optionally a checksum of the type specified by `checksum-type`) of all files will be calculated and stored in pathinfo database. Default value: `false` |
+|checksum-type|Optional checksum type. If specified and `compute-checksum = true` two checksums are calculated: CRC32 checksum and the checksum of specified type. The type and the checksum are stored in the pathinfo database. An allowed type has to be supported by `MessageDigest.getInstance(<checksum type>)`. For more details see [Oracle docs](http://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html#getInstance-java.lang.String-).|
+|data-set-chunk-size|Number of data sets requested from AS in one chunk if it is used as a maintenance task. Default: 1000|
+|max-number-of-chunks|Maximum number of chunks of size data-set-chunk-size are processed if it is used as a maintenance task. If it is <= 0 and `time-limit` isn't defined all data sets are processed. Default: 0|
+|time-limit|Limit of execution time of this task if it is used as a maintenance task. The task is stopped before reading next chunk if the time has been used up. If it is specified it is an alternative way to limit the number of data sets to be processed instead of specifying  `max-number-of-chunks`. This parameter can be specified with one of the following time units: `ms`, `msec`, `s`, `sec`, `m`, `min`, `h`, `hours`, `d`, `days`. Default time unit is `sec`.|
 
 **Example**:
 
@@ -523,9 +518,9 @@ post-registration tasks for each freshly registered data set.
 
 | Property Key                 | Description                                                                                                                                                                                                                                    |
 |------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ignore-data-sets-before-date | Defines a registration date. All data sets registered before this date are ignored. Format: yyyy-MM-dd, where yyyy is a four-digit year, MM is a two-digit month, and dd is a two-digit day. Default value: no restriction.                    |
-| last-seen-data-set-file      | Path to a file which stores the code of the last data set successfully post-registered. Default value: last-seen-data-set.txt                                                                                                                  |
-| cleanup-tasks-folder         | Path to a folder which stores serialized clean-up tasks always created before a post-registration task is executed. These clean-up tasks are executed on start up of DSS after a server crash. Default value: clean-up-tasks                   |
+| ignore-data-sets-before-date | Defines a registration date. All data sets registered before this date are ignored. Format: `yyyy-MM-dd`, where `yyyy` is a four-digit year, `MM` is a two-digit month, and `dd` is a two-digit day. Default value: no restriction.                    |
+| last-seen-data-set-file      | Path to a file which stores the code of the last data set successfully post-registered. Default value: `last-seen-data-set.txt`                                                                                                                  |
+| cleanup-tasks-folder         | Path to a folder which stores serialized clean-up tasks always created before a post-registration task is executed. These clean-up tasks are executed on start up of DSS after a server crash. Default value: `clean-up-tasks`                   |
 | post-registration-tasks      | Comma-separated list of keys of post-registration task configuration. Each key defines (together with a '.') the prefix of all property keys defining the post-registration task. They are executed in the order their key appear in the list. |
 
 **Example**:
@@ -595,12 +590,12 @@ Instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Managemen
 
 | Property Key              | Description                                                                                                                                                                          |
 |---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| configuration-file-path   | Relative or absolute path to the configuration file. Default: etc/user-management-maintenance-config.json                                                                            |
-| audit-log-file-path       | Relative or absolute path to the audit log file. Default: logs/user-management-audit_log.txt                                                                                         |
+| configuration-file-path   | Relative or absolute path to the configuration file. Default: `etc/user-management-maintenance-config.json`                                                                            |
+| audit-log-file-path       | Relative or absolute path to the audit log file. Default: `logs/user-management-audit_log.txt`                                                                                         |
 | shares-mapping-file-path  | Relative or absolute path to the mapping file for data store shares. This is optional. If not specified the mapping file will not be managed by this maintenance task.               |
-| filter-key                | Key which is used to filter LDAP results. Will be ignored if ldap-group-query-template is specified. Default value: ou                                                               |
+| filter-key                | Key which is used to filter LDAP results. Will be ignored if `ldap-group-query-template` is specified. Default value: `ou`                                                              |
 | ldap-group-query-template | Direct LDAP query template. It should have '%' character which will be replaced by an LDAP key as specified in the configuration file.                                               |
-| deactivate-unknown-users  | If true a user unknown by the authentication service will be deactivated. It should be set to false if no authenication service can be asked (like in Single-Sign-On). Default: true |
+| deactivate-unknown-users  | If `true` a user unknown by the authentication service will be deactivated. It should be set to `false` if no authenication service can be asked (like in Single-Sign-On). Default: `true` |
 
 **Example**:
 
@@ -654,13 +649,13 @@ have been checked the task checks them again.
 
 | Property Key           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| checking-time-interval | Time interval in the past which defines the range of data sets to be checked. That is, all data sets with registration date between now minus checking-time-interval and now will be checked. Can be specified with one of the following time units: ms, msec, s, sec, m, min, h, hours, d, days. Default time unit is sec. Default value: one day.                                                                                                |
-| pausing-time-point     | Optional time point. Format: HH:mm. where HH is a two-digit hour (in 24h notation) and mm is a two-digit minute.
-When specified this task stops checking after the specified pausing time point and continues when executed the next time or the next day if start or continuing-time-point is specified.
-After all data sets have been checked the task checks again all data sets started by the oldest one specified by checking-time-interval. |
-| continuing-time-point  | Time point where checking continous. Format: HH:mm. where HH is a two-digit hour (in 24h notation) and mm is a two-digit minute. Ignored when pausing-time-point isn't specified. Default value: Time when the task is executed.                                                                                                                                                                                                                   |
-| chunk-size             | Maximum number of data sets retrieved from AS. Ignored when pausing-time-point isn't specified. Default value: 1000                                                                                                                                                                                                                                                                                                                                |
-| state-file             | File to store registration time stamp and code of last considered data set. This is only used when pausing-time-point has been specified. Default: <store root>/DataSetAndPathInfoDBConsistencyCheckTask-state.txt                                                                                                                                                                                                                           |
+| checking-time-interval | Time interval in the past which defines the range of data sets to be checked. That is, all data sets with registration date between now minus checking-time-interval and now will be checked. Can be specified with one of the following time units: `ms`, `msec`, `s`, `sec`, `m`, `min`, `h`, `hours`, `d`, `days`. Default time unit is sec. Default value: one day.                                                                                                |
+| pausing-time-point     | Optional time point. Format: `HH:mm`. where `HH` is a two-digit hour (in 24h notation) and mm is a two-digit minute.
+<br /><br />When specified this task stops checking after the specified pausing time point and continues when executed the next time or the next day if `start` or `continuing-time-point` is specified.
+<br /><br />After all data sets have been checked the task checks again all data sets started by the oldest one specified by `checking-time-interval`. |
+| continuing-time-point  | Time point where checking continous. Format: `HH:mm`. where `HH` is a two-digit hour (in 24h notation) and `mm` is a two-digit minute. Ignored when `pausing-time-point` isn't specified. Default value: Time when the task is executed.                                                                                                                                                                                                                   |
+| chunk-size             | Maximum number of data sets retrieved from AS. Ignored when `pausing-time-point` isn't specified. Default value: 1000                                                                                                                                                                                                                                                                                                                                |
+| state-file             | File to store registration time stamp and code of last considered data set. This is only used when pausing-time-point has been specified. Default: `<store root>/DataSetAndPathInfoDBConsistencyCheckTask-state.txt`                                                                                                                                                                                                                           |
 
 **Example**: The following example checks all data sets of the last ten
 years. It does the check only during the night and continues next night.
