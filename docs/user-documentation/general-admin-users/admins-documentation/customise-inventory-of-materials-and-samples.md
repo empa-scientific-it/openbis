@@ -136,21 +136,14 @@ For this, follow the steps below:
     e.g. **Sample**
 5.  Select **Enable Storage **
 6.  Save
-
  
 
 ![image info](img/settings-enable-storage-1024x509.png)
 
- 
-
-![image info](img/Settings-storage-1024x452.png)
-
 Updated on April 26, 2023
- 
+
+
 ## Configure Lab Storage
-
-
-
   
 Fridges and freezers can be configured in the **Settings**, under
 **Utilities**.
