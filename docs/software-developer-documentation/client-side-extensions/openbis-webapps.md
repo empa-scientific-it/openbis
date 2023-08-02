@@ -92,24 +92,27 @@ ch.systemsx.cisd.openbis.generic.server.util.OpenbisWebAppProvider in
 
 **jetty.xml**
 
-    <Call name="addBean">
-      <Arg>
-        <New id="DeploymentManager" class="org.eclipse.jetty.deploy.DeploymentManager">
-          <Set name="contexts">
-            <Ref id="Contexts" />
-          </Set>
-          <Call name="addAppProvider">
-            <Arg>
-              <New class="ch.systemsx.cisd.openbis.generic.server.util.OpenbisWebAppProvider">
-                <Set name="monitoredDir"><Property name="jetty.home" default="." />/webapps</Set>
-                <Set name="scanInterval">0</Set>
-                <Set name="extractWars">true</Set>
-              </New>
-            </Arg>
-          </Call>
-        </New>
-      </Arg>
-    </Call>
+```xml
+<Call name="addBean">
+    <Arg>
+    <New id="DeploymentManager" class="org.eclipse.jetty.deploy.DeploymentManager">
+        <Set name="contexts">
+        <Ref id="Contexts" />
+        </Set>
+        <Call name="addAppProvider">
+        <Arg>
+            <New class="ch.systemsx.cisd.openbis.generic.server.util.OpenbisWebAppProvider">
+            <Set name="monitoredDir"><Property name="jetty.home" default="." />/webapps</Set>
+            <Set name="scanInterval">0</Set>
+            <Set name="extractWars">true</Set>
+            </New>
+        </Arg>
+        </Call>
+    </New>
+    </Arg>
+</Call>
+```
+
 
 Embedding webapps in the OpenBIS UI
 -----------------------------------
