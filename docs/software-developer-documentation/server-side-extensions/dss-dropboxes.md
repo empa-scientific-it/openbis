@@ -28,20 +28,23 @@ the project "TESTPROJ" and space "TESTGROUP".
 
 **data-set-handler-basic.py**
 
-    def process(transaction):
-      # Create a data set
-      dataSet = transaction.createNewDataSet()
-     
-      # Reference the incoming file that was placed in the dropbox
-      incoming = transaction.getIncoming()
-      # Add the incoming file into the data set
-      transaction.moveFile(incoming.getAbsolutePath(), dataSet)
-     
-      # Get an experiment for the data set
-      exp = transaction.getExperiment("/TESTGROUP/TESTPROJ/JYTHON")
+```py
+def process(transaction):
+    # Create a data set
+    dataSet = transaction.createNewDataSet()
+ 
+    # Reference the incoming file that was placed in the dropbox
+    incoming = transaction.getIncoming()
+    # Add the incoming file into the data set
+    transaction.moveFile(incoming.getAbsolutePath(), dataSet)
+ 
+    # Get an experiment for the data set
+    exp = transaction.getExperiment("/TESTGROUP/TESTPROJ/JYTHON")
 
-      # Set the owner of the data set -- the specified experiment
-      dataSet.setExperiment(exp)
+    # Set the owner of the data set -- the specified experiment
+    dataSet.setExperiment(exp)
+```
+
 
 This example is is unrealistically simple, but contains all the elements
 necessary to implement a jython drop box. The main idea is to perform
@@ -63,28 +66,31 @@ given day does not exist, it is created.
 
 **data-set-handler-experiment-reg.py**
 
-    from datetime import datetime
+```py
+from datetime import datetime
+ 
+def process(transaction):
+
+    # Try to get the experiment for today
+    now_str = datetime.today().strftime('%Y%m%d')
+    expid = "/TESTGROUP/TESTPROJ/" + now_str
+    exp = transaction.getExperiment(expid)
+
+
+    # Create an experiment if necessary
+    if None == exp:
+    exp = transaction.createNewExperiment(expid, "COMPOUND_HCS")
+    exp.setPropertyValue("DESCRIPTION", "An experiment created on " + datetime.today().strftime('%Y-%m-%d'))
+    exp.setPropertyValue("COMMENT", now_str)
      
-    def process(transaction):
+    dataSet = transaction.createNewDataSet()
+    
+    incoming = transaction.getIncoming()
+    transaction.moveFile(incoming.getAbsolutePath(), dataSet)
+    dataSet.setDataSetType("HCS_IMAGE")
+    dataSet.setExperiment(exp)
+```
 
-      # Try to get the experiment for today
-      now_str = datetime.today().strftime('%Y%m%d')
-      expid = "/TESTGROUP/TESTPROJ/" + now_str
-      exp = transaction.getExperiment(expid)
-
-
-      # Create an experiment if necessary
-      if None == exp:
-        exp = transaction.createNewExperiment(expid, "COMPOUND_HCS")
-        exp.setPropertyValue("DESCRIPTION", "An experiment created on " + datetime.today().strftime('%Y-%m-%d'))
-        exp.setPropertyValue("COMMENT", now_str)
-      
-      dataSet = transaction.createNewDataSet()
-        
-      incoming = transaction.getIncoming()
-      transaction.moveFile(incoming.getAbsolutePath(), dataSet)
-      dataSet.setDataSetType("HCS_IMAGE")
-      dataSet.setExperiment(exp)
 
 More complex processing is also possible. In the following sections, we
 explain how to configure a jython dropbox and describe the API in
@@ -135,41 +141,44 @@ uses the jython handler.
 
 **plugin.properties**
 
-    #
-    # REQUIRED PARAMETERS
-    #
-    # The directory to watch for new data sets
-    incoming-dir = ${root-dir}/incoming-jython
+```
+#
+# REQUIRED PARAMETERS
+#
+# The directory to watch for new data sets
+incoming-dir = ${root-dir}/incoming-jython
 
-    # The handler class. Must be either ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2 or a subclass thereof
-    top-level-data-set-handler = ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2
+# The handler class. Must be either ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2 or a subclass thereof
+top-level-data-set-handler = ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2
 
-    # The script to execute, reloaded and recompiled each time a file/folder is placed in the dropbox
-    script-path = ${root-dir}/data-set-handler.py
+# The script to execute, reloaded and recompiled each time a file/folder is placed in the dropbox
+script-path = ${root-dir}/data-set-handler.py
 
-    # The appropriate storage processor
-    storage-processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+# The appropriate storage processor
+storage-processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
 
-    # Specify jython version. Default is whatever is specified in datastore server service.properties under property "jython-version"
-    plugin-jython-version=2.5
-    #
-    # OPTIONAL PARAMETERS
-    #
-     
-    # False if incoming directory is assumed to exist.
-    # Default - true: Incoming directory will be created on start up if it doesn't exist.
-    incoming-dir-create = true
+# Specify jython version. Default is whatever is specified in datastore server service.properties under property "jython-version"
+plugin-jython-version=2.5
+#
+# OPTIONAL PARAMETERS
+#
+ 
+# False if incoming directory is assumed to exist.
+# Default - true: Incoming directory will be created on start up if it doesn't exist.
+incoming-dir-create = true
 
-    # Defines how the drop box decides if a folder is ready to process: either by a 'marker-file' or a time out which is called 'auto-detection'
-    # The time out is set globally in the service.properties and is called 'quiet-period'. This means when the number of seconds is over and no changes have
-    # been made to the incoming folder the drop will start to register. The marker file must have the following naming schema: '.MARKER_is_finished_<incoming_folder_name>'
-    incoming-data-completeness-condition = marker-file 
-     
-    # Defines whether the dropbox should handle .h5 archives as folders (true) or as files (false). Default is true.
-    h5-folders = true
-     
-    # Defines whether the dropbox should handle .h5ar archives as folders (true) or as files (false). Default is true.
-    h5ar-folders = true
+# Defines how the drop box decides if a folder is ready to process: either by a 'marker-file' or a time out which is called 'auto-detection'
+# The time out is set globally in the service.properties and is called 'quiet-period'. This means when the number of seconds is over and no changes have
+# been made to the incoming folder the drop will start to register. The marker file must have the following naming schema: '.MARKER_is_finished_<incoming_folder_name>'
+incoming-data-completeness-condition = marker-file 
+ 
+# Defines whether the dropbox should handle .h5 archives as folders (true) or as files (false). Default is true.
+h5-folders = true
+ 
+# Defines whether the dropbox should handle .h5ar archives as folders (true) or as files (false). Default is true.
+h5ar-folders = true
+```
+
 
 #### Development mode
 
@@ -382,33 +391,39 @@ associated with a particular experiment.
 
 **data-set-handler-basic.py**
 
-    def process(transaction):
-        dataSet = transaction.createNewDataSet()
-        incoming = transaction.getIncoming()
-        transaction.moveFile(incoming.getAbsolutePath(), dataSet)
-        dataSet.setExperiment(transaction.getExperiment("/TESTGROUP/TESTPROJ/JYTHON"))
+```py
+def process(transaction):
+    dataSet = transaction.createNewDataSet()
+    incoming = transaction.getIncoming()
+    transaction.moveFile(incoming.getAbsolutePath(), dataSet)
+    dataSet.setExperiment(transaction.getExperiment("/TESTGROUP/TESTPROJ/JYTHON"))
+```
+
 
 A script that registers the incoming file and associates it to a daily
 experiment, which is created if necessary.
 
 **data-set-handler-experiment-reg.py**
 
-    from datetime import datetime
-    def process(transaction)
-        # Try to get the experiment for today
-        now_str = datetime.today().strftime('%Y%m%d')
-        expid = "/TESTGROUP/TESTPROJ/" + now_str
-        exp = transaction.getExperiment(expid)
-        # Create an experiment
-        if None == exp:
-            exp = transaction.createNewExperiment(expid, "COMPOUND_HCS")
-            exp.setPropertyValue("DESCRIPTION", "An experiment created on " + datetime.today().strftime('%Y-%m-%d'))
-            exp.setPropertyValue("COMMENT", now_str)
-        dataSet = transaction.createNewDataSet()
-        incoming = transaction.getIncoming()    
-        transaction.moveFile(incoming.getAbsolutePath(), dataSet)
-        dataSet.setDataSetType("HCS_IMAGE")
-        dataSet.setExperiment(exp)
+```py
+from datetime import datetime
+def process(transaction)
+    # Try to get the experiment for today
+    now_str = datetime.today().strftime('%Y%m%d')
+    expid = "/TESTGROUP/TESTPROJ/" + now_str
+    exp = transaction.getExperiment(expid)
+    # Create an experiment
+    if None == exp:
+        exp = transaction.createNewExperiment(expid, "COMPOUND_HCS")
+        exp.setPropertyValue("DESCRIPTION", "An experiment created on " + datetime.today().strftime('%Y-%m-%d'))
+        exp.setPropertyValue("COMMENT", now_str)
+    dataSet = transaction.createNewDataSet()
+    incoming = transaction.getIncoming()    
+    transaction.moveFile(incoming.getAbsolutePath(), dataSet)
+    dataSet.setDataSetType("HCS_IMAGE")
+    dataSet.setExperiment(exp)
+```
+
 
 Delete, Move, or Leave Alone on Error
 -------------------------------------
@@ -531,89 +546,95 @@ searches.
 
 **data-set-handler-with-search.py**
 
-    def process(tr):
-        data_set = tr.createNewDataSet()
-        incoming = tr.getIncoming()
-        tr.moveFile(incoming.getAbsolutePath(), data_set)
-        # Get the search service
-        search_service = tr.getSearchService()
+```py
+def process(tr):
+    data_set = tr.createNewDataSet()
+    incoming = tr.getIncoming()
+    tr.moveFile(incoming.getAbsolutePath(), data_set)
+    # Get the search service
+    search_service = tr.getSearchService()
 
-        # List all experiments in a project
-        experiments = search_service.listExperiments("/cisd/noe")
+    # List all experiments in a project
+    experiments = search_service.listExperiments("/cisd/noe")
 
-        # Search for all samples with a property value determined by the file name; we don't care about the type
-        samplePropValue = incoming.getName()
-        samples = search_service.searchForSamples("ORGANISM", samplePropValue, None)
+    # Search for all samples with a property value determined by the file name; we don't care about the type
+    samplePropValue = incoming.getName()
+    samples = search_service.searchForSamples("ORGANISM", samplePropValue, None)
 
-        # If possible, set the owner to the first sample, otherwise the first experiment
-        if samples.size() > 0:
-            data_set.setSample(samples[0])
-        else:
-            data_set.setExperiment(experiments[0])
+    # If possible, set the owner to the first sample, otherwise the first experiment
+    if samples.size() > 0:
+        data_set.setSample(samples[0])
+    else:
+        data_set.setExperiment(experiments[0])
 
-        # Search for any potential parent data sets and use them as parents
-        parent_data_sets = search_service.searchForDataSets("COMMENT", "no comment", "HCS_IMAGE")
-        parent_data_set_codes = map(lambda each : each.getDataSetCode(), parent_data_sets)
-        data_set.setParentDatasets(parent_data_set_codes)
+    # Search for any potential parent data sets and use them as parents
+    parent_data_sets = search_service.searchForDataSets("COMMENT", "no comment", "HCS_IMAGE")
+    parent_data_set_codes = map(lambda each : each.getDataSetCode(), parent_data_sets)
+    data_set.setParentDatasets(parent_data_set_codes)
+```
+
 
 An example from the Deep Sequencing environment handling BAM files:
 
 **data-set-handler-alignment.py**
 
-    '''
-    This is handling bowtie-BAM files and extracts some properties from the BAM header and
-    the samtools flagstat command. The results are formatted and attached  as a property
-    to the openBIS DataSet.
-    Prerequisites are the DataSetType: ALIGNMENT and
-    the following properties assigned to the DataSetType mentioned above:
-    ALIGNMENT_SOFTWARE, ISSUED_COMMAND, SAMTOOLS_FLAGSTAT,
-    TOTAL_READS, MAPPED_READS
-    Obviously you need a working samtools binary
-    Note:
-    print statements go to: ~openbis/sprint/datastore_server/log/startup_log.txt
-    '''
-    import os
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
-    FOLDER='/net/bs-dsu-data/array0/dsu/dss/incoming-jython-alignment/'
-    SAMTOOLS='/usr/local/dsu/samtools/samtools'
-    def process(transaction):
-        incoming = transaction.getIncoming()
-        # Create a data set and set type
-        dataSet = transaction.createNewDataSet("ALIGNMENT")
-        dataSet.setMeasuredData(False)
-        incomingPath = incoming.getAbsolutePath()
-        # Get the incoming name
-        name = incoming.getName()
-        # expected incoming Name, e.g.:ETHZ_BSSE_110429_63558AAXX_1_sorted.bam
-        split = name.split("_")
-        sample=split[2]+ '_'+ split[3] + ':' + split[4]
-        # Extract values from a samtools view and set the results as DataSet properties
-        # Command: samtools view -H ETHZ_BSSE_110429_63558AAXX_1_sorted.bam
-        arguments = SAMTOOLS + ' view -H ' + FOLDER + name
-        #print('Arguments: '+ arguments)
-        cmdResult = os.popen(arguments).read()
-        properties = cmdResult.split("\n")[-2].split('\t')
-        aligner = (properties[1].split(':')[1].upper() +  '_' + properties[2].split(':')[1])
-        command = properties[3]
-        arguments = SAMTOOLS + ' flagstat ' + FOLDER + name
-        cmdResult = os.popen(arguments).read()
-        totalReads = cmdResult.split('\n')[0].split(' ')[0]
-        mappedReads = cmdResult.split('\n')[2].split(' ')[0]
-        dataSet.setPropertyValue("ALIGNMENT_SOFTWARE", aligner)
-        dataSet.setPropertyValue("ISSUED_COMMAND", command)
-        dataSet.setPropertyValue("SAMTOOLS_FLAGSTAT", cmdResult)
-        dataSet.setPropertyValue("TOTAL_READS", totalReads)
-        dataSet.setPropertyValue("MAPPED_READS", mappedReads)
-        # Add the incoming file into the data set
-        transaction.moveFile(incomingPath, dataSet)
-        # Get the search service
-        search_service = transaction.getSearchService()
-        # Search for the sample
-        sc = SearchCriteria()
-        sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
-        foundSamples = search_service.searchForSamples(sc)
-        if foundSamples.size() > 0:
-          dataSet.setSample(foundSamples[0])
+```py
+'''
+This is handling bowtie-BAM files and extracts some properties from the BAM header and
+the samtools flagstat command. The results are formatted and attached  as a property
+to the openBIS DataSet.
+Prerequisites are the DataSetType: ALIGNMENT and
+the following properties assigned to the DataSetType mentioned above:
+ALIGNMENT_SOFTWARE, ISSUED_COMMAND, SAMTOOLS_FLAGSTAT,
+TOTAL_READS, MAPPED_READS
+Obviously you need a working samtools binary
+Note:
+print statements go to: ~openbis/sprint/datastore_server/log/startup_log.txt
+'''
+import os
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+FOLDER='/net/bs-dsu-data/array0/dsu/dss/incoming-jython-alignment/'
+SAMTOOLS='/usr/local/dsu/samtools/samtools'
+def process(transaction):
+    incoming = transaction.getIncoming()
+    # Create a data set and set type
+    dataSet = transaction.createNewDataSet("ALIGNMENT")
+    dataSet.setMeasuredData(False)
+    incomingPath = incoming.getAbsolutePath()
+    # Get the incoming name
+    name = incoming.getName()
+    # expected incoming Name, e.g.:ETHZ_BSSE_110429_63558AAXX_1_sorted.bam
+    split = name.split("_")
+    sample=split[2]+ '_'+ split[3] + ':' + split[4]
+    # Extract values from a samtools view and set the results as DataSet properties
+    # Command: samtools view -H ETHZ_BSSE_110429_63558AAXX_1_sorted.bam
+    arguments = SAMTOOLS + ' view -H ' + FOLDER + name
+    #print('Arguments: '+ arguments)
+    cmdResult = os.popen(arguments).read()
+    properties = cmdResult.split("\n")[-2].split('\t')
+    aligner = (properties[1].split(':')[1].upper() +  '_' + properties[2].split(':')[1])
+    command = properties[3]
+    arguments = SAMTOOLS + ' flagstat ' + FOLDER + name
+    cmdResult = os.popen(arguments).read()
+    totalReads = cmdResult.split('\n')[0].split(' ')[0]
+    mappedReads = cmdResult.split('\n')[2].split(' ')[0]
+    dataSet.setPropertyValue("ALIGNMENT_SOFTWARE", aligner)
+    dataSet.setPropertyValue("ISSUED_COMMAND", command)
+    dataSet.setPropertyValue("SAMTOOLS_FLAGSTAT", cmdResult)
+    dataSet.setPropertyValue("TOTAL_READS", totalReads)
+    dataSet.setPropertyValue("MAPPED_READS", mappedReads)
+    # Add the incoming file into the data set
+    transaction.moveFile(incomingPath, dataSet)
+    # Get the search service
+    search_service = transaction.getSearchService()
+    # Search for the sample
+    sc = SearchCriteria()
+    sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sample));
+    foundSamples = search_service.searchForSamples(sc)
+    if foundSamples.size() > 0:
+        dataSet.setSample(foundSamples[0])
+```
+
 
 Error Handling
 --------------
