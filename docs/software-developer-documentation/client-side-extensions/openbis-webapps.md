@@ -385,62 +385,65 @@ Image viewer screenshot:
 
 Example usage of the image viewer component:
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <title>Image Viewer Example</title>
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Image Viewer Example</title>
 
-    <link rel="stylesheet" href="/openbis/resources/lib/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/openbis/resources/lib/bootstrap-slider/css/bootstrap-slider.min.css">
-    <link rel="stylesheet" href="/openbis/resources/components/imageviewer/css/image-viewer.css">
+<link rel="stylesheet" href="/openbis/resources/lib/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/openbis/resources/lib/bootstrap-slider/css/bootstrap-slider.min.css">
+<link rel="stylesheet" href="/openbis/resources/components/imageviewer/css/image-viewer.css">
 
-    <script type="text/javascript" src="/openbis/resources/config.js"></script>
-    <script type="text/javascript" src="/openbis/resources/require.js"></script>
+<script type="text/javascript" src="/openbis/resources/config.js"></script>
+<script type="text/javascript" src="/openbis/resources/require.js"></script>
 
-    </head>
-    <body>
-        <script>
-            
-            // ask for jquery library, openbis-screening facade and the image viewer component
-            require([ "jquery", "openbis-screening", "components/imageviewer/ImageViewerWidget" ], function($, openbis, ImageViewerWidget) {
+</head>
+<body>
+    <script>
+         
+        // ask for jquery library, openbis-screening facade and the image viewer component
+        require([ "jquery", "openbis-screening", "components/imageviewer/ImageViewerWidget" ], function($, openbis, ImageViewerWidget) {
 
-                $(document).ready(
-                        function() {
-                            var facade = new openbis();
-                            facade.login("admin", "password", function(response) {
-     
-                                // create the image viewer component for the specific data sets
-                                var widget = new ImageViewerWidget(facade, [ "20140513145946659-3284", "20140415140347875-53", "20140429125231346-56",
-                                        "20140429125614418-59", "20140506132344798-146" ]);
-
-
-                                // do the customization once the component is loaded
-                                widget.addLoadListener(function() {
-                                    var view = widget.getDataSetChooserWidget().getView();
+            $(document).ready(
+                    function() {
+                        var facade = new openbis();
+                        facade.login("admin", "password", function(response) {
+ 
+                            // create the image viewer component for the specific data sets
+                            var widget = new ImageViewerWidget(facade, [ "20140513145946659-3284", "20140415140347875-53", "20140429125231346-56",
+                                    "20140429125614418-59", "20140506132344798-146" ]);
 
 
-                                    // example of how to customize a widget
-                                    view.getDataSetText = function(dataSetCode) {
-                                        return "My data set: " + dataSetCode;
-                                    };
+                            // do the customization once the component is loaded
+                            widget.addLoadListener(function() {
+                                var view = widget.getDataSetChooserWidget().getView();
 
 
-                                    // example of how to add a change listener to a widget
-                                    widget.getDataSetChooserWidget().addChangeListener(function(event) {
-                                        console.log("data set changed from: " + event.getOldValue() + " to: " + event.getNewValue());
-                                    });
+                                // example of how to customize a widget
+                                view.getDataSetText = function(dataSetCode) {
+                                    return "My data set: " + dataSetCode;
+                                };
+
+
+                                // example of how to add a change listener to a widget
+                                widget.getDataSetChooserWidget().addChangeListener(function(event) {
+                                    console.log("data set changed from: " + event.getOldValue() + " to: " + event.getNewValue());
                                 });
-
-
-                                // render the component and add it to the page
-                                $("#container").append(widget.render());
                             });
+
+
+                            // render the component and add it to the page
+                            $("#container").append(widget.render());
                         });
-            });
-        </script>
+                    });
+        });
+    </script>
 
-        <div id="container" style="padding: 20px"></div>
+    <div id="container" style="padding: 20px"></div>
 
-    </body>
-    </html>
+</body>
+</html>
+```
+
