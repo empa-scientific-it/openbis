@@ -162,7 +162,7 @@ You can test your script on selected entities
 
 ```java
     float(entity.propertyValue('CONCENTRATION_ORIGINAL_ILLUMINA'))*1.5
-```  
+```
 
 #### Advanced Examples
 
@@ -208,7 +208,7 @@ You can test your script on selected entities
     def calculate(): 
         """Main script function. The result will be used as the value of appropriate dynamic property."""
         return calculateValue()
-```  
+```
 
 3. Calculate a time difference between two time stamps:
 
@@ -289,7 +289,7 @@ You can test your script on selected entities
     def calculate(): 
         """Main script function. The result will be used as the value of appropriate dynamic property."""
         return checkBarcodes()
-```  
+```
 
 #### Data Types
 
