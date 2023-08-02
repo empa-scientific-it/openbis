@@ -3639,16 +3639,16 @@ DECLARE proj_code VARCHAR;
     identifier VARCHAR := '/';
 BEGIN
     IF NEW.space_id IS NOT NULL THEN
-        SELECT code INTO STRICT space_code FROM spaces WHERE id = NEW.space_id;
+        SELECT code INTO STRICT space_code FROM spaces WHERE spaces.id = NEW.space_id;
         identifier := identifier || space_code || '/';
     END IF;
 
     IF NEW.proj_id IS NOT NULL THEN
         IF NEW.space_id IS NOT NULL THEN
-            SELECT code INTO STRICT proj_code FROM projects WHERE id = NEW.proj_id;
+            SELECT code INTO STRICT proj_code FROM projects WHERE projects.id = NEW.proj_id;
         ELSE
             SELECT p.code, s.code INTO STRICT proj_code, space_code FROM projects p
-                INNER JOIN spaces s ON p.space_id = s.id WHERE id = NEW.proj_id;
+                INNER JOIN spaces s ON p.space_id = s.id WHERE p.id = NEW.proj_id;
             identifier := identifier || space_code || '/';
         END IF;
 
@@ -3656,7 +3656,7 @@ BEGIN
     END IF;
 
     IF NEW.samp_id_part_of IS NOT NULL THEN
-        SELECT code INTO STRICT container_code FROM samples_all WHERE id = NEW.samp_id_part_of;
+        SELECT code INTO STRICT container_code FROM samples_all WHERE samples_all.id = NEW.samp_id_part_of;
         identifier := identifier || container_code || ':' || NEW.code;
     ELSE
         identifier := identifier || NEW.code;
