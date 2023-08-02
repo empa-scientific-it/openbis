@@ -37,7 +37,7 @@ database.kind = production
 ...
 database.kind = production
 ...
-
+```
 
 
 The URL of the service is `<DSS base URL>/datastore_server/re-sync`. The
