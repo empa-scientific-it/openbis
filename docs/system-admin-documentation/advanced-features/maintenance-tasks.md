@@ -647,15 +647,14 @@ have been checked the task checks them again.
 
 **Configuration**:
 
-| Property Key           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| checking-time-interval | Time interval in the past which defines the range of data sets to be checked. That is, all data sets with registration date between now minus checking-time-interval and now will be checked. Can be specified with one of the following time units: `ms`, `msec`, `s`, `sec`, `m`, `min`, `h`, `hours`, `d`, `days`. Default time unit is sec. Default value: one day.                                                                                                |
-| pausing-time-point     | Optional time point. Format: `HH:mm`. where `HH` is a two-digit hour (in 24h notation) and mm is a two-digit minute.
-<br /><br />When specified this task stops checking after the specified pausing time point and continues when executed the next time or the next day if `start` or `continuing-time-point` is specified.
-<br /><br />After all data sets have been checked the task checks again all data sets started by the oldest one specified by `checking-time-interval`. |
-| continuing-time-point  | Time point where checking continous. Format: `HH:mm`. where `HH` is a two-digit hour (in 24h notation) and `mm` is a two-digit minute. Ignored when `pausing-time-point` isn't specified. Default value: Time when the task is executed.                                                                                                                                                                                                                   |
-| chunk-size             | Maximum number of data sets retrieved from AS. Ignored when `pausing-time-point` isn't specified. Default value: 1000                                                                                                                                                                                                                                                                                                                                |
-| state-file             | File to store registration time stamp and code of last considered data set. This is only used when pausing-time-point has been specified. Default: `<store root>/DataSetAndPathInfoDBConsistencyCheckTask-state.txt`                                                                                                                                                                                                                           |
+|Property Key|Description|
+|--- |--- |
+|checking-time-interval|Time interval in the past which defines the range of data sets to be checked. That is, all data sets with registration date between now minus checking-time-interval and now will be checked. Can be specified with one of the following time units: `ms`, `msec`, `s`, `sec`, `m`, `min`, `h`, `hours`, `d`, `days`. Default time unit is `sec`. Default value: one day.|
+|pausing-time-point|Optional time point. Format: `HH:mm`. where `HH` is a two-digit hour (in 24h notation) and `mm` is a two-digit minute.<br /><br />When specified this task stops checking after the specified pausing time point and continues when executed the next time or the next day if start or `continuing-time-point` is specified.<br /><br />After all data sets have been checked the task checks again all data sets started by the oldest one specified by `checking-time-interval`.|
+|continuing-time-point|Time point where checking continous. Format: `HH:mm`. where `HH` is a two-digit hour (in 24h notation) and `mm` is a two-digit minute. Ignored when `pausing-time-point` isn't specified. Default value: Time when the task is executed.|
+|chunk-size|Maximum number of data sets retrieved from AS. Ignored when `pausing-time-point` isn't specified. Default value: 1000|
+|state-file|File to store registration time stamp and code of last considered data set. This is only used when pausing-time-point has been specified. Default: `<store root>/DataSetAndPathInfoDBConsistencyCheckTask-state.txt` |
+
 
 **Example**: The following example checks all data sets of the last ten
 years. It does the check only during the night and continues next night.
@@ -679,16 +678,16 @@ materials.
 
 **Configuration**:
 
-| Property Key         | Description                                                                                                                                                                                                                                       |
-|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| database-driver      | Fully qualified name of the JDBC driver class.                                                                                                                                                                                                    |
-| database-url         | URL to access the database server.                                                                                                                                                                                                                |
-| database-username    | User name of the database. Default: User who started openBIS AS.                                                                                                                                                                                  |
-| database-password    | Optional password of the database user.                                                                                                                                                                                                           |
-| mapping-file         | Path to the file containing configuration information of mapping material types and material properties to tables and columns in the report database.                                                                                             |
-| read-timestamp-sql   | The SQL select statement which returns one column of type time stamp for the time stamp of the last report. If the result set is empty the time stamp is assumed to be 1970-01-01. If the result set has more than one row the first row is used. |
-| update-timestamp-sql | The SQL statement which updates or adds a time stamp. The statement has to contain a '?' symbol as the placeholder of the actual time stamp.                                                                                                      |
-| insert-timestamp-sql | The SQL statement to add a time stamp the first time. The statement has to contain a '?' symbol as the placeholder of the actual time stamp. Default: same as update-timestamp-sql.                                                               |
+|Property Key|Description|
+|--- |--- |
+|database-driver|Fully qualified name of the JDBC driver class.|
+|database-url|URL to access the database server.|
+|database-username|User name of the database. Default: User who started openBIS AS.|
+|database-password|Optional password of the database user.|
+|mapping-file|Path to the file containing configuration information of mapping material types and material properties to tables and columns in the report database.|
+|read-timestamp-sql|The SQL select statement which returns one column of type time stamp for the time stamp of the last report. If the result set is empty the time stamp is assumed to be 1970-01-01. If the result set has more than one row the first row is used.|
+|update-timestamp-sql|The SQL statement which updates or adds a time stamp. The statement has to contain a '?' symbol as the placeholder of the actual time stamp.|
+|insert-timestamp-sql|The SQL statement to add a time stamp the first time. The statement has to contain a '?' symbol as the placeholder of the actual time stamp. Default: same as `update-timestamp-sql`.|
 
 **Example**:
 
@@ -794,20 +793,16 @@ In order to be able to send an e-mail the following properties in
 
 **Configuration**:
 
-| Property Key            | Description                                                                                                                                                                                                                          |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| interval                | Determines the length of period: daily if less than or equal one day, weekly if less than or equal seven days, monthly if above seven days. The actual period is always the day/week/month before the execution day                  |
-| email-addresses         | Comma-separated e-mail addresses which will receive the report as an attached text file (format: TSV).                                                                                                                               |
-| user-reporting-type     | Type of reporting individual user activities. Possible values are
 
-NONE: No reporting
-ALL: Activities inside and outside groups and for all users
-OUTSIDE_GROUP_ONLY: Activities outside groups and users of no groups
+|Property Key|Description|
+|--- |--- |
+|interval|Determines the length of period: daily if less than or equal one day, weekly if less than or equal seven days, monthly if above seven days. The actual period is always the day/week/month before the execution day|
+|email-addresses|Comma-separated e-mail addresses which will receive the report as an attached text file (format: TSV).|
+|user-reporting-type|Type of reporting individual user activities. Possible values are<br /><ul><li>NONE: No reporting</li><li>ALL: Activities inside and outside groups and for all users</li><li>OUTSIDE_GROUP_ONLY: Activities outside groups and users of no groups</li></ul><br />Default: ALL|
+|spaces-to-be-ignored|Optional list of comma-separated space codes of all the spaces which should be ignored for the report.|
+|configuration-file-path|Optional configuration file defining groups.|
+|count-all-entities|If `true` shows the number of all entities (collections, objects, data sets) in an additional column. Default: `false`|
 
-Default: ALL |
-| spaces-to-be-ignored    | Optional list of comma-separated space codes of all the spaces which should be ignored for the report.                                                                                                                               |
-| configuration-file-path | Optional configuration file defining groups.                                                                                                                                                                                         |
-| count-all-entities      | If true shows the number of all entities (collections, objects, data sets) in an additional column. Default: false                                                                                                                   |
 
 **Example**:
 
@@ -879,16 +874,18 @@ In order to be able to send an e-mail the following properties in
 
 **Configuration:**
 
-| Property Key              | Description                                                                                                                                                                                         |
-|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| interval                  | Interval (in seconds) between regular checks whether to create a report or not. This value should be set to 86400 (1 day). Otherwise the same report might be sent twice or no report will be sent. |
-| start                     | Time the report will be created. A good values for this parameter is some early time in the morning like in the example below.                                                                      |
-| days-of-week              | Comma-separated list of numbers denoting days of week (Sunday=1, Monday=2, etc.). This parameter should be used if reports should be sent weekly or more often.                                     |
-| days-of-month             | Comma-separated list of numbers denoting days of month. Default value of this parameter is 1.                                                                                                       |
-| email-addresses           | Comma-separated list of e-mail addresses.                                                                                                                                                           |
-| shown-data-set-properties | Optional comma-separated list of data set properties to be included into the report.                                                                                                                |
-| data-set-types            | Restrict the report to the specified comma-separated data set types.                                                                                                                                |
-| configured-content        | Use the specified content as the body of the email.                                                                                                                                                 |
+
+|Property Key|Description|
+|--- |--- |
+|interval|Interval (in seconds) between regular checks whether to create a report or not. This value should be set to 86400 (1 day). Otherwise the same report might be sent twice or no report will be sent.|
+|start|Time the report will be created. A good values for this parameter is some early time in the morning like in the example below.|
+|days-of-week|Comma-separated list of numbers denoting days of week (Sunday=1, Monday=2, etc.). This parameter should be used if reports should be sent weekly or more often.|
+|days-of-month|Comma-separated list of numbers denoting days of month. Default value of this parameter is 1.|
+|email-addresses|Comma-separated list of e-mail addresses.|
+|shown-data-set-properties|Optional comma-separated list of data set properties to be included into the report.|
+|data-set-types|Restrict the report to the specified comma-separated data set types.|
+|configured-content|Use the specified content as the body of the email.|
+
 
 A report is sent at each day which is either a specified day of week or
 day of month. If only weekly reports are needed the parameter
@@ -918,9 +915,9 @@ RAW\_DATA and MZXML\_DATA that have been uploaded in the previous month.
 
 **Configuration**:
 
-| Property Key | Description                                                                           |
-|--------------|---------------------------------------------------------------------------------------|
-| class        | ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask |
+| Property Key | Description  |
+|--------------|-------------------------------------------------------------------------------------|
+| class        |ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask|
 
 **Example**:
 
@@ -941,11 +938,11 @@ materials changed since the last re-evaluation.
 
 **Configuration**:
 
-| Property Key      | Description                                                                                                                                                                               |
-|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| class             | ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask                                                                            |
-| timestamp-file    | Path to a file which will store the timestamp of the last evaluation. Default value: ../../../data/DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask-timestamp.txt.       |
-| initial-timestamp | Initial timestamp of the form YYYY-MM-DD (e.g. 2013-09-15) which will be used the first time when the timestamp file doesn't exist or has an invalid value. This is a mandatory property. |
+|Property Key|Description|
+|--- |--- |
+|class|`ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask`|
+|timestamp-file|Path to a file which will store the timestamp of the last evaluation. Default value: `../../../data/DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask-timestamp.txt`.|
+|initial-timestamp|Initial timestamp of the form `YYYY-MM-DD` (e.g. 2013-09-15) which will be used the first time when the timestamp file doesn't exist or has an invalid value. This is a mandatory property.|
 
 **Example**:
 
@@ -980,12 +977,13 @@ by the maintenance task. 
 
 **Configuration**:
 
-| Property Key                            | Description                                                                                                                                                                                                                                                                       |
-|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| last-seen-data-set-file                 | Path to a file that will store a code of the last handled data set. Default value: "fillUnknownDataSetSizeTaskLastSeen"                                                                                                                                                           |
-| delete-last-seen-data-set-file-interval | A time interval (in seconds) which defines how often the "last-seen-data-set-file" file should be deleted. The parameter can be specified with one of the following time units:  ms, msec, s, sec, m, min, h, hours, d, days . Default time unit is  sec . Default value: 7 days. |
-| data-set-chunk-size                     | Number of data sets requested from AS in one chunk. Default: 100                                                                                                                                                                                                                  |
-| time-limit                              | Limit of execution time of this task. The task is stopped before reading next chunk if the time has been used up. This parameter can be specified with one of the following time units: ms, msec, s, sec, m, min, h, hours, d, days. Default time unit is sec.                    |
+
+|Property Key|Description|
+|--- |--- |
+|last-seen-data-set-file|Path to a file that will store a code of the last handled data set. Default value: "fillUnknownDataSetSizeTaskLastSeen"|
+|delete-last-seen-data-set-file-interval|A time interval (in seconds) which defines how often the "last-seen-data-set-file" file should be deleted. The parameter can be specified with one of the following time units:  `ms`, `msec`, `s`, `sec`, `m`, `min`, `h`, `hours`, `d`, `days`. Default time unit is `sec`. Default value: 7 days.|
+|data-set-chunk-size|Number of data sets requested from AS in one chunk. Default: 100|
+|time-limit|Limit of execution time of this task. The task is stopped before reading next chunk if the time has been used up. This parameter can be specified with one of the following time units: `ms`, `msec`, `s`, `sec`, `m`, `min`, `h`, `hours`, `d`, `days`. Default time unit is `sec`.|
 
 **Example:**
 
@@ -1013,9 +1011,9 @@ data source for key 'path-info-db'. 
 
 **Configuration**:
 
-| Property Key  | Description                                                                                                                                                                                                                                                                                                                                                                                                 |
-|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| checksum-type | Optional checksum type. If specified two checksums are calculated: CRC32 checksum and the checksum of specified type. The type and the checksum are stored in the pathinfo database. An allowed type has to be supported by MessageDigest.getInstance(<checksum type>). For more details see http://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html#getInstance-java.lang.String-. |
+|Property Key|Description|
+|--- |--- |
+|checksum-type|Optional checksum type. If specified two checksums are calculated: CRC32 checksum and the checksum of specified type. The type and the checksum are stored in the pathinfo database. An allowed type has to be supported by `MessageDigest.getInstance(<checksum type>)`. For more details see http://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html#getInstance-java.lang.String-.|
 
 **Example**:
 
@@ -1045,14 +1043,14 @@ Under normal circumstances this maintenance task is never needed, because the co
 
 **Configuration**:
 
-| Property Key                    | Description                                                                                                                                                                                                                                                                                                                                                                                                                             |
-|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| time-stamp-of-youngest-data-set | Time stamp of the youngest data set to be considered. The format has to be <4 digit year>-<month>-<day> <hour>:<minute>:<second>.                                                                                                                                                                                                                                                                   |
-| compute-checksum                | If true the CRC32 checksum (and optionally a checksum of the type specified by checksum-type) of all files will be calculated and stored in pathinfo database. Default value: true                                                                                                                                                                                                                                                      |
-| checksum-type                   | Optional checksum type. If specified and compute-checksum = true two checksums are calculated: CRC32 checksum and the checksum of specified type. The type and the checksum are stored in the pathinfo database. An allowed type has to be supported by MessageDigest.getInstance(<checksum type>). For more details see http://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html#getInstance-java.lang.String-. |
-| chunk-size                      | Number of data sets requested from AS in one chunk. Default: 1000                                                                                                                                                                                                                                                                                                                                                                       |
-| data-set-type                   | Optional data set type. If specified, only data sets of the specified type are considered. Default: All data set types.                                                                                                                                                                                                                                                                                                                 |
-| state-file                      | File to store registration time stamp and code of last considered data set. Default: <store root>/PathInfoDatabaseRefreshingTask-state.txt                                                                                                                                                                                                                                                                                        |
+|Property Key|Description|
+|--- |--- |
+|time-stamp-of-youngest-data-set|Time stamp of the youngest data set to be considered. The format has to be `<4 digit year>-<month>-<day> <hour>:<minute>:<second>`.|
+|compute-checksum|If `true` the CRC32 checksum (and optionally a checksum of the type specified by `checksum-type`) of all files will be calculated and stored in pathinfo database. Default value: true|
+|checksum-type|Optional checksum type. If specified and `compute-checksum = true` two checksums are calculated: CRC32 checksum and the checksum of specified type. The type and the checksum are stored in the pathinfo database. An allowed type has to be supported by `MessageDigest.getInstance(<checksum type>)`. For more details see [Oracle doc](http://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html#getInstance-java.lang.String-).|
+|chunk-size|Number of data sets requested from AS in one chunk. Default: 1000|
+|data-set-type|Optional data set type. If specified, only data sets of the specified type are considered. Default: All data set types.|
+|state-file|File to store registration time stamp and code of last considered data set. Default: `<store root>/PathInfoDatabaseRefreshingTask-state.txt`|
 
 **Example**:
 
@@ -1075,9 +1073,10 @@ Terms](/pages/viewpage.action?pageId=80699498).
 
 **Configuration:**
 
-| Property Key    | Description                                                                                                                 |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------|
-| older-than-days | Unofficial terms are only deleted if they have been registered more than the specified number of days ago. Default: 7 days. |
+|Property Key|Description|
+|--- |--- |
+|older-than-days|Unofficial terms are only deleted if they have been registered more than the specified number of days ago. Default: 7 days.|
+
 
 **Example**:
 
@@ -1167,19 +1166,15 @@ data sets.
 
 **Configuration:**
 
-| Property Key                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| data-set-container-type       | Type of the data set container. Default: MICROSCOPY_IMG_CONTAINER                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| data-set-thumbnail-type-regex | Regular expression for the type of data sets which have thumbnails. This is used to test whether there are already thumbnails or not. Default: MICROSCOPY_IMG_THUMBNAIL                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| main-data-set-type-regex      | Regular expression for the type of data sets which have actual images. Default: MICROSCOPY_IMG                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| max-number-of-data-sets       | The maximum number of data sets to be handle in a run of this task. If zero or less than zero all data sets will be handled. Default: 1000                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| state-file                    | Name of the file which stores the registration time stamp of the last successfully handled data set. Default: MicroscopyThumbnailsCreationTask-state.txt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| maximum-number-of-workers     | If specified the creation will be parallelized among several workers. The actual number of workers depends on the number CPUs. There will be not more than 50% of CPUs used.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| script-path                   | Path to the jython script which specifies the thumbnails to be generated. The script should have defined the method process(transaction, parameters, tablebuilder) as for JythonIngestionService (see Jython-based Reporting and Processing Plugins). Note, that tablebuilder will be ignored. In addition the global variables image_config and image_data_set_structure are defined:
-
-image_data_set_structure: It is an object of the class ImageDataSetStructure. Information about channels, series numbers etc. can be requested.
-image_config: It is an object of the class SimpleImageContainerDataConfig. It should be used to specify the thumbnails to be created. Currently only setImageGenerationAlgorithm() is supported.
- |
+|Property Key|Description|
+|--- |--- |
+|maximum-number-of-workers|If specified the creation will be parallelized among several workers. The actual number of workers depends on the number CPUs. There will be not more than 50% of CPUs used.|
+|state-file|Name of the file which stores the registration time stamp of the last successfully handled data set. Default: `MicroscopyThumbnailsCreationTask-state.txt`|
+|script-path|Path to the jython script which specifies the thumbnails to be generated. The script should have defined the method `process(transaction, parameters, tablebuilder)` as for `JythonIngestionService` (see Jython-based Reporting and Processing Plugins). Note, that tablebuilder will be ignored. In addition the global variables `image_config` and `image_data_set_structure` are defined:<br /><ul><li>image_data_set_structure: It is an object of the class `ImageDataSetStructure`. Information about channels, series numbers etc. can be requested.</li><li>image_config: It is an object of the class `SimpleImageContainerDataConfig`. It should be used to specify the thumbnails to be created. Currently only `setImageGenerationAlgorithm()` is supported.</li></ul>|
+|main-data-set-type-regex|Regular expression for the type of data sets which have actual images. Default: `MICROSCOPY_IMG`|
+|data-set-thumbnail-type-regex|Regular expression for the type of data sets which have thumbnails. This is used to test whether there are already thumbnails or not. Default: `MICROSCOPY_IMG_THUMBNAIL`|
+|max-number-of-data-sets|The maximum number of data sets to be handle in a run of this task. If zero or less than zero all data sets will be handled. Default: 1000|
+|data-set-container-type|Type of the data set container. Default: `MICROSCOPY_IMG_CONTAINER`|
 
 **Example**:
 
