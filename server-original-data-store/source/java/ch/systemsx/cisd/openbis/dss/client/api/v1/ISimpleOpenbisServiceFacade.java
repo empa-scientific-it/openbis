@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -266,7 +267,7 @@ public interface ISimpleOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     @Retry
-    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+    public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
 
     /**

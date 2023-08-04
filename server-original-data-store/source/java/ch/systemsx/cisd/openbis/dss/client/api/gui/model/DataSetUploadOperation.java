@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -119,7 +120,7 @@ final class DataSetUploadOperation implements Runnable
             return;
         }
 
-        Map<String, String> dataSetProperties = metadata.getProperties();
+        Map<String, Serializable> dataSetProperties = metadata.getProperties();
         Collection<String> unmodifiableProperties =
                 new ArrayList<String>(metadata.getUnmodifiableProperties());
 
@@ -127,7 +128,7 @@ final class DataSetUploadOperation implements Runnable
         {
             if (vocabularyProperties.keySet().contains(property))
             {
-                String term = dataSetProperties.get(property);
+                Serializable term = dataSetProperties.get(property);
                 if (null == term)
                 {
                     continue;
@@ -140,19 +141,20 @@ final class DataSetUploadOperation implements Runnable
                 }
                 if (false == hasTerm(vocabulary, term))
                 {
-                    clientModel.addUnofficialVocabularyTerm(vocabulary, term, term.trim(), term,
-                            getMaxOrdinal(vocabulary));
+                    String stringTerm = (String) term;
+                    clientModel.addUnofficialVocabularyTerm(vocabulary, stringTerm, stringTerm.trim(),
+                            stringTerm, getMaxOrdinal(vocabulary));
                 }
             }
         }
 
     }
 
-    private boolean hasTerm(Vocabulary vocabulary, String termCode)
+    private boolean hasTerm(Vocabulary vocabulary, Serializable termCode)
     {
         for (VocabularyTerm term : vocabulary.getTerms())
         {
-            if (termCode.equalsIgnoreCase(term.getCode()))
+            if (term.getCode().equalsIgnoreCase((String)termCode))
             {
                 return true;
             }

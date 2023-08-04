@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class CommandTestExtractMetadata extends CommandTestValid
                 }
 
                 // If no script was provided, validate against the server's script
-                Map<String, String> properties;
+                Map<String, Serializable> properties;
                 if (null == arguments.getScriptPathsOrNull())
                 {
                     properties = component.extractMetadata(newDataSet, arguments.getFile());

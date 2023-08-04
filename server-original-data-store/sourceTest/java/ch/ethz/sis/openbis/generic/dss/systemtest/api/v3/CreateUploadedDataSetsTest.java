@@ -15,10 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.dss.systemtest.api.v3;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -465,7 +462,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         String dataSetType = "HCS_IMAGE";
         String experimentIdentifier = "/CISD/NEMO/EXP1";
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
         properties.put("COMMENT", "test comment");
 
         UploadedDataSetCreation creation = new UploadedDataSetCreation();
@@ -826,7 +823,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         String dataSetType = "UNKNOWN";
         String experimentIdentifier = "/CISD/NEMO/EXP1";
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, Serializable> properties = new HashMap<String, Serializable>();
         properties.put("IDONTEXIST", "test value");
 
         FileToUpload file = new FileToUpload("file", "test.txt", "test content");

@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -146,9 +147,9 @@ public class ValidationScriptRunner
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, String> extractMetadata(File dataSetFile)
+    public Map<String, Serializable> extractMetadata(File dataSetFile)
     {
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, Serializable> metadata = new HashMap<String, Serializable>();
         PyFunction function = tryJythonFunction(EXTRACT_METADATA_FUNCTION_NAME);
         if (function == null)
         {
@@ -214,7 +215,7 @@ public class ValidationScriptRunner
         }
 
         @Override
-        public Map<String, String> extractMetadata(File dataSetFile)
+        public Map<String, Serializable> extractMetadata(File dataSetFile)
         {
             return Collections.emptyMap();
         }

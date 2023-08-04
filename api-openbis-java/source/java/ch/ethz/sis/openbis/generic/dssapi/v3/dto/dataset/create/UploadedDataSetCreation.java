@@ -15,10 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
@@ -28,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author pkupczyk
@@ -47,7 +50,8 @@ public class UploadedDataSetCreation implements ICreation
     private ISampleId sampleId;
 
     @JsonProperty
-    private Map<String, String> properties = new HashMap<String, String>();
+    @JsonDeserialize(contentUsing =  PropertiesDeserializer.class)
+    private Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
     @JsonProperty
     private List<? extends IDataSetId> parentIds;
@@ -85,12 +89,12 @@ public class UploadedDataSetCreation implements ICreation
         this.sampleId = sampleId;
     }
 
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return properties;
     }
 
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }

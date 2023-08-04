@@ -343,6 +343,8 @@ If the value of a dynamic property has not yet been calculated, it will
 be shown as `(pending evaluation)`.
 
 -   No labels
+
+## Entity validation scripts
  
 ### Introduction
 

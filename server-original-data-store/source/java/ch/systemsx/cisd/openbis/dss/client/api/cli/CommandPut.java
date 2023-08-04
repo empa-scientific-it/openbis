@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,9 +77,9 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
             return new File(getFilePath());
         }
 
-        public HashMap<String, String> getProperties()
+        public HashMap<String, Serializable> getProperties()
         {
-            HashMap<String, String> propsMap = new HashMap<String, String>();
+            HashMap<String, Serializable> propsMap = new HashMap<String, Serializable>();
             String propsString = propertiesString;
             if (propsString == null || propsString.length() == 0)
             {

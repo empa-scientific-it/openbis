@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -540,7 +541,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     @Override
-    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+    public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         return dssComponent.extractMetadata(newDataset, dataSetFile);

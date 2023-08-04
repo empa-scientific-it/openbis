@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -149,7 +150,7 @@ public interface IDssComponent
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
-    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+    public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException,
             EnvironmentFailureException;
 

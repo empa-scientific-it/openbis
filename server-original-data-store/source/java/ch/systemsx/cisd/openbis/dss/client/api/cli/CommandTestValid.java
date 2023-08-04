@@ -15,10 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -334,10 +331,10 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                 }
 
                 @Override
-                public Map<String, String> extractMetadata(NewDataSetDTO newDataset,
+                public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset,
                         File dataSetFile) throws IllegalStateException, EnvironmentFailureException
                 {
-                    return new HashMap<String, String>();
+                    return new HashMap<String, Serializable>();
                 }
 
             };
