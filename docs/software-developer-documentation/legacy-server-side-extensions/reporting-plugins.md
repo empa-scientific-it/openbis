@@ -332,8 +332,7 @@ script-path = script.py
 
 ### JythonBasedReportingPlugin
 
-**Type:** TABLE\_MODEL**  
-**
+**Type:** TABLE\_MODEL
 
 **Description**: Invokes a Jython script to create the report. For more
 details see [Jython-based Reporting and Processing
@@ -359,8 +358,7 @@ script-path = script.py
 
 ### TSVViewReportingPlugin
 
-**Type:** TABLE\_MODEL**  
-**
+**Type:** TABLE\_MODEL
 
 **Description**: Presents the main data set file as a table. The main
 file is specified by the Main Data Set Pattern and the Main Data Set
@@ -394,8 +392,7 @@ Screening Reporting Plugins
 
 ### ScreeningJythonBasedAggregationServiceReportingPlugin
 
-**Type:** AGGREGATION\_TABLE\_MODEL**  
-**
+**Type:** AGGREGATION\_TABLE\_MODEL
 
 **Description**: Invokes a Jython script to create an aggregation
 service report. For more details see [Jython-based Reporting and
@@ -423,8 +420,7 @@ script-path = script.py
 
 ### ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin
 
-**Type:** AGGREGATION\_TABLE\_MODEL**  
-**
+**Type:** AGGREGATION\_TABLE\_MODEL
 
 **Description**: Invokes a Jython script to register and modify entities
 and create an aggregation service report. The screening-specific version
@@ -454,8 +450,7 @@ script-path = script.py
 
 ### ScreeningJythonBasedReportingPlugin
 
-**Type:** TABLE\_MODEL**  
-**
+**Type:** TABLE\_MODEL
 
 **Description**: Invokes a Jython script to create the report. For more
 details see [Jython-based Reporting and Processing
