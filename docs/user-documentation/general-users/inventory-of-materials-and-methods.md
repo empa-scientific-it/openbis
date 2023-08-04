@@ -1,5 +1,24 @@
 Inventory Of Materials And Methods
 ====
+
+The default Inventory contains two folders: Materials and Methods.
+
+These are used to organise respectively samples and materials of any type and lab protocols.
+
+Samples, materials and protocols are modelled in openBIS as Objects. 
+
+In the openBIS ELN-LIMS for life sciences, the following Object types are preconfigured in the database:
+
+Antibodies, Chemicals, Enzymes, Media, Solutions and Buffers, Plasmids, Plants, Oligos, RNAs, Bacteria, Cell lines, Flies, Yeasts, General protocols, PCR protocols, Western blotting protocols.
+
+These Objects are organised in Collections in the Materials and Methods sections of the Inventory.
+
+![image](img/inventory-materials-life-sciences-1.png)
+
+![image](img/inventory-methods-life-sciences-2.png)
+
+The generic openBIS ELN-LIMS only has one predefined Object type for the Inventory, General Protocol, in the General Protocols Collection in the Methods folder. The Material folder is empty. Additional Object types and Collections must be created by an openBIS instance admin, based on the needs of the lab(s).
+
  
 ## Customise Collection View
 
@@ -7,8 +26,6 @@ It is possible customise the view of *Collections* in the ELN.
 
 The default *Collection* can have a **Form View** or a **List View**.
 Depending on this selection, the collection view will be different.
-
- 
 
 ![image info](img/customize-collection-view.png)
 
