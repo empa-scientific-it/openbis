@@ -655,7 +655,7 @@ function LinksView(linksController, linksModel) {
 	}
 
 	linksView.getAddAnyBarcode = function() {
-	    var $addBtn = FormUtil.getButtonWithIcon("glyphicon-barcode", null);
+	    var $addBtn = FormUtil.getButtonWithIcon("glyphicon-barcode", null, null, "Scan Barcode/QR code");
         $addBtn.click(function() {
             BarcodeUtil.readBarcodeMulti("Add Objects", function(objects) {
                 for(var oIdx = 0; oIdx < objects.length; oIdx++) {

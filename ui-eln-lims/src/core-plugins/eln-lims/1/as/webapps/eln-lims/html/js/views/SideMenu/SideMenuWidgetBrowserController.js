@@ -2484,7 +2484,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     _createBarcodesGeneratorNode() {
         if (profile.mainMenu.showBarcodes) {
             return {
-                text: "Barcodes Generator",
+                text: "Barcodes/QR codes Generator",
                 object: {
                     type: this.TYPE_GENERATE_BARCODES,
                     id: this.TYPE_GENERATE_BARCODES,
