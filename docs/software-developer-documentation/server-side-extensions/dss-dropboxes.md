@@ -675,7 +675,7 @@ means that it can take a long time before the .faulty\_paths file is
 created, even when there is a simple dropbox error.
 
 Therefor during development of a dropbox we recommend
-using** [development mode](#Dropboxes-Developmentmode)** , wich
+using **[development mode](#Dropboxes-Developmentmode)** , wich
 basically sets all retry values to 0, thus disabling the auto-recovery
 feature.
 
