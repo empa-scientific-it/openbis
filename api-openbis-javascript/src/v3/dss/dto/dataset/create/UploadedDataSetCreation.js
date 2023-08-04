@@ -60,7 +60,7 @@ define([ "stjs" ], function(stjs) {
 		sampleId : "ISampleId",
 		properties : {
 			name : "Map",
-			arguments : [ "String", "String" ]
+			arguments : [ "String", "Serializable" ]
 		},
 		parentIds : {
 			name : "List",
