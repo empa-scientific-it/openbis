@@ -1,15 +1,15 @@
 Data Upload
 ====
+
+
+Data can be uploaded to Datasets in openBIS to Experiments and Objects (e.g., Experimental Steps). openBIS is agnostic of file formats and types.
+
+Small data files can be uploaded via the web user interface, larger data files can be uploaded via dropbox mechanism.
+
  
 ## Data upload via web UI
 
-
-
- 
-
-  To upload data via the web interface:
-
- 
+To upload data via the web interface: 
 
 1.Click the **Upload** button in the form, as shown below.
 
