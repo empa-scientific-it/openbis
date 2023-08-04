@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -156,8 +157,8 @@ public class NewDataSetDTOBuilder
         dataSetMetadata.setDataSetTypeOrNull(otherMetadata.tryDataSetType());
 
         // Create a new map initialized from the other properties (a shallow copy).
-        HashMap<String, String> otherProps =
-                new HashMap<String, String>(otherMetadata.getProperties());
+        HashMap<String, Serializable> otherProps =
+                new HashMap<String, Serializable>(otherMetadata.getProperties());
         dataSetMetadata.setProperties(otherProps);
         dataSetMetadata.setUnmodifiableProperties(new HashSet<String>(otherMetadata
                 .getUnmodifiableProperties()));

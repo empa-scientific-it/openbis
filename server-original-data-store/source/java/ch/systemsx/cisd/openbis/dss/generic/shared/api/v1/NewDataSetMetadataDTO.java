@@ -39,7 +39,7 @@ public class NewDataSetMetadataDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final Map<String, String> properties = new HashMap<String, String>();
+    private final Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
     private final Set<String> unmodifiableProperties = new HashSet<String>();
 
@@ -47,12 +47,12 @@ public class NewDataSetMetadataDTO implements Serializable
 
     private final ArrayList<String> parentDataSetCodes = new ArrayList<String>();
 
-    public NewDataSetMetadataDTO(String dataSetTypeOrNull, Map<String, String> propertiesOrNull)
+    public NewDataSetMetadataDTO(String dataSetTypeOrNull, Map<String, Serializable> propertiesOrNull)
     {
         this(dataSetTypeOrNull, propertiesOrNull, null);
     }
 
-    public NewDataSetMetadataDTO(String dataSetTypeOrNull, Map<String, String> propertiesOrNull,
+    public NewDataSetMetadataDTO(String dataSetTypeOrNull, Map<String, Serializable> propertiesOrNull,
             List<String> parentDataSetCodesOrNull)
     {
         this.dataSetTypeOrNull = dataSetTypeOrNull;
@@ -83,7 +83,7 @@ public class NewDataSetMetadataDTO implements Serializable
     /**
      * The properties for the new data set. Key is the property code, value is the value (as a string).
      */
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return properties;
     }
@@ -96,7 +96,7 @@ public class NewDataSetMetadataDTO implements Serializable
         return unmodifiableProperties;
     }
 
-    public void setProperties(Map<String, String> props)
+    public void setProperties(Map<String, Serializable> props)
     {
         if (props != null)
         {
@@ -113,7 +113,7 @@ public class NewDataSetMetadataDTO implements Serializable
         }
     }
 
-    public void setUnmodifiableProperties(Map<String, String> props)
+    public void setUnmodifiableProperties(Map<String, Serializable> props)
     {
         setProperties(props);
         setUnmodifiableProperties(props.keySet());
@@ -158,7 +158,7 @@ public class NewDataSetMetadataDTO implements Serializable
         {
             sb.append("data set type", myDataSetTypeOrNull);
         }
-        for (Entry<String, String> entry : getProperties().entrySet())
+        for (Entry<String, Serializable> entry : getProperties().entrySet())
         {
             sb.append("property " + entry.getKey(), entry.getValue());
         }

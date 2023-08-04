@@ -29,9 +29,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -145,18 +147,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experime
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetRegistrationCache;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDataSourceManager;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
@@ -2632,7 +2622,21 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             {
                 for (NewProperty property : newData.getDataSetProperties())
                 {
-                    creation.setProperty(property.getPropertyCode(), property.getValue());
+                    if(isPropertyMultiValue(property.getPropertyCode())) {
+                        String value = property.getValue();
+                        if(value != null && value.startsWith("[")) {
+                            value = value.substring(1, value.length()-1);
+                            String[] propertyValues = Stream.of(value.split(","))
+                                    .map(String::trim)
+                                    .toArray(String[]::new);
+                            creation.setProperty(property.getPropertyCode(), propertyValues);
+                        } else {
+                            creation.setProperty(property.getPropertyCode(), property.getValue());
+                        }
+                    } else
+                    {
+                        creation.setProperty(property.getPropertyCode(), property.getValue());
+                    }
                 }
             }
 
@@ -2735,6 +2739,17 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             throw ExceptionUtils.create(context, t);
         }
+    }
+
+    private boolean isPropertyMultiValue(String propertyTypeCode) {
+        IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        PropertyTypePE propertyTypePE = propertyTypeDAO.tryFindPropertyTypeByCode(propertyTypeCode);
+        if (propertyTypePE == null)
+        {
+            throw new UserFailureException(String.format("Property type '%s' does not exist.",
+                    propertyTypeCode));
+        }
+        return propertyTypePE.isMultiValue();
     }
 
     private DataSetKind map(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind dataSetKind)

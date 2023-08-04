@@ -15,11 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -334,7 +330,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         File dataSetFile = new File(ValidationScriptRunnerTest.INVALID_DATA_SET);
         NewDataSetDTOBuilder builder = new NewDataSetDTOBuilder();
         builder.setFile(dataSetFile);
-        Map<String, String> result =
+        Map<String, Serializable> result =
                 dssComponent.extractMetadata(builder.asNewDataSetDTO(), dataSetFile);
 
         assertEquals(1, result.size());

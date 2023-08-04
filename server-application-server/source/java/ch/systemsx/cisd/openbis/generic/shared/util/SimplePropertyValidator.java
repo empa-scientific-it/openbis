@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -121,20 +122,35 @@ public class SimplePropertyValidator
     // IPropertyValidator
     //
 
-    public final String validatePropertyValue(final DataTypeCode entityDataType, final String value)
+    public final String validatePropertyValue(final DataTypeCode entityDataType, final Serializable value)
             throws UserFailureException
     {
         assert value != null : "Unspecified value.";
 
-        // don't validate error messages and placeholders
-        if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            StringBuilder builder = new StringBuilder("[");
+            for(Serializable val : values) {
+                if(builder.length()>1) {
+                    builder.append(",");
+                }
+                builder.append((String) val);
+            }
+            builder.append("]");
+            return builder.toString();
+        } else
         {
-            return value;
+            String propertyValue = (String) value;
+            // don't validate error messages and placeholders
+            if (propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                return propertyValue;
+            }
+            final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
+            assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
+                    + "specified for '%s'.", entityDataType);
+            return dataTypeValidator.validate(propertyValue);
         }
-        final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
-        assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
-                + "specified for '%s'.", entityDataType);
-        return dataTypeValidator.validate(value);
     }
 
     //

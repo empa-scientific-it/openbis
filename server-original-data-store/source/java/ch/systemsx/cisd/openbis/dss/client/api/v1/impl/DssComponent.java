@@ -15,13 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -261,7 +255,7 @@ public class DssComponent implements IDssComponent
     }
 
     @Override
-    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+    public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.extractMetadata(newDataset, dataSetFile);
@@ -344,7 +338,7 @@ abstract class AbstractDssComponentState implements IDssComponent
     }
 
     @Override
-    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+    public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -884,7 +878,7 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+    public Map<String, Serializable> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         ValidationScriptRunner runner = null;

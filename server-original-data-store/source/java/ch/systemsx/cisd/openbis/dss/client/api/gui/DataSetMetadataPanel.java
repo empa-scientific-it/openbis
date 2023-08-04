@@ -33,6 +33,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -673,7 +674,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         if (newDataSetInfo.getNewDataSetBuilder() != null
                 && newDataSetInfo.getNewDataSetBuilder().getFile() != null)
         {
-            Map<String, String> properties =
+            Map<String, Serializable> properties =
                     clientModel.getOpenBISService().extractMetadata(
                             newDataSetInfo.getNewDataSetBuilder().asNewDataSetDTO(),
                             newDataSetInfo.getNewDataSetBuilder().getFile());

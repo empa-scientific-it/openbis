@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -665,7 +666,7 @@ public class DataSetUploadClientModel
         } else
         {
             DataSetType type = dataSetTypes.get(getIndexOfDataSetType(typeCode));
-            Map<String, String> properties = builderMetadata.getProperties();
+            Map<String, Serializable> properties = builderMetadata.getProperties();
             for (PropertyTypeGroup ptGroup : type.getPropertyTypeGroups())
             {
                 for (PropertyType propertyType : ptGroup.getPropertyTypes())
@@ -686,10 +687,11 @@ public class DataSetUploadClientModel
 
     }
 
-    protected void validatePropertyType(PropertyType propertyType, String valueOrNull,
+    protected void validatePropertyType(PropertyType propertyType, Serializable valueOrNull,
             ArrayList<ValidationError> errors)
     {
-        if (null == valueOrNull || valueOrNull.trim().length() < 1)
+        if (null == valueOrNull || (valueOrNull instanceof String && ((String) valueOrNull).trim()
+                .isEmpty()))
         {
             if (propertyType.isMandatory())
             {

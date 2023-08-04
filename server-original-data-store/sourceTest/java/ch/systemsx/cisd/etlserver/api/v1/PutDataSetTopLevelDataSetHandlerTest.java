@@ -17,6 +17,7 @@ package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -172,7 +173,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                         dataSetInfoMatcher);
         NewDataSetDTO newDataSet = new NewDataSetDTO(dataSetOwner, null, Arrays.asList(f1));
         newDataSet.setDataSetTypeOrNull("MY-TYPE");
-        HashMap<String, String> props = new HashMap<String, String>();
+        HashMap<String, Serializable> props = new HashMap<String, Serializable>();
         props.put("name", "Albert");
         newDataSet.setProperties(props);
         ConcatenatedContentInputStream inputStream =

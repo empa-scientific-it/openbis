@@ -31,6 +31,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -273,7 +274,7 @@ public class DataSetPropertiesPanel extends JPanel
         add(field, c);
     }
 
-    private String setPropertyValue(PropertyType propertyType, String text)
+    private Serializable setPropertyValue(PropertyType propertyType, String text)
     {
         if (null == newDataSetInfo)
         {
@@ -282,9 +283,9 @@ public class DataSetPropertiesPanel extends JPanel
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         NewDataSetMetadataDTO metadata = builder.getDataSetMetadata();
-        Map<String, String> props = metadata.getProperties();
-        HashMap<String, String> newProps = new HashMap<String, String>(props);
-        String oldValue;
+        Map<String, Serializable> props = metadata.getProperties();
+        HashMap<String, Serializable> newProps = new HashMap<String, Serializable>(props);
+        Serializable oldValue;
         if (null == text || text.trim().length() < 1)
         {
             oldValue = newProps.remove(propertyType.getCode());
@@ -305,32 +306,65 @@ public class DataSetPropertiesPanel extends JPanel
     {
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         NewDataSetMetadataDTO metadata = builder.getDataSetMetadata();
-        Map<String, String> props = metadata.getProperties();
+        Map<String, Serializable> props = metadata.getProperties();
         for (String propertyTypeCode : formFields.keySet())
         {
-            String propertyValue = props.get(propertyTypeCode);
+            Serializable propertyValue = props.get(propertyTypeCode);
             JComponent formField = formFields.get(propertyTypeCode);
             formField.setEnabled(false == metadata.isUnmodifiableProperty(propertyTypeCode));
             if (formField instanceof JTextField)
             {
                 JTextField textField = (JTextField) formField;
-                textField.setText(propertyValue);
+                textField.setText(serializableToString(propertyValue));
             } else if (formField instanceof VocabularyTermsComboBoxPanel)
             {
                 VocabularyTermsComboBoxPanel comboBox = (VocabularyTermsComboBoxPanel) formField;
-                for (int i = 0; i < comboBox.getItemCount(); ++i)
-                {
-                    VocabularyTerm term = comboBox.getItemAt(i);
-                    if (term.getCode().equals(propertyValue))
-                    {
-                        comboBox.setSelectedIndex(i);
+                if(propertyValue.getClass().isArray()){
+                    Serializable[] values = (Serializable[]) propertyValue;
+                    for(Serializable val : values) {
+                        setVocabToComboBox(comboBox, (String) val);
                     }
+                } else {
+                    setVocabToComboBox(comboBox, (String) propertyValue);
                 }
+
             } else if (formField instanceof JCheckBox)
             {
                 JCheckBox checkBox = (JCheckBox) formField;
-                checkBox.setSelected(Boolean.parseBoolean(propertyValue));
+                checkBox.setSelected(Boolean.parseBoolean((String)propertyValue));
             }
+        }
+    }
+
+    private void setVocabToComboBox(VocabularyTermsComboBoxPanel comboBox, String value) {
+
+        for (int i = 0; i < comboBox.getItemCount(); ++i)
+        {
+            VocabularyTerm term = comboBox.getItemAt(i);
+            if (term.getCode().equals(value))
+            {
+                comboBox.setSelectedIndex(i);
+            }
+        }
+    }
+
+    private String serializableToString(Serializable value) {
+        if(value == null) {
+            return null;
+        }
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            StringBuilder builder = new StringBuilder("[");
+            for(Serializable val : values) {
+                if(builder.length() > 1) {
+                    builder.append(", ");
+                }
+                builder.append((String)val);
+            }
+            builder.append("]");
+            return builder.toString();
+        } else {
+            return (String) value;
         }
     }
 

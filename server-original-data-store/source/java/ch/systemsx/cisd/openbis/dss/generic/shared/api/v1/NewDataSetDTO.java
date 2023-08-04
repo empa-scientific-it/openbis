@@ -262,12 +262,12 @@ public class NewDataSetDTO implements Serializable
         dataSetMetadata.setDataSetTypeOrNull(dataSetTypeOrNull);
     }
 
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return dataSetMetadata.getProperties();
     }
 
-    public void setProperties(Map<String, String> props)
+    public void setProperties(Map<String, Serializable> props)
     {
         dataSetMetadata.setProperties(props);
     }
