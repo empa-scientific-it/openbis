@@ -7,13 +7,11 @@ types, as well as *Property types* and *Controlled Vocabularies*
 constitute the openBIS **masterdata**. They can be created by someone
 with *Instance admin* role in the **new Admin openBIS UI**. 
 
- 
 
 Note: *Material* types are also part of the openBIS masterdata. However,
 they are no longer supported and will be decommissioned soon. They
 should NOT be used. 
 
- 
 
 The new Admin openBIS UI can be accessed via a URL of this type:
 **https://openbis-xxx/openbis/webapp/openbis-ng-ui/**
