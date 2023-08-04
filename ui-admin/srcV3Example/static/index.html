@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>V3 API bundle test</title>
+    <script type="text/javascript" src="/V3API.js"></script>
+    <script>
+      //
+      //  Normally "openbis" JS facade loads the V3 API modules from the server (makes HTTP calls).
+      //  Here we want the facade to use the module aready loaded via the bundle.
+      //
+      function loadV3APIModule(moduleNames, callback) {
+        callback.apply(
+          null,
+          moduleNames.map(function (moduleName) {
+            return V3API.modules[moduleName]
+          })
+        )
+      }
+
+      function useV3API() {
+        var openbis = new V3API.openbis(
+          'http://localhost:8888/openbis/openbis/rmi-application-server-v3.json'
+        )
+
+        openbis
+          .login('admin', 'test')
+          .done(function (sessionToken) {
+            return openbis
+              .searchSpaces(
+                new V3API.SpaceSearchCriteria(),
+                new V3API.SpaceFetchOptions()
+              )
+              .done(function (searchResult) {
+                alert(
+                  'Found spaces: ' +
+                    searchResult.getObjects().map(function (space) {
+                      return space.getCode()
+                    })
+                )
+              })
+          })
+          .fail(error => {
+            alert('Failed with error: ' + JSON.stringify(error))
+          })
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <button onclick="{useV3API();}">Use V3 API</button>
+    </div>
+  </body>
+</html>
