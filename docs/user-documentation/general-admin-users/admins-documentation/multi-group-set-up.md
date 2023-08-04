@@ -8,7 +8,7 @@ This configuration needs to be done by a system admin, as described [here](https
 
 In the example below we see two groups: RDM and ETHRDH. For each group, in the Inventory, there area n Equipment, a Materials, a Methods and a Publications Spaces with the group prefix. In the lab notebook, each group member has a personal Space where the name is the group prefix and the username of the user.
 
-![image](menu-multigroup.png)
+![image](img/menu-multigroup.png)
 
 It is possible to configure the user management configuration file (sys admin) not to create user Spaces for a given group, in case one group prefers to organise their notebook by project, rather than by group members, as described [here](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/share-ids.html).
  
