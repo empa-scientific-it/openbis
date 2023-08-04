@@ -9,7 +9,7 @@ Users can only be registered by someone with *Instance admin* role:
 1.  Go to the **User Manager**, under **Utilities**.
 2.  Click the  +**New** **User** button. 
 
-[image](img/new-user-eln-ui-1024x455.png)
+![image](img/new-user-eln-ui-1024x455.png)
 
 3. Select the **Authentication Service**:
 
