@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1289,7 +1283,7 @@ public class OpenBISScreeningML
         }
         try
         {
-            Map<String, String> map = createMap(dataSetProperties);
+            Map<String, Serializable> map = createMapSerializable(dataSetProperties);
             IDataSetDss dataSet =
                     openbis.putDataSet(plateIdentifier, dataSetFile, new NewDataSetMetadataDTO(
                             dataSetType, map));
@@ -1336,7 +1330,7 @@ public class OpenBISScreeningML
         }
         try
         {
-            Map<String, String> map = createMap(dataSetProperties);
+            Map<String, Serializable> map = createMapSerializable(dataSetProperties);
             IDataSetDss dataSet =
                     openbis.putDataSet(plateIdentifier, dataSetFile, new NewDataSetMetadataDTO(
                             dataSetType, map, dataSetCodes));
@@ -1384,7 +1378,7 @@ public class OpenBISScreeningML
         }
         try
         {
-            Map<String, String> map = createMap(dataSetProperties);
+            Map<String, Serializable> map = createMapSerializable(dataSetProperties);
             IDataSetDss dataSet =
                     openbis.putDataSet(experimentIdentifier, dataSetFile,
                             new NewDataSetMetadataDTO(dataSetType, map, dataSetCodes));
@@ -1401,6 +1395,20 @@ public class OpenBISScreeningML
     private static Map<String, String> createMap(Object[][] properties)
     {
         Map<String, String> map = new HashMap<String, String>();
+        for (Object[] objects : properties)
+        {
+            if (objects.length == 2)
+            {
+                Object value = objects[1];
+                map.put(objects[0].toString(), value == null ? null : value.toString());
+            }
+        }
+        return map;
+    }
+
+    private static Map<String, Serializable> createMapSerializable(Object[][] properties)
+    {
+        Map<String, Serializable> map = new HashMap<String, Serializable>();
         for (Object[] objects : properties)
         {
             if (objects.length == 2)

@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Screeni
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1245,7 +1246,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             });
         NewDataSetMetadataDTO metaData = new NewDataSetMetadataDTO();
         metaData.setDataSetTypeOrNull("my-type");
-        HashMap<String, String> props = new HashMap<String, String>();
+        HashMap<String, Serializable> props = new HashMap<String, Serializable>();
         props.put("a", "b");
         metaData.setProperties(props);
 
@@ -1294,7 +1295,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             });
         NewDataSetMetadataDTO metaData = new NewDataSetMetadataDTO();
         metaData.setDataSetTypeOrNull("my-type");
-        HashMap<String, String> props = new HashMap<String, String>();
+        HashMap<String, Serializable> props = new HashMap<String, Serializable>();
         props.put("a", "b");
         metaData.setProperties(props);
 
