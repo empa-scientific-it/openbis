@@ -61,11 +61,10 @@ and the dropbox folder needs to be set up by a *system admin*.
 If this is available, users need to organise their data in a specific
 way:
 
- 
 
 **Folder 1**
 
-**         Data** (can be single files or folders)
+**Data** (can be single files or folders)
 
  
 
@@ -73,7 +72,6 @@ way:
 of where the data should be uploaded to openBIS.
 
 The name of **Folder 1** can be generated from the ELN interface:
-
  
 
 1.  From the page where you want to upload data, select **Dataset upload
