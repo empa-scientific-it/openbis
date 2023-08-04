@@ -221,7 +221,7 @@ script-path = script.py
 
 ### IngestionService
 
-**Type: **AGGREGATION\_TABLE\_MODEL
+**Type:** AGGREGATION\_TABLE\_MODEL
 
 **Description**: An abstract superclass for aggregation service
 reporting plugins that modify entities in the database. A db-modifying
@@ -304,7 +304,7 @@ label = My Report
 
 #### JythonIngestionService
 
-**Type: **AGGREGATION\_TABLE\_MODEL
+**Type:** AGGREGATION\_TABLE\_MODEL
 
 **Description**: Invokes a Jython script to register and modify entities
 and create an aggregation service report. The script receives a
@@ -423,7 +423,7 @@ script-path = script.py
 
 ### ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin
 
-**Type: **AGGREGATION\_TABLE\_MODEL**  
+**Type:** AGGREGATION\_TABLE\_MODEL**  
 **
 
 **Description**: Invokes a Jython script to register and modify entities
