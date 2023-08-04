@@ -84,13 +84,10 @@ The name of **Folder 1** can be generated from the ELN interface:
 
  
 
-2\. Select:
-
-1.  The dataset type from the list of available types (mandatory);
-2.  Enter the name of your dataset (optional, but recommended);
-3.  Copy the generated name of the folder using the copy to clipboard
-    icon.
-
+2. Select:
+    1.  The dataset type from the list of available types (mandatory);
+    2.  Enter the name of your dataset (optional, but recommended);
+    3.  Copy the generated name of the folder using the copy to clipboard icon.
  
 
 ![image info](img/dataset-uploader-helper-tool-1024x436.png)
