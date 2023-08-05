@@ -67,8 +67,22 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
             {
                 if (OPTIONS.equals(request.method()))
                 {
+                    final String requestMethod = request.headers().get(HttpHeaderNames.ACCESS_CONTROL_REQUEST_METHOD);
+
+                    final HttpResponseStatus responseStatus;
+                    if (requestMethod == null)
+                    {
+                        responseStatus = HttpResponseStatus.BAD_REQUEST;
+                    } else if (!allowedMethods.contains(HttpMethod.valueOf(requestMethod)))
+                    {
+                        responseStatus = HttpResponseStatus.METHOD_NOT_ALLOWED;
+                    } else
+                    {
+                        responseStatus = HttpResponseStatus.OK;
+                    }
+
                     final FullHttpResponse response = getHttpResponse(
-                            HttpResponseStatus.OK,
+                            responseStatus,
                             HttpResponse.CONTENT_TYPE_TEXT,
                             new EmptyByteBuf(ByteBufAllocator.DEFAULT),
                             0);
