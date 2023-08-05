@@ -20,6 +20,8 @@ import ch.ethz.sis.afsserver.http.HttpServerHandler;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.EmptyByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,7 +42,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
 
     private static final ByteBuf NOT_FOUND_BUFFER = Unpooled.wrappedBuffer(NOT_FOUND);
 
-    private static final Set<HttpMethod> allowedMethods = Set.of(GET, POST, PUT, DELETE);
+    private static final Set<HttpMethod> allowedMethods = Set.of(GET, POST, PUT, DELETE, OPTIONS);
 
     private final String uri;
 
@@ -63,40 +65,53 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
             if (queryStringDecoderForPath.path().equals(uri) &&
                     allowedMethods.contains(request.method()))
             {
-                FullHttpResponse response = null;
-                ByteBuf content = request.content();
-                try
+                if (OPTIONS.equals(request.method()))
                 {
-                    QueryStringDecoder queryStringDecoderForParameters = null;
-                    byte[] array = new byte[content.readableBytes()];
-                    content.readBytes(array);
-
-                    if (GET.equals(request.method())) {
-                        queryStringDecoderForParameters = queryStringDecoderForPath;
-                    } else {
-                        queryStringDecoderForParameters = new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
-                    }
-
-                    HttpResponse apiResponse = httpServerHandler.process(request.method(),
-                            queryStringDecoderForParameters.parameters(), null);
-                    HttpResponseStatus status = (!apiResponse.isError()) ?
-                            HttpResponseStatus.OK :
-                            HttpResponseStatus.BAD_REQUEST;
-                    response = getHttpResponse(
-                            status,
-                            apiResponse.getContentType(),
-                            Unpooled.wrappedBuffer(apiResponse.getBody()),
-                            apiResponse.getBody().length);
+                    final FullHttpResponse response = getHttpResponse(
+                            HttpResponseStatus.OK,
+                            HttpResponse.CONTENT_TYPE_TEXT,
+                            new EmptyByteBuf(ByteBufAllocator.DEFAULT),
+                            0);
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                } finally
+                } else
                 {
-                    content.release();
+                    ByteBuf content = request.content();
+                    try
+                    {
+                        QueryStringDecoder queryStringDecoderForParameters;
+                        byte[] array = new byte[content.readableBytes()];
+                        content.readBytes(array);
+
+                        if (GET.equals(request.method()))
+                        {
+                            queryStringDecoderForParameters = queryStringDecoderForPath;
+                        } else
+                        {
+                            queryStringDecoderForParameters =
+                                    new QueryStringDecoder(new String(array, StandardCharsets.UTF_8), StandardCharsets.UTF_8, false);
+                        }
+
+                        HttpResponse apiResponse = httpServerHandler.process(request.method(),
+                                queryStringDecoderForParameters.parameters(), null);
+                        HttpResponseStatus status = (!apiResponse.isError()) ?
+                                HttpResponseStatus.OK :
+                                HttpResponseStatus.BAD_REQUEST;
+                        final FullHttpResponse response = getHttpResponse(
+                                status,
+                                apiResponse.getContentType(),
+                                Unpooled.wrappedBuffer(apiResponse.getBody()),
+                                apiResponse.getBody().length);
+                        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                    } finally
+                    {
+                        content.release();
+                    }
                 }
             } else
             {
                 FullHttpResponse response = getHttpResponse(
                         HttpResponseStatus.NOT_FOUND,
-                        "text/plain",
+                        HttpResponse.CONTENT_TYPE_TEXT,
                         NOT_FOUND_BUFFER,
                         NOT_FOUND.length);
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -140,6 +155,9 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
         );
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentLength);
         response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+        response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,
+                String.join(", ", allowedMethods.stream().map(HttpMethod::name).toList()));
+        response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "*");
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         response.headers().set(HttpHeaderNames.CONNECTION, "close");
         return response;
