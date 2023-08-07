@@ -107,8 +107,7 @@ misspellings and avoid silently ignoring content.
 
 ## Entity Types Definitions
 
-All entity types can be created*.* There are differences due to the
-nature of the defined elements themselves.
+All entity types can be created. There are differences due to the nature of the defined elements themselves.
 
 ### Vocabulary and Vocabulary Term
 
@@ -342,8 +341,7 @@ ELSE:
 
 ## Entity Definitions
 
-Most entities can be created, excluding DataSets*.* There are
-differences due to the nature of the defined elements themselves.
+Most entities can be created, excluding DataSets. There are differences due to the nature of the defined elements themselves.
 
 General Rules:
 
