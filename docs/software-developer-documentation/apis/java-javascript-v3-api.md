@@ -4192,8 +4192,7 @@ following examples as a template.
     }
 ```
 
-**  
-Example (Javascript)**
+**Example (Javascript)**
 
 **Register Data Set**
 
