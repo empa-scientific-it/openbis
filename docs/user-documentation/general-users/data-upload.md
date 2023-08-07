@@ -2,7 +2,7 @@ Data Upload
 ====
 
 
-Data can be uploaded to Datasets in openBIS to Experiments and Objects (e.g., Experimental Steps). openBIS is agnostic of file formats and types.
+Data can be uploaded to Datasets in openBIS to *Experiments* and *Objects* (e.g., *Experimental Steps*). openBIS is agnostic of file formats and types.
 
 Small data files can be uploaded via the web user interface, larger data files can be uploaded via dropbox mechanism.
 
