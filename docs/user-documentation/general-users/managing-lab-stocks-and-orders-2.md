@@ -39,19 +39,14 @@ Catalog**. 
 To build the catalog of all suppliers used for purchasing products by
 the lab:
 
-> 1.  Go to the **Supplier Collection** folder under **Stock** *->*
->     **Stock Catalog***->* **Suppliers** in the main menu.
-> 2.  Click on the **+ New Supplier** button in the *Collection* page.
-> 3.  Follow the steps explained in the [Register
->     Entries](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#register-single-entries-in-a-collection)
->     documentation page.
->
+1.  Go to the **Supplier Collection** folder under **Stock** -> **Stock Catalog** -> **Suppliers** in the main menu.
+2.  Click on the **+ New Supplier** button in the *Collection* page.
+3.  Follow the steps explained in the [Register Entries](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#register-single-entries-in-a-collection) documentation page.
 
 ![image info](img/stock-new-supplier.png)
 
 To register several suppliers at once, follow the steps described in
-[Batch register entries in a
-Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection)
+[Batch register entries in a Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection)
 
 ####  Catalog of products
 
@@ -59,22 +54,15 @@ Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general
 
 To build the catalog of all products purchased in the lab:
 
-> 1.  Go to the **Product Collection** folder under **Stock** *->*
->     **Stock Catalog***->* **Products** in the main menu.
-> 2.  Click the **+ New Product** button in the *Collection* page.
+1.  Go to the **Product Collection** folder under **Stock** -> **Stock Catalog** -> **Products** in the main menu.
+2.  Click the **+ New Product** button in the *Collection* page.
 
 
 ![image info](img/stock-new-product-1.png)
 
->  
->
-> 3. For each product it is necessary to register one supplier as
-> parent. Select the correct supplier from the list of suppliers
-> registered in the **Supplier Collection.** The process for adding
-> parents is the same as described for Experimental Steps: [Add
-> parents](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps).
->
->  
+ 
+
+3. For each product it is necessary to register one supplier as parent. Select the correct supplier from the list of suppliers registered in the **Supplier Collection.** The process for adding parents is the same as described for Experimental Steps: [Add parents](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps).
 
 
 ![image info](img/stock-new-product.png)
@@ -82,8 +70,7 @@ To build the catalog of all products purchased in the lab:
  
 
 To register several suppliers at once, follow the steps described in
-[Batch register entries in a
-Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection)
+[Batch register entries in a Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection)
 
 
 ### Creating requests for products to order
@@ -93,49 +80,26 @@ Collection.](https://openbis.readthedocs.io/en/latest/user-documentation/general
 Every lab member can create requests for products that need to be
 ordered:
 
-> 1.  Go to the **Request Collection** folder under **Stock** *->*
->     **Stock Catalog***->* **Requests** in the main menu.
-> 2.  Click the **+ New Request** button in the *Collection* page.
+1.  Go to the **Request Collection** folder under **Stock** -> **Stock Catalog** -> **Requests** in the main menu.
+2.  Click the **+ New Request** button in the *Collection* page.
 
  
 
 ![image info](img/stock-new-request-1.png)
 
->        3. When you fill in the form the following information needs to
-> be provided:
->
->  
->
-> 1.  -    **Order Status**. Options  are **Delivered**, **Paid**,
->         **Ordered**, **Not yet ordered**. When you create a request
->         set this field to **Not yet ordered.** Only requests with this
->         **Order Status** can be processed to orders.
->
-> 2.   
->     -   Add the product you for which you want to place a request for
->         order. This can be done in two ways**:**
->
-> 1\. add a product that is already present in the catalog. This process
-> is the same as described for adding parents in Experimental Steps:
-> [Add
-> parents](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps).
-> The quantity, i.e. how many units of the product are requested, needs
-> to be specified.
->
-> 2\. add a product that is not yet registered in the Catalog. In this
-> case the information shown in the picture below needs to be provided.
-> After creating the request, the product entered here is automatically
-> registered in the Product Catalog.
->
->  
+3. When you fill in the form the following information needs to be provided:
 
-Please note that only 1 product can be added to 1 request.
+    1. **Order Status**. Options  are **Delivered**, **Paid**, **Ordered**, **Not yet ordered**. When you create a request set this field to **Not yet ordered.** Only requests with this **Order Status** can be processed to orders.
+    2. Add the product you for which you want to place a request for order. This can be done in two ways:
+        1. add a product that is already present in the catalog. This process is the same as described for adding parents in Experimental steps: [Add parents](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps). The quantity, i.e. how many units of the product are requested, needs to be specified.
+        2. add a product that is not yet registered in the Catalog. In this case the information shown in the picture below needs to be provided. After creating the request, the product entered here is automatically registered in the Product Catalog. 
+        Please note that only 1 product can be added to 1 request.
 
  
 
 ![image info](img/stock-new-request.png)
 
-> 4. Click **Save** on top of the form.
+4. Click **Save** on top of the form.
 
 
 ## STOCK ORDERS
@@ -152,60 +116,29 @@ based on the requests created in the Stock Catalog by every lab member.
 
 To create orders of products from requests created in the Stock Catalog:
 
-> 1.  Go to the **Order Collection** folder under **Stock** *->*
->     **Stock Orders***->* **Orders** in the main menu.
-> 2.  Click the **+ New Order** button in the *Collection* page.
+1.  Go to the **Order Collection** folder under **Stock** ->  **Stock Orders** -> **Orders** in the main menu.
+2.  Click the **+ New Order** button in the *Collection* page.
 
 ![image info](img/stock-new-order-1.png)
 
->  
->
->  
->
-> 3\. If you do not see the **Code** in the form, select **Show
-> Identification Info** from the **More..** dropdown
-
- 
+3. If you do not see the **Code** in the form, select **Show Identification Info** from the **More..** dropdown
 
 ![image info](img/stock-new-order-identification-info.png)
 
- 
 
-4\. Enter a **Code** for the order
-
- 
+4. Enter a **Code** for the order
 
 ![image info](img/stock-new-order-code.png)
 
- 
-
->  
->
->   3. If an **order** **template** form is available (see [Create
-> Templates for
-> Objects](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/create-templates-for-objects.html)),
-> this template can be used and most fields will be automatically filled
-> (see [Use templates for Experimental
-> Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#use-templates-for-experimental-steps)).
-> If no template is available, the relevant fields in the form need to
-> be filled in with the relevant information.
+3. If an **order** **template** form is available (see [Create Templates for Objects](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/create-templates-for-objects.html)), this template can be used and most fields will be automatically filled (see [Use templates for Experimental Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#use-templates-for-experimental-steps)). If no template is available, the relevant fields in the form need to be filled in with the relevant information.
 
  
 
 ![image info](img/create-new-order.png)
 
-> 4\. Enter the **Order Status.** This field is mandatory. Available
-> options are **Delivered**, **Paid**, **Ordered**, **Not yet ordered**.
-> When you first create the order, you should set the status to **Not
-> yet ordered**.
->
-> 5. Add one or more requests to the Order. Only requests with Order
-> Status set to **Not yet ordered** will be displayed and can be
-> selected.
->
-> 6. Click **Save** on top of the form.
-
- 
+4. Enter the **Order Status.** This field is mandatory. Available options are **Delivered**, **Paid**, **Ordered**, **Not yet ordered**. When you first create the order, you should set the status to **Not yet ordered**.
+5. Add one or more requests to the Order. Only requests with Order Status set to **Not yet ordered** will be displayed and can be selected.
+6. Click **Save** on top of the form. 
 
 ![image info](img/order-form-1-1024x556.png)
 
