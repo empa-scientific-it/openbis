@@ -149,8 +149,8 @@ def openbis_definitions(entity):
             "identifier": "typeId",
         },
         "propertyType": {
-            "attrs": "code label description managedInternally dataType vocabulary materialType schema transformation semanticAnnotations registrator registrationDate metaData".split(),
-            "attrs_new": "code label description managedInternally dataType vocabulary materialType schema transformation metaData".split(),
+            "attrs": "code label description managedInternally dataType vocabulary materialType schema transformation semanticAnnotations registrator registrationDate metaData multiValue".split(),
+            "attrs_new": "code label description managedInternally dataType vocabulary materialType schema transformation metaData multiValue".split(),
             "attrs_up": "label description schema transformation metaData".split(),
             "search": {"@type": "as.dto.property.search.PropertyTypeSearchCriteria"},
             "create": {"@type": "as.dto.property.create.PropertyTypeCreation"},
@@ -167,6 +167,7 @@ def openbis_definitions(entity):
                 "MATERIAL",
                 "HYPERLINK",
                 "XML",
+                "SAMPLE",
                 "ARRAY_INTEGER",
                 "ARRAY_REAL",
                 "ARRAY_STRING",

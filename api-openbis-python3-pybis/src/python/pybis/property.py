@@ -28,8 +28,8 @@ class PropertyHolder:
 
         self.__dict__["_type"] = type
         if (
-            "propertyAssignments" in type.data
-            and type.data["propertyAssignments"] is not None
+                "propertyAssignments" in type.data
+                and type.data["propertyAssignments"] is not None
         ):
             for prop in type.data["propertyAssignments"]:
                 property_name = prop["propertyType"]["code"].lower()
@@ -134,6 +134,11 @@ class PropertyHolder:
                 f"No such property: «{name}». Allowed properties are: {', '.join(self._property_names.keys())}"
             )
         property_type = self._property_names[name]
+        if "multiValue" in property_type and property_type["multiValue"] is not True and type(
+                value) == list:
+            raise ValueError(
+                f'Property type {property_type["code"]} is not a multi-value property!')
+
         data_type = property_type["dataType"]
         if data_type == "CONTROLLEDVOCABULARY":
             terms = property_type["terms"]
@@ -151,7 +156,13 @@ class PropertyHolder:
                     raise ValueError(
                         f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
                     )
-        elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+        elif data_type == "SAMPLE":
+            if "multiValue" in property_type and property_type["multiValue"] is True:
+                if type(value) != list:
+                    value = [value]
+        elif data_type in (
+            "INTEGER", "BOOLEAN", "VARCHAR", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING",
+                "ARRAY_TIMESTAMP"):
             if not check_datatype(data_type, value):
                 raise ValueError(f"Value must be of type {data_type}")
         self.__dict__[name] = value

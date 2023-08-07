@@ -28,9 +28,17 @@ class Experiment(
 
         # put the properties in the self.p namespace
         for key, value in data["properties"].items():
-            data_type = self.p._property_names[key.lower()]['dataType']
+            property_type = self.p._property_names[key.lower()]
+            data_type = property_type['dataType']
             if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
                 value = self.formatter.to_array(data_type, value)
+            if "multiValue" in property_type:
+                if property_type['multiValue'] is True:
+                    if type(value) is not list:
+                        value = [value]
+                else:
+                    if type(value) is list:
+                        raise ValueError(f'Property type {property_type["code"]} is not a multi-value property!')
             self.p.__dict__[key.lower()] = value
 
     def __str__(self):

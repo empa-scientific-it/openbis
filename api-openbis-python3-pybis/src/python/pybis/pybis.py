@@ -226,7 +226,6 @@ def get_saved_pats(hostname=None, sessionName=None):
 
 
 def _type_for_id(ident, entity):
-    ident = ident.strip()
     """Returns the data type for a given identifier/permId for use with the API call, e.g.
     {
         "identifier": "/DEFAULT/SAMPLE_NAME",
@@ -239,6 +238,7 @@ def _type_for_id(ident, entity):
     }
     """
     # Tags have strange permIds...
+    ident = ident.strip()
     if entity.lower() == "tag":
         if "/" in ident:
             if not ident.startswith("/"):
@@ -1253,7 +1253,7 @@ class Openbis:
         try to use other means to connect.
         """
         if is_session_token(self.token):
-            for session_token in get_saved_tokens(hostname=self.hostname):
+            for session_token in get_saved_tokens():
                 pass
 
         else:
@@ -1426,8 +1426,6 @@ class Openbis:
                 return None
 
         # try to find out the mountpoint
-        import subprocess
-
         p1 = subprocess.Popen(["mount", "-d"], stdout=subprocess.PIPE)
         p2 = subprocess.Popen(
             ["grep", "--fixed-strings", self.hostname],
@@ -1610,7 +1608,7 @@ class Openbis:
         the file uploaded to.
         """
         if hasattr(self, "datastores"):
-            return self.datastores
+            return self.datastores # pylint: disable=E0203
 
         request = {
             "method": "searchDataStores",
@@ -1998,7 +1996,7 @@ class Openbis:
         server_info = self.get_server_information()
         session_token = self.token
         if not is_session_token(session_token):
-            session_token = self.session_token
+            session_token = None
         if not session_token:
             session_token = get_token_for_hostname(
                 self.hostname, session_token_needed=True
@@ -3920,6 +3918,7 @@ class Openbis:
             schema=None,
             transformation=None,
             metaData=None,
+            multiValue=False
     ):
         """Creates a new property type.
 
@@ -3961,6 +3960,7 @@ class Openbis:
             schema=schema,
             transformation=transformation,
             metaData=metaData,
+            multiValue=multiValue
         )
 
     def get_property_type(

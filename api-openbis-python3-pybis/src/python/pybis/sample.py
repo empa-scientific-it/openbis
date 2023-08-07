@@ -92,9 +92,17 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
 
         # put the properties in the self.p namespace
         for key, value in data["properties"].items():
-            data_type = self.p._property_names[key.lower()]['dataType']
+            property_type = self.p._property_names[key.lower()]
+            data_type = property_type['dataType']
             if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
                 value = self.formatter.to_array(data_type, value)
+            if "multiValue" in property_type:
+                if property_type['multiValue'] is True:
+                    if type(value) is not list:
+                        value = [value]
+                else:
+                    if type(value) is list:
+                        raise ValueError(f'Property type {property_type} is not a multi-value property!')
             self.p.__dict__[key.lower()] = value
 
     def __dir__(self):
@@ -272,7 +280,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                     raise ValueError("Status is not OK")
                 if VERBOSE:
                     print(f"{self.entity} successfully created.")
-                permId = permid = resp["rows"][0][2]["value"]
+                permId = resp["rows"][0][2]["value"]
                 new_entity_data = self.openbis.get_sample(permId, only_data=True)
                 self._set_data(new_entity_data)
                 return self

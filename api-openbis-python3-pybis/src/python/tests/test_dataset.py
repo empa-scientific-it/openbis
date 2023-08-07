@@ -392,3 +392,179 @@ def test_dataset_array_properties(space):
     assert dataset.props['dataset_array_timestamp'] == ['2023-05-18 11:17:03',
                                                         '2023-05-18 11:17:04',
                                                         '2023-05-18 11:17:05']
+
+
+def test_dataset_assigned_not_multivalue_property_error(space):
+    o = space.openbis
+
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+
+    # Create custom SAMPLE property type
+    property_type_code = "test_property_type_" + timestamp + "_" + str(uuid.uuid4())
+    pt_date = o.new_property_type(
+        code=property_type_code,
+        label='custom property of data type timestamp for dataset',
+        description='custom property created in unit test',
+        dataType='SAMPLE',
+    )
+    pt_date.save()
+
+    # Create new dataset type
+    type_code = "test_dataset_type_" + timestamp + "_" + str(uuid.uuid4())
+    dataset_type = o.new_dataset_type(code=type_code)
+    dataset_type.save()
+
+    # Assign created property to new dataset type
+    dataset_type.assign_property(property_type_code)
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    try:
+        dataset = o.new_dataset(
+            type=type_code,
+            experiment="/DEFAULT/DEFAULT/DEFAULT",
+            files=[testfile_path],
+            props={property_type_code: ['some_id1', 'some_id2']},
+        )
+        dataset.save()
+        pytest.fail("Dataset creation should should fail!")
+    except ValueError as e:
+        assert str(e) == f'Property type {property_type_code.upper()} is not a multi-value property!'
+
+
+def test_dataset_with_multivalue_property_sample(space):
+    o = space.openbis
+
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+
+    # Create custom SAMPLE property type
+    property_type_code = "test_property_type_" + timestamp + "_" + str(uuid.uuid4())
+    pt_date = o.new_property_type(
+        code=property_type_code,
+        label='custom property of data type timestamp for dataset',
+        description='custom property created in unit test',
+        dataType='SAMPLE',
+        multiValue=True
+    )
+    pt_date.save()
+
+    # Create new dataset type
+    type_code = "test_dataset_type_" + timestamp + "_" + str(uuid.uuid4())
+    dataset_type = o.new_dataset_type(code=type_code)
+    dataset_type.save()
+
+    # Assign created property to new dataset type
+    dataset_type.assign_property(property_type_code)
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    sample_code = "my_sample_{}".format(timestamp)
+
+    test_sample1 = o.new_sample(code=sample_code + "_property1", type='UNKNOWN', space=space)
+    test_sample1.save()
+    test_sample2 = o.new_sample(code=sample_code + "_property2", type='UNKNOWN', space=space)
+    test_sample2.save()
+    test_sample3 = o.new_sample(code=sample_code + "_property3", type='UNKNOWN', space=space)
+    test_sample3.save()
+
+    props = {property_type_code: [test_sample1.permId, test_sample2.identifier]}
+
+    dataset = o.new_dataset(
+        type=type_code,
+        sample=test_sample1,
+        files=[testfile_path],
+        props=props,
+    )
+    dataset.save()
+
+    # New dataset case
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None
+    key, val = dataset.props().popitem()
+    assert key == property_type_code
+    assert type(val) == list
+    assert len(val) == 2
+    assert test_sample1.permId in val
+    assert test_sample2.permId in val
+
+    # Update dataset case
+    dataset.p[property_type_code] = [test_sample3.permId]
+    dataset.save()
+
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None
+    key, val = dataset.props().popitem()
+    assert key == property_type_code
+    assert val == [test_sample3.permId]
+
+
+def test_dataset_with_multivalue_property_vocabulary(space):
+    o = space.openbis
+
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+
+    vocab = o.new_vocabulary(code=f'test_vocab_{timestamp}_{uuid.uuid4()}',
+                             description='test vocab for multi-value property tests',
+                             terms=[
+                                 {"code": 'term_code1', "label": "term_label1",
+                                  "description": "term_description1"},
+                                 {"code": 'term_code2', "label": "term_label2",
+                                  "description": "term_description2"},
+                                 {"code": 'term_code3', "label": "term_label3",
+                                  "description": "term_description3"}
+                             ])
+    vocab.save()
+
+    # Create custom CONTROLLEDVOCABULARY property type
+    property_type_code = "test_property_type_" + timestamp + "_" + str(uuid.uuid4())
+    pt_date = o.new_property_type(
+        code=property_type_code,
+        label='custom property of data type timestamp for dataset',
+        description='custom property created in unit test',
+        dataType='CONTROLLEDVOCABULARY',
+        vocabulary=vocab,
+        multiValue=True
+    )
+    pt_date.save()
+
+    type_code = "test_dataset_type_" + timestamp + "_" + str(uuid.uuid4())
+    dataset_type = o.new_dataset_type(code=type_code)
+    dataset_type.save()
+
+    # Assign created property to new dataset type
+    dataset_type.assign_property(property_type_code)
+
+    sample_code = "my_sample_{}".format(timestamp)
+
+    test_sample = o.new_sample(code=sample_code, type='UNKNOWN', space=space)
+    test_sample.save()
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    props = {property_type_code: ['term_code1', 'term_code2']}
+
+    dataset = o.new_dataset(
+        type=type_code,
+        sample=test_sample,
+        files=[testfile_path],
+        props=props,
+    )
+    dataset.save()
+
+    # New dataset case
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None
+    key, val = dataset.props().popitem()
+    assert key == property_type_code
+    assert type(val) == list
+    assert len(val) == 2
+    assert 'term_code1'.upper() in val
+    assert 'term_code2'.upper() in val
+
+    # Update dataset case
+    dataset.p[property_type_code] = ['term_code3'.upper()]
+    dataset.save()
+
+    assert len(dataset.p()) == 1
+    assert dataset.p[property_type_code] is not None
+    key, val = dataset.props().popitem()
+    assert key == property_type_code
+    assert val == ['term_code3'.upper()]
