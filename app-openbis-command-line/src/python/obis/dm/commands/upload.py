@@ -39,7 +39,7 @@ class Upload(OpenbisCommand):
 
     def run(self):
         with cd(self.data_mgmt.invocation_path):
-            click_echo(f"Uploading files {self.files} under {self.sample_id}")
+            click_echo(f"Uploading files {list(self.files)} under {self.sample_id}")
             ds = self.openbis.new_dataset(type=self.data_set_type, sample=self.sample_id,
                                           files=self.files)
             result = ds.save()
