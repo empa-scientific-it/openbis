@@ -515,7 +515,7 @@ function LinksView(linksController, linksModel) {
         var $pasteContainer = $("<div>");
         $gridContainer.append($pasteContainer);
 
-        var $textArea = FormUtil._getTextBox(null, "Object Identifiers or codes separated by space or coma", false);
+        var $textArea = FormUtil._getTextBox(null, "Object Identifiers or codes separated by space or comma", false);
         $textArea.css( { 'width' : '100%', "height" : "20%", "min-height" : "100px"});
         $pasteContainer.append($textArea);
 
