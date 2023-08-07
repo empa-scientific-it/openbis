@@ -35,12 +35,11 @@ import** will be presented in the form.
 
  
 
-**Note for MacOS users: **the default MacOS archiver generates hidden
+**Note for MacOS users:** the default MacOS archiver generates hidden
 folders that become visible in openBIS upon unarchive. To avoid this
 there are two options:
 
-1.  Zip using  the following command on the command-line: *zip -r
-     folder-name.zip folder-name/\*  -x “\*.DS\_Store”*
+1.  Zip using  the following command on the command-line: *zip -r folder-name.zip folder-name/\*  -x “\*.DS\_Store”*
 2.  Use an external archiver (e.g. Stuffit Deluxe).
 
 Updated on March 23, 2023
@@ -121,15 +120,12 @@ done by a *system admin*. The process of data preparation is the same as
 described above, however in this case the data move to the openBIS final
 storage only starts when a markerfile is placed in the
 eln-lims-dropbox-marker folder. The marker file is an empty file with
-this name:  **.MARKER\_is\_finished\_<folder-to-upload-name>.
-**Please note the “.” at the start of the name, which indicates that
-this is a hidden file. This file should also not have any extension. For
-example, if the folder to be uploaded has the following name:
+this name: **.MARKER\_is\_finished\_<folder-to-upload-name>.** Please note the “.” at the start of the name, which indicates that this is a hidden file. This file should also not have any extension. For example, if the folder to be uploaded has the following name:
 
  
-
+```
 O+BARILLAC+PROJECT\_1+EXP1+RAW\_DATA+test
-
+```
  
 
 The marker file should be named:
