@@ -113,22 +113,21 @@ methods are currently available:
 
 ![image info](img/batch-register-entries-one-collection-1024x300.png)
 
-![image info](img/warning-sign-1024x904.png)
+```{warning}
 In openBIS versions prior to 20.10.6, the XLS batch registration is not
 recommended to register several hundreds of entries. The use of the TSV
 batch upload to register several hundreds of entries is recommended in
 those cases.
+```
 
 ### Batch registration via Excel template file
 
 To register several entries of the same type with an Excel file:
 
-1.  Navigate to the relevant collection (e.g.** Samples**).
-2.  Select **XLS Batch Register Object*****s*** from the
-    **More*** *drop-down menu (see figure above)
+1.  Navigate to the relevant collection (e.g. **Samples**).
+2.  Select **XLS Batch Register Objects*** from the **More** drop-down menu (see figure above)
 3.  Download the **template** file and fill in the relevant information.
-    (Example file:
-    [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
+    (Example file: [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
 4.  Upload the file.
 
 #### **Codes**
