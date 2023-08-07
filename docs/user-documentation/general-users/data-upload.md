@@ -39,7 +39,7 @@ import** will be presented in the form.
 folders that become visible in openBIS upon unarchive. To avoid this
 there are two options:
 
-1.  Zip using  the following command on the command-line: *zip -r folder-name.zip folder-name/\*  -x “\*.DS\_Store”*
+1.  Zip using  the following command on the command-line: `zip -r folder-name.zip folder-name/\*  -x “\.DS\_Store”`
 2.  Use an external archiver (e.g. Stuffit Deluxe).
 
 Updated on March 23, 2023
