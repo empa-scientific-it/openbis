@@ -9,8 +9,7 @@ Additional Functionalities
 Parent-child relationships between *Objects* can be visualised as trees
 or tables in the ELN.
 
-To see the genealogical tree, select the **Hierarchy Graph** option from
-the **More…**dropdown in an entity form*.*
+To see the genealogical tree, select the **Hierarchy Graph** option from the **More…** dropdown in an entity form.
 
  
 
@@ -25,8 +24,7 @@ and/or children and which types to show.
 
  
 
-To view the genealogy of an *Object* in a tabular format, select the
-**Hierarchy Table** option from the **More…** dropdown.
+To view the genealogy of an *Object* in a tabular format, select the **Hierarchy Table** option from the **More…** dropdown.
 
 Updated on March 4, 2022
  
@@ -50,15 +48,11 @@ Per Column** and **Global Filter**. The first allows to filter on
 individual columns, or multiple columns, whereas the second filters
 terms across the entire table using the **AND** or **OR** operator. 
 
->  
->
-![image info](img/filter-per-column-tables-1024x248.png)
->
-![image info](img/global-filter-tables-1024x219.png)
->
->  
 
->  
+![image info](img/filter-per-column-tables-1024x248.png)
+
+![image info](img/global-filter-tables-1024x219.png)
+
 
 ### Sorting
 
@@ -71,14 +65,14 @@ each column, as shown below.
 
 ![image info](img/multi-colums-sorting-1024x334.png)
 
->  
+
 
 ### Exports
 
 Tables can be exported in different ways, using the export button shown
 below.
 
->  
+
 
 ![image info](img/export-tables-1024x419.png)
 
@@ -346,8 +340,7 @@ A Space admin role is necessary to freeze entities in a given Space.
 **IMPORTANT: the freezing is IRREVERSIBLE!**  
   
 
-This operation cannot be undone from any UI, not even by an *Instance
-admin.* Please freeze entities only when you are absolutely sure that
+This operation cannot be undone from any UI, not even by an *Instance admin.* Please freeze entities only when you are absolutely sure that
 they should not be further modified!
 
 ###  **How to freeze an entity**
@@ -464,7 +457,7 @@ password and save.
 |Copy Object|x (only if the Experiment is not frozen)||
 |Export|x||
 
-**5. Freeze Dataset only **  
+**5. Freeze Dataset only**  
 
 ||Allowed|Not allowed|
 |--- |--- |--- |
@@ -738,7 +731,7 @@ For every dataset, the history of changes can be accessed from the
  
 
 For a *Dataset*, the **PermID** (Permanent Identifier) of the
-*Object*/*Collection* it belongs to is shown. If a* Dataset* is moved
+*Object*/*Collection* it belongs to is shown. If a *Dataset* is moved
 from one *Object*/*Collection* to another, the PermID of the old and new
 *Objects*/*Collections* are shown in the history table.
 
