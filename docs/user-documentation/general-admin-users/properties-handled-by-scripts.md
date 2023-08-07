@@ -495,7 +495,7 @@ To create a Managed Property:
     1.  select `Handled By Script` checkbox,
     2.  select `Managed Property Handler` radio option
     3.  choose the appropriate `Script` that will be responsible
-    4.  optionally set the *Shown in Edit Views *checkbox to true. This
+    4.  optionally set the *Shown in Edit Views* checkbox to true. This
         has the following effects:
         1.  In registration/editing form the raw values backing the
             managed properties is show.
