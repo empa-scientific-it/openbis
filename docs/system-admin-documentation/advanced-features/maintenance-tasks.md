@@ -306,8 +306,8 @@ interval = 1 day
 **Environment**: DSS
 
 **Relevancy:** rare, used when no MultiDataSetArchiver is used and
-AutoArchiverTask is too complex.**  
-**
+AutoArchiverTask is too complex.
+
 
 **Description**: Archives all data sets of experiments which fulfill
 some criteria. This tasks needs the archive plugin to be configured in
