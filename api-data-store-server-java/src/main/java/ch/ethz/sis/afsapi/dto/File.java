@@ -25,6 +25,7 @@ import java.time.OffsetDateTime;
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class File {
+    private String owner;
     private String path;
     private String name;
     private Boolean directory;

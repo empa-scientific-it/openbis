@@ -72,12 +72,12 @@ public class ExecutorProxy extends AbstractProxy {
     public List<File> list(String owner, String source, Boolean recursively) throws Exception {
         return workerContext.getConnection().list(getPath(owner, source), recursively)
                 .stream()
-                .map(this::convertToFile)
+                .map(file -> convertToFile(owner, file))
                 .collect(Collectors.toList());
     }
 
-    private File convertToFile(ch.ethz.sis.afs.api.dto.File file) {
-        return new File(file.getPath(), file.getName(), file.getDirectory(), file.getSize(),
+    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file) {
+        return new File(owner, file.getPath().substring(owner.length() + 1), file.getName(), file.getDirectory(), file.getSize(),
                 file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
     }
 
