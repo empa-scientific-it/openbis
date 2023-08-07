@@ -470,7 +470,7 @@ start = 01:00 
 
 **Environment**: DSS
 
-**Relevancy: **Default
+**Relevancy:** Default
 
 **Description**: Task that verifies checksums of data sets archived
 within a specific time window. It reads archives from the final
