@@ -271,8 +271,7 @@ not moved to the trashcan first.
 
  
 
-To empty the whole trashcan, click the blue **Empty Trash **button above
-the table.
+To empty the whole trashcan, click the blue **Empty Trash** button above the table.
 
 To delete permanently single entries choose one of two options from the
 Operations dropdown:
@@ -287,7 +286,7 @@ Operations dropdown:
  
 
 If one entity was unintentionally deleted, the operation can be reverted
-at this stage by choosing the** Revert Deletions** option from
+at this stage by choosing the **Revert Deletions** option from
 the **Operations** drop down in the table.
 
  
