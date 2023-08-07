@@ -845,7 +845,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         } catch (Exception e)
         {
             String fullStackTrace = ExceptionUtils.getStackTrace(e);
-            assertTrue(fullStackTrace, fullStackTrace.contains("Property type with code 'IDONTEXIST' does not exist!"));
+            assertTrue(fullStackTrace, fullStackTrace.contains("Property type 'IDONTEXIST' does not exist"));
         }
 
         // second attempt
