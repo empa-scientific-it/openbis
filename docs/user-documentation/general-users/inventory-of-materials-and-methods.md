@@ -90,7 +90,7 @@ To register a different object type in the Collection:
 
 1.  Select **New Object** from the **More** drop down menu (as shown
     below)
-2.  Select the relevant *Object type* from the list *(Sample,* in this case*).*
+2.  Select the relevant *Object type* from the list *(Sample,* in this case).
 3.  Fill in the form
 4.  **Save**
 
@@ -124,7 +124,7 @@ those cases.
 To register several entries of the same type with an Excel file:
 
 1.  Navigate to the relevant collection (e.g. **Samples**).
-2.  Select **XLS Batch Register Objects*** from the **More** drop-down menu (see figure above)
+2.  Select **XLS Batch Register Objects** from the **More** drop-down menu (see figure above)
 3.  Download the **template** file and fill in the relevant information.
     (Example file: [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
 4.  Upload the file.
