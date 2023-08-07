@@ -1,13 +1,13 @@
 Lab Notebook
 ====
 
-In the most common use-cases, the Lab Notebook part of the openBIS ELN-LIMS contains a personal Space (i.e. folder) for each scientist. Within this Space, scientists can organise their work using the openBIS Projects, Experiments and Objects.
+In the most common use-cases, the **Lab Notebook** part of the openBIS ELN-LIMS contains a personal Space (i.e. folder) for each scientist. Within this *Space*, scientists can organise their work using the openBIS *Projects, Experiments and Objects.*
 
 
-An openBIS Experiment is defined as a specific scientific question. The individual attempts to answer this question, are Objects of type Experimental Step. At this level, the user can create links to materials and methods registered in the Inventory that were used to perform the Experimental Step. These are entered as Parents of the Experimental Step. All data produced in the Experimental Step and further processed and analysed can be added at this level.
+An openBIS *Experiment* is defined as a specific scientific question. The individual attempts to answer this question, are *Objects* of type *Experimental Step*. At this level, the user can create links to *materials* and *methods* registered in the Inventory that were used to perform the *Experimental Step*. These are entered as *Parents* of the *Experimental Step*. All data produced in the *Experimental Step* and further processed and analysed can be added at this level.
 
 
-It is also possible to organise the Lab Notebook on Projects, rather than on personal Spaces. This should be configured by an Instance admin.
+It is also possible to organise the Lab Notebook on *Projects*, rather than on personal Spaces. This should be configured by an *Instance admin*.
 
  
 ## Register Projects
