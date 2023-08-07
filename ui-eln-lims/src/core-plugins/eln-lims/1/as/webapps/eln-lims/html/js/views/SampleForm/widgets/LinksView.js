@@ -515,29 +515,36 @@ function LinksView(linksController, linksModel) {
         var $pasteContainer = $("<div>");
         $gridContainer.append($pasteContainer);
 
-        var $textArea = FormUtil._getTextBox(null, "Object Identifiers or codes separated by space or comma", false);
+        var $textArea = FormUtil._getTextBox(null, "Object identifiers or codes separated by space or comma", false);
         $textArea.css( { 'width' : '100%', "height" : "20%", "min-height" : "100px"});
         $pasteContainer.append($textArea);
 
         var $addObjectsBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
             var maybeIdentifiersOrCodes = null;
             if($textArea.val().indexOf(",") > -1) {
-                maybeIdentifiersOrCodes = $textArea.val().split(",");
+                maybeIdentifiersOrCodes = $textArea.val().trim().split(",");
             } else {
-                maybeIdentifiersOrCodes = $textArea.val().split(" ");
+                maybeIdentifiersOrCodes = $textArea.val().trim().split(" ");
             }
 
             var maybeIdentifiers = [];
             var maybeCodes = [];
+            var maybePermIds = []
+            var permIdPattern = new RegExp('^[0-9]{17}-[0-9]{1,}');
             for(var vIdx = 0; vIdx < maybeIdentifiersOrCodes.length; vIdx++) {
-                if(maybeIdentifiersOrCodes[vIdx].indexOf("/") > -1) {
-                    maybeIdentifiers.push(maybeIdentifiersOrCodes[vIdx].trim());
+                var maybeBeId = maybeIdentifiersOrCodes[vIdx].trim();
+                if(maybeBeId.indexOf("/") > -1) {
+                    maybeIdentifiers.push(maybeBeId);
                 } else {
-                    maybeCodes.push(maybeIdentifiersOrCodes[vIdx].trim());
+                    if(permIdPattern.test(maybeBeId)) {
+                        maybePermIds.push(maybeBeId);
+                    } else {
+                        maybeCodes.push(maybeBeId);
+                    }
                 }
             }
 
-            var requestedObjects = (maybeIdentifiers.length + maybeCodes.length);
+            var requestedObjects = (maybeIdentifiers.length + maybePermIds.length + maybeCodes.length);
             if(requestedObjects == 0) {
                 Util.showError("Nothing to paste was found.");
                 return;
@@ -547,7 +554,7 @@ function LinksView(linksController, linksModel) {
             var finalResults = [];
             var added = 0;
             var incorrectType = 0;
-
+            // Search with identifiers
             mainController.serverFacade.searchWithIdentifiers(maybeIdentifiers, function(identifierResults) {
                 for(var sIdx = 0; sIdx < identifierResults.length; sIdx++) {
                     if(sampleTypeCode === undefined || (identifierResults[sIdx].sampleTypeCode === sampleTypeCode)) {
@@ -557,30 +564,40 @@ function LinksView(linksController, linksModel) {
                         incorrectType++;
                     }
                 }
-
-                mainController.serverFacade.searchWithCodes(maybeCodes, function(codeResults) {
-                    for(var sIdx = 0; sIdx < codeResults.length; sIdx++) {
-                        if(sampleTypeCode === undefined || (codeResults[sIdx].sampleTypeCode === sampleTypeCode)) {
-                            finalResults.push(codeResults[sIdx]);
+                //Search with permIds
+                mainController.serverFacade.searchWithSamplePermIds(maybePermIds, function(permIdResults) {
+                    for(var sIdx = 0; sIdx < permIdResults.length; sIdx++) {
+                        if(sampleTypeCode === undefined || (permIdResults[sIdx].sampleTypeCode === sampleTypeCode)) {
+                            finalResults.push(permIdResults[sIdx]);
                             added++;
                         } else {
                             incorrectType++;
                         }
                     }
-
-                    if(requestedObjects != finalResults.length) {
-                        Util.unblockUI();
-                        Util.showError("Requested " + requestedObjects + " but found " + finalResults.length + ", check your ids!");
-                    } else {
-                        for(var sIdx = 0; sIdx < finalResults.length; sIdx++) {
-                            linksView.updateSample(finalResults[sIdx], true);
+                    // Search with codes
+                    mainController.serverFacade.searchWithCodes(maybeCodes, function(codeResults) {
+                        for(var sIdx = 0; sIdx < codeResults.length; sIdx++) {
+                            if(sampleTypeCode === undefined || (codeResults[sIdx].sampleTypeCode === sampleTypeCode)) {
+                                finalResults.push(codeResults[sIdx]);
+                                added++;
+                            } else {
+                                incorrectType++;
+                            }
                         }
-                        Util.unblockUI();
-                        var message = "Pasted " + added + " " + ((added === 1)?ELNDictionary.Sample:ELNDictionary.Samples) + "."
-                        Util.showInfo(message);
-                        $container.empty().hide();
-                    }
-
+                        // Summary
+                        if(requestedObjects != finalResults.length) {
+                            Util.unblockUI();
+                            Util.showError("Requested " + requestedObjects + " but found " + finalResults.length + ", check your ids!");
+                        } else {
+                            for(var sIdx = 0; sIdx < finalResults.length; sIdx++) {
+                                linksView.updateSample(finalResults[sIdx], true);
+                            }
+                            Util.unblockUI();
+                            var message = "Pasted " + added + " " + ((added === 1)?ELNDictionary.Sample:ELNDictionary.Samples) + "."
+                            Util.showInfo(message);
+                            $container.empty().hide();
+                        }
+                    });
                 });
            });
         }, "Add");

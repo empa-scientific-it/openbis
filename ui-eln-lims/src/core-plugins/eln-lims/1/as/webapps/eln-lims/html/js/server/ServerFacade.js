@@ -2964,6 +2964,38 @@ function ServerFacade(openbisServer) {
 		searchNext();
 	}
 
+	this.searchWithSamplePermIds = function(samplePermIds, callbackFunction)
+    {
+        var _this = this;
+        var searchResults = [];
+        var searchForSamplePermIds = jQuery.extend(true, [], samplePermIds);
+
+        var searchNext = function() {
+            if(searchForSamplePermIds.length === 0) {
+                callbackFunction(searchResults);
+            } else {
+                var next = searchForSamplePermIds.pop();
+                searchFunction(next);
+            }
+        }
+
+        var searchFunction = function(samplePermId) {
+            _this.searchSamples({
+                "withProperties" : true,
+                "withParents" : true,
+                "withChildren" : true,
+                "samplePermId" : samplePermId
+            }, function(samples) {
+                samples.forEach(function(sample) {
+                    searchResults.push(sample);
+                });
+                searchNext();
+            });
+        }
+
+        searchNext();
+    }
+
 	this.searchContained = function(permId, callbackFunction) {
 		this.searchSamples({
 			"sampleContainerPermId" : permId,
