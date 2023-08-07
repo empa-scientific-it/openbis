@@ -75,7 +75,7 @@ should be followed to register any other *Object* in other
 *Collections*.
 
 1.  Click on the **Raw Samples** *Collection* folder in the main menu.
-2.  Click the **+ New Sample ** in the main page
+2.  Click the **New Sample** in the main page
 3.  Fill in the form
 4.  **Save**
 
