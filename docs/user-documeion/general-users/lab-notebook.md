@@ -16,14 +16,10 @@ In a personal folder, users can register one or more *Projects* they
 currently work on. *Projects* in openBIS only have a **Description**
 field, no additional fields can be added.
 
-1.  Navigate to the relevant *Space* in the *Lab Notebook* menu and
-    click the **+ New Project**
+1.  Navigate to the relevant *Space* in the *Lab Notebook* menu and click the **+ New Project**
 ![image info](img/ELN-new-project.png)
-2.  Should you have an empty page, select **Show Identification Info**
-    and **Show Description** from the **More…** dropdown
-3.  *Projects* do not have a **Name** field, but only **Code**. Codes
-    can only take alphanumeric characters and no spaces.Codes are
-    prettified in the Main Menu.
+2.  Should you have an empty page, select **Show Identification Info** and **Show Description** from the **More…** dropdown
+3.  *Projects* do not have a **Name** field, but only **Code**. Codes can only take alphanumeric characters and no spaces. Codes are prettified in the Main Menu.
 4.  Enter a **Description** for the project.
 5.  Click **Save** on top of the form.
 
