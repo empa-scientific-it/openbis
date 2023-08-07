@@ -92,7 +92,7 @@ be registered in openBIS. In a second step, the positions are assigned.
 
 To assign storage positions in batch mode follow the steps below:
 
-> 1.  Select **Storage positions **from the **Batch Registration** drop
+> 1.  Select **Storage positions** from the **Batch Registration** drop
 >     down menu.
 > 2.  Download the **template file**.
 > 3.  Remove the **identifier** column from the file (identifiers need
@@ -188,9 +188,8 @@ steps:
 1.  **Edit** the sample for which you need to remove the storage
     position in the box
 2.  Navigate to the **Storage** section at the end of the page
-3.  Click on the table row** **(see picture below)
-4.  **Unselect** the position you want to remove (eg. A5 in the example
-    below)
+3.  Click on the **table row** (see picture below)
+4.  **Unselect** the position you want to remove (eg. A5 in the example below)
 5.  Click **Accept**
 6.  **Save** the sample
 
