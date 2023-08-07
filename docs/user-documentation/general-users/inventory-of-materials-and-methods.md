@@ -169,11 +169,11 @@ the keyboard shortcuts **Alt** + **Enter.**
 Example file:
 [SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE_POSITION-template-1.xlsx)
 
-** Note:** no other separators (e.g “,” or  “;”) should be used,
+**Note:** no other separators (e.g “,” or  “;”) should be used,
 otherwise an error will be thrown.
 
-**2. Register Objects and assign parents in the same batch registration
-process. **
+2. **Register Objects and assign parents in the same batch registration
+process.**
 
 If you want to register a few *Objects* and at the same time establish a
 parent-child relationship between some of them, you can do so by using
@@ -207,8 +207,6 @@ together, as shown in the template provided above:
 2.  Select the *Object* type (E.g. Sample or Storage)
 3.  Download the **template** file and fill in the relevant information
 4.  Upload the file
-
-** **
 
 #### **Rules to follow to fill in the template .tsv file**
 
@@ -357,25 +355,25 @@ enter   
 
 1.  Navigate to the relevant collection (e.g. **Raw Samples**).
 
-2\. Select **TSV** **Batch Update Objects** from the **More…** dropdown.
+2. Select **TSV** **Batch Update Objects** from the **More…** dropdown.
 
 ![image info](img/collection-TSV-batch-update-menu.png)
 
-3\. Select the relevant *Object* *type*, e.g. **Sample **
+3. Select the relevant *Object* *type*, e.g. **Sample **
 
 ![image info](img/old-batch-update.png)
 
-4\. Download the available **template**
+4. Download the available **template**
 
-5\. Fill in the **identifiers** of the objects you want to update
+5. Fill in the **identifiers** of the objects you want to update
 (identifiers are unique in openBIS. This is how openBIS knows what to
 update). You can copy the identifiers from the identifier column in the
 table and paste them in the file. Identifiers have this format:
 /MATERIALS/SAMPLES/SAMPLE1.
 
-6\. Fill in the values in the columns you want to update
+6. Fill in the values in the columns you want to update
 
-7\. Save the file and upload it via the **XLS Batch Update
+7. Save the file and upload it via the **XLS Batch Update
 Objects** from the **More..** dropdown
 
 **Note**:
