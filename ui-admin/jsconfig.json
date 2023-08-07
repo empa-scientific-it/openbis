@@ -5,7 +5,8 @@
     "paths": {
       "@src/*": ["./src/*"],
       "@srcTest/*": ["./srcTest/*"],
-      "@srcV3/*": ["./srcV3/*"]
+      "@srcV3/*": ["./srcV3/*"],
+      "@srcV3Example/*": ["./srcV3Example/*"]
     }
   },
   "exclude": ["node_modules"]
