@@ -334,10 +334,14 @@ can be defined (`service.properties`), that runs in specified intervals:
 
     maintenance-plugins = dynamic-property-evaluator
 
-    dynamic-property-evaluator.class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask
-    # run daily at midnight  
-    dynamic-property-evaluator.interval = 86400
-    dynamic-property-evaluator.start = 00:00
+
+```java
+dynamic-property-evaluator.class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask
+# run daily at midnight  
+dynamic-property-evaluator.interval = 86400
+dynamic-property-evaluator.start = 00:00
+```
+
 
 If the value of a dynamic property has not yet been calculated, it will
 be shown as `(pending evaluation)`.
