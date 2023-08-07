@@ -56,10 +56,11 @@ the following IDs: `Archiving`, `Copying data sets to archive`, and
 
 ### RevokeLDAPUserAccessMaintenanceTask
 
-**NOTE: This Maintenance Task should only be used if the server uses
+```{note}
+This Maintenance Task should only be used if the server uses
 LDAP only, it will take users from other authentication services as
-missing.  
-**
+missing.
+```
 
 **Description**: Renames, deactivates and delete all roles from users
 that are no longer available on LDAP following the next algorithm.
