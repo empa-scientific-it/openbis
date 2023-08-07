@@ -53,14 +53,12 @@ To register one Experiment:
  
 
 1.  Navigate to the relevant *Project* in the **Lab Notebook** menu
-2.  Select **Default Experiment** from the **+New** dropdown, as shown
-    below. *Please note that your openBIS instance might have different
-    types of Experiments, depending on
+2.  Select **Default Experiment** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on 
 ![image info](img/ELN-register-experiments.png)
 3.  Fill in the relevant fields in the form.
 4.  Select **Show in project overview = true** if the *Experiment* is
     important and should be shown in the *Project* form.
-5.  Click **Save*** *on top of the form.
+5.  Click **Save** on top of the form.
 
 ![image info](img/default-experiment-form.png)
 
@@ -93,13 +91,10 @@ An *Entry*, is a blank page, with no pre-defined fields:
 To register a default *Experimental Step* or *Entry*:  
   
 
-1.  Navigate to the relevant **Experiment** in the *Lab Notebook* menu
-    and click the **+ New** button, as shown below.
+1.  Navigate to the relevant **Experiment** in the *Lab Notebook* menu and click the **+ New** button, as shown below.
 2.  Select **Experimental Step** or **Entry**
-3.  Fill in the relevant information or select an available template
-    from the list (see below).
-4.  If **Show in project overview*** *is set to true, this *Experimental
-    Step* or *Entry* will be displayed on the *Project* page.
+3.  Fill in the relevant information or select an available template from the list (see below).
+4.  If **Show in project overview** is set to true, this *Experimental Step* or *Entry* will be displayed on the *Project* page.
 5.  Click **Save** on top of the form. 
 
 ![image info](img/ELN-register-exp-step.png)
@@ -116,7 +111,7 @@ to a given user Space:
 
 1.  Click the button in the **Comments** section*.*
 2.  Enter the **comment**.
-3.  Click **Save***.*
+3.  Click **Save.**
 
 
 
@@ -186,7 +181,7 @@ to **Parents.**
 1.  Click **Search Any**
 2.  Select the *Object* type for which you want to add a parent
 3.  Search by **code** or **name** as explained above
-4.  Click the **+ Add** button
+4.  Click the **+Add** button
 
 ##### 2. Paste Any
 
@@ -210,23 +205,21 @@ barcode associated with it by scanning the barcode:
 
 ![](img/add-parent-via-barcode.png)
 
-2\. A **Barcode Reader** window opens
+2. A **Barcode Reader** window opens
 
 ![](img/add-parents-with-barcodes-1024x233.png)
 
-3\. Scan the barcode/QR code of the entry you want to add as parent with
+3. Scan the barcode/QR code of the entry you want to add as parent with
 a scanner or with the camera of a mobile device
 
-4\. Click on the **Add Objects** button
+4. Click on the **Add Objects** button
 
-5\. **Close**
+5. **Close**
 
 ### Removing a parent
 
-To remove a parent, choose **Remove*** *from the **Operations*** *drop
-down in the parent table, as shown below.
+To remove a parent, choose **Remove** from the **Operations** drop down in the parent table, as shown below.
 
- 
 
 ![](img/remove-parents-1024x313.png)
 
@@ -235,9 +228,7 @@ down in the parent table, as shown below.
 Children of *Experimental Steps* are usually derivative *Experimental
 Steps,* or products of the *Experimental Step.* As for the **Parents**
 section, this section can also be customised by a *group admin* or *lab
-manager* in the **ELN Settings** ([Customise Parents and Children
-Sections in Object
-Forms)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.html).
+manager* in the **ELN Settings** ([Customise Parents and Children Sections in Object Forms)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.html).
 
 The procedure for adding and removing children is the same as explained
 for parents.
@@ -286,17 +277,12 @@ available:
 
  
 
-To create a local copy under the current Experiment of a template
-protocol stored in the *Inventory*:
+To create a local copy under the current Experiment of a template protocol stored in the *Inventory*:
 
 1.  Add a protocol as parent.
-2.  From the **Operations** dropdown in the parents table
-    select*** *Copy to Experiment.**
+2.  From the **Operations** dropdown in the parents table select **Copy to Experiment.**
 3.  Provide the **Object code** for the new protocol.
-4.  A copy of the protocol is created under the current *Experiment*,
-    where the user can modify it. This copy has the original protocol
-    set as parent, so that connection between the two is clear.
-
+4.  A copy of the protocol is created under the current *Experiment*, where the user can modify it. This copy has the original protocol set as parent, so that connection between the two is clear.
  
 
 ![image info](img/copy-protocol-exp-step-1024x233.png)
@@ -398,16 +384,9 @@ This table shows the metadata of the datasets. The content of the datasets can b
 
 ![image info](img/data-navigation-driver-icon.png)
 
-To navigate and open data registered in openBIS via Finder or Explorer,
-open the *Dataset* folder and click on the drive icon next to the
-Dataset type name (see above)*. *If SFTP has been configured by a system
-admin, you will be provided with a link to copy/paste in an application
-such as [Cyberduck](https://cyberduck.io/) or other.
+To navigate and open data registered in openBIS via Finder or Explorer, open the *Dataset* folder and click on the drive icon next to the Dataset type name (see above). *If* SFTP has been configured by a system admin, you will be provided with a link to copy/paste in an application such as [Cyberduck](https://cyberduck.io/) or other.
 
-Please check our documentation for SFTP server
-configuration: [Installation and Administrators Guide of the openBIS
-Data Store
-Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
+Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
 
  
 
@@ -630,12 +609,8 @@ Updated on April 25, 2023
 
 In the Project page you have the options to see:
 
-1.  Default Experiments and Experimental Steps with the field *Show in
-    project overview = true***.** This is a way to mark the most
-    relevant Experiments and Experimental steps and see them at a glance
-    on the project page (**Show Overview**).
-2.  All experiments belonging to the project (**Show
-    Experiments/Collections**).
+1.  Default Experiments and Experimental Steps with the field *Show in project overview = true*. This is a way to mark the most    relevant Experiments and Experimental steps and see them at a glance on the project page (**Show Overview**).
+2.  All experiments belonging to the project (**Show Experiments/Collections**).
 
 The two options are available from the *More..* dropdown on the Project
 page.
