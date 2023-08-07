@@ -46,7 +46,7 @@ enable this by selecting **Show Objects** from the **More..** dropdown
 
  
 
-**List View: **The metadata of the *Collection* is not shown in this
+**List View:** The metadata of the *Collection* is not shown in this
 view, but only the table of objects is shown.
 
  
@@ -90,8 +90,7 @@ To register a different object type in the Collection:
 
 1.  Select **New Object** from the **More** drop down menu (as shown
     below)
-2.  Select the relevant *Object type* from the list *(Sample,* in this
-    case*).*
+2.  Select the relevant *Object type* from the list *(Sample,* in this case*).*
 3.  Fill in the form
 4.  **Save**
 
@@ -202,8 +201,7 @@ together, as shown in the template provided above:
 
 ### Batch registration via TSV template file
 
-1.  Select **TSV** **Batch Register Object*****s*** from the
-    **More*** *drop-down menu
+1.  Select **TSV** **Batch Register Objects** from the **More** drop-down menu
 2.  Select the *Object* type (E.g. Sample or Storage)
 3.  Download the **template** file and fill in the relevant information
 4.  Upload the file
@@ -359,7 +357,7 @@ enter   
 
 ![image info](img/collection-TSV-batch-update-menu.png)
 
-3. Select the relevant *Object* *type*, e.g. **Sample **
+3. Select the relevant *Object* *type*, e.g. **Sample**
 
 ![image info](img/old-batch-update.png)
 
