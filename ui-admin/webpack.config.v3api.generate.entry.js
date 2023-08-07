@@ -958,7 +958,7 @@ pathsWithSlashes.forEach(pathWithSlashes => {
   })
 })
 
-// generate imports
+// import all DTOs and facade
 
 dtos
   .sort((dto1, dto2) => dto1.name.localeCompare(dto2.name))
@@ -969,9 +969,8 @@ dtos
   })
 
 console.log("import openbis from '/srcV3/openbis'")
-console.log("import require from '/srcV3/require'")
 
-// generate modules
+// use bundled DTOs when parsing JSON responses
 
 console.log('\nvar modules = {')
 
@@ -985,7 +984,18 @@ dtos
 
 console.log('}')
 
-// generate the export
+console.log("\nimport Json from '/srcV3/util/Json'")
+
+console.log('\nJson.setRequireFn(function(moduleNames, callback){')
+console.log('  callback.apply(')
+console.log('    null,')
+console.log('    moduleNames.map(function(moduleName){')
+console.log('      return modules[moduleName]')
+console.log('    })')
+console.log('  )')
+console.log('})')
+
+// export all DTOs and facade
 
 console.log('\nexport default {')
 
@@ -996,7 +1006,5 @@ dtos
   })
 
 console.log('  openbis,')
-console.log('  require,')
-console.log('  modules,')
 
 console.log('}')
