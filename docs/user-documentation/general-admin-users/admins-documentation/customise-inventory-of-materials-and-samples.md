@@ -101,7 +101,7 @@ Updated on February 6, 2023
 
 
   
-When a new *Object type* is created by an *Instance admin (*see [New Entity Type Registration)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html), the storage widget is disabled by default.
+When a new *Object type* is created by an *Instance admin* (see [New Entity Type Registration)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html), the storage widget is disabled by default.
 
   
 If we want to track storage positions for this particular *Object type* as described in [Allocate storage positions to samples](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/managing-storage-of-samples.html#allocate-storage-positions-to-samples), the **Storage** should be enabled in the **Settings**, under **Utilities**. This can be done by a *group admin*.
