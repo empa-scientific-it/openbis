@@ -224,124 +224,127 @@ and executing any statement on the given query database in the context
 of a database transaction. Here are the methods available from the query
 interface:
 
-    public interface DynamicQuery {
+```java
+public interface DynamicQuery {
 
-        /**
-         * Performs a SQL query. The returned List is connected to the database and
-         * updateable.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template.
-         * 
-         * @return The result set as List; each row is represented as one Map<String,Object>.
-         */
-        List<Map<String, Object>> select(final String query,
-                final Object... parameters);
+    /**
+        * Performs a SQL query. The returned List is connected to the database and
+        * updateable.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template.
+        * 
+        * @return The result set as List; each row is represented as one Map<String,Object>.
+        */
+    List<Map<String, Object>> select(final String query,
+            final Object... parameters);
 
-        /**
-         * Performs a SQL query. The returned List is connected and
-         * updateable.
-         * 
-         * @param type  The Java type to return one rows in the returned
-         *            result set.
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template.
-         * 
-         * @return The result set as List; each row is represented as one Map<String,Object>.
-         */
-        <T> List<T> select(final Class<T> type, final String query,
-                final Object... parameters);
+    /**
+        * Performs a SQL query. The returned List is connected and
+        * updateable.
+        * 
+        * @param type  The Java type to return one rows in the returned
+        *            result set.
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template.
+        * 
+        * @return The result set as List; each row is represented as one Map<String,Object>.
+        */
+    <T> List<T> select(final Class<T> type, final String query,
+            final Object... parameters);
 
-        /**
-         * Executes a SQL statement.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template.
-         * 
-         * @return The number of rows updated by the SQL statement, or -1 if not
-         *         applicable. <b>Note:</b> Not all JDBC drivers support this
-         *         cleanly.
-         */
-        int update(final String query, final Object... parameters);
+    /**
+        * Executes a SQL statement.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template.
+        * 
+        * @return The number of rows updated by the SQL statement, or -1 if not
+        *         applicable. <b>Note:</b> Not all JDBC drivers support this
+        *         cleanly.
+        */
+    int update(final String query, final Object... parameters);
 
-        /**
-         * Executes a SQL statement as a batch for all parameter values provided.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template. At least
-         *            one of the parameters needs to be an array or
-         *            <code>Collection</code>. If multiple parameters are arrays or
-         *            <code>Collection</code>, all of them need to have the same
-         *            size.
-         * 
-         * @return The number of rows updated by the SQL statement, or -1 if not
-         *         applicable. <b>Note:</b> Not all JDBC drivers support this
-         *         cleanly.
-         */
-        int batchUpdate(final String query, final Object... parameters);
+    /**
+        * Executes a SQL statement as a batch for all parameter values provided.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template. At least
+        *            one of the parameters needs to be an array or
+        *            <code>Collection</code>. If multiple parameters are arrays or
+        *            <code>Collection</code>, all of them need to have the same
+        *            size.
+        * 
+        * @return The number of rows updated by the SQL statement, or -1 if not
+        *         applicable. <b>Note:</b> Not all JDBC drivers support this
+        *         cleanly.
+        */
+    int batchUpdate(final String query, final Object... parameters);
 
-        /**
-         * Executes a SQL statement. Supposed to be used for INSERT statements with
-         * an automatically generated integer key.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template.
-         * 
-         * @return The automatically generated key. <b>Note:</b> Not all JDBC
-         *         drivers support this cleanly.
-         */
-        long insert(final String query, final Object... parameters);
+    /**
+        * Executes a SQL statement. Supposed to be used for INSERT statements with
+        * an automatically generated integer key.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template.
+        * 
+        * @return The automatically generated key. <b>Note:</b> Not all JDBC
+        *         drivers support this cleanly.
+        */
+    long insert(final String query, final Object... parameters);
 
-        /**
-         * Executes a SQL statement. Supposed to be used for INSERT statements with
-         * one or more automatically generated keys.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template.
-         * 
-         * @return The automatically generated keys. <b>Note:</b> Not all JDBC
-         *         drivers support this cleanly and it is in general driver-dependent 
-         *         what keys are present in the returned map.
-         */
-        Map<String, Object> insertMultiKeys(final String query,
-                final Object... parameters);
+    /**
+        * Executes a SQL statement. Supposed to be used for INSERT statements with
+        * one or more automatically generated keys.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template.
+        * 
+        * @return The automatically generated keys. <b>Note:</b> Not all JDBC
+        *         drivers support this cleanly and it is in general driver-dependent 
+        *         what keys are present in the returned map.
+        */
+    Map<String, Object> insertMultiKeys(final String query,
+            final Object... parameters);
 
-        /**
-         * Executes a SQL statement as a batch for all parameter values provided.
-         * Supposed to be used for INSERT statements with an automatically generated
-         * integer key.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template. At least
-         *            one of the parameters needs to be an array or
-         *            <code>Collection</code>. If multiple parameters are arrays or
-         *            <code>Collection</code>, all of them need to have the same
-         *            size.
-         * 
-         * @return The automatically generated key for each element of the batch.
-         *         <b>Note:</b> Not all JDBC drivers support this cleanly.
-         */
-        long[] batchInsert(final String query, final Object... parameters);
+    /**
+        * Executes a SQL statement as a batch for all parameter values provided.
+        * Supposed to be used for INSERT statements with an automatically generated
+        * integer key.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template. At least
+        *            one of the parameters needs to be an array or
+        *            <code>Collection</code>. If multiple parameters are arrays or
+        *            <code>Collection</code>, all of them need to have the same
+        *            size.
+        * 
+        * @return The automatically generated key for each element of the batch.
+        *         <b>Note:</b> Not all JDBC drivers support this cleanly.
+        */
+    long[] batchInsert(final String query, final Object... parameters);
 
-        /**
-         * Executes a SQL statement as a batch for all parameter values provided.
-         * Supposed to be used for INSERT statements with one or more automatically
-         * generated keys.
-         * 
-         * @param query  The SQL query template.
-         * @param parameters  The parameters to fill into the SQL query template. At least
-         *            one of the parameters needs to be an array or
-         *            <code>Collection</code>. If multiple parameters are arrays or
-         *            <code>Collection</code>, all of them need to have the same
-         *            size.
-         * 
-         * @return The automatically generated keys for each element of the batch.
-         *         <b>Note:</b> Not all JDBC drivers support this cleanly and it is
-         *         in general driver-dependent what keys are present in the returned map.
-         */
-        Map<String, Object>[] batchInsertMultiKeys(final String query,
-                final Object... parameters);
-    }
+    /**
+        * Executes a SQL statement as a batch for all parameter values provided.
+        * Supposed to be used for INSERT statements with one or more automatically
+        * generated keys.
+        * 
+        * @param query  The SQL query template.
+        * @param parameters  The parameters to fill into the SQL query template. At least
+        *            one of the parameters needs to be an array or
+        *            <code>Collection</code>. If multiple parameters are arrays or
+        *            <code>Collection</code>, all of them need to have the same
+        *            size.
+        * 
+        * @return The automatically generated keys for each element of the batch.
+        *         <b>Note:</b> Not all JDBC drivers support this cleanly and it is
+        *         in general driver-dependent what keys are present in the returned map.
+        */
+    Map<String, Object>[] batchInsertMultiKeys(final String query,
+            final Object... parameters);
+}
+```
+
 
 ### Events / Registration Process Hooks
 
@@ -470,29 +473,32 @@ This class has the following sub keys:
 
 **plugin.properties**
 
-    #
-    # On Error Decision
-    #
-    # The class that implements the decision
-    on-error-decision.class = ch.systemsx.cisd.etlserver.registrator.ConfiguredOnErrorActionDecision
-     
-    # What to do if the data set fails validation
-    on-error-decision.invalid-data-set = MOVE_TO_ERROR
-     
-    # What to do if the validation script has problems
-    on-error-decision.validation-script-error = MOVE_TO_ERROR
-     
-    # What to do if the openBIS does not accept the entities
-    on-error-decision.registration-error = MOVE_TO_ERROR
-     
-    # What to do if the registration script has problems
-    on-error-decision.registration-script-error = MOVE_TO_ERROR
-     
-    # What to do if the storage processor does not run correctly
-    on-error-decision.storage-processor-error = MOVE_TO_ERROR
-     
-    # What to do if an error occurs after the entities have been registered in openBIS
-    on-error-decision.post-registration-error = MOVE_TO_ERROR
+```
+#
+# On Error Decision
+#
+# The class that implements the decision
+on-error-decision.class = ch.systemsx.cisd.etlserver.registrator.ConfiguredOnErrorActionDecision
+    
+# What to do if the data set fails validation
+on-error-decision.invalid-data-set = MOVE_TO_ERROR
+    
+# What to do if the validation script has problems
+on-error-decision.validation-script-error = MOVE_TO_ERROR
+    
+# What to do if the openBIS does not accept the entities
+on-error-decision.registration-error = MOVE_TO_ERROR
+    
+# What to do if the registration script has problems
+on-error-decision.registration-script-error = MOVE_TO_ERROR
+    
+# What to do if the storage processor does not run correctly
+on-error-decision.storage-processor-error = MOVE_TO_ERROR
+    
+# What to do if an error occurs after the entities have been registered in openBIS
+on-error-decision.post-registration-error = MOVE_TO_ERROR
+```
+
 
 ### Search
 
@@ -714,12 +720,12 @@ If you want other jython modules to be available to the code that
 implements the drop box, you will need to modify the
 datastore\_server.conf file and add something like
 
-    -Dpython.path=data/dropboxes/scripts:lib/jython-lib
+`-Dpython.path=data/dropboxes/scripts:lib/jython-lib`
 
 To the JAVA\_OPTS environment variable. The line should now look
 something like this:
 
-    JAVA_OPTS=${JAVA_OPTS:=-server -d64 -Dpython.path=data/dropboxes/scripts:lib/jython-lib}
+`JAVA_OPTS=${JAVA_OPTS:=-server -d64 -Dpython.path=data/dropboxes/scripts:lib/jython-lib}`
 
 If the Jython dropbox need third-party JAR files they have to be added
 to the core plugin in a sub-folder `lib/`.
@@ -739,30 +745,36 @@ the `getGlobalState`. Here we show an example how to use:
 
 **Global tread properties**
 
-     def getThreadProperties(transaction):
-          threadPropertyDict = {}
-          threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties()
-          for key in threadProperties:
-            try:
-              threadPropertyDict[key] = threadProperties.getProperty(key)
-            except:
-              pass
-          return threadPropertyDict
+```py
+def getThreadProperties(transaction):
+    threadPropertyDict = {}
+    threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties()
+    for key in threadProperties:
+    try:
+        threadPropertyDict[key] = threadProperties.getProperty(key)
+    except:
+        pass
+    return threadPropertyDict
 
-        # You can later access the thread properties like this:
-        threadPropertyDict = getThreadProperties(transaction)
-        incomingRootDir = threadPropertyDict[u'incoming-root-dir']
+# You can later access the thread properties like this:
+threadPropertyDict = getThreadProperties(transaction)
+incomingRootDir = threadPropertyDict[u'incoming-root-dir']
+```
+
 
 Sending Emails from a Drop box
 ------------------------------
 
-    def post_storage(context):
-        mailClient = context.getGlobalState().getMailClient()
-        results = context.getPersistentMap().get(PERSISTANT_KEY_MAP)
-        sendEmail(mailClient, results[0]) 
+```py
+def post_storage(context):
+    mailClient = context.getGlobalState().getMailClient()
+    results = context.getPersistentMap().get(PERSISTANT_KEY_MAP)
+    sendEmail(mailClient, results[0]) 
 
-    def process(transaction):
-        transaction.getRegistrationContext().getPersistentMap().put(PERSISTANT_KEY_MAP, [fcId])
+def process(transaction):
+    transaction.getRegistrationContext().getPersistentMap().put(PERSISTANT_KEY_MAP, [fcId])
+```
+
 
 Java Dropboxes
 --------------
@@ -784,28 +796,31 @@ core-plugin.
 
 **plugin.properties**
 
-    #
-    # REQUIRED PARAMETERS
-    #
-    # The directory to watch for new data sets
-    incoming-dir = ${root-dir}/incoming-java-dropbox
+```
+#
+# REQUIRED PARAMETERS
+#
+# The directory to watch for new data sets
+incoming-dir = ${root-dir}/incoming-java-dropbox
 
-    # The handler class. Must be either ch.systemsx.cisd.etlserver.registrator.api.v2.JavaTopLevelDataSetHandlerV2 or a subclass thereof
-    top-level-data-set-handler = ch.systemsx.cisd.etlserver.registrator.api.v2.JavaTopLevelDataSetHandlerV2
+# The handler class. Must be either ch.systemsx.cisd.etlserver.registrator.api.v2.JavaTopLevelDataSetHandlerV2 or a subclass thereof
+top-level-data-set-handler = ch.systemsx.cisd.etlserver.registrator.api.v2.JavaTopLevelDataSetHandlerV2
 
-    # The class that implements the dropbox (must implement ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2)
-    program-class = ch.systemsx.cisd.etlserver.registrator.api.v2.ExampleJavaDataSetRegistrationDropboxV2
+# The class that implements the dropbox (must implement ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2)
+program-class = ch.systemsx.cisd.etlserver.registrator.api.v2.ExampleJavaDataSetRegistrationDropboxV2
 
-    # The appropriate storage processor
-    storage-processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+# The appropriate storage processor
+storage-processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
 
-    #
-    # OPTIONAL PARAMETERS
-    #
-     
-    # False if incoming directory is assumed to exist.
-    # Default - true: Incoming directory will be created on start up if it doesn't exist.
-    incoming-dir-create = true
+#
+# OPTIONAL PARAMETERS
+#
+    
+# False if incoming directory is assumed to exist.
+# Default - true: Incoming directory will be created on start up if it doesn't exist.
+incoming-dir-create = true
+```
+
 
 The program-class parameter specifies the class that implements the
 logic of the dropbox. This class must implement the
@@ -823,90 +838,98 @@ implementation of this interface.
 
 **IJavaDataSetRegistrationDropboxV2**
 
+```java
+/**
+    * The interface that V2 dropboxes must implement. Defines the process method, which is called to
+    * handle new data in the dropbox's incoming folder, and various event methods called as the
+    * registration process progresses.
+    * 
+    * @author Pawel Glyzewski
+    */
+public interface IJavaDataSetRegistrationDropboxV2
+{
     /**
-     * The interface that V2 dropboxes must implement. Defines the process method, which is called to
-     * handle new data in the dropbox's incoming folder, and various event methods called as the
-     * registration process progresses.
-     * 
-     * @author Pawel Glyzewski
-     */
-    public interface IJavaDataSetRegistrationDropboxV2
-    {
-        /**
-         * Invoked when new data is found in the incoming folder. Implements the logic of registering
-         * and modifying entities.
-         * 
-         * @param transaction The transaction that offers methods for registering and modifying entities
-         *            and performing operations on the file system.
-         */
-        public void process(IDataSetRegistrationTransactionV2 transaction);
-        /**
-         * Invoked just before the metadata is registered with the openBIS AS. Gives dropbox
-         * implementations an opportunity to perform additional operations. If an exception is thrown in
-         * this method, the transaction is rolledback.
-         * 
-         * @param context Context of the registration. Offers access to the global state and persistent
-         *            map.
-         */
-        public void preMetadataRegistration(DataSetRegistrationContext context);
-        /**
-         * Invoked if the transaction is rolledback before the metadata is registered with the openBIS
-         * AS.
-         * 
-         * @param context Context of the registration. Offers access to the global state and persistent
-         *            map.
-         * @param throwable The throwable that triggered rollback.
-         */
-        public void rollbackPreRegistration(DataSetRegistrationContext context, Throwable throwable);
-        /**
-         * Invoked just after the metadata is registered with the openBIS AS. Gives dropbox
-         * implementations an opportunity to perform additional operations. If an exception is thrown in
-         * this method, it is logged but otherwise ignored.
-         * 
-         * @param context Context of the registration. Offers access to the global state and persistent
-         *            map.
-         */
-        public void postMetadataRegistration(DataSetRegistrationContext context);
-        /**
-         * Invoked after the data has been stored in its final location on the file system and the
-         * storage has been confirmed with the AS.
-         * 
-         * @param context Context of the registration. Offers access to the global state and persistent
-         *            map.
-         */
-        public void postStorage(DataSetRegistrationContext context);
-        /**
-         * Is a function defined that can be used to check if a failed registration should be retried?
-         * Primarily for use implementations of this interface that dispatch to dynamic languages.
-         * 
-         * @return true shouldRetryProcessing is defined, false otherwise.
-         */
-        public boolean isRetryFunctionDefined();
-        /**
-         * Given the problem with registration, should it be retried?
-         * 
-         * @param context Context of the registration. Offers access to the global state and persistent
-         *            map.
-         * @param problem The exception that caused the registration to fail.
-         * @return true if the registration should be retried.
-         */
-        public boolean shouldRetryProcessing(DataSetRegistrationContext context, Exception problem)
-                throws NotImplementedException;
-    }
+        * Invoked when new data is found in the incoming folder. Implements the logic of registering
+        * and modifying entities.
+        * 
+        * @param transaction The transaction that offers methods for registering and modifying entities
+        *            and performing operations on the file system.
+        */
+    public void process(IDataSetRegistrationTransactionV2 transaction);
+    /**
+        * Invoked just before the metadata is registered with the openBIS AS. Gives dropbox
+        * implementations an opportunity to perform additional operations. If an exception is thrown in
+        * this method, the transaction is rolledback.
+        * 
+        * @param context Context of the registration. Offers access to the global state and persistent
+        *            map.
+        */
+    public void preMetadataRegistration(DataSetRegistrationContext context);
+    /**
+        * Invoked if the transaction is rolledback before the metadata is registered with the openBIS
+        * AS.
+        * 
+        * @param context Context of the registration. Offers access to the global state and persistent
+        *            map.
+        * @param throwable The throwable that triggered rollback.
+        */
+    public void rollbackPreRegistration(DataSetRegistrationContext context, Throwable throwable);
+    /**
+        * Invoked just after the metadata is registered with the openBIS AS. Gives dropbox
+        * implementations an opportunity to perform additional operations. If an exception is thrown in
+        * this method, it is logged but otherwise ignored.
+        * 
+        * @param context Context of the registration. Offers access to the global state and persistent
+        *            map.
+        */
+    public void postMetadataRegistration(DataSetRegistrationContext context);
+    /**
+        * Invoked after the data has been stored in its final location on the file system and the
+        * storage has been confirmed with the AS.
+        * 
+        * @param context Context of the registration. Offers access to the global state and persistent
+        *            map.
+        */
+    public void postStorage(DataSetRegistrationContext context);
+    /**
+        * Is a function defined that can be used to check if a failed registration should be retried?
+        * Primarily for use implementations of this interface that dispatch to dynamic languages.
+        * 
+        * @return true shouldRetryProcessing is defined, false otherwise.
+        */
+    public boolean isRetryFunctionDefined();
+    /**
+        * Given the problem with registration, should it be retried?
+        * 
+        * @param context Context of the registration. Offers access to the global state and persistent
+        *            map.
+        * @param problem The exception that caused the registration to fail.
+        * @return true if the registration should be retried.
+        */
+    public boolean shouldRetryProcessing(DataSetRegistrationContext context, Exception problem)
+            throws NotImplementedException;
+}
+```
+
 
 Sending Emails in a drop box (simple)
 -------------------------------------
 
-    from ch.systemsx.cisd.common.mail import EMailAddress
+```py
+from ch.systemsx.cisd.common.mail import EMailAddress
+```
 
-    def process(transaction):
-        replyTo = EMailAddress("manuel.kohler@id.ethz.ch")
-        fromAddress = replyTo
-        recipient1 = EMailAddress("recipient1@ethz.ch")
-        recipient2 = EMailAddress("recipient2@ethz.ch")
+```py
+def process(transaction):
+    replyTo = EMailAddress("manuel.kohler@id.ethz.ch")
+    fromAddress = replyTo
+    recipient1 = EMailAddress("recipient1@ethz.ch")
+    recipient2 = EMailAddress("recipient2@ethz.ch")
 
-      transaction.getGlobalState().getMailClient().sendEmailMessage("This is the subject", \
-                    "This is the body", replyTo, fromAddress, recipient1, recipient2);
+    transaction.getGlobalState().getMailClient().sendEmailMessage("This is the subject", \
+                "This is the body", replyTo, fromAddress, recipient1, recipient2);
+```
+
 
 ### Java Dropbox Example
 
@@ -915,30 +938,33 @@ and registers the incoming file as a data set of this sample.
 
 **ExampleJavaDataSetRegistrationDropboxV2.java**
 
-    package ch.systemsx.cisd.etlserver.registrator.api.v2;
-    import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-    import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
-    import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
-    /**
-     * An example dropbox implemented in Java.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    public class ExampleJavaDataSetRegistrationDropboxV2 extends
-            AbstractJavaDataSetRegistrationDropboxV2
+```java
+package ch.systemsx.cisd.etlserver.registrator.api.v2;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+/**
+    * An example dropbox implemented in Java.
+    * 
+    * @author Chandrasekhar Ramakrishnan
+    */
+public class ExampleJavaDataSetRegistrationDropboxV2 extends
+        AbstractJavaDataSetRegistrationDropboxV2
+{
+    @Override
+    public void process(IDataSetRegistrationTransactionV2 transaction)
     {
-        @Override
-        public void process(IDataSetRegistrationTransactionV2 transaction)
-        {
-            String sampleId = "/CISD/JAVA-TEST";
-            ISample sample = transaction.createNewSample(sampleId, "DYNAMIC_PLATE");
-            IExperimentImmutable exp = transaction.getExperiment("/CISD/NEMO/EXP-TEST-1");
-            sample.setExperiment(exp);
-            IDataSet dataSet = transaction.createNewDataSet();
-            dataSet.setSample(sample);
-            transaction.moveFile(transaction.getIncoming().getAbsolutePath(), dataSet);
-        }
+        String sampleId = "/CISD/JAVA-TEST";
+        ISample sample = transaction.createNewSample(sampleId, "DYNAMIC_PLATE");
+        IExperimentImmutable exp = transaction.getExperiment("/CISD/NEMO/EXP-TEST-1");
+        sample.setExperiment(exp);
+        IDataSet dataSet = transaction.createNewDataSet();
+        dataSet.setSample(sample);
+        transaction.moveFile(transaction.getIncoming().getAbsolutePath(), dataSet);
     }
+}
+```
+
 
 Java Code location
 
@@ -969,31 +995,37 @@ Calling an Aggregation Service from a drop box
 
 **drop box code**
 
-    '''
-    @author:
-    Manuel Kohler
-    '''
-    from ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService import createQueryApiServer
+```py
+'''
+@author:
+Manuel Kohler
+'''
+from ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService import createQueryApiServer
+```
+
      
-    def process(transaction):
-        # use the etl server session token
-        session_token = transaction.getOpenBisServiceSessionToken()
+```py
+def process(transaction):
+    # use the etl server session token
+    session_token = transaction.getOpenBisServiceSessionToken()
 
-        # To find out do SQL on the openBIS DB: select code from data_stores;
-        dss = "STANDARD"
+    # To find out do SQL on the openBIS DB: select code from data_stores;
+    dss = "STANDARD"
 
-        # folder name under the reporting_plugins
-        service_key = "reporting_experimental"   
+    # folder name under the reporting_plugins
+    service_key = "reporting_experimental"   
 
-        # some parameters which are handed over
-        d = {"param1": "hello", "param2": "from a drop box"}
+    # some parameters which are handed over
+    d = {"param1": "hello", "param2": "from a drop box"}
 
-        # connection to the openbis server returns IQueryApiServer
-        s = createQueryApiServer("http://127.0.0.1:8888/openbis/openbis/", "600")
+    # connection to the openbis server returns IQueryApiServer
+    s = createQueryApiServer("http://127.0.0.1:8888/openbis/openbis/", "600")
 
-        # Actual call
-        # Parameters: String sessionToken, String dataStoreCode,String serviceKey, Map<String, Object> parameters)
-        s.createReportFromAggregationService(session_token, dss, service_key, d)
+    # Actual call
+    # Parameters: String sessionToken, String dataStoreCode,String serviceKey, Map<String, Object> parameters)
+    s.createReportFromAggregationService(session_token, dss, service_key, d)
+```
+
 
 Known limitations
 -----------------
