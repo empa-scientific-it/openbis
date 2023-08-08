@@ -5,88 +5,71 @@ Installation and Administrator Guide of the openBIS Server
 
 The minimal requirements of a system running openBIS are:
 
--   Operating System: Linux / MacOS X   
-    (The binaries: `bash`, `awk`, `sed`, `unzip` need to be installed
-    and in the `PATH` of the openBIS user.)
--   Java Runtime Environment: recent versions of Oracle JRE 11
--   PostgreSQL 11
+- Operating System: Linux / MacOS X (The binaries: `bash`, `awk`, `sed`, `unzip` need to be installed and in the `PATH` of the openBIS user.)
+- Java Runtime Environment: recent versions of Oracle JRE 11
+- PostgreSQL 11
 
-We find Linux to be the easiest choice to get an openBIS server running
-quickly.
+We find Linux to be the easiest choice to get an openBIS server running quickly.
 
-For recommended memory settings, see [Recommended CPU and memory
-settings for openBIS
-20.10](/display/openBISDoc2010/Recommended+CPU+and+memory+settings+for+openBIS+20.10).
+For recommended memory settings, see [Recommended CPU and memory settings for openBIS 20.10](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/system-requirements.html).
 
-An SMTP server needs to be accessible and configured if you want to
-obtain notifications.
+An SMTP server needs to be accessible and configured if you want to obtain notifications.
 
 ## Installation
 
-The server distribution is a `gzipped` `tar` file named
-`openBIS-installation-standard-technologies-<version>` `.tar.gz`. It
-contains:
+The server distribution is a `gzipped` `tar` file named `openBIS-installation-standard-technologies-<version>` `.tar.gz`. It contains:
 
--   `console.properties:` configuration file for a console/non-gui
-    installation
+- `console.properties:` configuration file for a console/non-gui installation
 
--   `extract.sh:` helper script for installation
+- `extract.sh:` helper script for installation
 
--   `jul.config:` Log configuration for the openBIS install process
+- `jul.config:` Log configuration for the openBIS install process
 
--   `openBIS-installer.jar` Java archive containing openBIS
+- `openBIS-installer.jar` Java archive containing openBIS
 
--   `run-console.sh` Installation script for console/non-gui
-    installation
+- `run-console.sh` Installation script for console/non-gui installation
 
--   `run-ui.sh` Installation script for gui installation
+- `run-ui.sh` Installation script for gui installation
 
 ### Installation steps
 
-1.  Create a service user account, i.e. an unprivileged, regular user
-    account. **Do not run openBIS as root!**
+1. Create a service user account, i.e. an unprivileged, regular user account. **Do not run openBIS as root!**
 
-2.  Gunzip the distribution on the server machine into some temporary
-    folder.
+2. Gunzip the distribution on the server machine into some temporary folder.
 
-3.  Run either the console/non-gui installation script or the gui
-    installation script:
+3. Run either the console/non-gui installation script or the gui installation script:
 
     **GUI-based installation**
 
-        > tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
-        > cd openBIS-installation-standard-technologies-S139.0-r26480
-        > ./run-ui.sh
+        ```console
+        tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
+        cd openBIS-installation-standard-technologies-S139.0-r26480
+        ./run-ui.sh
+        ```
 
     In the non-gui version you have to edit the `console.properties`
     files:
 
     **Non-GUI installation**
 
-        > tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
-        > cd openBIS-installation-standard-technologies-S139.0-r26480
-        > vi console.properties
-        > ./run-console.sh
+        ```console
+        tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
+        cd openBIS-installation-standard-technologies-S139.0-r26480
+        vi console.properties
+        ./run-console.sh
+        ```
+    
+    ```{note}
+    Please be aware that the directory where openbis is installed should not already exist. Users should specify the directory where they want to install openBIS (in the console.properties or in the graphical installer) and this directory will be created by the installation procedure. If the directory already exists, the installation will fail.
+    ```
 
-      
-    **NOTE:** Please be aware that the directory where openbis is
-    installed should not already exist. Users should specify the
-    directory where they want to install openBIS (in the
-    console.properties or in the graphical installer) and this directory
-    will be created by the installation procedure. If the directory
-    already exists, the installation will fail. 
+After the successful installation you should have a look at the configuration file called s`ervice.properties`. It is located in `<server_folder>openBIS-server/jetty/etc/`
 
-After the successful installation you should have a look at the
-configuration file called s`ervice.properties`. It is located in
-`<server_folder>openBIS-server/jetty/etc/`
-
-This file is a an [Extended Properties
-File](/display/openBISDoc2010/Extended+Configuration+Properties). Here
-is an example which can be used as a template:
+This file is a an [Extended Properties File](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-application-server-configuration.html). Here is an example which can be used as a template:
 
 **service.properties**
 
-```
+```bash
 # ---------------------------------------------------------------------------
 # Database configuration
 # ---------------------------------------------------------------------------
@@ -105,7 +88,7 @@ database.admin-user =
 database.admin-password =
 # Max. number of active database connections. Default: 20. 
 database.max-active-connections =
-# Max. number of idle database connections to keep open. Default: 20.  
+# Max. number of idle database connections to keep open. Default: 20. 
 database.max-idle-connections = 
 # Log interval (in seconds) between two regular log entries of the number of active database 
 # connections. Default: 3600s.
@@ -376,7 +359,7 @@ memorymonitor-high-watermark-percent = 90
 # ---------------------------------------------------------------------------
 # Maintenance plugins configuration (optional)
 # ---------------------------------------------------------------------------
-# Comma separated names of maintenance plugins.  
+# Comma separated names of maintenance plugins. 
 # Each plugin should have configuration properties prefixed with its name.
 # Mandatory properties for each <plugin> include: 
 #   <plugin>.class - Fully qualified plugin class name
@@ -413,14 +396,14 @@ jython-version=2.7
 
 # -------------------------------------------------------------------------
 # The configuration below reflects the default values used by the V3 API.
-# Please uncomment and change the chosen values to overwrite the defaults.  
+# Please uncomment and change the chosen values to overwrite the defaults. 
 # -------------------------------------------------------------------------
 #
 # A path to a directory where operation execution details are stored.
 #
 #  api.v3.operation-execution.store.path = operation-execution-store
 #
-# A thread pool that is used for executing all asynchronous operations.  
+# A thread pool that is used for executing all asynchronous operations. 
 #
 # api.v3.operation-execution.thread-pool.name = operation-execution-pool
 # api.v3.operation-execution.thread-pool.core-size = 10
@@ -472,23 +455,21 @@ jython-version=2.7
 #
 ```
 
-
 ### Database Settings
 
-All properties starting with `database.` specify the settings for the
-openBIS database. They are all mandatory.
+All properties starting with `database.` specify the settings for the openBIS database. They are all mandatory.
 
 | Property                         | Description                                                                                                                                                                                                           |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `database.engine`                  | Type of database. Currently only postgresql is supported.                                                                                                                                                             |
-| `database.create-from-scratch`     | If true the database will be dropped and an empty database will be created. In productive use always set this value to  false  .                                                                                      |
-| `database.script-single-step-mode` | If true all SQL scripts are executed in single step mode. Useful for localizing errors in SQL scripts. Should be always false in productive mode.                                                                     |
-| `database.url-host-part`           | Part of JDBC URL denoting the host of the database server. If openBIS Application Server and database server are running on the same machine this property should be an empty string.                                 |
-| `database.kind`                    | Part of the name of the database. The full name reads openbis_<  kind  >.                                                                                                                                       |
+| `database.engine`                  | Type of database. Currently only postgresql is supported.                                                                                                                                                            |
+| `database.create-from-scratch`     | If true the database will be dropped and an empty database will be created. In productive use always set this value to  false  .                                                                                     |
+| `database.script-single-step-mode` | If true all SQL scripts are executed in single step mode. Useful for localizing errors in SQL scripts. Should be always false in productive mode.                                                                    |
+| `database.url-host-part`           | Part of JDBC URL denoting the host of the database server. If openBIS Application Server and database server are running on the same machine this property should be an empty string.                                |
+| `database.kind`                    | Part of the name of the database. The full name reads openbis_<  kind  >.                                                                                                                                      |
 | `database.admin-user`              | ID of the user on database server with admin rights, like creation of tables. Should be an empty string if default admin user should be used. In case of PostgreSQL the default admin user is assumed to be postgres. |
-| database.admin-password          | Password for admin user. Usual an empty string.                                                                                                                                                                       |
-| `database.owner`                   | ID of the user owning the data. This should generally be openbis. The openbis role and password need to be created. In case of an empty string it is the same user who started up openBIS Application Server.         |
-| `database.owner-password`          | Password of the owner.                                                                                                                                                                                                |
+| database.admin-password          | Password for admin user. Usual an empty string.                                                                                                                                                                      |
+| `database.owner`                   | ID of the user owning the data. This should generally be openbis. The openbis role and password need to be created. In case of an empty string it is the same user who started up openBIS Application Server.        |
+| `database.owner-password`          | Password of the owner.                                                                                                                                                                                               |
 ```{warning}
 The credentials for the database user with the privilege to create a new database depends on the installation and configuration of the PostgreSQL database.
 ```
@@ -687,7 +668,7 @@ the login.
 There are two service properties which give you control over the working
 of the authentication cache:
 
--   `authentication.cache.time` lets you set for how long (after putting
+- `authentication.cache.time` lets you set for how long (after putting
     it into the cache) a cache entry (read: "user name and password")
     will be kept if the user does not have a successful login to openBIS
     in this period of time (as successful logins will trigger
@@ -695,7 +676,7 @@ of the authentication cache:
     28h, which means that users logging into the system every day will
     never experience a delay from slow remote authentication systems. A
     non-positive value will disable caching.
--   `authentication.cache.time-no-revalidation` lets you set for how
+- `authentication.cache.time-no-revalidation` lets you set for how
     long (after putting it into the cache) a cache entry will *not* be
     re-validated if the login was successful. This allows you to reduce
     the load that openBIS creates on the remote authentication servers
@@ -802,7 +783,7 @@ Client, prepare the configuration file and add the path to the value of
 
 #### Web client customizations
 
--   Enable the trashcan. When the trashcan is enabled, deleting entities
+- Enable the trashcan. When the trashcan is enabled, deleting entities
     only marks them as deleted but not deletes them physically (it is
     also called "logical deletion"). When clicking on the trashcan icon
     in the Web GUI, the user can see all of his deletion operations and
@@ -810,18 +791,18 @@ Client, prepare the configuration file and add the path to the value of
     and thus delete the entities physically. Only with enabled trashcan
     is it possible to delete complete hierarchies (e.g. an experiment
     with samples and datasets attached).
--   Default view mode (`SIMPLE/NORMAL`) that should be used if user
+- Default view mode (`SIMPLE/NORMAL`) that should be used if user
     doesn't have it specified in a URL.
--   Replacement texts for 'Experiment' and 'Sample' by `experiment-text`
+- Replacement texts for 'Experiment' and 'Sample' by `experiment-text`
     and `sample-text`, respectively.
--   Anonymous login by default.
--   Sample, material, experiment and data set `detail views `can be
+- Anonymous login by default.
+- Sample, material, experiment and data set `detail views `can be
     customized by:
-    -   hiding the sections (e.g. attachments)
--   Additionally `data set detail view` can be customized by:
-    -   removing `Smart View` and `File View` from the list of available
+    - hiding the sections (e.g. attachments)
+- Additionally `data set detail view` can be customized by:
+    - removing `Smart View` and `File View` from the list of available
         reports in `Data View` section
--   Technology specific properties with property `technologies` which is
+- Technology specific properties with property `technologies` which is
     a comma-separated list of technologies. For each technology
     properties are defined where the property names start with
     technology name followed by a dot character.
@@ -847,7 +828,7 @@ the user.
 
 ####### Examples
 
--   Specifying a whitelist
+- Specifying a whitelist
 
 **web-client.properties.**
 
@@ -862,7 +843,7 @@ In this case, the follwing data set types will be available to the user:
 
 *MICROSCOPE-IMAGE*, *IMAGE-SCREENING*, *ANALYSIS*, *THUMBNAIL1*
 
--   Specifying a blacklist
+- Specifying a blacklist
 
 **web-client.properties.**
 
@@ -973,9 +954,9 @@ meant to be used for small images and rich text editors like CKEditor.
 
 | Property Key                        | Default Value              | Description                                                                                               |
 |-------------------------------------|----------------------------|-----------------------------------------------------------------------------------------------------------|
-| file-server.maximum-file-size-in-MB | 10                         |  Max size of files.                                                                                       |
+| file-server.maximum-file-size-in-MB | 10                         |  Max size of files.                                                                                      |
 | file-server.repository-path         |  ../../../data/file-server | Path where files will be stored, ideally should be a folder on the same NAS you are storing the DataSets. |
-| file-server.download-check          | true                       | Checks that the user is log in into the system to be able to download files.                              |
+| file-server.download-check          | true                       | Checks that the user is log in into the system to be able to download files.                             |
 
 ### Configuring DSS Data Sources
 
@@ -991,11 +972,11 @@ following properties of `plugin.properties` are recognized:
 | Property Key                                     | Description                                                                                                                                                                                                                             |
 |--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | technology                                       | Normally the technology/module folder of the core plugin specifies the technology/module for which this data source has to be configured. If this is not the case this property allows to specify the technology/module independently.  |
-| database-driver                                  | Fully qualified class name of the data base driver, e.g. `org.postgresql.Driver`.                                                                                                                                                         |
+| database-driver                                  | Fully qualified class name of the data base driver, e.g. `org.postgresql.Driver`.                                                                                                                                                        |
 | database-url                                     | URL of the database, e.g. `jdbc:postgresql://localhost/imaging_dev`                                                                                                                                                                       |
-| username                                         | Optional user name needed to access database.                                                                                                                                                                                           |
-| password                                         | Optional password needed to access database.                                                                                                                                                                                            |
-| validation-query                                 | Optional SQL script to be executed to validate database connections.                                                                                                                                                                    |
+| username                                         | Optional user name needed to access database.                                                                                                                                                                                          |
+| password                                         | Optional password needed to access database.                                                                                                                                                                                           |
+| validation-query                                 | Optional SQL script to be executed to validate database connections.                                                                                                                                                                   |
 | database-max-idle-connections                    | The maximum number of connections that can remain idle in the pool. A negative value indicates that there is no limit. Default: -1                                                                                                      |
 | database-max-active-connections                  | The maximum number of active connections that can be allocated at the same time. A negative value indicates that there is no limit. Default: -1                                                                                         |
 | database-max-wait-for-connection                 | The maximum number of seconds that the pool will wait for a connection to be returned before throwing an exception. A value less than or equal to zero means the pool is set to wait indefinitely. Default: -1                          |
@@ -1106,7 +1087,7 @@ This is the default map:
 |`UPDATE_MATERIALS_VIA_DSS`        |         |`INSTANCE_ETL_SERVER`                |                                                                                                                                                                                               |
 |`CREATE_DATA_SETS_VIA_DSS`        |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
 |`UPDATE_DATA_SETS_VIA_DSS`        |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
-|`SEARCH_ON_BEHALF_OF_USER`        |         |`INSTANCE_OBSERVER`                  |All search or list operations being performed on behalf of another user. Supposed to be used by a service user for server-to-server communication tasks.                                       |
+|`SEARCH_ON_BEHALF_OF_USER`        |         |`INSTANCE_OBSERVER`                  |All search or list operations being performed on behalf of another user. Supposed to be used by a service user for server-to-server communication tasks.                                      |
 
 
 Older versions of openBIS used to allow changing entity relationships to
@@ -1348,10 +1329,10 @@ type query-databases has to be created. The following
 | Property          | Description                                                                                                               |
 |-------------------|---------------------------------------------------------------------------------------------------------------------------|
 | label             | Label of the database. It will be used in the Web application in drop down lists for adding / editing customized queries. |
-| database-driver   | JDBC Driver of the database, e.g. org.postgresql.Driver for postgresql.                                                   |
+| database-driver   | JDBC Driver of the database, e.g. org.postgresql.Driver for postgresql.                                                  |
 | database-url      | JDBC URL to the database containing full database name, e.g. jdbc:postgresql://localhost/database_name for postgresql     |
-| database-username | Above-mentioned defined read-only user.                                                                                   |
-| database-password | Password of the read-only user.                                                                                           |
+| database-username | Above-mentioned defined read-only user.                                                                                  |
+| database-password | Password of the read-only user.                                                                                          |
 
 #### Configure Authorization
 
@@ -1361,7 +1342,7 @@ configured:
 | Property                              | Description                                                                                                                                                                 |
 |---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | <database>.data-space           | To which data-space this database belongs to (optional, i.e. a query database can be configured not to belong to one data space by leaving this configuration value empty). |
-| <database>.creator-minimal-role | What role is required to be allowed to create / edit queries on this database (optional, default: INSTANCE_OBSERVER if data-space is not set, POWER_USER otherwise).        |
+| <database>.creator-minimal-role | What role is required to be allowed to create / edit queries on this database (optional, default: INSTANCE_OBSERVER if data-space is not set, POWER_USER otherwise).       |
 
 The given parameters data-space and creator-minimal-role are used by
 openBIS to enforce proper authorization.
@@ -1373,9 +1354,9 @@ For example, if
 
 is configured, then for the query database configured with key `db1`:
 
--   only a `SPACE_ADMIN` on data space `CISD` and an `INSTANCE_ADMIN`
+- only a `SPACE_ADMIN` on data space `CISD` and an `INSTANCE_ADMIN`
     are allowed to create / edit queries,
--   only a user who has the `OBSERVER` role in data space `CISD` is
+- only a user who has the `OBSERVER` role in data space `CISD` is
     allowed to execute a query.
 
 For query databases that do not belong to a space but that have a column
@@ -1392,14 +1373,14 @@ established by means of the experiment / sample / data set whose
 For sensitive data where authorization needs to be enforced, there are
 two setups possible:
 
-1.  Configure a query database that **does not** belong to a data space
+1. Configure a query database that **does not** belong to a data space
     and set the creator-minimal-role to `INSTANCE_ADMIN`. Any instance
     admin can be trusted to understand authorization issues and ensure
     that only queries are added for this query database that contain a
     proper reference to an experiment / sample / data set. This way, it
     can be ensured that only properly filtered query results are
     returned to the user running the query.
-2.  Configure a query database that **does** belong to a specific data
+2. Configure a query database that **does** belong to a specific data
     space and set the creator-minimal-role to `POWER_USER`. The
     datastore server (or whatever server maintains the query database)
     ensures that only information related to the configured data space
@@ -1454,15 +1435,15 @@ The table below describes the possible commands and their arguments.
 | log-service-calls                    | 'on', 'off'                                            | 'off'         | Turns on / off detailed service call logging.
 When this feature is enabled, openBIS will log about start and end of every service call it executes to file <installation directory>/servers/openBIS-server/jetty/log/openbis_service_calls.txt                                                                                                                                                                                                                                 |
 | log-long-running-invocations         | 'on', 'off'                                            | 'on'          | Turns on / off logging of long running invocations.
-When this feature is enabled, openBIS will periodically create a report of all service calls that have been in execution more than 15 seconds to file <installation directory>/servers/openBIS-server/jetty/log/openbis_long_running_threads.txt.                                                                                                                                                                          |
+When this feature is enabled, openBIS will periodically create a report of all service calls that have been in execution more than 15 seconds to file <installation directory>/servers/openBIS-server/jetty/log/openbis_long_running_threads.txt.                                                                                                                                                                         |
 | debug-db-connections                 | 'on', 'off'                                            | 'off'         | Turns on / off logging about database connection pool activity.
 When this feature is enabled, information about every borrow and return to database connection pool is logged to openBIS main log in file <installation directory>/servers/openBIS-server/jetty/log/openbis_log.txt                                                                                                                                                                                            |
 | log-db-connections                   | no argument / minimum connection age (in milliseconds) | 5000          | When this command is executed without an argument, information about every database connection that has been borrowed from the connection pool is written into openBIS main log in file <installation directory>/servers/openBIS-server/jetty/log/openbis_log.txt
 If the "minimum connection age" argument is specified, only connections that have been out of the pool longer than the specified time are logged. The minimum connection age value is given in milliseconds. |
 | record-stacktrace-db-connections     | 'on', 'off'                                            | 'off'         | Turns on / off logging of stacktraces.
-When this feature is enabled AND debug-db-connections is enabled, the full stack trace of the borrowing thread will be recorded with the connection pool activity logs.                                                                                                                                                                                                                                                                       |
+When this feature is enabled AND debug-db-connections is enabled, the full stack trace of the borrowing thread will be recorded with the connection pool activity logs.                                                                                                                                                                                                                                                                      |
 | log-db-connections-separate-log-file | 'on', 'off'                                            | 'off'         | Turns on / off database connection pool logging to separate file.
-When this feature is disabled, the database connection pool activity logging is done only to openBIS main log. When this feature is enabled, the activity logging is done ALSO to file <installation directory>/servers/openBIS-server/jetty/log/openbis_db_connections.txt.                                                                                                                                 |
+When this feature is disabled, the database connection pool activity logging is done only to openBIS main log. When this feature is enabled, the activity logging is done ALSO to file <installation directory>/servers/openBIS-server/jetty/log/openbis_db_connections.txt.                                                                                                                                |
 
  
 
