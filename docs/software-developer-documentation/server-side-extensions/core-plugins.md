@@ -157,7 +157,7 @@ As a consequence of the way plugins are merged with `service.properties` writer
 
 ## Using Java libraries in Core Plugins
 
-OpenBIS allows you to include Java libraries in core plugin folders. The \*.jar files have to be stored in "<code plugin folder>/lib" folder. For instance, in order to use "my-lib.jar" in "my-dropbox" a following file structure is needed:
+OpenBIS allows you to include Java libraries in core plugin folders. The \*.jar files have to be stored in `<code plugin folder>/lib` folder. For instance, in order to use "my-lib.jar" in "my-dropbox" a following file structure is needed:
 
 **service.properties**
 
@@ -173,8 +173,7 @@ my-technology
             plugin.properties
 ```
 
-Having this structure, Java classes from "my-lib.jar" can be imported
-and used in "dropbox.py" script.
+Having this structure, Java classes from "my-lib.jar" can be imported and used in "dropbox.py" script.
 
 ```{note}
 Currently this feature is only supported for DSS core plugins. Under the hood, a symbolic link to a jar file is created in "datastore\_server/lib" folder during DSS startup.
