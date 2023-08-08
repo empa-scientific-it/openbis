@@ -683,6 +683,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 		    var propertyType = propertyTypeGroup.propertyTypes[j];
 			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
+			var isMultiValue = false;
+			if(propertyTypeV3.isMultiValue) {
+				isMultiValue = propertyTypeV3.isMultiValue();
+			}
             var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(propertyType.code);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
@@ -732,7 +736,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                                 $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
                             }
                         } else if(propertyType.dataType === "SAMPLE") {
-                            var $component = new SampleField(false, '', false, value, true, propertyTypeV3.isMultiValue());
+                            var $component = new SampleField(false, '', false, value, true, isMultiValue);
                             $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
                         } else { // The base case paints the property value as a label
                             $controlGroup = FormUtil.createPropertyField(propertyType, value, semanticAnnotations);
@@ -741,14 +745,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						continue;
 					}
 				} else {
-					var $component = FormUtil.getFieldForPropertyType(propertyType, value, propertyTypeV3.isMultiValue());
+					var $component = FormUtil.getFieldForPropertyType(propertyType, value, isMultiValue);
 
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
 						    FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
-						} else if(propertyTypeV3.isMultiValue()) {
+						} else if(isMultiValue) {
 						    if(value) {
 								var valueArray;
 								if(Array.isArray(value)) {
@@ -856,7 +860,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
-						$component.change(changeEvent(propertyType, propertyTypeV3.isMultiValue()));
+						$component.change(changeEvent(propertyType, isMultiValue));
 					}
 
                     $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
