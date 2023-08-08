@@ -67,6 +67,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
@@ -95,6 +96,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class DelayedExecutionDecorator
 {
@@ -574,27 +576,35 @@ public class DelayedExecutionDecorator
         List<String> assignmentsToRemove = new ArrayList<>();
         for (String propertyCode : properties.keySet())
         {
-            String propertyValue = (String) properties.get(propertyCode);
-            if (propertyValue != null && isKeySamplePropertyCode(propertyCode))
+            for(String propertyValue : getProperties(properties.get(propertyCode)))
             {
-                if (propertyValue.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
+                if (propertyValue != null && isKeySamplePropertyCode(propertyCode))
                 {
-                    IdentifierVariable identifierVariable = new IdentifierVariable(propertyValue);
-                    if (resolvedVariables.containsKey(identifierVariable))
+                    if (propertyValue.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
                     {
-                        // Just replace the Identifier, the Sample is already created.
-                        properties.put(propertyCode, resolvedVariables.get(identifierVariable).toString());
+                        IdentifierVariable identifierVariable =
+                                new IdentifierVariable(propertyValue);
+                        if (resolvedVariables.containsKey(identifierVariable))
+                        {
+                            // Just replace the Identifier, the Sample is already created.
+                            properties.put(propertyCode,
+                                    resolvedVariables.get(identifierVariable).toString());
+                        } else
+                        {
+                            scheduleAssignmentOfCyclicalDependency(entityKind, id, propertyCode,
+                                    propertyValue, page, line, assignmentsToRemove);
+                        }
                     } else
                     {
-                        scheduleAssignmentOfCyclicalDependency(entityKind, id, propertyCode, propertyValue, page, line, assignmentsToRemove);
-                    }
-                } else
-                {
-                    SampleIdentifier sampleIdentifier = new SampleIdentifier(propertyValue);
-                    // Check if the sample has been created, if not.
-                    if (getSample(sampleIdentifier, new SampleFetchOptions()) == null)
-                    {
-                        scheduleAssignmentOfCyclicalDependency(entityKind, id, propertyCode, propertyValue, page, line, assignmentsToRemove);
+                        ISampleId sampleId = propertyValue.startsWith("/")
+                                ? new SampleIdentifier(propertyValue)
+                                : new SamplePermId(propertyValue);
+                        // Check if the sample has been created, if not.
+                        if (getSample(sampleId, new SampleFetchOptions()) == null)
+                        {
+                            scheduleAssignmentOfCyclicalDependency(entityKind, id, propertyCode,
+                                    propertyValue, page, line, assignmentsToRemove);
+                        }
                     }
                 }
             }
@@ -602,6 +612,21 @@ public class DelayedExecutionDecorator
         for (String assignmentToRemove : assignmentsToRemove)
         {
             properties.remove(assignmentToRemove);
+        }
+    }
+
+    private String[] getProperties(Serializable propertyValue)
+    {
+        if(propertyValue == null) {
+            return new String[0];
+        }
+        if(propertyValue.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) propertyValue;
+            return Stream.of(values)
+                    .map(Serializable::toString)
+                    .toArray(String[]::new);
+        } else {
+            return new String[] {propertyValue.toString()};
         }
     }
 
