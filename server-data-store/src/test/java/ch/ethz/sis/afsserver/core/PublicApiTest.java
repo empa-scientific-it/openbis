@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -141,7 +142,7 @@ public abstract class PublicApiTest extends AbstractTest
         final List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
         assertEquals(2, list.size());
 
-        final List<File> matchedFiles = list.stream().filter(file -> file.getName().equals(FILE_B)).toList();
+        final List<File> matchedFiles = list.stream().filter(file -> file.getName().equals(FILE_B)).collect(Collectors.toList());
         assertEquals(1, matchedFiles.size());
         assertTrue(matchedFiles.get(0).getDirectory());
     }
@@ -153,7 +154,7 @@ public abstract class PublicApiTest extends AbstractTest
 
         final List<File> list = getPublicAPI().list(owner, ROOT, Boolean.TRUE);
 
-        final List<File> matchedFiles = list.stream().filter(file -> file.getName().equals(FILE_B)).toList();
+        final List<File> matchedFiles = list.stream().filter(file -> file.getName().equals(FILE_B)).collect(Collectors.toList());
         assertEquals(1, matchedFiles.size());
         assertFalse(matchedFiles.get(0).getDirectory());
 
