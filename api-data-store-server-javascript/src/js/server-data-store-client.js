@@ -1,11 +1,11 @@
 /** Default owner/source */
 const owner = "demo-sample";
 const source = "";
-const HTTP_SERVER_URI = "/fileserver";
+const HTTP_SERVER_URI = "/data-store-server";
 
 /// The datastoreServer we use for our data
 // datastoreServer = new datastore('https://localhost:8443/openbis', 'https://localhost:8444/datastore_server');
-datastoreServer = new datastore('http://localhost:8085', HTTP_SERVER_URI);
+datastoreServer = new DataStoreServer('http://localhost:8085', HTTP_SERVER_URI);
 
 
 

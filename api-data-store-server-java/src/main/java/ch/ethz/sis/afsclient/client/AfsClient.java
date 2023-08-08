@@ -8,16 +8,21 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import ch.ethz.sis.afsapi.api.ClientAPI;
@@ -35,6 +40,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
 
     private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000;
+
+    private static final String MD5 = "MD5";
 
     private final int maxReadSizeInBytes;
 
@@ -253,31 +260,104 @@ public final class AfsClient implements PublicAPI, ClientAPI
     public void resumeRead(@NonNull String owner, @NonNull String source, @NonNull Path destination,
             @NonNull Long offset) throws Exception
     {
-        AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.WRITE);
-        List<File> infos = list(owner, source, false);
-        if(infos.isEmpty()) {
+
+        final List<File> infos = list(owner, source, false);
+        if (infos.isEmpty())
+        {
             throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
         }
-        File file = null;
-        for(File info:infos) {
-            if(info.getName().equals(getName(source))) {
-                file = info;
+        File sourceFile = null;
+        for (File info : infos)
+        {
+            if (info.getName().equals(getName(source)))
+            {
+                sourceFile = info;
                 break;
             }
         }
-        while(offset < file.getSize()) {
-            byte[] read = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
-            fileChannel.write(ByteBuffer.wrap(read), offset);
-            offset += read.length;
+        if (sourceFile == null)
+        {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
         }
-        fileChannel.close();
+
+        final Long sourceFileSize = sourceFile.getSize();
+        final CountDownLatch latch = new CountDownLatch((int) ((sourceFileSize - 1) / DEFAULT_PACKAGE_SIZE_IN_BYTES) + 1);
+        final AtomicBoolean hasError = new AtomicBoolean(false);
+
+        try (final AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING))
+        {
+            while (offset < sourceFileSize)
+            {
+                final long remainingSize = sourceFileSize - offset;
+                final int limit = DEFAULT_PACKAGE_SIZE_IN_BYTES <= remainingSize ? DEFAULT_PACKAGE_SIZE_IN_BYTES : (int) remainingSize;
+                final byte[] bufferArray = read(owner, source, offset, limit);
+                final ByteBuffer byteBuffer = ByteBuffer.wrap(bufferArray);
+
+                fileChannel.write(byteBuffer, offset, byteBuffer, new ChannelWriteCompletionHandler(latch, hasError));
+                offset += bufferArray.length;
+        }
+
+            latch.await();
+
+            if (hasError.get())
+            {
+                throw new Exception("Failed to write all chunks");
+            }
+        } catch (final Exception e)
+        {
+            throw ClientExceptions.API_ERROR.getInstance("Error writing to file from source '" + source + "'");
+        }
     }
 
     @Override
-    public @NonNull Boolean resumeWrite(@NonNull String owner, @NonNull String destination,
-            @NonNull Path source, @NonNull Long offset) throws Exception
+    public @NonNull Boolean resumeWrite(@NonNull final String owner, @NonNull final String destination,
+            @NonNull final Path source, @NonNull Long offset) throws Exception
     {
-        return null;
+        final java.io.File sourceFile = source.toFile();
+        if (!sourceFile.exists())
+        {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+        }
+
+        final long sourceFileSize = sourceFile.length();
+
+        try (final AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(source, StandardOpenOption.READ))
+        {
+            final long remainingFileSize = sourceFileSize - offset;
+            final AtomicBoolean hasError = new AtomicBoolean(false);
+
+            if (remainingFileSize > 0)
+            {
+                final CountDownLatch latch = new CountDownLatch((int) ((remainingFileSize - 1) / DEFAULT_PACKAGE_SIZE_IN_BYTES) + 1);
+
+                while (offset < sourceFileSize)
+                {
+                    final ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                    fileChannel.read(byteBuffer, offset, byteBuffer,
+                            new ChannelReadCompletionHandler(owner, destination, offset, latch, hasError));
+                    offset += DEFAULT_PACKAGE_SIZE_IN_BYTES;
+                }
+
+                latch.await();
+            }
+
+            return !hasError.get();
+        } catch (final Exception e)
+        {
+            return false;
+        }
+    }
+
+    private static byte[] getMD5(final byte[] data)
+    {
+        try
+        {
+            return MessageDigest.getInstance(MD5).digest(data);
+        } catch (Exception exception)
+        {
+            throw new RuntimeException(exception);
+        }
     }
 
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
@@ -445,4 +525,86 @@ public final class AfsClient implements PublicAPI, ClientAPI
             throw new IllegalStateException("No session information detected!");
         }
     }
+
+    private static class ChannelWriteCompletionHandler implements CompletionHandler<Integer, ByteBuffer>
+    {
+
+        private final CountDownLatch latch;
+
+        private final AtomicBoolean hasError;
+
+        public ChannelWriteCompletionHandler(final CountDownLatch latch, final AtomicBoolean hasError)
+        {
+            this.latch = latch;
+            this.hasError = hasError;
+        }
+
+        @Override
+        public void completed(final Integer result, final ByteBuffer attachment)
+        {
+            latch.countDown();
+        }
+
+        @Override
+        public void failed(final Throwable exc, final ByteBuffer attachment)
+        {
+            hasError.set(true);
+            latch.countDown();
+        }
+
+    }
+
+    private class ChannelReadCompletionHandler implements CompletionHandler<Integer, ByteBuffer>
+    {
+
+        private final @NonNull String owner;
+
+        private final @NonNull String destination;
+
+        private final CountDownLatch latch;
+
+        private final AtomicBoolean hasError;
+
+        private final Long offset;
+
+        public ChannelReadCompletionHandler(final @NonNull String owner, final @NonNull String destination, final Long offset,
+                final CountDownLatch latch, final AtomicBoolean hasError)
+        {
+            this.owner = owner;
+            this.destination = destination;
+            this.offset = offset;
+            this.latch = latch;
+            this.hasError = hasError;
+        }
+
+        @Override
+        public void completed(final Integer result, final ByteBuffer attachment)
+        {
+            final byte[] fullBuffer = attachment.array();
+            final byte[] data = result < fullBuffer.length ? Arrays.copyOf(fullBuffer, result) : fullBuffer;
+            try
+            {
+                final Boolean writeSuccessful = write(owner, destination, this.offset, data, getMD5(data));
+                if (!writeSuccessful)
+                {
+                    hasError.set(true);
+                }
+            } catch (final Exception e)
+            {
+                hasError.set(true);
+            } finally
+            {
+                latch.countDown();
+            }
+        }
+
+        @Override
+        public void failed(final Throwable exc, final ByteBuffer attachment)
+        {
+            hasError.set(true);
+            latch.countDown();
+        }
+
+    }
+
 }

@@ -1,0 +1,8 @@
+{
+  "name": "dummy-package-json",
+  "version": "0.0.1",
+  "description": "This configuration file is required by NodeJS gradle plugin which is used to bundle all JS files together",
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {}
+}

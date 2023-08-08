@@ -45,8 +45,8 @@ public abstract class BaseRuntimeExceptionTemplate<REASON extends Serializable, 
     public RuntimeException getInstance(Object... args) {
         RuntimeException exception;
         try {
-            Constructor constructor = clazz.getConstructor(Throwable.class);
-            exception = (RuntimeException) constructor.newInstance(getThrowableReason(args));
+            Constructor constructor = clazz.getConstructor(String.class, Throwable.class);
+            exception = (RuntimeException) constructor.newInstance(args[0], getThrowableReason(args));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -56,8 +56,8 @@ public abstract class BaseRuntimeExceptionTemplate<REASON extends Serializable, 
     public Exception getCheckedInstance(Object... args) {
         Exception exception;
         try {
-            Constructor constructor = clazz.getConstructor(Throwable.class);
-            exception = (Exception) constructor.newInstance(getThrowableReason(args));
+            Constructor constructor = clazz.getConstructor(String.class, Throwable.class);
+            exception = (Exception) constructor.newInstance(args[0], getThrowableReason(args));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

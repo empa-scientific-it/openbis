@@ -20,6 +20,9 @@ package ch.ethz.sis.afsclient.client;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -34,11 +37,11 @@ public final class DummyHttpServer
 
     private static final String DEFAULT_RESPONSE = "{\"result\": \"success\"}";
 
-    private byte[] nextResponse = DEFAULT_RESPONSE.getBytes();
+    private Queue<byte[]> nextResponses = new LinkedList<>(List.of(DEFAULT_RESPONSE.getBytes()));
 
     private byte[] lastRequestBody = null;
 
-    private String nextResponseType = "application/json";
+    private Queue<String> nextResponseTypes = new LinkedList<>(List.of("application/json"));
 
     private HttpExchange httpExchange;
 
@@ -49,8 +52,8 @@ public final class DummyHttpServer
         httpServer = HttpServer.create(new InetSocketAddress(httpServerPort), 0);
         httpServer.createContext(httpServerPath, exchange ->
         {
-            byte[] response = nextResponse;
-            exchange.getResponseHeaders().set("content-type", nextResponseType);
+            byte[] response = nextResponses.remove();
+            exchange.getResponseHeaders().set("content-type", nextResponseTypes.remove());
             exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
 
             exchange.getResponseBody().write(response);
@@ -73,14 +76,18 @@ public final class DummyHttpServer
 
     public void setNextResponse(String response)
     {
-        this.nextResponse = response.getBytes();
-        this.nextResponseType = "application/json";
+        setNextResponses(new byte[][] {response.getBytes()}, new String[] {"application/json"});
     }
 
     public void setNextResponse(byte[] response)
     {
-        this.nextResponse = response;
-        this.nextResponseType = "application/octet-stream";
+        setNextResponses(new byte[][] {response}, new String[] {"application/octet-stream"});
+    }
+
+    public void setNextResponses(byte[][] responses, String[] responseTypes)
+    {
+        this.nextResponses = new LinkedList<>(List.of(responses));
+        this.nextResponseTypes = new LinkedList<>(List.of(responseTypes));
     }
 
     public byte[] getLastRequestBody()

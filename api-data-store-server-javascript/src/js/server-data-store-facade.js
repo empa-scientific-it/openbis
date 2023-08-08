@@ -1,25 +1,25 @@
 /**
  * ======================================================
- * OpenBIS Datastore facade internal code (DO NOT USE!!!)
+ * OpenBIS Data Store Server facade internal code (DO NOT USE!!!)
  * ======================================================
  */
 
-function _datastoreInternal(datastoreUrlOrNull, httpServerUri){
+function _DataStoreServerInternal(datastoreUrlOrNull, httpServerUri){
 	this.init(datastoreUrlOrNull, httpServerUri);
 }
 
-_datastoreInternal.prototype.init = function(datastoreUrlOrNull, httpServerUri){
+_DataStoreServerInternal.prototype.init = function(datastoreUrlOrNull, httpServerUri){
 	this.datastoreUrl = this.normalizeUrl(datastoreUrlOrNull, httpServerUri);
 	this.httpServerUri = httpServerUri;
 }
 
-_datastoreInternal.prototype.log = function(msg){
+_DataStoreServerInternal.prototype.log = function(msg){
 	if(console){
 		console.log(msg);
 	}
 }
 
-_datastoreInternal.prototype.normalizeUrl = function(openbisUrlOrNull, httpServerUri){
+_DataStoreServerInternal.prototype.normalizeUrl = function(openbisUrlOrNull, httpServerUri){
 	var parts = this.parseUri(window.location);
 	
 	if(openbisUrlOrNull){
@@ -37,15 +37,15 @@ _datastoreInternal.prototype.normalizeUrl = function(openbisUrlOrNull, httpServe
 	return parts.protocol + "://" + parts.authority + httpServerUri;
 }
 
-_datastoreInternal.prototype.getUrlForMethod = function(method) {
+_DataStoreServerInternal.prototype.getUrlForMethod = function(method) {
     return this.datastoreUrl + "?method=" + method;
 }
 
-_datastoreInternal.prototype.jsonRequestData = function(params) {
+_DataStoreServerInternal.prototype.jsonRequestData = function(params) {
 	return JSON.stringify(params);
 }
 
-_datastoreInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data, callback) {
+_DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data, callback) {
 	const xhr = new XMLHttpRequest();
 	xhr.open(httpMethod, url);
 	xhr.setRequestHeader("content-type", contentType);
@@ -72,7 +72,7 @@ _datastoreInternal.prototype.sendHttpRequest = function(httpMethod, contentType,
 
 
 
-  _datastoreInternal.prototype.buildGetUrl = function(queryParams) {
+  _DataStoreServerInternal.prototype.buildGetUrl = function(queryParams) {
 	const queryString = Object.keys(queryParams)
 	  .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`)
 	  .join('&');
@@ -83,7 +83,7 @@ _datastoreInternal.prototype.sendHttpRequest = function(httpMethod, contentType,
 
 // Functions for working with cookies (see http://www.quirksmode.org/js/cookies.html)
 
-_datastoreInternal.prototype.createCookie = function(name,value,days) {
+_DataStoreServerInternal.prototype.createCookie = function(name,value,days) {
 	if (days) {
 		var date = new Date();
 		date.setTime(date.getTime()+(days*24*60*60*1000));
@@ -93,7 +93,7 @@ _datastoreInternal.prototype.createCookie = function(name,value,days) {
 	document.cookie = name+"="+value+expires+"; path=/";
 }
 
-_datastoreInternal.prototype.readCookie = function(name) {
+_DataStoreServerInternal.prototype.readCookie = function(name) {
 	var nameEQ = name + "=";
 	var ca = document.cookie.split(';');
 	for(var i=0;i < ca.length;i++) {
@@ -104,13 +104,13 @@ _datastoreInternal.prototype.readCookie = function(name) {
 	return null;
 }
 
-_datastoreInternal.prototype.eraseCookie = function(name) {
+_DataStoreServerInternal.prototype.eraseCookie = function(name) {
 	this.createCookie(name,"",-1);
 }
 
 // parseUri 1.2.2 (c) Steven Levithan <stevenlevithan.com> MIT License (see http://blog.stevenlevithan.com/archives/parseuri)
 
-_datastoreInternal.prototype.parseUri = function(str) {
+_DataStoreServerInternal.prototype.parseUri = function(str) {
 	var options = {
 		strictMode: false,
 		key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
@@ -160,8 +160,8 @@ function parseJsonResponse(rawResponse, action) {
  * The facade provides access to the DSS methods
  * 
  */
-function datastore(datastoreUrlOrNull, httpServerUri) {
-	this._internal = new _datastoreInternal(datastoreUrlOrNull, httpServerUri);
+function DataStoreServer(datastoreUrlOrNull, httpServerUri) {
+	this._internal = new _DataStoreServerInternal(datastoreUrlOrNull, httpServerUri);
 }
 
 
@@ -176,8 +176,8 @@ function datastore(datastoreUrlOrNull, httpServerUri) {
  *
  * @method
  */
-datastore.prototype.rememberSession = function() {
-	this._internal.createCookie('datastore', this.getSession(), 1);
+DataStoreServer.prototype.rememberSession = function() {
+	this._internal.createCookie('dataStoreServer', this.getSession(), 1);
 }
 
 /**
@@ -185,8 +185,8 @@ datastore.prototype.rememberSession = function() {
  *
  * @method
  */
-datastore.prototype.forgetSession = function() {
-	this._internal.eraseCookie('datastore');
+DataStoreServer.prototype.forgetSession = function() {
+	this._internal.eraseCookie('dataStoreServer');
 }
 
 /**
@@ -194,8 +194,8 @@ datastore.prototype.forgetSession = function() {
  *
  * @method
  */
-datastore.prototype.restoreSession = function() {
-	this._internal.sessionToken = this._internal.readCookie('datastore');
+DataStoreServer.prototype.restoreSession = function() {
+	this._internal.sessionToken = this._internal.readCookie('dataStoreServer');
 }
 
 /**
@@ -203,7 +203,7 @@ datastore.prototype.restoreSession = function() {
  *
  * @method
  */
-datastore.prototype.useSession = function(sessionToken){
+DataStoreServer.prototype.useSession = function(sessionToken){
 	this._internal.sessionToken = sessionToken;
 }
 
@@ -212,7 +212,7 @@ datastore.prototype.useSession = function(sessionToken){
  * 
  * @method
  */
-datastore.prototype.getSession = function(){
+DataStoreServer.prototype.getSession = function(){
 	return this._internal.sessionToken;
 }
 
@@ -221,7 +221,7 @@ datastore.prototype.getSession = function(){
  * 
  * @method
  */
-datastore.prototype.setInteractiveSessionKey = function(interactiveSessionKey){
+DataStoreServer.prototype.setInteractiveSessionKey = function(interactiveSessionKey){
 	this._internal.interactiveSessionKey = interactiveSessionKey;
 }
 
@@ -230,7 +230,7 @@ datastore.prototype.setInteractiveSessionKey = function(interactiveSessionKey){
  * 
  * @method
  */
-datastore.prototype.getInteractiveSessionKey = function(){
+DataStoreServer.prototype.getInteractiveSessionKey = function(){
 	return this._internal.interactiveSessionKey;
 }
 
@@ -239,7 +239,7 @@ datastore.prototype.getInteractiveSessionKey = function(){
  * 
  * @method
  */
-datastore.prototype.setTransactionManagerKey = function(transactionManagerKey){
+DataStoreServer.prototype.setTransactionManagerKey = function(transactionManagerKey){
 	this._internal.transactionManagerKey = transactionManagerKey;
 }
 
@@ -248,11 +248,11 @@ datastore.prototype.setTransactionManagerKey = function(transactionManagerKey){
  * 
  * @method
  */
-datastore.prototype.getTransactionManagerKey = function(){
+DataStoreServer.prototype.getTransactionManagerKey = function(){
 	return this._internal.transactionManagerKey;
 }
 
-datastore.prototype.fillCommonParameters = function(params) {
+DataStoreServer.prototype.fillCommonParameters = function(params) {
 	if(this.getSession()) {
 		params["sessionToken"] = this.getSession();
 	}
@@ -272,7 +272,7 @@ const encodeParams = p =>  Object.entries(p).map(kv => kv.map(encodeURIComponent
  * 
  * @method
  */
-datastore.prototype.login = function(userId, userPassword, action) {
+DataStoreServer.prototype.login = function(userId, userPassword, action) {
 	var datastoreObj = this
 	const data =  this.fillCommonParameters({
 		"method": "login",
@@ -298,7 +298,7 @@ datastore.prototype.login = function(userId, userPassword, action) {
  * Checks whether the current session is still active.
  *
  */
-datastore.prototype.isSessionValid = function(action) {
+DataStoreServer.prototype.isSessionValid = function(action) {
 	if(this.getSession()){
 		const data =  this.fillCommonParameters({"method":"isSessionValid"});
 		this._internal.sendHttpRequest(
@@ -321,7 +321,7 @@ datastore.prototype.isSessionValid = function(action) {
  * @see isSessionActive()
  * @method
  */
-datastore.prototype.ifRestoredSessionActive = function(action) {
+DataStoreServer.prototype.ifRestoredSessionActive = function(action) {
 	this.restoreSession();
 	this.isSessionValid(function(data) { if (data.result) action(data) });
 }
@@ -331,7 +331,7 @@ datastore.prototype.ifRestoredSessionActive = function(action) {
  * 
  * @method
  */
-datastore.prototype.logout = function(action) {
+DataStoreServer.prototype.logout = function(action) {
 	this.forgetSession();
 	
 	if(this.getSession()){
@@ -358,7 +358,7 @@ datastore.prototype.logout = function(action) {
 /**
  * List files in the DSS for given owner and source
  */
-datastore.prototype.list = function(owner, source, recursively, action){
+DataStoreServer.prototype.list = function(owner, source, recursively, action){
 	const data =  this.fillCommonParameters({
 		"method": "list",
 		"owner" :  owner,
@@ -382,7 +382,7 @@ datastore.prototype.list = function(owner, source, recursively, action){
  * @param {int} limit how many characters to read
  * @param {*} action post-processing action
  */
-datastore.prototype.read = function(owner, source, offset, limit, action){
+DataStoreServer.prototype.read = function(owner, source, offset, limit, action){
 	const data =  this.fillCommonParameters({
 		"method": "read",
 		"owner" :  owner,
@@ -416,7 +416,7 @@ function hex2a(hexx) {
  * @param {str} data data to write
  * @param {*} action post-processing action
  */
-datastore.prototype.write = function(owner, source, offset, data, action){
+DataStoreServer.prototype.write = function(owner, source, offset, data, action){
 	const params =  this.fillCommonParameters({
 		"method": "write",
 		"owner" : owner,
@@ -441,7 +441,7 @@ datastore.prototype.write = function(owner, source, offset, data, action){
  * @param {str} source path to file
  * @param {*} action post-processing action 
  */
-datastore.prototype.delete = function(owner, source, action){
+DataStoreServer.prototype.delete = function(owner, source, action){
 	const data =  this.fillCommonParameters({
 		"method": "delete",
 		"owner" : owner,
@@ -459,7 +459,7 @@ datastore.prototype.delete = function(owner, source, action){
 /**
  * Copy file within DSS
  */
-datastore.prototype.copy = function(sourceOwner, source, targetOwner, target, action){
+DataStoreServer.prototype.copy = function(sourceOwner, source, targetOwner, target, action){
 	const data =  this.fillCommonParameters({
 		"method": "copy",
 		"sourceOwner" : sourceOwner,
@@ -479,7 +479,7 @@ datastore.prototype.copy = function(sourceOwner, source, targetOwner, target, ac
 /** 
  * Move file within DSS
  */
-datastore.prototype.move = function(sourceOwner, source, targetOwner, target, action){
+DataStoreServer.prototype.move = function(sourceOwner, source, targetOwner, target, action){
 	const data =  this.fillCommonParameters({
 		"method": "move",
 		"sourceOwner" : sourceOwner,
@@ -523,7 +523,7 @@ DataStoreServer.prototype.create = function(owner, source, directory, action){
  * ==================================================================================
  */
 
-datastore.prototype.begin = function(transactionId, action){
+DataStoreServer.prototype.begin = function(transactionId, action){
 	const data =  this.fillCommonParameters({
 		"method": "begin",
 		"transactionId" : transactionId
@@ -538,7 +538,7 @@ datastore.prototype.begin = function(transactionId, action){
 	
 }
 
-datastore.prototype.prepare = function(action){
+DataStoreServer.prototype.prepare = function(action){
 	const data =  this.fillCommonParameters({
 		"method": "prepare"
 	});
@@ -552,7 +552,7 @@ datastore.prototype.prepare = function(action){
 	
 }
 
-datastore.prototype.commit = function(action){
+DataStoreServer.prototype.commit = function(action){
 	const data =  this.fillCommonParameters({
 		"method": "commit"
 	});
@@ -567,7 +567,7 @@ datastore.prototype.commit = function(action){
 }
 
 
-datastore.prototype.rollback = function(action){
+DataStoreServer.prototype.rollback = function(action){
 	const data =  this.fillCommonParameters({
 		"method": "rollback"
 	});
@@ -580,7 +580,7 @@ datastore.prototype.rollback = function(action){
 	);
 }
 
-datastore.prototype.recover = function(action){
+DataStoreServer.prototype.recover = function(action){
 	const data =  this.fillCommonParameters({
 		"method": "recover"
 	});

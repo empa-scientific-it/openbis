@@ -10,6 +10,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -315,7 +317,6 @@ public class AfsClientTest
 
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
         assertTrue(result);
-        assertEquals(0, httpServer.getLastRequestBody().length);
     }
 
     @Test
@@ -328,7 +329,6 @@ public class AfsClientTest
 
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
         assertTrue(result);
-        assertEquals(0, httpServer.getLastRequestBody().length);
     }
 
     private void login() throws Exception

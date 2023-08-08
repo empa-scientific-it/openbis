@@ -233,11 +233,15 @@ public class TransactionConnection implements TransactionalFileSystem {
         source = getSafePath(OperationName.List, source);
         validateOperationAndPaths(OperationName.List, source, null);
         validateWritten(OperationName.List, source);
-        if (!IOUtils.getFile(source).getDirectory()) {
-            AFSExceptions.throwInstance(AFSExceptions.PathNotDirectory, OperationName.List, source);
+        final File file = IOUtils.getFile(source);
+        if (!file.getDirectory())
+        {
+            return List.of(file);
+        } else
+        {
+            ListOperation operation = new ListOperation(transaction.getUuid(), source, recursively);
+            return executeNonModifyingOperation(operation, source);
         }
-        ListOperation operation = new ListOperation(transaction.getUuid(), source, recursively);
-        return executeNonModifyingOperation(operation, source);
     }
 
     @Override
