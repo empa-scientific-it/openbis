@@ -659,6 +659,15 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 }
                 // End of 'copySample' section
             }
+            parameters["sampleChildrenNew"].forEach(function(newSampleChild) {
+                var identifier = newSampleChild["identifier"];
+                if (existingSamples[identifier]) {
+                    var update = new SampleUpdate();
+                    sampleUpdates.push(update);
+                    update.setSampleId(new SampleIdentifier(identifier));
+                    update.setProperties(newSampleChild["properties"]);
+                }
+            });
             parameters["changesToDo"].forEach(function(change) {
                 var update = new SampleUpdate();
                 sampleUpdates.push(update);
