@@ -260,7 +260,7 @@ def test_create_new_dataset_v3_directory(space):
     dataset.save()
 
     assert dataset.permId is not None
-    assert dataset.file_list == ["original/DEFAULT/testdir/testfile"]
+    assert dataset.file_list == ["original/testdir/testfile"]
 
 
 def test_dataset_property_in_isoformat_date(space):
