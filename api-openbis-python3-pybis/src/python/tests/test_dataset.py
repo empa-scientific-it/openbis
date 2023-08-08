@@ -353,43 +353,44 @@ def create_array_properties(openbis, code_prefix):
 
 
 def test_dataset_array_properties(space):
-    create_array_properties(space.openbis, "DATASET")
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+    create_array_properties(space.openbis, f"DATASET_{timestamp}")
 
-    dataset_code = 'TEST_ARRAY_DATASET'
+    dataset_code = f'TEST_ARRAY_DATASET_{timestamp}'
     dataset_type = space.openbis.new_dataset_type(
         code=dataset_code
     )
     dataset_type.save()
 
     dataset_type.assign_property('$NAME')
-    dataset_type.assign_property('DATASET_ARRAY_INTEGER')
-    dataset_type.assign_property('DATASET_ARRAY_REAL')
-    dataset_type.assign_property('DATASET_ARRAY_STRING')
-    dataset_type.assign_property('DATASET_ARRAY_TIMESTAMP')
-    dataset_type.assign_property('DATASET_JSON')
+    dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_INTEGER')
+    dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_REAL')
+    dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_STRING')
+    dataset_type.assign_property(f'DATASET_{timestamp}_ARRAY_TIMESTAMP')
+    dataset_type.assign_property(f'DATASET_{timestamp}_JSON')
 
     testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
     dataset = space.openbis.new_dataset(
         type=dataset_code,
         sample="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props={'dataset_array_integer': [1, 2, 3]}
+        props={f'dataset_{timestamp}_array_integer': [1, 2, 3]}
     )
     dataset.save()
 
-    dataset.props['dataset_array_integer'] = [3, 2, 1]
-    dataset.props['dataset_array_real'] = [3.1, 2.2, 1.3]
-    dataset.props['dataset_array_string'] = ["aa", "bb", "cc"]
-    dataset.props['dataset_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
+    dataset.props[f'dataset_{timestamp}_array_integer'] = [3, 2, 1]
+    dataset.props[f'dataset_{timestamp}_array_real'] = [3.1, 2.2, 1.3]
+    dataset.props[f'dataset_{timestamp}_array_string'] = ["aa", "bb", "cc"]
+    dataset.props[f'dataset_{timestamp}_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
                                                 '2023-05-18 11:17:05']
-    dataset.props['dataset_json'] = "{ \"key\": [1, 1, 1] }"
+    dataset.props[f'dataset_{timestamp}_json'] = "{ \"key\": [1, 1, 1] }"
     dataset.save()
 
-    assert dataset.props['dataset_array_integer'] == [3, 2, 1]
-    assert dataset.props['dataset_array_real'] == [3.1, 2.2, 1.3]
-    assert dataset.props['dataset_array_string'] == ["aa", "bb", "cc"]
-    assert dataset.props['dataset_json'] == "{ \"key\": [1, 1, 1] }"
-    assert dataset.props['dataset_array_timestamp'] == ['2023-05-18 11:17:03',
+    assert dataset.props[f'dataset_{timestamp}_array_integer'] == [3, 2, 1]
+    assert dataset.props[f'dataset_{timestamp}_array_real'] == [3.1, 2.2, 1.3]
+    assert dataset.props[f'dataset_{timestamp}_array_string'] == ["aa", "bb", "cc"]
+    assert dataset.props[f'dataset_{timestamp}_json'] == "{ \"key\": [1, 1, 1] }"
+    assert dataset.props[f'dataset_{timestamp}_array_timestamp'] == ['2023-05-18 11:17:03',
                                                         '2023-05-18 11:17:04',
                                                         '2023-05-18 11:17:05']
 

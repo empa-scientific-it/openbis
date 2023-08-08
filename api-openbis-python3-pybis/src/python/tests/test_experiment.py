@@ -152,35 +152,35 @@ def create_array_properties(openbis, code_prefix):
 
 
 def test_experiment_array_properties(space):
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+    create_array_properties(space.openbis, f"EXPERIMENT_{timestamp}")
 
-    create_array_properties(space.openbis, "EXPERIMENT")
-
-    collection_code = 'TEST_ARRAY_COLLECTION'
+    collection_code = f'TEST_ARRAY_COLLECTION_{timestamp}'
     experiment_type = space.openbis.new_experiment_type(
         collection_code,
         description=None,
         validationPlugin=None,
     )
     experiment_type.save()
-    experiment_type.assign_property('EXPERIMENT_ARRAY_INTEGER')
-    experiment_type.assign_property('EXPERIMENT_ARRAY_REAL')
-    experiment_type.assign_property('EXPERIMENT_ARRAY_STRING')
-    experiment_type.assign_property('EXPERIMENT_ARRAY_TIMESTAMP')
-    experiment_type.assign_property('EXPERIMENT_JSON')
+    experiment_type.assign_property(f'EXPERIMENT_{timestamp}_ARRAY_INTEGER')
+    experiment_type.assign_property(f'EXPERIMENT_{timestamp}_ARRAY_REAL')
+    experiment_type.assign_property(f'EXPERIMENT_{timestamp}_ARRAY_STRING')
+    experiment_type.assign_property(f'EXPERIMENT_{timestamp}_ARRAY_TIMESTAMP')
+    experiment_type.assign_property(f'EXPERIMENT_{timestamp}_JSON')
 
     exp = space.openbis.new_experiment(
         code = 'EXP_PYTHON',
         type = collection_code,
         project = 'DEFAULT',
-        props = { 'experiment_array_integer': [1, 2, 3]})
+        props = { f'experiment_{timestamp}_array_integer': [1, 2, 3]})
     exp.save()
 
-    exp.props['experiment_array_integer'] = [3, 2, 1]
-    exp.props['experiment_array_real'] = [3.1, 2.2, 1.3]
-    exp.props['experiment_array_string'] = ["aa", "bb", "cc"]
-    exp.props['experiment_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
+    exp.props[f'experiment_{timestamp}_array_integer'] = [3, 2, 1]
+    exp.props[f'experiment_{timestamp}_array_real'] = [3.1, 2.2, 1.3]
+    exp.props[f'experiment_{timestamp}_array_string'] = ["aa", "bb", "cc"]
+    exp.props[f'experiment_{timestamp}_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
                                                '2023-05-18 11:17:05']
-    exp.props['experiment_json'] = "{ \"key\": [1, 1, 1] }"
+    exp.props[f'experiment_{timestamp}_json'] = "{ \"key\": [1, 1, 1] }"
     exp.save()
 
 

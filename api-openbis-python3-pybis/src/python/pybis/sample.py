@@ -96,7 +96,7 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
             data_type = property_type['dataType']
             if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
                 value = self.formatter.to_array(data_type, value)
-            if "multiValue" in property_type:
+            elif "multiValue" in property_type:
                 if property_type['multiValue'] is True:
                     if type(value) is not list:
                         value = [value]

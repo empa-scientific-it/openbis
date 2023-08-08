@@ -243,9 +243,10 @@ def create_array_properties(openbis, code_prefix):
 
 
 def test_sample_array_properties(space):
-    create_array_properties(space.openbis, "SAMPLE")
+    timestamp = time.strftime("%a_%y%m%d_%H%M%S").lower()
+    create_array_properties(space.openbis, f"SAMPLE_{timestamp}")
 
-    sample_code = 'TEST_ARRAY_SAMPLE'
+    sample_code = f'TEST_ARRAY_SAMPLE_{timestamp}'
     sample_type = space.openbis.new_sample_type(
         sample_code,
         generatedCodePrefix='S-',
@@ -254,29 +255,29 @@ def test_sample_array_properties(space):
     )
     sample_type.save()
 
-    sample_type.assign_property('SAMPLE_ARRAY_INTEGER')
-    sample_type.assign_property('SAMPLE_ARRAY_REAL')
-    sample_type.assign_property('SAMPLE_ARRAY_STRING')
-    sample_type.assign_property('SAMPLE_ARRAY_TIMESTAMP')
-    sample_type.assign_property('SAMPLE_JSON')
+    sample_type.assign_property(f'SAMPLE_{timestamp}_ARRAY_INTEGER')
+    sample_type.assign_property(f'SAMPLE_{timestamp}_ARRAY_REAL')
+    sample_type.assign_property(f'SAMPLE_{timestamp}_ARRAY_STRING')
+    sample_type.assign_property(f'SAMPLE_{timestamp}_ARRAY_TIMESTAMP')
+    sample_type.assign_property(f'SAMPLE_{timestamp}_JSON')
 
     sample = space.openbis.new_sample(
         type=sample_code,
         experiment='/DEFAULT/DEFAULT/DEFAULT',
-        props={'sample_array_integer': [1, 2, 3]})
+        props={f'sample_{timestamp}_array_integer': [1, 2, 3]})
     sample.save()
 
-    assert sample.props['sample_array_integer'] == [1, 2, 3]
+    assert sample.props[f'sample_{timestamp}_array_integer'] == [1, 2, 3]
 
-    sample.props['sample_array_integer'] = [3, 2, 1]
-    sample.props['sample_array_real'] = [3.1, 2.2, 1.3]
-    sample.props['sample_array_string'] = ["aa", "bb", "cc"]
-    sample.props['sample_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
+    sample.props[f'sample_{timestamp}_array_integer'] = [3, 2, 1]
+    sample.props[f'sample_{timestamp}_array_real'] = [3.1, 2.2, 1.3]
+    sample.props[f'sample_{timestamp}_array_string'] = ["aa", "bb", "cc"]
+    sample.props[f'sample_{timestamp}_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
                                               '2023-05-18 11:17:05']
-    sample.props['sample_json'] = "{ \"key\": [1, 1, 1] }"
+    sample.props[f'sample_{timestamp}_json'] = "{ \"key\": [1, 1, 1] }"
     sample.save()
 
-    assert sample.props['sample_array_integer'] == [3, 2, 1]
+    assert sample.props[f'sample_{timestamp}_array_integer'] == [3, 2, 1]
 
 
 def test_create_sample_type_assign_property(space):

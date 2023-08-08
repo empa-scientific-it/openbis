@@ -134,12 +134,12 @@ class PropertyHolder:
                 f"No such property: «{name}». Allowed properties are: {', '.join(self._property_names.keys())}"
             )
         property_type = self._property_names[name]
+        data_type = property_type["dataType"]
         if "multiValue" in property_type and property_type["multiValue"] is not True and type(
-                value) == list:
+                value) == list and data_type.startswith('ARRAY_') is False:
             raise ValueError(
                 f'Property type {property_type["code"]} is not a multi-value property!')
 
-        data_type = property_type["dataType"]
         if data_type == "CONTROLLEDVOCABULARY":
             terms = property_type["terms"]
             if "multiValue" in property_type and property_type["multiValue"] is True:
