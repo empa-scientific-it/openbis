@@ -38,8 +38,7 @@ Here is the recipe to create an AS core plugin of type `services`:
 
 ## How to use a custom AS service
 
-The application API version 3 offers the following method to search for
-existing services:
+The application API version 3 offers the following method to search for existing services:
 
 ```java
 SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
@@ -49,7 +48,7 @@ The following Java code example returns all available services:
 
 ```java
 SearchResult<CustomASService> services = service.searchCustomASServices(sessionToken, new CustomASServiceSearchCriteria(), new CustomASServiceFetchOptions());
-``` 
+```
 
 With the following method of the API version 3 a specified service can
 be executed:
