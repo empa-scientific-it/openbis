@@ -57,19 +57,13 @@ be executed:
 public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options);
 ```
 
-The `serviceId` can be obtained from a `CustomASService` object (as
-returned by the `searchCustomASServices` method) by the getter method
-`getCode()`. It can also be created as an instance of
-`CustomASServiceCode`. Note, that the service code is just the core
-plugin name.
+The `serviceId` can be obtained from a `CustomASService` object (as returned by the `searchCustomASServices` method) by the getter method `getCode()`. It can also be created as an instance of `CustomASServiceCode`. Note, that the service code is just the core plugin name.
 
-Parameter bindings (i.e. key-value pairs) are specified in the
-`CustomASServiceExecutionOptions` object by invoking for each binding
-the method `withParameter()`.
+Parameter bindings (i.e. key-value pairs) are specified in the `CustomASServiceExecutionOptions` object by invoking for each binding the method `withParameter()`.
 
 Here is a code example:
 
-```py
+```java
 CustomASServiceExecutionOptions options = new CustomASServiceExecutionOptions().withParameter("space_code", "my-space");
 Object result = service.executeCustomASService(sessionToken, new CustomASServiceCode("space-creator"), options);
 System.out.println(result);
