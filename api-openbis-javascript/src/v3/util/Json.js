@@ -227,7 +227,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		if (object === null) {
 			return object;
 		}
-		index = _.indexOf(references, object);
+		var index = _.indexOf(references, object);
 		if (index >= 0) {
 			return index;
 		}
@@ -238,7 +238,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		} else if (_.isObject(object)) {
 			var result = {};
 			if (object["@type"] != null) {
-				id = references.length;
+				var id = references.length;
 				result["@id"] = id;
 				references.push(object);
 			}
