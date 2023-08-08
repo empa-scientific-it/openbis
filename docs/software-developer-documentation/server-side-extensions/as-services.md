@@ -11,9 +11,9 @@ Often only access on AS is needed. Going over DSS is a detour. For such cases it
 
 Here is the recipe to create an AS core plugin of type `services`:
 
-1.  The folder `<core plugin folder>/<module>/<version>/as/services/<core plugin name>` has to be created.
+1. The folder `<core plugin folder>/<module>/<version>/as/services/<core plugin name>` has to be created.
 
-2.  In this folder two files have to be created: `plugin.properties` and `script.py`. The properties file should contain:
+2. In this folder two files have to be created: `plugin.properties` and `script.py`. The properties file should contain:
 
     **plugin.properties**
 
@@ -22,7 +22,7 @@ Here is the recipe to create an AS core plugin of type `services`:
     script-path = script.py
     ```
 
-3.  The script file should have the function `process` with two arguments. The first argument is the context. It contains the methods `getSessionToken()` and `getApplicationService()` which returns an instance of `ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi`. The second argument is a map of key-value pairs. The key is a string and the values is an arbitrary object. Anything returned by the script will be returned to the caller of the service. Here is an example of a script which creates a space:
+3. The script file should have the function `process` with two arguments. The first argument is the context. It contains the methods `getSessionToken()` and `getApplicationService()` which returns an instance of `ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi`. The second argument is a map of key-value pairs. The key is a string and the values is an arbitrary object. Anything returned by the script will be returned to the caller of the service. Here is an example of a script which creates a space:
 **script.py**
 ```py
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create import SpaceCreation
