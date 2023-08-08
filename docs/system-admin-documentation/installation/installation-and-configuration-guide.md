@@ -826,7 +826,7 @@ patterns are shown to the user, whereas for the blacklist, the data set
 types that match the specified patterns are those that are not shown to
 the user.
 
-####### Examples
+##### Examples
 
 - Specifying a whitelist
 
