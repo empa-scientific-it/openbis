@@ -174,7 +174,23 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     private static String getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
     {
-        return (String) properties.get(propertyType.getCode());
+        Serializable propertyValue = properties.get(propertyType.getCode());
+        if(propertyValue == null) {
+            return null;
+        }
+        if(propertyValue.getClass().isArray()) {
+            StringBuilder sb = new StringBuilder();
+            Serializable[] values = (Serializable[]) propertyValue;
+            for(Serializable value : values) {
+                if(sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(value);
+            }
+            return sb.toString();
+        } else {
+            return propertyValue.toString();
+        }
     }
 
 }
