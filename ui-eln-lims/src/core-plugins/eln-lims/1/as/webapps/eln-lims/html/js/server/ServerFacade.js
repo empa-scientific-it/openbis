@@ -672,20 +672,20 @@ function ServerFacade(openbisServer) {
     		});
     }
 
-    	this.getDatasetTypes = function(callback) {
-        		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
-        			function(EntityTypePermId, DataSetTypeFetchOptions, DataSetTypeSearchCriteria) {
-        				var dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
-        				var dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
-                        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
-        				mainController.openbisV3.searchDataSetTypes(dataSetTypeSearchCriteria, dataSetTypeFetchOptions).done(function(searchResults) {
-        					callback(searchResults.objects);
-        				}).fail(function(error) {
-        					Util.showFailedServerCallError(error);
-        					Util.unblockUI();
-        				});
-        		});
-        }
+    this.getDatasetTypes = function(callback) {
+            require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
+                function(EntityTypePermId, DataSetTypeFetchOptions, DataSetTypeSearchCriteria) {
+                    var dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+                    var dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+                    dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                    mainController.openbisV3.searchDataSetTypes(dataSetTypeSearchCriteria, dataSetTypeFetchOptions).done(function(searchResults) {
+                        callback(searchResults.objects);
+                    }).fail(function(error) {
+                        Util.showFailedServerCallError(error);
+                        Util.unblockUI();
+                    });
+            });
+    }
 
 	this.listSampleTypes = function(callbackFunction) {
 		this.openbisServer.listSampleTypes(callbackFunction);

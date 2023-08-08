@@ -753,13 +753,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						    FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						} else if(isMultiValue) {
-						    if(value) {
+						    var valueV3 = this._sampleFormModel.v3_sample.properties[propertyType.code];
+						    if(valueV3) {
 								var valueArray;
 								if(Array.isArray(value)) {
-									valueArray = value;
+									valueArray = valueV3.sort();
 								} else {
-									valueArray = value.split(',');
-							        valueArray = valueArray.map(function(item){ return item.trim(); });
+									valueArray = valueV3.split(',');
+							        valueArray = valueArray.map(x => x.trim()).sort();
 								}
 						        $component.val(valueArray);
 						    }
@@ -770,7 +771,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 					}
 
-					var changeEvent = function(propertyType, isMultiValue) {
+					var changeEvent = function(propertyType, isMultiValueProperty) {
 						return function(jsEvent, newValue) {
 							var propertyTypeCode = null;
 							propertyTypeCode = propertyType.code;
@@ -792,7 +793,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								} else {
 									var lastSelected = Util.getEmptyIfNull($('option', this).filter(':selected:last').val());
                                     var dataLast = field.data('last');
-                                     if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValue) {
+                                     if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValueProperty) {
                                          var props = _this._sampleFormModel.sample.properties[propertyTypeCode];
                                          if (field.val()) {
                                         if(props !== undefined) {

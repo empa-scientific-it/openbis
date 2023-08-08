@@ -31,6 +31,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 					var fetchOptions = new ExperimentFetchOptions();
 					fetchOptions.withProject().withSpace();
                     fetchOptions.withType();
+                    fetchOptions.withProperties();
                     fetchOptions.withSamples().withProperties();
                     fetchOptions.withDataSets().withType();
                     fetchOptions.withDataSets().withProperties();

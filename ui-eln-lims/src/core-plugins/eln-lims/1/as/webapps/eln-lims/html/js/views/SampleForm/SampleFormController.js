@@ -36,6 +36,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					fetchOptions.withSpace();
 					fetchOptions.withProject();
 					fetchOptions.withExperiment();
+					fetchOptions.withProperties();
 					fetchOptions.withParents();
 					fetchOptions.withChildren();
                     fetchOptions.withDataSets().withType();

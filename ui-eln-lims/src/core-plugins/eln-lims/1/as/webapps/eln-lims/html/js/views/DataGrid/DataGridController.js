@@ -156,7 +156,11 @@ function DataGridController(
                             value: params.value
                         })
                     } else {
-                        value = params.value
+                        if(Array.isArray(params.value)) {
+                            value = params.value.sort().toString();
+                        } else {
+                            value = params.value;
+                        }
                     }
 
                     if (value === null || value === undefined || value === "") {

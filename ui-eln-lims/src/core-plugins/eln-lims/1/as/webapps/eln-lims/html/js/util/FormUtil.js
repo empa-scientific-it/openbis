@@ -910,14 +910,28 @@ var FormUtil = new function() {
 	//
 	// Get Field from property
 	//
-	this.getVocabularyLabelForTermCode = function(propertyType, termCode) {
+	this.getVocabularyLabelForTermCode = function(propertyType, data) {
 		var vocabulary = propertyType.vocabulary;
 		if(vocabulary) {
-			for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
-				if(vocabulary.terms[tIdx].code === termCode &&
-				    vocabulary.terms[tIdx].label) {
-					return vocabulary.terms[tIdx].label;
-				}
+		    if(Array.isArray(data)) {
+		        var codes = [];
+		        for(termCode of data) {
+                    for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
+                        if(vocabulary.terms[tIdx].code === termCode &&
+                            vocabulary.terms[tIdx].label) {
+                            codes.push(vocabulary.terms[tIdx].label);
+                        }
+                    }
+		        }
+		        return codes.sort().toString();
+		    } else {
+		        var termCode = data;
+                for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
+                    if(vocabulary.terms[tIdx].code === termCode &&
+                        vocabulary.terms[tIdx].label) {
+                        return vocabulary.terms[tIdx].label;
+                    }
+                }
 			}
 		}
 		return termCode;

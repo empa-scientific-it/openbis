@@ -745,6 +745,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				profile.fixV1PropertyTypeVocabulary(propertyType);
 				var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(dataSetTypeV3, propertyType.code);
+				var isMultiValue = false;
+                if(propertyTypeV3.isMultiValue) {
+                    isMultiValue = propertyTypeV3.isMultiValue();
+                }
+
 				FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._dataSetFormModel.dataSetV3);
 				
 				if(!propertyType.showInEditViews && (this._dataSetFormController.mode === FormMode.EDIT || this._dataSetFormController.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
@@ -801,7 +806,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                     $fieldset.append($controlGroup);
                                 }
                             } else if(propertyType.dataType === "SAMPLE") {
-                                var $component = new SampleField(false, '', false, value, true, propertyTypeV3.isMultiValue());
+                                var $component = new SampleField(false, '', false, value, true, isMultiValue);
                                 $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                                 $fieldset.append($controlGroup);
                             } else {
@@ -820,10 +825,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						$controlGroup.append($controlLabel);
 						$controlGroup.append($controls);
 						
-						var $component = FormUtil.getFieldForPropertyType(propertyType, value, propertyTypeV3.isMultiValue());
+						var $component = FormUtil.getFieldForPropertyType(propertyType, value, isMultiValue);
 						
 						//Update model
-						var changeEvent = function(propertyType, isMultiValue) {
+						var changeEvent = function(propertyType, isMultiValueProperty) {
 							return function(jsEvent, newValue) {
 								var propertyTypeCode = null;
 								propertyTypeCode = propertyType.code;
@@ -845,7 +850,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 									} else {
                                         var lastSelected = Util.getEmptyIfNull($('option', this).filter(':selected:last').val());
                                         var dataLast = field.data('last');
-                                         if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValue) {
+                                         if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValueProperty) {
                                             var props = _this._getDataSetProperty(propertyTypeCode);
                                             if (field.val()) {
                                             if(props !== undefined) {
@@ -886,14 +891,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							if(propertyType.dataType === "BOOLEAN") {
 							    FormUtil.setFieldValue(propertyType, $component, value);
 							} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
-							} else if(propertyTypeV3.isMultiValue()) {
-                                if(value) {
+							} else if(isMultiValue) {
+							    var valueV3 = this._dataSetFormModel.v3_dataset.properties[propertyType.code];
+                                if(valueV3) {
                                     var valueArray;
-                                    if(Array.isArray(value)) {
-                                        valueArray = value;
+                                    if(Array.isArray(valueV3)) {
+                                        valueArray = valueV3.sort();
                                     } else {
-                                        valueArray = value.split(',');
-                                        valueArray = valueArray.map(function(item){ return item.trim(); });
+                                        valueArray = valueV3.split(',');
+                                        valueArray = valueArray.map(x => x.trim()).sort();
                                     }
                                     $component.val(valueArray);
                                 }
@@ -936,7 +942,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                         } else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 							$component.on("dp.change", changeEvent(propertyType));
 						} else {
-							$component.change(changeEvent(propertyType, propertyTypeV3.isMultiValue()));
+							$component.change(changeEvent(propertyType, isMultiValue));
 						}
 						
 						$controls.append($component);
