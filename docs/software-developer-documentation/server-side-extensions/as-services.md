@@ -17,7 +17,7 @@ Here is the recipe to create an AS core plugin of type `services`:
 
     **plugin.properties**
 
-    ```
+    ```py
     class = ch.ethz.sis.openbis.generic.server.asapi.v3.helper.service.JythonBasedCustomASServiceExecutor
     script-path = script.py
     ```
@@ -41,19 +41,22 @@ Here is the recipe to create an AS core plugin of type `services`:
 The application API version 3 offers the following method to search for
 existing services:
 
-    SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria,
-                CustomASServiceFetchOptions fetchOptions)
+```java
+SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions)
+```
 
 The following Java code example returns all available services:
 
-    SearchResult<CustomASService> services = service.searchCustomASServices(sessionToken, new CustomASServiceSearchCriteria(), new CustomASServiceFetchOptions());
-
- 
+```java
+SearchResult<CustomASService> services = service.searchCustomASServices(sessionToken, new CustomASServiceSearchCriteria(), new CustomASServiceFetchOptions());
+``` 
 
 With the following method of the API version 3 a specified service can
 be executed:
 
-    public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options);
+```java
+public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options);
+```
 
 The `serviceId` can be obtained from a `CustomASService` object (as
 returned by the `searchCustomASServices` method) by the getter method
