@@ -23,17 +23,18 @@ Here is the recipe to create an AS core plugin of type `services`:
     ```
 
 3. The script file should have the function `process` with two arguments. The first argument is the context. It contains the methods `getSessionToken()` and `getApplicationService()` which returns an instance of `ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi`. The second argument is a map of key-value pairs. The key is a string and the values is an arbitrary object. Anything returned by the script will be returned to the caller of the service. Here is an example of a script which creates a space:
-**script.py**
-```py
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create import SpaceCreation
 
-def process(context, parameters):
-    space_creation = SpaceCreation()
-    space_creation.code = parameters.get('space_code');
-    result = context.applicationService.createSpaces(context.sessionToken, [space_creation]);
-    return "Space created: %s" % result
-```
-Note, that all changes on the AS database will be done in one transaction.
+    **script.py**
+    ```py
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create import SpaceCreation
+
+    def process(context, parameters):
+        space_creation = SpaceCreation()
+        space_creation.code = parameters.get('space_code');
+        result = context.applicationService.createSpaces(context.sessionToken, [space_creation]);
+        return "Space created: %s" % result
+    ```
+    Note, that all changes on the AS database will be done in one transaction.
 
 ## How to use a custom AS service
 
