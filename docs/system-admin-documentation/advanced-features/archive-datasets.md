@@ -7,69 +7,37 @@ Archiving Datasets
 
 Archiving can be triggered by doing the following steps:
 
--   go to an experiment/collection or an object.
--   switch to the tab "Data Sets". There will be in ther lower right
-    corner the button 'Archiving'.
--   click on the button and choose either 'Copy to Archive' or 'Move to
-    Archive'.
--   if you did not select any data set all data sets will be archived.  
-    If you have selected some data sets you can choose if you want to
-    archive only them or all the data sets accessible in the table.
+- go to an experiment/collection or an object.
+- switch to the tab "Data Sets". There will be in ther lower right corner the button 'Archiving'.
+- click on the button and choose either 'Copy to Archive' or 'Move to Archive'.
+- if you did not select any data set all data sets will be archived. If you have selected some data sets you can choose if you want to archive only them or all the data sets accessible in the table.
 
-Because archiving does not happens immediately the status (called
-'Archiving Status' in data set tables) of the data sets will be changed
-to BACKUP\_PENDING or ARCHIVE\_PENDING.
+Because archiving does not happens immediately the status (called 'Archiving Status' in data set tables) of the data sets will be changed to BACKUP\_PENDING or ARCHIVE\_PENDING.
 
-To make archived data sets available again repeat the steps, but choose
-'Unarchive'.
+To make archived data sets available again repeat the steps, but choose 'Unarchive'.
 
-If you want to disallow archiving, choose 'Lock'. Remember that you can
-do this only for available data sets. The 'Archiving Status' will change
-to 'AVAILABLE (LOCKED)'. To make archiving possible again, choose
-'Unlock'.
+If you want to disallow archiving, choose 'Lock'. Remember that you can do this only for available data sets. The 'Archiving Status' will change to 'AVAILABLE (LOCKED)'. To make archiving possible again, choose 'Unlock'.
 
 ### ELN-LIMS
 
 Instead of triggering archiving only requesting archiving is possible.
-The maintenance task
-[ArchivingByRequestTask](/display/openBISDoc2010/Maintenance+Tasks#MaintenanceTasks-ArchivingByRequestTask)
-is required. It triggers the actual archiving.
+The maintenance task [ArchivingByRequestTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#archivingbyrequesttask) is required. It triggers the actual archiving.
 
 ## Automatic archiving
 
-Archiving can be automated by the Auto Archiver. This is a [maintenance
-task](/display/openBISDoc2010/Maintenance+Tasks) which triggers
-archiving of data sets fullfulling some conditions (e.g. not accessed
-since a while). Note that the auto archiver doesn't archives itself. It
-just automates the selection of data sets to be archived. For all
-configuration parameters see 
-[AutoArchiverTask](/display/openBISDoc2010/Maintenance+Tasks#MaintenanceTasks-AutoArchiverTask).
+Archiving can be automated by the Auto Archiver. This is a [maintenance task](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html) which triggers archiving of data sets fullfulling some conditions (e.g. not accessed since a while). Note that the auto archiver doesn't archives itself. It just automates the selection of data sets to be archived. For all configuration parameters see [AutoArchiverTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#autoarchivertask).
 
 ### Archiving Policies
 
-An archiving policy selects from the unarchived data sets candidates
-(which are either data sets not accessed since some days or data sets
-marked by a tag) the data sets to be archived. If not specified all
-candidates will be archived.
+An archiving policy selects from the unarchived data sets candidates (which are either data sets not accessed since some days or data sets marked by a tag) the data sets to be archived. If not specified all candidates will be archived.
 
-The policy can be specified by `policy.class` property. It has to be the
-fully-qualified name of a Java class
-implementing` ch.systemsx.cisd.etlserver.IAutoArchiverPolicy`. All
-properties starting with `policy.` specifying the policy further.
+The policy can be specified by `policy.class` property. It has to be the fully-qualified name of a Java class implementing` ch.systemsx.cisd.etlserver.IAutoArchiverPolicy`. All properties starting with `policy.` specifying the policy further.
 
 #### ch.systemsx.cisd.etlserver.plugins.GroupingPolicy
 
-**Description**: Policy which tries to find a group of data sets with a
-total size from a specified interval. This is important in case of
-[Multi Data Set
-Archiving](/display/openBISDoc2010/Multi+data+set+archiving). Grouping
-can be defined by space, project, experiment, sample, data set type or a
-combination of those. Groups can be merged if they are too small.
-Several grouping keys can be specified.
+**Description**: Policy which tries to find a group of data sets with a total size from a specified interval. This is important in case of [Multi Data Set Archiving](/display/openBISDoc2010/Multi+data+set+archiving). Grouping can be defined by space, project, experiment, sample, data set type or a combination of those. Groups can be merged if they are too small. Several grouping keys can be specified.
 
-Searching for an appropriate group of data sets for auto archiving is
-logged. If no group could be found an admin is notified via email (email
-address specified in `log.xml`). The email contains the searching log.
+Searching for an appropriate group of data sets for auto archiving is logged. If no group could be found an admin is notified via email (email address specified in `log.xml`). The email contains the searching log.
 
 **Configuration**:
 
@@ -84,14 +52,17 @@ address specified in `log.xml`). The email contains the searching log.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask
-    interval = 10 days
-    archive-candidate-discoverer.class = ch.systemsx.cisd.etlserver.plugins.TagArchiveCandidateDiscoverer
-    archive-candidate-discoverer.tags = /admin-user/archive
-    policy.class = ch.systemsx.cisd.etlserver.plugins.GroupingPolicy
-    policy.minimal-archive-size =  30000000000
-    policy.maximal-archive-size = 150000000000
-    policy.grouping-keys = Space#DataSetType, Experiment#Sample:merge
+```
+class = ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask
+interval = 10 days
+archive-candidate-discoverer.class = ch.systemsx.cisd.etlserver.plugins.TagArchiveCandidateDiscoverer
+archive-candidate-discoverer.tags = /admin-user/archive
+policy.class = ch.systemsx.cisd.etlserver.plugins.GroupingPolicy
+policy.minimal-archive-size =  30000000000
+policy.maximal-archive-size = 150000000000
+policy.grouping-keys = Space#DataSetType, Experiment#Sample:merge
+```
+
 
 In this example the candidates are unarchived data sets which have been
 tag by the user `admin-user` with the tag `archive`. The policy tries to
