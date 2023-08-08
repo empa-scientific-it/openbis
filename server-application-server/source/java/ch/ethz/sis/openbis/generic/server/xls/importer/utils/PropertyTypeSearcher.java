@@ -24,10 +24,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.apache.poi.ss.usermodel.DateUtil;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class PropertyTypeSearcher
 {
@@ -81,7 +83,21 @@ public class PropertyTypeSearcher
         throw new UserFailureException("Can't find property with code or label " + code);
     }
 
-    public static String getPropertyValue(PropertyType propertyType, String value)
+    public static Serializable getPropertyValue(PropertyType propertyType, String value)
+    {
+        if(propertyType.isMultiValue()) {
+            if(value == null || value.trim().isEmpty()){
+                return getPropertyValueInternal(propertyType, value);
+            }
+            return Stream.of(value.split(","))
+                    .map(String::trim)
+                    .map(x -> getPropertyValueInternal(propertyType, x))
+                    .toArray(Serializable[]::new);
+        } else {
+            return getPropertyValueInternal(propertyType, value);
+        }
+    }
+    private static Serializable getPropertyValueInternal(PropertyType propertyType, String value)
     {
         if (propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
         {
