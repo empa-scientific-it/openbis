@@ -3,14 +3,9 @@ Processing Plugins
 
 ## Introduction
 
-A processing plugin runs on the DSS. It processes a specified set of
-data sets. The user can trigger a processing plugin in the openBIS Web
-application. After processing an e-mail is sent to the user.
+A processing plugin runs on the DSS. It processes a specified set of data sets. The user can trigger a processing plugin in the openBIS Web application. After processing an e-mail is sent to the user.
 
-A processing plugin is configured on the DSS best by introducing a [core
-plugin](/display/openBISDoc2010/Core+Plugins) of type
-`processing-plugins`. All processing plugins have the following
-properties in common:
+A processing plugin is configured on the DSS best by introducing a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type `processing-plugins`. All processing plugins have the following properties in common:
 
 |Property Key|Description|
 |--- |--- |
@@ -84,18 +79,20 @@ that are no longer available on LDAP following the next algorithm.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.generic.server.task.RevokeLDAPUserAccessMaintenanceTask
-    interval = 60 s
-    server-url = ldap://d.ethz.ch/DC=d,DC=ethz,DC=ch
-    security-principal-distinguished-name = CN=cisd-helpdesk,OU=EthUsers,DC=d,DC=ethz,DC=ch
-    security-principal-password = ******
+```
+class = ch.systemsx.cisd.openbis.generic.server.task.RevokeLDAPUserAccessMaintenanceTask
+interval = 60 s
+server-url = ldap://d.ethz.ch/DC=d,DC=ethz,DC=ch
+security-principal-distinguished-name = CN=cisd-helpdesk,OU=EthUsers,DC=d,DC=ethz,DC=ch
+security-principal-password = ******
+```
+
 
 ### DataSetCopierForUsers
 
 ### DataSetCopier
 
-**Description**: Copies all files of the specified data sets to another
-(remote) folder. The actual copying is done by the rsync command.
+**Description**: Copies all files of the specified data sets to another (remote) folder. The actual copying is done by the rsync command.
 
 **Configuration**:
 
@@ -113,11 +110,14 @@ that are no longer available on LDAP following the next algorithm.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier
-    label = Copy to analysis incoming folder
-    dataset-types = MS_DATA, UNKNOWN
-    destination = analysis-server:analysis-incoming-data
-    rename-to-dataset-code = true 
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier
+label = Copy to analysis incoming folder
+dataset-types = MS_DATA, UNKNOWN
+destination = analysis-server:analysis-incoming-data
+rename-to-dataset-code = true 
+```
+
 
 ### DataSetCopierForUsers
 
@@ -141,12 +141,15 @@ The path can point to a local/mounted folder or to a remote folder accessible vi
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopierForUsers
-    label = Copy to user playground
-    dataset-types = MS_DATA, UNKNOWN
-    destination = tmp/playground/${user}/data-sets
-    hard-link-copy = true
-    rename-to-dataset-code = true 
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopierForUsers
+label = Copy to user playground
+dataset-types = MS_DATA, UNKNOWN
+destination = tmp/playground/${user}/data-sets
+hard-link-copy = true
+rename-to-dataset-code = true 
+```
+
 
 ### JythonBasedProcessingPlugin
 
@@ -165,10 +168,13 @@ Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedProcessingPlugin
-    label = Calculate some numbers
-    dataset-types = MS_DATA, UNKNOWN
-    script-path = script.py
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedProcessingPlugin
+label = Calculate some numbers
+dataset-types = MS_DATA, UNKNOWN
+script-path = script.py
+```
+
 
 ### ReportingBasedProcessingPlugin
 
@@ -189,11 +195,14 @@ TABLE\_MODEL and sends the result table as a TSV file to the user.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.ReportingBasedProcessingPlugin
-    label = Create monthly report
-    dataset-types = MS_DATA, UNKNOWN
-    script-path = script.py
-    email-subject = DSS Monthly Report 
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.ReportingBasedProcessingPlugin
+label = Create monthly report
+dataset-types = MS_DATA, UNKNOWN
+script-path = script.py
+email-subject = DSS Monthly Report 
+```
+
 
 ### DataSetAndPathInfoDBConsistencyCheckProcessingPlugin
 
@@ -206,20 +215,21 @@ check for:
 -   file size
 -   CRC32 checksum
 
-If it finds any deviations, it will send out an email which contains all
-differences found.
+If it finds any deviations, it will send out an email which contains all differences found.
 
-**Configuration**: Properties common for all processing plugins (see
-Introduction)
+**Configuration**: Properties common for all processing plugins (see Introduction)
 
 **Example**:
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPlugin
-    label = Check consistency between data store and path info database
-    dataset-types = .*
-    creening Processing Plugins
+```
+class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPlugin
+label = Check consistency between data store and path info database
+dataset-types = .*
+creening Processing Plugins
+```
+
 
 ### ScreeningReportingBasedProcessingPlugin
 
@@ -241,8 +251,10 @@ is some extra support for screening.
 
 **plugin.properties**
 
-    class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningReportingBasedProcessingPlugin
-    label = Create monthly report
-    dataset-types = HCS_IMAGE
-    script-path = script.py
-    email-subject = DSS Monthly Report 
+```
+class = ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningReportingBasedProcessingPlugin
+label = Create monthly report
+dataset-types = HCS_IMAGE
+script-path = script.py
+email-subject = DSS Monthly Report 
+```
