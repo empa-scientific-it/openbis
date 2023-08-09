@@ -3,6 +3,7 @@
 pushd $(dirname $0) > /dev/null
 
 NODE_PATH=../node/nodejs/node-*/bin/node
+NPM_PATH=../node/nodejs/node-*/bin/npm
 
 CURRENT_DIR=$(pwd)
 TEMP_DIR=${CURRENT_DIR}/temp
@@ -22,12 +23,20 @@ cd $CURRENT_DIR
 cat r.config.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/r.config.js
 cat config.bundle.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/config.bundle.js
 cat config.bundle.min.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/config.bundle.min.js
+cat webpack.config.v3api.generate.entry.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/webpack.config.v3api.generate.entry.js
 
-# create a JS bundle using NodeJS binary installed by NodeJS gradle plugin
+# create AMD (RequireJS) bundle
 $NODE_PATH r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
 $NODE_PATH r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=uglify out=$TEMP_DIR/openbis.bundle.min.js
 
+# create UMD and ESM bundles
+$NODE_PATH $TEMP_DIR/webpack.config.v3api.generate.entry.js > $TEMP_DIR/webpack.config.v3api.entry.js
+$NPM_PATH install
+$NPM_PATH run v3api.esm
+$NPM_PATH run v3api.umd
+
 # copy relevant files to the V3 public folder
 cp $TEMP_DIR/config.bundle.js $TEMP_DIR/config.bundle.min.js $TEMP_DIR/openbis.bundle.js $TEMP_DIR/openbis.bundle.min.js $V3_DIR
+cp $TEMP_DIR/openbis.esm.* $TEMP_DIR/openbis.umd.* $V3_DIR
 
 popd > /dev/null
