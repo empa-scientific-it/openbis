@@ -538,7 +538,7 @@ var BarcodeUtil = new function() {
         });
 
         $window.append($('<legend>').append("Scan Barcode/QR code"));
-        $window.append(FormUtil.getInfoText("Please scan one or more barcodes/qr codes. The barcodes/qr codes will be listed below if the scan is successful."));
+        $window.append(FormUtil.getInfoText("Please scan one or more barcodes/QR codes. The barcodes/QR codes will be listed below if the scan is successful."));
         $window.append($('<legend>').append('Found'));
         $window.append($btnAccept).append('&nbsp;').append($btnCancel);
 
