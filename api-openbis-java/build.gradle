@@ -16,6 +16,20 @@ buildscript {
 
 }
 
+task('generateModuleNames'){
+    doLast{
+        def file = fileTree(dir: '../api-openbis-javascript/src/v3', include: 'as/**/*.js')
+        def modules = file.collect { File f ->
+            def name = f.name
+            def moduleName = name.substring(0, name.lastIndexOf('.'))
+            return "\"${moduleName}\""
+        }
+        def moduleNames = modules.unique().join(', \n')
+        def moduleNamesFile = new File('../api-openbis-javascript/src/v3/moduleNames.json')
+        moduleNamesFile.write("{\"names\":[$moduleNames]}")
+    }
+}
+
 
 dependencies {
     api project(':lib-common'),
@@ -49,8 +63,13 @@ generateTypeScript {
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.**',
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.**',
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.**',
+            'ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi',
+            'ch.ethz.sis.openbis.generic.OpenBIS',
     ]
-    outputKind = 'module'
+    outputKind = 'ambientModule'
+    jackson2ModuleDiscovery = true
+    outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
+    module = 'dto'
 
 }
 
