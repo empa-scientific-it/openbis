@@ -29,7 +29,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpMethod.*;
 
@@ -170,7 +171,7 @@ public class NettyHttpHandler extends ChannelInboundHandlerAdapter
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentLength);
         response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
         response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,
-                String.join(", ", allowedMethods.stream().map(HttpMethod::name).toList()));
+                String.join(", ", allowedMethods.stream().map(HttpMethod::name).collect(Collectors.toUnmodifiableList())));
         response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "*");
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         response.headers().set(HttpHeaderNames.CONNECTION, "close");
