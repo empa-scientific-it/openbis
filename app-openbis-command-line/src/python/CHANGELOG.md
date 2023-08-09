@@ -1,3 +1,8 @@
+# New in version 0.4.3
+
+* Changed upload prints to be more readable
+* Changed pybis dependency to version == 1.36.1
+
 # New in version 0.4.2
 
 * Added filtering by object in object and data_set search commands
