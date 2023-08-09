@@ -3,15 +3,54 @@ evaluationDependsOn(':lib-common')
 
 apply from: '../build/javaproject.gradle'
 
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "cz.habarta.typescript-generator:typescript-generator-gradle-plugin-publisher:3.2.1263"
+    }
+
+}
+
+
 dependencies {
     api project(':lib-common'),
             'sis:sis-file-transfer:19.03.1',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-annotations:2.9.10'
 
+
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'reflections:reflections:0.9.10'
+
+
 }
+
+
+apply plugin: "cz.habarta.typescript-generator"
+
+
+
+
+
+generateTypeScript {
+    jsonLibrary = 'jackson2'
+    classPatterns = [
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.**',
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.**',
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.property.**',
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.**',
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.**',
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.**',
+    ]
+    outputKind = 'module'
+
+}
+
