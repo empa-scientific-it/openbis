@@ -15,6 +15,13 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.hotfix;
 
+import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -28,14 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
-import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.query.NativeQuery;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 
 public class ELNFixes {
 
@@ -46,6 +45,9 @@ public class ELNFixes {
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         storageValidationLevelFix(sessionToken, api);
         nameNoRTFFix(sessionToken, api);
+        fixProperties("sample_properties", "sample_type_property_types", "stpt_id");
+        fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id");
+        fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id");
         operationLog.info("ELNFixes beforeUpgrade FINISH");
     }
 
@@ -130,4 +132,25 @@ public class ELNFixes {
         ExposablePropertyPlaceholderConfigurer configurer = ((ExposablePropertyPlaceholderConfigurer) CommonServiceProvider.tryToGetBean(PROPERTY_CONFIGURER_BEAN_NAME));
         return configurer.getResolvedProps().getProperty(key);
     }
+
+    private static void fixProperties(final String propertiesTable, final String entityTypePropertyTypesTable,
+            final String entityTypePropertyTypesColumn) {
+        ELNCollectionTypeMigration.executeNativeUpdate(
+            String.format("UPDATE %s prop\n"
+                    + "SET value = null\n"
+                    + "FROM %s etpt\n"
+                    + "INNER JOIN property_types prty ON etpt.prty_id = prty.id\n"
+                    + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
+                    + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code = 'CONTROLLEDVOCABULARY'",
+                    propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn));
+        ELNCollectionTypeMigration.executeNativeUpdate(
+            String.format("UPDATE %s prop\n"
+                + "SET cvte_id = null\n"
+                + "FROM %s etpt\n"
+                + "INNER JOIN property_types prty ON etpt.prty_id = prty.id\n"
+                + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
+                + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code != 'CONTROLLEDVOCABULARY'",
+                propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn));
+    }
+
 }
