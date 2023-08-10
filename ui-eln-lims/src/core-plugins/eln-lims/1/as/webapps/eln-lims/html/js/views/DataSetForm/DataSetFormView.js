@@ -868,8 +868,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                                 }
                                             } else {
                                                 if(field.val().includes('')) {
-                                                    _this._setDataSetProperty(propertyTypeCode, '');
-                                                    field.val([]);
+                                                    if(dataLast == undefined) {
+                                                        var val = field.val().filter(x => x != '');
+                                                        _this._setDataSetProperty(propertyTypeCode, val);
+                                                        field.val(val);
+                                                    } else {
+                                                        _this._setDataSetProperty(propertyTypeCode, '');
+                                                        field.val([]);
+                                                    }
                                                 } else {
                                                     _this._setDataSetProperty(propertyTypeCode, field.val());
                                                 }

@@ -649,8 +649,14 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                                             }
                                         } else {
                                             if(field.val().includes('')) {
-                                                _this._experimentFormModel.experiment.properties[propertyTypeCode] = '';
-                                                field.val([]);
+                                                if(dataLast == undefined) {
+                                                    var val = field.val().filter(x => x != '');
+                                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = val;
+                                                    field.val(val);
+                                                } else {
+                                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = '';
+                                                    field.val([]);
+                                                }
                                             } else {
                                                 _this._experimentFormModel.experiment.properties[propertyTypeCode] = field.val();
                                             }
