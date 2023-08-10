@@ -17,6 +17,7 @@ import os
 import random
 import time
 import urllib.parse
+import uuid
 import zipfile
 from functools import partialmethod
 from pathlib import Path
@@ -1150,7 +1151,7 @@ class DataSet(
         if isinstance(files, str):
             files = [files]
 
-        upload_id = time.strftime("%Y-%m-%d_%H-%M-%S.%s")
+        upload_id = str(uuid.uuid4())
         if len(files) == 1:
             if folder is None:
                 folder = upload_id
