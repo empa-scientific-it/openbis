@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -167,6 +168,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearch
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialTypesOperation;
@@ -1807,6 +1810,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         CreateCodesOperationResult result = executeOperation(sessionToken, new CreateCodesOperation(prefix, entityKind, count));
         return result.getCodes();
+    }
+
+    @Override
+    public void doImport(final String sessionToken, final Path path, final ImportOptions importOptions)
+    {
+        executeOperation(sessionToken, new ImportOperation(path, importOptions));
     }
 
     @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
