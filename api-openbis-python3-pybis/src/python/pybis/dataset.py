@@ -1190,6 +1190,8 @@ class DataSet(
                 url_filename = os.path.join(
                     folder, filename[0], urllib.parse.quote(os.path.basename(filename[1]))
                 )
+                # Windows directory separator is \
+                url_filename = '/'.join(url_filename.split('\\'))
                 self.files_in_wsp.append(file_in_wsp)
 
                 is_empty_folder = filename[1] == ''
