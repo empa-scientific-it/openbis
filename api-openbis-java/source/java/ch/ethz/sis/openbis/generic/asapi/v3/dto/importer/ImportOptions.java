@@ -17,9 +17,10 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class ImportOptions
+public class ImportOptions implements Serializable
 {
 
     private ImportModes importMode;
