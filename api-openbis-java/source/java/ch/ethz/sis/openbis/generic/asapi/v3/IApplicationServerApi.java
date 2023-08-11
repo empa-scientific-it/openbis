@@ -83,6 +83,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
@@ -245,6 +246,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpda
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -2242,5 +2244,7 @@ public interface IApplicationServerApi extends IRpcService
      * @throws UserFailureException in case of any problems
      */
     public List<String> createCodes(String sessionToken, String prefix, EntityKind entityKind, int count);
+
+    public void doImport(String sessionToken, Path path, ImportOptions importOptions);
 
 }
