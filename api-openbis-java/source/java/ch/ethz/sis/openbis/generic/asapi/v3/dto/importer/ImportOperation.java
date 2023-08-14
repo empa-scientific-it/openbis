@@ -42,4 +42,14 @@ public class ImportOperation implements IOperation
         return toString();
     }
 
+    public Path getPath()
+    {
+        return path;
+    }
+
+    public ImportOptions getImportOptions()
+    {
+        return importOptions;
+    }
+
 }

@@ -20,8 +20,13 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 import java.io.Serializable;
 import java.util.Map;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.importer.ImportOptions")
 public class ImportOptions implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private ImportModes importMode;
 
