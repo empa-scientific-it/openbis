@@ -589,7 +589,7 @@ var BarcodeUtil = new function() {
 
         $window.on('keyup keypress', this.preventFormSubmit);
 
-        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode' });
+        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode/QR Code' });
         $btnAccept.on('keyup keypress', this.preventFormSubmit);
         $btnAccept.prop("disabled",false);
 
@@ -617,7 +617,7 @@ var BarcodeUtil = new function() {
                 }
             }
             if(errors.length > 0) {
-                Util.showUserError("Invalid Barcode found", function() {}, true);
+                Util.showUserError("Invalid Barcode/QR Code found", function() {}, true);
                 return;
             }
 
@@ -812,7 +812,7 @@ var BarcodeUtil = new function() {
         $width.change(updateBarcode);
         $height.change(updateBarcode);
 
-		$window.append($('<legend>').append("Print Barcode"));
+		$window.append($('<legend>').append("Print Barcode/QR Code"));
 	    $window.append($('<br>'));
 	    $window.append($('<center>').append($barcodeTypesDropdown));
 	    $window.append($('<br>'));
