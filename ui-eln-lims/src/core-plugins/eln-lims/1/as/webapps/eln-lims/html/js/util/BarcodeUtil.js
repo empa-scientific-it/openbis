@@ -285,13 +285,13 @@ var BarcodeUtil = new function() {
     }
 
     this.preGenerateBarcodes = function(views, selectedBarcodes) {
-        views.header.append($("<h2>").append("Barcode Generator"));
+        views.header.append($("<h2>").append("Barcode/QR Code Generator"));
 
         var generateBarcodeText = null;
         if(selectedBarcodes === undefined) {
-            generateBarcodeText = "Generate Custom Barcodes";
+            generateBarcodeText = "Generate Custom Barcodes/QR Codes";
         } else {
-            generateBarcodeText = "Update Custom Barcodes";
+            generateBarcodeText = "Update Custom Barcodes/QR Codes";
         }
 
 	    var $generateBtn = FormUtil.getButtonWithText(generateBarcodeText, function() {}, "btn-primary");
@@ -639,9 +639,9 @@ var BarcodeUtil = new function() {
                             Util.unblockUI();
                             var message = null;
                             if(sampleUpdates.length === 1) {
-                                message = "Custom Barcode Updated";
+                                message = "Custom Barcode/QR Code Updated";
                             } else {
-                                message = sampleUpdates.length + " Custom Barcodes Updated";
+                                message = sampleUpdates.length + " Custom Barcodes/QR Codes Updated";
                             }
 
                             Util.showInfo(message, function() {
@@ -670,7 +670,7 @@ var BarcodeUtil = new function() {
                     if(results.objects.length === 0) {
                         updateBarcode();
                     } else {
-                        Util.showError("Custom Barcode already in use by " +  results.objects[0].identifier.identifier + " : It will not be assigned.");
+                        Util.showError("Custom Barcode/QR code already in use by " +  results.objects[0].identifier.identifier + " : It will not be assigned.");
                     }
                 });
             }
@@ -685,11 +685,11 @@ var BarcodeUtil = new function() {
             Util.unblockUI();
         });
 
-        $window.append($('<legend>').append("Update Custom Barcode"));
+        $window.append($('<legend>').append("Update Custom Barcode/QR Code"));
         $window.append($('<br>'));
-        $window.append(FormUtil.getInfoText("A valid barcode need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
-        $window.append(FormUtil.getInfoText("If a custom barcode is not given the permId is always used as default barcode."));
-        $window.append(FormUtil.getWarningText("Empty the custom barcode to delete the current custom barcode."));
+        $window.append(FormUtil.getInfoText("A valid barcode/QR code need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
+        $window.append(FormUtil.getInfoText("If a custom barcode/QR code is not given the permId is always used as default barcode."));
+        $window.append(FormUtil.getWarningText("Empty the custom barcode/QR code to delete the current custom barcode."));
 
         $window.append($('<br>'));
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
