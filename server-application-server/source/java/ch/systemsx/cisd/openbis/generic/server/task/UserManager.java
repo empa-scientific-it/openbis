@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1490,6 +1491,10 @@ public class UserManager
             }
             if (spaceCreations.isEmpty() == false)
             {
+                // Filter out already existing spaces to not repeat creations
+                List<SpacePermId> spacesToCreate = spaceCreations.stream().map( creation -> new SpacePermId(creation.getCode())).collect(Collectors.toList());
+                Map<ISpaceId, Space> existingSpaces = service.getSpaces(sessionToken, spacesToCreate, new SpaceFetchOptions());
+                spaceCreations = spaceCreations.stream().filter( creation -> !existingSpaces.keySet().contains(new SpacePermId(creation.getCode()))).collect(Collectors.toList());
                 operations.add(new CreateSpacesOperation(spaceCreations));
             }
             if (projectCreations.isEmpty() == false)
