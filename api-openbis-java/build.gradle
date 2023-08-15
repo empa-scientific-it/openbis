@@ -1,5 +1,8 @@
+import groovy.json.JsonOutput
+import cz.habarta.typescript.generator.Settings.ConfiguredExtension
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
+evaluationDependsOn(':lib-typescriptprocessor')
 
 apply from: '../build/javaproject.gradle'
 
@@ -16,27 +19,33 @@ buildscript {
 
 }
 
-task('generateModuleNames'){
-    doLast{
-        def file = fileTree(dir: '../api-openbis-javascript/src/v3', include: 'as/**/*.js')
+
+task('generateModuleNames') {
+    doLast {
+        def file = fileTree(dir: '../api-openbis-javascript/src/v3', include: ['as/**/*.js', 'ds/**/*.js', 'openbis.js'])
         def modules = file.collect { File f ->
             def name = f.name
             def moduleName = name.substring(0, name.lastIndexOf('.'))
-            return "\"${moduleName}\""
+            return "${moduleName}"
         }
-        def moduleNames = modules.unique().join(', \n')
+        def names = [names: modules]
+        def json = JsonOutput.prettyPrint(JsonOutput.toJson(names))
         def moduleNamesFile = new File('../api-openbis-javascript/src/v3/moduleNames.json')
-        moduleNamesFile.write("{\"names\":[$moduleNames]}")
+        moduleNamesFile.write(json)
     }
 }
 
 
 dependencies {
-    api project(':lib-common'),
+    api project(':lib-common'), project(":lib-typescriptprocessor"),
             'sis:sis-file-transfer:19.03.1',
             'fasterxml:jackson-core:2.9.10',
-            'fasterxml:jackson-annotations:2.9.10'
+            'fasterxml:jackson-annotations:2.9.10',
+            "cz.habarta.typescript-generator:typescript-generator-core:3.2.1263"
 
+    api "cz.habarta.typescript-generator:typescript-generator-core:3.2.1263"
+
+    api 'org.bsc.processor:java2ts-processor:1.3.1'
 
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
@@ -44,32 +53,36 @@ dependencies {
             'testng:testng:6.8-CISD',
             'reflections:reflections:0.9.10'
 
-
+    api(project(":lib-typescriptprocessor"))
 }
 
 
 apply plugin: "cz.habarta.typescript-generator"
 
 
-
-
-
 generateTypeScript {
     jsonLibrary = 'jackson2'
     classPatterns = [
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.**',
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.**',
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.property.**',
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.**',
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.**',
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.**',
-            'ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi',
-            'ch.ethz.sis.openbis.generic.OpenBIS',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.property.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.**',
+            'ch.ethz.sis.openbis.generic.OpenBIS'
     ]
-    outputKind = 'ambientModule'
+    excludeClassPatterns = ["**.v1.**",
+                            "**.generic.shared.**",
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria",
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria",
+    "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria"]
+    outputKind = 'module'
+    outputFileType = 'declarationFile'
+    //customTypeProcessor = "ch.empa.tsprocessor.CustomTypeProcessor"
+    extensionsWithConfiguration = [  new ConfiguredExtension(className:'ch.empa.tsprocessor.MethodExtension',  configuration:  ['asnycClasses':['ch.ethz.sis.openbis.generic.OpenBIS']])]
     jackson2ModuleDiscovery = true
     outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
-    module = 'dto'
+    //module = 'dto'
 
 }
 
