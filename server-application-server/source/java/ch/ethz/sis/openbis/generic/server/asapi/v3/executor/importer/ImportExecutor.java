@@ -44,7 +44,13 @@ public class ImportExecutor implements IImportExecutor
 
     private static final String SCRIPTS_FOLDER_NAME = "scripts";
 
-    public static final String XLS_EXTENSION = ".xls";
+    public static final String XLS_BARE_EXTENSION = "xls";
+
+    public static final String XLS_EXTENSION = "." + XLS_BARE_EXTENSION;
+
+    public static final String XLSX_BARE_EXTENSION = "xlsx";
+
+    public static final String XLSX_EXTENSION = "." + XLSX_BARE_EXTENSION;
 
     public static final String ZIP_EXTENSION = ".zip";
 
@@ -52,11 +58,14 @@ public class ImportExecutor implements IImportExecutor
 
     private static final String ZIP_PATH_SEPARATOR = "/";
 
+    private static final long DATA_LIMIT = 104857600L;
+
     @Override
     public void doImport(final IOperationContext context, final ImportOperation operation)
     {
         final Path archivePath = operation.getPath();
-        final PathMatcher xlsMatcher = FileSystems.getDefault().getPathMatcher(MATCHING_PATTERN_PREFIX + XLS_EXTENSION);
+        final PathMatcher xlsMatcher = FileSystems.getDefault().getPathMatcher(String.format("%s.{%s, %s}",
+                MATCHING_PATTERN_PREFIX, XLS_BARE_EXTENSION, XLSX_BARE_EXTENSION));
         final PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher(MATCHING_PATTERN_PREFIX + ZIP_EXTENSION);
 
         try
@@ -87,7 +96,7 @@ public class ImportExecutor implements IImportExecutor
                             }
                         } else
                         {
-                            if (!entryName.contains(ZIP_PATH_SEPARATOR) && entryName.endsWith(XLS_EXTENSION))
+                            if (!entryName.contains(ZIP_PATH_SEPARATOR) && (entryName.endsWith(XLS_EXTENSION) || entryName.endsWith(XLSX_EXTENSION)))
                             {
                                 if (xlsFileContent == null)
                                 {
