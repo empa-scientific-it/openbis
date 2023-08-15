@@ -1,1 +1,3 @@
-2.1.0 from Master
+4.17.5 from
+https://jsuites.net/v4/jsuites.js
+https://jsuites.net/v4/jsuites.css

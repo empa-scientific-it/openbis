@@ -212,7 +212,7 @@ var JExcelEditorManager = new function() {
             ];
         }
 
-        var jexcelField = jexcel($container[0], options);
+        var jexcelField = jspreadsheet($container[0], options);
         this.jExcelEditors[guid] = jexcelField;
 	}
 
