@@ -67,9 +67,16 @@ generateTypeScript {
 //            'ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.**',
 //            'ch.ethz.sis.openbis.generic.asapi.v3.dto.property.**',
 //            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.project.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.person.**',
 //            'ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.**',
-            'ch.ethz.sis.openbis.generic.OpenBIS'
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.material.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.space.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.common.**',
+//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.**',
+//            'ch.ethz.sis.openbis.generic.OpenBIS',
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.ArchiveDataSetsOperation'
+
     ]
     excludeClassPatterns = ["**.v1.**",
                             "**.generic.shared.**",
@@ -78,11 +85,9 @@ generateTypeScript {
     "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria"]
     outputKind = 'module'
     outputFileType = 'declarationFile'
-    //customTypeProcessor = "ch.empa.tsprocessor.CustomTypeProcessor"
-    extensionsWithConfiguration = [  new ConfiguredExtension(className:'ch.empa.tsprocessor.MethodExtension',  configuration:  ['asnycClasses':['ch.ethz.sis.openbis.generic.OpenBIS']])]
+    customTypeNaming = ["ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteria", "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:DSExternalDmsSearchCriteria"]
+    extensionsWithConfiguration = [  new ConfiguredExtension(className:'ch.empa.tsprocessor.MethodExtension',  configuration:  ['asyncClasses':"[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"])]
     jackson2ModuleDiscovery = true
     outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
-    //module = 'dto'
-
 }
 
