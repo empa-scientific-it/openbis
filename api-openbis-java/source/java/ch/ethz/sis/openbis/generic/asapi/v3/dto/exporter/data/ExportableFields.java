@@ -14,36 +14,13 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
 import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ImportScript")
-public class ImportScript implements Serializable
+@JsonObject("as.dto.exporter.ExportableFields")
+public interface ExportableFields extends Serializable
 {
-
-    private static final long serialVersionUID = 1L;
-
-    private String name;
-
-    private String source;
-
-    public ImportScript(final String name, final String source)
-    {
-        this.name = name;
-        this.source = source;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public String getSource()
-    {
-        return source;
-    }
-
 }

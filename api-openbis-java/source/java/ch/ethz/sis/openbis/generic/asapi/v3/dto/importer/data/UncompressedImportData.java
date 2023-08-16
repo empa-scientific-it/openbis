@@ -14,17 +14,16 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.importer.ImportData")
-public class ImportData implements Serializable
+@JsonObject("as.dto.importer.UncompressedImportData")
+public class UncompressedImportData implements Serializable, ImportData
 {
-
     private static final long serialVersionUID = 1L;
 
     private final ImportFormat format;
@@ -33,7 +32,7 @@ public class ImportData implements Serializable
 
     private final List<ImportScript> scripts;
 
-    public ImportData(final ImportFormat format, final byte[] file, final List<ImportScript> scripts)
+    public UncompressedImportData(final ImportFormat format, final byte[] file, final List<ImportScript> scripts)
     {
         this.format = format;
         this.file = file;

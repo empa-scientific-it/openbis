@@ -14,16 +14,14 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportFieldType")
-public enum ExportFieldType
+@JsonObject("as.dto.exporter.ImportFormat")
+public enum ImportFormat
 {
 
-    ATTRIBUTE,
-
-    PROPERTY
+    XLS
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright ETH 2023 Zürich, Scientific IT Services
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,20 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
-
-import java.io.Serializable;
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportableFields")
-public interface ExportableFields extends Serializable
+@JsonObject("as.dto.exporter.ExportableKind")
+public enum ExportableKind
 {
 
-    List<Attribute> getAttributes();
+    SAMPLE_TYPE,
 
-    List<PropertyTypePermId> getProperties();
+    EXPERIMENT_TYPE,
+
+    DATASET_TYPE,
+
+    VOCABULARY_TYPE,
+
+    SPACE,
+
+    PROJECT,
+
+    SAMPLE,
+
+    EXPERIMENT,
+
+    DATASET
+
 }

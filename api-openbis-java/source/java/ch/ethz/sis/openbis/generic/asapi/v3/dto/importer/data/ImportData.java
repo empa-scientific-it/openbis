@@ -14,18 +14,13 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
+
+import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportFormat")
-public enum ExportFormat
+@JsonObject("as.dto.importer.ImportData")
+public abstract interface ImportData extends Serializable
 {
-
-    XLS,
-
-    PDF,
-
-    DATA
-
 }

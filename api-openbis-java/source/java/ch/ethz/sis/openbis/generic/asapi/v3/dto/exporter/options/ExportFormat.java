@@ -14,18 +14,18 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.Attribute")
-public enum Attribute
+@JsonObject("as.dto.exporter.ExportFormat")
+public enum ExportFormat
 {
 
-    SPACE,
+    XLS,
 
-    SAMPLE_TYPE,
+    PDF,
 
-    EXPERIMENT_TYPE,
+    DATA
 
 }

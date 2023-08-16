@@ -14,16 +14,28 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
+import java.io.Serializable;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.XLSTextFormat")
-public enum XLSTextFormat
+@JsonObject("as.dto.exporter.ExportableFields")
+public class AllFields implements Serializable, ExportableFields
 {
 
-    PLAIN,
+    private static final long serialVersionUID = 1L;
 
-    RICH
+    public List<Attribute> getAttributes()
+    {
+        return null;
+    }
+
+    public List<PropertyTypePermId> getProperties()
+    {
+        return null;
+    }
 
 }

@@ -14,37 +14,38 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Objects;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportData")
-public class ExportData implements Serializable
+@JsonObject("as.dto.exporter.ExportablePermId")
+public class ExportablePermId implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    private final List<ExportablePermId> permIds;
+    private final ExportableKind exportableKind;
 
-    private final ExportableFields fields;
+    private final ObjectPermId permId;
 
-    public ExportData(final List<ExportablePermId> permIds, final ExportableFields fields)
+    public ExportablePermId(final ExportableKind exportableKind, final ObjectPermId permId)
     {
-        this.permIds = permIds;
-        this.fields = fields;
+        this.exportableKind = Objects.requireNonNull(exportableKind);
+        this.permId = Objects.requireNonNull(permId);
     }
 
-    public List<ExportablePermId> getPermIds()
+    public ExportableKind getExportableKind()
     {
-        return permIds;
+        return exportableKind;
     }
 
-    public ExportableFields getFields()
+    public ObjectPermId getPermId()
     {
-        return fields;
+        return permId;
     }
 
 }

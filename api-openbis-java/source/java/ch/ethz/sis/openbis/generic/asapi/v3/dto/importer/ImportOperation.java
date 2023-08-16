@@ -18,9 +18,10 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
 import java.io.Serializable;
-import java.nio.file.Path;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.ImportOperation")
@@ -29,13 +30,13 @@ public class ImportOperation implements Serializable, IOperation
 
     private static final long serialVersionUID = 1L;
 
-    private final Path path;
+    private final ImportData importData;
 
     private final ImportOptions importOptions;
 
-    public ImportOperation(final Path path, final ImportOptions importOptions)
+    public ImportOperation(final ImportData importData, final ImportOptions importOptions)
     {
-        this.path = path;
+        this.importData = importData;
         this.importOptions = importOptions;
     }
 
@@ -45,9 +46,9 @@ public class ImportOperation implements Serializable, IOperation
         return toString();
     }
 
-    public Path getPath()
+    public ImportData getImportData()
     {
-        return path;
+        return importData;
     }
 
     public ImportOptions getImportOptions()

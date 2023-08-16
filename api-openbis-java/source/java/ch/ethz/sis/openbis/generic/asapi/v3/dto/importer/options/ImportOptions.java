@@ -14,30 +14,28 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options;
 
 import java.io.Serializable;
-import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportableFields")
-public class AllFields implements Serializable, ExportableFields
+@JsonObject("as.dto.importer.ImportOptions")
+public class ImportOptions implements Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public List<Attribute> getAttributes()
+    private final ImportMode mode;
+
+    public ImportOptions(final ImportMode mode)
     {
-        return null;
+        this.mode = mode;
     }
 
-    @Override
-    public List<PropertyTypePermId> getProperties()
+    public ImportMode getMode()
     {
-        return null;
+        return mode;
     }
 
 }

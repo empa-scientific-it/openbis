@@ -14,40 +14,35 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
-import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.SelectedFields")
-public class SelectedFields implements Serializable, ExportableFields
+@JsonObject("as.dto.importer.ZipImportData")
+public class ZipImportData implements Serializable, ImportData
 {
-
     private static final long serialVersionUID = 1L;
 
-    private final List<Attribute> attributes;
+    private final ImportFormat format;
 
-    private final List<PropertyTypePermId> properties;
+    private final byte[] file;
 
-    public SelectedFields(final List<Attribute> attributes, final List<PropertyTypePermId> properties)
+    public ZipImportData(final ImportFormat format, final byte[] file)
     {
-        this.attributes = attributes;
-        this.properties = properties;
+        this.format = format;
+        this.file = file;
     }
 
-    @Override
-    public List<Attribute> getAttributes()
+    public ImportFormat getFormat()
     {
-        return attributes;
+        return format;
     }
 
-    @Override
-    public List<PropertyTypePermId> getProperties()
+    public byte[] getFile()
     {
-        return properties;
+        return file;
     }
 
 }

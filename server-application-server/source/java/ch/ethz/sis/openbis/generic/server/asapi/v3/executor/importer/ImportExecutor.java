@@ -17,10 +17,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.importer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,10 @@ import java.util.zip.ZipInputStream;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ZipImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.importer.XLSImport;
@@ -63,23 +65,25 @@ public class ImportExecutor implements IImportExecutor
     @Override
     public void doImport(final IOperationContext context, final ImportOperation operation)
     {
-        final Path archivePath = operation.getPath();
-        final PathMatcher xlsMatcher = FileSystems.getDefault().getPathMatcher(String.format("%s.{%s, %s}",
-                MATCHING_PATTERN_PREFIX, XLS_BARE_EXTENSION, XLSX_BARE_EXTENSION));
+        final ImportData importData = operation.getImportData();
+        final ImportOptions importOptions = operation.getImportOptions();
+//        final PathMatcher xlsMatcher = FileSystems.getDefault().getPathMatcher(String.format("%s.{%s, %s}",
+//                MATCHING_PATTERN_PREFIX, XLS_BARE_EXTENSION, XLSX_BARE_EXTENSION));
         final PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher(MATCHING_PATTERN_PREFIX + ZIP_EXTENSION);
 
         try
         {
-            if (xlsMatcher.matches(archivePath))
+            if (importData instanceof UncompressedImportData)
             {
                 // XLS file
 
-                importXls(context, operation, Map.of(), archivePath.getFileName().toString(), Files.readAllBytes(archivePath));
-            } else if (zipMatcher.matches(archivePath))
+                // TODO: what should we use as the XLS name?
+                importXls(context, operation, Map.of(), null, ((UncompressedImportData) importData).getFile());
+            } else if (importData instanceof ZipImportData)
             {
                 // ZIP file
 
-                try (final ZipInputStream zip = new ZipInputStream(Files.newInputStream(archivePath)))
+                try (final ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(((ZipImportData) importData).getFile())))
                 {
                     final Map<String, String> scripts = new HashMap<>();
                     byte[] xlsFileContent = null;
@@ -103,9 +107,7 @@ public class ImportExecutor implements IImportExecutor
                                     xlsFileContent = zip.readAllBytes();
                                 } else
                                 {
-                                    throw UserFailureException.fromTemplate(
-                                            "More than one XLS file found in the root of the imported ZIP file '%s'.",
-                                            archivePath);
+                                    throw UserFailureException.fromTemplate("More than one XLS file found in the root of the imported ZIP file.");
                                 }
                             } else if (entryName.startsWith(SCRIPTS_FOLDER_NAME + ZIP_PATH_SEPARATOR))
                             {
@@ -121,19 +123,20 @@ public class ImportExecutor implements IImportExecutor
 
                     if (xlsFileContent != null)
                     {
-                        importXls(context, operation, scripts, archivePath.getFileName().toString(), xlsFileContent);
+                        // TODO: what should we use as the XLS name?
+                        importXls(context, operation, scripts, null, xlsFileContent);
                     } else
                     {
-                        throw UserFailureException.fromTemplate("XLS file not found in the root of the imported ZIP file '%s'.", archivePath);
+                        throw UserFailureException.fromTemplate("XLS file not found in the root of the imported ZIP file.");
                     }
                 }
             } else
             {
-                throw UserFailureException.fromTemplate("File type is not supported '%s'. Should be either XLS or ZIP.", archivePath);
+                throw UserFailureException.fromTemplate("Unknown instance of import data '%s'.", importData.getClass().getName());
             }
         } catch (final IOException e)
         {
-            throw UserFailureException.fromTemplate(e, "IO exception importing from path '%s'.", archivePath);
+            throw UserFailureException.fromTemplate(e, "IO exception importing.");
         }
     }
 
@@ -150,7 +153,7 @@ public class ImportExecutor implements IImportExecutor
     }
 
     private static ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions dtoToXlsImportOptions(
-            ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOptions dtoImportOptions)
+            ImportOptions dtoImportOptions)
     {
         final ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions xlsImportOptions =
                 new ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions();
