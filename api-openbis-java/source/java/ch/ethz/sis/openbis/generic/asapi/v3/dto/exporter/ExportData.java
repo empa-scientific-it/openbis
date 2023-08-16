@@ -16,12 +16,35 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
+import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-public class ExportData
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.exporter.ExportData")
+public class ExportData implements Serializable
 {
-    List<ExportablePermId> exportablePermIds;
 
-    Map<String, Map<String, List<Map<String, String>>>> exportFields;
+    private static final long serialVersionUID = 1L;
+
+    private final List<ExportablePermId> permIds;
+
+    private final ExportableFields fields;
+
+    public ExportData(final List<ExportablePermId> permIds, final ExportableFields fields)
+    {
+        this.permIds = permIds;
+        this.fields = fields;
+    }
+
+    public List<ExportablePermId> getPermIds()
+    {
+        return permIds;
+    }
+
+    public ExportableFields getFields()
+    {
+        return fields;
+    }
+
 }

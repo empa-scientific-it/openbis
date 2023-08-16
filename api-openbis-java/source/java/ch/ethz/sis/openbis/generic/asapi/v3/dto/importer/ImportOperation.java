@@ -17,14 +17,17 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.ImportOperation")
-public class ImportOperation implements IOperation
+public class ImportOperation implements Serializable, IOperation
 {
+
+    private static final long serialVersionUID = 1L;
 
     private final Path path;
 

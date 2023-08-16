@@ -16,11 +16,43 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ImportData
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.importer.ImportData")
+public class ImportData implements Serializable
 {
-    private ImportFormat format;
-    byte[] file;
-    List<ImportScript> scripts;
+
+    private static final long serialVersionUID = 1L;
+
+    private final ImportFormat format;
+
+    private final byte[] file;
+
+    private final List<ImportScript> scripts;
+
+    public ImportData(final ImportFormat format, final byte[] file, final List<ImportScript> scripts)
+    {
+        this.format = format;
+        this.file = file;
+        this.scripts = scripts;
+    }
+
+    public ImportFormat getFormat()
+    {
+        return format;
+    }
+
+    public byte[] getFile()
+    {
+        return file;
+    }
+
+    public List<ImportScript> getScripts()
+    {
+        return scripts;
+    }
+
 }

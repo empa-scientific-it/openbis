@@ -17,34 +17,37 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportResult")
-public class ExportResult implements Serializable
+@JsonObject("as.dto.exporter.SelectedFields")
+public class SelectedFields implements Serializable, ExportableFields
 {
 
     private static final long serialVersionUID = 1L;
 
-    final String downloadURL;
+    private final List<Attribute> attributes;
 
-    final Collection<String> warnings;
+    private final List<PropertyTypePermId> properties;
 
-    public ExportResult(final String downloadURL, final Collection<String> warnings)
+    public SelectedFields(final List<Attribute> attributes, final List<PropertyTypePermId> properties)
     {
-        this.downloadURL = downloadURL;
-        this.warnings = warnings;
+        this.attributes = attributes;
+        this.properties = properties;
     }
 
-    public String getDownloadURL()
+    @Override
+    public List<Attribute> getAttributes()
     {
-        return downloadURL;
+        return attributes;
     }
 
-    public Collection<String> getWarnings()
+    @Override
+    public List<PropertyTypePermId> getProperties()
     {
-        return warnings;
+        return properties;
     }
 
 }

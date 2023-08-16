@@ -16,9 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
-public class ImportScript
+import java.io.Serializable;
+
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.exporter.ImportScript")
+public class ImportScript implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
+
     private String name;
+
     private String source;
 
     public ImportScript(final String name, final String source)
@@ -36,4 +45,5 @@ public class ImportScript
     {
         return source;
     }
+
 }

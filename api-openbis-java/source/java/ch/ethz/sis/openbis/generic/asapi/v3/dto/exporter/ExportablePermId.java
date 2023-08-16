@@ -16,12 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
-public class ExportablePermId
+@JsonObject("as.dto.exporter.ExportablePermId")
+public class ExportablePermId implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private final ExportableKind exportableKind;
 

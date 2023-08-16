@@ -17,9 +17,13 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import java.io.Serializable;
 
-public class ImportOperationResult implements IOperationResult
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.exporter.ImportOperationResult")
+public class ImportOperationResult implements Serializable, IOperationResult
 {
 
     private static final long serialVersionUID = 1L;

@@ -18,11 +18,20 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.exporter.ExportOptions")
 public class ExportOptions
 {
+
+    private static final long serialVersionUID = 1L;
+
     final Set<ExportFormat> formats;
+
     final XLSTextFormat xlsTextFormat;
+
     final Boolean withReferredTypes;
+
     final Boolean withImportCompatibility;
 
     public ExportOptions(final Set<ExportFormat> formats, final XLSTextFormat xlsTextFormat, final Boolean withReferredTypes,
@@ -53,4 +62,5 @@ public class ExportOptions
     {
         return withImportCompatibility;
     }
+
 }

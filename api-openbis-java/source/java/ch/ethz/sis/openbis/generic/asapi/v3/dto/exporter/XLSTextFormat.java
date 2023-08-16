@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+@JsonObject("as.dto.exporter.XLSTextFormat")
 public enum XLSTextFormat
 {
 
