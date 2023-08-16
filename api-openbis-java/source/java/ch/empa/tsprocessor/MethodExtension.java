@@ -107,7 +107,7 @@ public class MethodExtension extends Extension {
         return new TsPropertyModel(method.getName(), new TsType.FunctionType(params, promiseType), TsModifierFlags.None, false, null);
     }
 
-    private static TsBeanModel addFunctions(TsBeanModel bean, TsModelTransformer.Context context, SymbolTable symbolTable, MethodProcessor processor) {
+    private static TsBeanModel addFunctions(TsBeanModel bean, SymbolTable symbolTable, MethodProcessor processor) {
         Class<?> origin = bean.getOrigin();
         Stream<TsPropertyModel> params = Arrays.stream(origin.getMethods()).filter(MethodExtension::filterMethods).map(method -> processor.makeFunction(method, symbolTable));
         List<TsPropertyModel> allProps = Stream.concat(params, bean.getProperties().stream()).collect(Collectors.toList());
@@ -122,9 +122,8 @@ public class MethodExtension extends Extension {
             String classString = configuration.get(CFG_ASYNC_CLASSES);
             try {
                 TypeScriptGenerator.getLogger().info(String.format("MethodExtension: setConfiguration, %s, %s", configuration, classString));
-                ArrayList<String> classes = mapper.readValue(classString, new TypeReference<ArrayList<String>>() {
+                asnycClasses = mapper.readValue(classString, new TypeReference<ArrayList<String>>() {
                 });
-                asnycClasses = classes;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -148,9 +147,9 @@ public class MethodExtension extends Extension {
         return List.of(new TransformerDefinition(ModelCompiler.TransformationPhase.BeforeSymbolResolution, (TsModelTransformer) (context, model) -> {
             Stream<TsBeanModel> processedBeans = model.getBeans().stream().map(bean -> {
                 if (asnycClasses.contains(bean.getOrigin().getName())) {
-                    return addFunctions(bean, context, context.getSymbolTable(), MethodExtension::makePromiseReturningFunction);
+                    return addFunctions(bean, context.getSymbolTable(), MethodExtension::makePromiseReturningFunction);
                 } else {
-                    return addFunctions(bean, context, context.getSymbolTable(), MethodExtension::makeFunction);
+                    return addFunctions(bean, context.getSymbolTable(), MethodExtension::makeFunction);
                 }
             });
 
