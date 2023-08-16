@@ -24,9 +24,8 @@ function ExperimentTableController(parentController, title, project, showInProje
 		Util.blockUI();
 		this._experimentTableModel.reset();
 		var callback = function(data) {
-			for(var i = 0; i < data.result.length; i++) {
-				var item = data.result[i];
-				
+            for(var i = 0; i < data.experiments.length; i++) {
+				var item = data.experiments[i];
 				var showOnlyOverview = _this._experimentTableModel.showInProjectOverview && item.properties["$SHOW_IN_PROJECT_OVERVIEW"] === "true";
 				var showAll = !_this._experimentTableModel.showInProjectOverview;
 				if(showOnlyOverview || showAll) {
@@ -48,7 +47,9 @@ function ExperimentTableController(parentController, title, project, showInProje
 		var project = this._experimentTableModel.project;
 		delete project["@id"];
 		delete project["@type"];
-		mainController.serverFacade.listExperiments([project], callback);
+		mainController.serverFacade.getProjectFromPermIdWithExperiments(project.permId, function(result) {
+            callback(result[project.permId]);
+        });
 	}
 	
 	this._reloadTable = function() {

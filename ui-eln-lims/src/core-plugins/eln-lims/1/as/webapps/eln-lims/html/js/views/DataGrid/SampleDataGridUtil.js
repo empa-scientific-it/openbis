@@ -880,8 +880,8 @@ var SampleDataGridUtil = new function() {
                                     return _this.getTerm(params, propertyType);
                                 };
                             })(propertyType),
-                            render : function(data) {
-                                return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+                            render : function(params, data) {
+                                return FormUtil.getVocabularyLabelForTermCode(propertyType, data.value);
                             },
                             renderFilter: function(params){
                                 return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
@@ -954,12 +954,18 @@ var SampleDataGridUtil = new function() {
                             return FormUtil.renderXmlGridValue(row, params, propertyType)
                         }
                     })(propertyType)
-                }else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+                } else if(propertyType.dataType === "MULTILINE_VARCHAR"){
                     renderValue = (function(propertyType){
                         return function(row, params){
                             return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
                         }
                     })(propertyType)
+                } else if(propertyType.dataType === "SAMPLE") {
+                    renderValue = (function(propertyType){
+                          return function(row, params){
+                              return FormUtil.getFormLink(params.value, "Sample", params.value)
+                          }
+                      })(propertyType)
                 }
 
                 propertyColumnsToSort.push({

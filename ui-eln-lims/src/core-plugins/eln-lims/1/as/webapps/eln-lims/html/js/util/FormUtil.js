@@ -1493,7 +1493,10 @@ var FormUtil = new function() {
 	}
 	
 	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier, paginationInfo, id) {
-		var view = null;
+		if(permIdOrIdentifier === null || permIdOrIdentifier === undefined || permIdOrIdentifier.trim().length === 0){
+            return;
+        }
+        var view = null;
 		switch(entityKind) {
 			case "Space":
 				view = "showSpacePage";

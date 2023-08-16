@@ -760,6 +760,26 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
+	this.getProjectFromPermIdWithExperiments = function(projectPermId, callbackFunction) {
+    		require(["as/dto/project/id/ProjectPermId", "as/dto/project/fetchoptions/ProjectFetchOptions"],
+    		  function(ProjectPermId, ProjectFetchOptions) {
+    				var projectId = new ProjectPermId(projectPermId);
+    				var fetchOptions = new ProjectFetchOptions();
+    				fetchOptions.withExperiments().withProperties();
+                    fetchOptions.withExperiments().withRegistrator();
+                    fetchOptions.withExperiments().withModifier();
+                    fetchOptions.withExperiments().withType();
+
+    				mainController.openbisV3.getProjects([projectId], fetchOptions).done(function(result) {
+    					callbackFunction(result);
+    				}).fail(function(result) {
+    					Util.showFailedServerCallError(result);
+    					callbackFunction(false);
+    				});
+    			}
+    		);
+    	}
+
 	this.listExperimentsForIdentifiers = function(experimentsIdentifiers, callbackFunction) {
 		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, callbackFunction);
 	}

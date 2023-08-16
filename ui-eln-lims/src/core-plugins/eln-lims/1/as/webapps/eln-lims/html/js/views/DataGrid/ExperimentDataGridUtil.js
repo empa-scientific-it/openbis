@@ -9,7 +9,7 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.CODE,
 			sortable : true,
 			render : function(data, grid) {
-				return FormUtil.getFormLink(data.code, "Experiment", data.identifier);
+				return FormUtil.getFormLink(data.code, "Experiment", data.identifier.identifier);
 			},
 			filter : function(data, filter) {
 				return data.code.toLowerCase().indexOf(filter) !== -1;
@@ -31,7 +31,7 @@ var ExperimentDataGridUtil = new function() {
                 if(data[profile.propertyReplacingCode]) {
                     nameToUse = data[profile.propertyReplacingCode];
                 }
-                return FormUtil.getFormLink(nameToUse, "Experiment", data.identifier);
+                return FormUtil.getFormLink(nameToUse, "Experiment", data.identifier.identifier);
             }
         });
 
@@ -41,14 +41,14 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.IDENTIFIER,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
+				return FormUtil.getFormLink(data.identifier.identifier, "Experiment", data.identifier.identifier);
 			},
 			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+				return data.identifier.identifier.toLowerCase().indexOf(filter) !== -1;
 			},
 			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier;
-				var value2 = data2.identifier;
+				var value1 = data1.identifier.identifier;
+				var value2 = data2.identifier.identifier;
 				var sortDirection = (asc)? 1 : -1;
 				return sortDirection * naturalSort(value1, value2);
 			}
@@ -59,14 +59,14 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.permId, "Experiment", data.identifier);
+				return FormUtil.getFormLink(data.permId.permId, "Experiment", data.identifier.identifier);
 			},
 			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+				return data.identifier.identifier.toLowerCase().indexOf(filter) !== -1;
 			},
 			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier;
-				var value2 = data2.identifier;
+				var value1 = data1.identifier.identifier;
+				var value2 = data2.identifier.identifier;
 				var sortDirection = (asc)? 1 : -1;
 				return sortDirection * naturalSort(value1, value2);
 			}
@@ -123,22 +123,22 @@ var ExperimentDataGridUtil = new function() {
 			for(var sIdx = 0; sIdx < entities.length; sIdx++) {
 				var entity = entities[sIdx];
 				var model = {		
-									'id' : entity.permId,
-									'exportableId' : {
-										exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.EXPERIMENT,
-										perm_id: entity.permId,
-										type_perm_id: entity.experimentTypeCode
-									},
-                                    '$object' : entity,
-									'code' : entity.code,
-									'identifier' : entity.identifier,
-									'permId' : entity.permId,
-									'type' : entity.experimentTypeCode,
-									'registrator' : entity.registrationDetails.userId,
-									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),
-									'modifier' : entity.registrationDetails.modifierUserId,
-									'modificationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.modificationDate))
-				};
+                    'id' : entity.permId.permId,
+                    'exportableId' : {
+                        exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.EXPERIMENT,
+                        perm_id: entity.permId.permId,
+                        type_perm_id: entity.type.code
+                    },
+                    '$object' : entity,
+                    'code' : entity.code,
+                    'identifier' : entity.identifier.identifier,
+                    'permId' : entity.permId.permId,
+                    'type' : entity.type.code,
+                    'registrator' : (entity.registrator)?entity.registrator.userId:null,
+                    'registrationDate' : (entity.registrationDate)?Util.getFormatedDate(new Date(entity.registrationDate)):null,
+                    'modifier' : (entity.modifier)?entity.modifier.userId:null,
+                    'modificationDate' : (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null
+                };
 				if(entity.properties) {
                     for(var propertyCode in entity.properties) {
                         model[propertyCode] = entity.properties[propertyCode];
