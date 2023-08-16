@@ -241,6 +241,8 @@ function SampleField(isRequired,
 
             if(isSingleValue) {
                 selectOptions['maximumSelectionLength'] = 1;
+            } else {
+                selectOptions['closeOnSelect'] = false;
             }
 
             $plainSelect.select2(selectOptions);
