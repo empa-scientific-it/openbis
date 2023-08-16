@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
@@ -72,6 +75,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
@@ -83,6 +89,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -199,15 +206,29 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.ISemanticA
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAnnotationPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.AggregationService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ProcessingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ReportingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainServiceExecutionResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AggregationServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ProcessingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ReportingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.SearchDomainServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.AggregationServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ProcessingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ReportingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.SearchDomainServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.AggregationServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
@@ -245,10 +266,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 /**
  * V3 application server API. Detailed documentation on how to use the API together code examples in both Java and Javascript can be found at "openBIS
@@ -2245,6 +2262,8 @@ public interface IApplicationServerApi extends IRpcService
      */
     public List<String> createCodes(String sessionToken, String prefix, EntityKind entityKind, int count);
 
-    public void doImport(String sessionToken, Path path, ImportOptions importOptions);
+    public void executeImport(String sessionToken, ImportData importData, ImportOptions importOptions);
+
+    public ExportResult executeExport(String sessionToken, ExportData exportData, ExportOptions exportOptions);
 
 }

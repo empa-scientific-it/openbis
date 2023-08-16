@@ -1,5 +1,5 @@
 /*
- *  Copyright ETH 2023 Zürich, Scientific IT Services
+ * Copyright ETH 2023 Zürich, Scientific IT Services
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -12,29 +12,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
-import java.io.Serializable;
-
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
-@JsonObject("as.dto.importer.ImportOptions")
-public class ImportOptions implements Serializable
+public enum ExportFormat
 {
-    private static final long serialVersionUID = 1L;
-    private ImportMode mode;
-
-    public ImportOptions(final ImportMode mode)
-    {
-        this.mode = mode;
-    }
-
-    public ImportMode getMode()
-    {
-        return mode;
-    }
-
+    XLS, PDF, DATA
 }

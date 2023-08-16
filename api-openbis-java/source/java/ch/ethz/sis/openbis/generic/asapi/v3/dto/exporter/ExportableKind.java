@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
-public enum ImportModes
+public enum ExportableKind
 {
 
-    UPDATE_IF_EXISTS, // default mode
+    SAMPLE_TYPE,
 
-    IGNORE_EXISTING,
+    EXPERIMENT_TYPE,
 
-    FAIL_IF_EXISTS
+    DATASET_TYPE,
+
+    VOCABULARY_TYPE,
+
+    SPACE,
+
+    PROJECT,
+
+    SAMPLE,
+
+    EXPERIMENT,
+
+    DATASET
 
 }

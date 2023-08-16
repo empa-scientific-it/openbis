@@ -15,7 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1255,7 +1254,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     }
 
     @Override
-    public void doImport(final String sessionToken, final Path path, final ImportOptions importOptions)
+    public void doImport(final String sessionToken, final byte[] file, final ImportOptions importOptions)
     {
         invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }

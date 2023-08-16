@@ -15,7 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -1813,9 +1812,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
-    public void doImport(final String sessionToken, final Path path, final ImportOptions importOptions)
+    public void doImport(final String sessionToken, final byte[] file, final ImportOptions importOptions)
     {
-        executeOperation(sessionToken, new ImportOperation(path, importOptions));
+        executeOperation(sessionToken, new ImportOperation(file, importOptions));
     }
 
     @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
