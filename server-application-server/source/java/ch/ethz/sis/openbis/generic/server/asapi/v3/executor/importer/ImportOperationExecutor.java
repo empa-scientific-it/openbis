@@ -18,12 +18,14 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.importer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 
+@Component
 public class ImportOperationExecutor extends OperationExecutor<ImportOperation, ImportOperationResult>
 {
 

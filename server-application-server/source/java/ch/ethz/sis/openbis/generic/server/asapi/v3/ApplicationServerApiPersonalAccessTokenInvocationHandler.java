@@ -88,6 +88,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -1254,7 +1255,7 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     }
 
     @Override
-    public void doImport(final String sessionToken, final byte[] file, final ImportOptions importOptions)
+    public void executeImport(final String sessionToken, final ImportData importData, final ImportOptions importOptions)
     {
         invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }

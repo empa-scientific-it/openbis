@@ -63,12 +63,15 @@ public class ImportExecutor implements IImportExecutor
             {
                 // XLS file
 
-                importXls(context, operation, Map.of(), ((UncompressedImportData) importData).getFile());
+                final UncompressedImportData uncompressedImportData = (UncompressedImportData) importData;
+
+                importXls(context, operation, Map.of(), uncompressedImportData.getFile());
             } else if (importData instanceof ZipImportData)
             {
                 // ZIP file
 
-                try (final ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(((ZipImportData) importData).getFile())))
+                final ZipImportData zipImportData = (ZipImportData) importData;
+                try (final ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(zipImportData.getFile())))
                 {
                     final Map<String, String> scripts = new HashMap<>();
                     byte[] xlsFileContent = null;

@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,9 +30,9 @@ public class UncompressedImportData implements Serializable, ImportData
 
     private final byte[] file;
 
-    private final List<ImportScript> scripts;
+    private final Collection<ImportScript> scripts;
 
-    public UncompressedImportData(final ImportFormat format, final byte[] file, final List<ImportScript> scripts)
+    public UncompressedImportData(final ImportFormat format, final byte[] file, final Collection<ImportScript> scripts)
     {
         this.format = format;
         this.file = file;
@@ -49,7 +49,7 @@ public class UncompressedImportData implements Serializable, ImportData
         return file;
     }
 
-    public List<ImportScript> getScripts()
+    public Collection<ImportScript> getScripts()
     {
         return scripts;
     }
