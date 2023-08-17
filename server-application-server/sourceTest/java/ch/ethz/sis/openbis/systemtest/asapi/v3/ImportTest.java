@@ -17,16 +17,20 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -40,32 +44,31 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class ImportTest extends AbstractTest
 {
+
+    private static final String VERSIONING_JSON = "./versioning.json";
+
+    private static final String XLS_VERSIONING_DIR = "xls-import.version-data-file";
 
     private final Map<String, String> IMPORT_SCRIPT_MAP = Map.of("Script 1", "Value 1", "Script 2", "Value 2");
 
     private final Collection<ImportScript> IMPORT_SCRIPTS = IMPORT_SCRIPT_MAP.entrySet().stream()
             .map(entry -> new ImportScript(entry.getKey(), entry.getValue())).collect(Collectors.toList());
 
-    private static byte[] fileContent;
 
-    @BeforeClass
-    public void setupClass()
+    @BeforeSuite
+    public void setupSuite()
     {
-        try (final InputStream is = ImportTest.class.getResourceAsStream("test_files/xls/import.xlsx"))
-        {
-            if (is == null)
-            {
-                throw new RuntimeException();
-            }
+        System.setProperty(XLS_VERSIONING_DIR, VERSIONING_JSON);
+    }
 
-            fileContent = is.readAllBytes();
-        } catch (final IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+    @AfterMethod
+    public void afterTest()
+    {
+        new File(VERSIONING_JSON).delete();
     }
 
     @Test
@@ -73,7 +76,7 @@ public class ImportTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, fileContent, IMPORT_SCRIPTS);
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), IMPORT_SCRIPTS);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -92,6 +95,105 @@ public class ImportTest extends AbstractTest
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
         assertEquals(2, vocabularyTerms.size());
         assertEquals(Set.of("HRP", "AAA"), vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()));
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testImportOptionsUpdateIfExists()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), IMPORT_SCRIPTS);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final VocabularySearchCriteria vocabularySearchCriteria = new VocabularySearchCriteria();
+        vocabularySearchCriteria.withCode().thatEquals("TEST_VOCABULARY");
+
+        final VocabularyFetchOptions vocabularyFetchOptions = new VocabularyFetchOptions();
+        vocabularyFetchOptions.withTerms();
+
+        final SearchResult<Vocabulary> vocabularySearchResult =
+                v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
+
+        assertEquals(1, vocabularySearchResult.getTotalCount());
+        assertEquals("Test vocabulary with modifications", vocabularySearchResult.getObjects().get(0).getDescription());
+
+        final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
+        assertEquals(3, vocabularyTerms.size());
+        assertEquals(Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"), vocabularyTerms.stream().map(VocabularyTerm::getCode)
+                .collect(Collectors.toSet()));
+        assertEquals(Set.of("Test term A", "Test term B", "Test term C"), vocabularyTerms.stream().map(VocabularyTerm::getLabel)
+                .collect(Collectors.toSet()));
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testImportOptionsIgnoreExisting()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), IMPORT_SCRIPTS);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final VocabularySearchCriteria vocabularySearchCriteria = new VocabularySearchCriteria();
+        vocabularySearchCriteria.withCode().thatEquals("TEST_VOCABULARY");
+
+        final VocabularyFetchOptions vocabularyFetchOptions = new VocabularyFetchOptions();
+        vocabularyFetchOptions.withTerms();
+
+        final SearchResult<Vocabulary> vocabularySearchResult =
+                v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
+
+        assertEquals(1, vocabularySearchResult.getTotalCount());
+        assertEquals("Test vocabulary", vocabularySearchResult.getObjects().get(0).getDescription());
+
+        final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
+        assertEquals(3, vocabularyTerms.size());
+        assertEquals(Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"), vocabularyTerms.stream().map(VocabularyTerm::getCode)
+                .collect(Collectors.toSet()));
+        final List<String> descriptions = vocabularyTerms.stream().map(VocabularyTerm::getLabel).collect(Collectors.toList());
+        assertTrue(descriptions.containsAll(Arrays.asList(null, null, "Test term C")));
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*FAIL_IF_EXISTS.*")
+    public void testImportOptionsFailIfExists()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), IMPORT_SCRIPTS);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
+
+        try
+        {
+            v3api.executeImport(sessionToken, importData, importOptions);
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+    }
+
+    private byte[] getFileContent(final String fileName)
+    {
+        try (final InputStream is = ImportTest.class.getResourceAsStream("test_files/xls/" + fileName))
+        {
+            if (is == null)
+            {
+                throw new RuntimeException();
+            }
+
+            return is.readAllBytes();
+        } catch (final IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
 }
