@@ -40,6 +40,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportScript;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
@@ -76,7 +81,7 @@ public class ImportTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), IMPORT_SCRIPTS);
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -104,7 +109,7 @@ public class ImportTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), IMPORT_SCRIPTS);
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -136,7 +141,7 @@ public class ImportTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), IMPORT_SCRIPTS);
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -168,7 +173,7 @@ public class ImportTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), IMPORT_SCRIPTS);
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
         try
@@ -179,6 +184,66 @@ public class ImportTest extends AbstractTest
             v3api.logout(sessionToken);
         }
     }
+
+    @Test
+    public void testWithValidationScript()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String name = "valid.py";
+        final String source = "print 'Test validation script'";
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("with_validation_script.xls"),
+                List.of(new ImportScript(name, source)));
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        sampleTypeSearchCriteria.withCode().thatEquals("ANTIBODY");
+
+        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        sampleTypeFetchOptions.withPropertyAssignmentsUsing(new PropertyAssignmentFetchOptions());
+
+        final SearchResult<SampleType> sampleTypeSearchResult =
+                v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+
+        assertEquals(1, sampleTypeSearchResult.getTotalCount());
+
+        final Plugin validationPlugin = sampleTypeSearchResult.getObjects().get(0).getValidationPlugin();
+
+        assertEquals(name, validationPlugin.getName());
+        assertEquals(source, validationPlugin.getScript());
+
+        v3api.logout(sessionToken);
+    }
+
+//    public void testWithDynamicScript()
+//    {
+//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+//
+//        final String name = "dynamic.py";
+//        final String source = "print 'Test dynamic script'";
+//        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("with_dynamic_script.xls"),
+//                List.of(new ImportScript(name, source)));
+//        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+//
+//        v3api.executeImport(sessionToken, importData, importOptions);
+//
+//        final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+//        sampleTypeSearchCriteria.withCode().thatEquals("ANTIBODY");
+//
+//        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+//        sampleTypeFetchOptions.withPropertyAssignmentsUsing(new PropertyAssignmentFetchOptions());
+//
+//        final SearchResult<SampleType> sampleTypeSearchResult =
+//                v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+//
+//        assertEquals(1, sampleTypeSearchResult.getTotalCount());
+//
+//        sampleTypeSearchResult.getObjects().get(0).
+//
+//        v3api.logout(sessionToken);
+//    }
 
     private byte[] getFileContent(final String fileName)
     {

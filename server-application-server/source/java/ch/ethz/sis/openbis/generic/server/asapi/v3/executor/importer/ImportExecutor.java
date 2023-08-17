@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportScript;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ZipImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
@@ -65,7 +67,10 @@ public class ImportExecutor implements IImportExecutor
 
                 final UncompressedImportData uncompressedImportData = (UncompressedImportData) importData;
 
-                importXls(context, operation, Map.of(), uncompressedImportData.getFile());
+                final Map<String, String> scripts = uncompressedImportData.getScripts() != null
+                        ? uncompressedImportData.getScripts().stream().collect(Collectors.toMap(ImportScript::getName, ImportScript::getSource))
+                        : null;
+                importXls(context, operation, scripts, uncompressedImportData.getFile());
             } else if (importData instanceof ZipImportData)
             {
                 // ZIP file
