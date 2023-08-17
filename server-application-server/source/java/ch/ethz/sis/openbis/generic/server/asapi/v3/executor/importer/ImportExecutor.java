@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.importer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.PathMatcher;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -46,17 +44,9 @@ public class ImportExecutor implements IImportExecutor
 
     private static final String SCRIPTS_FOLDER_NAME = "scripts";
 
-    public static final String XLS_BARE_EXTENSION = "xls";
+    private static final String XLS_EXTENSION = "." + "xls";
 
-    public static final String XLS_EXTENSION = "." + XLS_BARE_EXTENSION;
-
-    public static final String XLSX_BARE_EXTENSION = "xlsx";
-
-    public static final String XLSX_EXTENSION = "." + XLSX_BARE_EXTENSION;
-
-    public static final String ZIP_EXTENSION = ".zip";
-
-    private static final String MATCHING_PATTERN_PREFIX = "glob:*";
+    private static final String XLSX_EXTENSION = "." + "xlsx";
 
     private static final String ZIP_PATH_SEPARATOR = "/";
 
@@ -66,10 +56,6 @@ public class ImportExecutor implements IImportExecutor
     public void doImport(final IOperationContext context, final ImportOperation operation)
     {
         final ImportData importData = operation.getImportData();
-        final ImportOptions importOptions = operation.getImportOptions();
-//        final PathMatcher xlsMatcher = FileSystems.getDefault().getPathMatcher(String.format("%s.{%s, %s}",
-//                MATCHING_PATTERN_PREFIX, XLS_BARE_EXTENSION, XLSX_BARE_EXTENSION));
-        final PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher(MATCHING_PATTERN_PREFIX + ZIP_EXTENSION);
 
         try
         {
@@ -77,8 +63,7 @@ public class ImportExecutor implements IImportExecutor
             {
                 // XLS file
 
-                // TODO: what should we use as the XLS name?
-                importXls(context, operation, Map.of(), null, ((UncompressedImportData) importData).getFile());
+                importXls(context, operation, Map.of(), ((UncompressedImportData) importData).getFile());
             } else if (importData instanceof ZipImportData)
             {
                 // ZIP file
@@ -123,8 +108,7 @@ public class ImportExecutor implements IImportExecutor
 
                     if (xlsFileContent != null)
                     {
-                        // TODO: what should we use as the XLS name?
-                        importXls(context, operation, scripts, null, xlsFileContent);
+                        importXls(context, operation, scripts, xlsFileContent);
                     } else
                     {
                         throw UserFailureException.fromTemplate("XLS file not found in the root of the imported ZIP file.");
@@ -141,30 +125,22 @@ public class ImportExecutor implements IImportExecutor
     }
 
     private static void importXls(final IOperationContext context, final ImportOperation operation, final Map<String, String> scripts,
-            final String xlsName, final byte[] xlsContent)
+            final byte[] xlsContent)
     {
         final IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
         final ImportOptions importOptions = operation.getImportOptions();
 
+        final ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions importerImportOptions =
+                new ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions();
+
+        final boolean projectSamplesEnabled = Boolean.parseBoolean(applicationServerApi.getServerInformation(context.getSession().getSessionToken())
+                .get("project-samples-enabled"));
+        importerImportOptions.setAllowProjectSamples(projectSamplesEnabled);
+
         final XLSImport xlsImport = new XLSImport(context.getSession().getSessionToken(), applicationServerApi, scripts,
-                ImportModes.valueOf(importOptions.getImportMode().name()), dtoToXlsImportOptions(importOptions), xlsName);
+                ImportModes.valueOf(importOptions.getMode().name()), importerImportOptions, "DEFAULT");
 
         xlsImport.importXLS(xlsContent);
-    }
-
-    private static ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions dtoToXlsImportOptions(
-            ImportOptions dtoImportOptions)
-    {
-        final ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions xlsImportOptions =
-                new ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions();
-        xlsImportOptions.setExperimentsByType(dtoImportOptions.getExperimentsByType());
-        xlsImportOptions.setSpacesByType(dtoImportOptions.getSpacesByType());
-        xlsImportOptions.setDefinitionsOnly(dtoImportOptions.getDefinitionsOnly());
-        xlsImportOptions.setDisallowEntityCreations(dtoImportOptions.getDisallowEntityCreations());
-        xlsImportOptions.setIgnoreVersioning(dtoImportOptions.getIgnoreVersioning());
-        xlsImportOptions.setRenderResult(dtoImportOptions.getRenderResult());
-        xlsImportOptions.setAllowProjectSamples(dtoImportOptions.getAllowProjectSamples());
-        return xlsImportOptions;
     }
 
 }
