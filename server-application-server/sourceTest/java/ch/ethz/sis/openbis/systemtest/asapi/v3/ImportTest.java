@@ -41,6 +41,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImport
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
@@ -95,11 +96,11 @@ public class ImportTest extends AbstractTest
         final SearchResult<Vocabulary> vocabularySearchResult =
                 v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
 
-        assertEquals(1, vocabularySearchResult.getTotalCount());
+        assertEquals(vocabularySearchResult.getTotalCount(), 1);
 
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
-        assertEquals(2, vocabularyTerms.size());
-        assertEquals(Set.of("HRP", "AAA"), vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()));
+        assertEquals(vocabularyTerms.size(), 2);
+        assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()), Set.of("HRP", "AAA"));
 
         v3api.logout(sessionToken);
     }
@@ -123,15 +124,15 @@ public class ImportTest extends AbstractTest
         final SearchResult<Vocabulary> vocabularySearchResult =
                 v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
 
-        assertEquals(1, vocabularySearchResult.getTotalCount());
-        assertEquals("Test vocabulary with modifications", vocabularySearchResult.getObjects().get(0).getDescription());
+        assertEquals(vocabularySearchResult.getTotalCount(), 1);
+        assertEquals(vocabularySearchResult.getObjects().get(0).getDescription(), "Test vocabulary with modifications");
 
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
-        assertEquals(3, vocabularyTerms.size());
-        assertEquals(Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"), vocabularyTerms.stream().map(VocabularyTerm::getCode)
-                .collect(Collectors.toSet()));
-        assertEquals(Set.of("Test term A", "Test term B", "Test term C"), vocabularyTerms.stream().map(VocabularyTerm::getLabel)
-                .collect(Collectors.toSet()));
+        assertEquals(vocabularyTerms.size(), 3);
+        assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()),
+                Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"));
+        assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getLabel).collect(Collectors.toSet()),
+                Set.of("Test term A", "Test term B", "Test term C"));
 
         v3api.logout(sessionToken);
     }
@@ -155,13 +156,13 @@ public class ImportTest extends AbstractTest
         final SearchResult<Vocabulary> vocabularySearchResult =
                 v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
 
-        assertEquals(1, vocabularySearchResult.getTotalCount());
-        assertEquals("Test vocabulary", vocabularySearchResult.getObjects().get(0).getDescription());
+        assertEquals(vocabularySearchResult.getTotalCount(), 1);
+        assertEquals(vocabularySearchResult.getObjects().get(0).getDescription(), "Test vocabulary");
 
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
-        assertEquals(3, vocabularyTerms.size());
-        assertEquals(Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"), vocabularyTerms.stream().map(VocabularyTerm::getCode)
-                .collect(Collectors.toSet()));
+        assertEquals(vocabularyTerms.size(), 3);
+        assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()),
+                Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"));
         final List<String> descriptions = vocabularyTerms.stream().map(VocabularyTerm::getLabel).collect(Collectors.toList());
         assertTrue(descriptions.containsAll(Arrays.asList(null, null, "Test term C")));
 
@@ -192,7 +193,7 @@ public class ImportTest extends AbstractTest
 
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("with_validation_script.xls"),
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
                 List.of(new ImportScript(name, source)));
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
@@ -207,45 +208,56 @@ public class ImportTest extends AbstractTest
         final SearchResult<SampleType> sampleTypeSearchResult =
                 v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
 
-        assertEquals(1, sampleTypeSearchResult.getTotalCount());
+        assertEquals(sampleTypeSearchResult.getTotalCount(), 1);
 
         final SampleType sampleType = sampleTypeSearchResult.getObjects().get(0);
         final Plugin validationPlugin = sampleType.getValidationPlugin();
         final String validationPluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(sampleType.getCode() + "." + validationPluginBareName, validationPlugin.getName());
-        assertEquals(source, validationPlugin.getScript());
+        assertEquals(validationPlugin.getName(), sampleType.getCode() + "." + validationPluginBareName);
+        assertEquals(validationPlugin.getScript(), source);
 
         v3api.logout(sessionToken);
     }
 
-//    public void testWithDynamicScript()
-//    {
-//        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-//
-//        final String name = "dynamic.py";
-//        final String source = "print 'Test dynamic script'";
-//        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("with_dynamic_script.xls"),
-//                List.of(new ImportScript(name, source)));
-//        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
-//
-//        v3api.executeImport(sessionToken, importData, importOptions);
-//
-//        final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
-//        sampleTypeSearchCriteria.withCode().thatEquals("ANTIBODY");
-//
-//        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
-//        sampleTypeFetchOptions.withPropertyAssignmentsUsing(new PropertyAssignmentFetchOptions());
-//
-//        final SearchResult<SampleType> sampleTypeSearchResult =
-//                v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
-//
-//        assertEquals(1, sampleTypeSearchResult.getTotalCount());
-//
-//        sampleTypeSearchResult.getObjects().get(0).
-//
-//        v3api.logout(sessionToken);
-//    }
+    @Test
+    public void testWithDynamicScript()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String name = "dynamic.py";
+        final String source = "1+1";
+        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
+                List.of(new ImportScript(name, source)));
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        sampleTypeSearchCriteria.withCode().thatEquals("ANTIBODY");
+
+        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = sampleTypeFetchOptions.withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
+        propertyAssignmentFetchOptions.withPropertyType();
+
+        final SearchResult<SampleType> sampleTypeSearchResult =
+                v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+        assertEquals(sampleTypeSearchResult.getTotalCount(), 1);
+
+        final SampleType sampleType = sampleTypeSearchResult.getObjects().get(0);
+        assertEquals(sampleType.getPropertyAssignments().size(), 1);
+
+        final PropertyAssignment propertyAssignment = sampleType.getPropertyAssignments().get(0);
+        final Plugin plugin = propertyAssignment.getPlugin();
+
+        final String pluginBareName = name.substring(0, name.lastIndexOf("."));
+
+        assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
+        assertEquals(plugin.getScript(), source);
+
+        v3api.logout(sessionToken);
+    }
 
     private byte[] getFileContent(final String fileName)
     {
