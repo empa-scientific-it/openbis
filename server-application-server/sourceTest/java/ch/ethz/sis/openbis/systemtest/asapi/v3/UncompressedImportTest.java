@@ -23,9 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,33 +50,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.Vocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
-public class ImportTest extends AbstractTest
+public class UncompressedImportTest extends AbstractImportTest
 {
 
-    private static final String VERSIONING_JSON = "./versioning.json";
-
-    private static final String XLS_VERSIONING_DIR = "xls-import.version-data-file";
-
-    private final Map<String, String> IMPORT_SCRIPT_MAP = Map.of("Script 1", "Value 1", "Script 2", "Value 2");
-
-    private final Collection<ImportScript> IMPORT_SCRIPTS = IMPORT_SCRIPT_MAP.entrySet().stream()
-            .map(entry -> new ImportScript(entry.getKey(), entry.getValue())).collect(Collectors.toList());
-
-
-    @BeforeSuite
-    public void setupSuite()
-    {
-        System.setProperty(XLS_VERSIONING_DIR, VERSIONING_JSON);
-    }
-
-    @AfterMethod
-    public void afterTest()
-    {
-        new File(VERSIONING_JSON).delete();
-    }
-
     @Test
-    public void testUncompressedDataImport()
+    public void testDataImport()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -257,22 +233,6 @@ public class ImportTest extends AbstractTest
         assertEquals(plugin.getScript(), source);
 
         v3api.logout(sessionToken);
-    }
-
-    private byte[] getFileContent(final String fileName)
-    {
-        try (final InputStream is = ImportTest.class.getResourceAsStream("test_files/xls/" + fileName))
-        {
-            if (is == null)
-            {
-                throw new RuntimeException();
-            }
-
-            return is.readAllBytes();
-        } catch (final IOException e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
 }
