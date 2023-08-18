@@ -202,16 +202,18 @@ public class ImportTest extends AbstractTest
         sampleTypeSearchCriteria.withCode().thatEquals("ANTIBODY");
 
         final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
-        sampleTypeFetchOptions.withPropertyAssignmentsUsing(new PropertyAssignmentFetchOptions());
+        sampleTypeFetchOptions.withValidationPlugin().withScript();
 
         final SearchResult<SampleType> sampleTypeSearchResult =
                 v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
 
         assertEquals(1, sampleTypeSearchResult.getTotalCount());
 
-        final Plugin validationPlugin = sampleTypeSearchResult.getObjects().get(0).getValidationPlugin();
+        final SampleType sampleType = sampleTypeSearchResult.getObjects().get(0);
+        final Plugin validationPlugin = sampleType.getValidationPlugin();
+        final String validationPluginBareName = name.substring(0, name.lastIndexOf("."));
 
-        assertEquals(name, validationPlugin.getName());
+        assertEquals(sampleType.getCode() + "." + validationPluginBareName, validationPlugin.getName());
         assertEquals(source, validationPlugin.getScript());
 
         v3api.logout(sessionToken);
