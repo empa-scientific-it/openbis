@@ -83,39 +83,11 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testUncompressedDataImport()
-    {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null);
-        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
-
-        v3api.executeImport(sessionToken, importData, importOptions);
-
-        final VocabularySearchCriteria vocabularySearchCriteria = new VocabularySearchCriteria();
-        vocabularySearchCriteria.withCode().thatEquals("DETECTION");
-
-        final VocabularyFetchOptions vocabularyFetchOptions = new VocabularyFetchOptions();
-        vocabularyFetchOptions.withTerms();
-
-        final SearchResult<Vocabulary> vocabularySearchResult =
-                v3api.searchVocabularies(sessionToken, vocabularySearchCriteria, vocabularyFetchOptions);
-
-        assertEquals(vocabularySearchResult.getTotalCount(), 1);
-
-        final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
-        assertEquals(vocabularyTerms.size(), 2);
-        assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()), Set.of("HRP", "AAA"));
-
-        v3api.logout(sessionToken);
-    }
-
-    @Test
     public void testImportOptionsUpdateIfExists()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final ImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.zip"));
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -147,7 +119,7 @@ public class ZipImportTest extends AbstractImportTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final ImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.zip"));
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -179,7 +151,7 @@ public class ZipImportTest extends AbstractImportTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final ImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.zip"));
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
         try
@@ -198,8 +170,7 @@ public class ZipImportTest extends AbstractImportTest
 
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
-                List.of(new ImportScript(name, source)));
+        final ImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("validation_script.zip"));
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -220,7 +191,7 @@ public class ZipImportTest extends AbstractImportTest
         final String validationPluginBareName = name.substring(0, name.lastIndexOf("."));
 
         assertEquals(validationPlugin.getName(), sampleType.getCode() + "." + validationPluginBareName);
-        assertEquals(validationPlugin.getScript(), source);
+        assertEquals(validationPlugin.getScript().trim(), source);
 
         v3api.logout(sessionToken);
     }
@@ -232,8 +203,7 @@ public class ZipImportTest extends AbstractImportTest
 
         final String name = "dynamic.py";
         final String source = "1+1";
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
-                List.of(new ImportScript(name, source)));
+        final ImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("dynamic_script.zip"));
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -259,7 +229,7 @@ public class ZipImportTest extends AbstractImportTest
         final String pluginBareName = name.substring(0, name.lastIndexOf("."));
 
         assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
-        assertEquals(plugin.getScript(), source);
+        assertEquals(plugin.getScript().trim(), source);
 
         v3api.logout(sessionToken);
     }

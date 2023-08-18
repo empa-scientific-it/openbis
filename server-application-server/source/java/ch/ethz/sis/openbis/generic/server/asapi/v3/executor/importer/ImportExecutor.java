@@ -44,13 +44,13 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 public class ImportExecutor implements IImportExecutor
 {
 
-    private static final String SCRIPTS_FOLDER_NAME = "scripts";
+    private static final String ZIP_PATH_SEPARATOR = "/";
+
+    private static final String SCRIPTS_FOLDER_NAME = "scripts" + ZIP_PATH_SEPARATOR;
 
     private static final String XLS_EXTENSION = "." + "xls";
 
     private static final String XLSX_EXTENSION = "." + "xlsx";
-
-    private static final String ZIP_PATH_SEPARATOR = "/";
 
     private static final long DATA_LIMIT = 104857600L;
 
@@ -102,9 +102,9 @@ public class ImportExecutor implements IImportExecutor
                                 {
                                     throw UserFailureException.fromTemplate("More than one XLS file found in the root of the imported ZIP file.");
                                 }
-                            } else if (entryName.startsWith(SCRIPTS_FOLDER_NAME + ZIP_PATH_SEPARATOR))
+                            } else if (entryName.startsWith(SCRIPTS_FOLDER_NAME))
                             {
-                                scripts.put(entryName.substring((SCRIPTS_FOLDER_NAME + ZIP_PATH_SEPARATOR).length()), new String(zip.readAllBytes()));
+                                scripts.put(entryName.substring(SCRIPTS_FOLDER_NAME.length()), new String(zip.readAllBytes()));
                             } else
                             {
                                 throw UserFailureException.fromTemplate(
