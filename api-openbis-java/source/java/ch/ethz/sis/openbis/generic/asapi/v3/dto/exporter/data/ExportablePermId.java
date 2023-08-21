@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 import java.io.Serializable;
 import java.util.Objects;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -46,6 +47,12 @@ public class ExportablePermId implements Serializable
     public ObjectPermId getPermId()
     {
         return permId;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("exportableKind", exportableKind).append("permId", permId).toString();
     }
 
 }

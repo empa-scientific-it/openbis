@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.ImportScript")
@@ -44,6 +45,12 @@ public class ImportScript implements Serializable
     public String getSource()
     {
         return source;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("name", name).append("source", source).toString();
     }
 
 }

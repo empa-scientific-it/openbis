@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.ZipImportData")
@@ -43,6 +44,12 @@ public class ZipImportData implements Serializable, ImportData
     public byte[] getFile()
     {
         return file;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("format", format).toString();
     }
 
 }

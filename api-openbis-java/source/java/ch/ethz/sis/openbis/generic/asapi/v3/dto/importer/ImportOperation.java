@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
 import java.io.Serializable;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
@@ -54,6 +55,12 @@ public class ImportOperation implements Serializable, IOperation
     public ImportOptions getImportOptions()
     {
         return importOptions;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("importData", importData).append("importOptions", importOptions).toString();
     }
 
 }

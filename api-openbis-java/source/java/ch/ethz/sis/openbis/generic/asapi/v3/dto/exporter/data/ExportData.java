@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 import java.io.Serializable;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.ExportData")
@@ -45,6 +46,12 @@ public class ExportData implements Serializable
     public ExportableFields getFields()
     {
         return fields;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("permIds", permIds).append("fields", fields).toString();
     }
 
 }

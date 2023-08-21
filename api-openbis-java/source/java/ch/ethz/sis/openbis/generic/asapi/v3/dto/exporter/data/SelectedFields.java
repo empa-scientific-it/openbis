@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 import java.io.Serializable;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -46,6 +47,12 @@ public class SelectedFields implements Serializable, ExportableFields
     public List<PropertyTypePermId> getProperties()
     {
         return properties;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("attributes", attributes).append("properties", properties).toString();
     }
 
 }

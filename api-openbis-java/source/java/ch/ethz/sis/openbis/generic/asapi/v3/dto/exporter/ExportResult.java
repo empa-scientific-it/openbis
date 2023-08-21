@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 import java.io.Serializable;
 import java.util.Collection;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.ExportResult")
@@ -45,6 +46,12 @@ public class ExportResult implements Serializable
     public Collection<String> getWarnings()
     {
         return warnings;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("downloadURL", downloadURL).append("warnings", warnings).toString();
     }
 
 }

@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 import java.io.Serializable;
 import java.util.Collection;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.UncompressedImportData")
@@ -52,6 +53,12 @@ public class UncompressedImportData implements Serializable, ImportData
     public Collection<ImportScript> getScripts()
     {
         return scripts;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("format", format).append("scripts", scripts).toString();
     }
 
 }

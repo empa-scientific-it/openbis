@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options;
 
 import java.io.Serializable;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.ImportOptions")
@@ -36,6 +37,12 @@ public class ImportOptions implements Serializable
     public ImportMode getMode()
     {
         return mode;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("mode", mode).toString();
     }
 
 }

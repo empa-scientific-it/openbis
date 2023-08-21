@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options;
 import java.io.Serializable;
 import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.ExportOptions")
@@ -62,6 +63,13 @@ public class ExportOptions implements Serializable
     public boolean isWithImportCompatibility()
     {
         return withImportCompatibility;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ObjectToString(this).append("formats", formats).append("xlsTextFormat", xlsTextFormat)
+                .append("withReferredTypes", withReferredTypes).append("withImportCompatibility", withImportCompatibility).toString();
     }
 
 }
