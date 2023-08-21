@@ -1220,10 +1220,12 @@ IEntityTypeHolder
 IEntityTypeId
 IEventId
 IExperimentId
+IExportableFields
 IExternalDmsId
 IFileFormatTypeId
 IGNORE_EXISTING
 IIdentifierHolder
+IImportData
 ILocatorTypeId
 IMaterialId
 IMetaDataUpdateHolder
@@ -2763,6 +2765,7 @@ withWebAppSettingsUsing
 withWildcards
 XLS
 XLSTextFormat
+XlsTextFormat
 XML
 YES
 ZipImportData
