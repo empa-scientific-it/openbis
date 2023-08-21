@@ -19,20 +19,15 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportScript;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
@@ -58,7 +53,7 @@ public class UncompressedImportTest extends AbstractImportTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -86,7 +81,7 @@ public class UncompressedImportTest extends AbstractImportTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -118,7 +113,7 @@ public class UncompressedImportTest extends AbstractImportTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -150,7 +145,7 @@ public class UncompressedImportTest extends AbstractImportTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
         try
@@ -169,7 +164,7 @@ public class UncompressedImportTest extends AbstractImportTest
 
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
                 List.of(new ImportScript(name, source)));
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
@@ -203,7 +198,7 @@ public class UncompressedImportTest extends AbstractImportTest
 
         final String name = "dynamic.py";
         final String source = "1+1";
-        final ImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
                 List.of(new ImportScript(name, source)));
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 

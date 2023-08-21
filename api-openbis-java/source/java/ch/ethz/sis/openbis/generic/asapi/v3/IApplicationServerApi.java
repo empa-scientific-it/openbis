@@ -86,7 +86,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -2259,7 +2259,7 @@ public interface IApplicationServerApi extends IRpcService
      */
     public List<String> createCodes(String sessionToken, String prefix, EntityKind entityKind, int count);
 
-    public void executeImport(String sessionToken, ImportData importData, ImportOptions importOptions);
+    public void executeImport(String sessionToken, IImportData importData, ImportOptions importOptions);
 
 //    public ExportResult executeExport(String sessionToken, ExportData exportData, ExportOptions exportOptions);
 

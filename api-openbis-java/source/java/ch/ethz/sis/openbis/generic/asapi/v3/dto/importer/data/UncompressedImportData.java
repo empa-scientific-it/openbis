@@ -23,7 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.UncompressedImportData")
-public class UncompressedImportData implements Serializable, ImportData
+public class UncompressedImportData implements Serializable, IImportData
 {
     private static final long serialVersionUID = 1L;
 

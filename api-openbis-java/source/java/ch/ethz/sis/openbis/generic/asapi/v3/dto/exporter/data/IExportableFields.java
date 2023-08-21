@@ -14,13 +14,13 @@
  *  limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
 import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.importer.ImportData")
-public abstract interface ImportData extends Serializable
+@JsonObject("as.dto.exporter.IExportableFields")
+public interface IExportableFields extends Serializable
 {
 }

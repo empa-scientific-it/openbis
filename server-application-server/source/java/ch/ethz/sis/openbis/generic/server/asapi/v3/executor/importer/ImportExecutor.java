@@ -28,7 +28,7 @@ import java.util.zip.ZipInputStream;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportScript;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ZipImportData;
@@ -57,7 +57,7 @@ public class ImportExecutor implements IImportExecutor
     @Override
     public void doImport(final IOperationContext context, final ImportOperation operation)
     {
-        final ImportData importData = operation.getImportData();
+        final IImportData importData = operation.getImportData();
 
         try
         {

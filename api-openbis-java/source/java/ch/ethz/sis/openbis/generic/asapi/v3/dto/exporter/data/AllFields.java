@@ -24,7 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.AllFields")
-public class AllFields implements Serializable, ExportableFields
+public class AllFields implements Serializable, IExportableFields
 {
 
     private static final long serialVersionUID = 1L;

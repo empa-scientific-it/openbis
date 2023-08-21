@@ -30,9 +30,9 @@ public class ExportData implements Serializable
 
     private final List<ExportablePermId> permIds;
 
-    private final ExportableFields fields;
+    private final IExportableFields fields;
 
-    public ExportData(final List<ExportablePermId> permIds, final ExportableFields fields)
+    public ExportData(final List<ExportablePermId> permIds, final IExportableFields fields)
     {
         this.permIds = permIds;
         this.fields = fields;
@@ -43,7 +43,7 @@ public class ExportData implements Serializable
         return permIds;
     }
 
-    public ExportableFields getFields()
+    public IExportableFields getFields()
     {
         return fields;
     }

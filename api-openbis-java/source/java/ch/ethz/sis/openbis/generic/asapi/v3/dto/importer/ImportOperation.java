@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -31,11 +31,11 @@ public class ImportOperation implements Serializable, IOperation
 
     private static final long serialVersionUID = 1L;
 
-    private final ImportData importData;
+    private final IImportData importData;
 
     private final ImportOptions importOptions;
 
-    public ImportOperation(final ImportData importData, final ImportOptions importOptions)
+    public ImportOperation(final IImportData importData, final ImportOptions importOptions)
     {
         this.importData = importData;
         this.importOptions = importOptions;
@@ -47,7 +47,7 @@ public class ImportOperation implements Serializable, IOperation
         return toString();
     }
 
-    public ImportData getImportData()
+    public IImportData getImportData()
     {
         return importData;
     }
