@@ -15,7 +15,7 @@
  *
  */
 
-define(["stjs", "as/dto/exporter/IExportableFields"], function (stjs, IExportableFields) {
+define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExportableFields) {
   var SelectedFields = function(attributes, properties) {
     this.attributes = attributes;
     this.properties = properties;
