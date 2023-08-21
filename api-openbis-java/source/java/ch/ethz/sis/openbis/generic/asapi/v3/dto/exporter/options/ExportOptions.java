@@ -55,12 +55,12 @@ public class ExportOptions implements Serializable
         return xlsTextFormat;
     }
 
-    public boolean isWithReferredTypes()
+    public Boolean isWithReferredTypes()
     {
         return withReferredTypes;
     }
 
-    public boolean isWithImportCompatibility()
+    public Boolean isWithImportCompatibility()
     {
         return withImportCompatibility;
     }

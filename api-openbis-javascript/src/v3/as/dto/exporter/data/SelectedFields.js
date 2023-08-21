@@ -15,7 +15,7 @@
  *
  */
 
-define(["stjs", "as/dto/exporter/IExportableFields"], function (stjs, ExportableFields) {
+define(["stjs", "as/dto/exporter/IExportableFields"], function (stjs, IExportableFields) {
   var SelectedFields = function(attributes, properties) {
     this.attributes = attributes;
     this.properties = properties;
@@ -23,8 +23,8 @@ define(["stjs", "as/dto/exporter/IExportableFields"], function (stjs, Exportable
 
   stjs.extend(
     SelectedFields,
-    ExportableFields,
-    [ExportableFields],
+    IExportableFields,
+    [IExportableFields],
     function (constructor, prototype) {
       prototype["@type"] = "as.dto.exporter.data.SelectedFields";
 

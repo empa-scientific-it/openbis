@@ -15,14 +15,14 @@
  *
  */
 
-define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, ExportableFields) {
+define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExportableFields) {
   var AllFields = function() {
   }
 
   stjs.extend(
     AllFields,
-    ExportableFields,
-    [ExportableFields],
+    IExportableFields,
+    [IExportableFields],
     function (constructor, prototype) {
       prototype["@type"] = "as.dto.exporter.data.AllFields";
 

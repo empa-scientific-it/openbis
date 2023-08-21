@@ -40,11 +40,11 @@ define(["stjs"], function (stjs) {
         return this.xlsTextFormat;
       };
 
-      prototype.getWithReferredTypes = function() {
+      prototype.isWithReferredTypes = function() {
         return this.withReferredTypes;
       };
 
-      prototype.getWithImportCompatibility = function() {
+      prototype.isWithImportCompatibility = function() {
         return this.withImportCompatibility;
       };
     },
