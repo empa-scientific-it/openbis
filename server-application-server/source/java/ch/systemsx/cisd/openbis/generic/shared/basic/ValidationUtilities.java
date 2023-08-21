@@ -15,6 +15,9 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 
 /**
@@ -28,11 +31,6 @@ public class ValidationUtilities
     /** A helper class for external hyperlink validation. */
     public static class HyperlinkValidationHelper
     {
-        // A complete regexp for hyperlink may be very complex like this one:
-        // http://internet.ls-la.net/folklore/url-regexpr.html
-        // We should rather use sth simple for "safe" hyperlink - with no <>()[]
-        /** a simple regular expression for "safe" hyperlinks */
-        private static final String HYPERLINK_REGEXP = "[^<>()\\[\\]]*";
 
         private static final String[] HYPERLINK_VALID_PROTOCOLS =
         { "http://", "https://", "ftp://" };
@@ -53,7 +51,14 @@ public class ValidationUtilities
         /** @return does given <var>string</var> contain a hyperlink value in a proper format */
         public static final boolean isFormatValid(String string)
         {
-            return string.matches(HyperlinkValidationHelper.HYPERLINK_REGEXP);
+            try {
+                new URL(string).toURI();
+                return true;
+            } catch (MalformedURLException e) {
+                return false;
+            } catch (URISyntaxException e) {
+                return false;
+            }
         }
 
         public static final String getValidProtocolsAsString()
