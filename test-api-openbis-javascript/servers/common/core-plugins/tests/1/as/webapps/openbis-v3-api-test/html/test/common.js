@@ -169,10 +169,10 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PersonalAccessTokenFetchOptions = dtos.PersonalAccessTokenFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
-        this.EventFetchOptions = dtos.EventFetchOptions;
-        this.EventSearchCriteria = dtos.EventSearchCriteria;
-        this.EventType = require('as/dto/event/EventType');
-        this.EntityType = require('as/dto/event/EntityType');
+		this.EventFetchOptions = dtos.EventFetchOptions;
+		this.EventSearchCriteria = dtos.EventSearchCriteria;
+		this.EventType = require('as/dto/event/EventType');
+		this.EntityType = require('as/dto/event/EntityType');
 		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
 		this.CustomASServiceFetchOptions = dtos.CustomASServiceFetchOptions;
 		this.CustomASServiceCode = dtos.CustomASServiceCode;
@@ -391,6 +391,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.OperationExecutionPermId = dtos.OperationExecutionPermId;
 		this.OperationExecutionSearchCriteria = dtos.OperationExecutionSearchCriteria;
 		this.OperationExecutionUpdate = dtos.OperationExecutionUpdate;
+
+		this.UncompressedImportData = dtos.UncompressedImportData;
+		this.ImportOptions = dtos.ImportOptions;
 
 		this.getDtos = function() {
 			return dtos;
