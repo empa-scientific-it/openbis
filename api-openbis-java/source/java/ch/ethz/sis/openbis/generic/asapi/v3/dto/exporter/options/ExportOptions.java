@@ -30,13 +30,13 @@ public class ExportOptions implements Serializable
 
     final Set<ExportFormat> formats;
 
-    final XLSTextFormat xlsTextFormat;
+    final XlsTextFormat xlsTextFormat;
 
     final Boolean withReferredTypes;
 
     final Boolean withImportCompatibility;
 
-    public ExportOptions(final Set<ExportFormat> formats, final XLSTextFormat xlsTextFormat, final Boolean withReferredTypes,
+    public ExportOptions(final Set<ExportFormat> formats, final XlsTextFormat xlsTextFormat, final Boolean withReferredTypes,
             final Boolean withImportCompatibility)
     {
         this.formats = formats;
@@ -50,7 +50,7 @@ public class ExportOptions implements Serializable
         return formats;
     }
 
-    public XLSTextFormat getXlsTextFormat()
+    public XlsTextFormat getXlsTextFormat()
     {
         return xlsTextFormat;
     }

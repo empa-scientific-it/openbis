@@ -18,8 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.options.XLSTextFormat")
-public enum XLSTextFormat
+@JsonObject("as.dto.exporter.options.XlsTextFormat")
+public enum XlsTextFormat
 {
 
     PLAIN,
