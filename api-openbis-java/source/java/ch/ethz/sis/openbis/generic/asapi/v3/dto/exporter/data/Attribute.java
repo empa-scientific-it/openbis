@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.Attribute")
+@JsonObject("as.dto.exporter.data.Attribute")
 public enum Attribute
 {
 

@@ -23,7 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportablePermId")
+@JsonObject("as.dto.exporter.data.ExportablePermId")
 public class ExportablePermId implements Serializable
 {
 

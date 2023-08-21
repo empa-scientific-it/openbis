@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ImportFormat")
+@JsonObject("as.dto.importer.data.ImportFormat")
 public enum ImportFormat
 {
 

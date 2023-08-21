@@ -22,7 +22,7 @@ import java.io.Serializable;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ImportOperationResult")
+@JsonObject("as.dto.importer.ImportOperationResult")
 public class ImportOperationResult implements Serializable, IOperationResult
 {
 

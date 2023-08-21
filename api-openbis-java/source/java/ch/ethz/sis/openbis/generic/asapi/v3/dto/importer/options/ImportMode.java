@@ -17,7 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ImportMode")
+@JsonObject("as.dto.importer.options.ImportMode")
 public enum ImportMode
 {
 

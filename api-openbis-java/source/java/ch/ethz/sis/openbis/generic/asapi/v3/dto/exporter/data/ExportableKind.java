@@ -17,7 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportableKind")
+@JsonObject("as.dto.exporter.data.ExportableKind")
 public enum ExportableKind
 {
 

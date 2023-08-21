@@ -18,7 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportFormat")
+@JsonObject("as.dto.exporter.options.ExportFormat")
 public enum ExportFormat
 {
 

@@ -21,7 +21,7 @@ import java.io.Serializable;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.importer.ImportOptions")
+@JsonObject("as.dto.importer.options.ImportOptions")
 public class ImportOptions implements Serializable
 {
 

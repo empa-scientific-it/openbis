@@ -23,7 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.AllFields")
+@JsonObject("as.dto.exporter.data.AllFields")
 public class AllFields implements Serializable, IExportableFields
 {
 

@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.IExportableFields")
+@JsonObject("as.dto.exporter.data.IExportableFields")
 public interface IExportableFields extends Serializable
 {
 }

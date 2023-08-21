@@ -22,7 +22,7 @@ import java.util.Set;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.exporter.ExportOptions")
+@JsonObject("as.dto.exporter.options.ExportOptions")
 public class ExportOptions implements Serializable
 {
 

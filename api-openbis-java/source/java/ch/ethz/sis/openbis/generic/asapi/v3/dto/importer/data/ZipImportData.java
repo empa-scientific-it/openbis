@@ -21,7 +21,7 @@ import java.io.Serializable;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.importer.ZipImportData")
+@JsonObject("as.dto.importer.data.ZipImportData")
 public class ZipImportData implements Serializable, IImportData
 {
     private static final long serialVersionUID = 1L;
