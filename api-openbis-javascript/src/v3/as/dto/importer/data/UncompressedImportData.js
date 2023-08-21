@@ -17,7 +17,8 @@
 
 define(["stjs", "as/dto/importer/data/IImportData"],
   function (stjs, IImportData) {
-    var UncompressedImportData = function(file, scripts) {
+    var UncompressedImportData = function(format, file, scripts) {
+      this.format = format;
       this.file = file;
       this.scripts = scripts;
     }
@@ -30,6 +31,10 @@ define(["stjs", "as/dto/importer/data/IImportData"],
         prototype["@type"] = "as.dto.importer.data.UncompressedImportData";
 
         constructor.serialVersionUID = 1;
+
+        prototype.getFormat = function() {
+          return this.format;
+        };
 
         prototype.getFile = function() {
           return this.file;
