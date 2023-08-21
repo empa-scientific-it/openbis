@@ -16,12 +16,13 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.ExportOptions")
-public class ExportOptions
+public class ExportOptions implements Serializable
 {
 
     private static final long serialVersionUID = 1L;

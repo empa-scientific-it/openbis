@@ -55,6 +55,7 @@ Aggregation Service Execution Options
 Aggregation Service Fetch Options
 Aggregation Service Search Criteria
 Aggregation Service Sort Options
+AllFields
 AND
 ANY_FIELD
 ANY_PROPERTY
@@ -94,6 +95,7 @@ AttachmentFileName
 AttachmentListUpdateValue
 AttachmentSortOptions
 ATTRIBUTE
+Attribute
 Authorization Group
 Authorization Group Creation
 Authorization Group Deletion Options
@@ -233,6 +235,7 @@ Custom AS Service Fetch Options
 Custom AS Service Search Criteria
 Custom AS Service Sort Options
 custom Import
+DATA
 Data Set Archive Options
 Data Set Lock Options
 Data Set Type Deletion Options
@@ -469,6 +472,7 @@ Execute Sql Operation
 Execute Sql Operation Result
 ExecuteCustomASServiceOperation
 ExecuteCustomASServiceOperationResult
+executeImport
 executeOperations
 Execution Options
 EXPERIMENT
@@ -490,6 +494,13 @@ ExperimentTypeCreation
 ExperimentTypeFetchOptions
 ExperimentTypeSortOptions
 ExperimentUpdate
+ExportableFields
+ExportableKind
+ExportablePermId
+ExportData
+ExportFormat
+ExportOptions
+ExportResult
 External Code Search Criteria
 External Dms Search Criteria
 ExternalDms
@@ -751,6 +762,7 @@ getAddressType
 getAllowProjectSamples
 getArchivingRequested
 getAttachments
+getAttributes
 getAuthor
 getAuthorization Groups
 GetAuthorization Groups Operation
@@ -808,6 +820,7 @@ getDetailsAvailability
 getDetailsAvailabilityTime
 getDisallowEntityCreations
 getDownloadUrl
+getDownloadURL
 getECMAScriptEngine
 getEmail
 getEmails
@@ -823,6 +836,7 @@ getExperiments
 getExperimentsByType
 GetExperimentsOperation
 GetExperimentsOperationResult
+getExportableKind
 getExternalCode
 getExternalDataManagementSystems
 getExternalDms
@@ -837,8 +851,10 @@ getFetchedFieldsScore
 getFetchOptions
 getField
 getFieldName
+getFields
 getFieldType
 getFieldValue
+getFile
 getFileFormatType
 getFileFormatTypeId
 getFileLength
@@ -848,6 +864,7 @@ getFilePath
 getFinishDate
 getFirstName
 getFormat
+getFormats
 getFrom
 getGeneratedCodePrefix
 getGitCommitHash
@@ -860,7 +877,9 @@ getHyperlinkProperty
 getId
 getIdentifier
 getIgnoreVersioning
+getImportData
 getImportMode
+getImportOptions
 getInitialValueForExistingEntities
 getInputStream
 getIntegerArrayProperty
@@ -891,6 +910,7 @@ GetMaterialsOperationResult
 getMessage
 getMetaData
 getMetadataCreation
+getMode
 getModificationDate
 getModifier
 getMultilineVarcharProperty
@@ -967,6 +987,7 @@ getSamples
 getSamples
 GetSamplesOperation
 GetSamplesOperationResult
+getScripts
 getSearchResult
 getSemanticAnnotationId
 getSemanticAnnotations
@@ -983,6 +1004,7 @@ getShareId
 getSize
 getSortBy
 getSortings
+getSource
 getSpace
 getSpaceId
 getSpaces
@@ -1028,6 +1050,8 @@ getVersion
 getVocabulary
 GetVocabularyTermsOperation
 GetVocabularyTermsOperationResult
+getWarnings
+getXlsTextFormat
 getXmlProperty
 GIT
 GitCommitHashSearchCriteria
@@ -1205,10 +1229,14 @@ IMaterialId
 IMetaDataUpdateHolder
 IModificationDateHolder
 IModifierHolder
+ImportData
+ImportFormat
+ImportMode
 ImportModes
 ImportOperation
 ImportOperationResult
 ImportOptions
+ImportScript
 indent
 indexOf
 INSTANCE
@@ -1306,6 +1334,8 @@ isStorageConfirmation
 isSubcodeUnique
 IStorageFormatId
 isUseWildcards
+isWithImportCompatibility
+isWithReferredTypes
 ITagId
 ITagsHolder
 iterator
@@ -1466,6 +1496,7 @@ PARENTS
 PARTIAL_MATCH_CODE_BOOST
 PARTIAL_MATCH_PROPERTY_BOOST
 PathSearchCriteria
+PDF
 PERM_ID
 PERMANENT
 permId
@@ -1502,6 +1533,7 @@ PhysicalDataCreation
 PhysicalDataFetchOptions
 PhysicalDataSortOptions
 PhysicalDataUpdate
+PLAIN
 Plugin
 Plugin Creation
 Plugin Deletion Options
@@ -1617,6 +1649,7 @@ retainAll
 revertDeletions
 RevertDeletionsOperation
 RevertDeletionsOperationResult
+RICH
 Right
 Rights
 Rights Fetch Options
@@ -1789,6 +1822,7 @@ SearchTagsOperation
 SearchTagsOperationResult
 SearchVocabularyTermsOperation
 SearchVocabularyTermsOperationResult
+SelectedFields
 SemanticAnnotation
 SemanticAnnotationCreation
 SemanticAnnotationDeletionOptions
@@ -2329,6 +2363,7 @@ UNARCHIVE_PENDING
 UnarchiveDataSetsOperation
 UnarchiveDataSetsOperationResult
 UnauthorizedObjectAccessException
+UncompressedImportData
 UNDEFINED
 UNKNOWN
 Unknown Related Object Id
@@ -2433,6 +2468,7 @@ Vocabulary Term Search Criteria
 Vocabulary Term Update
 Vocabulary Update
 VOCABULARY_TERM
+VOCABULARY_TYPE
 VocabularyFetchOptions
 VocabularyFieldSearchCriteria
 VocabularyPermId
@@ -2725,5 +2761,8 @@ withVocabularyUsing
 withWebAppSettings
 withWebAppSettingsUsing
 withWildcards
+XLS
+XLSTextFormat
 XML
 YES
+ZipImportData
