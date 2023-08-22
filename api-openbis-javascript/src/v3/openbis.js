@@ -2336,7 +2336,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
-		this.executeImport = function(prefix, importData, importOptions) {
+		this.executeImport = function(importData, importOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,

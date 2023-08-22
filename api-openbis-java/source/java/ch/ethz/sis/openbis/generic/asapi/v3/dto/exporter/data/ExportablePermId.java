@@ -29,9 +29,14 @@ public class ExportablePermId implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private final ExportableKind exportableKind;
+    private ExportableKind exportableKind;
 
-    private final ObjectPermId permId;
+    private ObjectPermId permId;
+
+    @SuppressWarnings("unused")
+    public ExportablePermId()
+    {
+    }
 
     public ExportablePermId(final ExportableKind exportableKind, final ObjectPermId permId)
     {

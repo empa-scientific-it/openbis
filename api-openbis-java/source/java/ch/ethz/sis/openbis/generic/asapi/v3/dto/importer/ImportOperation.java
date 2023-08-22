@@ -31,9 +31,14 @@ public class ImportOperation implements Serializable, IOperation
 
     private static final long serialVersionUID = 1L;
 
-    private final IImportData importData;
+    private IImportData importData;
 
-    private final ImportOptions importOptions;
+    private ImportOptions importOptions;
+
+    @SuppressWarnings("unused")
+    public ImportOperation()
+    {
+    }
 
     public ImportOperation(final IImportData importData, final ImportOptions importOptions)
     {

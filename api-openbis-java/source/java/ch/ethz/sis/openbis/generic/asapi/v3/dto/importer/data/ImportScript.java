@@ -31,6 +31,11 @@ public class ImportScript implements Serializable
 
     private String source;
 
+    @SuppressWarnings("unused")
+    public ImportScript()
+    {
+    }
+
     public ImportScript(final String name, final String source)
     {
         this.name = name;

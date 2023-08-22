@@ -28,9 +28,14 @@ public class ExportData implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private final List<ExportablePermId> permIds;
+    private List<ExportablePermId> permIds;
 
-    private final IExportableFields fields;
+    private IExportableFields fields;
+
+    @SuppressWarnings("unused")
+    public ExportData()
+    {
+    }
 
     public ExportData(final List<ExportablePermId> permIds, final IExportableFields fields)
     {

@@ -26,9 +26,14 @@ public class ZipImportData implements Serializable, IImportData
 {
     private static final long serialVersionUID = 1L;
 
-    private final ImportFormat format;
+    private ImportFormat format;
 
-    private final byte[] file;
+    private byte[] file;
+
+    @SuppressWarnings("unused")
+    public ZipImportData()
+    {
+    }
 
     public ZipImportData(final ImportFormat format, final byte[] file)
     {

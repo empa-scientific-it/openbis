@@ -29,9 +29,14 @@ public class SelectedFields implements Serializable, IExportableFields
 
     private static final long serialVersionUID = 1L;
 
-    private final List<Attribute> attributes;
+    private List<Attribute> attributes;
 
-    private final List<PropertyTypePermId> properties;
+    private List<PropertyTypePermId> properties;
+
+    @SuppressWarnings("unused")
+    public SelectedFields()
+    {
+    }
 
     public SelectedFields(final List<Attribute> attributes, final List<PropertyTypePermId> properties)
     {

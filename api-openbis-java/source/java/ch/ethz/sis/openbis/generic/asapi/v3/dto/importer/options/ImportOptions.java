@@ -27,7 +27,12 @@ public class ImportOptions implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private final ImportMode mode;
+    private ImportMode mode;
+
+    @SuppressWarnings("unused")
+    public ImportOptions()
+    {
+    }
 
     public ImportOptions(final ImportMode mode)
     {

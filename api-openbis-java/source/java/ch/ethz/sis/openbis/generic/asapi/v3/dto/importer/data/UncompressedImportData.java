@@ -27,11 +27,16 @@ public class UncompressedImportData implements Serializable, IImportData
 {
     private static final long serialVersionUID = 1L;
 
-    private final ImportFormat format;
+    private ImportFormat format;
 
-    private final byte[] file;
+    private byte[] file;
 
-    private final Collection<ImportScript> scripts;
+    private Collection<ImportScript> scripts;
+
+    @SuppressWarnings("unused")
+    public UncompressedImportData()
+    {
+    }
 
     public UncompressedImportData(final ImportFormat format, final byte[] file, final Collection<ImportScript> scripts)
     {
