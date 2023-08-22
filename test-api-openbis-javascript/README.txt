@@ -56,7 +56,7 @@ Here are some tips for speed up development:
   
   cp -R <root folder>/server-application-server/source/java/ch/systemsx/cisd/openbis/public/resources/api <root folder>/test-api-openbis-javascript/targets/gradle/webapps/webapp/resources/
   
-* In case of changes of Java classes the a stop and restart (using ./gradlew test-api-openbis-javascript:clean test-api-openbis-javascript:test) is needed.
+* In case of changes of Java classes stop and restart (using ./gradlew test-api-openbis-javascript:clean test-api-openbis-javascript:test) is needed.
   The test server is available much faster after outcommenting the following lines in build.gradle of 
   project core-plugin-openbis:
   

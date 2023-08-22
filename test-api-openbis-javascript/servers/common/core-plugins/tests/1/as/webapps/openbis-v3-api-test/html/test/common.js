@@ -392,8 +392,27 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.OperationExecutionSearchCriteria = dtos.OperationExecutionSearchCriteria;
 		this.OperationExecutionUpdate = dtos.OperationExecutionUpdate;
 
+		this.AllFields = dtos.AllFields;
+		this.Attribute = dtos.Attribute;
+		this.ExportableKind = dtos.ExportableKind;
+		this.ExportablePermId = dtos.ExportablePermId;
+		this.ExportData = dtos.ExportData;
+		this.IExportableFields = dtos.IExportableFields;
+		this.SelectedFields = dtos.SelectedFields;
+		this.ExportFormat = dtos.ExportFormat;
+		this.ExportOptions = dtos.ExportOptions;
+		this.XlsTextFormat = dtos.XlsTextFormat;
+		this.ExportResult = dtos.ExportResult;
+
+		this.IImportData = dtos.IImportData;
+		this.ImportFormat = dtos.ImportFormat;
+		this.ImportScript = dtos.ImportScript;
 		this.UncompressedImportData = dtos.UncompressedImportData;
+		this.ZipImportData = dtos.ZipImportData;
+		this.ImportMode = dtos.ImportMode;
 		this.ImportOptions = dtos.ImportOptions;
+		this.ImportOperation = dtos.ImportOperation;
+		this.ImportOperationResult = dtos.ImportOperationResult;
 
 		this.getDtos = function() {
 			return dtos;

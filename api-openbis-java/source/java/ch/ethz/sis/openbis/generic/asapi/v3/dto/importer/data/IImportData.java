@@ -21,6 +21,6 @@ import java.io.Serializable;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.importer.data.IImportData")
-public abstract interface IImportData extends Serializable
+public interface IImportData extends Serializable
 {
 }
