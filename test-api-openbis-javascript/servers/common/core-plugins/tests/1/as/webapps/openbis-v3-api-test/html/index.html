@@ -15,7 +15,7 @@
 	require.paths["test/qunit-report"] = testPath + "/lib/qunit/js/qunit-reporter-junit";
 	require.paths["test/naturalsort"] = testPath + "/lib/naturalsort/js/naturalSort";
 
-	require.urlArgs = 'now=' + Date.now();
+	// require.urlArgs = 'now=' + Date.now();
 
 	require.shim["test/qunit-report"] = {
 		deps : [ 'test/qunit' ]

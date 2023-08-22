@@ -110,15 +110,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         var fCheck = function(facade) {
           var criteria = new c.VocabularySearchCriteria();
           criteria.withCode().thatEquals("VOCAB");
-          facade.searchVocabularies(criteria, c.createVocabularyFetchOptions()).then(function(results) {
-            c.assertEqual(results.getTotalCount(), 3)
-            var objects = results.getObjects();
+          criteria.withTerms();
+          return facade.searchVocabularies(criteria, c.createVocabularyFetchOptions()).then(function(results) {
+            c.assertEqual(results.getTotalCount(), 1)
+            var vocabulary = (results.getObjects())[0];
 
-            var codes = objects.map(function(object) {
+            c.assertEqual(vocabulary.code, "VOCAB");
+
+            var terms = vocabulary.getTerms();
+
+            c.assertEqual(terms.length, 3)
+
+            var codes = terms.map(function(object) {
               return object.code;
             }).sort();
 
-            var labels = objects.map(function(object) {
+            var labels = terms.map(function(object) {
               return object.label;
             }).sort();
 
@@ -129,6 +136,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
             c.assertEqual(labels[0], "A");
             c.assertEqual(labels[1], "B");
             c.assertEqual(labels[2], "C");
+
+            // var options = new c.VocabularyTermDeletionOptions();
+            // options.setReason("test reason");
+            // facade.deleteVocabularyTerms([ "TERM_A", "TERM_B", "TERM_C" ], options);
+            //
+            // var options = new c.VocabularyDeletionOptions();
+            // options.setReason("test reason");
+            // facade.deleteVocabularies([ "VOCAB" ], options);
           }).fail(function(error) {
             c.fail("Error searching vocabularies. error=" + error.message);
           });

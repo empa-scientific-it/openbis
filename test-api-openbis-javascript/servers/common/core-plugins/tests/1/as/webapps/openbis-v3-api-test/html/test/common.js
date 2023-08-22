@@ -220,6 +220,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PluginUpdate = dtos.PluginUpdate;
 		this.WebAppSettings = dtos.WebAppSettings;
 
+		this.VocabularyDeletionOptions = dtos.VocabularyDeletionOptions;
+		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
+
 		// operations
 
 		this.GetSessionInformationOperation = dtos.GetSessionInformationOperation;
