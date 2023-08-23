@@ -34,7 +34,9 @@ define(["stjs"], function (stjs) {
         return this.mode;
       };
     },
-    {}
+    {
+      mode: "ImportMode"
+    }
   );
 
   return ImportOptions;

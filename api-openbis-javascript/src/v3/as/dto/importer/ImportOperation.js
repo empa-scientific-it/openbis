@@ -45,7 +45,10 @@ define(["stjs", "as/dto/common/operation/IOperation"],
           return this.importOptions;
         };
       },
-      {}
+      {
+        importData: "IImportData",
+        importOptions: "ImportOptions"
+      }
     );
 
     return ImportOperation;

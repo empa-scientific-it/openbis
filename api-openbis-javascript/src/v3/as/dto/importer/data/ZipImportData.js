@@ -41,7 +41,10 @@ define(["stjs", "as/dto/importer/data/IImportData"],
           return this.file;
         };
       },
-      {}
+      {
+        format: "ImportFormat",
+        file: "byte[]"
+      }
     );
 
     return ZipImportData;

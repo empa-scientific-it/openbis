@@ -40,7 +40,13 @@ define(["stjs"], function (stjs) {
         return this.fields;
       };
     },
-    {}
+    {
+      permIds: {
+        name: "List",
+        arguments: ["ExportablePermId"]
+      },
+      fields: "IExportableFields"
+    }
   );
 
   return ExportData;

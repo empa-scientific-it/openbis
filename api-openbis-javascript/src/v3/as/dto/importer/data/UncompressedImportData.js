@@ -47,7 +47,14 @@ define(["stjs", "as/dto/importer/data/IImportData"],
           return this.scripts;
         };
       },
-      {}
+      {
+        format: "ImportFormat",
+        file: "byte[]",
+        scripts: {
+          name: "Collection",
+          arguments: ["ImportScript"]
+        }
+      }
     );
 
     return UncompressedImportData;

@@ -40,7 +40,10 @@ define(["stjs"], function (stjs) {
         return this.permId;
       };
     },
-    {}
+    {
+      exportableKind: "ExportableKind",
+      permId: "ObjectPermId"
+    }
   );
 
   return ExportablePermId;

@@ -40,7 +40,16 @@ define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExpo
         return this.properties;
       };
     },
-    {}
+    {
+      attributes: {
+        name: "List",
+        arguments: ["Attribute"]
+      },
+      properties: {
+        name : "List",
+        arguments : ["PropertyTypePermId"]
+      }
+    }
   );
 
   return SelectedFields;

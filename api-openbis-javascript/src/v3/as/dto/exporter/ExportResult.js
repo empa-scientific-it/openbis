@@ -39,7 +39,13 @@ define(["stjs"], function (stjs) {
         return this.warnings;
       };
     },
-    {}
+    {
+      downloadUrl: "String",
+      warnings: {
+        name: "Collection",
+        arguments: ["String"]
+      }
+    }
   );
   return ExportResult;
 });

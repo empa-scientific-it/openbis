@@ -52,7 +52,15 @@ define(["stjs"], function (stjs) {
         return this.withImportCompatibility;
       };
     },
-    {}
+    {
+      formats: {
+        name: "Set",
+        arguments: ["ExportFormat"]
+      },
+      xlsTextFormat: "XlsTextFormat",
+      withReferredTypes: "Boolean",
+      withImportCompatibility: "Boolean"
+    }
   );
 
   return SelectedFields;
