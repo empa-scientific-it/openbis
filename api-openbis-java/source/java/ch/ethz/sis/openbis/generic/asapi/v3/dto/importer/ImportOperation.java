@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
@@ -31,8 +34,10 @@ public class ImportOperation implements Serializable, IOperation
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private IImportData importData;
 
+    @JsonProperty
     private ImportOptions importOptions;
 
     @SuppressWarnings("unused")
@@ -52,11 +57,13 @@ public class ImportOperation implements Serializable, IOperation
         return toString();
     }
 
+    @JsonIgnore
     public IImportData getImportData()
     {
         return importData;
     }
 
+    @JsonIgnore
     public ImportOptions getImportOptions()
     {
         return importOptions;

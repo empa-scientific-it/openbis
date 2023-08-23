@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,8 +31,10 @@ public class ExportResult implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     final String downloadURL;
 
+    @JsonProperty
     final Collection<String> warnings;
 
     public ExportResult(final String downloadURL, final Collection<String> warnings)
@@ -38,11 +43,13 @@ public class ExportResult implements Serializable
         this.warnings = warnings;
     }
 
+    @JsonIgnore
     public String getDownloadURL()
     {
         return downloadURL;
     }
 
+    @JsonIgnore
     public Collection<String> getWarnings()
     {
         return warnings;

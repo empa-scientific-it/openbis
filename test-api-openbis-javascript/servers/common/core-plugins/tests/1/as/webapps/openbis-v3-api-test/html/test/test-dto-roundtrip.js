@@ -43,13 +43,24 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				actionFacade = facade;
 
 				return _.chain(
-						c.getDtos()
-					)
+					c.getDtos()
+				)
 					.map(function(proto) {
-						return new c.CustomASServiceExecutionOptions().withParameter("object", instantiate(proto));
+						try {
+							return new c.CustomASServiceExecutionOptions()
+								.withParameter("object", instantiate(proto));
+						} catch (error) {
+							c.fail(error.message);
+							c.finish();
+						}
 					})
 					.map(function(options) {
-						return facade.executeCustomASService(id, options);
+							try {
+								return facade.executeCustomASService(id, options);
+							} catch (error) {
+								c.fail(error.message);
+								c.finish();
+							}
 					})
 					.value();
 			}

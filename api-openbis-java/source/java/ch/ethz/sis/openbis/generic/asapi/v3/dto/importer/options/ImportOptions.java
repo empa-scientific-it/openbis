@@ -18,6 +18,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -27,6 +30,7 @@ public class ImportOptions implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private ImportMode mode;
 
     @SuppressWarnings("unused")
@@ -39,6 +43,7 @@ public class ImportOptions implements Serializable
         this.mode = mode;
     }
 
+    @JsonIgnore
     public ImportMode getMode()
     {
         return mode;

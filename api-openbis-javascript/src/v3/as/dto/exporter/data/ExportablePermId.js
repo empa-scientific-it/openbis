@@ -17,9 +17,7 @@
 
 define(["stjs"], function (stjs) {
   var ExportablePermId = function(exportableKind, permId) {
-    exportableKind.constructor(); // Assert that the value is defined
     this.exportableKind = exportableKind;
-    permId.constructor(); // Assert that the value is defined
     this.permId = permId;
   }
 

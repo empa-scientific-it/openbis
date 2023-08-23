@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,12 +31,16 @@ public class ExportOptions implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     final Set<ExportFormat> formats;
 
+    @JsonProperty
     final XlsTextFormat xlsTextFormat;
 
+    @JsonProperty
     final Boolean withReferredTypes;
 
+    @JsonProperty
     final Boolean withImportCompatibility;
 
     public ExportOptions(final Set<ExportFormat> formats, final XlsTextFormat xlsTextFormat, final Boolean withReferredTypes,
@@ -45,21 +52,25 @@ public class ExportOptions implements Serializable
         this.withImportCompatibility = withImportCompatibility;
     }
 
+    @JsonIgnore
     public Set<ExportFormat> getFormats()
     {
         return formats;
     }
 
+    @JsonIgnore
     public XlsTextFormat getXlsTextFormat()
     {
         return xlsTextFormat;
     }
 
+    @JsonIgnore
     public Boolean isWithReferredTypes()
     {
         return withReferredTypes;
     }
 
+    @JsonIgnore
     public Boolean isWithImportCompatibility()
     {
         return withImportCompatibility;

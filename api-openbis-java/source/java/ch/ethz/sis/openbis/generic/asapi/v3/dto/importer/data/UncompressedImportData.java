@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -27,10 +30,13 @@ public class UncompressedImportData implements Serializable, IImportData
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private ImportFormat format;
 
+    @JsonProperty
     private byte[] file;
 
+    @JsonProperty
     private Collection<ImportScript> scripts;
 
     @SuppressWarnings("unused")
@@ -45,16 +51,19 @@ public class UncompressedImportData implements Serializable, IImportData
         this.scripts = scripts;
     }
 
+    @JsonIgnore
     public ImportFormat getFormat()
     {
         return format;
     }
 
+    @JsonIgnore
     public byte[] getFile()
     {
         return file;
     }
 
+    @JsonIgnore
     public Collection<ImportScript> getScripts()
     {
         return scripts;

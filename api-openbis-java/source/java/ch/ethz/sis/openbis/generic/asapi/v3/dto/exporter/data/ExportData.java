@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,8 +31,10 @@ public class ExportData implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private List<ExportablePermId> permIds;
 
+    @JsonProperty
     private IExportableFields fields;
 
     @SuppressWarnings("unused")
@@ -43,11 +48,13 @@ public class ExportData implements Serializable
         this.fields = fields;
     }
 
+    @JsonIgnore
     public List<ExportablePermId> getPermIds()
     {
         return permIds;
     }
 
+    @JsonIgnore
     public IExportableFields getFields()
     {
         return fields;

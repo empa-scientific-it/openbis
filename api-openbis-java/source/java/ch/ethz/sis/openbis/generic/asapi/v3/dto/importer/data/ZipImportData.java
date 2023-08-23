@@ -18,6 +18,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -26,8 +29,10 @@ public class ZipImportData implements Serializable, IImportData
 {
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private ImportFormat format;
 
+    @JsonProperty
     private byte[] file;
 
     @SuppressWarnings("unused")
@@ -41,11 +46,13 @@ public class ZipImportData implements Serializable, IImportData
         this.file = file;
     }
 
+    @JsonIgnore
     public ImportFormat getFormat()
     {
         return format;
     }
 
+    @JsonIgnore
     public byte[] getFile()
     {
         return file;

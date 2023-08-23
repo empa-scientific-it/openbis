@@ -18,6 +18,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -27,8 +30,10 @@ public class ImportScript implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private String name;
 
+    @JsonProperty
     private String source;
 
     @SuppressWarnings("unused")
@@ -42,11 +47,13 @@ public class ImportScript implements Serializable
         this.source = source;
     }
 
+    @JsonIgnore
     public String getName()
     {
         return name;
     }
 
+    @JsonIgnore
     public String getSource()
     {
         return source;
