@@ -30,6 +30,8 @@ define(["stjs"],
         prototype["@type"] = "as.dto.importer.data.ImportScript";
 
         constructor.serialVersionUID = 1;
+        prototype.name = null;
+        prototype.source = null;
 
         prototype.getName = function() {
           return this.name;

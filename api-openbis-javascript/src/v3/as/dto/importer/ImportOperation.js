@@ -30,6 +30,8 @@ define(["stjs", "as/dto/common/operation/IOperation"],
         prototype["@type"] = "as.dto.importer.ImportOperation";
 
         constructor.serialVersionUID = 1;
+        prototype.importData = null;
+        prototype.importOptions = null;
 
         prototype.getMessage = function() {
           return "ImportOperation";

@@ -30,6 +30,8 @@ define(["stjs", "as/dto/importer/data/IImportData"],
         prototype["@type"] = "as.dto.importer.data.ZipImportData";
 
         constructor.serialVersionUID = 1;
+        prototype.format = null;
+        prototype.file = null;
 
         prototype.getFormat = function() {
           return this.format;

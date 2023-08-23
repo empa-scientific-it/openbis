@@ -28,6 +28,8 @@ define(["stjs"], function (stjs) {
       prototype["@type"] = "as.dto.exporter.ExportResult";
 
       constructor.serialVersionUID = 1;
+      prototype.downloadUrl = null;
+      prototype.warnings = null;
 
       prototype.getDownloadURL = function() {
         return this.downloadURL;

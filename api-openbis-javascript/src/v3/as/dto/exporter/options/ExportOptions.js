@@ -31,6 +31,10 @@ define(["stjs"], function (stjs) {
       prototype["@type"] = "as.dto.exporter.options.SelectedFields";
 
       constructor.serialVersionUID = 1;
+      prototype.formats = null;
+      prototype.xlsTextFormat = null;
+      prototype.withReferredTypes = null;
+      prototype.withImportCompatibility = null;
 
       prototype.getFormats = function() {
         return this.formats;

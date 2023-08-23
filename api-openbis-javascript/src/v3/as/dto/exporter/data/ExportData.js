@@ -29,6 +29,8 @@ define(["stjs"], function (stjs) {
       prototype["@type"] = "as.dto.exporter.data.ExportData";
 
       constructor.serialVersionUID = 1;
+      prototype.permIds = null;
+      prototype.fields = null;
 
       prototype.getPermIds = function() {
         return this.permIds;

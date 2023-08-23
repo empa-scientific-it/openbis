@@ -28,6 +28,7 @@ define(["stjs"], function (stjs) {
       prototype["@type"] = "as.dto.importer.options.ImportOptions";
 
       constructor.serialVersionUID = 1;
+      prototype.mode = null;
 
       prototype.getMode = function() {
         return this.mode;

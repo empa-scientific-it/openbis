@@ -29,6 +29,8 @@ define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExpo
       prototype["@type"] = "as.dto.exporter.data.SelectedFields";
 
       constructor.serialVersionUID = 1;
+      prototype.attributes = null;
+      prototype.properties = null;
 
       prototype.getAttributes = function() {
         return this.attributes;
