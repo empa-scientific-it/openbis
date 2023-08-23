@@ -59,6 +59,7 @@ function SampleField(isRequired,
 		};
 		var newOption = new Option(data.text, data.id, true, true);
 		newOption.data = data;
+		newOption.title = data.text;
 		$plainSelect.append(newOption).trigger('change');
 	}
 
@@ -243,6 +244,18 @@ function SampleField(isRequired,
                 selectOptions['maximumSelectionLength'] = 1;
             } else {
                 selectOptions['closeOnSelect'] = false;
+            }
+
+            if(isDisabled) {
+                selectOptions['escapeMarkup'] = function(markup) {
+                    return markup;
+                };
+
+                selectOptions['templateSelection'] = function(data, container) {
+                    var link = FormUtil.getFormLink(data.data, "Sample", data.id);
+                    link.text(data.title ? data.title : data.text);
+                    return link;
+                };
             }
 
             $plainSelect.select2(selectOptions);
