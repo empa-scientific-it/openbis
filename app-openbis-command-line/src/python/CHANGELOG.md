@@ -1,3 +1,8 @@
+# New in version 0.4.4
+
+* Improvements to dataset upload functionality
+* Changed pybis dependency to version == 1.36.2
+
 # New in version 0.4.3
 
 * Changed upload prints to be more readable
