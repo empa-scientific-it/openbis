@@ -1040,7 +1040,7 @@ class Openbis:
 
     @token.setter
     def token(self, token: str):
-        self.set_token(token, save_token=True)
+        self.set_token(token)
 
     def __dir__(self):
         return [

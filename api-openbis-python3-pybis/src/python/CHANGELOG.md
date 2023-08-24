@@ -1,3 +1,8 @@
+## Changes with pybis-1.36.2
+
+- Refactoring of the set_token method.
+- improvement to exception handling for dataset upload 
+
 ## Changes with pybis-1.36.1
 
 - Amended get_*_types() method to be backwards-compatible
