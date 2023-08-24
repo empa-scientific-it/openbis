@@ -1,7 +1,8 @@
 ## Changes with pybis-1.36.2
 
 - Refactoring of the set_token method.
-- improvement to exception handling for dataset upload 
+- Improvement to exception handling for dataset upload 
+- Improvement to PAT functionality 
 
 ## Changes with pybis-1.36.1
 

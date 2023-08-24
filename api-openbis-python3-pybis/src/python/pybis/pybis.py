@@ -2012,12 +2012,11 @@ class Openbis:
             validTo_date = datetime.strptime(
                 existing_pat.validToDate, "%Y-%m-%d %H:%M:%S"
             )
+            user = self._get_username()
             if validTo_date > (
                     datetime.now()
-                    + relativedelta(
-                seconds=server_info.personal_access_tokens_validity_warning_period
-            )
-            ):
+                    + relativedelta(seconds=server_info.personal_access_tokens_validity_warning_period)
+            ) and user == existing_pat.owner:
                 # return existing PAT which is within warning period
                 if not force:
                     return existing_pat

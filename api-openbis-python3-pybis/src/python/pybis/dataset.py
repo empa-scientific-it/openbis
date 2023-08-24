@@ -1329,10 +1329,6 @@ class DataSetUploadQueueNew:
                     resp.raise_for_status()
                 else:
                     if partial:
-                        import random
-                        a = random.choice(range(20))
-                        if a == 4:
-                            raise ValueError("THROWN RANDOM ERROR")
                         with open(filename[1], "rb") as f:
                             f.seek(bytes_range[0])
                             data = f.read(bytes_range[1] - bytes_range[0])
