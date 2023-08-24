@@ -54,9 +54,21 @@ public class ImportScript implements Serializable
     }
 
     @JsonIgnore
+    public void setName(final String name)
+    {
+        this.name = name;
+    }
+
+    @JsonIgnore
     public String getSource()
     {
         return source;
+    }
+
+    @JsonIgnore
+    public void setSource(final String source)
+    {
+        this.source = source;
     }
 
     @Override

@@ -16,9 +16,7 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ExportData = function(permIds, fields) {
-    this.permIds = permIds;
-    this.fields = fields;
+  var ExportData = function() {
   }
 
   stjs.extend(
@@ -36,8 +34,16 @@ define(["stjs"], function (stjs) {
         return this.permIds;
       };
 
+      prototype.setPermIds = function(permIds) {
+        this.permIds = permIds;
+      };
+
       prototype.getFields = function() {
         return this.fields;
+      };
+
+      prototype.setFields = function(fields) {
+        this.fields = fields;
       };
     },
     {

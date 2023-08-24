@@ -16,9 +16,7 @@
  */
 
 define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExportableFields) {
-  var SelectedFields = function(attributes, properties) {
-    this.attributes = attributes;
-    this.properties = properties;
+  var SelectedFields = function() {
   }
 
   stjs.extend(
@@ -36,8 +34,16 @@ define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExpo
         return this.attributes;
       };
 
+      prototype.setAttributes = function(attributes) {
+        this.attributes = attributes;
+      };
+
       prototype.getProperties = function() {
         return this.properties;
+      };
+
+      prototype.setProperties = function(properties) {
+        this.properties = properties;
       };
     },
     {

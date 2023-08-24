@@ -16,10 +16,9 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ExportResult = function (downloadURL, warnings) {
-    this.downloadUrl = downloadURL;
-    this.warnings = warnings;
+  var ExportResult = function () {
   };
+
   stjs.extend(
     ExportResult,
     null,
@@ -28,19 +27,27 @@ define(["stjs"], function (stjs) {
       prototype["@type"] = "as.dto.exporter.ExportResult";
 
       constructor.serialVersionUID = 1;
-      prototype.downloadUrl = null;
+      prototype.downloadURL = null;
       prototype.warnings = null;
 
       prototype.getDownloadURL = function() {
         return this.downloadURL;
       };
 
+      prototype.setDownloadURL = function(downloadURL) {
+        this.downloadURL = downloadURL;
+      };
+
       prototype.getWarnings = function() {
         return this.warnings;
       };
+
+      prototype.setWarnings = function(warnings) {
+        this.warnings = warnings;
+      };
     },
     {
-      downloadUrl: "String",
+      downloadURL: "String",
       warnings: {
         name: "Collection",
         arguments: ["String"]

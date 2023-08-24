@@ -64,9 +64,21 @@ public class ImportOperation implements Serializable, IOperation
     }
 
     @JsonIgnore
+    public void setImportData(final IImportData importData)
+    {
+        this.importData = importData;
+    }
+
+    @JsonIgnore
     public ImportOptions getImportOptions()
     {
         return importOptions;
+    }
+
+    @JsonIgnore
+    public void setImportOptions(final ImportOptions importOptions)
+    {
+        this.importOptions = importOptions;
     }
 
     @Override

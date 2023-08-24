@@ -16,8 +16,7 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ImportOptions = function(mode) {
-    this.mode = mode;
+  var ImportOptions = function() {
   }
 
   stjs.extend(
@@ -32,6 +31,10 @@ define(["stjs"], function (stjs) {
 
       prototype.getMode = function() {
         return this.mode;
+      };
+
+      prototype.setMode = function(mode) {
+        this.mode = mode;
       };
     },
     {

@@ -17,9 +17,7 @@
 
 define(["stjs"],
   function (stjs) {
-    var ImportScript = function(name, source) {
-      this.name = name;
-      this.source = source;
+    var ImportScript = function() {
     }
 
     stjs.extend(
@@ -37,8 +35,16 @@ define(["stjs"],
           return this.name;
         };
 
+        prototype.setName = function(name) {
+          this.name = name;
+        };
+
         prototype.getSource = function() {
           return this.source;
+        };
+
+        prototype.setSource = function(source) {
+          this.source = source;
         };
       },
       {}

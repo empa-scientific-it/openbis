@@ -32,16 +32,21 @@ public class ExportOptions implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    final Set<ExportFormat> formats;
+    private Set<ExportFormat> formats;
 
     @JsonProperty
-    final XlsTextFormat xlsTextFormat;
+    private XlsTextFormat xlsTextFormat;
 
     @JsonProperty
-    final Boolean withReferredTypes;
+    private Boolean withReferredTypes;
 
     @JsonProperty
-    final Boolean withImportCompatibility;
+    private Boolean withImportCompatibility;
+
+    @SuppressWarnings("unused")
+    public ExportOptions()
+    {
+    }
 
     public ExportOptions(final Set<ExportFormat> formats, final XlsTextFormat xlsTextFormat, final Boolean withReferredTypes,
             final Boolean withImportCompatibility)
@@ -59,9 +64,21 @@ public class ExportOptions implements Serializable
     }
 
     @JsonIgnore
+    public void setFormats(final Set<ExportFormat> formats)
+    {
+        this.formats = formats;
+    }
+
+    @JsonIgnore
     public XlsTextFormat getXlsTextFormat()
     {
         return xlsTextFormat;
+    }
+
+    @JsonIgnore
+    public void setXlsTextFormat(final XlsTextFormat xlsTextFormat)
+    {
+        this.xlsTextFormat = xlsTextFormat;
     }
 
     @JsonIgnore
@@ -71,9 +88,21 @@ public class ExportOptions implements Serializable
     }
 
     @JsonIgnore
+    public void setWithReferredTypes(final Boolean withReferredTypes)
+    {
+        this.withReferredTypes = withReferredTypes;
+    }
+
+    @JsonIgnore
     public Boolean isWithImportCompatibility()
     {
         return withImportCompatibility;
+    }
+
+    @JsonIgnore
+    public void setWithImportCompatibility(final Boolean withImportCompatibility)
+    {
+        this.withImportCompatibility = withImportCompatibility;
     }
 
     @Override

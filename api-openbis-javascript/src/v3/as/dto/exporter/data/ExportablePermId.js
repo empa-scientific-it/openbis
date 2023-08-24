@@ -16,9 +16,7 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ExportablePermId = function(exportableKind, permId) {
-    this.exportableKind = exportableKind;
-    this.permId = permId;
+  var ExportablePermId = function() {
   }
 
   stjs.extend(
@@ -36,9 +34,18 @@ define(["stjs"], function (stjs) {
         return this.exportableKind;
       };
 
+      prototype.setExportableKind = function(exportableKind) {
+        this.exportableKind = exportableKind;
+      };
+
       prototype.getPermId = function() {
         return this.permId;
       };
+
+      prototype.setPermId = function(permId) {
+        this.permId = permId;
+      };
+
     },
     {
       exportableKind: "ExportableKind",

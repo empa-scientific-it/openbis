@@ -49,6 +49,12 @@ public class ImportOptions implements Serializable
         return mode;
     }
 
+    @JsonIgnore
+    public void setMode(final ImportMode mode)
+    {
+        this.mode = mode;
+    }
+
     @Override
     public String toString()
     {

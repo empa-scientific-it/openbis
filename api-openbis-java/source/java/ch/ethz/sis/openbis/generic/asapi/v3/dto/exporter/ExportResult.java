@@ -32,10 +32,15 @@ public class ExportResult implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    final String downloadURL;
+    private String downloadURL;
 
     @JsonProperty
-    final Collection<String> warnings;
+    private Collection<String> warnings;
+
+    @SuppressWarnings("unused")
+    public ExportResult()
+    {
+    }
 
     public ExportResult(final String downloadURL, final Collection<String> warnings)
     {
@@ -50,9 +55,21 @@ public class ExportResult implements Serializable
     }
 
     @JsonIgnore
+    public void setDownloadURL(final String downloadURL)
+    {
+        this.downloadURL = downloadURL;
+    }
+
+    @JsonIgnore
     public Collection<String> getWarnings()
     {
         return warnings;
+    }
+
+    @JsonIgnore
+    public void setWarnings(final Collection<String> warnings)
+    {
+        this.warnings = warnings;
     }
 
     @Override

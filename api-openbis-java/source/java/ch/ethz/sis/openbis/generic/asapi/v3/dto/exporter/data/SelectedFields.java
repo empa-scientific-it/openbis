@@ -56,9 +56,21 @@ public class SelectedFields implements Serializable, IExportableFields
     }
 
     @JsonIgnore
+    public void setAttributes(final List<Attribute> attributes)
+    {
+        this.attributes = attributes;
+    }
+
+    @JsonIgnore
     public List<PropertyTypePermId> getProperties()
     {
         return properties;
+    }
+
+    @JsonIgnore
+    public void setProperties(final List<PropertyTypePermId> properties)
+    {
+        this.properties = properties;
     }
 
     @Override

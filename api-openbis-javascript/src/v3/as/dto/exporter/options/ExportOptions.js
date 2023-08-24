@@ -16,19 +16,15 @@
  */
 
 define(["stjs"], function (stjs) {
-  var SelectedFields = function(formats, xlsTextFormat, withReferredTypes, withImportCompatibility) {
-    this.formats = formats;
-    this.xlsTextFormat = xlsTextFormat;
-    this.withReferredTypes = withReferredTypes;
-    this.withImportCompatibility = withImportCompatibility;
+  var ExportOptions = function() {
   }
 
   stjs.extend(
-    SelectedFields,
+    ExportOptions,
     null,
     [],
     function (constructor, prototype) {
-      prototype["@type"] = "as.dto.exporter.options.SelectedFields";
+      prototype["@type"] = "as.dto.exporter.options.ExportOptions";
 
       constructor.serialVersionUID = 1;
       prototype.formats = null;
@@ -40,16 +36,32 @@ define(["stjs"], function (stjs) {
         return this.formats;
       };
 
+      prototype.setFormats = function(formats) {
+        this.formats = formats;
+      };
+
       prototype.getXlsTextFormat = function() {
         return this.xlsTextFormat;
+      };
+
+      prototype.setXlsTextFormat = function(xlsTextFormat) {
+        this.xlsTextFormat = xlsTextFormat;
       };
 
       prototype.isWithReferredTypes = function() {
         return this.withReferredTypes;
       };
 
+      prototype.setWithReferredTypes = function(withReferredTypes) {
+        this.withReferredTypes = withReferredTypes;
+      };
+
       prototype.isWithImportCompatibility = function() {
         return this.withImportCompatibility;
+      };
+
+      prototype.setWithImportCompatibility = function(withImportCompatibility) {
+        this.withImportCompatibility = withImportCompatibility;
       };
     },
     {
@@ -63,5 +75,5 @@ define(["stjs"], function (stjs) {
     }
   );
 
-  return SelectedFields;
+  return ExportOptions;
 });

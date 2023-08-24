@@ -53,9 +53,21 @@ public class ZipImportData implements Serializable, IImportData
     }
 
     @JsonIgnore
+    public void setFormat(final ImportFormat format)
+    {
+        this.format = format;
+    }
+
+    @JsonIgnore
     public byte[] getFile()
     {
         return file;
+    }
+
+    @JsonIgnore
+    public void setFile(final byte[] file)
+    {
+        this.file = file;
     }
 
     @Override

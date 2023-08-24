@@ -17,9 +17,7 @@
 
 define(["stjs", "as/dto/importer/data/IImportData"],
   function (stjs, IImportData) {
-    var ZipImportData = function(format, file) {
-      this.format = format;
-      this.file = file;
+    var ZipImportData = function() {
     }
 
     stjs.extend(
@@ -37,8 +35,16 @@ define(["stjs", "as/dto/importer/data/IImportData"],
           return this.format;
         };
 
+        prototype.setFormat = function(format) {
+          this.format = format;
+        };
+
         prototype.getFile = function() {
           return this.file;
+        };
+
+        prototype.setFile = function(file) {
+          this.file = file;
         };
       },
       {

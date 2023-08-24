@@ -55,9 +55,21 @@ public class ExportData implements Serializable
     }
 
     @JsonIgnore
+    public void setPermIds(final List<ExportablePermId> permIds)
+    {
+        this.permIds = permIds;
+    }
+
+    @JsonIgnore
     public IExportableFields getFields()
     {
         return fields;
+    }
+
+    @JsonIgnore
+    public void setFields(final IExportableFields fields)
+    {
+        this.fields = fields;
     }
 
     @Override
