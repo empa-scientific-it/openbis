@@ -31,12 +31,7 @@ var SettingsManagerUtils = new function() {
         return this._instanceSettings[this.getSpaceGroupPrefix(spaceCode)];
     }
 
-    this.ShowInSpaceSetting = {
-        showOnDropdowns : 0,
-        showOnNav : 1,
-    }
-
-    this.getVisibleObjectTypesForSpace = function(spaceCode, showInSpaceSetting) {
+    this.getSpaceSettings = function(spaceCode) {
         var spaceSettingsProperty = this._getSpaceSettingsObject(spaceCode).properties["ELN_SETTINGS"];
         var spaceSettings = null;
         if(spaceSettingsProperty) {
@@ -50,6 +45,16 @@ var SettingsManagerUtils = new function() {
 //            };
             spaceSettings = this._defaultProfile;
         }
+        return spaceSettings;
+    }
+
+    this.ShowInSpaceSetting = {
+        showOnDropdowns : 0,
+        showOnNav : 1,
+    }
+
+    this.getVisibleObjectTypesForSpace = function(spaceCode, showInSpaceSetting) {
+        var spaceSettings = this.getSpaceSettings(spaceCode);
 
         var objectTypeCodes = [];
         for (var sampleTypeCode of Object.keys(spaceSettings.sampleTypeDefinitionsExtension)) {

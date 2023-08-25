@@ -22,7 +22,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $container = views.content;
 		mainController.profile.beforeViewPaint(ViewType.SAMPLE_FORM, this._sampleFormModel, $container);
 		var _this = this;
-        var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
+		var spaceSettings = SettingsManagerUtils.getSpaceSettings(_this._sampleFormModel.sample.spaceCode);
+		var sampleTypeDefinitionsExtension = spaceSettings.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
 
 		//
 		// Form setup
@@ -42,7 +43,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[this._sampleFormModel.sample.sampleTypeCode];
 
 		//
 		// TITLE
