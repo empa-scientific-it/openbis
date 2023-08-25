@@ -53,7 +53,7 @@ PYBIS_PLUGIN = "dataset-uploader-api"
 DATASET_DEFINITIONS = openbis_definitions("dataSet")
 DSS_ENDPOINT = "/datastore_server/rmi-data-store-server-v3.json"
 SESSION_WORKSPACE = "/datastore_server/session_workspace_file_upload"
-REQUEST_RETRIES_COUNT = 4
+REQUEST_RETRIES_COUNT = 5
 
 
 def signed_to_unsigned(sig_int):
