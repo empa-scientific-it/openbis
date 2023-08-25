@@ -28,6 +28,8 @@ interface MethodProcessor {
 /**
  * This class is used to pass the symbol table and the type processor to the method processor. It was meant for easier refactoring
  * of the methods below.
+ *
+ * @author Simone Baffelli
  */
 class ProcessingContext {
     private final SymbolTable symbolTable;
@@ -49,7 +51,11 @@ class ProcessingContext {
 }
 
 /**
- * This extension adds method and constructor signatures to the generated typescript interfaces. The methods are extracted from the java classes.
+ * This extension for the typescript-generator ({@link cz.habarta.typescript.generator}) Gradle <a href="URL#https://github.com/vojtechhabarta/typescript-generator">plugin</a> adds method and constructor signatures to the generated typescript interfaces.
+ * The methods are extracted from the java classes using reflection. Currently, it can only create interface signatures to be exported in a d.ts. file, not the implementation.
+ * The extensions can be configured to process certain classes as RPC classes, i.e. the methods of these classes will return a promise instead of a value.
+ *
+ * @author Simone Baffelli
  */
 public class MethodExtension extends Extension {
 
@@ -67,6 +73,7 @@ public class MethodExtension extends Extension {
 
     /**
      * Constructor used by the gradle plugin to pass the configuration of the extension.
+     *
      * @param asyncClasses a json string with the list of classes whose methods should return a promise
      */
     public MethodExtension(List<String> asyncClasses) {
@@ -75,6 +82,7 @@ public class MethodExtension extends Extension {
 
     /**
      * This method is used to filter out the methods that should not be added to the typescript interface.
+     *
      * @param method the method to be filtered
      * @return true if the method should be added to the typescript interface, false otherwise
      */
@@ -131,8 +139,9 @@ public class MethodExtension extends Extension {
 
     /**
      * Constructs a typescript constructor signature from a java constructor
-     * @param constructor the java constructor
-     * @param beanModel the bean model that contains the constructor
+     *
+     * @param constructor       the java constructor
+     * @param beanModel         the bean model that contains the constructor
      * @param model
      * @param processingContext the context of the processing used for type resolution
      * @return the typescript constructor signature or null if the constructor is not public
