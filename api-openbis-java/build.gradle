@@ -63,21 +63,11 @@ apply plugin: "cz.habarta.typescript-generator"
 generateTypeScript {
     jsonLibrary = 'jackson2'
     classPatterns = [
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.property.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.project.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.person.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.material.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.space.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.common.**',
-//            'ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.**',
-//            'ch.ethz.sis.openbis.generic.OpenBIS',
-            'ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.ArchiveDataSetsOperation'
-
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
+            'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
+            'ch.ethz.sis.openbis.generic.OpenBIS',
     ]
+
     excludeClassPatterns = ["**.v1.**",
                             "**.generic.shared.**",
                             "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria",
