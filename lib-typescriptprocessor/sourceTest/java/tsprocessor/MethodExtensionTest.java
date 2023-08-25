@@ -1,8 +1,6 @@
-package ch.empa.tsprocessor;
+package tsprocessor;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
 import cz.habarta.typescript.generator.*;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -14,7 +12,6 @@ public class MethodExtensionTest {
         A get();
     }
 
-    //@JsonObject("TestClass")
     class TestClass {
         public boolean A;
         public String[] B;
