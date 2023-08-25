@@ -1,4 +1,4 @@
-package tsprocessor;
+package ch.empa.tsprocessor;
 
 import cz.habarta.typescript.generator.*;
 import org.testng.annotations.BeforeTest;
