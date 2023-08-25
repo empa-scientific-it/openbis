@@ -169,10 +169,10 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PersonalAccessTokenFetchOptions = dtos.PersonalAccessTokenFetchOptions;
 		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
 		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
-        this.EventFetchOptions = dtos.EventFetchOptions;
-        this.EventSearchCriteria = dtos.EventSearchCriteria;
-        this.EventType = require('as/dto/event/EventType');
-        this.EntityType = require('as/dto/event/EntityType');
+		this.EventFetchOptions = dtos.EventFetchOptions;
+		this.EventSearchCriteria = dtos.EventSearchCriteria;
+		this.EventType = require('as/dto/event/EventType');
+		this.EntityType = require('as/dto/event/EntityType');
 		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
 		this.CustomASServiceFetchOptions = dtos.CustomASServiceFetchOptions;
 		this.CustomASServiceCode = dtos.CustomASServiceCode;
@@ -219,6 +219,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PropertyTypeUpdate = dtos.PropertyTypeUpdate;
 		this.PluginUpdate = dtos.PluginUpdate;
 		this.WebAppSettings = dtos.WebAppSettings;
+
+		this.VocabularyDeletionOptions = dtos.VocabularyDeletionOptions;
+		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
 
 		// operations
 
@@ -391,6 +394,28 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.OperationExecutionPermId = dtos.OperationExecutionPermId;
 		this.OperationExecutionSearchCriteria = dtos.OperationExecutionSearchCriteria;
 		this.OperationExecutionUpdate = dtos.OperationExecutionUpdate;
+
+		this.AllFields = dtos.AllFields;
+		this.Attribute = dtos.Attribute;
+		this.ExportableKind = dtos.ExportableKind;
+		this.ExportablePermId = dtos.ExportablePermId;
+		this.ExportData = dtos.ExportData;
+		this.IExportableFields = dtos.IExportableFields;
+		this.SelectedFields = dtos.SelectedFields;
+		this.ExportFormat = dtos.ExportFormat;
+		this.ExportOptions = dtos.ExportOptions;
+		this.XlsTextFormat = dtos.XlsTextFormat;
+		this.ExportResult = dtos.ExportResult;
+
+		this.IImportData = dtos.IImportData;
+		this.ImportFormat = dtos.ImportFormat;
+		this.ImportScript = dtos.ImportScript;
+		this.UncompressedImportData = dtos.UncompressedImportData;
+		this.ZipImportData = dtos.ZipImportData;
+		this.ImportMode = dtos.ImportMode;
+		this.ImportOptions = dtos.ImportOptions;
+		this.ImportOperation = dtos.ImportOperation;
+		this.ImportOperationResult = dtos.ImportOperationResult;
 
 		this.getDtos = function() {
 			return dtos;

@@ -16,7 +16,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +88,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
@@ -1251,6 +1252,12 @@ public class ApplicationServerApiPersonalAccessTokenInvocationHandler implements
     @Override public List<String> createCodes(final String sessionToken, final String prefix, final EntityKind entityKind, final int count)
     {
         return invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
+    }
+
+    @Override
+    public void executeImport(final String sessionToken, final IImportData importData, final ImportOptions importOptions)
+    {
+        invocation.proceedWithNewFirstArgument(converter.convert(sessionToken));
     }
 
     private void checkPersonalAccessTokensEnabled()

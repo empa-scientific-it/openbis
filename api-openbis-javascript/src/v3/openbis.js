@@ -2336,6 +2336,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.executeImport = function(importData, importOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "executeImport",
+					"params" : [ thisFacade._private.sessionToken, importData, importOptions ]
+				}
+			});
+		}
+
         this.isSessionActive = function() {
             var thisFacade = this;
             return thisFacade._private.ajaxRequest({

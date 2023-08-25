@@ -167,6 +167,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearch
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.CreateMaterialTypesOperation;
@@ -1807,6 +1810,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     {
         CreateCodesOperationResult result = executeOperation(sessionToken, new CreateCodesOperation(prefix, entityKind, count));
         return result.getCodes();
+    }
+
+    @Override
+    public void executeImport(final String sessionToken, final IImportData importData, final ImportOptions importOptions)
+    {
+        executeOperation(sessionToken, new ImportOperation(importData, importOptions));
     }
 
     @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)

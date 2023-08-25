@@ -57,14 +57,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
-
 import de.schlichtherle.io.FileInputStream;
 
 /**
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = HierarchicalContentProvider.class)
-public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
+public class ZipImportDataSetPackagerTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "ds1";
 

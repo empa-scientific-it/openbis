@@ -702,6 +702,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._openbis.getDataStoreFacade.apply(this._openbis, arguments);
 		}
 
+		this.executeImport = function(importData, importOptions) {
+			return this._executeOperation(new c.ImportOperation(importData, importOptions));
+		}
+
 	}
 
 	return facade;

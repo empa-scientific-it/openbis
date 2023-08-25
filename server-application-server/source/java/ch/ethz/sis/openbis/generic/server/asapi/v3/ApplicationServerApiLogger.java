@@ -87,6 +87,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
@@ -1361,6 +1363,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "create-codes", "PREFIX(%s) ENTITY_KIND(%s) COUNT(%s)", prefix, entityKind, Integer.toString(count));
         return null;
+    }
+
+    @Override
+    public void executeImport(final String sessionToken, final IImportData importData, final ImportOptions importOptions)
+    {
+        logAccess(sessionToken, "execute-import", "IImportData(%s) ImportOptions(%s)", importData, importOptions);
     }
 
 }
