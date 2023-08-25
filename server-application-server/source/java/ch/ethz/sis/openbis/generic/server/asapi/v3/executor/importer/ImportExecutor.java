@@ -124,7 +124,8 @@ public class ImportExecutor implements IImportExecutor
                 }
             } else
             {
-                throw UserFailureException.fromTemplate("Unknown instance of import data '%s'.", importData.getClass().getName());
+                throw UserFailureException.fromTemplate("Unknown instance of import data '%s'.",
+                        importData != null ? importData.getClass().getName() : null);
             }
         } catch (final IOException e)
         {

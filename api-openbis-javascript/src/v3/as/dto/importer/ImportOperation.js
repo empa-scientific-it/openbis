@@ -17,7 +17,9 @@
 
 define(["stjs", "as/dto/common/operation/IOperation"],
   function (stjs, IOperation) {
-    var ImportOperation = function() {
+    var ImportOperation = function(importData, importOptions) {
+      this.importData = importData;
+      this.importOptions = importOptions;
     }
 
     stjs.extend(
@@ -39,16 +41,8 @@ define(["stjs", "as/dto/common/operation/IOperation"],
           return this.importData;
         };
 
-        prototype.setImportData = function(importData) {
-          this.importData = importData;
-        };
-
         prototype.getImportOptions = function() {
           return this.importOptions;
-        };
-
-        prototype.setImportOptions = function(importOptions) {
-          this.importOptions = importOptions;
         };
       },
       {

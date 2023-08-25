@@ -102,8 +102,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         var c = new common(assert, openbis);
 
         var fAction = function(facade) {
-          var importData = new c.UncompressedImportData("XLS", fileContent, null);
-          var importOptions = new c.ImportOptions("UPDATE_IF_EXISTS");
+          var importData = new c.UncompressedImportData();
+          importData.setFormat("XLS");
+          importData.setFile(fileContent);
+
+          var importOptions = new c.ImportOptions();
+          importOptions.setMode("UPDATE_IF_EXISTS");
+
           return facade.executeImport(importData, importOptions);
         }
 
