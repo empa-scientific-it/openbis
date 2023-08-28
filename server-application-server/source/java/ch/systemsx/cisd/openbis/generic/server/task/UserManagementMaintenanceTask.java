@@ -285,7 +285,6 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
     private UserManager createUserManager(UserManagerConfig config, Log4jSimpleLogger logger, UserManagerReport report)
     {
         UserManager userManager = createUserManager(logger, report);
-        userManager.setReuseHomeSpace(config.getReuseHomeSpace());
         userManager.setGlobalSpaces(config.getGlobalSpaces());
         userManager.setInstanceAdmins(config.getInstanceAdmins());
         try
