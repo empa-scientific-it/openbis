@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.io.IOUtils;
@@ -1519,6 +1520,33 @@ public class UserManager
             }
             if (roleCreations.isEmpty() == false)
             {
+                // Filter out already existing roles to not repeat creations
+                // This is to manage a corner case when a user is reactivated reusing the same home space
+                List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
+                for (RoleAssignmentCreation roleAssignmentCreationToCheck:roleCreations) {
+                    PersonPermId userId = (PersonPermId) roleAssignmentCreationToCheck.getUserId();
+                    SpacePermId spaceId = (SpacePermId) roleAssignmentCreationToCheck.getSpaceId();
+                    RoleAssignmentSearchCriteria roleAssignmentSearchCriteria = new RoleAssignmentSearchCriteria();
+                    roleAssignmentSearchCriteria.withUser().withUserId().thatEquals(userId.getPermId());
+                    roleAssignmentSearchCriteria.withSpace().withCode().thatEquals(spaceId.getPermId());
+                    SearchResult<RoleAssignment> roleAssignmentSearchResult =
+                            service.searchRoleAssignments(sessionToken,
+                                    roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());
+
+                    boolean found = false;
+                    if (!roleAssignmentSearchResult.getObjects().isEmpty()) {
+                        Role role = roleAssignmentCreationToCheck.getRole();
+                        for (RoleAssignment roleAssignment:roleAssignmentSearchResult.getObjects()) {
+                            if (roleAssignment.getRole().equals(role)) {
+                                found = true;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        filteredRoleCreations.add(roleAssignmentCreationToCheck);
+                    }
+                }
+                roleCreations = filteredRoleCreations;
                 operations.add(new CreateRoleAssignmentsOperation(roleCreations));
             }
             if (roleDeletions.isEmpty() == false)
