@@ -148,8 +148,6 @@ public class UserManager
 
     private boolean deactivateUnknownUsers;
 
-    private boolean reuseHomeSpace;
-
     public UserManager(IAuthenticationService authenticationService, IApplicationServerInternalApi service,
             File shareIdsMappingFileOrNull, ISimpleLogger logger, UserManagerReport report)
     {
@@ -1030,15 +1028,13 @@ public class UserManager
     private SpacePermId createUserSpace(Context context, String groupCode, String userId)
     {
         String userSpaceCode = createCommonSpaceCode(groupCode, userId.toUpperCase());
-        if(!reuseHomeSpace)
+        int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
+        if (n > 0) // Existing space, don't need to create it
         {
-            int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
-            if (n > 0)
-            {
-                userSpaceCode += "_" + (n + 1);
-            }
+            return new SpacePermId(userSpaceCode);
+        } else {
+            return createSpace(context, userSpaceCode);
         }
-        return createSpace(context, userSpaceCode);
     }
 
     private HomeSpaceRequest getHomeSpaceRequest(String userId)
@@ -1120,7 +1116,7 @@ public class UserManager
             if (roleAssignment.getRole().equals(role))
             {
                 Space space = roleAssignment.getSpace();
-                if ((space == null && spaceId == null) || space.getId().equals(spaceId))
+                if ((space == null && spaceId == null) || space.getId().equals(spaceId) || space.getPermId().equals(spaceId))
                 {
                     return;
                 }
@@ -1136,11 +1132,6 @@ public class UserManager
             spaceId = new SpacePermId(spaceCodeOrNull);
         }
         context.getReport().assignRoleTo(groupId, role, spaceId);
-    }
-
-    public void setReuseHomeSpace(boolean reuseHomeSpace)
-    {
-        this.reuseHomeSpace = reuseHomeSpace;
     }
 
     private static final class CurrentState
@@ -1492,10 +1483,10 @@ public class UserManager
             }
             if (spaceCreations.isEmpty() == false)
             {
-                // Filter out already existing spaces to not repeat creations
-                List<SpacePermId> spacesToCreate = spaceCreations.stream().map( creation -> new SpacePermId(creation.getCode())).collect(Collectors.toList());
-                Map<ISpaceId, Space> existingSpaces = service.getSpaces(sessionToken, spacesToCreate, new SpaceFetchOptions());
-                spaceCreations = spaceCreations.stream().filter( creation -> !existingSpaces.keySet().contains(new SpacePermId(creation.getCode()))).collect(Collectors.toList());
+//                // Filter out already existing spaces to not repeat creations
+//                List<SpacePermId> spacesToCreate = spaceCreations.stream().map( creation -> new SpacePermId(creation.getCode())).collect(Collectors.toList());
+//                Map<ISpaceId, Space> existingSpaces = service.getSpaces(sessionToken, spacesToCreate, new SpaceFetchOptions());
+//                spaceCreations = spaceCreations.stream().filter( creation -> !existingSpaces.keySet().contains(new SpacePermId(creation.getCode()))).collect(Collectors.toList());
                 operations.add(new CreateSpacesOperation(spaceCreations));
             }
             if (projectCreations.isEmpty() == false)
@@ -1520,33 +1511,33 @@ public class UserManager
             }
             if (roleCreations.isEmpty() == false)
             {
-                // Filter out already existing roles to not repeat creations
-                // This is to manage a corner case when a user is reactivated reusing the same home space
-                List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
-                for (RoleAssignmentCreation roleAssignmentCreationToCheck:roleCreations) {
-                    PersonPermId userId = (PersonPermId) roleAssignmentCreationToCheck.getUserId();
-                    SpacePermId spaceId = (SpacePermId) roleAssignmentCreationToCheck.getSpaceId();
-                    RoleAssignmentSearchCriteria roleAssignmentSearchCriteria = new RoleAssignmentSearchCriteria();
-                    roleAssignmentSearchCriteria.withUser().withUserId().thatEquals(userId.getPermId());
-                    roleAssignmentSearchCriteria.withSpace().withCode().thatEquals(spaceId.getPermId());
-                    SearchResult<RoleAssignment> roleAssignmentSearchResult =
-                            service.searchRoleAssignments(sessionToken,
-                                    roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());
-
-                    boolean found = false;
-                    if (!roleAssignmentSearchResult.getObjects().isEmpty()) {
-                        Role role = roleAssignmentCreationToCheck.getRole();
-                        for (RoleAssignment roleAssignment:roleAssignmentSearchResult.getObjects()) {
-                            if (roleAssignment.getRole().equals(role)) {
-                                found = true;
-                            }
-                        }
-                    }
-                    if (!found) {
-                        filteredRoleCreations.add(roleAssignmentCreationToCheck);
-                    }
-                }
-                roleCreations = filteredRoleCreations;
+//                // Filter out already existing roles to not repeat creations
+//                // This is to manage a corner case when a user is reactivated reusing the same home space
+//                List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
+//                for (RoleAssignmentCreation roleAssignmentCreationToCheck:roleCreations) {
+//                    PersonPermId userId = (PersonPermId) roleAssignmentCreationToCheck.getUserId();
+//                    SpacePermId spaceId = (SpacePermId) roleAssignmentCreationToCheck.getSpaceId();
+//                    RoleAssignmentSearchCriteria roleAssignmentSearchCriteria = new RoleAssignmentSearchCriteria();
+//                    roleAssignmentSearchCriteria.withUser().withUserId().thatEquals(userId.getPermId());
+//                    roleAssignmentSearchCriteria.withSpace().withCode().thatEquals(spaceId.getPermId());
+//                    SearchResult<RoleAssignment> roleAssignmentSearchResult =
+//                            service.searchRoleAssignments(sessionToken,
+//                                    roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());
+//
+//                    boolean found = false;
+//                    if (!roleAssignmentSearchResult.getObjects().isEmpty()) {
+//                        Role role = roleAssignmentCreationToCheck.getRole();
+//                        for (RoleAssignment roleAssignment:roleAssignmentSearchResult.getObjects()) {
+//                            if (roleAssignment.getRole().equals(role)) {
+//                                found = true;
+//                            }
+//                        }
+//                    }
+//                    if (!found) {
+//                        filteredRoleCreations.add(roleAssignmentCreationToCheck);
+//                    }
+//                }
+//                roleCreations = filteredRoleCreations;
                 operations.add(new CreateRoleAssignmentsOperation(roleCreations));
             }
             if (roleDeletions.isEmpty() == false)
