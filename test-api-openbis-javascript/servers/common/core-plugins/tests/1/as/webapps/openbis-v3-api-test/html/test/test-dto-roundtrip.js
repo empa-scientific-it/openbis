@@ -45,6 +45,10 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				return _.chain(
 						c.getDtos()
 					)
+					.filter(function(proto) {
+						var type = proto && proto.prototype && proto.prototype["@type"]
+						return type != null && type !== undefined
+					})
 					.map(function(proto) {
 						return new c.CustomASServiceExecutionOptions().withParameter("object", instantiate(proto));
 					})
