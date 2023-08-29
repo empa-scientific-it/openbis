@@ -192,7 +192,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
                     if(profile.isPropertyPressent(sampleType, "$BARCODE")) {
                         dropdownOptionsModel.push({
-                            label : "Custom Barcode Update",
+                            label : "Custom Barcode/QR Code Update",
                             action : function() {
                                 BarcodeUtil.readBarcode([_this._sampleFormModel.sample]);
                             }
@@ -999,7 +999,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		    var $customBarcodeProperty = this._sampleFormModel.sample.properties["$BARCODE"];
 		    if($customBarcodeProperty) {
-		        var $customBarcodePropertyField = FormUtil.getFieldForLabelWithText("Custom Barcode", $customBarcodeProperty);
+		        var $customBarcodePropertyField = FormUtil.getFieldForLabelWithText("Custom Barcode/QR Code", $customBarcodeProperty);
 		        $fieldset.append($customBarcodePropertyField);
 		    }
         }
