@@ -310,6 +310,7 @@ public class UserManager
         searchCriteria.withCodes().setFieldValue(adminGroupsByGroupId.keySet());
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         List<AuthorizationGroup> groups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
                 fetchOptions).getObjects();
         List<AuthorizationGroup> removedGroups = new ArrayList<>();
@@ -321,7 +322,10 @@ public class UserManager
                 Set<String> users = extractUserIds(group);
                 if (users.containsAll(extractUserIds(adminGroup)))
                 {
-                    removedGroups.add(group);
+                    if (group.getRegistrator().getUserId().equals("system"))
+                    {
+                        removedGroups.add(group);
+                    }
                 }
             }
         }
@@ -334,6 +338,7 @@ public class UserManager
         searchCriteria.withCode().thatEndsWith(ADMIN_POSTFIX);
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         List<AuthorizationGroup> adminGroups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
                 fetchOptions).getObjects();
         Map<String, AuthorizationGroup> adminGroupsByGroupId = new HashMap<>();
@@ -893,7 +898,7 @@ public class UserManager
                 {
                     if (role != null)
                     {
-                        context.delete(roleAssignment.getId());
+                        context.delete(roleAssignment);
                         context.report.unassignRoleFrom(groupId, roleAssignment.getRole(), permId);
                     }
                     if (userSpaceRole != null)
@@ -1011,7 +1016,7 @@ public class UserManager
                 String userSpace = createCommonSpaceCode(groupCode, userId.toUpperCase());
                 if (space != null && space.getCode().startsWith(userSpace))
                 {
-                    context.delete(roleAssignment.getId());
+                    context.delete(roleAssignment);
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
                 }
             }
@@ -1478,9 +1483,15 @@ public class UserManager
             groupUpdates.add(groupUpdate);
         }
 
-        public void delete(IRoleAssignmentId roleAssignmentId)
+        public void delete(RoleAssignment roleAssignment)
         {
-            roleDeletions.add(roleAssignmentId);
+            /*\
+             * The maintenance task should only remove role assignments created by itself
+             */
+            if (roleAssignment.getRegistrator().getUserId().equals("system"))
+            {
+                roleDeletions.add(roleAssignment.getId());
+            }
         }
 
         public void executeOperations()
