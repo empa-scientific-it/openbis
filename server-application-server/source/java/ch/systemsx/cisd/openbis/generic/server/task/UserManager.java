@@ -482,6 +482,7 @@ public class UserManager
     {
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         Person user = service.getPersons(sessionToken, Arrays.asList(userId), fetchOptions).get(userId);
         if (user == null)
         {
@@ -528,6 +529,8 @@ public class UserManager
     {
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
+        fetchOptions.withRegistrator();
         AuthorizationGroup group = service.getAuthorizationGroups(sessionToken, Arrays.asList(groupId), fetchOptions).get(groupId);
         Set<String> knownGlobalSpaces = new TreeSet<>();
         if (group == null)
@@ -628,7 +631,9 @@ public class UserManager
         List<AuthorizationGroupPermId> ids = Arrays.asList(GLOBAL_AUTHORIZATION_GROUP_ID);
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         AuthorizationGroup group = service.getAuthorizationGroups(sessionToken, ids, fetchOptions).get(GLOBAL_AUTHORIZATION_GROUP_ID);
         return new CurrentState(authorizationGroups, group, spaces, users);
     }
@@ -637,8 +642,10 @@ public class UserManager
     {
         AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withRegistrator();
         fetchOptions.withUsers().withSpace();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         return service.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions).getObjects();
     }
 
@@ -647,6 +654,7 @@ public class UserManager
         PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         fetchOptions.withSpace();
         return service.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
     }
@@ -1118,6 +1126,7 @@ public class UserManager
         RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
+        fetchOptions.withRegistrator();
         List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(), 
                 searchCriteria, fetchOptions).getObjects();
         for (RoleAssignment roleAssignment : roleAssignments)
