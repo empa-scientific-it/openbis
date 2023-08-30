@@ -414,8 +414,7 @@ configured. It does the following:
 4.  Requests archiving of the non-deleted data sets.
 
 The last step requires that the maintenance task
-[ArchivingByRequestTask](#MaintenanceTasks-ArchivingByRequestTask) is
-configured.
+[ArchivingByRequestTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#archivingbyrequesttask) is configured.
 
 **Configuration**:
 
@@ -1319,11 +1318,10 @@ if int(seriesNum) % 2 == 0:
 
 **Description**: Deletes database entries from the imaging database.
 This is special variant of
-[DeleteFromExternalDBMaintenanceTask](#MaintenanceTasks-DeleteFromExternalDBMaintenanceTask)
-with the same configuration parameters.
+[DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask) with the same configuration parameters.
 
 **Configuration**: See
-[DeleteFromExternalDBMaintenanceTask](#MaintenanceTasks-DeleteFromExternalDBMaintenanceTask)
+[DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask)
 
 **Example**:
 
