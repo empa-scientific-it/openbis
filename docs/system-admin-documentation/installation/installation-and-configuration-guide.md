@@ -41,7 +41,7 @@ The server distribution is a `gzipped` `tar` file named `openBIS-installation-
 
     **GUI-based installation**
 
-        ```console
+        ```bash
         tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
         cd openBIS-installation-standard-technologies-S139.0-r26480
         ./run-ui.sh
@@ -52,7 +52,7 @@ The server distribution is a `gzipped` `tar` file named `openBIS-installation-
 
     **Non-GUI installation**
 
-        ```console
+        ```bash
         tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
         cd openBIS-installation-standard-technologies-S139.0-r26480
         vi console.properties
