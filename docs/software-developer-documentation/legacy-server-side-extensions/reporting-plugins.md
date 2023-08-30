@@ -18,7 +18,7 @@ are the type of input and output:
     *Output*: A table
 
 A reporting plugin is configured on the DSS best by introducing a [core
-plugin](/display/openBISDoc2010/Core+Plugins) of type
+plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type
 `reporting-plugins`. All reporting plugins have the following properties
 in common:
 
