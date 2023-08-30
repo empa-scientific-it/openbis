@@ -132,4 +132,4 @@ public class OperationListenerExample implements IOperationListener<IOperation, 
 
 ### Example - Loggin Sources
 
-You can download a complete example with sources [here](/download/attachments/132286253/api-listener-example.zip?version=1&modificationDate=1663665058217&api=v2) to use as a template to make your own.
+You can download a complete example with sources [here](att/api-listener-example.zip) to use as a template to make your own.
