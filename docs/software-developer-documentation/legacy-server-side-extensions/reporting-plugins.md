@@ -200,7 +200,7 @@ label = My Report
 **Description**: Invokes a Jython script to create an aggregation
 service report. For more details see [Jython-based Reporting and
 Processing
-Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **Configuration**:
 
@@ -229,11 +229,7 @@ aggregation service reporting plugin takes a hash map containing user
 parameters and a transaction as arguments and returns tabular data (in
 the form of a TableModel). The transaction is an
 [IDataSetRegistrationTransactionV2](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/etlserver/registrator/api/v2/IDataSetRegistrationTransactionV2.html),
-the same interface that is used by
-[dropboxes](/display/openBISDoc2010/Dropboxes) to register and modify
-entities. The JythonBasedDbModifyingAggregationServiceReportingPlugin
-below is a subclass that allows for implementation of the logic in
-Jython. 
+the same interface that is used by [dropboxes](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#dropboxes) to register and modify entities. The JythonBasedDbModifyingAggregationServiceReportingPlugin below is a subclass that allows for implementation of the logic in Jython. 
 
 **Configuration**: Dependent on the subclass.
 
@@ -306,11 +302,7 @@ label = My Report
 
 **Type:** AGGREGATION\_TABLE\_MODEL
 
-**Description**: Invokes a Jython script to register and modify entities
-and create an aggregation service report. The script receives a
-transaction as an argument. For more details see [Jython-based Reporting
-and Processing
-Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+**Description**: Invokes a Jython script to register and modify entitiesand create an aggregation service report. The script receives a transaction as an argument. For more details see [Jython-based Reporting and Processing Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **Configuration**:
 
@@ -336,7 +328,7 @@ script-path = script.py
 
 **Description**: Invokes a Jython script to create the report. For more
 details see [Jython-based Reporting and Processing
-Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **Configuration**:
 
@@ -397,8 +389,7 @@ Screening Reporting Plugins
 **Description**: Invokes a Jython script to create an aggregation
 service report. For more details see [Jython-based Reporting and
 Processing
-Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
-There is some extra support for screening.
+Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins). There is some extra support for screening.
 
 **Configuration**:
 
@@ -428,7 +419,7 @@ has access to the screening facade for queries to the imaging database
 and is given a screening transaction that supports registering plate
 images and feature vectors. For more details see [Jython-based Reporting
 and Processing
-Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 
 **Configuration**:
 
@@ -454,7 +445,7 @@ script-path = script.py
 
 **Description**: Invokes a Jython script to create the report. For more
 details see [Jython-based Reporting and Processing
-Plugins](/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
 There is some extra support for screening.
 
 **Configuration**:
