@@ -550,7 +550,7 @@ script:
     returns a factory that can be used to create descriptions of input
     fields used for modification of managed property value (see
     [IManagedInputWidgetDescription](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/basic/dto/api/IManagedInputWidgetDescription.html)
-    and [example](#ManagedProperties-Example3)).
+    and [example](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#example-3)).
 
  
 
@@ -558,7 +558,7 @@ script:
     used to create
     [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
     See [\#Storing structured content in managed
-    properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
+    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
 
  
 
@@ -567,13 +567,13 @@ script:
     [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to XML Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
-    properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
+    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
 -   ` IStructuredPropertyConverter jsonPropertyConverter()`: returns a
     converter that can translate
     [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to JSON Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
-    properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
+    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
 
 #### Java API
 
@@ -641,9 +641,7 @@ tables like sorting, filtering, exporting etc.
 
 This is another example of showing how to configure a fixed table, but
 this time values in the table will be displayed as clickable links to
-openBIS entities (see [Linking to openBIS
-entities](#ManagedProperties-LinkingtoopenBISentities) for more
-details):
+openBIS entities (see [Linking to openBIS entities](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#linking-to-openbis-entities) for more details):
 
 ```py
 def configureUI():
@@ -782,7 +780,7 @@ automatically to a value from the selected row.
 
 Whenever an action is defined in `configureUI` there should be
 `updateFromUI()` function defined that handles the actions (see [next
-example](#ManagedProperties-Example5)). Otherwise clicking on action
+example](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#example-5)). Otherwise clicking on action
 buttons will cause an error.
 
 ##### updateFromUI()
@@ -995,7 +993,7 @@ IElements can also be used as containers for larger chunks of raw data.
 To construct concrete instances of IElement one has to use
 [IElementFactory](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
 available via the predefined function
-[elementFactory()](#ManagedProperties-PredefinedFunctions).
+[elementFactory()](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#predefined-functions).
 
 ##### Linking to openBIS entities
 
@@ -1019,7 +1017,7 @@ you can use an
 to convert it to a property value. An instance of
 [IStructuredPropertyConverter](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
 can be created from the [\#Predefined
-Functions](#ManagedProperties-PredefinedFunctions).
+Functions](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#predefined-functions).
 
 Managed properties can be stored either as XML Strings or as JSON
 Strings. The script writer makes the decision for a serialization type
