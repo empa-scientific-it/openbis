@@ -17,8 +17,7 @@ is returned to its original state in the event of an error.
 By deafult python 2.5 is used, but it's possible to use python version
 2.7.
 
-Dropboxes are dss core plugins: [Core
-Plugins](/display/openBISDoc2010/Core+Plugins)
+Dropboxes are dss core plugins: [Core Plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html)
 
 ### Simple Example
 
@@ -100,13 +99,12 @@ greater detail.
 
 The model underlying dropbox registration is the following: when a new
 file or folder is found in the dropbox folder, the process function of
-the script file is invoked with a [data set registration
-transaction](#Dropboxes-IDataSetRegistrationTransaction) as an argument.
+the script file is invoked with a [data set registration transaction](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#idatasetregistrationtransaction) as an argument.
 The process function has the responsibility of looking at the incoming
 file or folder and determining what needs to be registered or modified
 in the metadata database and what data needs to be stored on the file
 system. The
-[IDataSetRegistrationTransaction](#Dropboxes-IDataSetRegistrationTransaction) interface
+[IDataSetRegistrationTransaction](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#idatasetregistrationtransaction) interface
 defines the API for specifying entities to register and update.
 
 Committing a transaction is actually a two-part process. The metadata is
@@ -116,8 +114,7 @@ server's *store* directory. All modifications requested as part of a
 transaction are committed atomically — they either all succeed or all
 fail.
 
-Several [Events](#Dropboxes-Events) occur in the process of committing a
-transaction. By defining jython functions, it is possible to be notified
+Several [Events](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#events-registration-process-hooks) occur in the process of committing a transaction. By defining jython functions, it is possible to be notified
 and intervene when an event occurs. Because the infrastructure reserves
 the right to delay or retry actions if resources become unavailable, the
 process function and event functions cannot use global variables to
@@ -131,7 +128,7 @@ Details
 ### Dropbox Configuration
 
 A jython dropbox is typically distributed as a [core
-plugin](/display/openBISDoc2010/Core+Plugins) and configured in its
+plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) and configured in its
 plugin.properties file. A dropbox configured to run a jython script,
 which is kept in the same directory as plugin.properties. The
 configuration requires a storage processor and the name of the script (a
@@ -681,7 +678,7 @@ means that it can take a long time before the .faulty\_paths file is
 created, even when there is a simple dropbox error.
 
 Therefor during development of a dropbox we recommend
-using **[development mode](#Dropboxes-Developmentmode)** , wich
+using **[development mode](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#development-mode)** , wich
 basically sets all retry values to 0, thus disabling the auto-recovery
 feature.
 
@@ -733,8 +730,7 @@ to the core plugin in a sub-folder `lib/`.
 Validation scripts
 ------------------
 
-See [Jython
-DataSetValidator](/display/openBISDoc2010/Jython+DataSetValidator).
+See [Jython DataSetValidator](https://unlimited.ethz.ch/display/openBISDoc2010/Jython+DataSetValidator).
 
 Global Thread Parameters
 ------------------------
@@ -976,9 +972,7 @@ dependencies: `openBIS-API-dropbox-<version>.jar`,
 `lib-commonbase-<version>.jar` and `cisd-hotdeploy-13.01.0.jar`. The
 first two are available in the distribution in the archives
 `openBIS-API-commonbase-<version>.zip` and
-`openBIS-API-dropbox-<version>.zip`, the third one is available in [the
-Ivy
-repo](https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/blob/main/cisd/cisd-hotdeploy/13.01.0/cisd-hotdeploy-13.01.0.jar).
+`openBIS-API-dropbox-<version>.zip`, the third one is available in [the Ivy repo](https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/blob/main/cisd/cisd-hotdeploy/13.01.0/cisd-hotdeploy-13.01.0.jar).
 
 Example path where the created `jar` should reside:
 
