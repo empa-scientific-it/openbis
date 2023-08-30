@@ -41,23 +41,23 @@ The server distribution is a `gzipped` `tar` file named `openBIS-installation-
 
     **GUI-based installation**
 
-        ```bash
-        tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
-        cd openBIS-installation-standard-technologies-S139.0-r26480
-        ./run-ui.sh
-        ```
+    ```bash
+    tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
+    cd openBIS-installation-standard-technologies-S139.0-r26480
+    ./run-ui.sh
+    ```
 
     In the non-gui version you have to edit the `console.properties`
     files:
 
     **Non-GUI installation**
 
-        ```bash
-        tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
-        cd openBIS-installation-standard-technologies-S139.0-r26480
-        vi console.properties
-        ./run-console.sh
-        ```
+    ```bash
+    tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
+    cd openBIS-installation-standard-technologies-S139.0-r26480
+    vi console.properties
+    ./run-console.sh
+    ```
     
     ```{note}
     Please be aware that the directory where openbis is installed should not already exist. Users should specify the directory where they want to install openBIS (in the console.properties or in the graphical installer) and this directory will be created by the installation procedure. If the directory already exists, the installation will fail.
