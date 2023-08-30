@@ -3,7 +3,7 @@ package ch.empa.tsprocessor;
 import cz.habarta.typescript.generator.*;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
+import ch.empa.tsprocessor.MethodExtension;
 import java.util.List;
 
 public class MethodExtensionTest {

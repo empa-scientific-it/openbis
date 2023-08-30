@@ -62,7 +62,7 @@ generateTypeScript {
     jsonLibrary = 'jackson2'
     classPatterns = [
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
-            'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
+            'ch.ethz.sis.openbis.generic.dssapi.v3.**',
             'ch.ethz.sis.openbis.generic.OpenBIS',
     ]
 
