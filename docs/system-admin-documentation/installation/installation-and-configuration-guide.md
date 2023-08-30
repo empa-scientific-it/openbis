@@ -713,19 +713,15 @@ used for the anonymous login.
 
 Anonymous login is possible with URL parameter `anonymous` set to `true`
 or by property `default-anonymous-login` in web configuration properties
-(see [Web Client
-Customization](https://unlimited.ethz.ch/display/openBISDoc2010/Register+Master+Data+via+the+Admin+Interface)). Note, that for the ELN client the property `default-anonymous-login` isn't used. Anonymous login needs only the property `user-for-anonymous-login` for an existing user with some rights.
+(see [Web Client Customization](https://unlimited.ethz.ch/display/openBISDoc2010/Register+Master+Data+via+the+Admin+Interface)). Note, that for the ELN client the property `default-anonymous-login` isn't used. Anonymous login needs only the property `user-for-anonymous-login` for an existing user with some rights.
 
 ### Single Sign On Authentication
 
-Currently only Shibboleth SSO is supported. For more details see [Single
-Sign On
-Authentication](/display/openBISDoc2010/Single+Sign+On+Authentication).
+Currently only Shibboleth SSO is supported. For more details see [Single Sign On Authentication](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#single-sign-on-authentication).
 
 ## Authorization
 
-openBIS authorization is described
-here: [Authorization](/display/openBISDoc2010/Authorization).
+openBIS authorization is described here: [Authorization](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#authorization).
 
 ## System Customization
 
@@ -962,7 +958,7 @@ Depending on the DSS (specified by the DSS code) and the technology
 different databases have to be used.
 
 Configuration is best done by AS [core
-plugins](/display/openBISDoc2010/Core+Plugins) of type
+plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type
 `dss-data-sources`. The name of the plugin is just the DSS code. The
 following properties of `plugin.properties` are recognized:
 
@@ -983,7 +979,7 @@ following properties of `plugin.properties` are recognized:
 
 Properties `database-driver` and `database-url` can be omitted if a
 `etc/dss-datasource-mapping` is defined. For more see [Sharing
-Databases](/display/openBISDoc2010/Sharing+Databases).
+Databases](https://unlimited.ethz.ch/display/openBISDoc2010/Sharing+Databases).
 
 ### Changing the Capability-Role map
 
@@ -1318,10 +1314,7 @@ interface.*
 
 #### Enable Querying
 
-To enable querying functionality for additional databases in openBIS Web
-application a [core plugin](/display/openBISDoc2010/Core+Plugins) of
-type query-databases has to be created. The following
-`plugin.properties` have to be specified:
+To enable querying functionality for additional databases in openBIS Web  application a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) of type query-databases has to be created. The following `plugin.properties` have to be specified:
 
 | Property          | Description                                                                                                               |
 |-------------------|---------------------------------------------------------------------------------------------------------------------------|
@@ -1356,16 +1349,7 @@ is configured, then for the query database configured with key `db1`:
 - only a user who has the `OBSERVER` role in data space `CISD` is
     allowed to execute a query.
 
-For query databases that do not belong to a space but that have a column
-with any of the [magic column
-names](/display/openBISDoc2010/Custom+Database+Queries#CustomDatabaseQueries-Hyperlinks),
-the query result is filtered on a per-row basis according to what the
-user executing the query is allowed to see. In detail this means: if the
-user executing the query is not an instance admin, filter out all rows
-which belong to a data space where the user doesn't have a least the
-observer role. The relationship between a row and a data space is
-established by means of the experiment / sample / data set whose
-`permId` is given by one of the magical column names.
+For query databases that do not belong to a space but that have a column with any of the [magic column names](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/custom-database-queries.html#hyperlinks), the query result is filtered on a per-row basis according to what the user executing the query is allowed to see. In detail this means: if the user executing the query is not an instance admin, filter out all rows which belong to a data space where the user doesn't have a least the observer role. The relationship between a row and a data space is established by means of the experiment / sample / data set whose `permId` is given by one of the magical column names.
 
 For sensitive data where authorization needs to be enforced, there are
 two setups possible:
@@ -1393,14 +1377,13 @@ The master data of openBIS comprises all entity/property types, property
 assignments, vocabularies etc. needed for your customized installation
 to work. The system offers a way to export/import master data via Jython
 scripts. More information on how to do create such scripts and run them
-manually see the advanced guide [Jython Master Data
-Scripts](/display/openBISDoc2010/Jython+Master+Data+Scripts#JythonMasterDataScripts-Commandlinetools).
+manually see the advanced guide [Jython Master Data Scripts](https://unlimited.ethz.ch/display/openBISDoc2010/Jython+Master+Data+Scripts#JythonMasterDataScripts-Commandlinetools).
 
 A master data script can be run automatically by start up of the AS if
 it is defined in an AS core plugin. The script path should be
 `<installation directory>/servers/core-plugins/<module name>/<version number>/as/initialize-master-data.py`.
 For more details about the folder structure of core plugins see [Core
-Plugins](/display/openBISDoc2010/Core+Plugins). If there are several
+Plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins). If there are several
 core plugins with master data scripts the scripts will be executed in
 alphabetical order of the module names. For example, the master data
 script of module `screening-optional` will be executed after the master
