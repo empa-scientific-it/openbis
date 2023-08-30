@@ -98,9 +98,7 @@ Arbitrary SQL:
 Setup
 -----
 
-To use the custom database queries, it is necessary to define query
-databases. See [Installation and Administrator Guide of the openBIS
-Server](#) for an explanation on how to do this.
+To use the custom database queries, it is necessary to define query databases. See [Installation and Administrator Guide of the openBIS Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html) for an explanation on how to do this.
 
 Running a Parametrized Query
 ----------------------------
