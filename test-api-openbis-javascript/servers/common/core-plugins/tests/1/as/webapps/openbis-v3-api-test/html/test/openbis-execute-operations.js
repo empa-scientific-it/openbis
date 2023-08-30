@@ -1,12 +1,11 @@
-define([ 'jquery', 'openbis', 'test/dtos' ], function($, openbis, dtos) {
+define([], function() {
 
-	var facade = function() {
+	var executeOperationsFacade = function(facade, dtos) {
 
 		this._private = {};
-		this._openbis = new openbis();
 
 		this._executeOperation = function(operation) {
-			return this._openbis.executeOperations([ operation ], new dtos.SynchronousOperationExecutionOptions());
+			return facade.executeOperations([ operation ], new dtos.SynchronousOperationExecutionOptions());
 		}
 
 		this._executeCreateOperation = function(operation) {
@@ -44,28 +43,28 @@ define([ 'jquery', 'openbis', 'test/dtos' ], function($, openbis, dtos) {
 
 		this.login = function(user, password) {
 			var thisFacade = this;
-			return this._openbis.login(user, password).done(function(sessionToken) {
+			return facade.login(user, password).done(function(sessionToken) {
 				thisFacade._private.sessionToken = sessionToken;
 			});
 		}
 
 		this.loginAs = function(user, password, asUserId) {
 			var thisFacade = this;
-			return this._openbis.loginAs(user, password, asUserId).done(function(sessionToken) {
+			return facade.loginAs(user, password, asUserId).done(function(sessionToken) {
 				thisFacade._private.sessionToken = sessionToken;
 			});
 		}
 
 		this.loginAsAnonymousUser = function() {
 			var thisFacade = this;
-			return this._openbis.loginAsAnonymousUser().done(function(sessionToken) {
+			return facade.loginAsAnonymousUser().done(function(sessionToken) {
 				thisFacade._private.sessionToken = sessionToken;
 			});
 		}
 
 		this.logout = function() {
 			var thisFacade = this;
-			return this._openbis.logout().done(function() {
+			return facade.logout().done(function() {
 				thisFacade._private.sessionToken = null;
 			});
 		}
@@ -697,15 +696,15 @@ define([ 'jquery', 'openbis', 'test/dtos' ], function($, openbis, dtos) {
 		}
 
 		this.executeOperations = function(operations, options) {
-			return this._openbis.executeOperations(operations, options);
+			return facade.executeOperations(operations, options);
 		}
 
 		this.getDataStoreFacade = function() {
-			return this._openbis.getDataStoreFacade.apply(this._openbis, arguments);
+			return facade.getDataStoreFacade.apply(facade, arguments);
 		}
 
 	}
 
-	return facade;
+	return executeOperationsFacade;
 
 });
