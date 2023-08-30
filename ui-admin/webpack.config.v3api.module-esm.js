@@ -13,15 +13,33 @@ module.exports = {
     filename: 'V3API.esm.js',
     library: {
       type: 'module'
-    }
+    },
+    chunkFormat: 'module',
+
   },
 
   mode: 'development',
   devtool: 'source-map',
 
   module: {
-    rules: []
+    rules: [
+     {
+          test: /\.(?:js|mjs|cjs)$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['@babel/preset-env', { targets: "defaults" }]
+              ],
+              plugins: ["./removeJQuery.js"]
+            }
+          }
+        }]
   },
+
+
+
 
   resolve: {
     alias: {
@@ -38,10 +56,17 @@ module.exports = {
       'util/Exceptions': path.resolve(__dirname, 'srcV3/util/Exceptions.js'),
       'util/Json': path.resolve(__dirname, 'srcV3/util/Json.js')
     },
-    fallback: {}
+    extensions: ['.js', '.d.ts'],
   },
 
-  plugins: [],
+  plugins: [
+   new Webpack.IgnorePlugin({resourceRegExp: /^\.\/locale$/,
+                              contextRegExp: /moment\/js$/},
+                               new Webpack.ProvidePlugin({
+                                    $: 'jquery',
+                                    jQuery: 'jquery',
+                                  }),
+)],
 
   externals: {}
 }
