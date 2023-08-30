@@ -35,8 +35,7 @@ Please check our JavaDoc for more
 details: <https://openbis.ch/javadoc/20.10.x/javadoc-api-v3/index.html>
 
 All V3 API jars are packed in openBIS-API-V3-<VERSION>.zip which
-is part of openBIS-clients-and-APIs-<VERSION>.zip (the latest
-version can be downloaded at [Sprint Releases](#) > Clients and APIs)
+is part of openBIS-clients-and-APIs-<VERSION>.zip (the latest version can be downloaded at [Sprint Releases](#) > Clients and APIs)
 
 ### The Javascript API
 
