@@ -505,7 +505,9 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 var project = parameters["sampleProject"];
                 if (project != null) {
                     object.setProjectId(new ProjectIdentifier("/" + space + "/" + project));
-                    sampleIdentifier += "/" + project;
+                    if(IdentifierUtil.isProjectSamplesEnabled) {
+                        sampleIdentifier += "/" + project;
+                    }
                     var experiment = parameters["sampleExperiment"]
                     if (experiment != null) {
                         object.setExperimentId(new ExperimentIdentifier("/" + space + "/" + project + "/" + experiment));
