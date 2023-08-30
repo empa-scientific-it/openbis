@@ -1,5 +1,5 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ], function($, _, openbis, openbisExecuteOperations, common, dtos) {
+	var executeModule = function(moduleName, openbis, dtos) {
 		QUnit.module(moduleName);
 
 		var testGet = function(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig) {
@@ -128,7 +128,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		}
 
 		QUnit.test("getSpaces()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.SpaceFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -152,7 +152,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getProjects()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.ProjectFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -177,7 +177,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getExperiments()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.ExperimentFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -201,7 +201,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getSamples()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.SampleFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -225,7 +225,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getDataSets()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.DataSetFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -265,7 +265,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getMaterials()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.MaterialFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -289,7 +289,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getPropertyTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.PropertyTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -313,7 +313,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getPlugins()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.PluginFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -336,7 +336,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getVocabularies()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.VocabularyFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -360,7 +360,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getVocabularyTerms()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.VocabularyTermFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -384,7 +384,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getExternalDms()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.ExternalDmsFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -407,7 +407,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getTags()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.TagFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -431,7 +431,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getAuthorizationGroups()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.AuthorizationGroupFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
@@ -455,7 +455,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getRoleAssignments() with user", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.RoleAssignmentFetchOptions();
 			fo.withUser();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -486,7 +486,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getRoleAssignments() with authorization group", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.RoleAssignmentFetchOptions();
 			fo.withAuthorizationGroup();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
@@ -517,7 +517,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getPersons()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 
 			var fCreate = function(facade) {
 				return $.when(c.createPerson(facade), c.createPerson(facade)).then(function(permId1, permId2) {
@@ -542,7 +542,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var WEB_APP_2 = "webApp2";
 			var WEB_APP_3 = "webApp3";
 
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 
 			var fCreate = function(facade) {
 				return c.createPerson(facade).then(function(permId) {
@@ -602,7 +602,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var WEB_APP_2 = "webApp2";
 			var WEB_APP_3 = "webApp3";
 
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 
 			var fCreate = function(facade) {
 				return c.createPerson(facade).then(function(permId) {
@@ -651,7 +651,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getOperationExecutions()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.OperationExecutionFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -674,7 +674,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getSemanticAnnotations()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.SemanticAnnotationFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -697,7 +697,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getQueries()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.QueryFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -720,7 +720,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getQueryDatabases()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.QueryDatabaseFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -743,7 +743,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getExperimentTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.ExperimentTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -766,7 +766,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getSampleTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.SampleTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -789,7 +789,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getDataSetTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.DataSetTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -812,7 +812,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getMaterialTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.MaterialTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -835,7 +835,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getRights()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis, dtos);
 			var sampleId = new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-2");
 			c.start();
 			
@@ -853,7 +853,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("getServerInformation()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis, dtos);
 			c.start();
 
 			c.createFacadeAndLogin().then(function(facade) {
@@ -870,7 +870,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getServerPublicInformation()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, openbis, dtos);
 			c.start();
 
 			c.createFacadeAndLogin().then(function(facade) {
@@ -890,7 +890,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getPersonalAccessTokens()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, openbis, dtos);
 			var fo = new c.PersonalAccessTokenFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -915,7 +915,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("Get tests", openbis);
-		executeModule("Get tests (executeOperations)", openbisExecuteOperations);
+		executeModule("Get tests", openbis, dtos);
+		executeModule("Get tests (executeOperations)", openbisExecuteOperations, dtos);
+        executeModule("Get tests (module UMD)", window.openbis.openbis, window.openbis);
+        executeModule("Get tests (module ESM)", window.openbisESM.openbis, window.openbisESM);
 	}
 });

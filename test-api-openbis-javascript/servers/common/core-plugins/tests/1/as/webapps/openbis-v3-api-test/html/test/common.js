@@ -1,4 +1,4 @@
-define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOpenbis, _, dtos) {
+define([ 'jquery', 'openbis', 'underscore'], function($, defaultOpenbis, _) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
@@ -14,7 +14,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 	var testUserId = "openbis_test_js";
 	var testUserPassword = "password";
 
-	var Common = function(assert, openbis) {
+	var Common = function(assert, openbis, dtos) {
 		this.assert = assert;
 
 		if (!openbis) {
