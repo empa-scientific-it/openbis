@@ -1411,7 +1411,7 @@ data script of module `screening` has been executed.
 
 Execution of master data script can be suppressed by
 disabling `initialize-master-data` core plugin. For more details see
-[Core Plugins](/display/openBISDoc2010/Core+Plugins).
+[Core Plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html).
 
 ### Limit of open files
 
