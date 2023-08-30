@@ -756,7 +756,12 @@ var Util = new function() {
 	// URL Utils
 	//
 	this.getURLFor = function(menuId, view, argsForView) {
-		var viewData = Array.isArray(argsForView) ? JSON.stringify(argsForView) : argsForView;
+		var viewData = null;
+		if((typeof arg) !== "string") {
+			viewData = JSON.stringify(argsForView);
+		} else {
+		    viewData = argsForView;
+		}
 		return window.location.href.split("?")[0] + "?menuUniqueId=" +  menuId+ "&viewName=" + view + "&viewData=" +
 				viewData;
 	}

@@ -406,6 +406,17 @@ function MainController(profile) {
 		this.sideMenu.removeSubSideMenu();
 
 		//
+		// Obtain real argument
+		//
+        try {
+            var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+            var argToUse = JSON.parse(cleanText);
+		    arg = argToUse;
+	    } catch(err) {
+		    // unchanged arg
+        }
+
+		//
 		// Permanent URLs
 		//
 		if (shouldURLBePushToHistory) {
@@ -533,14 +544,7 @@ function MainController(profile) {
 					break;
 				case "showAdvancedSearchPage":
 					document.title = "Advanced Search";
-					var argToUse = null;
-					try {
-						var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-						argToUse = JSON.parse(cleanText);
-					} catch(err) {
-						argToUse = arg;
-					}
-					this._showAdvancedSearchPage(argToUse);
+					this._showAdvancedSearchPage(arg);
 					//window.scrollTo(0,0);
 					break;
                 case "showDropboxMonitorPage":
@@ -596,11 +600,9 @@ function MainController(profile) {
 					break;
 				case "showSearchPage":
 					document.title = "Search";
-					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-					var argsMap = JSON.parse(cleanText);
-					var searchText = argsMap["searchText"];
-					var searchDomain = argsMap["searchDomain"];
-					var searchDomainLabel = argsMap["searchDomainLabel"];
+					var searchText = arg["searchText"];
+					var searchDomain = arg["searchDomain"];
+					var searchDomainLabel = arg["searchDomainLabel"];
 					this._showSearchPage(searchText, searchDomain, searchDomainLabel);
 					//window.scrollTo(0,0);
 					break;
@@ -653,10 +655,8 @@ function MainController(profile) {
 					//window.scrollTo(0,0);
 					break;
 				case "showCreateExperimentPage":
-					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-					var argsMap = JSON.parse(cleanText);
-					var experimentTypeCode = argsMap["experimentTypeCode"];
-					var projectIdentifier = argsMap["projectIdentifier"];
+					var experimentTypeCode = arg["experimentTypeCode"];
+					var projectIdentifier = arg["projectIdentifier"];
 					
                     document.title = "Create " + ELNDictionary.getExperimentKindName(experimentTypeCode) + " " + experimentTypeCode;
 					var experiment = {
@@ -677,7 +677,7 @@ function MainController(profile) {
 					break;
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
-					var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
+					var argsArray = arg ? arg : [null, null];
 					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
@@ -692,7 +692,7 @@ function MainController(profile) {
 					break;
 				case "showEditExperimentPageFromIdentifier":
 					var _this = this;
-                    var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
+                    var argsArray = arg ? arg : [null, null];
                     var identifier = argsArray[0];
                     var type = argsArray[1];
                     this.serverFacade.listExperimentsForIdentifiers([identifier], function(data) {
@@ -704,15 +704,15 @@ function MainController(profile) {
 				case "showCreateSubExperimentPage":
 					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
 					var argsMap = JSON.parse(cleanText);
-					var sampleTypeCode = argsMap["sampleTypeCode"];
-					var experimentIdentifier = argsMap["experimentIdentifier"];
+					var sampleTypeCode = arg["sampleTypeCode"];
+					var experimentIdentifier = arg["experimentIdentifier"];
 					document.title = "Create " + Util.getDisplayNameFromCode(sampleTypeCode);
 					this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
 					//window.scrollTo(0,0);
 					break;
 				case "showSamplesPage":
 					document.title = "" + ELNDictionary.Sample + " Browser";
-					var argsArray = arg ? JSON.parse(decodeURIComponent(arg)) : [null, null];
+					var argsArray = arg ? arg : [null, null];
                     this._showExperimentView(argsArray[0], argsArray[1], "LIST_VIEW");
 					//window.scrollTo(0,0);
 					break;
