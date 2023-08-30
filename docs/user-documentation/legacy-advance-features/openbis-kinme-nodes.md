@@ -287,7 +287,7 @@ with `knime-`. The specifications of such services are the following:
 
 In order to simplify KNIME aggregation services a Helper API in Java is
 available
-[openbis-knime-server.jar](/att/openbis-knime-server.jar).
+[openbis-knime-server.jar](att/openbis-knime-server.jar).
 It should be added to openBIS installation in
 folder `<installation folder>/servers/datastore_server/ext-lib`.
 
