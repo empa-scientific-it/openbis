@@ -18,7 +18,7 @@ The three features correspond to three menu items of the menu
 The last feature can be used by any user having OBSERVER role whereas
 for the first two features user needs a **query creator** role which
 usually is at least POWER\_USER role and is
-[configured](/display/openBISDoc2010/Installation+and+Administrator+Guide+of+the+openBIS+Server#InstallationandAdministratorGuideoftheopenBISServer-ConfigureAuthorization)
+[configured](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#configure-authorization)
 by administrator of the openBIS server. The idea is that power users
 having the knowledge to write SQL queries define a query which can be
 used by everybody without knowing much about SQL.
