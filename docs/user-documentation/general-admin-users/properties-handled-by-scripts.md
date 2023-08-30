@@ -63,10 +63,9 @@ following steps.
 2.  Define a script that will handle the property
     (Administration->Scripts) or deploy a Java plugin. For details
     and examples of usage go to pages:  
-    -   [Dynamic Properties](/display/openBISDoc2010/Dynamic+Properties)
-    -   [Managed Properties](/display/openBISDoc2010/Managed+Properties)
-    -   [Entity validation
-        scripts](/display/openBISDoc2010/Entity+validation+scripts)
+    -   [Dynamic Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties)
+    -   [Managed Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#managed-properties)
+    -   [Entity validation scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#entity-validation-scripts)
 3.  Assign the created property type to chosen entity type using the
     created script (e.g. for samples: Administration->Property
     Types->Assign to Sample Type):  
@@ -88,8 +87,7 @@ Dynamic Properties
 
 *Dynamic Properties* are one of two types of properties that use Jython
 scripts for providing special functionality to OpenBIS. To understand
-the basic concept read about [Properties Handled By
-Scripts](/display/openBISDoc2010/Properties+Handled+By+Scripts).
+the basic concept read about [Properties Handled By Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#properties-handled-by-scripts).
 
 ### Defining dynamic properties
 
@@ -447,7 +445,7 @@ the validations succeed after all the updates have been done.
 1.  Validation scripts should be read-only.  
     -   In theory it is possible to edit the entity during the
         validation. This is a bad practice. Consider using [Dynamic
-        Properties](/display/openBISDoc2010/Dynamic+Properties) if you
+        Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties) if you
         want calculations being performed after the entity updates.
 2.  Think about performance  
     -   The plugins will be executed for every creation or update of
@@ -464,7 +462,7 @@ Managed Properties
 *Managed Properties* are one of two types of properties that use Jython
 scripts for providing special functionality to openBIS. To understand
 the basic concept read about [Properties Handled By
-Scripts](/display/openBISDoc2010/Properties+Handled+By+Scripts).
+Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#).
 
 The feature is especially useful when a complex data structure should be
 stored in a single property. Properties holding XML documents are a good
