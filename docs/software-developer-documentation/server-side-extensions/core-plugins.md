@@ -80,7 +80,7 @@ core-plugins
 ```
 
 
-You might noticed the file `initialize-master-data.py` in AS core plugins sections  in this example. It is a script to register master data in the openBIS core database. For more details see [Installation and Administrator Guide of the openBIS Server](/display/openBISDoc2010/Installation+and+Administrator+Guide+of+the+openBIS+Server).
+You might noticed the file `initialize-master-data.py` in AS core plugins sections  in this example. It is a script to register master data in the openBIS core database. For more details see [Installation and Administrator Guide of the openBIS Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html).
 
 Each plugin can refer to any number of files. These files are part of
 the plugin folder. In `plugin.properties` they are referred relative to
