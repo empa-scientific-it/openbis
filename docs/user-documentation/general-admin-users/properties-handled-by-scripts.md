@@ -410,7 +410,7 @@ validation script for each type:
 -   You find a property which is called 'Validation Script' (see screen
     shot below). Just select your defined Script and hit save.
 
-![image info](img/434.png)
+![image info](img/Screen_shot_2013-03-01_at_11.40.41_AM.png)
 
 ### Creating and Deploying Java Validation Plugins
 
