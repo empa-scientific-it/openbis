@@ -714,10 +714,7 @@ used for the anonymous login.
 Anonymous login is possible with URL parameter `anonymous` set to `true`
 or by property `default-anonymous-login` in web configuration properties
 (see [Web Client
-Customization](#InstallationandAdministratorGuideoftheopenBISServer-WebClientCustomization)).
-Note, that for the ELN client the property `default-anonymous-login`
-isn't used. Anonymous login needs only the property
-`user-for-anonymous-login` for an existing user with some rights.
+Customization](https://unlimited.ethz.ch/display/openBISDoc2010/Register+Master+Data+via+the+Admin+Interface)). Note, that for the ELN client the property `default-anonymous-login` isn't used. Anonymous login needs only the property `user-for-anonymous-login` for an existing user with some rights.
 
 ### Single Sign On Authentication
 
