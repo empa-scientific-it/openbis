@@ -158,7 +158,7 @@ On such services we want to have:
 For such services we recommend to create a PAT on log in and store the
 PAT instead. We provide the example Gradle project with the java class
 PersonalAccessTokensApplicationWorkflows ([source downloadable
-here](/download/attachments/132286225/src.zip?version=1&modificationDate=1663662966452&api=v2))
+here](att/src.zip))
 as the recommend way to manage getting the most up to date personal
 access token for an application and user. Including creation and renewal
 management.
