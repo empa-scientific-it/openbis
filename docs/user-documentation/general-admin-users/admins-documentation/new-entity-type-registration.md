@@ -41,7 +41,7 @@ capital letters, and they can only contain A-Z, a-z, 0-9 and \_, -, .
 4. Provide a description (not mandatory).
 
 5. Entity validation plugin is used when we want to have validation on
-some data entries. This is done via a custom script (see [Entity Validation Scripts](https://unlimited.ethz.ch/display/openBISDoc2010/Entity+validation+scripts))
+some data entries. This is done via a custom script (see [Entity Validation Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#entity-validation-scripts))
 
 6. Enter the **Generated Code Prefix**. As a convention, we recommended
 to use the first 3 letters of the *Object* *type* code (e.g. **INS**, in
@@ -119,9 +119,7 @@ When registering new properties, the fields below need to be filled in.
 9.  **OBJECT**. 1-1 connection to a specific object type.
 10. **TIMESTAMP**: date with timestamp
 11. **VARCHAR**: one-line text
-12. **XML**: to be used by *Managed Properties* (see [openBIS Managed Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#managed-properties)or[openBIS Managed Properties](https://wiki-bsse.ethz.ch/display/openBISDoc1906/Managed+Properties)
-    and for *Spreadsheet component*s, as described here:[Enable Rich
-    Text Editor or Spreadsheet Widgets](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-rich-text-editor-or-spreadsheet-widgets)
+12. **XML**: to be used by *Managed Properties* (see [openBIS Managed Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#managed-properties) and for *Spreadsheet component*s, as described here:[Enable Rich Text Editor or Spreadsheet Widgets](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-rich-text-editor-or-spreadsheet-widgets)
  
 
 ### Considerations on properties registration
