@@ -310,11 +310,7 @@ was incorrect the login methods return null.
 
 ### Personal Access Tokens
 
-A personal access token (in short: PAT) can be thought of as a longer
-lived session token which can be used for integrating openBIS with
-external systems. If you would like to learn more about the idea behind
-PATs please read: [Personal Access
-Tokens](/pages/viewpage.action?pageId=122140993).
+A personal access token (in short: PAT) can be thought of as a longer lived session token which can be used for integrating openBIS with external systems. If you would like to learn more about the idea behind PATs please read: [Personal Access Tokens](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/personal-access-tokens.html#personal-access-tokens)).
 
 Example of how to create and use a PAT:
 
@@ -1731,17 +1727,11 @@ project and sample update:
 
 ### Custom AS Services
 
-In order to extend openBIS API new custom services can be established by
-core plugins of type `services` (see [Custom Application Server
-Services](/pages/viewpage.action?pageId=80699473)). The API offers a
-method to search for a service and to execute a service.
+In order to extend openBIS API new custom services can be established by core plugins of type `services` (see [Custom Application Server Services](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/as-services.html#custom-application-server-services)). The API offers a method to search for a service and to execute a service.
 
 #### Search for custom services
 
-As with any other search method `searchCustomASServices()` needs a
-search criteria `CustomASServiceSearchCriteria` and fetch options
-`CustomASServiceFetchOptions`. The following example returns all
-available custom AS services.
+As with any other search method `searchCustomASServices()` needs a search criteria `CustomASServiceSearchCriteria` and fetch options `CustomASServiceFetchOptions`. The following example returns all available custom AS services.
 
 ##### Example 
 
