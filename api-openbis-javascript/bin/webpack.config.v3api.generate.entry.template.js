@@ -7,22 +7,19 @@ var dtos = []
 pathsWithSlashes.forEach(pathWithSlashes => {
   dtos.push({
     name: pathWithSlashes.substring(pathWithSlashes.lastIndexOf('/') + 1),
-    pathWithSlashes: pathWithSlashes
+    pathWithSlashes: pathWithSlashes,
+    pathWithUnderscores: pathWithSlashes.replaceAll('/', '_'),
   })
 })
 
 // import all DTOs and facade
 
-var imports = {}
-
 dtos
-  .sort((dto1, dto2) => dto1.name.localeCompare(dto2.name))
+  .sort((dto1, dto2) =>
+    dto1.pathWithSlashes.localeCompare(dto2.pathWithSlashes)
+  )
   .forEach(dto => {
-    var isDuplicatedName = imports[dto.name]
-    console.log(
-       (isDuplicatedName ? "//" : "") + 'import ' + dto.name + " from '../../src/v3/" + dto.pathWithSlashes + "'"
-    )
-    imports[dto.name] = true
+    console.log('import ' + dto.pathWithUnderscores + " from '../../src/v3/" + dto.pathWithSlashes + "'")
   })
 
 console.log("import openbis from '../../src/v3/openbis'")
@@ -36,12 +33,12 @@ dtos
     dto1.pathWithSlashes.localeCompare(dto2.pathWithSlashes)
   )
   .forEach(dto => {
-    console.log('  "' + dto.pathWithSlashes + '" : ' + dto.name + ',')
+    console.log('  "' + dto.pathWithSlashes + '" : ' + dto.pathWithUnderscores + ',')
   })
 
 console.log('}')
 
-console.log('\nJson.setRequireFn(function(moduleNames, callback){')
+console.log('\nutil_Json.setRequireFn(function(moduleNames, callback){')
 console.log('  callback.apply(')
 console.log('    null,')
 console.log('    moduleNames.map(function(moduleName){')
@@ -52,14 +49,35 @@ console.log('})')
 
 // export all DTOs and facade
 
-console.log('\nexport default {')
+// Some details:
+// DTOs are exported using their simple name as well as their full name.
+// For instance, "as.dto.sample.Sample" will be available in the final exported "openbis" object
+// as both "openbis.Sample" and "openbis.as.dto.sample.Sample".
+// This way any DTOs with duplicated simple names can still be accessed via their full names.
 
-dtos
-  .sort((dto1, dto2) => dto1.name.localeCompare(dto2.name))
-  .forEach(dto => {
-    console.log('  ' + dto.name + ',')
+var exported = {
+  "openbis" : "$$openbis$$"
+}
+
+dtos.forEach(dto => {
+  var package = exported
+
+  dto.pathWithSlashes.split('/').slice(0,-1).forEach(pathPart => {
+    if(!package[pathPart]){
+      package[pathPart] = {}
+    }
+    package = package[pathPart]
   })
 
-console.log('  openbis,')
+  if(exported[dto.name] === undefined){
+    exported[dto.name] = "$$" + dto.pathWithUnderscores + "$$"
+  }else{
+    // for duplicated simple names use null to avoid accidental mistakes where one DTOs is used instead of another
+    exported[dto.name] = null
+  }
 
-console.log('}')
+  package[dto.name] = "$$" + dto.pathWithUnderscores + "$$"
+})
+
+// remove quotes after JSON.stringify, the quotes to remove have $$ (e.g. "$$as_dto_sample_Sample$$" => as_dto_sample_Sample)
+console.log('\nexport default ' + JSON.stringify(exported, null, 4).replaceAll("$$\"", "").replaceAll("\"$$", ""))
