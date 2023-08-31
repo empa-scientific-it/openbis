@@ -78,7 +78,7 @@ The additional information can be entered in the **Storage Position**
 With the new XLS batch registration, samples and their storage positions
 can be registered in one transaction using the XLS template file, as
 explained in [Batch register entries in a
-Collection](https://openbis.ch/index.php/docs/user-documentation/inventory-of-materials-and-methods/batch-register-entries-in-a-collection/).
+Collection](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection).
 
  
 
