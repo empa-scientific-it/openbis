@@ -228,7 +228,7 @@ reporting plugins that modify entities in the database. A db-modifying
 aggregation service reporting plugin takes a hash map containing user
 parameters and a transaction as arguments and returns tabular data (in
 the form of a TableModel). The transaction is an
-[IDataSetRegistrationTransactionV2](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/etlserver/registrator/api/v2/IDataSetRegistrationTransactionV2.html),
+[IDataSetRegistrationTransactionV2](https://openbis.ch/javadoc/20.10.x/javadoc-dropbox-api/ch/systemsx/cisd/etlserver/registrator/api/v2/IDataSetRegistrationTransactionV2.html),
 the same interface that is used by [dropboxes](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#dropboxes) to register and modify entities. The JythonBasedDbModifyingAggregationServiceReportingPlugin below is a subclass that allows for implementation of the logic in Jython. 
 
 **Configuration**: Dependent on the subclass.
