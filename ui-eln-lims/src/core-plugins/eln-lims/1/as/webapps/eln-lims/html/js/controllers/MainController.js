@@ -377,22 +377,31 @@ function MainController(profile) {
 	this.changeView = function(newViewChange, arg, shouldStateBePushToHistory) {
 		this._changeView(newViewChange, arg, true, shouldStateBePushToHistory);
 	}
+
 	this._changeView = function(newViewChange, arg, shouldURLBePushToHistory, shouldStateBePushToHistory) {
 		LayoutManager.isBlocked = false;
+		var _this = this;
+		var _next = function() {
+		    Util.unblockUI();
+		    _this._changeViewNext(newViewChange, arg, shouldURLBePushToHistory, shouldStateBePushToHistory);
+		}
 		//
 		// Dirty forms management, to avoid loosing changes.
 		//
 		var discardChanges = null;
-		if( this.currentView && 
-			this.currentView.isDirty && 
+		if( this.currentView &&
+			this.currentView.isDirty &&
 			this.currentView.isDirty()) {
 			//Ask the user if wants to leave the view in case is dirty
-			discardChanges = window.confirm("Leaving this window will discard any changes, are you sure?");
+			Util.blockUIConfirm("Leaving this window will discard any changes, are you sure?", _next, null /* Do nothing */);
+		} else {
+		    _next();
 		}
-		
-		if(discardChanges != null && !discardChanges) {
-			return;
-		}
+	}
+
+	this._changeViewNext = function(newViewChange, arg, shouldURLBePushToHistory, shouldStateBePushToHistory) {
+		LayoutManager.isBlocked = false;
+
 		//
 		// Finalize view, used to undo mayor modifications to how layout and events are handled
 		//
