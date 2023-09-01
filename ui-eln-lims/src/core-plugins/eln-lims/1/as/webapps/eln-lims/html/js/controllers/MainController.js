@@ -702,8 +702,6 @@ function MainController(profile) {
 					});
 					break;
 				case "showCreateSubExperimentPage":
-					var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
-					var argsMap = JSON.parse(cleanText);
 					var sampleTypeCode = arg["sampleTypeCode"];
 					var experimentIdentifier = arg["experimentIdentifier"];
 					document.title = "Create " + Util.getDisplayNameFromCode(sampleTypeCode);
