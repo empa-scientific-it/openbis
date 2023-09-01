@@ -35,7 +35,7 @@ import java.util.Map;
 public class DatasetTypeImportHelper extends BasicImportHelper
 {
     private enum Attribute implements IAttribute {
-        Version("Version", true),
+        Version("Version", false),
         Code("Code", true),
         Description("Description", true),
         ValidationScript("Validation script", true),
@@ -84,13 +84,23 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.DATASET_TYPE.getType(), code));
+        if (version == null) {
+            return true;
+        } else {
+            return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.DATASET_TYPE.getType(), code));
+        }
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (version == null) {
+            Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.DATASET_TYPE.getType(), code);
+            storedVersion++;
+            version = storedVersion.toString();
+        }
 
         VersionUtils.updateVersion(version, versions, ImportTypes.DATASET_TYPE.getType(), code);
     }

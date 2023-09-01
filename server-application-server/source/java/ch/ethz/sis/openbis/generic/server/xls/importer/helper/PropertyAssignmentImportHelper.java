@@ -55,7 +55,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 {
 
     private enum Attribute implements IAttribute {
-        Version("Version", true),
+        Version("Version", false),
         Code("Code", true),
         Mandatory("Mandatory", true),
         DefaultValue("Default Value", false),
@@ -119,10 +119,14 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String newVersion = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
+        String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
         String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
 
-        return !existingCodes.contains(code) || VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
+        if (version == null) {
+            return true;
+        } else {
+            return !existingCodes.contains(code) || VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
+        }
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
