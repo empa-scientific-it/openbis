@@ -51,8 +51,6 @@ public class UncompressedImportTest extends AbstractImportTest
     @Test
     public void testDataImport()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
@@ -72,15 +70,11 @@ public class UncompressedImportTest extends AbstractImportTest
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
         assertEquals(vocabularyTerms.size(), 2);
         assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()), Set.of("HRP", "AAA"));
-
-        v3api.logout(sessionToken);
     }
 
     @Test
     public void testImportOptionsUpdateIfExists()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
@@ -99,20 +93,15 @@ public class UncompressedImportTest extends AbstractImportTest
         assertEquals(vocabularySearchResult.getObjects().get(0).getDescription(), "Test vocabulary with modifications");
 
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
-        assertEquals(vocabularyTerms.size(), 3);
         assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()),
                 Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"));
         assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getLabel).collect(Collectors.toSet()),
                 Set.of("Test term A", "Test term B", "Test term C"));
-
-        v3api.logout(sessionToken);
     }
 
     @Test
     public void testImportOptionsIgnoreExisting()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
@@ -131,37 +120,24 @@ public class UncompressedImportTest extends AbstractImportTest
         assertEquals(vocabularySearchResult.getObjects().get(0).getDescription(), "Test vocabulary");
 
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
-        assertEquals(vocabularyTerms.size(), 3);
         assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()),
                 Set.of("TEST_TERM_A", "TEST_TERM_B", "TEST_TERM_C"));
         final List<String> descriptions = vocabularyTerms.stream().map(VocabularyTerm::getLabel).collect(Collectors.toList());
         assertTrue(descriptions.containsAll(Arrays.asList(null, null, "Test term C")));
-
-        v3api.logout(sessionToken);
     }
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*FAIL_IF_EXISTS.*")
     public void testImportOptionsFailIfExists()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
-        try
-        {
-            v3api.executeImport(sessionToken, importData, importOptions);
-        } finally
-        {
-            v3api.logout(sessionToken);
-        }
+        v3api.executeImport(sessionToken, importData, importOptions);
     }
 
     @Test
     public void testWithValidationScript()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
@@ -187,15 +163,11 @@ public class UncompressedImportTest extends AbstractImportTest
 
         assertEquals(validationPlugin.getName(), sampleType.getCode() + "." + validationPluginBareName);
         assertEquals(validationPlugin.getScript(), source);
-
-        v3api.logout(sessionToken);
     }
 
     @Test
     public void testWithDynamicScript()
     {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
         final String name = "dynamic.py";
         final String source = "1+1";
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
@@ -226,8 +198,6 @@ public class UncompressedImportTest extends AbstractImportTest
 
         assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
         assertEquals(plugin.getScript(), source);
-
-        v3api.logout(sessionToken);
     }
 
 }

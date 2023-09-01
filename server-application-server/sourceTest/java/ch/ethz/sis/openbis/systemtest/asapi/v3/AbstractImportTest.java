@@ -22,14 +22,17 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 public class AbstractImportTest extends AbstractTest
 {
 
-    private static final String VERSIONING_JSON = "./versioning.json";
+    private static final String VERSIONING_JSON = "targets/xls-import-version-info-test.json";
 
     private static final String XLS_VERSIONING_DIR = "xls-import.version-data-file";
+
+    protected String sessionToken;
 
     @BeforeSuite
     public void setupSuite()
@@ -37,10 +40,23 @@ public class AbstractImportTest extends AbstractTest
         System.setProperty(XLS_VERSIONING_DIR, VERSIONING_JSON);
     }
 
+    @BeforeMethod
+    public void beforeTest()
+    {
+        sessionToken = v3api.login(TEST_USER, PASSWORD);
+    }
+
     @AfterMethod
     public void afterTest()
     {
-        new File(VERSIONING_JSON).delete();
+        final File file = new File(VERSIONING_JSON);
+
+        System.out.println("Versioning file: " + file.getAbsolutePath());
+        System.out.println("Versioning file exists: " + file.exists());
+
+        file.delete();
+
+        v3api.logout(sessionToken);
     }
 
     protected static byte[] getFileContent(final String fileName)
