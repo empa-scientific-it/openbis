@@ -1,9 +1,8 @@
 plugins {
-    id "com.github.node-gradle.node" version "3.2.1"
+    id 'com.github.node-gradle.node' version '3.2.1'
 }
 
 apply from: '../build/javaproject.gradle'
-
 
 repositories {
     ivy {
@@ -14,3 +13,10 @@ repositories {
 
 dependencies {
 }
+
+task generateZip(type: Zip) {
+    archiveName 'api-data-store-server-javascript.zip'
+    from project.files('src/js').getAsFileTree()
+}
+
+build.dependsOn generateZip
