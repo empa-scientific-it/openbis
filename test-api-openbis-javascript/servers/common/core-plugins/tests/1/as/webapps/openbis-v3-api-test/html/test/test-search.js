@@ -3804,17 +3804,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var options = new dtos.SampleDeletionOptions();
 			options.setReason("Test reason.");
 			facade.deleteSamples([samplePermId], options)
-				.then(function() {
-					facade.deleteSampleTypes([sampleTypeId], new dtos.SampleTypeDeletionOptions())
-						.then(function() {
-							facade.deletePropertyTypes([propertyTypeId], new dtos.PropertyTypeDeletionOptions())
-								.fail(function(error) {
-									c.fail("Error deleting property type. error.message=" + erro.message);
-								});
-						})
-						.fail(function(error) {
-							c.fail("Error deleting sample type. error.message=" + error.message);
-						});
+				.then(function(deletionId) {
+					facade.confirmDeletions([deletionId]).then(function(){
+						var options = new dtos.SampleTypeDeletionOptions()
+						options.setReason("Test reason.");
+						facade.deleteSampleTypes([sampleTypeId], options)
+							.then(function() {
+								var options = new dtos.PropertyTypeDeletionOptions()
+								options.setReason("Test reason.");
+								facade.deletePropertyTypes([propertyTypeId], options)
+									.fail(function(error) {
+										c.fail("Error deleting property type. error.message=" + erro.message);
+									});
+							})
+							.fail(function(error) {
+								c.fail("Error deleting sample type. error.message=" + error.message);
+							});
+					}).fail(function(error) {
+						c.fail("Error confirming sample deletion. error.message=" + error.message);
+					});
 				})
 				.fail(function(error) {
 					c.fail("Error deleting sample. error.message=" + error.message);
