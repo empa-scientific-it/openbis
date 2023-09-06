@@ -29,7 +29,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		var moduleNames = Object.keys(types).map(function(type) {
 			return typeToModuleName(type);
 		});
-		loadV3APIModule(moduleNames, function() {
+		require(moduleNames, function() {
 			var moduleMap = {};
 
 			for (var i = 0; i < arguments.length; i++) {

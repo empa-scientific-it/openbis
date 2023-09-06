@@ -74,7 +74,6 @@
     "dev": "webpack-dev-server --hot --config webpack.config.dev.js",
     "build": "webpack-cli --config webpack.config.js",
     "components": "webpack-cli --config webpack.config.components.js",
-    "v3api": "webpack-cli --config webpack.config.v3api.js",
     "unit": "jest",
     "lint": "eslint --ext .js,.jsx src/js srcTest/js",
     "lint:fix": "eslint --ext .js,.jsx src/js srcTest/js --fix",
