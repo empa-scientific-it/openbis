@@ -2,33 +2,17 @@
 <html lang="en">
   <head>
     <title>V3 API bundle test</title>
-
-    <!-- Non-RequireJS version of the API (must be first, i.e. before RequireJS) -->
     <script type="text/javascript" src="/V3API.js"></script>
-
-    <!-- RequreJS version of the API -->
-    <script
-      type="text/javascript"
-      src="http://localhost:8888/openbis-test/resources/api/v3/config.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="http://localhost:8888/openbis-test/resources/api/v3/require.js"
-    ></script>
-
     <script>
-      var API_URL =
-        'http://localhost:8888/openbis/openbis/rmi-application-server-v3.json'
-      var USER = 'admin'
-      var PASSWORD = 'password'
+      function useV3API() {
+        var openbis = new V3API.openbis(
+          'http://localhost:8888/openbis/openbis/rmi-application-server-v3.json'
+        )
 
-      function useV3APINonRequireJS() {
-        var facade = new V3API.openbis(API_URL)
-
-        facade
-          .login(USER, PASSWORD)
+        openbis
+          .login('admin', 'test')
           .done(function (sessionToken) {
-            return facade
+            return openbis
               .searchSpaces(
                 new V3API.SpaceSearchCriteria(),
                 new V3API.SpaceFetchOptions()
@@ -46,45 +30,11 @@
             alert('Failed with error: ' + JSON.stringify(error))
           })
       }
-
-      function useV3APIRequireJS() {
-        require([
-          'openbis',
-          'as/dto/space/search/SpaceSearchCriteria',
-          'as/dto/space/fetchoptions/SpaceFetchOptions'
-        ], function (openbis, SpaceSearchCriteria, SpaceFetchOptions) {
-          var facade = new openbis(API_URL)
-
-          facade
-            .login(USER, PASSWORD)
-            .done(function (sessionToken) {
-              return facade
-                .searchSpaces(
-                  new SpaceSearchCriteria(),
-                  new SpaceFetchOptions()
-                )
-                .done(function (searchResult) {
-                  alert(
-                    'Found spaces: ' +
-                      searchResult.getObjects().map(function (space) {
-                        return space.getCode()
-                      })
-                  )
-                })
-            })
-            .fail(error => {
-              alert('Failed with error: ' + JSON.stringify(error))
-            })
-        })
-      }
     </script>
   </head>
   <body>
     <div id="root">
-      <button onclick="{useV3APINonRequireJS();}">
-        Use Non-RequireJS V3 API
-      </button>
-      <button onclick="{useV3APIRequireJS();}">Use RequireJS V3 API</button>
+      <button onclick="{useV3API();}">Use V3 API</button>
     </div>
   </body>
 </html>
