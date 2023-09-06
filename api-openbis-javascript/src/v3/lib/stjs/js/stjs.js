@@ -21,7 +21,7 @@ var NOT_IMPLEMENTED = function(){
 	throw "This method is not implemented in Javascript.";
 }
 
-var JavalikeEquals = function(value){
+JavalikeEquals = function(value){
 	if (value == null)
 		return false;
 	if (value.valueOf)
@@ -252,7 +252,7 @@ stjs.ns=function(path){
 };
 
 stjs.copyProps=function(from, to){
-	for(var key in from){
+	for(key in from){
 		if (!stjs.skipCopy[key])
 			to[key]	= from[key];
 	}
@@ -260,7 +260,7 @@ stjs.copyProps=function(from, to){
 };
 
 stjs.copyInexistentProps=function(from, to){
-	for(var key in from){
+	for(key in from){
 		if (!stjs.skipCopy[key] && !to[key])
 			to[key]	= from[key];
 	}

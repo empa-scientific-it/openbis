@@ -4,9 +4,7 @@ import ReactDOM from 'react-dom'
 import ErrorBoundary from '@src/js/components/common/error/ErrorBoundary.jsx'
 import DatePickerProvider from '@src/js/components/common/date/DatePickerProvider.jsx'
 import ThemeProvider from '@src/js/components/common/theme/ThemeProvider.jsx'
-
-// webpack can handle imports of both ESM and UMD modules
-import V3API from '@srcV3Example/static/V3API.esm.js'
+import V3API from '@srcV3Example/static/V3API.js'
 
 async function useV3APIImported() {
   var facade = new V3API.openbis()

@@ -4,19 +4,16 @@ const path = require('path')
 
 module.exports = {
   entry: './webpack.config.v3api.entry.js',
-
-  experiments: {
-    outputModule: true
-  },
   output: {
     path: __dirname + '/build/v3api/js',
-    filename: 'V3API.esm.js',
-    library: {
-      type: 'module'
-    }
+    filename: 'V3API.js',
+    libraryTarget: 'umd',
+    libraryExport: 'default',
+    library: 'V3API'
   },
 
-  mode: 'development',
+
+  mode: 'production',
   devtool: 'source-map',
 
   module: {
