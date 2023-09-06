@@ -18,12 +18,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
     }, {})
 
 	var Json = function() {
-        this.requireFn = require
 	}
-
-    Json.prototype.setRequireFn = function(requireFn) {
-        this.requireFn = requireFn
-    }
 
 	Json.prototype.fromJson = function(jsonType, jsonObject) {
 		var dfd = jquery.Deferred();
@@ -34,7 +29,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		var moduleNames = Object.keys(types).map(function(type) {
 			return typeToModuleName(type);
 		});
-		this.requireFn(moduleNames, function() {
+		loadV3APIModule(moduleNames, function() {
 			var moduleMap = {};
 
 			for (var i = 0; i < arguments.length; i++) {

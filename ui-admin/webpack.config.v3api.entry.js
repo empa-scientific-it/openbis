@@ -945,6 +945,7 @@ import WebAppSettingsFetchOptions from './srcV3/as/dto/webapp/fetchoptions/WebAp
 import WebAppSettingsSortOptions from './srcV3/as/dto/webapp/fetchoptions/WebAppSettingsSortOptions'
 import WebAppSettingsUpdateValue from './srcV3/as/dto/webapp/update/WebAppSettingsUpdateValue'
 import openbis from '/srcV3/openbis'
+import require from '/srcV3/require'
 
 var modules = {
   "as/dto/attachment/Attachment" : Attachment,
@@ -1895,17 +1896,6 @@ var modules = {
   "dss/dto/datasetfile/search/DataSetFileSearchCriteria" : DataSetFileSearchCriteria,
 }
 
-import Json from '/srcV3/util/Json'
-
-Json.setRequireFn(function(moduleNames, callback){
-  callback.apply(
-    null,
-    moduleNames.map(function(moduleName){
-      return modules[moduleName]
-    })
-  )
-})
-
 export default {
   AbstractCompositeSearchCriteria,
   AbstractDateObjectValue,
@@ -2854,4 +2844,6 @@ export default {
   WebAppSettingsSortOptions,
   WebAppSettingsUpdateValue,
   openbis,
+  require,
+  modules,
 }
