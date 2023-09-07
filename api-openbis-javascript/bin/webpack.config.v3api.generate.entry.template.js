@@ -22,9 +22,11 @@ dtos
     console.log('import ' + dto.pathWithUnderscores + " from '../../src/v3/" + dto.pathWithSlashes + "'")
   })
 
+console.log("import stjs from '../../src/v3/lib/stjs/js/stjs'")
+console.log("import underscore from '../../src/v3/lib/underscore/js/underscore'")
 console.log("import openbis from '../../src/v3/openbis'")
 
-// use bundled DTOs when parsing JSON responses
+// use bundled DTOs when parsing JSON responses (i.e. overwrite the default Json.requireFn - it would load DTOs from the server using RequireJS)
 
 console.log('\nvar modules = {')
 
@@ -46,6 +48,10 @@ console.log('      return modules[moduleName]')
 console.log('    })')
 console.log('  )')
 console.log('})')
+
+// stjs uses "underscore" library and expects it to be available in the global context under "_" - let's make it use the bundled "underscore" instead
+
+console.log('\nstjs._ = underscore')
 
 // export all DTOs and facade
 
