@@ -64,10 +64,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 			name: "FieldUpdateValue",
 			arguments: ["String"]
 		},
-		description: {
-			name: "FieldUpdateValue",
-			arguments: ["String"]
-		},
 		official: {
 			name: "FieldUpdateValue",
 			arguments: ["Boolean"]

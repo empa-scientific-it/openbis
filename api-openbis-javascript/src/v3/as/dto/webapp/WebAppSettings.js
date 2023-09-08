@@ -1,4 +1,4 @@
-define([ "stjs" ], function(stjs) {
+define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	var WebAppSettings = function() {
 	};
 	stjs.extend(WebAppSettings, null, [], function(constructor, prototype) {
