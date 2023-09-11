@@ -7,3 +7,5 @@ html_theme_options = {
 }
 extensions = ['myst_parser']
 source_suffix = ['.rst', '.md']
+def setup(app):
+    app.add_css_file('my_theme.css')
