@@ -340,11 +340,7 @@ Updated on April 25, 2023
 
  
 
-Templates need to be defined by the lab manager in the [**ELN
-Settings**](../general-admin-users/admins-documentation/create-templates-for-objects.md).
-If templates have been created for a given *Experimental Step*, you can
-choose from the list of available templates by clicking the **Template**
-button on the *Object* form, as shown below.  
+Templates need to be defined by the lab manager in the [**ELN Settings**](../general-admin-users/admins-documentation/multi-group-set-up.md#general-eln-settings). If templates have been created for a given *Experimental Step*, you can choose from the list of available templates by clicking the **Template** button on the *Object* form, as shown below.  
 
  
 
