@@ -305,7 +305,7 @@ menu. This shows all controlled vocabularies registered in openBIS and
 the terms they contain. Vocabularies are predefined lists of values to
 choose from in given fields. Vocabularies can be created/modified by an
 openBIS *Instance admin* (see [New Entity Type
-Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)).
+Registration](../general-admin-users/admins-documentation/new-entity-type-registration.md)).
 
 This information is needed for filling the forms for **Batch
 Upload **or**Batch Update** of *Objects* via TSV file. If an *Object*
@@ -590,7 +590,7 @@ as metadata in openBIS.
 Custom imports are not available by default, but need to be enabled on
 the server side by a *system admin*, and a dropbox script needs to be
 associated with an import (see [Custom
-Imports](https://openbis.readthedocs.io/en/latest/software-developer-documentation/legacy-server-side-extensions/custom-import.html)).
+Imports](../../software-developer-documentation/legacy-server-side-extensions/custom-import.md)).
 
  
 
@@ -738,7 +738,7 @@ Updated on November 10, 2022
 
 ## Spreadsheet
 
-The spreadsheet component needs to be enabled by a group admin or lab manager who can edit the ELN Settings, as described here: [Enable Rich Text Editor or Spreadsheet Widgets](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-rich-text-editor-or-spreadsheet-widgets)
+The spreadsheet component needs to be enabled by a group admin or lab manager who can edit the ELN Settings, as described here: [Enable Rich Text Editor or Spreadsheet Widgets](../general-admin-users/admins-documentation/new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
 
 ![image info](img/Screenshot-2020-03-09-at-17.13.07.png)
 

@@ -50,11 +50,11 @@ create a new *Space*:
 
 1.  **no group**. The new *Space* will have no prefix and the Settings
     defined in General Settings will apply (see [General ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#general-eln-settings)).
+    Settings](./multi-group-set-up.md#general-eln-settings)).
 2.  **in one of the existing groups**. The new *Space* will have the
     group prefix and the Settings of that group will apply (see [Group
     ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#group-eln-settings)).
+    Settings](./multi-group-set-up.md#group-eln-settings)).
 
  
 
@@ -157,11 +157,11 @@ create a new *Space*:
 
 1.  **no group**. The new *Space* will have no prefix and the Settings
     defined in General Settings will apply (see [General ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#general-eln-settings)).
+    Settings](./multi-group-set-up.md#general-eln-settings)).
 2.  **in one of the existing groups**. The new *Space* will have the
     group prefix and the Settings of that group will apply (see [Group
     ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#group-eln-settings)). 
+    Settings](./multi-group-set-up.md#group-eln-settings)). 
 
  
 

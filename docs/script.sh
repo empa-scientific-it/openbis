@@ -20,13 +20,13 @@ do
                 if [[ $new_string =~ ^\.\.\/\.\. ]]
                 then
                 	#new_string="${new_string:3}"
-			echo $new_string
+			#echo $new_string
 			new_string=`echo $new_string | sed s,"../",,`
-			echo $new_string
+			#echo $new_string
 		fi
                 original_string=`echo "https://openbis.readthedocs.io/en/latest/${string}" | cut -d '#' -f 1`
-                #echo $original_string
-                #echo $new_string
-                #sed -i s,"$original_string","$new_string",g $i
+                echo $original_string
+                echo $new_string
+                sed -i s,"$original_string","$new_string",g $i
         done
 done

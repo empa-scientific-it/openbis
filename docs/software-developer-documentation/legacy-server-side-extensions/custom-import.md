@@ -24,7 +24,7 @@ downloaded template file can be used to create the file to be imported.
 ### Configuration
 
 To have the possibility to use a `Custom Import` functionality, this
-needs an AS [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type
+needs an AS [core plugin](../server-side-extensions/core-plugins.md) of type
 custom-imports. The `plugin.properties` of each plugin has several
 parameters:
 

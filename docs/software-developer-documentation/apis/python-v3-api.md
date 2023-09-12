@@ -445,7 +445,7 @@ material_type.get_property_assignments()
 
 ### create plugins
 
-Plugins are Jython scripts that can accomplish more complex data-checks than ordinary types and vocabularies can achieve. They are assigned to entity types (dataset type, sample type etc). [Documentation and examples can be found here](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html)
+Plugins are Jython scripts that can accomplish more complex data-checks than ordinary types and vocabularies can achieve. They are assigned to entity types (dataset type, sample type etc). [Documentation and examples can be found here](../../user-documentation/general-admin-users/properties-handled-by-scripts.md)
 
 ```python
 pl = o.new_plugin(

@@ -44,7 +44,7 @@ Modification to default rights can be granted by an *Instance admin*
 from the *admin UI*, as explained below.
 
 Overview of roles:
-[openBIS Roles](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html#openbis-roles)
+[openBIS Roles](./user-registration.md#openbis-roles)
 
 
 ## Register users from the admin UI
@@ -77,7 +77,7 @@ To register new users from the admin UI:
 8. To assign a role to a user, first the **Level** needs to be selected
 (Instance, Space, Project) .
 
-9. If level is Instance, you can directly select a role (Admin, Observer). If the level is Space or Project, you first need to select the Space or Project and then assign a [Role](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html#openbis-roles).
+9. If level is Instance, you can directly select a role (Admin, Observer). If the level is Space or Project, you first need to select the Space or Project and then assign a [Role](./user-registration.md#openbis-roles).
 
 ![](https://openbis.ch/wp-content/uploads/2020/02/admin-ui-roles-300x293.png)
 
@@ -233,7 +233,7 @@ following information:
 3.  **Email**
 4.  **openBIS session token**
 5.  **Zenodo API Token** ([Export to
-    Zenodo](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-export.html#export-to-zenodo))
+    Zenodo](../../general-users/data-export.md#export-to-zenodo))
 
  
 
@@ -275,7 +275,7 @@ Space** for that user in the lab notebook, as shown below.
 
 When users are registered via the ELN UI, a *Space* with their username
 is created (see [User
-Registration)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html)
+Registration)](./user-registration.md)
 and this is automatically set as home space for the user.
 
 The same happens in multi-group instances where spaces are created for

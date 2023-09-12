@@ -278,4 +278,4 @@ management.
 
 ## V3 API 
 
-Code examples for personal access tokens can be found in the main V3 API documentation: [openBIS V3 API\#PersonalAccessTokens](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/personal-access-tokens.html#personal-access-tokens)
+Code examples for personal access tokens can be found in the main V3 API documentation: [openBIS V3 API\#PersonalAccessTokens](./personal-access-tokens.md#personal-access-tokens)

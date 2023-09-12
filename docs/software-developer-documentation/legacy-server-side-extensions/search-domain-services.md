@@ -10,7 +10,7 @@ protein sequences.
 ## Configuring a Service
 
 To configure a service a
-[core-plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of
+[core-plugin](../server-side-extensions/core-plugins.md) of
 type `search-domain-services` has to be created. The minimum
 configuration for `plugin.properties` reads:
 
@@ -59,7 +59,7 @@ installed. Only the tools `blastn` (for nucleotide search) and `blastp`
 (for protein search) are used.
 
 In order to build up a local BLAST database the maintenance task
-[BlastDatabaseCreationMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#blastdatabasecreationmaintenancetask) has to be configured.
+[BlastDatabaseCreationMaintenanceTask](../../system-admin-documentation/advanced-features/maintenance-tasks.md#blastdatabasecreationmaintenancetask) has to be configured.
 
 Because the maintenance task to create the BLAST databases runs often
 only once per day a change in entity properties or a registration of a 

@@ -5,7 +5,7 @@
 The **Advanced Search** can be accessed from the main menu, under
 **Utilities**. Alternatively, the advanced search can also be used after
 performing a global search (see
-[Search](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/search.html)),
+[Search](./search.md)),
 to refine the obtained results.
 
 ![image info](img/advanced-search-navigation-menu-1024x448.png)
@@ -156,7 +156,7 @@ This functionality, available from the main menu, performs a search
 across all database fields. Results are presented in a table in the
 **Advanced Search** page. The search can be also be further refined (see
 [Advanced
-search](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/search.html#advanced-search)).
+search](./search.md#advanced-search)).
 
 ![image info](img/general-search-1024x486.png)
 
@@ -188,7 +188,7 @@ Updated on April 25, 2023
 ## Save and reuse searches
 
 It is possible to save and re-use searches created in the [Advanced
-search](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/search.html#advanced-search).
+search](./search.md#advanced-search).
 *Space* *admin* rights are required to save searches in a given Space.
 Searches can be used by anyone with *User* or *Observer* rights to a
 given Space.

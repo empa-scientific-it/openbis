@@ -41,7 +41,7 @@ capital letters, and they can only contain A-Z, a-z, 0-9 and \_, -, .
 4. Provide a description (not mandatory).
 
 5. Entity validation plugin is used when we want to have validation on
-some data entries. This is done via a custom script (see [Entity Validation Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#entity-validation-scripts))
+some data entries. This is done via a custom script (see [Entity Validation Scripts](../properties-handled-by-scripts.md#entity-validation-scripts))
 
 6. Enter the **Generated Code Prefix**. As a convention, we recommended
 to use the first 3 letters of the *Object* *type* code (e.g. **INS**, in
@@ -74,7 +74,7 @@ button at the bottom of the page. To remove a property, use the
 
 Please note that new *Object types* created in the admin UI, do not
 automatically appear in ELN drop downs, but they have to be manually
-enabled, as described here: [Enable Objects in dropdowns](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-objects-in-dropdowns) 
+enabled, as described here: [Enable Objects in dropdowns](./new-entity-type-registration.md#enable-objects-in-dropdowns) 
 
 
 ## Registration of Properties
@@ -93,7 +93,7 @@ When registering new properties, the fields below need to be filled in.
     hints about the field itself. In most cases, label and description
     can be the same.
 5.  **Dynamic Property Plugin**: Script for calculated properties.
-    See [Dynamic properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties)
+    See [Dynamic properties](../properties-handled-by-scripts.md#dynamic-properties)
 6.  **Editable**: Editable in the ELN interface. In some cases, metadata
     is automatically imported by scripts and this should not be changed
     by users in the interface.
@@ -114,12 +114,12 @@ When registering new properties, the fields below need to be filled in.
 6.  **MATERIAL**. Not used in ELN. It will be dismissed.
 7.  **MULTILINE\_VARCHAR**: long text. It is possible to enable a Rich
     Text Editor for this type of property. This is described
-    here: [Enable Rich Text Editor or Spreadsheet Widgets](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-rich-text-editor-or-spreadsheet-widgets)
+    here: [Enable Rich Text Editor or Spreadsheet Widgets](./new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
 8.  **REAL**: decimal number
 9.  **OBJECT**. 1-1 connection to a specific object type.
 10. **TIMESTAMP**: date with timestamp
 11. **VARCHAR**: one-line text
-12. **XML**: to be used by *Managed Properties* (see [openBIS Managed Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#managed-properties) and for *Spreadsheet component*s, as described here:[Enable Rich Text Editor or Spreadsheet Widgets](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-rich-text-editor-or-spreadsheet-widgets)
+12. **XML**: to be used by *Managed Properties* (see [openBIS Managed Properties](../properties-handled-by-scripts.md#managed-properties) and for *Spreadsheet component*s, as described here:[Enable Rich Text Editor or Spreadsheet Widgets](./new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
  
 
 ### Considerations on properties registration
@@ -178,7 +178,7 @@ The registration of a new **Collection** type is very similar to the
 registration of **Object** types. For Collection Types, you only need to
 provide a Code (which is a unique identifier), Description and add a
 validation plugin if you want to have metadata validation (see [Entity
-Validation Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#entity-validation-scripts)).
+Validation Scripts](../properties-handled-by-scripts.md#entity-validation-scripts)).
 
 
 ![](img/Collection-type-1024x481.png)
@@ -315,7 +315,7 @@ masterdata. An example template file for this can be found here:
 
 More extensive documentation on the XLS format for masterdata and
 metadata registration can be found
-[here](https://openbis.readthedocs.io/en/latest/user-documentation/advance-features/excel-import-service.html).
+[here](../../advance-features/excel-import-service.md).
 
 Updated on January 13, 2023
  

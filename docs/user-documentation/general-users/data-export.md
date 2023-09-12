@@ -35,7 +35,7 @@ corresponding *Project, Experiment, Object and Datasets* (see below).
 A link to download the zip file is sent via email to the user. Email
 notification needs to be configured by a *system admin* during or after
 installation, as explained in [Configure Data Store
-Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
+Server](../../system-admin-documentation/installation/optional-datastore-server-configuration.md)
 [.](https://wiki-bsse.ethz.ch/display/openBISDoc1906/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server)
 
 
@@ -75,11 +75,11 @@ repository ([https://zenodo.org/).](https://zenodo.org/)
 This enables data direct data transfer from openBIS to Zenodo. First of
 all the connection to Zenodo needs to be configured by a *system admin*
 in the DSS service.properties (see [How to configure the openBIS
-DSS)](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
+DSS)](../../system-admin-documentation/installation/optional-datastore-server-configuration.md)
 If this is configured, a lab manager, who has admin rights for the
 **Settings,** needs to enable it in the ELN, as explained in [Enable
 Transfer to Data
-Repositories](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/enable-transfer-to-data-repositories.html)**.**
+Repositories](../general-admin-users/admins-documentation/enable-transfer-to-data-repositories.md)**.**
 
 ###  Create Zenodo Personal Access Token
 
