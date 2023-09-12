@@ -958,7 +958,7 @@ Depending on the DSS (specified by the DSS code) and the technology
 different databases have to be used.
 
 Configuration is best done by AS [core
-plugins](../../../software-developer-documentation/server-side-extensions/core-plugins.md) of type
+plugins](../../software-developer-documentation/server-side-extensions/core-plugins.md) of type
 `dss-data-sources`. The name of the plugin is just the DSS code. The
 following properties of `plugin.properties` are recognized:
 
@@ -1383,7 +1383,7 @@ A master data script can be run automatically by start up of the AS if
 it is defined in an AS core plugin. The script path should be
 `<installation directory>/servers/core-plugins/<module name>/<version number>/as/initialize-master-data.py`.
 For more details about the folder structure of core plugins see [Core
-Plugins](../../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins). If there are several
+Plugins](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins). If there are several
 core plugins with master data scripts the scripts will be executed in
 alphabetical order of the module names. For example, the master data
 script of module `screening-optional` will be executed after the master
@@ -1391,7 +1391,7 @@ data script of module `screening` has been executed.
 
 Execution of master data script can be suppressed by
 disabling `initialize-master-data` core plugin. For more details see
-[Core Plugins](../../../software-developer-documentation/server-side-extensions/core-plugins.md).
+[Core Plugins](../../software-developer-documentation/server-side-extensions/core-plugins.md).
 
 ### Limit of open files
 
