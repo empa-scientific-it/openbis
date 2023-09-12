@@ -53,7 +53,7 @@ Updated on March 23, 2023
 Web upload of data files is only suitable for files of limited size (few
 GB). To upload larger data, openBIS uses dropbox scripts that run in the
 background (see
-[Dropboxes](../../../software-developer-documentation/server-side-extensions/dss-dropboxes.md)).
+[Dropboxes](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html)).
 A default dropbox script is provided with the openBIS ELN-LIMS plugin,
 and the dropbox folder needs to be set up by a *system admin*.
 
