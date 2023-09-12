@@ -18,7 +18,7 @@ Maintenance Tasks
 
 ## Introduction
 
-A maintenance task is a process which runs once or in regular time intervals. It is defined by a [core plugin](../../../../../docs-test/docs/software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) of type `maintenance-tasks`. Usually a maintenance task can only run on AS or DSS but not in both environments.
+A maintenance task is a process which runs once or in regular time intervals. It is defined by a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) of type `maintenance-tasks`. Usually a maintenance task can only run on AS or DSS but not in both environments.
 
 The following properties are common for all maintenance tasks:
 
@@ -410,7 +410,7 @@ configured. It does the following:
 4.  Requests archiving of the non-deleted data sets.
 
 The last step requires that the maintenance task
-[ArchivingByRequestTask](../../../../../docs-test/docs/system-admin-documentation/advanced-features/maintenance-tasks.md#archivingbyrequesttask) is configured.
+[ArchivingByRequestTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#archivingbyrequesttask) is configured.
 
 **Configuration**:
 
@@ -1311,9 +1311,9 @@ if int(seriesNum) % 2 == 0:
 **Relevancy:** Relevant
 
 **Description**: Deletes database entries from the imaging database.
-This is special variant of [DeleteFromExternalDBMaintenanceTask](../../../../../docs-test/docs/system-admin-documentation/advanced-features/maintenance-tasks.md#deletefromexternaldbmaintenancetask) with the same configuration parameters.
+This is special variant of [DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask) with the same configuration parameters.
 
-**Configuration**: See [DeleteFromExternalDBMaintenanceTask](../../../../../docs-test/docs/system-admin-documentation/advanced-features/maintenance-tasks.md#deletefromexternaldbmaintenancetask)
+**Configuration**: See [DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask)
 
 **Example**:
 

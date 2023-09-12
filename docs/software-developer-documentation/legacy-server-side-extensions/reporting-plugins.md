@@ -18,7 +18,7 @@ are the type of input and output:
     *Output*: A table
 
 A reporting plugin is configured on the DSS best by introducing a [core
-plugin](../../../../../docs-test/docs/software-developer-documentation/server-side-extensions/core-plugins.md) of type
+plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type
 `reporting-plugins`. All reporting plugins have the following properties
 in common:
 
@@ -229,7 +229,7 @@ aggregation service reporting plugin takes a hash map containing user
 parameters and a transaction as arguments and returns tabular data (in
 the form of a TableModel). The transaction is an
 [IDataSetRegistrationTransactionV2](https://openbis.ch/javadoc/20.10.x/javadoc-dropbox-api/ch/systemsx/cisd/etlserver/registrator/api/v2/IDataSetRegistrationTransactionV2.html),
-the same interface that is used by [dropboxes](../../../../../docs-test/docs/software-developer-documentation/server-side-extensions/dss-dropboxes.md#dropboxes) to register and modify entities. The JythonBasedDbModifyingAggregationServiceReportingPlugin below is a subclass that allows for implementation of the logic in Jython. 
+the same interface that is used by [dropboxes](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#dropboxes) to register and modify entities. The JythonBasedDbModifyingAggregationServiceReportingPlugin below is a subclass that allows for implementation of the logic in Jython. 
 
 **Configuration**: Dependent on the subclass.
 

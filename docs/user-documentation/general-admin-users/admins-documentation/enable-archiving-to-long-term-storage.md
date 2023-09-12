@@ -9,7 +9,7 @@
 openBIS supports archiving of datasets to Strongbox and StronLink
 ([https://www.strongboxdata.com/](https://www.strongboxdata.com/)) as
 described in [Datasets
-Archiving](../../../../../../docs-test/docs/system-admin-documentation/advanced-features/archive-datasets.md)
+Archiving](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/archive-datasets.html)
 
  
 
@@ -35,6 +35,6 @@ ELN Settings:
 
 More information on archiving and unarchiving datasets can be found
 here: [Data
-archiving](../../../../../../docs-test/docs/user-documentation/general-users/data-archiving.md)
+archiving](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-archiving.html)
 
 Updated on April 26, 2023
