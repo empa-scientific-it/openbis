@@ -9,9 +9,7 @@ Managing Storage Of Samples
 If we want to track the storage position of samples, openBIS provides a
 graphical overview of lab storages. 
 
-Lab storages need to be configured by a *lab manager* or *group admin*,
-as explained here: [Configure Lab
-Storage](../../general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.md#configure-lab-storage)
+Lab storages need to be configured by a *lab manager* or *group admin*, as explained here: [Configure Lab Storage](../general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.md#configure-lab-storage)
 
   
 This can be done in two ways:
