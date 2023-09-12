@@ -12,7 +12,7 @@ Protocol to the form, we use the **Search** or **Paste** options next to
 General Protocol. If we want to add another parent, for example a
 **Sample**, we need to use the **Search Any** or **Paste Any** next to
 Parents. See also [Add parents and children to Experimental
-Steps.](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps)
+Steps.](../../general-users/lab-notebook.md#add-parents-and-children-to-experimental-steps)
 
  
 

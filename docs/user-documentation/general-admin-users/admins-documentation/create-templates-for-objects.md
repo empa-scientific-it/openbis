@@ -40,6 +40,6 @@ as shown below
 
  
 
-See [Use template for Experimental Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#use-templates-for-experimental-steps) for more info on how to use templates. 
+See [Use template for Experimental Steps](../../general-users/lab-notebook.md#use-templates-for-experimental-steps) for more info on how to use templates. 
 
 Updated on April 26, 2023

@@ -34,7 +34,7 @@ microscopy and Mass spec, we need to adopt the following steps:
   
 The steps for the registration of the folders are the same as explained
 in [Create Collections of
-Materials](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#create-collections-of-materials)  
+Materials](./customise-inventory-of-materials-and-samples.md#create-collections-of-materials)  
   
 
  
@@ -69,6 +69,6 @@ For this, follow the steps below:
 This is done to be able to create local copies of protocols from the
 *Inventory* inside an *Experiment* when writing *Experimental steps,* as
 described in [How to use protocols in Experimental
-Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#how-to-use-protocols-in-experimental-steps)
+Steps](../../general-users/lab-notebook.md#how-to-use-protocols-in-experimental-steps)
 
 Updated on April 26, 2023
