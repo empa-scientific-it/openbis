@@ -1314,7 +1314,7 @@ interface.*
 
 #### Enable Querying
 
-To enable querying functionality for additional databases in openBIS Web  application a [core plugin](../../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) of type query-databases has to be created. The following `plugin.properties` have to be specified:
+To enable querying functionality for additional databases in openBIS Web  application a [core plugin](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) of type query-databases has to be created. The following `plugin.properties` have to be specified:
 
 | Property          | Description                                                                                                               |
 |-------------------|---------------------------------------------------------------------------------------------------------------------------|
