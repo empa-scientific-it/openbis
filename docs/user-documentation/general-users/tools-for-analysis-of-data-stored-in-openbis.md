@@ -20,7 +20,7 @@ available by default, but needs to be enabled and configured by a
 download page: [openBIS
 download.](https://wiki-bsse.ethz.ch/display/bis/openBIS+Download+Page)
 Further documentation can be found here: [JupyterHub for
-openBIS](../advance-features/jupiterhub-for-openbis.md)  
+openBIS](https://openbis.readthedocs.io/en/latest/user-documentation/advance-features/jupiterhub-for-openbis.html)  
   
 
 
@@ -218,6 +218,6 @@ Updated on April 25, 2023
   
 The MATLAB toolbox for openBIS allows to access data stored in openBIS
 directly from MATALB. Full documentation can be found here: [MATLAB
-API](../../software-developer-documentation/apis/matlab-v3-api.md)
+API](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/matlab-v3-api.html)
 
 Updated on April 17, 2023
