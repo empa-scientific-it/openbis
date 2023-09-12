@@ -24,6 +24,6 @@ do
                 original_string=`echo "https://openbis.readthedocs.io/en/latest/${string}" | cut -d '#' -f 1`
                 echo $original_string
                 echo $new_string
-                sed -i.bak s,"$original_string","$new_string",g $i
+                sed -i s,"$original_string","$new_string",g $i
         done
 done
