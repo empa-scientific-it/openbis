@@ -310,7 +310,7 @@ was incorrect the login methods return null.
 
 ### Personal Access Tokens
 
-A personal access token (in short: PAT) can be thought of as a longer lived session token which can be used for integrating openBIS with external systems. If you would like to learn more about the idea behind PATs please read: [Personal Access Tokens](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/personal-access-tokens.html#personal-access-tokens)).
+A personal access token (in short: PAT) can be thought of as a longer lived session token which can be used for integrating openBIS with external systems. If you would like to learn more about the idea behind PATs please read: [Personal Access Tokens](./personal-access-tokens.md#personal-access-tokens)).
 
 Example of how to create and use a PAT:
 
@@ -1727,7 +1727,7 @@ project and sample update:
 
 ### Custom AS Services
 
-In order to extend openBIS API new custom services can be established by core plugins of type `services` (see [Custom Application Server Services](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/as-services.html#custom-application-server-services)). The API offers a method to search for a service and to execute a service.
+In order to extend openBIS API new custom services can be established by core plugins of type `services` (see [Custom Application Server Services](../../server-side-extensions/as-services.md#custom-application-server-services)). The API offers a method to search for a service and to execute a service.
 
 #### Search for custom services
 
