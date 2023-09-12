@@ -21,11 +21,11 @@ If you want to disallow archiving, choose 'Lock'. Remember that you can do this 
 ### ELN-LIMS
 
 Instead of triggering archiving only requesting archiving is possible.
-The maintenance task [ArchivingByRequestTask](./maintenance-tasks.md#archivingbyrequesttask) is required. It triggers the actual archiving.
+The maintenance task [ArchivingByRequestTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#archivingbyrequesttask) is required. It triggers the actual archiving.
 
 ## Automatic archiving
 
-Archiving can be automated by the Auto Archiver. This is a [maintenance task](./maintenance-tasks.md) which triggers archiving of data sets fullfulling some conditions (e.g. not accessed since a while). Note that the auto archiver doesn't archives itself. It just automates the selection of data sets to be archived. For all configuration parameters see [AutoArchiverTask](./maintenance-tasks.md#autoarchivertask).
+Archiving can be automated by the Auto Archiver. This is a [maintenance task](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html) which triggers archiving of data sets fullfulling some conditions (e.g. not accessed since a while). Note that the auto archiver doesn't archives itself. It just automates the selection of data sets to be archived. For all configuration parameters see [AutoArchiverTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#autoarchivertask).
 
 ### Archiving Policies
 
