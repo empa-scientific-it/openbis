@@ -99,7 +99,7 @@ greater detail.
 
 The model underlying dropbox registration is the following: when a new
 file or folder is found in the dropbox folder, the process function of
-the script file is invoked with a [data set registration transaction](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#idatasetregistrationtransaction) as an argument.
+the script file is invoked with a [data set registration transaction](./dss-dropboxes.md#idatasetregistrationtransaction) as an argument.
 The process function has the responsibility of looking at the incoming
 file or folder and determining what needs to be registered or modified
 in the metadata database and what data needs to be stored on the file
