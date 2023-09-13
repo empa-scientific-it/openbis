@@ -17,7 +17,7 @@ is returned to its original state in the event of an error.
 By deafult python 2.5 is used, but it's possible to use python version
 2.7.
 
-Dropboxes are dss core plugins: [Core Plugins](./core-plugins.html)
+Dropboxes are dss core plugins: [Core Plugins](./core-plugins.md#core-plugins)
 
 ### Simple Example
 
