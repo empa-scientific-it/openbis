@@ -116,7 +116,7 @@ Details
 
 ### Dropbox Configuration
 
-A jython dropbox is typically distributed as a [core plugin](./core-plugins.html) and configured in its plugin.properties file. A dropbox configured to run a jython script, which is kept in the same directory as plugin.properties. The configuration requires a storage processor and the name of the script (a full path is not necessary if the script is in the same directory as the plugin.properties). Here is an example configuration for a dropbox that uses the jython handler.
+A jython dropbox is typically distributed as a [core plugin](./core-plugins.md#core-plugins) and configured in its plugin.properties file. A dropbox configured to run a jython script, which is kept in the same directory as plugin.properties. The configuration requires a storage processor and the name of the script (a full path is not necessary if the script is in the same directory as the plugin.properties). Here is an example configuration for a dropbox that uses the jython handler.
 
 **plugin.properties**
 
@@ -766,8 +766,7 @@ API is the same, this language transition process is quite painless.
 
 ### Configuration
 
-As with other dropboxes, a Java dropbox should be deployed as a
-core-plugin.
+As with other dropboxes, a Java dropbox should be deployed as a core-plugin.
 
 **plugin.properties**
 
