@@ -1,9 +1,9 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'util/Json' ], function($, _, openbis, openbisExecuteOperations, common, Json) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'test/common', 'test/dtos', 'util/Json' ], function($, _, common, dtos, Json) {
+	var executeModule = function(moduleName, dtos) {
 		QUnit.module(moduleName);
 
 		QUnit.test("fromJSON with object id before object definition (in top level maps)", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			c.start();
 
 			var json = {
@@ -94,7 +94,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("fromJSON with object id before object definition (in nested maps)", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			c.start();
 
 			var json = {
@@ -191,7 +191,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("Json tests", openbis);
-		executeModule("Json tests (executeOperations)", openbisExecuteOperations);
+		executeModule("Json tests", dtos);
 	}
 });

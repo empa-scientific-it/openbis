@@ -5,19 +5,6 @@ import ErrorBoundary from '@src/js/components/common/error/ErrorBoundary.jsx'
 import DatePickerProvider from '@src/js/components/common/date/DatePickerProvider.jsx'
 import ThemeProvider from '@src/js/components/common/theme/ThemeProvider.jsx'
 
-// webpack can handle imports of both ESM and UMD modules
-import V3API from '@srcV3Example/static/V3API.esm.js'
-
-async function useV3APIImported() {
-  var facade = new V3API.openbis()
-  await facade.login('admin', 'password')
-  var searchResult = await facade.searchSpaces(
-    new V3API.SpaceSearchCriteria(),
-    new V3API.SpaceFetchOptions()
-  )
-  alert('Found spaces: ' + searchResult.getObjects().length)
-}
-
 const render = () => {
   let App = require('./components/App.jsx').default
 
@@ -25,7 +12,6 @@ const render = () => {
     <ThemeProvider>
       <ErrorBoundary>
         <DatePickerProvider>
-          <button onClick={useV3APIImported}>Use V3 API</button>
           <App />
         </DatePickerProvider>
       </ErrorBoundary>

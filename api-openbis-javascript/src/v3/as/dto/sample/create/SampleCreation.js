@@ -98,7 +98,7 @@ define([ "stjs", "as/dto/common/Relationship" ], function(stjs, Relationship) {
 			this.relationships = relationships;
 		};
 		prototype.relationship = function(sampleId) {
-			relationship = this.relationships[sampleId];
+			var relationship = this.relationships[sampleId];
 			if (relationship == null) {
 				relationship = new Relationship();
 				this.relationships[sampleId] = relationship;

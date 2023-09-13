@@ -240,6 +240,7 @@ var stjs={};
 
 stjs.global=this;
 stjs.skipCopy = {"prototype":true, "constructor": true, "$typeDescription":true, "$inherit" : true};
+stjs._ = this._
 
 stjs.ns=function(path){
 	var p = path.split(".");
@@ -319,13 +320,13 @@ stjs.extend=function(_constructor, _super, _implements, _initializer, _typeDescr
 	
 	_constructor.prototype.toJSON = function() {
 		function flatten(x) {
-			if (_.isArray(x)) {
-				return _.map(x, function(el) { return flatten(el) });
-			} else if (_.isObject(x)) {
+			if (stjs._.isArray(x)) {
+				return stjs._.map(x, function(el) { return flatten(el) });
+			} else if (stjs._.isObject(x)) {
 				var result = Object.create(null);
 
 			    for(var i in x) {
-			    	if (!_.isFunction(x[i])) {
+			    	if (!stjs._.isFunction(x[i])) {
 			    		result[i] = flatten(x[i]);
 			    	}
 			    }

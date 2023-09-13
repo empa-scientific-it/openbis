@@ -46,8 +46,7 @@
         <filter-class>ch.systemsx.cisd.common.servlet.MethodFilter</filter-class>
         <init-param>
             <param-name>allowed-methods</param-name>
-            <!-- Added OPTIONS to make OpenbisCrossOriginFilter get CORS requests and allow them to be performed by the browser  -->
-            <param-value>GET, POST, OPTIONS</param-value>
+            <param-value>GET, POST</param-value>
         </init-param>
     </filter>
     <filter-mapping>
