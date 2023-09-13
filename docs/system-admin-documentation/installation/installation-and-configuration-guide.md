@@ -1349,7 +1349,7 @@ is configured, then for the query database configured with key `db1`:
 - only a user who has the `OBSERVER` role in data space `CISD` is
     allowed to execute a query.
 
-For query databases that do not belong to a space but that have a column with any of the [magic column names](../../../user-documentation/general-admin-users/custom-database-queries.md#hyperlinks), the query result is filtered on a per-row basis according to what the user executing the query is allowed to see. In detail this means: if the user executing the query is not an instance admin, filter out all rows which belong to a data space where the user doesn't have a least the observer role. The relationship between a row and a data space is established by means of the experiment / sample / data set whose `permId` is given by one of the magical column names.
+For query databases that do not belong to a space but that have a column with any of the [magic column names](../../user-documentation/general-admin-users/custom-database-queries.md#hyperlinks), the query result is filtered on a per-row basis according to what the user executing the query is allowed to see. In detail this means: if the user executing the query is not an instance admin, filter out all rows which belong to a data space where the user doesn't have a least the observer role. The relationship between a row and a data space is established by means of the experiment / sample / data set whose `permId` is given by one of the magical column names.
 
 For sensitive data where authorization needs to be enforced, there are
 two setups possible:
