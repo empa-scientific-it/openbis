@@ -104,12 +104,12 @@ The process function has the responsibility of looking at the incoming
 file or folder and determining what needs to be registered or modified
 in the metadata database and what data needs to be stored on the file
 system. The
-[IDataSetRegistrationTransaction](./dss-dropboxes.html#idatasetregistrationtransaction) interface
+[IDataSetRegistrationTransaction](./dss-dropboxes.md#idatasetregistrationtransaction) interface
 defines the API for specifying entities to register and update.
 
 Committing a transaction is actually a two-part process. The metadata is stored in the openBIS application server's database; the data is kept on the file system in a sharded directory structure beneath the data store server's *store* directory. All modifications requested as part of a transaction are committed atomically — they either all succeed or all fail.
 
-Several [Events](./dss-dropboxes.html#events-registration-process-hooks) occur in the process of committing a transaction. By defining jython functions, it is possible to be notified and intervene when an event occurs. Because the infrastructure reserves the right to delay or retry actions if resources become unavailable, the process function and event functions cannot use global variables to communicate with each other. Instead, they should use the registration context object to communicate. Anything stored in the registration context must, however, be serializable by Java serialization.
+Several [Events](./dss-dropboxes.md#events-registration-process-hooks) occur in the process of committing a transaction. By defining jython functions, it is possible to be notified and intervene when an event occurs. Because the infrastructure reserves the right to delay or retry actions if resources become unavailable, the process function and event functions cannot use global variables to communicate with each other. Instead, they should use the registration context object to communicate. Anything stored in the registration context must, however, be serializable by Java serialization.
 
 Details
 -------
@@ -659,7 +659,7 @@ failed only after, the whole retrying / recovery process will fail. It
 means that it can take a long time before the .faulty\_paths file is
 created, even when there is a simple dropbox error.
 
-Therefor during development of a dropbox we recommend using **[development mode](./dss-dropboxes.html#development-mode)** , wich basically sets all retry values to 0, thus disabling the auto-recovery feature.
+Therefor during development of a dropbox we recommend using **[development mode](./dss-dropboxes.md#development-mode)** , wich basically sets all retry values to 0, thus disabling the auto-recovery feature.
 
 |Key|Default Value|Meaning|
 |--- |--- |--- |
