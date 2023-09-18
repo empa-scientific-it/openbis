@@ -151,38 +151,56 @@ Connecting in Java
             v3.logout(sessionToken);
         }
 
-
     }
 ```
 
 ### Connecting in Javascript
 
-We have put a lot of effort to make the use of the API in Javascript and
-Java almost identical. The DTOs which are a big part of the API are
-exactly the same in both languages. The methods you can invoke via the
-Javascript and Java APIs are also exactly the same. This makes the
-switch from Javascript to Java or the other way round very easy. Because
-of some major differences between Javascript and Java development still
-some things had to be done a bit differently. But even then we tried to
-be conceptually consistent.
+We have put a lot of effort to make the use of the API in Javascript and Java almost identical. The DTOs which are a big part of the API are exactly
+the same in both languages. The methods you can invoke via the Javascript and Java APIs are also exactly the same. This makes the switch from
+Javascript to Java or the other way round very easy. Because of some major differences between Javascript and Java development still some things had
+to be done a bit differently. But even then we tried to be conceptually consistent.
 
-**V3ConnectionExample.html**
+Before we go into details let's mention that there are actually 3 different ways the Javascript V3 API can be loaded and used. These are:
+
+1) AMD / RequireJS modules
+2) UMD module
+3) ESM module
+
+IMPORTANT: UMD and ESM modules are currently the recommended way of using the Javascript V3 API. AMD / RequireJS approach is still supported but no
+longer recommended.
+
+#### AMD / RequireJS modules
+
+Initially, the only way to load and use the V3 API in Javascript was based on AMD modules and RequireJS (see code example below). In that approach,
+what we had to do first was to load RequireJS library itself and its config. Once that was done, we could start loading all the necessary V3 API
+classes and the V3 API facade to make our V3 API calls.
+
+This approach worked fine, but there were also some drawbacks:
+
+- each V3 API class we wanted to use had to be explicitly "required" and its full class name had to be provided (e.g. as/dto/space/Space)
+- every V3 API class was loaded with a separate HTTP request to the server (loading multiple classes resulted in multiple requests to the server)
+
+Because of these shortcomings this approach is no longer recommended, but still fully supported. Please use UMD or ESM modules approach instead
+(depending on your use case).
+
+**V3ConnectionExampleUsingRequireJS.html**
 
 ```html
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>V3ConnectionExample</title>
-        <!-- 
-            These two js files, i.e. config.js and require.js are RequireJS configuration and RequireJS library itself.
-            Please check http://requirejs.org/ for more details on how RequireJS makes loading dependencies in Javascript easier.
-        -->
-        <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/config.js"></script>
-        <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/require.js"></script>
-    </head>
-    <body>
-        <script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>V3ConnectionExampleUsingRequireJS</title>
+    <!-- 
+        These two js files, i.e. config.js and require.js are RequireJS configuration and RequireJS library itself.
+        Please check http://requirejs.org/ for more details on how RequireJS makes loading dependencies in Javascript easier.
+    -->
+    <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/config.js"></script>
+    <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/require.js"></script>
+</head>
+<body>
+<script>
 
 
             // With "require" call we asynchronously load "openbis", "SpaceSearchCriteria" and "SpaceFetchOptions" classes that we will need for our example.
@@ -210,13 +228,153 @@ be conceptually consistent.
                     });
                 });
             });
-        </script>
-    </body>
-    </html>
-```
-  
+        
 
-##   IV. AS Methods  
+</script>
+</body>
+</html>
+```
+
+#### UMD module
+
+UMD module approach (UMD = Universal Module Definition, see: https://github.com/umdjs/umd) allows you to overcome the shortcomings of AMD / RequireJS
+solution. First, the UMD bundle consists of V3 API facade and all V3 API classes. Therefore, once the bundle is loaded, no further calls to the server
+are needed. Second, the bundle exposes the V3 API classes both via their simple names and their full names (see code example below) which makes it far
+easier for developers to use.
+
+UMD bundle can be loaded at an HTML page using a standard script tag.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>V3UMDExample</title>
+
+    <!--
+
+    Import UMD (Universal Module Definition) openBIS V3 API Javascript bundle as "openbis".
+    The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
+
+    The facade can be accessed via:
+    - "openbis" name (e.g. var v3 = new openbis.openbis())
+
+    The classes can be accessed via:
+    - simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
+    - full name (e.g. var space = new opebis.as.dto.space.Space()) - works for all classes
+
+    Classes with a unique simple name (e.g. Space) can be accessed using both their simple name (e.g. openbis.Space)
+    and their full name (e.g. openbis.as.dto.space.Space).
+    Classes with a non-unique simple name (e.g. ExternalDmsSearchCriteria) can be accessed only using their full name
+    (i.e. as.dto.dataset.search.ExternalDmsSearchCriteria and as.dto.externaldms.search.ExternalDmsSearchCriteria).
+
+    List of classes with duplicated simple names (i.e. accessible only via their full names):
+    - as.dto.dataset.search.ExternalDmsSearchCriteria
+    - as.dto.externaldms.search.ExternalDmsSearchCriteria
+    - as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria
+    - as.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria
+
+    -->
+
+    <!-- import the bundle as "openbis" (the bundle cannot be imported with a different name) -->
+    <script src="http://localhost:8888/openbis/resources/api/v3/openbis.umd.js"></script>
+</head>
+<body>
+<script>
+            // create an instance of the Javascript facade
+            var v3 = new openbis.openbis();
+
+            // login to obtain a session token (the token it is automatically stored in openbis object and will be used for all subsequent API calls)
+            v3.login("admin", "admin").done(function() {
+
+                // invoke other API methods, for instance search for spaces
+                v3.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions()).done(function(result) {
+
+                    alert("Number of spaces: " + result.getObjects().length);
+
+                    // logout to release the resources related with the session
+                    v3.logout();
+                });
+
+            });
+
+
+</script>
+</body>
+</html>
+```
+
+#### ESM module
+
+Similar to UMD module, ESM module (ECMAScript module) is a bundle that contains the V3 API facade and all V3 API classes. It also exposes the V3 API
+classes via both their simple names and their full names. The main difference between UMD and ESM is the format of the bundle and how and where it can
+be imported.
+
+ESM bundle can be loaded at an HTML page using a standard script tag with type="module". It is also well suited for webapps that bundle all their
+resources with tools like Webpack.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>V3ESMExample</title>
+</head>
+<body>
+
+<!--
+
+Import ESM (ECMAScript module) openBIS V3 API Javascript bundle as "openbis".
+The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
+
+The facade can be accessed via:
+- "openbis" name (e.g. var v3 = new openbis.openbis())
+
+The classes can be accessed via:
+- simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
+- full name (e.g. var space = new opebis.as.dto.space.Space()) - works for all classes
+
+Classes with a unique simple name (e.g. Space) can be accessed using both their simple name (e.g. openbis.Space)
+and their full name (e.g. openbis.as.dto.space.Space).
+Classes with a non-unique simple name (e.g. ExternalDmsSearchCriteria) can be accessed only using their full name
+(i.e. as.dto.dataset.search.ExternalDmsSearchCriteria and as.dto.externaldms.search.ExternalDmsSearchCriteria).
+
+List of classes with duplicated simple names (i.e. accessible only via their full names):
+- as.dto.dataset.search.ExternalDmsSearchCriteria
+- as.dto.externaldms.search.ExternalDmsSearchCriteria
+- as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria
+- as.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria
+
+-->
+
+<script type="module">
+            // import the bundle as "openbis" (the bundle can be imported with a different name)
+            import openbis from "http://localhost:8888/openbis/resources/api/v3/openbis.esm.js"
+
+            // create an instance of the Javascript facade
+            var v3 = new openbis.openbis();
+
+            // login to obtain a session token (the token it is automatically stored in openbis object and will be used for all subsequent API calls)
+            v3.login("admin", "admin").done(function() {
+
+                // invoke other API methods, for instance search for spaces
+                v3.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions()).done(function(result) {
+
+                    alert("Number of spaces: " + result.getObjects().length);
+
+                    // logout to release the resources related with the session
+                    v3.logout();
+                });
+
+            });
+
+
+</script>
+</body>
+</html>
+```
+
+## IV. AS Methods
 
 The sections below describe how to use different methods of the V3 API.
 Each section describes a group of similar methods. For instance, we have

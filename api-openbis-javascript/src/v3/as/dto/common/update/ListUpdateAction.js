@@ -1,5 +1,5 @@
 define([ "stjs" ], function(stjs) {
-	ListUpdateAction = function() {
+	var ListUpdateAction = function() {
 	};
 	stjs.extend(ListUpdateAction, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.common.update.ListUpdateAction';
