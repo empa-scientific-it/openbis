@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'test/common', 'test/dtos', 'util/Json' ], function($, _, common, dtos, Json) {
+define([ 'jquery', 'underscore', 'test/common', 'test/dtos' ], function($, _, common, dtos) {
 	var executeModule = function(moduleName, dtos) {
 		QUnit.module(moduleName);
 
@@ -79,7 +79,7 @@ define([ 'jquery', 'underscore', 'test/common', 'test/dtos', 'util/Json' ], func
 			};
 
 			try {
-				Json.fromJson(returnType, json).done(function(result) {
+				dtos.Json.fromJson(returnType, json).done(function(result) {
 					c.assertEqual(result[22].getRegistrator().getUserId(), "openbis_test_js", "22.Registrator.userId");
 					c.assertEqual(result[23].getRegistrator().getUserId(), "openbis_test_js", "23.Registrator.userId");
 					c.finish();
@@ -166,7 +166,7 @@ define([ 'jquery', 'underscore', 'test/common', 'test/dtos', 'util/Json' ], func
 			};
 
 			try {
-				Json.fromJson(returnType, json).done(function(result) {
+				dtos.Json.fromJson(returnType, json).done(function(result) {
 					c.assertEqual(result[23].getCode(), "sample_1", "23.code");
 					c.assertEqual(result[23].getMaterialProperties()[230].getCode(), "material_1", "23.materialProperties.230.code");
 					c.assertEqual(result[23].getMaterialProperties()[230].getRegistrator().getUserId(), "person_2", "23.materialProperties.230.registrator.userId");
@@ -191,6 +191,8 @@ define([ 'jquery', 'underscore', 'test/common', 'test/dtos', 'util/Json' ], func
 	}
 
 	return function() {
-		executeModule("Json tests", dtos);
+		executeModule("Json tests (RequireJS)", dtos);
+		executeModule("Json tests (module UMD)", window.openbis);
+		executeModule("Json tests (module ESM)", window.openbisESM);
 	}
 });
