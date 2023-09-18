@@ -104,7 +104,7 @@ To assign storage positions in batch mode follow the steps below:
 > 6.  Save the file and upload with the **Batch Registration**.
 
 An example file can be found
-here: [SAMPLE-STORAGE\_POSITION-template.txt](att/SAMPLE-STORAGE_POSITION-template.txt?version=1&modificationDate=1502441624183&api=v2)
+here: [SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-STORAGE_POSITION-template.xlsx)
 
 Updated on April 26, 2023
  
