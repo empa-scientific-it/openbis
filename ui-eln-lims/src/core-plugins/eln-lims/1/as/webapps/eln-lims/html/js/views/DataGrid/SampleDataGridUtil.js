@@ -795,7 +795,7 @@ var SampleDataGridUtil = new function() {
 				$list.append($move);
 
                 if(profile.mainMenu.showBarcodes) {
-                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode'}).append("Update Barcode"));
+                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode/QR Code'}).append("Update Barcode/QR Code"));
                     $updateBarcode.click(function(event) {
                         stopEventsBuble(event);
                         BarcodeUtil.readBarcode([data]);

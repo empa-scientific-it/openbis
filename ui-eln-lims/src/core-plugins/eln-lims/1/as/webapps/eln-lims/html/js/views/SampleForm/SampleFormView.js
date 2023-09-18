@@ -184,7 +184,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			if(profile.mainMenu.showBarcodes) {
                 if(toolbarConfig.BARCODE) {
                     dropdownOptionsModel.push({
-                                        label : "Barcode Print",
+                                        label : "Barcode/QR Code Print",
                                         action : function() {
                                             BarcodeUtil.showBarcode(_this._sampleFormModel.sample);
                                         }
