@@ -1,0 +1,348 @@
+[Log
+in](https://unlimited.ethz.ch/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FService%2BPlugins)
+
+Linked Applications
+
+Loading…
+
+[![Confluence](/download/attachments/327682/atl.site.logo?version=1&modificationDate=1563454119905&api=v2)](/)
+
+-   [Spaces](/spacedirectory/view.action "Spaces")
+-   [Create ](# "Create from template")
+
+-   Hit enter to search
+
+-   [Help](# "Help")
+    -   [Online
+        Help](https://docs.atlassian.com/confluence/docs-82/ "Visit the Confluence documentation home")
+    -   [Keyboard Shortcuts](# "View available keyboard shortcuts")
+    -   [Feed
+        Builder](/dashboard/configurerssfeed.action "Create your custom RSS feed.")
+    -   [What’s
+        new](https://confluence.atlassian.com/display/DOC/Confluence+8.2+Release+Notes)
+    -   [Available Gadgets](# "Browse gadgets provided by Confluence")
+    -   [About
+        Confluence](/aboutconfluencepage.action "Get more information about Confluence")
+
+-   
+
+-   
+
+-   
+
+-   [Log
+    in](/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FService%2BPlugins)
+
+  
+
+[![openBIS Documentation Rel.
+20.10](/images/logo/default-space-logo.svg)](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
+
+[openBIS Documentation Rel.
+20.10](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
+
+-   [Pages](/collector/pages.action?key=openBISDoc2010)
+-   [Blog](/pages/viewrecentblogposts.action?key=openBISDoc2010)
+
+### Page tree
+
+[](/collector/pages.action?key=openBISDoc2010)
+
+Browse pages
+
+ConfigureSpace tools
+
+[](#)
+
+-   [ ](#)
+    -   [ Attachments (0)
+        ](/pages/viewpageattachments.action?pageId=53745982 "View Attachments")
+    -   [ Page History
+        ](/pages/viewpreviousversions.action?pageId=53745982)
+
+    -   [ Page Information ](/pages/viewinfo.action?pageId=53745982)
+    -   [ Resolved comments ](#)
+    -   [ View in Hierarchy
+        ](/pages/reorderpages.action?key=openBISDoc2010&openId=53745982#selectedPageInHierarchy)
+    -   [ View Source
+        ](/plugins/viewsource/viewpagesrc.action?pageId=53745982)
+    -   [ Export to PDF
+        ](/spaces/flyingpdf/pdfpageexport.action?pageId=53745982)
+    -   [ Export to Word ](/exportword?pageId=53745982)
+    -   [ View Visio File
+        ](/plugins/lucidchart/selectVisio.action?contentId=53745982)
+
+    -   [ Copy
+        ](/pages/copypage.action?idOfPageToCopy=53745982&spaceKey=openBISDoc2010)
+
+1.  [Pages](/collector/pages.action?key=openBISDoc2010)
+2.  [openBIS Documentation Rel. 20.10
+    Home](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home)
+3.  [openBIS 20.10
+    Documentation](/display/openBISDoc2010/openBIS+20.10+Documentation)
+
+-   []( "Unrestricted")
+-   [Jira links]()
+
+[Service Plugins](/display/openBISDoc2010/Service+Plugins)
+----------------------------------------------------------
+
+-   Created by [Fuentes Serna Juan Mariano
+    (ID)](%20%20%20%20/display/~juanf%0A) on [Oct 01,
+    2020](/pages/viewpreviousversions.action?pageId=53745982 "Show changes")
+
+Introduction
+------------
+
+A service plugin runs on a DSS. It is a java servlet that processes
+incoming requests and generates the responses. A user can trigger a
+service plugin by accessing an url the servlet has been set up for. A
+service plugin is configured on the DSS best by introducing a [core
+plugin](/display/openBISDoc2010/Core+Plugins) of type services. All
+service plugins have the following properties in common:
+
+[TABLE]
+
+Service Plugins
+---------------
+
+### ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.OaipmhServlet
+
+A servlet that handles OAI-PMH protocol requests (see
+<http://www.openarchives.org/OAI/openarchivesprotocol.html> for more
+details on OAI-PMH). The requests are handled in two steps:
+
+-   user authentication
+
+-   response generation
+
+The user authentication step is handled by
+ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.IAuthenticationHandler.
+The handler is configured via "authentication-handler" property. The
+response generation step is handled
+by ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.IRequestHandler.
+The handler is configured via "request - handler" property. An example
+of such a configuration is presented below:
+
+**Example**:
+
+**plugin.properties**
+
+    class = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.OaipmhServlet
+    path = /oaipmh/*
+    request-handler = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler
+    request-handler.script-path = handler.py
+    authentication-handler = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.BasicHttpAuthenticationHandler
+
+**Configuration**:
+
+[TABLE]
+
+##### ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.BasicHttpAuthenticationHandler
+
+Handler that performs Basic HTTP authentication as described here:
+<http://en.wikipedia.org/wiki/Basic_access_authentication>.
+
+##### ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.AnonymousAuthenticationHandler
+
+Handler that allows clients to access the OAI-PMH service without any
+authentication. The handler automatically authenticates as a user
+specified in the configuration.
+
+**Configuration:**
+
+[TABLE]
+
+##### ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler
+
+OAI-PMH response handler that delegates a response generation to a
+Jython script. The script can be configured via "script-path" property.
+The script should define a function with a following signature:
+
+**handler.py**
+
+    def handle(request, response)
+
+where request is javax.servlet.http.HttpServletRequest request and
+response is javax.servlet.http.HttpServletResponse. Following variables
+are available in the script:
+
+-   searchService
+    - ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService
+-   searchServiceUnfiltered -
+    ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService
+-   mailService -
+    ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService
+-   queryService -
+    ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSourceQueryService
+-   authorizationService -
+    ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService
+-   sessionWorkspaceProvider -
+    ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider
+-   contentProvider -
+    ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetContentProvider
+-   contentProviderUnfiltered -
+    ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetContentProvider
+-   userId
+
+**Configuration:**
+
+[TABLE]
+
+An example of a jython script that can be used for handling OAI-PMH
+responses is presented below. The example uses XOAI java library
+(see <https://github.com/lyncode/xoai> for more details on the library)
+to provide dataset metadata. XOAI library is available in openBIS and
+can be used without any additional configuration.
+
+**handler.py**
+
+    #! /usr/bin/env python
+    from java.util import Date
+    from java.text import SimpleDateFormat
+    from xml.etree import ElementTree
+    from xml.etree.ElementTree import Element, SubElement 
+    from com.lyncode.xoai.dataprovider import DataProvider
+    from com.lyncode.xoai.dataprovider.model import Context, MetadataFormat, Item
+    from com.lyncode.xoai.dataprovider.repository import Repository, RepositoryConfiguration
+    from com.lyncode.xoai.dataprovider.parameters import OAIRequest
+    from com.lyncode.xoai.dataprovider.handlers.results import ListItemIdentifiersResult, ListItemsResults
+    from com.lyncode.xoai.model.oaipmh import OAIPMH, DeletedRecord, Granularity, Metadata 
+    from com.lyncode.xoai.xml import XmlWriter
+    from ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.xoai import SimpleItemIdentifier, SimpleItem, SimpleItemRepository, SimpleSetRepository
+    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, MatchClauseAttribute, MatchClauseTimeAttribute, CompareMode 
+    DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
+    TIME_ZONE = "0"
+
+    def handle(req, resp):
+        context = Context();
+        context.withMetadataFormat(MetadataFormat().withPrefix("testPrefix").withTransformer(MetadataFormat.identity()));
+        configuration = RepositoryConfiguration();
+        configuration.withMaxListSets(100);
+        configuration.withMaxListIdentifiers(100);
+        configuration.withMaxListRecords(100);
+        configuration.withAdminEmail("test@test");
+        configuration.withBaseUrl("http://localhost");
+        configuration.withDeleteMethod(DeletedRecord.NO);
+        configuration.withEarliestDate(Date(0));
+        configuration.withRepositoryName("TEST");
+        configuration.withGranularity(Granularity.Day);
+        repository = Repository();
+        repository.withConfiguration(configuration);
+        repository.withItemRepository(ItemRepository());
+        repository.withSetRepository(SimpleSetRepository());
+        provider = DataProvider(context, repository);
+        params = {}
+        for param in req.getParameterNames():
+            values = []
+            for value in req.getParameterValues(param):
+                values.append(value)
+            params[param] = values
+        request = OAIRequest(params);
+        response = provider.handle(request);
+        writer = XmlWriter(resp.getOutputStream());
+        response.write(writer);
+        writer.flush();
+
+    class ItemRepository(SimpleItemRepository):
+      
+        def doGetItem(self, identifier):
+            criteria = SearchCriteria()
+            criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, identifier))
+            dataSets = searchService.searchForDataSets(criteria)
+            
+            if dataSets:
+                return createItem(dataSets[0])
+            else:
+                return None
+        def doGetItemIdentifiers(self, filters, offset, length, setSpec, fromDate, untilDate):
+            results = self.doGetItems(filters, offset, length, setSpec, fromDate, untilDate)
+            return ListItemIdentifiersResult(results.hasMore(), results.getResults(), results.getTotal())
+        
+        def doGetItems(self, filters, offset, length, setSpec, fromDate, untilDate):
+            criteria = SearchCriteria()
+            if fromDate:
+                criteria.addMatchClause(MatchClause.createTimeAttributeMatch(MatchClauseTimeAttribute.REGISTRATION_DATE, CompareMode.GREATER_THAN_OR_EQUAL, DATE_FORMAT.format(fromDate), TIME_ZONE))
+            if untilDate:
+                criteria.addMatchClause(MatchClause.createTimeAttributeMatch(MatchClauseTimeAttribute.REGISTRATION_DATE, CompareMode.LESS_THAN_OR_EQUAL, DATE_FORMAT.format(untilDate), TIME_ZONE))
+            dataSets = searchService.searchForDataSets(criteria)
+            if dataSets:
+                hasMoreResults = (offset + length) < len(dataSets)
+                results = [createItem(dataSet) for dataSet in dataSets[offset:(offset + length)]]
+                total = len(dataSets)
+                return ListItemsResults(hasMoreResults, results, total)
+            else:
+                return ListItemsResults(False, [], 0)
+
+
+    def createItemMetadata(dataSet):
+        properties = Element("properties")
+        
+        for propertyCode in dataSet.getAllPropertyCodes():
+            property = SubElement(properties, "property")
+            property.set("code", propertyCode)
+            property.text = dataSet.getPropertyValue(propertyCode) 
+            
+        return Metadata(ElementTree.tostring(properties))
+
+    def createItem(dataSet):
+        item = SimpleItem()
+        item.setIdentifier(dataSet.getDataSetCode())
+        item.setDatestamp(Date())
+        item.setMetadata(createItemMetadata(dataSet))
+        return item
+
+now assuming that the OaipmhServlet has been configured at /oaipmh path
+try accessing the following urls:
+
+-   &lt;data store url&gt;/oaipmh/?verb=Identify - returns information
+    about this OAI-PMH repository
+-   &lt;data store
+    url&gt;/oaipmh/?verb=ListIdentifiers&metadataPrefix=testPrefix -
+    returns the first 100 of data set codes and a resumption token if
+    there is more than 100 data sets available
+-   &lt;data store
+    url&gt;/oaipmh/?verb=ListIdentifiers&resumptionToken=&lt;resumption
+    token&gt; - returns another 100 of data set codes
+-   &lt;data store
+    url&gt;/oaipmh/?verb=ListRecords&metadataPrefix=testPrefix - returns
+    the first 100 of data set records and a resumption token if there is
+    more than 100 data sets available
+-   &lt;data store
+    url&gt;/oaipmh/?verb=ListRecords&resumptionToken=&lt;resumption
+    token&gt; - returns another 100 of data set records
+-   &lt;data store
+    url&gt;/oaipmh/?verb=GetRecord&metadataPrefix=testPrefix&identifier=&lt;data
+    set code&gt; - returns a record for a data set with the specified
+    code
+
+##### ch.systemsx.cisd.openbis.dss.screening.server.oaipmh.ScreeningJythonBasedRequestHandler
+
+Screening version of
+ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler.
+It works exactly the same as the generic counterpart, but it defines an
+additional variable that is available in the script:
+
+-   screeningFacade
+    - ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade
+
+ 
+
+-   No labels
+
+Overview
+
+Content Tools
+
+Apps
+
+-   Powered by [Atlassian
+    Confluence](https://www.atlassian.com/software/confluence) 8.2.0
+-   Printed by Atlassian Confluence 8.2.0
+-   [Report a bug](https://support.atlassian.com/confluence-server/)
+-   [Atlassian News](https://www.atlassian.com/company)
+
+[Atlassian](https://www.atlassian.com/)
+
+{"serverDuration": 138, "requestCorrelationId": "d0d83453e1773ed3"}
