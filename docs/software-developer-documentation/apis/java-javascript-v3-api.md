@@ -211,16 +211,17 @@ the same in both languages. The methods you can invoke via the Javascript and Ja
 Javascript to Java or the other way round very easy. Because of some major differences between Javascript and Java development still some things had
 to be done a bit differently. But even then we tried to be conceptually consistent.
 
-Before we go into details let's mention that there are actually 3 different ways the Javascript V3 API can be loaded and used. These are:
+Before we go into details let's mention that there are actually 4 different ways the Javascript V3 API can be loaded and used. These are:
 
-1) AMD / RequireJS modules
-2) UMD module
-3) ESM module
+1) AMD / RequireJS
+2) AMD / RequireJS bundle
+3) UMD bundle
+4) ESM bundle
 
-IMPORTANT: UMD and ESM modules are currently the recommended way of using the Javascript V3 API. AMD / RequireJS approach is still supported but no
+IMPORTANT: UMD and ESM bundles are currently the recommended way of using the Javascript V3 API. AMD / RequireJS approach is still supported but no
 longer recommended.
 
-#### AMD / RequireJS modules
+#### AMD / RequireJS
 
 Initially, the only way to load and use the V3 API in Javascript was based on AMD modules and RequireJS (see code example below). In that approach,
 what we had to do first was to load RequireJS library itself and its config. Once that was done, we could start loading all the necessary V3 API
@@ -229,7 +230,9 @@ classes and the V3 API facade to make our V3 API calls.
 This approach worked fine, but there were also some drawbacks:
 
 - each V3 API class we wanted to use had to be explicitly "required" and its full class name had to be provided (e.g. as/dto/space/Space)
+- classes were loaded asynchronously making the code using the V3 API more complex
 - every V3 API class was loaded with a separate HTTP request to the server (loading multiple classes resulted in multiple requests to the server)
+- it required a third party dependency manager (here RequireJS)
 
 Because of these shortcomings this approach is no longer recommended, but still fully supported. Please use UMD or ESM modules approach instead
 (depending on your use case).
@@ -278,30 +281,41 @@ Because of these shortcomings this approach is no longer recommended, but still 
                     });
                 });
             });
-        
 
 </script>
 </body>
 </html>
 ```
 
-#### UMD module
+#### AMD / RequireJS bundle
+
+To improve the performance of AMD / RequireJS approach, we started to also provide a bundled version of the "config.js" called "config.bundle.js"
+(found in the same folder).
+
+Using the bundled version of the config makes RequireJS issue only one request to the server to load all DTOs at once instead of separate requests for
+each DTO. This will significantly reduce the loading times of your webapp. What is also really nice is the fact it is so easy to start using this
+improvement. Just load "config.bundle.js" instead of "config.js" and that's it!
+
+Even though AMD / RequireJS solution is not recommended anymore, if you have a lot of existing code written with AMD / RequireJS approach then it
+makes perfect sense to use this improvement before migrating to either UMD or ESM.
+
+#### UMD bundle
 
 UMD module approach (UMD = Universal Module Definition, see: https://github.com/umdjs/umd) allows you to overcome the shortcomings of AMD / RequireJS
 solution. First, the UMD bundle consists of V3 API facade and all V3 API classes. Therefore, once the bundle is loaded, no further calls to the server
 are needed. Second, the bundle exposes the V3 API classes both via their simple names and their full names (see code example below) which makes it far
-easier for developers to use.
+easier for developers to use. Third, it does not require any additional library.
 
 UMD bundle can be loaded at an HTML page using a standard script tag.
 
-**V3ConnectionExampleUsingUMDModule.html**
+**V3ConnectionExampleUsingUMDBundle.html**
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>V3ConnectionExampleUsingUMDModule</title>
+    <title>V3ConnectionExampleUsingUMDBundle</title>
 
     <!--
 
@@ -349,8 +363,6 @@ UMD bundle can be loaded at an HTML page using a standard script tag.
                 });
 
             });
-
-
 </script>
 </body>
 </html>
@@ -365,14 +377,14 @@ be imported.
 ESM bundle can be loaded at an HTML page using a standard script tag with type="module". It is also well suited for webapps that bundle all their
 resources with tools like Webpack.
 
-**V3ConnectionExampleUsingESMModule.html**
+**V3ConnectionExampleUsingESMBundle.html**
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>V3ConnectionExampleUsingESMModule</title>
+    <title>V3ConnectionExampleUsingESMBundle</title>
 </head>
 <body>
 
@@ -421,8 +433,6 @@ List of classes with duplicated simple names (i.e. accessible only via their ful
                 });
 
             });
-
-
 </script>
 </body>
 </html>
