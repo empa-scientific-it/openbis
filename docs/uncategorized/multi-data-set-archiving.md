@@ -140,7 +140,8 @@ non-existing files will always be handled successfully.
 
             archiver.class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver
 
-            # Temporary folder (needed for sanity check). Default: Value provided by Java system property java.io.tmpdir. Usually /tmp
+            ```
+# Temporary folder (needed for sanity check). Default: Value provided by Java system property java.io.tmpdir. Usually /tmp
             # archiver.temp-folder = <java temp folder>
 
             # Archive destination
@@ -295,6 +296,8 @@ non-existing files will always be handled successfully.
             # The following properties are necessary in combination with data source configuration
             multi-dataset-archive-database.kind = prod
             multi-dataset-archive-sql-root-folder = datastore_server/sql/multi-dataset-archive
+```
+
 
         You should make sure that all destination directories exist and
         DSS has read/write privileges before attempting archiving
