@@ -46,10 +46,9 @@ The General ELN Settings consist of two parts:
 2.  **Group Settings**. These settings affect all general *Spaces* that
     do not belong to any group defined in the configuration file
     (see [openBIS set up for multi group
-    instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Management+for+Multi-groups+openBIS+Instances)).
+    instances](../../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md)).
     This is the case, for example, if *Spaces* are manually created and
-    they do not belong to any group (see [Create new ELN
-    Spaces](./space-management.md#create-new-eln-spaces)).
+    they do not belong to any group (see [Create new ELN Spaces](./space-management.md#create-new-eln-spaces)).
 
 
 ![image info](img/general-settings-1024x545.png)
@@ -126,8 +125,7 @@ and **Horizon**, **Snf** do not belong to any group in the Lab notebook.
         available by default, but the infrastructure for [archiving to
         tapes](../../general-users/data-archiving.md)
         (StrongBox/StrongLink) needs to be put in place by a *system
-        admin ([Multi data set
-        archiving](https://unlimited.ethz.ch/display/openBISDoc2010/Multi+data+set+archiving))*.
+        admin ([Multi data set archiving](../../../uncategorized/multi-data-set-archiving.md))*.
     2.  Hide sections by default in *Spaces* that not belong to any
         predefined group. By default some sections in some forms are
         hidden:
@@ -216,7 +214,7 @@ In the group settings the following is configurable:
         tapes](../../general-users/data-archiving.md)
         (StrongBox/StrongLink) needs to be put in place by a *system
         admin ([Multi data set
-        archiving](https://unlimited.ethz.ch/display/openBISDoc2010/Multi+data+set+archiving))*.
+        archiving](../../../uncategorized/multi-data-set-archiving.md))*.
     2.  Hide sections by default. By default some sections in some forms
         are hidden:
         1.  Description in *Spaces* and *Projects*.
