@@ -13,7 +13,10 @@ service plugin is configured on the DSS best by introducing a [core
 plugin](/display/openBISDoc2010/Core+Plugins) of type services. All
 service plugins have the following properties in common:
 
-[TABLE]
+|Property Key|Description|
+|--- |--- |
+|class|The fully-qualified Java class name of the service plugin. The class has to implement javax.servlet.Servlet  interface.|
+|path|The path the servlet will be available at. For instance, a service with /test-path/* path can be access via  http://my-data-store/test-path  url.|
 
 ## Service Plugins
 
@@ -50,7 +53,10 @@ authentication-handler = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.Basi
 
 **Configuration**:
 
-[TABLE]
+|Property Key|Description|
+|--- |--- |
+|authentication-handler|A class that implements ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.IAuthenticationHandler interface. The handler is responsible for authenticating a user for an OAI-PMH request.Currently there are two implementations of this handler available:ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.BasicHttpAuthenticationHandlerch.systemsx.cisd.openbis.dss.generic.server.oaipmh.AnonymousAuthenticationHandlerSee the sections below for more details on these handlers.|
+|request-handler|A class that implements   ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.IRequestHandler   interface. The h andler is responsible for generating a response for an OAI-PMH request.Currently there are two implementations of this handler available:ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandlerch.systemsx.cisd.openbis.dss.screening.server.oaipmh.ScreeningJythonBasedRequestHandlerSee the sections below for more details on these handlers.|
 
 #### ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.BasicHttpAuthenticationHandler
 
@@ -65,7 +71,10 @@ specified in the configuration.
 
 **Configuration:**
 
-[TABLE]
+|Property Key|Description|
+|--- |--- |
+|user|User that should be used for the automatic authentication, e.g. observer|
+|password|Password of the user|
 
 #### ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler
 
@@ -101,7 +110,9 @@ are available in the script:
 
 **Configuration:**
 
-[TABLE]
+|Property Key|Description|
+|--- |--- |
+|script-path|The path to a jython script that should handle OAI-PMH requests.|
 
 An example of a jython script that can be used for handling OAI-PMH
 responses is presented below. The example uses XOAI java library
@@ -209,30 +220,15 @@ def createItem(dataSet):
     return item
 ```
 
-
 now assuming that the OaipmhServlet has been configured at /oaipmh path
 try accessing the following urls:
 
--   <data store url&gt;/oaipmh/?verb=Identify - returns information
-    about this OAI-PMH repository
--   <data store
-    url&gt;/oaipmh/?verb=ListIdentifiers&metadataPrefix=testPrefix -
-    returns the first 100 of data set codes and a resumption token if
-    there is more than 100 data sets available
--   <data store
-    url&gt;/oaipmh/?verb=ListIdentifiers&resumptionToken=&lt;resumption
-    token&gt; - returns another 100 of data set codes
--   <data store
-    url&gt;/oaipmh/?verb=ListRecords&metadataPrefix=testPrefix - returns
-    the first 100 of data set records and a resumption token if there is
-    more than 100 data sets available
--   <data store
-    url&gt;/oaipmh/?verb=ListRecords&resumptionToken=&lt;resumption
-    token&gt; - returns another 100 of data set records
--   <data store
-    url&gt;/oaipmh/?verb=GetRecord&metadataPrefix=testPrefix&identifier=&lt;data
-    set code&gt; - returns a record for a data set with the specified
-    code
+-   <data store url>/oaipmh/?verb=Identify - returns information about this OAI-PMH repository
+-   <data store url>/oaipmh/?verb=ListIdentifiers&metadataPrefix=testPrefix - returns the first 100 of data set codes and a resumption token if there is more than 100 data sets available
+-   <data store url>/oaipmh/?verb=ListIdentifiers&resumptionToken=<resumption token> - returns another 100 of data set codes
+-   <data store url>/oaipmh/?verb=ListRecords&metadataPrefix=testPrefix - returns the first 100 of data set records and a resumption token if there is more than 100 data sets available
+-   <data store url>/oaipmh/?verb=ListRecords&resumptionToken=<resumption token> - returns another 100 of data set records
+-   <data store url>/oaipmh/?verb=GetRecord&metadataPrefix=testPrefix&identifier=<data set code> - returns a record for a data set with the specified code
 
 #### ch.systemsx.cisd.openbis.dss.screening.server.oaipmh.ScreeningJythonBasedRequestHandler
 
