@@ -1,97 +1,9 @@
-[Log
-in](https://unlimited.ethz.ch/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FRegister%2BMaster%2BData%2Bvia%2Bthe%2BAdmin%2BInterface)
-
-Linked Applications
-
-Loading…
-
-[![Confluence](/download/attachments/327682/atl.site.logo?version=1&modificationDate=1563454119905&api=v2)](/)
-
--   [Spaces](/spacedirectory/view.action "Spaces")
--   [Create ](# "Create from template")
-
--   Hit enter to search
-
--   [Help](# "Help")
-    -   [Online
-        Help](https://docs.atlassian.com/confluence/docs-82/ "Visit the Confluence documentation home")
-    -   [Keyboard Shortcuts](# "View available keyboard shortcuts")
-    -   [Feed
-        Builder](/dashboard/configurerssfeed.action "Create your custom RSS feed.")
-    -   [What’s
-        new](https://confluence.atlassian.com/display/DOC/Confluence+8.2+Release+Notes)
-    -   [Available Gadgets](# "Browse gadgets provided by Confluence")
-    -   [About
-        Confluence](/aboutconfluencepage.action "Get more information about Confluence")
-
--   
-
--   
-
--   
-
--   [Log
-    in](/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FRegister%2BMaster%2BData%2Bvia%2Bthe%2BAdmin%2BInterface)
-
-  
-
-[![openBIS Documentation Rel.
-20.10](/images/logo/default-space-logo.svg)](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
-
-[openBIS Documentation Rel.
-20.10](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
-
--   [Pages](/collector/pages.action?key=openBISDoc2010)
--   [Blog](/pages/viewrecentblogposts.action?key=openBISDoc2010)
-
-### Page tree
-
-[](/collector/pages.action?key=openBISDoc2010)
-
-Browse pages
-
-ConfigureSpace tools
-
-[](#)
-
--   [ ](#)
-    -   [ Attachments (20)
-        ](/pages/viewpageattachments.action?pageId=53745926 "View Attachments")
-    -   [ Page History
-        ](/pages/viewpreviousversions.action?pageId=53745926)
-
-    -   [ Page Information ](/pages/viewinfo.action?pageId=53745926)
-    -   [ Resolved comments ](#)
-    -   [ View in Hierarchy
-        ](/pages/reorderpages.action?key=openBISDoc2010&openId=53745926#selectedPageInHierarchy)
-    -   [ View Source
-        ](/plugins/viewsource/viewpagesrc.action?pageId=53745926)
-    -   [ Export to PDF
-        ](/spaces/flyingpdf/pdfpageexport.action?pageId=53745926)
-    -   [ Export to Word ](/exportword?pageId=53745926)
-    -   [ View Visio File
-        ](/plugins/lucidchart/selectVisio.action?contentId=53745926)
-
-    -   [ Copy
-        ](/pages/copypage.action?idOfPageToCopy=53745926&spaceKey=openBISDoc2010)
-
-1.  [Pages](/collector/pages.action?key=openBISDoc2010)
-2.  [openBIS Documentation Rel. 20.10
-    Home](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home)
-3.  [openBIS 20.10
-    Documentation](/display/openBISDoc2010/openBIS+20.10+Documentation)
-
--   []( "Unrestricted")[](/pages/viewpageattachments.action?pageId=53745926&metadataLink=true "20 attachments")
--   [Jira links]()
-
-[Register Master Data via the Admin Interface](/display/openBISDoc2010/Register+Master+Data+via+the+Admin+Interface)
---------------------------------------------------------------------------------------------------------------------
+# Register Master Data via the Admin Interface
 
 -   Created by [Fuentes Serna Juan Mariano
     (ID)](%20%20%20%20/display/~juanf%0A), last modified by [Barillari
     Caterina (ID)](%20%20%20%20/display/~barillac%0A) on [Oct 22,
     2021](/pages/diffpagesbyversion.action?pageId=53745926&selectedPageVersions=1&selectedPageVersions=2 "Show changes")
-
   
 
 This documentation describes how to register master data via the core
@@ -110,10 +22,7 @@ openBIS master data are:
 
   
 
-How to register a Space 
-------------------------
-
-  
+## How to register a Space
 
 1.  Go to *Admin → Spaces*  
       
@@ -130,10 +39,7 @@ How to register a Space 
 
   
 
-How to Register an Experiment/Collection type
----------------------------------------------
-
-  
+## How to Register an Experiment/Collection type  
 
 1.  Go to *Admin → Types → CollectionTypes*  
     *  
@@ -200,15 +106,11 @@ How to Register an Experiment/Collection type
         2.  *Position after:* this allows to specify the position of the
             Property in the user interface.
 
-### Data Types available in openBIS
+## Data Types available in openBIS
 
 The following data types are available in openBIS:
 
 ![](/download/attachments/53745926/openBIS-data-types.png?version=1&modificationDate=1601541490134&api=v2)
-
-  
-
-  
 
 1.  *Boolean*: True or false
 2.  *Controlled Vocabulary*: list of values to choose form. Only 1 value
@@ -224,7 +126,7 @@ The following data types are available in openBIS:
 
   
 
-#### Controlled Vocabularies
+### Controlled Vocabularies
 
 A Controlled Vocabulary is a pre-defined list of terms to choose from.
 Only one term can be selected.
@@ -282,7 +184,7 @@ codes and labels can be added in one single step.
 
   
 
-#### Editing Controlled Vocabularies
+### Editing Controlled Vocabularies
 
 It is possible to edit existing vocabulary terms, for example to add a
 label, and also to add new terms to an existing vocabulary.
@@ -302,12 +204,8 @@ Edit an existing term by selecting it in the table and then going to
 
  ![](/download/attachments/53745926/Controlled-vocabulary-add-term.png?version=1&modificationDate=1601541490109&api=v2)
 
-  
 
-How to Register an Object type
-------------------------------
-
-  
+## How to Register an Object type  
 
 1.  Go to *Admin → Types → Object Types*  
       
@@ -358,10 +256,7 @@ How to Register an Object type
 
   
 
-How to register a Data Set type
--------------------------------
-
-  
+## How to register a Data Set type
 
 1.  Go to *Admin → Types → Data Set Types*  
       
@@ -390,17 +285,12 @@ How to register a Data Set type
 
   
 
-Property Types
---------------
+## Property Types
 
 The full list of properties registered in openBIS is accessible by
 navigating to *Admin → Types → Browse Property Types* 
 
-  
-
 ![](/download/attachments/53745926/Collection-type-registration-1.png?version=1&modificationDate=1601541490164&api=v2)
-
-  
 
 In the Property Browser page it is possible to:
 
@@ -411,24 +301,4 @@ In the Property Browser page it is possible to:
     will delete also all associated values, if the property is in use. A
     warning is issued: please read carefully before deleting properties!
 
-  
-
 ![](/download/attachments/53745926/Screenshot%202020-05-15%20at%2016.21.19.png?version=1&modificationDate=1601541490082&api=v2)
-
--   No labels
-
-Overview
-
-Content Tools
-
-Apps
-
--   Powered by [Atlassian
-    Confluence](https://www.atlassian.com/software/confluence) 8.2.0
--   Printed by Atlassian Confluence 8.2.0
--   [Report a bug](https://support.atlassian.com/confluence-server/)
--   [Atlassian News](https://www.atlassian.com/company)
-
-[Atlassian](https://www.atlassian.com/)
-
-{"serverDuration": 179, "requestCorrelationId": "24f6130dae86bb66"}
