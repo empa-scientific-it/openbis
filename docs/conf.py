@@ -8,6 +8,6 @@ html_theme_options = {
 }
 extensions = ['myst_parser']
 source_suffix = ['.rst', '.md']
-exclude_patterns = ['api-openbis-matlab,app-openbis-commandline,ui-eln-lims']
+exclude_patterns = ['api-openbis-matlab/*.md,app-openbis-commandline/*.md,ui-eln-lims/*.md']
 def setup(app):
     app.add_css_file('my_theme.css')
