@@ -978,8 +978,7 @@ following properties of `plugin.properties` are recognized:
 | database-log-stacktrace-on-connection-logging    | If true and logging enabled also stack traces are logged. Default: `false`                                                                                                                                                                |
 
 Properties `database-driver` and `database-url` can be omitted if a
-`etc/dss-datasource-mapping` is defined. For more see [Sharing
-Databases](https://unlimited.ethz.ch/display/openBISDoc2010/Sharing+Databases).
+`etc/dss-datasource-mapping` is defined. For more see [Sharing Databases](../../uncategorized/sharing-databases.md).
 
 ### Changing the Capability-Role map
 
@@ -1377,7 +1376,7 @@ The master data of openBIS comprises all entity/property types, property
 assignments, vocabularies etc. needed for your customized installation
 to work. The system offers a way to export/import master data via Jython
 scripts. More information on how to do create such scripts and run them
-manually see the advanced guide [Jython Master Data Scripts](https://unlimited.ethz.ch/display/openBISDoc2010/Jython+Master+Data+Scripts#JythonMasterDataScripts-Commandlinetools).
+manually see the advanced guide [Jython Master Data Scripts](../../uncategorized/jython-master-data-scripts##command-line-tools).
 
 A master data script can be run automatically by start up of the AS if
 it is defined in an AS core plugin. The script path should be
