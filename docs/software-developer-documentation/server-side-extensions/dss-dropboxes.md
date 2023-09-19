@@ -709,7 +709,7 @@ to the core plugin in a sub-folder `lib/`.
 Validation scripts
 ------------------
 
-See [Jython DataSetValidator](https://unlimited.ethz.ch/display/openBISDoc2010/Jython+DataSetValidator).
+See [Jython DataSetValidator](../../uncategorized/jython-datasetvalidator.md).
 
 Global Thread Parameters
 ------------------------
