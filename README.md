@@ -1,6 +1,5 @@
 !["openBIS"](./docs/logos/openbis-logo.png "openBIS")
 
-
 # Repository organization
 
 The repository contains these kind of modules used to build the openBIS distributable:
