@@ -181,8 +181,7 @@ Use cases where this could be useful:
 2.  in a multi-group instance it is not at all desired to have the lab
     notebooks organised by users, but rather by projects. A *system
     admin* can configure the user management config file not to create
-    users folders in the lab notebook section (see [Multi group
-    instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Management+for+Multi-groups+openBIS+Instances)).
+    users folders in the lab notebook section (see [Multi group instances](../../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md)).
 
  
 
