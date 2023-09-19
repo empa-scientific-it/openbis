@@ -27,6 +27,8 @@ assignments (e.g. `assignPropertyType`).
 
 The complete Javadoc for the API is available at
 
+|||
+|--- |--- |
 |[IMasterDataRegistrationService](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/server/jython/api/v1/IMasterDataRegistrationService.html)|The global service variable|
 |[IMasterDataRegistrationTransaction](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/server/jython/api/v1/IMasterDataRegistrationTransaction.html)|The public API of the transaction objects|
 |[All classes](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/server/jython/api/v1/package-summary.html)|Javadocs for the complete API package|
