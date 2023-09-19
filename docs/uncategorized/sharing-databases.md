@@ -12,13 +12,7 @@ For example, openBIS screening uses a database for image meta data
 images. It is also used by AS to provide information about available
 images and transformations.
 
-For configuration of the data bases [core
-plugins](/display/openBISDoc2010/Core+Plugins) on the AS and for each
-DSS have to be defined. For a DSS it is a core plugin of
-type `data-sources` and for AS it is a core plugin of
-type `dss-data-sources`. Optionally the AS can get configuration
-parameters from its registered DSS instances by defining a mapping file
-`etc/dss-datasource-mapping` for the AS.
+For configuration of the data bases [core plugin](../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) on the AS and for each DSS have to be defined. For a DSS it is a core plugin of type `data-sources` and for AS it is a core plugin of type `dss-data-sources`. Optionally the AS can get configuration parameters from its registered DSS instances by defining a mapping file `etc/dss-datasource-mapping` for the AS.
 
 When a DSS is registering itself at the AS all its data source
 definitions are provided and stored on the AS. This allows the AS (if a
@@ -34,7 +28,7 @@ and module code.
 
 ## Share Databases without Mapping File
 
-Without a mapping file specified data sources are independently defined for DSS and AS. For details see [DSS Data Sources](/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-DataSources) and [AS Data Sources](/display/openBISDoc2010/Installation+and+Administrator+Guide+of+the+openBIS+Server#InstallationandAdministratorGuideoftheopenBISServer-ConfiguringDSSDataSources), respectively. Note, that the roperties `database-driver` and `database-url` are mandatory for AS.
+Without a mapping file specified data sources are independently defined for DSS and AS. For details see [DSS Data Sources](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-DataSources) and [AS Data Sources](../system-admin-documentation/installation/installation-and-configuration-guide.md#configuring-dss-data-sources), respectively. Note, that the roperties `database-driver` and `database-url` are mandatory for AS.
 
 ## Share Databases with Mapping File
 
@@ -56,8 +50,9 @@ The mapping file is used to pick the right AS core plugin and the right
 data source provided by the DSS. In addition database credentials can be
 overwritten by the mapping file.
 
-Only those properties in a core plugin of type `dss-data-source` are
-overwritten which are **undefined**.
+```{warning}
+Only those properties in a core plugin of type `dss-data-source` are overwritten which are **undefined**.
+```
 
 The mapping file is a text file with lines of the following syntax:
 
@@ -68,7 +63,14 @@ are wildcard patterns for the data store code and module/technology
 code, repectively. The \<type\> can have one of the following
 values:
 
-[TABLE]
+|Type|Meaning of <value>|
+|--- |--- |
+|config|Mapping from the actual data store and module code to an existing AS core plugin of type dss-data-sources. The value should have one of the two following forms:<data store code><data store code>[<module code>]If a code is a star symbol the corresponding actual value of the data store code or module code is used. Note, that the first form (without module code) is usefully only if the data source is define in the service.properties of AS.|
+|data-source-code|The data source code as provided by the DSS.|
+|host-part|Host part of the data source URL. It contains the host name (or IP address) and optional the port. Overwrites the value provided by the DSS.|
+|sid|Unique identifier of the database. In most cases this is the database name. Overwrites the value provided by the DSS.|
+|username|User name. Overwrites the value provided by the DSS.|
+|password|User password. Overwrites the value provided by the DSS.|
 
 Empty lines and lines starting with '\#' will be ignored.
 
