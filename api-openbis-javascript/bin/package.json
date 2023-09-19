@@ -5,6 +5,7 @@
     "uglify-js": "^3.17.4"
   },
   "scripts": {
+    "uglifyjs": "uglifyjs",
     "v3api.esm": "webpack-cli --config webpack.config.v3api.module-esm.js",
     "v3api.umd": "webpack-cli --config webpack.config.v3api.module-umd.js"
   }

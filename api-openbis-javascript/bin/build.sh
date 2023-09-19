@@ -29,7 +29,7 @@ npm install
 
 # create AMD (RequireJS) bundle
 node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
-uglifyjs $TEMP_DIR/openbis.bundle.js -o $TEMP_DIR/openbis.bundle.min.js
+npm run uglifyjs -- $TEMP_DIR/openbis.bundle.js -o $TEMP_DIR/openbis.bundle.min.js
 
 # create UMD and ESM bundles
 node $TEMP_DIR/webpack.config.v3api.generate.entry.js > $TEMP_DIR/webpack.config.v3api.entry.js
