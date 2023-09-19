@@ -622,9 +622,7 @@ interval = 60 s
 experiments for all members of an LDAP authorization group or an
 explicit list of user ids. A configuration file (in JSON format) will be
 read each time this task is executed. All actions are logged in an audit
-log file. For more details see [User Group Management for Multi-groups
-openBIS
-Instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Management+for+Multi-groups+openBIS+Instances)
+log file. For more details see [User Group Management for Multi-groups openBIS Instances](../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md)
 
 **Configuration:**
 
@@ -1152,7 +1150,7 @@ data-set-type = HCS_IMAGE
 
 **Relevancy:** Rare
 
-**Description**: Removes unofficial unused vocabulary terms. For more details about unofficial vocabulary terms see [Ad Hoc Vocabulary Terms](https://unlimited.ethz.ch/display/openBISDoc2010/Ad+Hoc+Vocabulary+Terms).
+**Description**: Removes unofficial unused vocabulary terms. For more details about unofficial vocabulary terms see [Ad Hoc Vocabulary Terms](../../uncategorized/ad-hoc-vocabulary-terms.md).
 
 **Configuration:**
 
