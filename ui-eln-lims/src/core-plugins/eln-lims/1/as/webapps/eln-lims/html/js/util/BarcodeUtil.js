@@ -688,7 +688,7 @@ var BarcodeUtil = new function() {
         $window.append($('<legend>').append("Update Custom Barcode/QR Code"));
         $window.append($('<br>'));
         $window.append(FormUtil.getInfoText("A valid barcode/QR code need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
-        $window.append(FormUtil.getInfoText("If a custom barcode/QR code is not given the permId is always used as default barcode."));
+        $window.append(FormUtil.getInfoText("If a custom barcode/QR code is not given the permId is always used as default barcode/QR Code."));
         $window.append(FormUtil.getWarningText("Empty the custom barcode/QR code to delete the current custom barcode/QR code."));
 
         $window.append($('<br>'));

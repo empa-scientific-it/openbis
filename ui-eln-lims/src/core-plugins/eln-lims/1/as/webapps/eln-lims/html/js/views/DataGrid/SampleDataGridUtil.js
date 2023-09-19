@@ -67,7 +67,7 @@ var SampleDataGridUtil = new function() {
         if(profile.mainMenu.showBarcodes || true) {
             var permIdLabel = "PermId";
             if(profile.mainMenu.showBarcodes) {
-                permIdLabel += " / Default Barcode";
+                permIdLabel += " / Default Barcode/QR Code";
             }
             columnsFirst.push({
                 label : permIdLabel,
