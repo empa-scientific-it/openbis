@@ -40,6 +40,8 @@ master_doc = 'index'
 suppress_warnings = ['image.nonlocal_uri']
 pygments_style = 'default'
 
+exclude_patterns = ['api-openbis-matlab/*.md']
+
 if sys.version_info < (3, 0):
     tags.add("python2")
 else:
