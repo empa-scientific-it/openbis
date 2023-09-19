@@ -24,13 +24,15 @@ cat config.bundle.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js"
 cat config.bundle.min.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/config.bundle.min.js
 cat webpack.config.v3api.generate.entry.template.js | sed -e '\|__FILES__|{' -e "r $TEMP_DIR/files.js" -e 'd' -e '}' > $TEMP_DIR/webpack.config.v3api.generate.entry.js
 
+# install npm dependencies needed for bundles creation
+npm install
+
 # create AMD (RequireJS) bundle
 node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
-node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=uglify out=$TEMP_DIR/openbis.bundle.min.js
+uglifyjs $TEMP_DIR/openbis.bundle.js -o $TEMP_DIR/openbis.bundle.min.js
 
 # create UMD and ESM bundles
 node $TEMP_DIR/webpack.config.v3api.generate.entry.js > $TEMP_DIR/webpack.config.v3api.entry.js
-npm install
 npm run v3api.esm
 npm run v3api.umd
 
