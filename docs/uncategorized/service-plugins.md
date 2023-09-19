@@ -223,12 +223,12 @@ def createItem(dataSet):
 now assuming that the OaipmhServlet has been configured at /oaipmh path
 try accessing the following urls:
 
--   <data store url>/oaipmh/?verb=Identify - returns information about this OAI-PMH repository
--   <data store url>/oaipmh/?verb=ListIdentifiers&metadataPrefix=testPrefix - returns the first 100 of data set codes and a resumption token if there is more than 100 data sets available
--   <data store url>/oaipmh/?verb=ListIdentifiers&resumptionToken=<resumption token> - returns another 100 of data set codes
--   <data store url>/oaipmh/?verb=ListRecords&metadataPrefix=testPrefix - returns the first 100 of data set records and a resumption token if there is more than 100 data sets available
--   <data store url>/oaipmh/?verb=ListRecords&resumptionToken=<resumption token> - returns another 100 of data set records
--   <data store url>/oaipmh/?verb=GetRecord&metadataPrefix=testPrefix&identifier=<data set code> - returns a record for a data set with the specified code
+- \<data store url\>/oaipmh/?verb=Identify - returns information about this OAI-PMH repository
+- \<data store url\>/oaipmh/?verb=ListIdentifiers&metadataPrefix=testPrefix - returns the first 100 of data set codes and a resumption token if there is more than 100 data sets available
+- \<data store url\>/oaipmh/?verb=ListIdentifiers&resumptionToken=\<resumption token\> - returns another 100 of data set codes
+- \<data store url\>/oaipmh/?verb=ListRecords&metadataPrefix=testPrefix - returns the first 100 of data set records and a resumption token if there is more than 100 data sets available
+- \<data store url\>/oaipmh/?verb=ListRecords&resumptionToken=\<resumption token\> - returns another 100 of data set records
+- \<data store url\>/oaipmh/?verb=GetRecord&metadataPrefix=testPrefix&identifier=\<data set code\> - returns a record for a data set with the specified code
 
 #### ch.systemsx.cisd.openbis.dss.screening.server.oaipmh.ScreeningJythonBasedRequestHandler
 
