@@ -497,6 +497,80 @@ The user has to be removed from the LDAP group on the LDAP service.
 1.  Add a new share for the new disk to DSS store.
 2.  Add the share id to the `shareIds` list.
 
-## Manual configuration of multi-group instances
+## Manual configuration of Multi-groups openBIS instances
 
-See [Manual configuration of Multi-groups openBIS instances](/display/openBISDoc2010/Manual+configuration+of+Multi-groups+openBIS+instances)
+In order to reproduce the set up of a multi-group openBIS instance
+handled by the maintenance task, the following steps are necessary.
+
+Note: We do NOT recommend to use the manual set up of a multi-group
+instance for productive use. 
+
+
+### Masterdata and entities definition
+
+#### Spaces
+
+1.  Define a prefix for a group
+2.  Create a **group\_prefix\_MATERIALS** space
+3.  Create a **group\_prefix\_METHODS** space
+4.  Create a **group\_prefix\_ELN\_SETTINGS** space
+5.  Create a **group\_prefix\_STORAGE** space
+6.  Create a **group\_prefix\_STOCK\_CATALOG** space
+7.  Create a **group\_prefix\_STOCK\_ORDERS** space
+8.  Create a **group\_prefix\_Username** space for each user of the
+    group
+
+
+#### Projects
+
+1.  Create the
+    /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_STORAGES****
+    project
+
+
+
+#### **Collections**
+
+1.  Create the
+    /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_STORAGES/Group\_prefix\_STORAGES\_COLLECTION ****collection
+    of type COLLECTION 
+
+
+#### Objects
+
+1.  Create
+    the  /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_**ELN\_SETTINGS******
+    object of type ******GENERAL\_ELN\_SETTINGS******
+
+### Rights management
+
+1.  Create a group\_prefix User group in openBIS 
+2.  Create a group\_prefix\_ADMIN User group in openBIS
+3.  Assign every group member to group\_prefix User group
+4.  Assign the admin to group\_prefix\_ADMIN User group
+5.  Assign group\_prefix User group SPACE\_USER rights to the following
+    spaces:
+    1.  **group\_prefix\_MATERIALS**
+    2.  ****group\_prefix\_METHODS**
+        **
+    3.  ******group\_prefix\_STORAGE**
+        ****
+    4.  ****** **group\_prefix\_STOCK\_CATALOG********
+6.  Assign group\_prefix User group SPACE\_OBSERVER rights to the
+    following spaces:********
+    ********
+    1.  **group\_prefix\_ELN\_SETTINGS**
+    2.  ****group\_prefix\_STOCK\_ORDERS**
+        **
+7.  Assign group\_prefix\_ADMIN SPACE\_ADMIN rights to the following
+    folders:
+    1.  **group\_prefix\_MATERIALS**
+    2.  ****group\_prefix\_METHODS**
+        **
+    3.  ****group\_prefix\_STORAGE**
+        **
+    4.  ****** **group\_prefix\_STOCK\_CATALOG********
+    5.  **group\_prefix\_ELN\_SETTINGS**
+    6.  **group\_prefix\_STOCK\_ORDERS**
+8.  Assign each single user SPACE\_ADMIN rights to
+    his/her **group\_prefix\_Username** space
