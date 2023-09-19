@@ -551,26 +551,17 @@ instance for productive use. 
 5.  Assign group\_prefix User group SPACE\_USER rights to the following
     spaces:
     1.  **group\_prefix\_MATERIALS**
-    2.  ****group\_prefix\_METHODS**
-        **
-    3.  ******group\_prefix\_STORAGE**
-        ****
-    4.  ****** **group\_prefix\_STOCK\_CATALOG********
-6.  Assign group\_prefix User group SPACE\_OBSERVER rights to the
-    following spaces:********
-    ********
+    2.  **group\_prefix\_METHODS**
+    3.  **group\_prefix\_STORAGE**
+    4.  **group\_prefix\_STOCK\_CATALOG**
+6.  Assign group\_prefix User group SPACE\_OBSERVER rights to the following spaces:
     1.  **group\_prefix\_ELN\_SETTINGS**
-    2.  ****group\_prefix\_STOCK\_ORDERS**
-        **
-7.  Assign group\_prefix\_ADMIN SPACE\_ADMIN rights to the following
-    folders:
+    2.  **group\_prefix\_STOCK\_ORDERS**
+7.  Assign group\_prefix\_ADMIN SPACE\_ADMIN rights to the following folders:
     1.  **group\_prefix\_MATERIALS**
-    2.  ****group\_prefix\_METHODS**
-        **
-    3.  ****group\_prefix\_STORAGE**
-        **
-    4.  ****** **group\_prefix\_STOCK\_CATALOG********
+    2.  **group\_prefix\_METHODS**
+    3.  **group\_prefix\_STORAGE**
+    4.  **group\_prefix\_STOCK\_CATALOG**
     5.  **group\_prefix\_ELN\_SETTINGS**
     6.  **group\_prefix\_STOCK\_ORDERS**
-8.  Assign each single user SPACE\_ADMIN rights to
-    his/her **group\_prefix\_Username** space
+8.  Assign each single user SPACE\_ADMIN rights to his/her **group\_prefix\_Username** space
