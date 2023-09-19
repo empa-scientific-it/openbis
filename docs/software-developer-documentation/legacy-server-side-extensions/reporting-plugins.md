@@ -198,9 +198,7 @@ label = My Report
 **Type:** AGGREGATION\_TABLE\_MODEL
 
 **Description**: Invokes a Jython script to create an aggregation
-service report. For more details see [Jython-based Reporting and
-Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+service report. For more details see [Jython-based Reporting and Processing Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 
 **Configuration**:
 
@@ -302,7 +300,7 @@ label = My Report
 
 **Type:** AGGREGATION\_TABLE\_MODEL
 
-**Description**: Invokes a Jython script to register and modify entitiesand create an aggregation service report. The script receives a transaction as an argument. For more details see [Jython-based Reporting and Processing Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+**Description**: Invokes a Jython script to register and modify entitiesand create an aggregation service report. The script receives a transaction as an argument. For more details see [Jython-based Reporting and Processing Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 
 **Configuration**:
 
@@ -328,7 +326,7 @@ script-path = script.py
 
 **Description**: Invokes a Jython script to create the report. For more
 details see [Jython-based Reporting and Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 
 **Configuration**:
 
@@ -389,7 +387,7 @@ Screening Reporting Plugins
 **Description**: Invokes a Jython script to create an aggregation
 service report. For more details see [Jython-based Reporting and
 Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins). There is some extra support for screening.
+Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md). There is some extra support for screening.
 
 **Configuration**:
 
@@ -419,7 +417,7 @@ has access to the screening facade for queries to the imaging database
 and is given a screening transaction that supports registering plate
 images and feature vectors. For more details see [Jython-based Reporting
 and Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 
 **Configuration**:
 
@@ -443,9 +441,7 @@ script-path = script.py
 
 **Type:** TABLE\_MODEL
 
-**Description**: Invokes a Jython script to create the report. For more
-details see [Jython-based Reporting and Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+**Description**: Invokes a Jython script to create the report. For more details see [Jython-based Reporting and Processing Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 There is some extra support for screening.
 
 **Configuration**:
