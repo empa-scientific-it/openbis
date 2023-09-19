@@ -1,99 +1,10 @@
-[Log
-in](https://unlimited.ethz.ch/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FSharing%2BDatabases)
-
-Linked Applications
-
-Loading…
-
-[![Confluence](/download/attachments/327682/atl.site.logo?version=1&modificationDate=1563454119905&api=v2)](/)
-
--   [Spaces](/spacedirectory/view.action "Spaces")
--   [Create ](# "Create from template")
-
--   Hit enter to search
-
--   [Help](# "Help")
-    -   [Online
-        Help](https://docs.atlassian.com/confluence/docs-82/ "Visit the Confluence documentation home")
-    -   [Keyboard Shortcuts](# "View available keyboard shortcuts")
-    -   [Feed
-        Builder](/dashboard/configurerssfeed.action "Create your custom RSS feed.")
-    -   [What’s
-        new](https://confluence.atlassian.com/display/DOC/Confluence+8.2+Release+Notes)
-    -   [Available Gadgets](# "Browse gadgets provided by Confluence")
-    -   [About
-        Confluence](/aboutconfluencepage.action "Get more information about Confluence")
-
--   
-
--   
-
--   
-
--   [Log
-    in](/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FSharing%2BDatabases)
-
-  
-
-[![openBIS Documentation Rel.
-20.10](/images/logo/default-space-logo.svg)](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
-
-[openBIS Documentation Rel.
-20.10](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
-
--   [Pages](/collector/pages.action?key=openBISDoc2010)
--   [Blog](/pages/viewrecentblogposts.action?key=openBISDoc2010)
-
-### Page tree
-
-[](/collector/pages.action?key=openBISDoc2010)
-
-Browse pages
-
-ConfigureSpace tools
-
-[](#)
-
--   [ ](#)
-    -   [ Attachments (0)
-        ](/pages/viewpageattachments.action?pageId=53745952 "View Attachments")
-    -   [ Page History
-        ](/pages/viewpreviousversions.action?pageId=53745952)
-
-    -   [ Page Information ](/pages/viewinfo.action?pageId=53745952)
-    -   [ Resolved comments ](#)
-    -   [ View in Hierarchy
-        ](/pages/reorderpages.action?key=openBISDoc2010&openId=53745952#selectedPageInHierarchy)
-    -   [ View Source
-        ](/plugins/viewsource/viewpagesrc.action?pageId=53745952)
-    -   [ Export to PDF
-        ](/spaces/flyingpdf/pdfpageexport.action?pageId=53745952)
-    -   [ Export to Word ](/exportword?pageId=53745952)
-    -   [ View Visio File
-        ](/plugins/lucidchart/selectVisio.action?contentId=53745952)
-
-    -   [ Copy
-        ](/pages/copypage.action?idOfPageToCopy=53745952&spaceKey=openBISDoc2010)
-
-1.  [Pages](/collector/pages.action?key=openBISDoc2010)
-2.  [openBIS Documentation Rel. 20.10
-    Home](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home)
-3.  [openBIS 20.10
-    Documentation](/display/openBISDoc2010/openBIS+20.10+Documentation)
-
--   []( "Unrestricted")
--   [Jira links]()
-
-[Sharing Databases](/display/openBISDoc2010/Sharing+Databases)
---------------------------------------------------------------
+# Sharing Databases
 
 -   Created by [Fuentes Serna Juan Mariano
     (ID)](%20%20%20%20/display/~juanf%0A) on [Oct 01,
     2020](/pages/viewpreviousversions.action?pageId=53745952 "Show changes")
 
-### 
-
-### Introduction
+## Introduction
 
 Application server and data store server(s) can share the same database.
 For example, openBIS screening uses a database for image meta data
@@ -121,17 +32,11 @@ mapping file is defined)
 The AS can have only one data source per pair defined by data store code
 and module code.
 
-### Share Databases without Mapping File
+## Share Databases without Mapping File
 
-Without a mapping file specified data sources are independently defined
-for DSS and AS. For details see [DSS Data
-Sources](/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-DataSources)
-and [AS Data
-Sources](/display/openBISDoc2010/Installation+and+Administrator+Guide+of+the+openBIS+Server#InstallationandAdministratorGuideoftheopenBISServer-ConfiguringDSSDataSources),
-respectively. Note, that the properties `database-driver`
-and `database-url` are mandatory for AS.
+Without a mapping file specified data sources are independently defined for DSS and AS. For details see [DSS Data Sources](/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-DataSources) and [AS Data Sources](/display/openBISDoc2010/Installation+and+Administrator+Guide+of+the+openBIS+Server#InstallationandAdministratorGuideoftheopenBISServer-ConfiguringDSSDataSources), respectively. Note, that the roperties `database-driver` and `database-url` are mandatory for AS.
 
-### Share Databases with Mapping File
+## Share Databases with Mapping File
 
 When a mapping file is used the configuration doesn't change for data
 sources defined for DSS. But the configuration parameters for an
@@ -156,12 +61,11 @@ overwritten which are **undefined**.
 
 The mapping file is a text file with lines of the following syntax:
 
-&lt;data store code pattern&gt;.&lt;module code pattern&gt;.&lt;type&gt;
-= &lt;value&gt;
+\<data store code pattern\>.\<module code pattern\>.\<type\> = \<value\>
 
-where &lt;data store code pattern&gt; and &lt;module code pattern&gt;
+where \<data store code pattern\> and \<module code pattern\>
 are wildcard patterns for the data store code and module/technology
-code, repectively. The &lt;type&gt; can have one of the following
+code, repectively. The \<type\> can have one of the following
 values:
 
 [TABLE]
@@ -177,7 +81,7 @@ registration, and the values for the host part of the URL, database
 name, user and password.
 
 If there is no matching line of type `config` found the AS core plugin
-with key &lt;actual data store code&gt;\[&lt;actual module code&gt;\] is
+with key \<actual data store code\>\[\<actual module code\>\] is
 used.
 
 If there is no matching line of type `data-source-code` found it is
@@ -188,11 +92,11 @@ be only one data source for AS.
 
 Here are some examples for various use cases:
 
-#### Mapping all DSSs on one
+### Mapping all DSSs on one
 
 **etc/dss-datasource-mapping**
 
-    *.*.config = dss
+`*.*.config = dss`
 
 This means that any request for data source for data store x and
 module/technology y will be mapped to the same configuration. If one of
@@ -205,19 +109,22 @@ The following mapping file is similar:
 
 **etc/dss-datasource-mapping**
 
-    *.*.config = dss[*]
+`*.*.config = dss[*]`
 
 This means that any request for data source for data store x and
 module/technology y will be mapped to AS core plugin DSS of module y.
 
-#### Mapping all DSSs on one per module
+### Mapping all DSSs on one per module
 
 **etc/dss-datasource-mapping**
 
-    *.proteomics.config = dss1[proteomics]
-    *.proteomics.data-source-code = proteomics-db
-    *.screening.config = dss1[screening]
-    *.screening.data-source-code = imaging-db
+```
+*.proteomics.config = dss1[proteomics]
+*.proteomics.data-source-code = proteomics-db
+*.screening.config = dss1[screening]
+*.screening.data-source-code = imaging-db
+```
+
 
 All DSS instances for the same module are mapped onto an AS core plugin
 named DSS1 for the corresponding module. This time the data source code
@@ -226,7 +133,7 @@ one data source defined. For example in screening `path-info-db` is
 often used in addition to `imaging-db` to speed up file browsing in the
 data store.
 
-#### Overwriting Parameters
+### Overwriting Parameters
 
 Reusing the same AS dss-data-sources core plugin is most flexible with
 the mapping file if no driver, URL, username and password have been
@@ -245,25 +152,31 @@ than the URL for the AS.
 
 **etc/dss-datasource-mapping**
 
-    *.screening.config = dss1[screening]
-    *.screening.data-source-code = imaging-db
-    *.screening.host-part = localhost 
+```
+*.screening.config = dss1[screening]
+*.screening.data-source-code = imaging-db
+*.screening.host-part = localhost 
+```
+
 
 Also database name (aka sid), user, and password can be overwritten in
 the same way.
 
-#### Overwriting Generic Settings
+### Overwriting Generic Settings
 
 **etc/dss-datasource-mapping**
 
-    *.screening.config = dss1[screening]
-    *.screening.data-source-code = imaging-db
-    *.screening.host-part = localhost 
-    *.screening.username = openbis
-    *.screening.password = !a7zh93jP.
-    DSS3.screening.host-part = my.domain.org:1234
-    DSS3.screening.username = ob
-    DSS3.screening.password = 8uij.hg6
+```
+*.screening.config = dss1[screening]
+*.screening.data-source-code = imaging-db
+*.screening.host-part = localhost 
+*.screening.username = openbis
+*.screening.password = !a7zh93jP.
+DSS3.screening.host-part = my.domain.org:1234
+DSS3.screening.username = ob
+DSS3.screening.password = 8uij.hg6
+```
+
 
 This is an example where all DSS instances except DSS3 are accessing the
 same database server which is on the same machine as the AS. Username
@@ -275,21 +188,3 @@ are different.
 Note, that the generic mapping definitions (i.e. definitions with wild
 cards for data store codes or module codes) should appear before the
 more specific definitions.
-
--   No labels
-
-Overview
-
-Content Tools
-
-Apps
-
--   Powered by [Atlassian
-    Confluence](https://www.atlassian.com/software/confluence) 8.2.0
--   Printed by Atlassian Confluence 8.2.0
--   [Report a bug](https://support.atlassian.com/confluence-server/)
--   [Atlassian News](https://www.atlassian.com/company)
-
-[Atlassian](https://www.atlassian.com/)
-
-{"serverDuration": 114, "requestCorrelationId": "600905da03ae638d"}
