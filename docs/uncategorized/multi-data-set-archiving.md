@@ -1,93 +1,4 @@
-[Log
-in](https://unlimited.ethz.ch/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FMulti%2Bdata%2Bset%2Barchiving)
-
-Linked Applications
-
-Loading…
-
-[![Confluence](/download/attachments/327682/atl.site.logo?version=1&modificationDate=1563454119905&api=v2)](/)
-
--   [Spaces](/spacedirectory/view.action "Spaces")
--   [Create ](# "Create from template")
-
--   Hit enter to search
-
--   [Help](# "Help")
-    -   [Online
-        Help](https://docs.atlassian.com/confluence/docs-82/ "Visit the Confluence documentation home")
-    -   [Keyboard Shortcuts](# "View available keyboard shortcuts")
-    -   [Feed
-        Builder](/dashboard/configurerssfeed.action "Create your custom RSS feed.")
-    -   [What’s
-        new](https://confluence.atlassian.com/display/DOC/Confluence+8.2+Release+Notes)
-    -   [Available Gadgets](# "Browse gadgets provided by Confluence")
-    -   [About
-        Confluence](/aboutconfluencepage.action "Get more information about Confluence")
-
--   
-
--   
-
--   
-
--   [Log
-    in](/login.action?os_destination=%2Fdisplay%2FopenBISDoc2010%2FMulti%2Bdata%2Bset%2Barchiving)
-
-  
-
-[![openBIS Documentation Rel.
-20.10](/images/logo/default-space-logo.svg)](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
-
-[openBIS Documentation Rel.
-20.10](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home "openBIS Documentation Rel. 20.10")
-
--   [Pages](/collector/pages.action?key=openBISDoc2010)
--   [Blog](/pages/viewrecentblogposts.action?key=openBISDoc2010)
-
-### Page tree
-
-[](/collector/pages.action?key=openBISDoc2010)
-
-Browse pages
-
-ConfigureSpace tools
-
-[](#)
-
--   [ ](#)
-    -   [ Attachments (0)
-        ](/pages/viewpageattachments.action?pageId=53746022 "View Attachments")
-    -   [ Page History
-        ](/pages/viewpreviousversions.action?pageId=53746022)
-
-    -   [ Page Information ](/pages/viewinfo.action?pageId=53746022)
-    -   [ Resolved comments ](#)
-    -   [ View in Hierarchy
-        ](/pages/reorderpages.action?key=openBISDoc2010&openId=53746022#selectedPageInHierarchy)
-    -   [ View Source
-        ](/plugins/viewsource/viewpagesrc.action?pageId=53746022)
-    -   [ Export to PDF
-        ](/spaces/flyingpdf/pdfpageexport.action?pageId=53746022)
-    -   [ Export to Word ](/exportword?pageId=53746022)
-    -   [ View Visio File
-        ](/plugins/lucidchart/selectVisio.action?contentId=53746022)
-
-    -   [ Copy
-        ](/pages/copypage.action?idOfPageToCopy=53746022&spaceKey=openBISDoc2010)
-
-1.  [Pages](/collector/pages.action?key=openBISDoc2010)
-2.  **…**
-3.  [openBIS Documentation Rel. 20.10
-    Home](/display/openBISDoc2010/openBIS+Documentation+Rel.+20.10+Home)
-4.  [openBIS 20.10
-    Documentation](/display/openBISDoc2010/openBIS+20.10+Documentation)
-5.  [Guides](/display/openBISDoc2010/Guides)
-
--   []( "Unrestricted")
--   [Jira links]()
-
-[Multi data set archiving](/display/openBISDoc2010/Multi+data+set+archiving)
-----------------------------------------------------------------------------
+# Multi data set archiving
 
 -   Created by [Fuentes Serna Juan Mariano
     (ID)](%20%20%20%20/display/~juanf%0A), last modified by [Kupczyk
@@ -96,8 +7,7 @@ ConfigureSpace tools
 
   
 
-Introduction
-------------
+## Introduction
 
 Multi data set archiver is a tool to archive several datasets together
 in chunks of relatively large size. When a group of datasets is selected
@@ -123,8 +33,7 @@ rules are obeyed:
 To test the archiver find the datasets you want to archive in openbis
 GUI and "add to archive".
 
-Important technical details
----------------------------
+## Important technical details
 
 The archiver requires configuration of three important entities.
 
@@ -136,8 +45,7 @@ The archiver requires configuration of three important entities.
 Multi dataset archiver is not compatible with other archivers. You
 should have all data available before configuring this archiver.
 
-Workflows
----------
+## Workflows
 
 The multi data set archiver can be configured for four different
 workflows. The workflow is selected by the presence/absence of the
@@ -201,8 +109,7 @@ Some remarks:
 When both properties `staging-destination` and `replicated-destination`
 are present staging and replication workflow will be combined.
 
-Clean up
---------
+## Clean up
 
 In case archiving fails all half-baked container files have to be
 removed. By default this is done immediately.
@@ -216,8 +123,7 @@ sent. Such deletion request will still be handled but the e-mail allows
 manual intervention/deletion. Note, that deletion requests for
 non-existing files will always be handled successfully.
 
-Configuration steps
--------------------
+## Configuration steps
 
 -   Disable existing archivers
     -   Find all properties of a form `archiver.*` in
@@ -434,8 +340,7 @@ Configuration steps
 
         data-set-command-queue-mapping = archiving:Archiving|Copying data sets to archive, unarchiving:Unarchiving, archiving-finalizer:Archiving Finalizer
 
-Clean up Unarchiving Scratch Share
-----------------------------------
+## Clean up Unarchiving Scratch Share
 
 (Since version 20.10.4) Data sets in the unarchiving scratch share can
 be removed any times because they are already present in archive.
@@ -455,8 +360,7 @@ following conditions:
 -   The data set is found in the Multi Data Set Archive database and the
     corresponding TAR archive file exists.  
 
-Deletion of archived Data Sets
-------------------------------
+## Deletion of archived Data Sets
 
 (Since version 20.10.3) Archived data sets can be deleted permanently.
 But they are still in the container files. In order to remove them also
@@ -464,8 +368,7 @@ from the container files a
 [MultiDataSetDeletionMaintenanceTask](/display/openBISDoc2010/Maintenance+Tasks#MaintenanceTasks-MultiDataSetDeletionMaintenanceTask)
 has to be configured.
 
-Recovery from corrupted archiving queues
-----------------------------------------
+## Recovery from corrupted archiving queues
 
 In case the queues with the archiving commands get corrupted, they
 cannot be used any more, they need to be deleted before the DSS starts
@@ -543,21 +446,3 @@ The following steps describe how to recover from such a situation.
     database.
 
         openbis_prod=> DELETE FROM containers WHERE id IN (SELECT ctnr_id FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002'));
-
--   No labels
-
-Overview
-
-Content Tools
-
-Apps
-
--   Powered by [Atlassian
-    Confluence](https://www.atlassian.com/software/confluence) 8.2.0
--   Printed by Atlassian Confluence 8.2.0
--   [Report a bug](https://support.atlassian.com/confluence-server/)
--   [Atlassian News](https://www.atlassian.com/company)
-
-[Atlassian](https://www.atlassian.com/)
-
-{"serverDuration": 112, "requestCorrelationId": "33045c2ba97fd694"}
