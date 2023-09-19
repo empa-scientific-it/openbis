@@ -546,9 +546,7 @@ script:
 
 -   ` IManagedInputWidgetDescriptionFactory inputWidgetFactory()`:
     returns a factory that can be used to create descriptions of input
-    fields used for modification of managed property value (see
-    [IManagedInputWidgetDescription](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/basic/dto/api/IManagedInputWidgetDescription.html)
-    and [example](./properties-handled-by-scripts.md#example-3)).
+    fields used for modification of managed property value (see [example](./properties-handled-by-scripts.md#example-3)).
 
  
 
