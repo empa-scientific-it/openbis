@@ -612,16 +612,16 @@ selected data sets.
 Aggregation service reporting plugins do not run against data sets. They
 can only be invoked via Query API.
 
-## Selecting Data Sets
+### Selecting Data Sets
 
 ![](img/01%20Select-Data-Sets.png)  
 ![](img/03%20Pick-Which-Data-Sets.png)
 
-## Selecting a Reporting Plugin
+### Selecting a Reporting Plugin
 
 ![](img/02%20Select-Reporting-Plugin.png)
 
-## Viewing the results
+### Viewing the results
 
 ![](img/04%20See-Result.png)
 
