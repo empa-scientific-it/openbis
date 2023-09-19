@@ -26,14 +26,14 @@ openBIS master data are:
 
 1.  Go to *Admin → Spaces*  
       
-     ![](/download/thumbnails/53745926/Space-registration-1.png?version=1&modificationDate=1601541490182&api=v2)
+     ![](img/Space-registration-1.png)
 2.  Go to *Add Space* at the bottom of the page  
       
-    ![](/download/attachments/53745926/Space-registration-2.png?version=1&modificationDate=1601541490176&api=v2)  
+    ![](img/Space-registration-2.png)  
       
 3.  Enter a *Code* and, if you wish, a *Description* for the Space  
       
-    ![](/download/attachments/53745926/Space-registration-3.png?version=1&modificationDate=1601541490172&api=v2)  
+    ![](img/Space-registration-3.png)  
       
 4.  *Save*
 
@@ -43,15 +43,15 @@ openBIS master data are:
 
 1.  Go to *Admin → Types → CollectionTypes*  
     *  
-    *![](/download/attachments/53745926/Collection-type-registration-1.png?version=1&modificationDate=1601541490164&api=v2)
+    *![](img/Collection-type-registration-1.png)
 2.  Select *Add* at the bottom of the page  
       
-    ![](/download/attachments/53745926/Collection-type-registration-2.png?version=1&modificationDate=1601541490156&api=v2)  
+    ![](img/Collection-type-registration-2.png)  
       
 3.  Now enter the *Code* for the Experiment/Collection type. E.g. for a
     microscopy experiment, the code could be EXPERIMENT\_MICROSCOPY.  
       
-    ![](/download/attachments/53745926/Collection-type-registration-3.png?version=1&modificationDate=1601541490152&api=v2)
+    ![](img/Collection-type-registration-3.png)
 4.  *Description*: fill in this field if you want to provide some
     details about this Collection/Experiment type
 5.  *Validation plugin*: If you want to have data validation, a script
@@ -65,7 +65,7 @@ openBIS master data are:
     page. You have two options:  
       
     1.  choose from a list of existing properties  
-        ![](/download/attachments/53745926/Add-existing-property.png?version=1&modificationDate=1601541490147&api=v2)  
+        ![](img/Add-existing-property.png)  
         The dropdown Property type (see screenshot above) gives you the
         list of all registered properties in openBIS. The full list of
         registered properties is under *Admin → Types → Browse Property
@@ -74,7 +74,7 @@ openBIS master data are:
         *
     2.  create a new property  
           
-        ![](/download/attachments/53745926/Add-new-property.png?version=1&modificationDate=1601541490142&api=v2)  
+        ![](img/Add-new-property.png)  
         To register a new property you need to provide:  
           
         1.  *Code*: this is the unique identifier for this property.
@@ -94,7 +94,7 @@ openBIS master data are:
         After choosing the data type, two new fields are added to the
         widget in the screenshot above:  
           
-        ![](/download/attachments/53745926/Property-registration-fields-after-trype-selection.png?version=1&modificationDate=1601541490139&api=v2)  
+        ![](img/Property-registration-fields-after-trype-selection.png)  
           
         1.  *Section*: sections are ways of grouping together some
             properties. For example properties such as *Storage
@@ -110,7 +110,7 @@ openBIS master data are:
 
 The following data types are available in openBIS:
 
-![](/download/attachments/53745926/openBIS-data-types.png?version=1&modificationDate=1601541490134&api=v2)
+![](img/openBIS-data-types.png)
 
 1.  *Boolean*: True or false
 2.  *Controlled Vocabulary*: list of values to choose form. Only 1 value
@@ -135,7 +135,7 @@ When you choose CONTROLLEDVOCABULARY as data type, you can then either
 choose from existing vocabularies (drop down) or create a new vocabulary
 (+ next to dropdown).
 
-![](/download/attachments/53745926/Register-property-controllevocabulary.png?version=1&modificationDate=1601541490130&api=v2)
+![](img/Register-property-controllevocabulary.png)
 
 To create a new vocabulary, you need to enter the *Code* and the *list
 of terms* belonging to the vocabulary. 
@@ -155,16 +155,16 @@ be written as normal text.
 Taking as example the Storage conditions mentioned above, we could have
 the following codes and labels:
 
-             
-
-[TABLE]
-
-  
+|Code|Label|
+|--- |--- |
+|MINUS_80|-80°C|
+|MINUS_20|-20°C|
+|4|+4°C|
+|RT|room temperature|
 
 1.  **specify list of terms in the interface.** 
 
-![](/download/attachments/53745926/Controlled-vocabulary-list.png?version=1&modificationDate=1601541490126&api=v2)
-
+![](img/Controlled-vocabulary-list.png)
   
 
 In this case, in the Terms field, we can only enter vocabulary codes
@@ -174,7 +174,7 @@ editing the Controlled Vocabulary.
 
 2**. load terms from a file**
 
-![](/download/attachments/53745926/Controlle-vocabulary-from-file.png?version=1&modificationDate=1601541490121&api=v2)
+![](img/Controlle-vocabulary-from-file.png)
 
   
 
@@ -191,7 +191,7 @@ label, and also to add new terms to an existing vocabulary.
 
 1.  Go to *Admin→ Vocabularies*
 
- ![](/download/attachments/53745926/Controlled-vocabulry-list.png?version=1&modificationDate=1601541490114&api=v2)
+ ![](img/Controlled-vocabulry-list.png)
 
 2\. Select the desired vocabulary in the table (click on the blue link)
 
@@ -202,19 +202,19 @@ or
 Edit an existing term by selecting it in the table and then going to
 *Entity:Edit* at the bottom of the page.
 
- ![](/download/attachments/53745926/Controlled-vocabulary-add-term.png?version=1&modificationDate=1601541490109&api=v2)
+ ![](img/Controlled-vocabulary-add-term.png)
 
 
 ## How to Register an Object type  
 
 1.  Go to *Admin → Types → Object Types*  
       
-    ![](/download/attachments/53745926/Collection-type-registration-1.png?version=1&modificationDate=1601541490164&api=v2)
+    ![](img/Collection-type-registration-1.png)
 2.  To register a new type select *Entity:Add* at the bottom of the
     page. To edit an existing Object type, select the desired type from
     the table and go to *Entity:Edit* at the bottom of the page.  
       
-    ![](/download/attachments/53745926/Object-type-registration-1.png?version=1&modificationDate=1601541490104&api=v2)  
+    ![](img/Object-type-registration-1.png)  
       
 3.  In the Object Type registration page a few fields need to be filled
     in (see screenshot below)
@@ -249,7 +249,7 @@ Edit an existing term by selecting it in the table and then going to
         Each new chemical registered in openBIS will have CHE1, CHE2,
         CHE3... CHEn as codes.  
           
-        ![](/download/attachments/53745926/Screenshot%202020-05-15%20at%2015.15.19.png?version=1&modificationDate=1601541490099&api=v2)
+        ![](img/Screenshot%202020-05-15%20at%2015.15.19.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
     See [HowtoRegisteranExperiment/Collectiontype](#RegisterMasterDataviatheAdminInterface-HowtoRegisteranExperiment/Collectiontype).
@@ -260,9 +260,9 @@ Edit an existing term by selecting it in the table and then going to
 
 1.  Go to *Admin → Types → Data Set Types*  
       
-    ![](/download/attachments/53745926/Collection-type-registration-1.png?version=1&modificationDate=1601541490164&api=v2)
+    ![](img/Collection-type-registration-1.png)
 2.  Select *Entity:Add* at the bottom of the page  
-    ![](/download/attachments/53745926/Screenshot%202020-05-15%20at%2016.04.15.png?version=1&modificationDate=1601541490094&api=v2)
+    ![](img/Screenshot%202020-05-15%20at%2016.04.15.png)
 3.  The Data Set Type registration form has the following fields:
     1.  *Code*: name of the data set (e.g. RAW\_DATA). Code can only
         take alphanumeric characters and cannot contain spaces.
@@ -278,7 +278,7 @@ Edit an existing term by selecting it in the table and then going to
         a data set) that will be used as a starting point of 'main data
         set' lookup. E.g. 'original/images/'
 
-    ![](/download/attachments/53745926/Screenshot%202020-05-15%20at%2016.04.35.png?version=1&modificationDate=1601541490089&api=v2)
+    ![](img/Screenshot%202020-05-15%20at%2016.04.35.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
     See [HowtoRegisteranExperiment/Collectiontype](#RegisterMasterDataviatheAdminInterface-HowtoRegisteranExperiment/Collectiontype).
@@ -290,7 +290,7 @@ Edit an existing term by selecting it in the table and then going to
 The full list of properties registered in openBIS is accessible by
 navigating to *Admin → Types → Browse Property Types* 
 
-![](/download/attachments/53745926/Collection-type-registration-1.png?version=1&modificationDate=1601541490164&api=v2)
+![](img/Collection-type-registration-1.png)
 
 In the Property Browser page it is possible to:
 
@@ -301,4 +301,4 @@ In the Property Browser page it is possible to:
     will delete also all associated values, if the property is in use. A
     warning is issued: please read carefully before deleting properties!
 
-![](/download/attachments/53745926/Screenshot%202020-05-15%20at%2016.21.19.png?version=1&modificationDate=1601541490082&api=v2)
+![](img/Screenshot%202020-05-15%20at%2016.21.19.png)
