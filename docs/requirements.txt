@@ -1,3 +1,4 @@
+sphinx==7.2.6
 docutils==0.20.1
 myst-parser==2.0.0
 sphinx_rtd_theme
