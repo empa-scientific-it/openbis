@@ -153,9 +153,7 @@ rename-to-dataset-code = true
 
 ### JythonBasedProcessingPlugin
 
-**Description**: Invokes a Jython script to do the processing. For more
-details see [Jython-based Reporting and Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+**Description**: Invokes a Jython script to do the processing. For more details see [Jython-based Reporting and Processing Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 
 **Configuration**:
 
