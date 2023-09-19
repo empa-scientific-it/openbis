@@ -366,7 +366,7 @@ existing one(update).
     parameters.  
     1.  the first argument is the entity. It will be the object
         implementing
-        the [IEntityAdaptor](http://svnsis.ethz.ch/doc/openbis/current/index.html?ch/systemsx/cisd/openbis/generic/server/dataaccess/dynamic_property/calculator/api/IEntityAdaptor.html) interface
+        the [IEntityAdaptor](https://openbis.ch/javadoc/20.10.x/javadoc-dynamic-api/ch/systemsx/cisd/openbis/generic/shared/hotdeploy_plugins/api/IEntityAdaptor.html) interface
     2.  the second argument is the boolean "isNewEntity". It will be
         true if the entity is new.
 2.  The script should return None (or nothing) if the validation is
@@ -554,7 +554,7 @@ script:
 
 -   ` IElementFactory elementFactory()`: returns a factory that can be
     used to create
-    [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
+    [IElement]( managed_property/api/IElement.html)-s.
     See [\#Storing structured content in managed
     properties](./properties-handled-by-scripts.md#storing-structured-content-in-managed-properties).
 
@@ -562,13 +562,13 @@ script:
 
 -   ` IStructuredPropertyConverter xmlPropertyConverter()`: returns a
     converter that can translate
-    [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
+    [IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to XML Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
     properties](./properties-handled-by-scripts.md#storing-structured-content-in-managed-properties).
 -   ` IStructuredPropertyConverter jsonPropertyConverter()`: returns a
     converter that can translate
-    [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
+    [IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to JSON Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
     properties](./properties-handled-by-scripts.md#storing-structured-content-in-managed-properties).
@@ -983,22 +983,22 @@ abstract data structure and persist it as a single property.
 ##### Supported structure elements
 
 The abstract data structure supported by the API is basically a list of
-[IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
+[IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
 IElements are named objects optionally having associated key-value
 attributes and optionally containing other IElements. Additionally,
 IElements can also be used as containers for larger chunks of raw data.
 
 To construct concrete instances of IElement one has to use
-[IElementFactory](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
+[IElementFactory](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
 available via the predefined function
 [elementFactory()](./properties-handled-by-scripts.md#predefined-functions).
 
 ##### Linking to openBIS entities
 
 Astute readers may have already noticed that the
-[IElementFactory](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
+[IElementFactory](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
 also offers methods that create
-[IEntityLinkElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IEntityLinkElement.html)
+[IEntityLinkElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IEntityLinkElement.html)
 instances. An IEntityLinkElement denotes a link to another object in
 openBIS.
 
@@ -1009,11 +1009,11 @@ grids defined for managed properties.
 ##### Converting to property value
 
 Once you a have created the desired data structure in form of
-[IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s,
+[IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s,
 you can use an
-[IStructuredPropertyConverter](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
+[IStructuredPropertyConverter](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
 to convert it to a property value. An instance of
-[IStructuredPropertyConverter](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
+[IStructuredPropertyConverter](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
 can be created from the [\#Predefined
 Functions](./properties-handled-by-scripts.md#predefined-functions).
 
