@@ -116,42 +116,92 @@ property [javax.net](http://javax.net).ssl.trustStore. Example:
     java -Djavax.net.ssl.trustStore=/home/openbis/openbis/servers/openBIS-server/jetty/etc/openBIS.keystore -jar the-client.jar
 ```
 
-Connecting in Java
+### Connecting in Java
 
-**V3ConnectionExample.java**
+In order to connect to openBIS V3 API in Java you can:
+
+- use IApplicationServerApi (AS) and IDataStoreServerApi (DSS) interfaces directly
+- use OpenBIS facade (that talks to IApplicationServerApi and IDataStoreServerApi interfaces internally)
+
+Using the OpenBIS facade has some advantages over using the AS and DSS interfaces directly:
+
+- it hides the details of the protocol and the data serialization format used between the client and the server
+- it does not require you to know V3 API endpoints for both AS and DSS and their URLs
+- it provides additional utility methods (e.g. getManagedPersonalAccessToken)
+
+Because of these reasons, OpenBIS facade is the recommended way of connecting to V3 API in Java.
+
+Code examples for both approaches are presented below.
+
+**V3ConnectionExampleUsingASAndDSSInterfaces.java**
 
 ```java
-    import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-    import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
-    public class V3ConnectionExample
+public class V3ConnectionExampleUsingASAndDSSInterfaces
+{
+
+    private static final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
+
+    private static final int TIMEOUT = 10000;
+
+    public static void main(String[] args)
     {
+        // get a reference to AS API
+        IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
 
-        private static final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
+        // login to obtain a session token
+        String sessionToken = v3.login("admin", "password");
 
-        private static final int TIMEOUT = 10000;
+        // invoke other API methods using the session token, for instance search for spaces
+        SearchResult<Space> spaces = v3.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+        System.out.println("Number of spaces: " + spaces.getObjects().size());
 
-        public static void main(String[] args)
-        {
-            // get a reference to AS API
-            IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
-
-            // login to obtain a session token
-            String sessionToken = v3.login("admin", "password");
-
-            // invoke other API methods using the session token, for instance search for spaces
-            SearchResult<Space> spaces = v3.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
-            System.out.println("Number of spaces: " + spaces.getObjects().size());
-
-            // logout to release the resources related with the session
-            v3.logout(sessionToken);
-        }
-
+        // logout to release the resources related with the session
+        v3.logout(sessionToken);
     }
+
+}
+```
+
+**V3ConnectionExampleUsingOpenBISFacade.java**
+
+```java
+import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+
+public class V3ConnectionExampleUsingOpenBISFacade
+{
+
+    private static final String URL = "http://localhost:8888";
+
+    private static final int TIMEOUT = 10000;
+
+    public static void main(String[] args)
+    {
+        // create OpenBIS facade (it aggregates methods from both IApplicationServerApi and IDataStoreServerApi)
+        OpenBIS v3 = new OpenBIS(URL, TIMEOUT);
+
+        // login to obtain a session token (the token is stored in the facade and used for subsequent calls)
+        v3.login("admin", "password");
+
+        // invoke other API methods, for instance search for spaces
+        SearchResult<Space> spaces = v3.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
+        System.out.println("Number of spaces: " + spaces.getObjects().size());
+
+        // logout to release the resources related with the session
+        v3.logout();
+    }
+
+}
 ```
 
 ### Connecting in Javascript
@@ -244,12 +294,14 @@ easier for developers to use.
 
 UMD bundle can be loaded at an HTML page using a standard script tag.
 
+**V3ConnectionExampleUsingUMDModule.html**
+
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>V3UMDExample</title>
+    <title>V3ConnectionExampleUsingUMDModule</title>
 
     <!--
 
@@ -313,12 +365,14 @@ be imported.
 ESM bundle can be loaded at an HTML page using a standard script tag with type="module". It is also well suited for webapps that bundle all their
 resources with tools like Webpack.
 
+**V3ConnectionExampleUsingESMModule.html**
+
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>V3ESMExample</title>
+    <title>V3ConnectionExampleUsingESMModule</title>
 </head>
 <body>
 
