@@ -1,26 +1,18 @@
-[Ad Hoc Vocabulary Terms](/display/openBISDoc2010/Ad+Hoc+Vocabulary+Terms)
---------------------------------------------------------------------------
+# Ad Hoc Vocabulary Terms
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A) on [Oct 01,
-    2020](/pages/viewpreviousversions.action?pageId=53746007 "Show changes")
-
-Ad Hoc Vocabulary Terms
------------------------
-
-### Introduction
+## Introduction
 
 *Ad Hoc Vocabulary Term* is a special kind of Vocabulary Term. If needed
 term is missing in the vocabulary, it can be added by Power User when
 filling up the form.
 
-### Creating new Ad Hoc Vocabulary Term
+## Creating new Ad Hoc Vocabulary Term
 
 Ad Hoc Vocabulary Terms can be created either via web interface of
 openBIS, or by DataSet Uploader. Below you can learn how to do it in
 both cases.
 
-#### openBIS
+### openBIS
 
 When filling up the forms in openBIS, Power User will see next to the
 drop down list a plus icon (see picture below).
@@ -39,7 +31,7 @@ User can easily distinguish between regular, and Ad Hoc Vocabulary Term
 
 ![](/download/attachments/53746007/Screen%20shot%202011-06-21%20at%201.31.53%20PM.png?version=1&modificationDate=1601541479490&api=v2)
 
-#### DataSet Uploader
+### DataSet Uploader
 
 In DataSet Uploader the mechanism is very similar to one in openBIS.
 When you want to add Ad Hoc Vocabulary Term, click on a plus button (see
@@ -57,7 +49,7 @@ Ad Hoc Vocabulary Terms can be easily recognize - they are shown in
 
 ![](/download/attachments/53746007/Screen%20shot%202011-06-21%20at%203.50.02%20PM.png?version=1&modificationDate=1601541479483&api=v2)
 
-### Approving Ad Hoc Vocabulary Terms
+## Approving Ad Hoc Vocabulary Terms
 
 Power User can approve Ad Hoc Vocabulary Terms. Approving changes the Ad
 Hoc Term into regular one - it won't be shown in *italic grey* anymore,
@@ -83,7 +75,7 @@ below).
 
 ![](/download/attachments/53746007/Screen%20shot%202011-06-22%20at%208.54.04%20AM.png?version=1&modificationDate=1601541479475&api=v2)
 
-### Maintenance Task
+## Maintenance Task
 
 There is a maintenance task which deletes unused Ad Hoc Vocabulary Terms
 older than configured number of days. It can be configured in openBIS
@@ -91,17 +83,20 @@ older than configured number of days. It can be configured in openBIS
 
 **service.properties**
 
-    # --------------------------------------------------------------------------------------------------
-    # Maintenance task removing old and unused Ad Hoc Vocabulary Terms
-    # --------------------------------------------------------------------------------------------------
-    # The directory to watch for incoming data.
-    ad-hoc-terms-remove-task.class = ch.systemsx.cisd.openbis.generic.server.task.RemoveUnusedUnofficialTermsMaintenanceTask
-    ad-hoc-terms-remove-task.interval = 3600
-    ad-hoc-terms-remove-task.older-than-days = 7
+```
+# --------------------------------------------------------------------------------------------------
+# Maintenance task removing old and unused Ad Hoc Vocabulary Terms
+# --------------------------------------------------------------------------------------------------
+# The directory to watch for incoming data.
+ad-hoc-terms-remove-task.class = ch.systemsx.cisd.openbis.generic.server.task.RemoveUnusedUnofficialTermsMaintenanceTask
+ad-hoc-terms-remove-task.interval = 3600
+ad-hoc-terms-remove-task.older-than-days = 7
+```
+
 
 Make sure, that the task is configured on maintenance-plugins list.
 
-### Configuration
+## Configuration
 
 By default, Ad Hoc Vocabulary Terms are disabled. To enable it, you have
 to edit `web-client.properties` of openBIS and set
@@ -109,32 +104,19 @@ to edit `web-client.properties` of openBIS and set
 
 **web-client.properties**
 
-    # Should the feature of adding unofficial/ad-hoc terms to vocabularies be turned on.
-    # Default value: false 
-    allow-adding-unofficial-terms = true
+```
+# Should the feature of adding unofficial/ad-hoc terms to vocabularies be turned on.
+# Default value: false 
+allow-adding-unofficial-terms = true
+```
+
 
 You should make sure, that in openBIS `service.properties` file you have
 specified path `web-client.properties` file.
 
 **service.properties**
 
-    # Name of the file that stores Web Client configuration
-    web-client-configuration-file = etc/web-client.properties
-
--   No labels
-
-Overview
-
-Content Tools
-
-Apps
-
--   Powered by [Atlassian
-    Confluence](https://www.atlassian.com/software/confluence) 8.2.0
--   Printed by Atlassian Confluence 8.2.0
--   [Report a bug](https://support.atlassian.com/confluence-server/)
--   [Atlassian News](https://www.atlassian.com/company)
-
-[Atlassian](https://www.atlassian.com/)
-
-{"serverDuration": 140, "requestCorrelationId": "aeb9e54dda014b18"}
+```
+# Name of the file that stores Web Client configuration
+web-client-configuration-file = etc/web-client.properties
+```
