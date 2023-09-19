@@ -530,12 +530,23 @@ that makes the
 available to plugins. If you need access to the services it provides,
 use the screening variant.
 
-[TABLE]
+|Variable Name|Service Interface|Description|
+|--- |--- |--- |
+|searchService|ISearchService|Methods for listing entities from openBIS AS filtered to those visible to the user.|
+|searchServiceUnfiltered|ISearchService|As above, but unfiltered|
+|queryService|IDataSourceQueryService|Methods for querying external databases specified in DSS|
+|mailService|IMailService|Methods for sending emails with an attachment to the user who triggered reporting/processing|
+|contentProvider|IDataSetContentProvider|Has a method for retrieving a IHierarchicalContent for a specified data set code, filtered to data visible by user.|
+|contentProviderUnfiltered|IDataSetContentProvider|Has a method for retrieving a IHierarchicalContent for a specified data set code, unfiltered.|
+|authorizationService|IAuthorizationService|Methods for determining user access privileges and filter entities to those visible to the user.|
+|userId|String|The id of the user who requested this report (supposed to be used for authorization)|
 
 In each case, an additional variable, *screeningFacade* is made
 available to the script.
 
-[TABLE]
+|Variable|Type|
+|--- |--- |
+|screeningFacade|IScreeningOpenbisServiceFacade|
 
 ## Reporting Plugin Example
 
