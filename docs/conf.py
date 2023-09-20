@@ -6,7 +6,7 @@ html_theme_options = {
         'logo_only': True,
         'display_version': False,
 }
-exclude_patterns = ['README.md']
+exclude_patterns = ['home.md']
 extensions = ['myst_parser']
 source_suffix = ['.rst', '.md']
 def setup(app):
