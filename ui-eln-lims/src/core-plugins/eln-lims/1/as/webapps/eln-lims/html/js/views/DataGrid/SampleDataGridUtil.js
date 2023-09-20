@@ -999,10 +999,10 @@ var SampleDataGridUtil = new function() {
 
     this.getTerm = function(params, propertyType) {
         var value = params.row[propertyType.code]
-        if(Array.isArray(value)) {
-            return value.sort().toString();
-        } else {
+//        if(Array.isArray(value)) {
+//            return value.sort().toString();
+//        } else {
             return value ? value : "";
-        }
+//        }
     }
 }
