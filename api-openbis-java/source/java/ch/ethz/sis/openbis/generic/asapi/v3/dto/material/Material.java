@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntity;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
@@ -53,12 +54,10 @@ import java.util.Set;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.material.Material")
-public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, IMaterialPropertiesHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
+public class Material extends AbstractEntity<Material>
+        implements Serializable, ICodeHolder, IEntityTypeHolder, IMaterialPropertiesHolder, IModificationDateHolder, IPermIdHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
-
-    @JsonProperty
-    private MaterialFetchOptions fetchOptions;
 
     @JsonProperty
     private MaterialPermId permId;
@@ -82,10 +81,6 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     private Date modificationDate;
 
     @JsonProperty
-    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, Serializable> properties;
-
-    @JsonProperty
     private Map<String, Material> materialProperties;
 
     @JsonProperty
@@ -95,13 +90,13 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     @JsonIgnore
     public MaterialFetchOptions getFetchOptions()
     {
-        return fetchOptions;
+        return (MaterialFetchOptions) super.getFetchOptions();
     }
 
     // Method automatically generated with DtoGenerator
     public void setFetchOptions(MaterialFetchOptions fetchOptions)
     {
-        this.fetchOptions = fetchOptions;
+        super.setFetchOptions(fetchOptions);
     }
 
     // Method automatically generated with DtoGenerator
@@ -225,28 +220,6 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, Serializable> getProperties()
-    {
-        if (getFetchOptions() != null && getFetchOptions().hasProperties())
-        {
-            return properties;
-        }
-        else
-        {
-            throw new NotFetchedException("Properties have not been fetched.");
-        }
-    }
-
-    // Method automatically generated with DtoGenerator
-    @Override
-    public void setProperties(Map<String, Serializable> properties)
-    {
-        this.properties = properties;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    @Override
     public Map<String, Material> getMaterialProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
@@ -288,22 +261,6 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
     }
 
     @Override
-    public String getProperty(String propertyName)
-    {
-        return getProperties() != null ? (String) getProperties().get(propertyName) : null;
-    }
-
-    @Override
-    public void setProperty(String propertyName, Serializable propertyValue)
-    {
-        if (properties == null)
-        {
-            properties = new HashMap<>();
-        }
-        properties.put(propertyName, propertyValue);
-    }
-
-    @Override
     public Material getMaterialProperty(String propertyName)
     {
         return getMaterialProperties() != null ? getMaterialProperties().get(propertyName) : null;
@@ -317,224 +274,6 @@ public class Material implements Serializable, ICodeHolder, IEntityTypeHolder, I
             materialProperties = new HashMap<String, Material>();
         }
         materialProperties.put(propertyName, propertyValue);
-    }
-
-    @Override
-    public Long getIntegerProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Long.parseLong(propertyValue);
-    }
-
-    @Override
-    public void setIntegerProperty(String propertyName, Long propertyValue)
-    {
-        setProperty(propertyName, Objects.toString(propertyValue, null));
-    }
-
-    @Override
-    public String getVarcharProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setVarcharProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String getMultilineVarcharProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setMultilineVarcharProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public Double getRealProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Double.parseDouble(propertyValue);
-    }
-
-    @Override
-    public void setRealProperty(String propertyName, Double propertyValue)
-    {
-        setProperty(propertyName, Objects.toString(propertyValue, null));
-    }
-
-    @Override
-    public ZonedDateTime getTimestampProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return propertyValue == null ? null : ZonedDateTime.parse(getProperty(propertyName));
-    }
-
-    @Override
-    public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)
-    {
-        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX"));
-        setProperty(propertyName, value);
-    }
-
-    @Override
-    public Boolean getBooleanProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Boolean.parseBoolean(propertyValue);
-    }
-
-    @Override
-    public void setBooleanProperty(String propertyName, Boolean propertyValue)
-    {
-        setProperty(propertyName, Objects.toString(propertyValue, null));
-    }
-
-    @Override
-    public String getHyperlinkProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setHyperlinkProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String getXmlProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setXmlProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String[] getControlledVocabularyProperty(String propertyName)
-    {
-        if(getProperties() == null || getProperties().get(propertyName) == null) {
-            return null;
-        }
-        Serializable value = getProperties().get(propertyName);
-        if(value.getClass().isArray()) {
-            Serializable[] values = (Serializable[]) value;
-            return Arrays.stream(values).map(x->(String)x).toArray(String[]::new);
-        } else {
-            String propertyValue = (String) value;
-            return new String[]{ propertyValue };
-        }
-    }
-
-    @Override
-    public void setControlledVocabularyProperty(String propertyName, String[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public SamplePermId[] getSampleProperty(String propertyName)
-    {
-        if(getProperties() == null || getProperties().get(propertyName) == null) {
-            return null;
-        }
-        Serializable value = getProperties().get(propertyName);
-        if(value.getClass().isArray()) {
-            Serializable[] values = (Serializable[]) value;
-            return Arrays.stream(values).map(x -> new SamplePermId((String)x)).toArray(SamplePermId[]::new);
-        } else {
-            String propertyValue = (String) value;
-            return new SamplePermId[]{new SamplePermId(propertyValue)};
-        }
-    }
-
-    @Override
-    public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue)
-                .map(ObjectPermId::getPermId)
-                .toArray(String[]::new));
-    }
-
-    @Override
-    public Long[] getIntegerArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
-    }
-
-    @Override
-    public void setIntegerArrayProperty(String propertyName, Long[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + ", " + b).get());
-    }
-
-    @Override
-    public Double[] getRealArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
-    }
-
-    @Override
-    public void setRealArrayProperty(String propertyName, Double[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + ", " + b).get());
-    }
-
-    @Override
-    public String[] getStringArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
-    }
-
-    @Override
-    public void setStringArrayProperty(String propertyName, String[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).reduce((a,b) -> a + ", " + b).get());
-    }
-
-    @Override
-    public ZonedDateTime[] getTimestampArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return propertyValue == null ? null : Arrays.stream(propertyValue.split(","))
-             .map(String::trim)
-             .map(dateTime -> ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")))
-             .toArray(ZonedDateTime[]::new);
-    }
-
-    @Override
-    public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)
-    {
-        String value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
-                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")))
-                 .reduce((a,b) -> a + ", " + b)
-                 .get();
-        setProperty(propertyName, value);
-    }
-
-    @Override
-    public String getJsonProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setJsonProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
     }
 
     // Method automatically generated with DtoGenerator

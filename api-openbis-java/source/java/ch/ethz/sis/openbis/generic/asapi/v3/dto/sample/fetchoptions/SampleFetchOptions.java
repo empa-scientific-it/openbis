@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.AbstractEntityFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
@@ -38,7 +39,7 @@ import java.io.Serializable;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.fetchoptions.SampleFetchOptions")
-public class SampleFetchOptions extends FetchOptions<Sample> implements Serializable
+public class SampleFetchOptions extends AbstractEntityFetchOptions<Sample> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -53,9 +54,6 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
 
     @JsonProperty
     private ExperimentFetchOptions experiment;
-
-    @JsonProperty
-    private PropertyFetchOptions properties;
 
     @JsonProperty
     private MaterialFetchOptions materialProperties;
@@ -214,27 +212,6 @@ public class SampleFetchOptions extends FetchOptions<Sample> implements Serializ
         return experiment != null;
     }
 
-    // Method automatically generated with DtoGenerator
-    public PropertyFetchOptions withProperties()
-    {
-        if (properties == null)
-        {
-            properties = new PropertyFetchOptions();
-        }
-        return properties;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
-    {
-        return properties = fetchOptions;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public boolean hasProperties()
-    {
-        return properties != null;
-    }
 
     // Method automatically generated with DtoGenerator
     public MaterialFetchOptions withMaterialProperties()
