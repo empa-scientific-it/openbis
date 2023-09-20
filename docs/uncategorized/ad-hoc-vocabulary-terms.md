@@ -17,19 +17,19 @@ both cases.
 When filling up the forms in openBIS, Power User will see next to the
 drop down list a plus icon (see picture below).
 
-![](img/Screen%20shot%202011-06-21%20at%201.29.04%20PM.png)
+![](img/1.png)
 
 By clicking on the icon, user can add Ad Hoc Vocabulary Term. A dialog
 appears (similar to one on screenshot below), in which it is possible to
 specify label, description and position on list of terms. The code will
 be generated automatically from the label.
 
-![](img/screen20shot202011-06-2120at201.31.1120PM.png)
+![](img/2.png)
 
 User can easily distinguish between regular, and Ad Hoc Vocabulary Term
 - the second one is shown in *italic grey* (see screenshot below).
 
-![](img/screen20shot202011-06-2120at201.31.5320PM.png)
+![](img/3.png)
 
 ### DataSet Uploader
 
@@ -37,17 +37,17 @@ In DataSet Uploader the mechanism is very similar to one in openBIS.
 When you want to add Ad Hoc Vocabulary Term, click on a plus button (see
 picture below).
 
-![](img/screen20shot202011-06-2120at203.45.5820PM.png)
+![](img/4.png)
 
 After clicking on plus button, a dialog appears (again, very similar to
 on in openBIS).
 
-![](img/screen20shot202011-06-2120at203.48.4620PM.png)
+![](img/5.png)
 
 Ad Hoc Vocabulary Terms can be easily recognize - they are shown in
 *italic grey* (see screenshot below).
 
-![](img/screen20shot202011-06-2120at203.50.0220PM.png)
+![](img/6.png)
 
 ## Approving Ad Hoc Vocabulary Terms
 
@@ -58,14 +58,14 @@ the maintenance task won't be able to delete it.
 To approve Ad Hoc Vocabulary Term select `Vocabulary -> Browse` from
 `Administration` menu (see screenshot below).
 
-![](img/screen20shot202011-06-2220at208.50.5020AM.png)
+![](img/7.png)
 
 Then select the vocabulary from the list. The new tab with all the terms
 available in chosen vocabulary will be shown. In column `Approved?` you
 can see weather term is Ad Hoc (not approved) or not (see the
 screenshot).
 
-![](img/screen20shot202011-06-2220at208.53.3820AM.png)
+![](img/8.png)
 
 You can select all the terms you want to approve (it is possible to
 select more than one using command key on Mac, or control key on Windows
@@ -73,7 +73,7 @@ and Linux) and simply click on "Approve" button. You will see last
 confirmation dialog before operation will be performed (see the picture
 below).
 
-![](img/screen20shot202011-06-2220at208.54.0420AM.png)
+![](img/9.png)
 
 ## Maintenance Task
 
