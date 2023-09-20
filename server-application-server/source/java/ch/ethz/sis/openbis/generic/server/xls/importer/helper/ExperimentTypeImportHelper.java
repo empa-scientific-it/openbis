@@ -84,7 +84,7 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (version == null) {
+        if (version == null || version.isEmpty()) {
             return true;
         } else {
             return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.EXPERIMENT_TYPE.getType(), code));
@@ -96,7 +96,7 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (version == null) {
+        if (version == null || version.isEmpty()) {
             Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.EXPERIMENT_TYPE.getType(), code);
             storedVersion++;
             version = storedVersion.toString();

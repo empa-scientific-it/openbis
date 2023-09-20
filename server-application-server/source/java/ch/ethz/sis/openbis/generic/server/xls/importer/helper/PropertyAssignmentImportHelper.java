@@ -122,7 +122,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
         String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
 
-        if (version == null) {
+        if (version == null || version.isEmpty()) {
             return true;
         } else {
             return !existingCodes.contains(code) || VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(beforeVersions, ImportTypes.PROPERTY_TYPE.getType(), code));
