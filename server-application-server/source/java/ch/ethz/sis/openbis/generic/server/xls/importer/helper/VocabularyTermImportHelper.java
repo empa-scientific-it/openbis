@@ -91,7 +91,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (version == null) {
+        if (version == null || version.isEmpty()) {
             return true;
         } else {
             return VersionUtils.isNewVersion(version,
@@ -104,7 +104,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (version == null) {
+        if (version == null || version.isEmpty()) {
             Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code);
             storedVersion++;
             version = storedVersion.toString();
