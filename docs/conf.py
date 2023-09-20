@@ -6,8 +6,8 @@ html_theme_options = {
         'logo_only': True,
         'display_version': False,
 }
+exclude_patterns = ['README.md']
 extensions = ['myst_parser']
 source_suffix = ['.rst', '.md']
-exclude_patterns = ['api-openbis-matlab/*.md,app-openbis-commandline/*.md,ui-eln-lims/*.md']
 def setup(app):
     app.add_css_file('my_theme.css')
