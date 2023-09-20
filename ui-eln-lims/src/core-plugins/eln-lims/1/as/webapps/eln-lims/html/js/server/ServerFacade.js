@@ -826,6 +826,18 @@ function ServerFacade(openbisServer) {
 		}
 	}
 
+	this.listPropertyTypesV3 = function(doneCallback) {
+            require([ "openbis", "as/dto/property/search/PropertyTypeSearchCriteria", "as/dto/property/fetchoptions/PropertyTypeFetchOptions" ],
+            function(openbis, PropertyTypeSearchCriteria, PropertyTypeFetchOptions) {
+                var ptsc = new PropertyTypeSearchCriteria();
+                var ptfo = new PropertyTypeFetchOptions();
+                ptfo.withVocabulary();
+                mainController.openbisV3.searchPropertyTypes(ptsc, ptfo).done(function(searchResult) {
+                    doneCallback(searchResult.objects);
+                });
+            });
+        }
+
 
 	this.generateCode = function(sampleType, action) {
 	    if(IdentifierUtil.createContinuousSampleCodes) {
