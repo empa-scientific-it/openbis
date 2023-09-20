@@ -963,7 +963,18 @@ var SampleDataGridUtil = new function() {
                 } else if(propertyType.dataType === "SAMPLE") {
                     renderValue = (function(propertyType){
                           return function(row, params){
-                              return FormUtil.getFormLink(params.value, "Sample", params.value)
+                            if(Array.isArray(params.value)) {
+                               var result = [];
+                               for (var singleValue of params.value) {
+                                   if(result.length > 0) {
+                                       result.push(', ')
+                                   }
+                                   result.push(FormUtil.getFormLink(singleValue, "Sample", singleValue));
+                               }
+                               return result;
+                            } else {
+                               return FormUtil.getFormLink(params.value, "Sample", params.value);
+}
                           }
                       })(propertyType)
                 }
