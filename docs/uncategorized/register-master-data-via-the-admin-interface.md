@@ -249,7 +249,7 @@ Edit an existing term by selecting it in the table and then going to
         Each new chemical registered in openBIS will have CHE1, CHE2,
         CHE3... CHEn as codes.  
           
-        ![](img/Screenshot%202020-05-15%20at%2015.15.19.png)
+        ![](img/14.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
     See [HowtoRegisteranExperiment/Collectiontype](#RegisterMasterDataviatheAdminInterface-HowtoRegisteranExperiment/Collectiontype).
@@ -262,7 +262,7 @@ Edit an existing term by selecting it in the table and then going to
       
     ![](img/Collection-type-registration-1.png)
 2.  Select *Entity:Add* at the bottom of the page  
-    ![](img/Screenshot%202020-05-15%20at%2016.04.15.png)
+    ![](img/15.png)
 3.  The Data Set Type registration form has the following fields:
     1.  *Code*: name of the data set (e.g. RAW\_DATA). Code can only
         take alphanumeric characters and cannot contain spaces.
@@ -278,7 +278,7 @@ Edit an existing term by selecting it in the table and then going to
         a data set) that will be used as a starting point of 'main data
         set' lookup. E.g. 'original/images/'
 
-    ![](img/Screenshot%202020-05-15%20at%2016.04.35.png)
+    ![](img/16.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
     See [HowtoRegisteranExperiment/Collectiontype](#RegisterMasterDataviatheAdminInterface-HowtoRegisteranExperiment/Collectiontype).
@@ -301,4 +301,4 @@ In the Property Browser page it is possible to:
     will delete also all associated values, if the property is in use. A
     warning is issued: please read carefully before deleting properties!
 
-![](img/Screenshot%202020-05-15%20at%2016.21.19.png)
+![](img/17.png)
