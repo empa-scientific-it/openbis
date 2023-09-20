@@ -635,16 +635,16 @@ can only be invoked via Query API.
 
 ### Selecting Data Sets
 
-![](img/0120Select-Data-Sets.png)  
-![](img/0320Pick-Which-Data-Sets.png)
+![](img/10.png)  
+![](img/11.png)
 
 ### Selecting a Reporting Plugin
 
-![](img/0220Select-Reporting-Plugin.png)
+![](img/12.png)
 
 ### Viewing the results
 
-![](img/0420See-Result.png)
+![](img/13.png)
 
 -   [aggregation](/label/openBISDoc2010/aggregation)
 -   [ingestion](/label/openBISDoc2010/ingestion)
