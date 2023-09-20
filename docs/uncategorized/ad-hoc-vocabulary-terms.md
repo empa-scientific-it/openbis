@@ -17,7 +17,7 @@ both cases.
 When filling up the forms in openBIS, Power User will see next to the
 drop down list a plus icon (see picture below).
 
-![](img/screen20shot202011-06-2120at201.29.0420PM.png)
+![](img/Screen%20shot%202011-06-21%20at%201.29.04%20PM.png)
 
 By clicking on the icon, user can add Ad Hoc Vocabulary Term. A dialog
 appears (similar to one on screenshot below), in which it is possible to
