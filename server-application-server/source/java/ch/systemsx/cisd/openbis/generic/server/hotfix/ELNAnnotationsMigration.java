@@ -79,7 +79,7 @@ public class ELNAnnotationsMigration {
             operationLog.info("ELNAnnotationsMigration from: " + from + " count: " + count + " total: " + total);
             for (Sample sample:api.searchSamples(sessionToken, criteria, options).getObjects()) {
                 SampleUpdate sampleUpdate = null;
-                String annotations = sample.getProperty("$ANNOTATIONS_STATE");
+                String annotations = (String) sample.getProperty("$ANNOTATIONS_STATE");
                 // XML Properties can potentially contain garbage values, ignore those
                 if (!annotations.isEmpty() && !annotations.startsWith("�")) {
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
