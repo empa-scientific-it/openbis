@@ -2,14 +2,15 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/tag/fetchoptions/TagFetchOptions", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions",
+define([ "require", "stjs", "as/dto/common/fetchoptions/AbstractEntityFetchOptions", "as/dto/tag/fetchoptions/TagFetchOptions", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions",
 		"as/dto/person/fetchoptions/PersonFetchOptions", "as/dto/experiment/fetchoptions/ExperimentFetchOptions", "as/dto/sample/fetchoptions/SampleFetchOptions",
-		"as/dto/property/fetchoptions/PropertyFetchOptions", "as/dto/dataset/fetchoptions/PhysicalDataFetchOptions", "as/dto/dataset/fetchoptions/LinkedDataFetchOptions",
+		"as/dto/dataset/fetchoptions/PhysicalDataFetchOptions", "as/dto/dataset/fetchoptions/LinkedDataFetchOptions",
 		"as/dto/history/fetchoptions/HistoryEntryFetchOptions", "as/dto/material/fetchoptions/MaterialFetchOptions", "as/dto/sample/fetchoptions/SampleFetchOptions", "as/dto/datastore/fetchoptions/DataStoreFetchOptions",
-		"as/dto/dataset/fetchoptions/DataSetSortOptions" ], function(require, stjs, FetchOptions) {
+		"as/dto/dataset/fetchoptions/DataSetSortOptions" ], function(require, stjs, AbstractEntityFetchOptions) {
 	var DataSetFetchOptions = function() {
+	    AbstractEntityFetchOptions.call(this);
 	};
-	stjs.extend(DataSetFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
+	stjs.extend(DataSetFetchOptions, AbstractEntityFetchOptions, [ AbstractEntityFetchOptions ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.dataset.fetchoptions.DataSetFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.parents = null;
@@ -35,7 +36,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		prototype.registrator = null;
 		prototype.experiment = null;
 		prototype.sample = null;
-		prototype.properties = null;
 		prototype.materialProperties = null;
 		prototype.sampleProperties = null;
 		prototype.sort = null;
@@ -344,19 +344,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		prototype.hasSample = function() {
 			return this.sample != null;
 		};
-		prototype.withProperties = function() {
-			if (this.properties == null) {
-				var PropertyFetchOptions = require("as/dto/property/fetchoptions/PropertyFetchOptions");
-				this.properties = new PropertyFetchOptions();
-			}
-			return this.properties;
-		};
-		prototype.withPropertiesUsing = function(fetchOptions) {
-			return this.properties = fetchOptions;
-		};
-		prototype.hasProperties = function() {
-			return this.properties != null;
-		};
 		prototype.withMaterialProperties = function() {
 			if (this.materialProperties == null) {
 				var MaterialFetchOptions = require("as/dto/material/fetchoptions/MaterialFetchOptions");
@@ -417,7 +404,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/t
 		registrator : "PersonFetchOptions",
 		experiment : "ExperimentFetchOptions",
 		sample : "SampleFetchOptions",
-		properties : "PropertyFetchOptions",
 		materialProperties : "MaterialFetchOptions",
 		sampleProperties : "SampleFetchOptions",
 		sort : "DataSetSortOptions"
