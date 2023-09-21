@@ -1,16 +1,9 @@
 # Register Master Data via the Admin Interface
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A), last modified by [Barillari
-    Caterina (ID)](%20%20%20%20/display/~barillac%0A) on [Oct 22,
-    2021](/pages/diffpagesbyversion.action?pageId=53745926&selectedPageVersions=1&selectedPageVersions=2 "Show changes")
-  
-
 This documentation describes how to register master data via the core
 UI. The documentation for the new admin UI can be found here:
 <https://openbis.ch/index.php/docs/admin-documentation/new-entity-type-registration/> 
 
-  
 
 openBIS master data are:
 
@@ -19,7 +12,6 @@ openBIS master data are:
 3.  Object types
 4.  Dataset types
 5.  Property types
-
   
 
 ## How to register a Space
@@ -252,7 +244,7 @@ Edit an existing term by selecting it in the table and then going to
         ![](img/14.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
-    See [HowtoRegisteranExperiment/Collectiontype](#RegisterMasterDataviatheAdminInterface-HowtoRegisteranExperiment/Collectiontype).
+    See [HowtoRegisteranExperiment/Collectiontype](../..//user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.md#register-a-new-experiment-collection-type).
 
   
 
