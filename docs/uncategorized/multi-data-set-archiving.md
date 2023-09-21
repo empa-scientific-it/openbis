@@ -402,8 +402,9 @@ openbis_prod=> SELECT id, size, present_in_archive, share_id, location FROM exte
 5.  If they are on the store, you need to set the status to available
     again using a SQL statement.
 
-         openbis_prod=> UPDATE external_data SET status = 'AVAILABLE', present_in_archive = 'f'  WHERE id IN (SELECT id FROM data where code in ('20170712111421297-37998', '20171106181516927-39987')); 
-
+```sql
+openbis_prod=> UPDATE external_data SET status = 'AVAILABLE', present_in_archive = 'f'  WHERE id IN (SELECT id FROM data where code in ('20170712111421297-37998', '20171106181516927-39987')); 
+```
       
 
     If there is half copied files on the archive destination, these need
@@ -412,33 +413,38 @@ openbis_prod=> SELECT id, size, present_in_archive, share_id, location FROM exte
       
 
         # To find out the containers:
-         
-        SELECT * FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002');
+      
+```sql   
+SELECT * FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002');
 
-        multi_dataset_archive_prod=> SELECT * FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002');
-         id  |          code           | ctnr_id | size_in_bytes 
-        -----+-------------------------+---------+---------------
-         294 | 20170712111421297-37998 |      60 |   34712671864
-         295 | 20171106185354378-40002 |      61 |   47547908096
-         296 | 20171106183212074-39995 |      61 |   53416316928
-         297 | 20171106181516927-39987 |      61 |   29574172672
-        (4 rows)
+multi_dataset_archive_prod=> SELECT * FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002');
+    id  |          code           | ctnr_id | size_in_bytes 
+-----+-------------------------+---------+---------------
+    294 | 20170712111421297-37998 |      60 |   34712671864
+    295 | 20171106185354378-40002 |      61 |   47547908096
+    296 | 20171106183212074-39995 |      61 |   53416316928
+    297 | 20171106181516927-39987 |      61 |   29574172672
+(4 rows)
 
-        multi_dataset_archive_prod=> SELECT * FROM containers WHERE id IN(60, 61);
-         id |                    path                     | unarchiving_requested 
-        ----+---------------------------------------------+-----------------------
-         60 | 20170712111421297-37998-20171108-105339.tar | f
-         61 | 20171106185354378-40002-20171108-130342.tar | f
-         
+multi_dataset_archive_prod=> SELECT * FROM containers WHERE id IN(60, 61);
+    id |                    path                     | unarchiving_requested 
+----+---------------------------------------------+-----------------------
+    60 | 20170712111421297-37998-20171108-105339.tar | f
+    61 | 20171106185354378-40002-20171108-130342.tar | f
+```
 
     NOTE: We have never seen it but if there is a container with data
     sets in different archiving status then, you need to recover the
     ARCHIVED data sets from the container and copy them manually to the
     data store before being able to continue.
 
-        multi_dataset_archive_prod=> SELECT * FROM data_sets WHERE ctnr_id IN(SELECT ctnr_id FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002'));
+```sql
+multi_dataset_archive_prod=> SELECT * FROM data_sets WHERE ctnr_id IN(SELECT ctnr_id FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002'));
+```
 
 6.  After deleting the files clean up the multi dataset archiver
     database.
 
-        openbis_prod=> DELETE FROM containers WHERE id IN (SELECT ctnr_id FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002'));
+```sql
+openbis_prod=> DELETE FROM containers WHERE id IN (SELECT ctnr_id FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002'));
+```
