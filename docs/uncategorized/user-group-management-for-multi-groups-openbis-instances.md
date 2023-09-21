@@ -1,10 +1,5 @@
 # User Group Management for Multi-groups openBIS Instances
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A), last modified by [Elmer
-    Franz-Josef (ID)](%20%20%20%20/display/~felmer%0A) on [Dec 04,
-    2022](/pages/diffpagesbyversion.action?pageId=53746056&selectedPageVersions=10&selectedPageVersions=11 "Show changes")
-
 ## Introduction
 
 Running openBIS as a facility means that different groups share the same
