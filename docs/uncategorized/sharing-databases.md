@@ -1,9 +1,5 @@
 # Sharing Databases
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A) on [Oct 01,
-    2020](/pages/viewpreviousversions.action?pageId=53745952 "Show changes")
-
 ## Introduction
 
 Application server and data store server(s) can share the same database.
