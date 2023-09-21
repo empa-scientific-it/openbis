@@ -268,7 +268,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         final String propertyCode = property.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
-        final String valueOrNull = property.tryGetAsString();
+        final Serializable valueOrNull = property.getValue();
         ExtendedEntityTypePropertyType extendedETPT =
                 getEntityTypePropertyType(entityTypePE, propertyType);
         final EntityTypePropertyTypePE entityTypePropertyTypePE =
@@ -281,12 +281,26 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         if (isNullOrBlank(valueOrNull) == false)
         {
             List<T> results = new ArrayList<>();
-            String translatedValue = extendedETPT.translate(registrator, valueOrNull);
+            if(propertyType.isMultiValue() && valueOrNull.getClass().isArray()) {
+                for (Serializable value : (Serializable[]) valueOrNull)
+                {
+                    String translatedValue =
+                            extendedETPT.translate(registrator, (String) value);
+                    final String validatedValue =
+                            propertyValueValidator.validatePropertyValue(propertyType,
+                                    translatedValue);
+                    results.addAll(createEntityProperty(registrator, propertyType,
+                            entityTypePropertyTypePE,
+                            validatedValue));
+                }
+            } else {
+                String translatedValue = extendedETPT.translate(registrator, (String) valueOrNull);
 
-            final String validatedValue =
-                    propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
-            results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                    validatedValue));
+                final String validatedValue =
+                        propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
+                results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
+                        validatedValue));
+            }
             return results;
         }
         return null;
@@ -299,7 +313,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         List<T> entityProperties = new ArrayList<>();
         String val = value;
-        if (propertyType.isMultiValue())
+        List<DataTypeCode> arrayTypes = List.of(DataTypeCode.ARRAY_STRING,
+                DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_REAL, DataTypeCode.ARRAY_TIMESTAMP);
+        if (propertyType.isMultiValue() && !arrayTypes.contains(propertyType.getType().getCode()))
         {
             if (val.startsWith("["))
             {
