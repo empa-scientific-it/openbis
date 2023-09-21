@@ -1,10 +1,5 @@
 # Jython Master Data Scripts
 
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A), last modified by [Kovtun
-    Viktor (ID)](%20%20%20%20/display/~vkovtun%0A) on [Mar 10,
-    2023](/pages/diffpagesbyversion.action?pageId=53746018&selectedPageVersions=1&selectedPageVersions=2 "Show changes")
-
 ## Introduction
 
 openBIS defines as "Master data" all metadata configurations needed
@@ -14,10 +9,7 @@ property assignments.
 
 ## API Basics
 
-Similarly to the [Jython Dropbox
-API](/pages/viewpage.action?pageId=53746029) the script can access a
-global variable named `service`, which can be used to create
-transactions.
+Similarly to the [Jython Dropbox API](../software-developer-documentation/server-side-extensions/dss-dropboxes.md#jython-dropboxes) the script can access a global variable named `service`, which can be used to create transactions.
 
 `transaction = service.transaction()`
 
