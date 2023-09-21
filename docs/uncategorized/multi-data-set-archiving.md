@@ -372,6 +372,7 @@ is when you get out of space on the disk where the queues are stored.
 The following steps describe how to recover from such a situation.
 
 1.  Finding out the data sets that are in 'ARCHIVE\_PENDING' status.
+
         ```sql
         SELECT id, size, present_in_archive, share_id, location FROM external_data WHERE status = 'ARCHIVE_PENDING';
          
@@ -383,6 +384,7 @@ The following steps describe how to recover from such a situation.
             3688 | 53416316928 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/ca/3b/93/20171106183212074-39995
             3692 | 47547908096 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/b7/26/85/20171106185354378-40002
         ```
+        
 2.  The data sets found, can be or not in the archiving process. This is
     not easy to find out instantly. It's easier just to execute the
     above statement in subsequent days.
