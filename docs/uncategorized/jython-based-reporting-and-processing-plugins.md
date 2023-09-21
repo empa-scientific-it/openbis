@@ -195,7 +195,7 @@ an email. The method shouldn't return anything. Instead one should call
 methods of the table builder and a the table model will be created
 outside of the script using the builder. The transaction interface is
 the same as what is provided to a dropbox.
-See [Dropboxes](/display/openBISDoc2010/Dropboxes) for a description of
+See [Dropboxes](../software-developer-documentation/server-side-extensions/dss-dropboxes.md) for a description of
 what can be done with a transaction.
 
 #### Processing script
@@ -331,8 +331,7 @@ def describe(dataSets, tableBuilder):
 
 #### Reporting plugin accessing external DB
 
-Lets assume that a [Path Info
-Database](/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-InstallationandAdministratorsGuideoftheopenBISDataStoreServer-PathInfoDatabase)
+Lets assume that a [Path Info Database](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-InstallationandAdministratorsGuideoftheopenBISDataStoreServer-PathInfoDatabase)
 was configured as a data source named `"path-info-db"`.
 
 One shouldn't assume anything about Path Info DB schema. Code below
@@ -518,9 +517,7 @@ def processNode(node, dataSetCode):
 
 #### Example of Webapps that interact with Aggregation and Ingestion services
 
-[Webapps and Services](#)
-
-  
+[Webapps and Services](https://unlimited.ethz.ch/display/openBISDoc2010/Webapps+and+Services)
 
 ## Screening Extensions
 
