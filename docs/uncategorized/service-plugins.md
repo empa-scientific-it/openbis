@@ -1,8 +1,4 @@
-# Service Plugins
-
--   Created by [Fuentes Serna Juan Mariano
-    (ID)](%20%20%20%20/display/~juanf%0A) on [Oct 01,
-    2020](/pages/viewpreviousversions.action?pageId=53745982 "Show changes")
+# Service plugins
 
 ## Introduction
 
