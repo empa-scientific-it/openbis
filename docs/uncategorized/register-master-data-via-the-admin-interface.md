@@ -244,7 +244,7 @@ Edit an existing term by selecting it in the table and then going to
         ![](img/14.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
-    See [HowtoRegisteranExperiment/Collectiontype](../..//user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.md#register-a-new-experiment-collection-type).
+    See [HowtoRegisteranExperiment/Collectiontype](../user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.md#register-a-new-experiment-collection-type).
 
   
 
