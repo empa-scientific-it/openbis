@@ -211,7 +211,7 @@ public class ImportSamplesTest extends AbstractImportTest
         List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
         Set<String> differentCyclicAssignments = new HashSet<>();
         for (Sample sample:samples) {
-            differentCyclicAssignments.add(sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
+            differentCyclicAssignments.add((String)sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
         }
         // THEN
         assertEquals(samples.size(), 3);
@@ -235,7 +235,7 @@ public class ImportSamplesTest extends AbstractImportTest
         List<Sample> samples = (List<Sample>) TestUtils.getSamplesById(v3api, sessionToken, sampleIds);
         Set<String> differentCyclicAssignments = new HashSet<>();
         for (Sample sample:samples) {
-            differentCyclicAssignments.add(sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
+            differentCyclicAssignments.add((String)sample.getProperty("CYCLIC_SAMPLE_PROPERTY"));
         }
         // THEN
         assertEquals(samples.size(), 3);
