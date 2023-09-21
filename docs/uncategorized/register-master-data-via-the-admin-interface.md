@@ -1,8 +1,7 @@
 # Register Master Data via the Admin Interface
 
 This documentation describes how to register master data via the core
-UI. The documentation for the new admin UI can be found here:
-<https://openbis.ch/index.php/docs/admin-documentation/new-entity-type-registration/> 
+UI. The documentation for the new admin UI can be found [here](../user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.md#new-entity-type-registration)
 
 
 openBIS master data are:
@@ -273,7 +272,7 @@ Edit an existing term by selecting it in the table and then going to
     ![](img/16.png)
 4.  Add properties: these are the fields that you need for this Object
     Type. Select *Entity: Add* at the bottom of the page.
-    See [HowtoRegisteranExperiment/Collectiontype](#RegisterMasterDataviatheAdminInterface-HowtoRegisteranExperiment/Collectiontype).
+    See [HowtoRegisteranExperiment/Collectiontype](../user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.md#register-a-new-experiment-collection-type).
 
   
 
