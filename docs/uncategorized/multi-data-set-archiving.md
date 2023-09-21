@@ -373,17 +373,17 @@ The following steps describe how to recover from such a situation.
 
 1.  Finding out the data sets that are in 'ARCHIVE\_PENDING' status.
 
-        ```sql
-        SELECT id, size, present_in_archive, share_id, location FROM external_data WHERE status = 'ARCHIVE_PENDING';
-         
-        openbis_prod=> SELECT id, size, present_in_archive, share_id, location FROM external_data WHERE status = 'ARCHIVE_PENDING'; 
-         data_id |    size     | present_in_archive | share_id |                               location                                
-        ---------+-------------+--------------------+----------+-----------------------------------------------------------------------
-            3001 | 34712671864 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/17/65/a4/20170712111421297-37998
-            3683 | 29574172672 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/39/6c/b0/20171106181516927-39987
-            3688 | 53416316928 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/ca/3b/93/20171106183212074-39995
-            3692 | 47547908096 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/b7/26/85/20171106185354378-40002
-        ```
+```sql
+SELECT id, size, present_in_archive, share_id, location FROM external_data WHERE status = 'ARCHIVE_PENDING';
+ 
+openbis_prod=> SELECT id, size, present_in_archive, share_id, location FROM external_data WHERE status = 'ARCHIVE_PENDING'; 
+    data_id |    size     | present_in_archive | share_id |                               location                                
+---------+-------------+--------------------+----------+-----------------------------------------------------------------------
+    3001 | 34712671864 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/17/65/a4/20170712111421297-37998
+    3683 | 29574172672 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/39/6c/b0/20171106181516927-39987
+    3688 | 53416316928 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/ca/3b/93/20171106183212074-39995
+    3692 | 47547908096 | f                  | 1        | 585D8354-92A3-4C24-9621-F6B7063A94AC/b7/26/85/20171106185354378-40002
+```
         
 2.  The data sets found, can be or not in the archiving process. This is
     not easy to find out instantly. It's easier just to execute the
