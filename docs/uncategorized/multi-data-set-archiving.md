@@ -407,12 +407,12 @@ openbis_prod=> UPDATE external_data SET status = 'AVAILABLE', present_in_archive
 ```
       
 
-    If there is half copied files on the archive destination, these need
-    to be delete too, to find them run the next queries.
+If there is half copied files on the archive destination, these need
+to be delete too, to find them run the next queries.
 
-      
+    
 
-        # To find out the containers:
+To find out the containers:
       
 ```sql   
 SELECT * FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002');
