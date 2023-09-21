@@ -6,7 +6,7 @@ A service plugin runs on a DSS. It is a java servlet that processes
 incoming requests and generates the responses. A user can trigger a
 service plugin by accessing an url the servlet has been set up for. A
 service plugin is configured on the DSS best by introducing a [core
-plugin](/display/openBISDoc2010/Core+Plugins) of type services. All
+plugin](../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) of type services. All
 service plugins have the following properties in common:
 
 |Property Key|Description|
