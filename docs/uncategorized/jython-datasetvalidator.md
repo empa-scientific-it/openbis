@@ -4,7 +4,7 @@
 
 Jython dataset validators are an option for implementing validation of
 data sets using the python scripting language when using a jython
-dropbox. See [Dropboxes](/display/openBISDoc2010/Dropboxes) for the
+dropbox. See [Dropboxes](../software-developer-documentation/server-side-extensions/dss-dropboxes.md) for the
 basic configuration. The validators can also be run on clients, either
 the command-line dss client or the web start Data Set Batch Uploader,
 though there are some additional restrictions on which scripts can be
