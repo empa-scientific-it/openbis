@@ -433,10 +433,12 @@ multi_dataset_archive_prod=> SELECT * FROM containers WHERE id IN(60, 61);
     61 | 20171106185354378-40002-20171108-130342.tar | f
 ```
 
-    NOTE: We have never seen it but if there is a container with data
-    sets in different archiving status then, you need to recover the
-    ARCHIVED data sets from the container and copy them manually to the
-    data store before being able to continue.
+```{note}
+We have never seen it but if there is a container with data
+sets in different archiving status then, you need to recover the
+ARCHIVED data sets from the container and copy them manually to the
+data store before being able to continue.
+```
 
 ```sql
 multi_dataset_archive_prod=> SELECT * FROM data_sets WHERE ctnr_id IN(SELECT ctnr_id FROM data_sets WHERE CODE IN('20170712111421297-37998', '20171106181516927-39987', '20171106183212074-39995', '20171106185354378-40002'));
