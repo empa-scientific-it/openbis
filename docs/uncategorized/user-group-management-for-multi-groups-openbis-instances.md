@@ -512,30 +512,19 @@ instance for productive use. 
 5.  Create a **group\_prefix\_STORAGE** space
 6.  Create a **group\_prefix\_STOCK\_CATALOG** space
 7.  Create a **group\_prefix\_STOCK\_ORDERS** space
-8.  Create a **group\_prefix\_Username** space for each user of the
-    group
-
+8.  Create a **group\_prefix\_Username** space for each user of the group
 
 #### Projects
 
-1.  Create the
-    /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_STORAGES****
-    project
-
-
+1.  Create the /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_STORAGES** project
 
 #### **Collections**
 
-1.  Create the
-    /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_STORAGES/Group\_prefix\_STORAGES\_COLLECTION ****collection
-    of type COLLECTION 
-
+1.  Create the /**group\_prefix\_ELN\_SETTINGS/group\_prefix\_STORAGES/Group\_prefix\_STORAGES\_COLLECTION** collection of type COLLECTION
 
 #### Objects
 
-1.  Create
-    the  /**group\_prefix\_ELN\_SETTINGS/**group\_prefix\_**ELN\_SETTINGS******
-    object of type ******GENERAL\_ELN\_SETTINGS******
+1.  Create the  /**group\_prefix\_ELN\_SETTINGS/group\_prefix\_**ELN\_SETTINGS** object of type **GENERAL\_ELN\_SETTINGS**
 
 ### Rights management
 
