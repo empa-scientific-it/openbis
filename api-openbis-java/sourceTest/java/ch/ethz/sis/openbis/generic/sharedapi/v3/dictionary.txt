@@ -8,8 +8,11 @@ AbstractDataSetSearchCriteria
 AbstractDateObjectValue
 AbstractDateValue
 AbstractEntity
+AbstractEntityCreation
 AbstractEntityFetchOptions
+AbstractEntityPropertyHolder
 AbstractEntitySearchCriteria
+AbstractEntityUpdate
 AbstractFieldSearchCriteria
 AbstractGenerator
 AbstractNumberValue
