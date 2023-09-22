@@ -6,8 +6,8 @@ module.exports = {
   entry: './temp/webpack.config.v3api.entry.js',
   output: {
     path: __dirname + '/temp',
-    filename: 'openbis.umd.js',
-    libraryTarget: 'umd',
+    filename: 'openbis.var.js',
+    libraryTarget: 'var',
     libraryExport: 'default',
     library: 'openbis'
   },

@@ -1783,8 +1783,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	return function() {
 		executeModule("Update tests (RequireJS)", new openbis(), dtos);
 		executeModule("Update tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-		executeModule("Update tests (module UMD)", new window.openbis.openbis(), window.openbis);
-		executeModule("Update tests (module UMD - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("Update tests (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("Update tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
 		executeModule("Update tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
 		executeModule("Update tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}

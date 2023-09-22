@@ -7,6 +7,6 @@
   "scripts": {
     "uglifyjs": "uglifyjs",
     "v3api.esm": "webpack-cli --config webpack.config.v3api.module-esm.js",
-    "v3api.umd": "webpack-cli --config webpack.config.v3api.module-umd.js"
+    "v3api.var": "webpack-cli --config webpack.config.v3api.module-var.js"
   }
 }

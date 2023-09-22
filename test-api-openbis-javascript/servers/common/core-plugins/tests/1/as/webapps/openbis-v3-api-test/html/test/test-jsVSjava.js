@@ -398,7 +398,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
 
     return function(){
         executeModule("JS VS JAVA API (RequireJS)", new openbis(), dtos);
-        executeModule("JS VS JAVA API (module UMD)", new window.openbis.openbis(), window.openbis);
+        executeModule("JS VS JAVA API (module VAR)", new window.openbis.openbis(), window.openbis);
         executeModule("JS VS JAVA API (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
     }
 })

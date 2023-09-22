@@ -62,8 +62,18 @@ console.log('\nstjs._ = underscore')
 // This way any DTOs with duplicated simple names can still be accessed via their full names.
 
 var exported = {
-  "openbis" : "$$openbis$$"
+  "openbis" : "$$openbis$$",
+  "noConflict" : "$$noConflict$$"
 }
+
+// define noConflict function that reverts (if needed) window.openbis field back to its original value (similar to jquery.noConflict)
+console.log('\nvar originalOpenbisValue = window && window.openbis')
+console.log('\nvar noConflict = function(){')
+console.log('  if(window && window.openbis === exported){')
+console.log('    window.openbis = originalOpenbisValue')
+console.log('  }')
+console.log('  return exported')
+console.log('}')
 
 dtos.forEach(dto => {
   var package = exported
@@ -86,4 +96,5 @@ dtos.forEach(dto => {
 })
 
 // remove quotes after JSON.stringify, the quotes to remove have $$ (e.g. "$$as_dto_sample_Sample$$" => as_dto_sample_Sample)
-console.log('\nexport default ' + JSON.stringify(exported, null, 4).replaceAll("$$\"", "").replaceAll("\"$$", ""))
+console.log('\n var exported = ' + JSON.stringify(exported, null, 4).replaceAll("$$\"", "").replaceAll("\"$$", ""))
+console.log('\nexport default exported')

@@ -215,10 +215,10 @@ Before we go into details let's mention that there are actually 4 different ways
 
 1) AMD / RequireJS
 2) AMD / RequireJS bundle
-3) UMD bundle
+3) VAR bundle
 4) ESM bundle
 
-IMPORTANT: UMD and ESM bundles are currently the recommended way of using the Javascript V3 API. AMD / RequireJS approach is still supported but no
+IMPORTANT: VAR and ESM bundles are currently the recommended way of using the Javascript V3 API. AMD / RequireJS approach is still supported but no
 longer recommended.
 
 #### AMD / RequireJS
@@ -234,7 +234,7 @@ This approach worked fine, but there were also some drawbacks:
 - every V3 API class was loaded with a separate HTTP request to the server (loading multiple classes resulted in multiple requests to the server)
 - it required a third party dependency manager (here RequireJS)
 
-Because of these shortcomings this approach is no longer recommended, but still fully supported. Please use UMD or ESM modules approach instead
+Because of these shortcomings this approach is no longer recommended, but still fully supported. Please use VAR or ESM bundles instead
 (depending on your use case).
 
 **V3ConnectionExampleUsingRequireJS.html**
@@ -297,29 +297,29 @@ each DTO. This will significantly reduce the loading times of your webapp. What 
 improvement. Just load "config.bundle.js" instead of "config.js" and that's it!
 
 Even though AMD / RequireJS solution is not recommended anymore, if you have a lot of existing code written with AMD / RequireJS approach then it
-makes perfect sense to use this improvement before migrating to either UMD or ESM.
+makes perfect sense to use this improvement before migrating to either VAR or ESM.
 
-#### UMD bundle
+#### VAR bundle
 
-UMD module approach (UMD = Universal Module Definition, see: https://github.com/umdjs/umd) allows you to overcome the shortcomings of AMD / RequireJS
-solution. First, the UMD bundle consists of V3 API facade and all V3 API classes. Therefore, once the bundle is loaded, no further calls to the server
-are needed. Second, the bundle exposes the V3 API classes both via their simple names and their full names (see code example below) which makes it far
-easier for developers to use. Third, it does not require any additional library.
+VAR bundle (bundle assigned to window.openbis variable) allows you to overcome the shortcomings of AMD / RequireJS solution. First, the VAR bundle
+consists of V3 API facade and all V3 API classes. Therefore, once the bundle is loaded, no further calls to the server are needed. Second, the bundle
+exposes the V3 API classes both via their simple names and their full names (see code example below) which makes it far easier for developers to use.
+Third, it does not require any additional library.
 
-UMD bundle can be loaded at an HTML page using a standard script tag.
+VAR bundle can be loaded at an HTML page using a standard script tag.
 
-**V3ConnectionExampleUsingUMDBundle.html**
+**V3ConnectionExampleUsingVARBundle.html**
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>V3ConnectionExampleUsingUMDBundle</title>
+    <title>V3ConnectionExampleUsingVARBundle</title>
 
     <!--
 
-    Import UMD (Universal Module Definition) openBIS V3 API Javascript bundle as "openbis".
+    Import VAR openBIS V3 API Javascript bundle as "openbis".
     The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
 
     The facade can be accessed via:
@@ -342,8 +342,13 @@ UMD bundle can be loaded at an HTML page using a standard script tag.
 
     -->
 
-    <!-- import the bundle as "openbis" (the bundle cannot be imported with a different name) -->
-    <script src="http://localhost:8888/openbis/resources/api/v3/openbis.umd.js"></script>
+    <!-- Import the bundle as "openbis" (the bundle content is assigned to window.openbis field). 
+         In case window.openbis field is already used to store something different, then please
+         call openbis.noConflict() function right after the VAR bundle is loaded. It will bring back
+         the original value of window.openbis field and return the loaded VAR bundle for it to be
+         assigned to a different field (works similar to jquery.noConflict() function). 
+    -->
+    <script src="http://localhost:8888/openbis/resources/api/v3/openbis.var.js"></script>
 </head>
 <body>
 <script>
@@ -368,10 +373,10 @@ UMD bundle can be loaded at an HTML page using a standard script tag.
 </html>
 ```
 
-#### ESM module
+#### ESM bundle
 
-Similar to UMD module, ESM module (ECMAScript module) is a bundle that contains the V3 API facade and all V3 API classes. It also exposes the V3 API
-classes via both their simple names and their full names. The main difference between UMD and ESM is the format of the bundle and how and where it can
+Similar to VAR bundle, ESM bundle (ECMAScript module) is a bundle that contains the V3 API facade and all V3 API classes. It also exposes the V3 API
+classes via both their simple names and their full names. The main difference between VAR and ESM is the format of the bundle and how and where it can
 be imported.
 
 ESM bundle can be loaded at an HTML page using a standard script tag with type="module". It is also well suited for webapps that bundle all their
@@ -433,36 +438,91 @@ List of classes with duplicated simple names (i.e. accessible only via their ful
                 });
 
             });
+
 </script>
 </body>
 </html>
 ```
 
+### Synchronous Java vs Asynchronous Javascript
+
+Even though the V3 API code examples in both Java and Javascript look similar there is one major difference between them. All the methods in the Java
+API that connect to the openBIS server are synchronous, while all their Javascript counterparts are asynchronous. Let's compare how that looks.
+
+**V3JavaCallsAreSynchronous.java**
+
+```java
+public class V3JavaCallsAreSynchronous
+{
+
+    public static void main(String[] args)
+    {
+        // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
+
+        // this makes a synchronous (blocking) call to the server 
+        SearchResult<Space> spaces = v3.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
+
+        // this loop will execute only after searchSpaces method call is finished and spaces have been fetched from the server
+        for (Space space : spaces)
+        {
+            System.out.println(space.getCode());
+        }
+    }
+}
+```
+
+**V3JavascriptCallsAreAsynchronous.java**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>V3JavascriptCallsAreAsynchronous</title>
+</head>
+<body>
+
+<script>
+            // we assume here that v3 object has been already created and we have already called login (please check "Accessing the API" section for more details)
+
+            // this makes a non-blocking (asynchronous) call to the server
+            v3.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions()).done(
+            
+                // we need to put the loop in "done" callback for it to be executed once spaces have been fetched from the server 
+                function(result) {
+                    result.getObjects().forEach(function(space){
+                        console.log(space.getCode());
+                    });
+                }
+            );
+
+</script>
+</body>
+</html>
+```
+
+What Javascript V3 API asynchronous functions actually return is a jQuery Promise object, which offers methods like: then, done, fail (
+see: https://api.jquery.com/category/deferred-object/). These methods can be used for registering different callbacks that will be either executed
+when a call succeeds or fails (e.g. due to a network problem).
+
+A more modern and an easier to understand way of working with Promise objects is the async / await syntax (
+see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function). Our asynchronous Javascript V3 API methods support
+it as well.
+
 ## IV. AS Methods
 
-The sections below describe how to use different methods of the V3 API.
-Each section describes a group of similar methods. For instance, we have
-one section that describes creation of entities. Even though the API
-provides us methods for creation of spaces, projects, experiments,
-samples and materials, vocabulary terms, tags we only concentrate here
-on creation of samples. Samples are the most complex entity kind. Once
-you understand how creation of samples works you will also know how to
-create other kinds of entities as all creation methods follow the same
-patterns. The same applies for other methods like updating of entities,
-searching or getting entities. We will introduce them using the sample
-example.
+The sections below describe how to use different methods of the V3 API. Each section describes a group of similar methods. For instance, we have one
+section that describes creation of entities. Even though the API provides us methods for creation of spaces, projects, experiments, samples and
+materials, vocabulary terms, tags we only concentrate here on creation of samples. Samples are the most complex entity kind. Once you understand how
+creation of samples works you will also know how to create other kinds of entities as all creation methods follow the same patterns. The same applies
+for other methods like updating of entities, searching or getting entities. We will introduce them using the sample example.
 
-Each section will be split into Java and Javascript subsections. We want
-to keep Java and Javascript code examples close to each other so that
-you can easily see what are the similarities and differences in the API
-usage between these two languages.
+Each section will be split into Java and Javascript subsections. We want to keep Java and Javascript code examples close to each other so that you can
+easily see what are the similarities and differences in the API usage between these two languages.
 
-NOTE: The following code examples assume that we have already got a
-reference to the V3 API and we have already authenticated to get a
-session token. Moreover in Javascript example we do not include the html
-page template to make them shorter and more readable. Please
-check "Accessing the API" section for examples on how to get a reference
-to V3 API, authenticate or build a simple html page.
+NOTE: The following code examples assume that we have already got a reference to the V3 API and we have already authenticated to get a session token.
+Moreover in Javascript example we do not include the html page template to make them shorter and more readable. Please check "Accessing the API"
+section for examples on how to get a reference to V3 API, authenticate or build a simple html page.
 
 ### Login
 
@@ -489,7 +549,7 @@ was incorrect the login methods return null.
         public static void main(String[] args)
         {
             // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
-     
+
             // login as a specific user
             String sessionToken = v3.login("admin", "password");
             System.out.println(sessionToken);
@@ -509,10 +569,11 @@ was incorrect the login methods return null.
 **V3LoginExample.html**
 
 ```html
-    <script>
-     
+
+<script>
+    
         // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
-     
+    
         // login as a specific user
         v3.login("admin", "password").done(function(sessionToken) {
             alert(sessionToken);

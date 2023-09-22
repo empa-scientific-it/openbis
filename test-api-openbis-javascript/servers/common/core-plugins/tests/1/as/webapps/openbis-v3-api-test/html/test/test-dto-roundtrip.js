@@ -246,7 +246,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
 
     return function () {
         executeModule("DTO roundtrip test (RequireJS)", new openbis(), dtos)
-        executeModule("DTO roundtrip test (module UMD)", new window.openbis.openbis(), window.openbis)
+        executeModule("DTO roundtrip test (module VAR)", new window.openbis.openbis(), window.openbis)
         executeModule("DTO roundtrip test (module ESM)", new window.openbisESM.openbis(), window.openbisESM)
     }
 })

@@ -66,8 +66,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	return function() {
 		executeModule("Custom AS service tests (RequireJS)", new openbis(), dtos);
 		executeModule("Custom AS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-		executeModule("Custom AS service tests (module UMD)", new window.openbis.openbis(), window.openbis);
-		executeModule("Custom AS service tests (module UMD - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("Custom AS service tests (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("Custom AS service tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
 		executeModule("Custom AS service tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
 		executeModule("Custom AS service tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}

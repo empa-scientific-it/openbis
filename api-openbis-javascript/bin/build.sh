@@ -31,13 +31,13 @@ npm install
 node r.js -o $TEMP_DIR/r.config.js baseUrl=$V3_DIR optimize=none out=$TEMP_DIR/openbis.bundle.js
 npm run uglifyjs -- $TEMP_DIR/openbis.bundle.js -o $TEMP_DIR/openbis.bundle.min.js
 
-# create UMD and ESM bundles
+# create VAR and ESM bundles
 node $TEMP_DIR/webpack.config.v3api.generate.entry.js > $TEMP_DIR/webpack.config.v3api.entry.js
 npm run v3api.esm
-npm run v3api.umd
+npm run v3api.var
 
 # copy relevant files to the V3 public folder
 cp $TEMP_DIR/config.bundle.js $TEMP_DIR/config.bundle.min.js $TEMP_DIR/openbis.bundle.js $TEMP_DIR/openbis.bundle.min.js $V3_DIR
-cp $TEMP_DIR/openbis.esm.* $TEMP_DIR/openbis.umd.* $V3_DIR
+cp $TEMP_DIR/openbis.esm.* $TEMP_DIR/openbis.var.* $V3_DIR
 
 popd > /dev/null

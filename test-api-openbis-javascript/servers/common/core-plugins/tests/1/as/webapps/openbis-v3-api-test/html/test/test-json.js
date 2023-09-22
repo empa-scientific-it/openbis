@@ -192,7 +192,7 @@ define([ 'jquery', 'underscore', 'test/common', 'test/dtos' ], function($, _, co
 
 	return function() {
 		executeModule("Json tests (RequireJS)", dtos);
-		executeModule("Json tests (module UMD)", window.openbis);
+		executeModule("Json tests (module VAR)", window.openbis);
 		executeModule("Json tests (module ESM)", window.openbisESM);
 	}
 });

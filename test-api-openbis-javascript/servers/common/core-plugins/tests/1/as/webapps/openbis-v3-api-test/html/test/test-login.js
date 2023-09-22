@@ -63,7 +63,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/common', 'test/dtos' ], functi
 
 	return function(){
 		executeModule("Login tests (RequireJS)", new openbis(), dtos);
-		executeModule("Login tests (module UMD)", new window.openbis.openbis(), window.openbis);
+		executeModule("Login tests (module VAR)", new window.openbis.openbis(), window.openbis);
 		executeModule("Login tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
 	}
 });

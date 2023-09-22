@@ -156,8 +156,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
     return function() {
         executeModule("Export/import tests (RequireJS)", new openbis(), dtos);
         executeModule("Export/import tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-        executeModule("Export/import tests (module UMD)", new window.openbis.openbis(), window.openbis);
-        executeModule("Export/import tests (module UMD - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+        executeModule("Export/import tests (module VAR)", new window.openbis.openbis(), window.openbis);
+        executeModule("Export/import tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
         executeModule("Export/import tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
         executeModule("Export/import tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
     }
