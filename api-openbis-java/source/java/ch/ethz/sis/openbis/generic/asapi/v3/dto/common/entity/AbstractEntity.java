@@ -43,10 +43,6 @@ public abstract class AbstractEntity<OBJECT> extends AbstractEntityPropertyHolde
     @JsonProperty
     private AbstractEntityFetchOptions<OBJECT> fetchOptions;
 
-    @JsonProperty
-    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    protected Map<String, Serializable> properties;
-
 
     @JsonIgnore
     protected AbstractEntityFetchOptions<OBJECT> getFetchOptions()
