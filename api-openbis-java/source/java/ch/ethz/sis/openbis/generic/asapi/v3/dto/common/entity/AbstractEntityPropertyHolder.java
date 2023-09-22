@@ -295,18 +295,15 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
                 .map(dateTime -> ZonedDateTime.parse(dateTime,
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")))
                 .toArray(ZonedDateTime[]::new);
-//        String propertyValue = (String) getProperty(propertyName);
-//        return propertyValue == null ? null : Arrays.stream(propertyValue.split(","))
-//                .map(String::trim)
-//                .map(dateTime -> ZonedDateTime.parse(dateTime,
-//                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")))
-//                .toArray(ZonedDateTime[]::new);
     }
 
     @Override
     public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)
     {
-        setProperty(propertyName, propertyValue);
+        String[] value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
+                .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")))
+                        .toArray(String[]::new);
+        setProperty(propertyName, value);
     }
 
     @Override
