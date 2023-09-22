@@ -294,7 +294,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                             validatedValue));
                 }
             } else {
-                String translatedValue = extendedETPT.translate(registrator, (String) valueOrNull);
+                String translatedValue = extendedETPT.translate(registrator, property.tryGetAsString());
 
                 final String validatedValue =
                         propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
