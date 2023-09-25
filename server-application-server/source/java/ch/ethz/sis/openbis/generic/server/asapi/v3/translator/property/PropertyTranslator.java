@@ -81,7 +81,11 @@ public abstract class PropertyTranslator extends
                         record.vocabularyPropertyValue);
             } else if (record.sample_perm_id != null)
             {
-                updateObjectProperty(objectProperties, record.propertyCode, record.sample_perm_id);
+                if (visibaleSamples.contains(record.sample_id))
+                {
+                    updateObjectProperty(objectProperties, record.propertyCode,
+                            record.sample_perm_id);
+                }
             } else if (record.integerArrayPropertyValue != null)
             {
                 updateArrayObjectProperty(objectProperties, record.propertyCode,
