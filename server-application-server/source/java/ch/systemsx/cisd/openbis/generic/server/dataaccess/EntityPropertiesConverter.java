@@ -268,7 +268,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     {
         final String propertyCode = property.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
-        final Serializable valueOrNull = property.getValue();
+        final Serializable valueOrNull = getPropertyValue(property);
         ExtendedEntityTypePropertyType extendedETPT =
                 getEntityTypePropertyType(entityTypePE, propertyType);
         final EntityTypePropertyTypePE entityTypePropertyTypePE =
@@ -304,6 +304,26 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             return results;
         }
         return null;
+    }
+
+    private Serializable getPropertyValue(final IEntityProperty property) {
+        Serializable result = property.getValue();
+        if(result != null) {
+            return result;
+        }
+        result = property.getVocabularyTerm();
+        if(result != null) {
+            return result;
+        }
+        result = property.getSample();
+        if(result != null) {
+            return result;
+        }
+        result = property.getMaterial();
+        if(result != null) {
+            return result;
+        }
+        return property.tryGetAsString();
     }
 
     private final <T extends EntityPropertyPE> List<T> createEntityProperty(
