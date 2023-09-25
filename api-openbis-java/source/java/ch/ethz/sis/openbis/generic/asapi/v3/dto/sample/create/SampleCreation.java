@@ -15,15 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create;
 
-import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntityCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 

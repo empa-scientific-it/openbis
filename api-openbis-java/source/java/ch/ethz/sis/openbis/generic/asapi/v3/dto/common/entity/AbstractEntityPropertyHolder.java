@@ -36,7 +36,7 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
 {
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    protected Map<String, Serializable> properties;
+    protected Map<String, Serializable> properties = new HashMap<>();
 
     @JsonIgnore
     public abstract Map<String, Serializable> getProperties();
