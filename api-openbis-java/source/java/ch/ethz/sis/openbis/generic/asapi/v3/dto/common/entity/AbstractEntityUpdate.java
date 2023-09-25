@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 @JsonObject("as.dto.common.entity.AbstractEntityUpdate")
-public class AbstractEntityUpdate extends AbstractEntityPropertyHolder
+public abstract class AbstractEntityUpdate extends AbstractEntityPropertyHolder
 {
     @JsonIgnore
     @Override
