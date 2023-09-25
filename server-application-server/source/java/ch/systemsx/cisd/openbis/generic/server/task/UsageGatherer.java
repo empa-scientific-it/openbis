@@ -131,7 +131,7 @@ public class UsageGatherer
         fetchOptions.withSpace();
         fetchOptions.withRegistrator();
         List<Sample> samples = service.searchSamples(sessionToken, searchCriteria, fetchOptions).getObjects();
-        Function<Sample, String> spaceExtractor = sample -> sample.getSpace().getCode();
+        Function<Sample, String> spaceExtractor = sample -> sample.getSpace() != null ? sample.getSpace().getCode() : null;
         gatherUsage(usageByUsersAndSpaces, samples, spaceExtractor, UsageInfo::addNewSample);
     }
 
@@ -155,8 +155,15 @@ public class UsageGatherer
                     if (experiment != null)
                     {
                         return experiment.getProject().getSpace().getCode();
-                    } 
-                    return dataSet.getSample().getSpace().getCode();
+                    }
+
+                    Sample sample = dataSet.getSample();
+                    if (sample != null)
+                    {
+                        return sample.getSpace() != null ? sample.getSpace().getCode() : null;
+                    }
+
+                    return null;
                 }
             };
         gatherUsage(usageByUsersAndSpaces, dataSets, spaceExtractor, UsageInfo::addNewDataSet);
@@ -172,7 +179,7 @@ public class UsageGatherer
             if (usageBySpaces != null)
             {
                 String space = spaceExtractor.apply(entity);
-                if (spacesToBeIgnored.contains(space) == false)
+                if (space != null && spacesToBeIgnored.contains(space) == false)
                 {
                     UsageInfo usageInfo = usageBySpaces.get(space);
                     if (usageInfo == null)
