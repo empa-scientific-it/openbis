@@ -2,12 +2,12 @@ define([ "stjs", "util/Exceptions", "as/dto/common/entity/AbstractEntityProperty
 	var AbstractEntityCreation = function() {
         AbstractEntityPropertyHolder.call(this);
 	};
-	stjs.extend(AbstractEntityCreation, null, [], function(constructor, prototype) {
+	stjs.extend(AbstractEntityCreation, AbstractEntityPropertyHolder, [AbstractEntityPropertyHolder], function(constructor, prototype) {
         prototype['@type'] = 'as.dto.common.entity.AbstractEntityCreation';
         constructor.serialVersionUID = 1;
 
         prototype.getProperties = function() {
-          return properties;
+          return this.properties;
         };
 
         prototype.setProperties = function(properties) {

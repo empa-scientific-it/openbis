@@ -6,14 +6,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         constructor.serialVersionUID = 1;
         prototype.properties = null;
 
-//        prototype.getProperties = function() {
-//          return properties;
-//        };
-//
-//        prototype.setProperties = function(properties) {
-//            this.properties = properties;
-//        };
-
         prototype.getProperty = function(propertyName) {
             var properties = this.getProperties();
             return properties ? properties[propertyName] : null;

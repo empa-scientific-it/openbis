@@ -22,8 +22,15 @@ define([ "stjs", "util/Exceptions", "as/dto/common/entity/AbstractEntityProperty
             }
         };
 
+        prototype.setProperties = function(properties) {
+            this.properties = properties;
+        };
+
     }, {
-        fetchOptions : "AbstractEntityFetchOptions"
+        fetchOptions : {
+            name : "AbstractEntityFetchOptions",
+            arguments : [ "Object" ]
+        }
     });
     return AbstractEntity;
 })
