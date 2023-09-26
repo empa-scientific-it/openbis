@@ -642,6 +642,3 @@ can only be invoked via Query API.
 ### Viewing the results
 
 ![](img/13.png)
-
--   [aggregation](/label/openBISDoc2010/aggregation)
--   [ingestion](/label/openBISDoc2010/ingestion)
