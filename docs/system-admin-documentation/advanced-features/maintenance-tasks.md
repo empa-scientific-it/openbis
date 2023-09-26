@@ -834,7 +834,7 @@ If you put a foreign key constraint on the material code of one of the material 
 e-mail recipients about the usage (i.e. creation of experiments, samples
 and data sets) by users or groups. For more details see [User Group
 Management for Multi-groups openBIS
-Instances](/pages/viewpage.action?pageId=80699449).
+Instances](../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md).
 
 In order to be able to send an e-mail the following properties in
 `service.properties` have to be defined:
