@@ -400,7 +400,7 @@ link-naming-strategy.component-template = ${space}/${project}/${experiment}/${co
 
 **Description**: Deletes data sets which are already deleted on AS also
 from multi-data-set archives. This maintenance task works only if the
-[Multi Data Set Archiver](/pages/viewpage.action?pageId=80699422)  is
+[Multi Data Set Archiver](../../uncategorized/multi-data-set-archiving.md)  is
 configured. It does the following:
 
 1.  Extracts the not-deleted data sets of a TAR container with deleted
@@ -442,7 +442,7 @@ archiver when the archive data should be deletable.
 
 **Description**: Triggers unarchiving of multi data set archives. Is
 only needed if the configuration property `delay-unarchiving` of the
-[Multi Data Set Archiver](/pages/viewpage.action?pageId=80699422) is
+[Multi Data Set Archiver](../../uncategorized/multi-data-set-archiving.md) is
 set `true`.
 
 This maintenance task allows to reduce the stress of the tape system by
@@ -900,7 +900,7 @@ in `service.properties` of AS.
 **Description**: Removes data sets from the unarchiving scratch share
 which have status ARCHIVED and which are present in archive. For more
 details see [Multi data set
-archiving](/pages/viewpage.action?pageId=80699422).
+archiving](../../uncategorized/multi-data-set-archiving.md).
 
 **Configuration**:
 
