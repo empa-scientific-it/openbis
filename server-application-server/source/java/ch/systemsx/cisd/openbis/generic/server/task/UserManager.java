@@ -322,6 +322,9 @@ public class UserManager
                 Set<String> users = extractUserIds(group);
                 if (users.containsAll(extractUserIds(adminGroup)))
                 {
+                    /*\
+                     * The maintenance task should only remove groups created by itself
+                     */
                     if (group.getRegistrator().getUserId().equals("system"))
                     {
                         removedGroups.add(group);
@@ -585,8 +588,12 @@ public class UserManager
         List<Person> persons = service.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
         for (Person person : persons)
         {
+            /*\
+             * The maintenance task should only disable users created by itself
+             */
             if (person.isActive() && person.getRegistrator() != null // user 'system' has no registrator
-                    && isKnownUser(knownUsers, person) == false)
+                    && isKnownUser(knownUsers, person) == false
+                    && person.getRegistrator().getUserId().equals("system"))
             {
                 PersonUpdate update = new PersonUpdate();
                 update.setUserId(person.getPermId());
@@ -906,8 +913,14 @@ public class UserManager
                 {
                     if (role != null)
                     {
+                        /*\
+                         * The maintenance task should only remove role assignments created by itself
+                         */
+                        if (roleAssignment.getRegistrator().getUserId().equals("system"))
+                        {
                         context.delete(roleAssignment);
                         context.report.unassignRoleFrom(groupId, roleAssignment.getRole(), permId);
+                        }
                     }
                     if (userSpaceRole != null)
                     {
@@ -1024,8 +1037,14 @@ public class UserManager
                 String userSpace = createCommonSpaceCode(groupCode, userId.toUpperCase());
                 if (space != null && space.getCode().startsWith(userSpace))
                 {
+                    /*\
+                     * The maintenance task should only remove role assignments created by itself
+                     */
+                    if (roleAssignment.getRegistrator().getUserId().equals("system"))
+                    {
                     context.delete(roleAssignment);
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
+                    }
                 }
             }
         }
@@ -1494,13 +1513,7 @@ public class UserManager
 
         public void delete(RoleAssignment roleAssignment)
         {
-            /*\
-             * The maintenance task should only remove role assignments created by itself
-             */
-            if (roleAssignment.getRegistrator().getUserId().equals("system"))
-            {
-                roleDeletions.add(roleAssignment.getId());
-            }
+            roleDeletions.add(roleAssignment.getId());
         }
 
         public void executeOperations()
@@ -1516,10 +1529,6 @@ public class UserManager
             }
             if (spaceCreations.isEmpty() == false)
             {
-//                // Filter out already existing spaces to not repeat creations
-//                List<SpacePermId> spacesToCreate = spaceCreations.stream().map( creation -> new SpacePermId(creation.getCode())).collect(Collectors.toList());
-//                Map<ISpaceId, Space> existingSpaces = service.getSpaces(sessionToken, spacesToCreate, new SpaceFetchOptions());
-//                spaceCreations = spaceCreations.stream().filter( creation -> !existingSpaces.keySet().contains(new SpacePermId(creation.getCode()))).collect(Collectors.toList());
                 operations.add(new CreateSpacesOperation(spaceCreations));
             }
             if (projectCreations.isEmpty() == false)
@@ -1544,33 +1553,6 @@ public class UserManager
             }
             if (roleCreations.isEmpty() == false)
             {
-//                // Filter out already existing roles to not repeat creations
-//                // This is to manage a corner case when a user is reactivated reusing the same home space
-//                List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
-//                for (RoleAssignmentCreation roleAssignmentCreationToCheck:roleCreations) {
-//                    PersonPermId userId = (PersonPermId) roleAssignmentCreationToCheck.getUserId();
-//                    SpacePermId spaceId = (SpacePermId) roleAssignmentCreationToCheck.getSpaceId();
-//                    RoleAssignmentSearchCriteria roleAssignmentSearchCriteria = new RoleAssignmentSearchCriteria();
-//                    roleAssignmentSearchCriteria.withUser().withUserId().thatEquals(userId.getPermId());
-//                    roleAssignmentSearchCriteria.withSpace().withCode().thatEquals(spaceId.getPermId());
-//                    SearchResult<RoleAssignment> roleAssignmentSearchResult =
-//                            service.searchRoleAssignments(sessionToken,
-//                                    roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());
-//
-//                    boolean found = false;
-//                    if (!roleAssignmentSearchResult.getObjects().isEmpty()) {
-//                        Role role = roleAssignmentCreationToCheck.getRole();
-//                        for (RoleAssignment roleAssignment:roleAssignmentSearchResult.getObjects()) {
-//                            if (roleAssignment.getRole().equals(role)) {
-//                                found = true;
-//                            }
-//                        }
-//                    }
-//                    if (!found) {
-//                        filteredRoleCreations.add(roleAssignmentCreationToCheck);
-//                    }
-//                }
-//                roleCreations = filteredRoleCreations;
                 operations.add(new CreateRoleAssignmentsOperation(roleCreations));
             }
             if (roleDeletions.isEmpty() == false)
