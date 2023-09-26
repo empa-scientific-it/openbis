@@ -52,7 +52,7 @@ These methods are defined on the class
 ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError.
 The documentation for this class should be available here:
 
-<http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/validation/ValidationError.html>
+<https://sissource.ethz.ch/sispub/openbis/-/blob/master/server-original-data-store/source/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/validation/ValidationError.java>
 
 ## Example scripts
 
