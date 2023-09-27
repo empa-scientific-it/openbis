@@ -80,7 +80,7 @@ function generateTable(files) {
 	files = dfs(tree, map, '', []);
 	files.forEach(file => {
 		file.owner = owner;
-		file.path = file.path.slice(owner.length + 1);
+		// file.path = file.path.slice(1);
 	});
 	
 
