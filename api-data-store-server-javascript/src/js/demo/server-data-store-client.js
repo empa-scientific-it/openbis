@@ -17,11 +17,11 @@ function createOpenButton(row, filePath, fileSize) {
 			readButton.dataset.filesize = fileSize;
 			readButton.onclick = (function() { 
 				datastoreServer.read(owner, this.dataset.filepath, 0, this.dataset.filesize, (responseData => {
-						var win = window.open("", "_blank");
-						var doc = win.document;
-						doc.open("text/html");
-						doc.write(responseData);
-						doc.close();
+						const blob = responseData
+						const link = document.createElement('a')
+						link.href = window.URL.createObjectURL(blob)
+						link.download = filePath.substring(filePath.lastIndexOf('/') + 1)
+						link.click()
 					}));
 			});
 			row.appendChild(readButton);

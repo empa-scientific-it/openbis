@@ -48,12 +48,29 @@ _DataStoreServerInternal.prototype.jsonRequestData = function(params) {
 _DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data, callback) {
 	const xhr = new XMLHttpRequest();
 	xhr.open(httpMethod, url);
-	xhr.setRequestHeader("content-type", contentType);
+	xhr.responseType = "blob";
+
 	xhr.onreadystatechange = function() {
-		if (xhr.readyState === XMLHttpRequest.DONE) { 
-			const status = xhr.status;	
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+			const status = xhr.status;
 			if (status >= 200 && status < 300) {
-				callback(xhr.responseText);
+				const response = xhr.response
+				const contentType = this.getResponseHeader('content-type');
+
+				switch (contentType) {
+					case 'text/plain':
+						response.text().then((blobResponse) => callback(blobResponse))
+							.catch((error) => alert(error));
+						break;
+					case 'application/octet-stream':
+						callback(response);
+						break;
+					case 'application/json':
+						response.text().then((blobResponse) => callback(blobResponse))
+							.catch((error) => alert(error));
+						break;
+				}
+
 			} else if(status >= 400 && status < 500) {
 				let response = JSON.parse(xhr.responseText);
 				alert(response.error[1].message);
@@ -63,12 +80,10 @@ _DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, conten
 			} else {
 				alert("ERROR: " + xhr.responseText);
 			}
-			
-			
-		  }
+		}
 	};
 	xhr.send(data);
-  }
+}
 
 
 
@@ -281,7 +296,7 @@ DataStoreServer.prototype.login = function(userId, userPassword, action) {
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain", 
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		function(loginResponse) {
@@ -303,7 +318,7 @@ DataStoreServer.prototype.isSessionValid = function(action) {
 		const data =  this.fillCommonParameters({"method":"isSessionValid"});
 		this._internal.sendHttpRequest(
 			"GET",
-			"text/plain",
+			"application/octet-stream",
 			this._internal.datastoreUrl,
 			encodeParams(data),
 			(response) => parseJsonResponse(response, action)
@@ -338,7 +353,7 @@ DataStoreServer.prototype.logout = function(action) {
 		const data =  this.fillCommonParameters({"method":"logout"});
 		this._internal.sendHttpRequest(
 			"POST",
-			"text/plain",
+			"application/octet-stream",
 			this._internal.datastoreUrl,
 			encodeParams(data),
 			(response) => parseJsonResponse(response, action)
@@ -367,7 +382,7 @@ DataStoreServer.prototype.list = function(owner, source, recursively, action){
 	});
 	this._internal.sendHttpRequest(
 		"GET",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.buildGetUrl(data),
 		{},
 		(response) => parseJsonResponse(response, action)
@@ -392,7 +407,7 @@ DataStoreServer.prototype.read = function(owner, source, offset, limit, action){
 	});
 	this._internal.sendHttpRequest(
 		"GET",
-		"text",
+		"application/octet-stream",
 		this._internal.buildGetUrl(data),
 		{},
 		(response) => action(response)
@@ -428,7 +443,7 @@ DataStoreServer.prototype.write = function(owner, source, offset, data, action){
 
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(params),
 		(response) => action(response)
@@ -449,7 +464,7 @@ DataStoreServer.prototype.delete = function(owner, source, action){
 	});
 	this._internal.sendHttpRequest(
 		"DELETE",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -469,7 +484,7 @@ DataStoreServer.prototype.copy = function(sourceOwner, source, targetOwner, targ
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -489,7 +504,7 @@ DataStoreServer.prototype.move = function(sourceOwner, source, targetOwner, targ
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -509,7 +524,7 @@ DataStoreServer.prototype.create = function(owner, source, directory, action){
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -530,7 +545,7 @@ DataStoreServer.prototype.begin = function(transactionId, action){
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -544,7 +559,7 @@ DataStoreServer.prototype.prepare = function(action){
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -558,7 +573,7 @@ DataStoreServer.prototype.commit = function(action){
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -573,7 +588,7 @@ DataStoreServer.prototype.rollback = function(action){
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
@@ -586,7 +601,7 @@ DataStoreServer.prototype.recover = function(action){
 	});
 	this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(data),
 		(response) => action(response)
