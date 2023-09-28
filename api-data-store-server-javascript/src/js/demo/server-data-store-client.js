@@ -12,19 +12,19 @@ datastoreServer = new DataStoreServer('http://localhost:8085', HTTP_SERVER_URI);
 /** Creates open button for reading the file from dss */
 function createOpenButton(row, filePath, fileSize) {
 	readButton = document.createElement("button");
-			readButton.innerText = "open";
-			readButton.dataset.filepath = filePath;
-			readButton.dataset.filesize = fileSize;
-			readButton.onclick = (function() { 
-				datastoreServer.read(owner, this.dataset.filepath, 0, this.dataset.filesize, (responseData => {
-						const blob = responseData
-						const link = document.createElement('a')
-						link.href = window.URL.createObjectURL(blob)
-						link.download = filePath.substring(filePath.lastIndexOf('/') + 1)
-						link.click()
-					}));
-			});
-			row.appendChild(readButton);
+	readButton.innerText = "open";
+	readButton.dataset.filepath = filePath;
+	readButton.dataset.filesize = fileSize;
+	readButton.onclick = (function() {
+		datastoreServer.read(owner, this.dataset.filepath, 0, this.dataset.filesize).then((responseData) => {
+			const blob = responseData
+			const link = document.createElement('a')
+			link.href = window.URL.createObjectURL(blob)
+			link.download = filePath.substring(filePath.lastIndexOf('/') + 1)
+			link.click()
+		});
+	});
+	row.appendChild(readButton);
 }
 
 /** creates button for deleteing a file from the dss */
@@ -33,10 +33,8 @@ function createDeleteButton(row, filePath) {
 	deleteButton.innerText = "delete";
 	deleteButton.dataset.filepath = filePath;
 	deleteButton.onclick = (function() { 
-		if (confirm("Do you want to delete "+filePath+" ?") == true) {
-			datastoreServer.delete(owner, this.dataset.filepath, (responseData => {
-					showEntries();
-				}));
+		if (confirm("Do you want to delete " + filePath + "?")) {
+			datastoreServer.delete(owner, this.dataset.filepath).then(() => showEntries());
 		}
 	});
 	row.appendChild(deleteButton);
@@ -147,7 +145,7 @@ function showEntries()
 	while (table.firstChild) {
 		table.firstChild.remove()
 	}
-	datastoreServer.list(owner, source, "true", displayReturnedFiles);
+	datastoreServer.list(owner, source, "true").then(displayReturnedFiles);
 }
 
 
@@ -193,43 +191,36 @@ window.onload = function() {
 	document.getElementById("write-submit").onclick = function() { 
 		if(isWriteValid()) {
 			datastoreServer.write(owner, 
-				document.getElementById("fpath").value.trim(),
-				parseInt(document.getElementById("foffset").value.trim()), 
-				document.getElementById("write-text").value.trim(),
-				(_ => {
-				showEntries();
-			}));
+					document.getElementById("fpath").value.trim(),
+					parseInt(document.getElementById("foffset").value.trim()),
+					document.getElementById("write-text").value.trim())
+				.then(() => showEntries());
 		}
 	};
 
 	document.getElementById("copy-submit").onclick = function() { 
-		if(isCopyValid()) {
-			datastoreServer.copy(owner, document.getElementById("copy-from-path").value.trim(), owner, document.getElementById("copy-to-path").value.trim(),
-			 (_ => {
-				showEntries();
-			}));
+		if (isCopyValid()) {
+			datastoreServer.copy(owner, document.getElementById("copy-from-path").value.trim(), owner,
+					document.getElementById("copy-to-path").value.trim())
+				.then(() => showEntries());
 		}
 		
 	};
 
 	document.getElementById("move-submit").onclick = function() { 
-		if(isMoveValid()) {
+		if (isMoveValid()) {
 			datastoreServer.move(owner, 
-				document.getElementById("move-from-path").value.trim(), 
-				owner, 
-				document.getElementById("move-to-path").value.trim(), 
-				(_ => {
-				showEntries();
-			}));
+					document.getElementById("move-from-path").value.trim(),
+					owner,
+					document.getElementById("move-to-path").value.trim())
+				.then(() => showEntries());
 		}
 	};
 
 	document.getElementById("create-submit").onclick = function() {
 		datastoreServer.create(owner, document.getElementById("create-path").value.trim(),
-			document.getElementById("create-directory").checked,
-			(_ => {
-				showEntries();
-			}));
+				document.getElementById("create-directory").checked)
+			.then(() => showEntries());
 	};
 
 }

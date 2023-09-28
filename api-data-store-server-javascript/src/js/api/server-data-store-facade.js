@@ -45,43 +45,51 @@ _DataStoreServerInternal.prototype.jsonRequestData = function(params) {
 	return JSON.stringify(params);
 }
 
-_DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data, callback) {
+_DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, contentType, url, data) {
 	const xhr = new XMLHttpRequest();
 	xhr.open(httpMethod, url);
 	xhr.responseType = "blob";
 
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState === XMLHttpRequest.DONE) {
-			const status = xhr.status;
-			if (status >= 200 && status < 300) {
-				const response = xhr.response
-				const contentType = this.getResponseHeader('content-type');
+	return new Promise((resolve, reject) => {
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState === XMLHttpRequest.DONE) {
+				const status = xhr.status;
+				const response = xhr.response;
 
-				switch (contentType) {
-					case 'text/plain':
-						// Fall through.
-					case 'application/json':
-						response.text().then((blobResponse) => callback(blobResponse))
-							.catch((error) => alert(error));
-						break;
-					case 'application/octet-stream':
-						callback(response);
-						break;
-					default:
-						throw new Error("Client error HTTP response. Unsupported content-type received.");
+				if (status >= 200 && status < 300) {
+					const contentType = this.getResponseHeader('content-type');
+
+					switch (contentType) {
+						case 'text/plain':
+							// Fall through.
+						case'application/json': {
+							response.text().then((blobResponse) => resolve(blobResponse))
+								.catch((error) => reject(error));
+							break;
+						}
+						case 'application/octet-stream': {
+							resolve(response);
+							break;
+						}
+						default: {
+							reject("Client error HTTP response. Unsupported content-type received.");
+							break;
+						}
+					}
+				} else if (status >= 400 && status < 600) {
+					if (response.size > 0) {
+						response.text().then((blobResponse) => reject(JSON.parse(blobResponse).error[1].message))
+							.catch((error) => reject(error));
+					} else {
+						reject(xhr.statusText);
+					}
+				} else {
+					reject("ERROR: " + xhr.responseText);
 				}
-			} else if(status >= 400 && status < 500) {
-				let response = JSON.parse(xhr.responseText);
-				alert(response.error[1].message);
-			} else if(status >= 500 && status < 600) {
-				let response = JSON.parse(xhr.responseText);
-				alert(response.error[1].message);
-			} else {
-				alert("ERROR: " + xhr.responseText);
 			}
-		}
-	};
-	xhr.send(data);
+		};
+		xhr.send(data);
+	});
 }
 
 
@@ -155,13 +163,15 @@ _DataStoreServerInternal.prototype.parseUri = function(str) {
 
 
 /** Helper method for checking response from DSS server */
-function parseJsonResponse(rawResponse, action) {
-	let response = JSON.parse(rawResponse);
-	if(response.error){
-		alert(response.error[1].message);
-	}else{
-		action(response);
-	}
+function parseJsonResponse(rawResponse) {
+	return new Promise((resolve, reject) => {
+		let response = JSON.parse(rawResponse);
+		if (response.error) {
+			reject(response.error[1].message);
+		} else {
+			resolve(response);
+		}
+	});
 }
 
 
@@ -286,25 +296,22 @@ const encodeParams = p =>  Object.entries(p).map(kv => kv.map(encodeURIComponent
  * 
  * @method
  */
-DataStoreServer.prototype.login = function(userId, userPassword, action) {
+DataStoreServer.prototype.login = function(userId, userPassword) {
 	var datastoreObj = this
 	const data =  this.fillCommonParameters({
 		"method": "login",
 		"userId": userId,
 		"password": userPassword
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		function(loginResponse) {
-			datastoreObj._internal.sessionToken = loginResponse;
-			datastoreObj.rememberSession();
-			action(loginResponse);
-		}
-	);
-
+		encodeParams(data)
+	).then((loginResponse) => {
+		datastoreObj._internal.sessionToken = loginResponse;
+		datastoreObj.rememberSession();
+	});
 }
 
 
@@ -312,32 +319,33 @@ DataStoreServer.prototype.login = function(userId, userPassword, action) {
  * Checks whether the current session is still active.
  *
  */
-DataStoreServer.prototype.isSessionValid = function(action) {
-	if(this.getSession()){
-		const data =  this.fillCommonParameters({"method":"isSessionValid"});
-		this._internal.sendHttpRequest(
-			"GET",
-			"application/octet-stream",
-			this._internal.datastoreUrl,
-			encodeParams(data),
-			(response) => parseJsonResponse(response, action)
-		);
-	}else{
-		action({ result : false })
-	}
+DataStoreServer.prototype.isSessionValid = function() {
+	return new Promise((resolve, reject) => {
+		if (this.getSession()) {
+			const data =  this.fillCommonParameters({"method":"isSessionValid"});
+			this._internal.sendHttpRequest(
+				"GET",
+				"application/octet-stream",
+				this._internal.datastoreUrl,
+				encodeParams(data)
+			).then((response) => parseJsonResponse(response).then((value) => resolve(value))
+				.catch((reason) => reject(reason)));
+		} else {
+			resolve({ result : false })
+		}
+	});
 }
 
 /**
- * Restores the current session from a cookie and executes 
- * the specified action if the session is still active.
+ * Restores the current session from a cookie.
  * 
  * @see restoreSession()
  * @see isSessionActive()
  * @method
  */
-DataStoreServer.prototype.ifRestoredSessionActive = function(action) {
+DataStoreServer.prototype.ifRestoredSessionActive = function() {
 	this.restoreSession();
-	this.isSessionValid(function(data) { if (data.result) action(data) });
+	return this.isSessionValid();
 }
 
 /**
@@ -345,21 +353,23 @@ DataStoreServer.prototype.ifRestoredSessionActive = function(action) {
  * 
  * @method
  */
-DataStoreServer.prototype.logout = function(action) {
-	this.forgetSession();
-	
-	if(this.getSession()){
-		const data =  this.fillCommonParameters({"method":"logout"});
-		this._internal.sendHttpRequest(
-			"POST",
-			"application/octet-stream",
-			this._internal.datastoreUrl,
-			encodeParams(data),
-			(response) => parseJsonResponse(response, action)
-		);
-	}else if(action){
-		action({ result : null });
-	}
+DataStoreServer.prototype.logout = function() {
+	return new Promise((resolve, reject) => {
+		this.forgetSession();
+
+		if (this.getSession()) {
+			const data = this.fillCommonParameters({"method": "logout"});
+			this._internal.sendHttpRequest(
+				"POST",
+				"application/octet-stream",
+				this._internal.datastoreUrl,
+				encodeParams(data)
+			).then((response) => parseJsonResponse(response).then((value) => resolve(value))
+				.catch((reason) => reject(reason)));
+		} else {
+			resolve({result: null});
+		}
+	});
 }
 
 
@@ -372,20 +382,19 @@ DataStoreServer.prototype.logout = function(action) {
 /**
  * List files in the DSS for given owner and source
  */
-DataStoreServer.prototype.list = function(owner, source, recursively, action){
+DataStoreServer.prototype.list = function(owner, source, recursively){
 	const data =  this.fillCommonParameters({
 		"method": "list",
 		"owner" :  owner,
 		"source":  source,
 		"recursively":  recursively
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"GET",
 		"application/octet-stream",
 		this._internal.buildGetUrl(data),
-		{},
-		(response) => parseJsonResponse(response, action)
-	);
+		{}
+	).then((response) => parseJsonResponse(response));
 }
 
 /**
@@ -394,9 +403,8 @@ DataStoreServer.prototype.list = function(owner, source, recursively, action){
  * @param {str} source path to file
  * @param {int} offset offset from whoch to start reading
  * @param {int} limit how many characters to read
- * @param {*} action post-processing action
  */
-DataStoreServer.prototype.read = function(owner, source, offset, limit, action){
+DataStoreServer.prototype.read = function(owner, source, offset, limit){
 	const data =  this.fillCommonParameters({
 		"method": "read",
 		"owner" :  owner,
@@ -404,12 +412,11 @@ DataStoreServer.prototype.read = function(owner, source, offset, limit, action){
 		"offset":  offset,
 		"limit":  limit
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"GET",
 		"application/octet-stream",
 		this._internal.buildGetUrl(data),
-		{},
-		(response) => action(response)
+		{}
 	);
 }
 
@@ -428,9 +435,8 @@ function hex2a(hexx) {
  * @param {str} source path to file
  * @param {int} offset offset from which to start writing
  * @param {str} data data to write
- * @param {*} action post-processing action
  */
-DataStoreServer.prototype.write = function(owner, source, offset, data, action){
+DataStoreServer.prototype.write = function(owner, source, offset, data){
 	const params =  this.fillCommonParameters({
 		"method": "write",
 		"owner" : owner,
@@ -440,12 +446,11 @@ DataStoreServer.prototype.write = function(owner, source, offset, data, action){
 		"md5Hash":  btoa(hex2a(md5(data))),
 	});
 
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(params),
-		(response) => action(response)
+		encodeParams(params)
 	);
 }
 
@@ -453,27 +458,25 @@ DataStoreServer.prototype.write = function(owner, source, offset, data, action){
  * Delete file from the DSS
  * @param {str} owner owner of the file
  * @param {str} source path to file
- * @param {*} action post-processing action 
  */
-DataStoreServer.prototype.delete = function(owner, source, action){
+DataStoreServer.prototype.delete = function(owner, source){
 	const data =  this.fillCommonParameters({
 		"method": "delete",
 		"owner" : owner,
 		"source": source
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"DELETE",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
 }
 
 /**
  * Copy file within DSS
  */
-DataStoreServer.prototype.copy = function(sourceOwner, source, targetOwner, target, action){
+DataStoreServer.prototype.copy = function(sourceOwner, source, targetOwner, target){
 	const data =  this.fillCommonParameters({
 		"method": "copy",
 		"sourceOwner" : sourceOwner,
@@ -481,19 +484,18 @@ DataStoreServer.prototype.copy = function(sourceOwner, source, targetOwner, targ
 		"targetOwner": targetOwner,
 		"target" : target
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
 }
 
 /** 
  * Move file within DSS
  */
-DataStoreServer.prototype.move = function(sourceOwner, source, targetOwner, target, action){
+DataStoreServer.prototype.move = function(sourceOwner, source, targetOwner, target){
 	const data =  this.fillCommonParameters({
 		"method": "move",
 		"sourceOwner" : sourceOwner,
@@ -501,32 +503,29 @@ DataStoreServer.prototype.move = function(sourceOwner, source, targetOwner, targ
 		"targetOwner": targetOwner,
 		"target" : target
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
-	
 }
 
 /**
  * Create a file/directory within DSS
  */
-DataStoreServer.prototype.create = function(owner, source, directory, action){
+DataStoreServer.prototype.create = function(owner, source, directory){
 	const data =  this.fillCommonParameters({
 		"method": "create",
 		"owner" : owner,
 		"source": source,
 		"directory": directory
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
 }
 
@@ -537,74 +536,65 @@ DataStoreServer.prototype.create = function(owner, source, directory, action){
  * ==================================================================================
  */
 
-DataStoreServer.prototype.begin = function(transactionId, action){
+DataStoreServer.prototype.begin = function(transactionId){
 	const data =  this.fillCommonParameters({
 		"method": "begin",
 		"transactionId" : transactionId
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
-	
 }
 
-DataStoreServer.prototype.prepare = function(action){
+DataStoreServer.prototype.prepare = function(){
 	const data =  this.fillCommonParameters({
 		"method": "prepare"
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
-	
 }
 
-DataStoreServer.prototype.commit = function(action){
+DataStoreServer.prototype.commit = function(){
 	const data =  this.fillCommonParameters({
 		"method": "commit"
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
-	
 }
 
 
-DataStoreServer.prototype.rollback = function(action){
+DataStoreServer.prototype.rollback = function(){
 	const data =  this.fillCommonParameters({
 		"method": "rollback"
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
 }
 
-DataStoreServer.prototype.recover = function(action){
+DataStoreServer.prototype.recover = function(){
 	const data =  this.fillCommonParameters({
 		"method": "recover"
 	});
-	this._internal.sendHttpRequest(
+	return this._internal.sendHttpRequest(
 		"POST",
 		"application/octet-stream",
 		this._internal.datastoreUrl,
-		encodeParams(data),
-		(response) => action(response)
+		encodeParams(data)
 	);
-	
 }
 
