@@ -59,18 +59,17 @@ _DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, conten
 
 				switch (contentType) {
 					case 'text/plain':
+						// Fall through.
+					case 'application/json':
 						response.text().then((blobResponse) => callback(blobResponse))
 							.catch((error) => alert(error));
 						break;
 					case 'application/octet-stream':
 						callback(response);
 						break;
-					case 'application/json':
-						response.text().then((blobResponse) => callback(blobResponse))
-							.catch((error) => alert(error));
-						break;
+					default:
+						throw new Error("Client error HTTP response. Unsupported content-type received.");
 				}
-
 			} else if(status >= 400 && status < 500) {
 				let response = JSON.parse(xhr.responseText);
 				alert(response.error[1].message);
