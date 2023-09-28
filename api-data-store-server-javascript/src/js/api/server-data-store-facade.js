@@ -309,8 +309,11 @@ DataStoreServer.prototype.login = function(userId, userPassword) {
 		this._internal.datastoreUrl,
 		encodeParams(data)
 	).then((loginResponse) => {
-		datastoreObj._internal.sessionToken = loginResponse;
-		datastoreObj.rememberSession();
+		return new Promise((resolve, reject) => {
+			datastoreObj._internal.sessionToken = loginResponse;
+			datastoreObj.rememberSession();
+			resolve(loginResponse);
+		})
 	});
 }
 

@@ -62,11 +62,12 @@ dssClientLoginPage.prototype.configure = function(){
 	
 	document.getElementById("login-form").onsubmit = function() {
 		loginPage.datastore.login(document.getElementById("username").value.trim(),
-				document.getElementById("password").value.trim()).then((data) => {
-					document.getElementById("username").value = '';
-					document.getElementById("password").value = '';
-					loginPage.onLogin(data);
-				})
+				document.getElementById("password").value.trim())
+			.then((data) => {
+				document.getElementById("username").value = '';
+				document.getElementById("password").value = '';
+				loginPage.onLogin(data);
+			})
 	};
 	
 	loginPage.datastore.ifRestoredSessionActive().then((data) => loginPage.onLogin(data));
