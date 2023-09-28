@@ -51,27 +51,26 @@ dssClientLoginPage.prototype.configure = function(){
 	}
 
 	document.getElementById("logout-button").onclick = function() { 
-		loginPage.datastore.logout(function(data) { 
+		loginPage.datastore.logout().then(() => {
 			document.getElementById("login-form-div").style.display = "block";
 			document.getElementById("main").style.display = "none";
 			document.getElementById("openbis-logo").style.height = "100px";
 			document.getElementById("username").focus();
 		});
-		
 	};
 	
 	
 	document.getElementById("login-form").onsubmit = function() {
-		 loginPage.datastore.login(document.getElementById("username").value.trim(), 
-		 document.getElementById("password").value.trim(), 
-		 function(data) { 
-			document.getElementById("username").value = '';
-			document.getElementById("password").value = '';
-			loginPage.onLogin(data); 
-		})
+		loginPage.datastore.login(document.getElementById("username").value.trim(),
+				document.getElementById("password").value.trim())
+			.then((data) => {
+				document.getElementById("username").value = '';
+				document.getElementById("password").value = '';
+				loginPage.onLogin(data);
+			})
 	};
 	
-	loginPage.datastore.ifRestoredSessionActive(function(data) { loginPage.onLogin(data) });
+	loginPage.datastore.ifRestoredSessionActive().then((data) => loginPage.onLogin(data));
 	
 
 	document.onkeydown=function(evt){
