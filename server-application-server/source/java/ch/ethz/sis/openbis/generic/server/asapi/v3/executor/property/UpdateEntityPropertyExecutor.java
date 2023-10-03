@@ -463,7 +463,17 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
         {
             entityProperties.add(EntityHelper.createNewProperty(entry.getKey(), entry.getValue()));
         }
-        Set<? extends EntityPropertyPE> existingProperties = propertiesHolder.getProperties();
+        List<? extends EntityPropertyPE> propertiesList = new ArrayList<>(propertiesHolder.getProperties());
+        // Add existing properties in the order of creation
+        Set<EntityPropertyPE> existingProperties = propertiesList.stream()
+                .filter((EntityPropertyPE a) -> a.getId() != null)
+                .sorted(
+                Comparator.comparing((EntityPropertyPE a) -> a.getId())
+        ).collect(Collectors.toCollection(LinkedHashSet::new));
+        // Newly created sample properties doesn't have id so add then at the end
+        propertiesList.stream()
+                .filter((EntityPropertyPE a) -> a.getId() == null)
+                .forEach(existingProperties::add);
         Map<String, List<Object>> existingPropertyValuesByCode =
                 new HashMap<String, List<Object>>();
         for (EntityPropertyPE existingProperty : existingProperties)

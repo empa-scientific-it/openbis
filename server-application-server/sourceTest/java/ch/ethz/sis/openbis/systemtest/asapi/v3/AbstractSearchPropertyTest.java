@@ -839,7 +839,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final VocabularyPermId vocabularyPermId = createControlledVocabulary(sessionToken, "SEASONS");
 
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
-                vocabularyPermId);
+                vocabularyPermId, false);
         final ObjectPermId entityPermId = createEntity(sessionToken, propertyTypeId, value);
         final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
         new StringQueryInjector(searchCriteria, propertyTypeId).buildCriteria(queryString);
@@ -875,7 +875,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         final VocabularyPermId vocabularyPermId = createControlledVocabulary(sessionToken, vocabularyCode);
 
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
-                vocabularyPermId, propertyTypeCode);
+                vocabularyPermId, propertyTypeCode, false);
         final ObjectPermId entityPermId = createEntity(sessionToken, propertyTypeId, value);
         final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
         new VocabularyQueryInjector(searchCriteria, propertyTypeCode).buildCriteria(queryString);

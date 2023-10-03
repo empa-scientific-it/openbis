@@ -98,7 +98,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private DeletionPE deletion;
 
-    private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
+    private Set<ExperimentPropertyPE> properties = new LinkedHashSet<>();
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
 
@@ -326,6 +326,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
+    @OrderBy(clause = "id ASC")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @BatchSize(size = 100)
     private Set<ExperimentPropertyPE> getExperimentProperties()

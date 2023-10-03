@@ -19,9 +19,12 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
@@ -35,10 +38,6 @@ import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
@@ -81,6 +80,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     return etpt.getEntityTypePropertyTypePE().getPropertyType();
                 }
             };
+
+    private static final String SEPARATOR = ",";
+
+    private static final List<DataTypeCode> ARRAY_TYPES = List.of(DataTypeCode.ARRAY_STRING,
+            DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_REAL, DataTypeCode.ARRAY_TIMESTAMP);
 
     private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
             "Value of mandatory property '%s' not specified.";
@@ -281,22 +285,24 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         if (isNullOrBlank(valueOrNull) == false)
         {
             List<T> results = new ArrayList<>();
-            if(propertyType.isMultiValue() && valueOrNull.getClass().isArray()) {
-                for (Serializable value : (Serializable[]) valueOrNull)
+            Serializable parsedValue = translateProperty(propertyType, valueOrNull);
+            if(propertyType.isMultiValue() && parsedValue.getClass().isArray()) {
+                for (Serializable value : (Serializable[]) parsedValue)
                 {
-                    String translatedValue =
-                            extendedETPT.translate(registrator, (String) value);
-                    final String validatedValue =
+                    Serializable translatedValue =
+                            extendedETPT.translate(registrator, value);
+                    final Serializable validatedValue =
                             propertyValueValidator.validatePropertyValue(propertyType,
                                     translatedValue);
                     results.addAll(createEntityProperty(registrator, propertyType,
                             entityTypePropertyTypePE,
                             validatedValue));
+
                 }
             } else {
-                String translatedValue = extendedETPT.translate(registrator, property.tryGetAsString());
+                Serializable translatedValue = extendedETPT.translate(registrator, parsedValue);
 
-                final String validatedValue =
+                final Serializable validatedValue =
                         propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
                 results.addAll(createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
                         validatedValue));
@@ -304,6 +310,56 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             return results;
         }
         return null;
+    }
+
+    private Serializable translateProperty(PropertyTypePE propertyType, Serializable value) {
+        if(value == null || !value.getClass().equals(String.class)) {
+            //Nothing to translate
+            return value;
+        }
+
+        String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
+        String propertyValue = value.toString().trim();
+        if(propertyValue.isEmpty()) {
+            return null;
+        }
+
+        if(propertyType.isMultiValue()) {
+            if(propertyValue.startsWith("[")) {
+                propertyValue = propertyValue.substring(1, propertyValue.length()-1).trim();
+            }
+            if(propertyValue.isEmpty()) {
+                return null;
+            }
+            if(ARRAY_TYPES.contains(propertyType.getType().getCode())) {
+                // Multi-value array properties
+                String multiArrayRegex = "\\],\\s*\\[";
+                if(propertyValue.startsWith("[")) {
+                    propertyValue = propertyValue.substring(1, propertyValue.length()-1).trim();
+                }
+                return Arrays.stream(propertyValue.split(multiArrayRegex))
+                        .map(String::trim)
+                        .map(x -> Arrays.stream(x.split(regex))
+                                .map(String::trim)
+                                .toArray(String[]::new))
+                        .toArray(String[][]::new);
+            } else {
+                return Arrays.stream(propertyValue.split(regex))
+                        .map(String::trim)
+                        .toArray(String[]::new);
+            }
+        } else {
+            if(ARRAY_TYPES.contains(propertyType.getType().getCode())) {
+                if(propertyValue.startsWith("[")) {
+                    propertyValue = propertyValue.substring(1, propertyValue.length()-1);
+                }
+                return Arrays.stream(propertyValue.split(regex))
+                                    .map(String::trim)
+                                    .toArray(String[]::new);
+            } else {
+                return propertyValue;
+            }
+        }
     }
 
     private Serializable getPropertyValue(final IEntityProperty property) {
@@ -329,31 +385,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     private final <T extends EntityPropertyPE> List<T> createEntityProperty(
             final PersonPE registrator,
             final PropertyTypePE propertyType,
-            final EntityTypePropertyTypePE entityTypePropertyType, final String value)
+            final EntityTypePropertyTypePE entityTypePropertyType, final Serializable value)
     {
         List<T> entityProperties = new ArrayList<>();
-        String val = value;
-        List<DataTypeCode> arrayTypes = List.of(DataTypeCode.ARRAY_STRING,
-                DataTypeCode.ARRAY_INTEGER, DataTypeCode.ARRAY_REAL, DataTypeCode.ARRAY_TIMESTAMP);
-        if (propertyType.isMultiValue() && !arrayTypes.contains(propertyType.getType().getCode()))
-        {
-            if (val.startsWith("["))
-            {
-                val = val.substring(1, val.length() - 1);
-            }
-            for (String v : val.split(","))
-            {
-                String singleValue = v.trim();
-                final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
-                setPropertyValue(entityProperty, propertyType, singleValue);
-                entityProperties.add(entityProperty);
-            }
-        } else
-        {
-            final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
-            setPropertyValue(entityProperty, propertyType, val);
-            entityProperties.add(entityProperty);
-        }
+        final T entityProperty = getEntityPropertyBase(registrator, entityTypePropertyType);
+        setPropertyValue(entityProperty, propertyType, value);
+        entityProperties.add(entityProperty);
         return entityProperties;
     }
 
@@ -500,9 +537,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
         if (isNullOrBlank(value) == false)
         {
-            final String validated =
+            final Serializable validated =
                     propertyValueValidator.validatePropertyValue(propertyType, value);
-            return validated;
+            return validated.toString();
         }
         return null;
     }
@@ -519,15 +556,21 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     @Override
     public final <T extends EntityPropertyPE> void setPropertyValue(final T entityProperty,
-            final PropertyTypePE propertyType, final String validatedValue)
+            final PropertyTypePE propertyType, final Serializable validatedValue)
     {
         assert validatedValue != null;
-        if (validatedValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
-        {
-            // save errors as strings
-            entityProperty.setUntypedValue(validatedValue, null, null, null, null, null, null, null,
-                    null);
-        } else
+
+        if(validatedValue.getClass().equals(String.class)) {
+            String value = (String) validatedValue;
+            if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                // save errors as strings
+                entityProperty.setUntypedValue(value, null, null, null, null, null, null, null,
+                        null);
+            }
+        }
+
+
         {
             final VocabularyTermPE vocabularyTerm =
                     complexPropertyValueHelper.tryGetVocabularyTerm(validatedValue, propertyType);
@@ -544,7 +587,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     complexPropertyValueHelper.tryGetTimestampArray(validatedValue, propertyType);
             final String jsonValue =
                     complexPropertyValueHelper.tryGetJsonValue(validatedValue, propertyType);
-            entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material, sample,
+            entityProperty.setUntypedValue(validatedValue.toString(), vocabularyTerm, material, sample,
                     integerArray, realArray, stringArray, timestampArray, jsonValue);
         }
     }
@@ -565,20 +608,27 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             // TODO: create null property history entry
         }
-
+        Set<T> oldPropertiesTemp = new HashSet<>(oldProperties);
         final List<T> convertedProperties =
                 convertPropertiesForUpdate(newProperties, entityType.getCode(), author);
-        final Set<T> set = new HashSet<T>();
-        for (T newProperty : convertedProperties)
-        {
+        final Set<T> set = new LinkedHashSet<>();
+
+        for (int i=0; i< convertedProperties.size(); i++) {
+            T newProperty = convertedProperties.get(i);
             PropertyTypePE propertyType = newProperty.getEntityTypePropertyType().getPropertyType();
-            T existingProperty;
-            if (propertyType.isMultiValue())
+            T existingProperty = null;
+            if(!propertyType.isMultiValue())
             {
-                existingProperty = tryFindMulti(oldProperties, propertyType, newProperty);
-            } else
-            {
-                existingProperty = tryFind(oldProperties, propertyType);
+                existingProperty = tryFind(oldPropertiesTemp, propertyType);
+            } else {
+                List<T> oldMulti = oldPropertiesTemp.stream()
+                        .filter(oldProp -> oldProp.getEntityTypePropertyType().getPropertyType().equals(propertyType))
+                        .sorted(Comparator.comparing(IIdHolder::getId))
+                        .collect(Collectors.toList());
+                if(!oldMulti.isEmpty()) {
+                    existingProperty = oldMulti.get(0);
+                    oldPropertiesTemp.remove(existingProperty);
+                }
             }
 
             if (existingProperty != null)
@@ -601,9 +651,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 set.add(existingProperty);
             } else
             {
+                if (propertyType.isMultiValue()) {
+                    newProperty.setIndex(i);
+                }
                 // TODO: create new property history entry
                 set.add(newProperty);
             }
+
         }
         return set;
     }
@@ -619,6 +673,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 String oldValue = oldProperty.tryGetUntypedValue();
                 if (oldValue != null && oldValue.equals(propertyValue))
                 {
+                    oldProperties.remove(oldProperty);
                     return oldProperty;
                 }
             }
@@ -715,6 +770,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(propertyType))
             {
+                oldProperties.remove(oldProperty);
                 return oldProperty;
             }
         }
@@ -782,42 +838,47 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
 
         @SuppressWarnings("unchecked")
-        String translate(PersonPE personPE, String propertyValue)
+        Serializable translate(PersonPE personPE, Serializable value)
         {
-            if (inputWidgetDescriptions.isEmpty()
-                    || propertyValue == null
-                    || propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
-                    || propertyValue.startsWith(
-                    BasicConstant.MANAGED_PROPERTY_JSON_PREFIX) == false)
-            {
-                return propertyValue;
+            if(value == null || !value.getClass().equals(String.class)) {
+                return value;
             }
-            try
+            else
             {
-                List<?> readValue =
-                        new ObjectMapper().readValue(propertyValue
-                                        .substring(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX.length()),
-                                List.class);
-                ManagedProperty managedProperty = new ManagedProperty();
-                IPerson person = PersonTranslator.translateToIPerson(personPE);
-
-                List<Map<String, String>> bindingsList = new ArrayList<Map<String, String>>();
-
-                for (Object row : readValue)
+                String propertyValue = (String) value;
+                if (inputWidgetDescriptions.isEmpty()
+                        || propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
+                        || propertyValue.startsWith(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX) == false)
                 {
-                    if (row instanceof Map == false)
+                    return propertyValue;
+                }
+                try
+                {
+                    List<?> readValue =
+                            new ObjectMapper().readValue(propertyValue
+                                            .substring(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX.length()),
+                                    List.class);
+                    ManagedProperty managedProperty = new ManagedProperty();
+                    IPerson person = PersonTranslator.translateToIPerson(personPE);
+
+                    List<Map<String, String>> bindingsList = new ArrayList<Map<String, String>>();
+
+                    for (Object row : readValue)
                     {
-                        continue;
+                        if (row instanceof Map == false)
+                        {
+                            continue;
+                        }
+
+                        bindingsList.add((Map<String, String>) row);
                     }
 
-                    bindingsList.add((Map<String, String>) row);
+                    evaluator.updateFromRegistrationForm(managedProperty, person, bindingsList);
+                    return managedProperty.getValue();
+                } catch (Exception ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                 }
-
-                evaluator.updateFromRegistrationForm(managedProperty, person, bindingsList);
-                return (String) managedProperty.getValue();
-            } catch (Exception ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
 
@@ -855,12 +916,19 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             this.entityInfoProvider = entityInfoProvider;
         }
 
-        public SamplePE tryGetSample(String value, PropertyTypePE propertyType)
+        public SamplePE tryGetSample(Serializable val, PropertyTypePE propertyType)
         {
             if (propertyType.getType().getCode() != DataTypeCode.SAMPLE)
             {
                 return null; // this is not a property of SAMPLE type
             }
+            String value;
+            if(val.getClass().equals(Sample.class)) {
+                value = ((Sample)val).getPermId();
+            } else {
+                value = val.toString();
+            }
+
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();
             String samplePermId = value;
             if (samplePermId.startsWith("["))
@@ -885,14 +953,14 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             return samples.get(0);
         }
 
-        public MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
+        public MaterialPE tryGetMaterial(Serializable value, PropertyTypePE propertyType)
         {
             if (propertyType.getType().getCode() != DataTypeCode.MATERIAL)
             {
                 return null; // this is not a property of MATERIAL type
             }
             MaterialIdentifier materialIdentifier =
-                    MaterialIdentifier.tryCreate(value, propertyType.getMaterialType());
+                    MaterialIdentifier.tryCreate((String)value, propertyType.getMaterialType());
             if (materialIdentifier == null)
             {
                 return null;
@@ -917,7 +985,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             return material;
         }
 
-        public VocabularyTermPE tryGetVocabularyTerm(final String value,
+        public VocabularyTermPE tryGetVocabularyTerm(final Serializable value,
                 final PropertyTypePE propertyType)
         {
             if (propertyType.getType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY)
@@ -930,7 +998,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            final VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(value);
+            final VocabularyTermPE term = vocabulary.tryGetVocabularyTerm((String)value);
             if (term != null)
             {
                 return term;
@@ -940,69 +1008,71 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     vocabulary.getCode());
         }
 
-        private static final String SEPARATOR = ",";
 
-        public Long[] tryGetIntegerArray(final String value, final PropertyTypePE propertyType)
+
+        public Long[] tryGetIntegerArray(final Serializable value, final PropertyTypePE propertyType)
         {
             DataTypeCode code = propertyType.getType().getCode();
             if (code != DataTypeCode.ARRAY_INTEGER)
             {
                 return null;
             }
-            if (value == null || value.trim().isEmpty())
+            if (value == null || !value.getClass().isArray() || ((Serializable[])value).length == 0)
             {
                 return null;
             }
-            return Arrays.stream(value.split(SEPARATOR))
-                    .map(x -> Long.parseLong(x.trim()))
+            return Arrays.stream((Serializable[])value)
+                    .map(x -> Long.parseLong(x.toString().trim()))
                     .toArray(Long[]::new);
         }
 
-        public Double[] tryGetRealArray(final String value, final PropertyTypePE propertyType)
+        public Double[] tryGetRealArray(final Serializable value, final PropertyTypePE propertyType)
         {
             DataTypeCode code = propertyType.getType().getCode();
             if (code != DataTypeCode.ARRAY_REAL)
             {
                 return null;
             }
-            if (value == null || value.trim().isEmpty())
+            if (value == null || !value.getClass().isArray() || ((Serializable[])value).length == 0)
             {
                 return null;
             }
-            return Arrays.stream(value.split(SEPARATOR))
-                    .map(x -> Double.parseDouble(x.trim()))
+            return Arrays.stream((Serializable[])value)
+                    .map(x -> Double.parseDouble(x.toString().trim()))
                     .toArray(Double[]::new);
         }
 
-        public String[] tryGetStringArray(final String value, final PropertyTypePE propertyType)
+        public String[] tryGetStringArray(final Serializable value, final PropertyTypePE propertyType)
         {
             DataTypeCode code = propertyType.getType().getCode();
             if (code != DataTypeCode.ARRAY_STRING)
             {
                 return null;
             }
-            if (value == null || value.trim().isEmpty())
+            if (value == null || !value.getClass().isArray() || ((Serializable[])value).length == 0)
             {
                 return null;
             }
-            // Special regex to allow strings with ',' character
-            String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
-            return Arrays.stream(value.split(regex))
-                    .map(String::trim)
+            return Arrays.stream((Serializable[])value)
+                    .map(Serializable::toString)
                     .toArray(String[]::new);
         }
 
-        public Date[] tryGetTimestampArray(final String value, final PropertyTypePE propertyType)
+        public Date[] tryGetTimestampArray(final Serializable value, final PropertyTypePE propertyType)
         {
             DataTypeCode code = propertyType.getType().getCode();
             if (code != DataTypeCode.ARRAY_TIMESTAMP)
             {
                 return null;
             }
+            if (value == null || !value.getClass().isArray() || ((Serializable[])value).length == 0)
+            {
+                return null;
+            }
             SimpleDateFormat format =
                     new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
-            return Arrays.stream(value.split(SEPARATOR))
-                    .map(x -> parseDateFromString(x, format))
+            return Arrays.stream((Serializable[])value)
+                    .map(x -> parseDateFromString((String)x, format))
                     .toArray(Date[]::new);
         }
 
@@ -1017,14 +1087,14 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
 
-        public String tryGetJsonValue(final String value, final PropertyTypePE propertyType)
+        public String tryGetJsonValue(final Serializable value, final PropertyTypePE propertyType)
         {
             DataTypeCode code = propertyType.getType().getCode();
-            if (code != DataTypeCode.JSON)
+            if (code != DataTypeCode.JSON || value == null)
             {
                 return null;
             }
-            return value;
+            return value.toString();
         }
 
     }

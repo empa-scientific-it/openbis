@@ -1487,17 +1487,22 @@ public class AbstractTest extends SystemTestCase
 
     protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType)
     {
-        return createAPropertyType(sessionToken, dataType, new VocabularyPermId("ORGANISM"));
+        return createAPropertyType(sessionToken, dataType, new VocabularyPermId("ORGANISM"), false);
     }
 
-    protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
-            final VocabularyPermId vocabularyPermId)
+    protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType, final boolean multiValue)
     {
-        return createAPropertyType(sessionToken, dataType, vocabularyPermId, "TYPE-" + System.currentTimeMillis());
+        return createAPropertyType(sessionToken, dataType, new VocabularyPermId("ORGANISM"), multiValue);
     }
 
     protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
-            final VocabularyPermId vocabularyPermId, final String code)
+            final VocabularyPermId vocabularyPermId, final boolean multiValue)
+    {
+        return createAPropertyType(sessionToken, dataType, vocabularyPermId, "TYPE-" + System.currentTimeMillis(), multiValue);
+    }
+
+    protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
+            final VocabularyPermId vocabularyPermId, final String code, final boolean multiValue)
     {
         final PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -1508,7 +1513,7 @@ public class AbstractTest extends SystemTestCase
         {
             creation.setVocabularyId(vocabularyPermId);
         }
-        creation.setMultiValue(false);
+        creation.setMultiValue(multiValue);
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 

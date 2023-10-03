@@ -146,6 +146,12 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
+                public String getPropertyAsString(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
                 public String getProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
@@ -170,26 +176,52 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public String[] getControlledVocabularyProperty(String propertyName)
+                public String getControlledVocabularyProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
                 public void setControlledVocabularyProperty(String propertyName,
-                        String[] propertyValue)
+                        String propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public SamplePermId[] getSampleProperty(String propertyName)
+                public List<String> getMultiValueControlledVocabularyProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
+                public void setMultiValueControlledVocabularyProperty(String propertyName,
+                        List<String> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<SamplePermId> getMultiValueSampleProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueSampleProperty(String propertyName,
+                        List<SamplePermId> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public SamplePermId getSampleProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setSampleProperty(String propertyName, SamplePermId propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
@@ -335,6 +367,176 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
 
                 @Override
                 public void setJsonProperty(String propertyName, String propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<Long> getMultiValueIntegerProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueIntegerProperty(String propertyName,
+                        List<Long> propertyValues)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<String> getMultiValueVarcharProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueVarcharProperty(String propertyName,
+                        List<String> propertyValues)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<String> getMultiValueMultilineVarcharProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueMultilineVarcharProperty(String propertyName,
+                        List<String> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<Double> getMultiValueRealProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueRealProperty(String propertyName,
+                        List<Double> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<ZonedDateTime> getMultiValueTimestampProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueTimestampProperty(String propertyName,
+                        List<ZonedDateTime> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<Boolean> getMultiValueBooleanProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueBooleanProperty(String propertyName,
+                        List<Boolean> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<String> getMultiValueHyperlinkProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueHyperlinkProperty(String propertyName,
+                        List<String> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<String> getMultiValueXmlProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueXmlProperty(String propertyName,
+                        List<String> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<Long[]> getMultiValueIntegerArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueIntegerArrayProperty(String propertyName,
+                        List<Long[]> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<Double[]> getMultiValueRealArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueRealArrayProperty(String propertyName,
+                        List<Double[]> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<String[]> getMultiValueStringArrayProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueStringArrayProperty(String propertyName,
+                        List<String[]> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<ZonedDateTime[]> getMultiValueTimestampArrayProperty(
+                        String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueTimestampArrayProperty(String propertyName,
+                        List<ZonedDateTime[]> propertyValue)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public List<String> getMultiValueJsonProperty(String propertyName)
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void setMultiValueJsonProperty(String propertyName,
+                        List<String> propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }

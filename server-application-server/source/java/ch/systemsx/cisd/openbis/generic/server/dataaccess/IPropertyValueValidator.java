@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
+import java.io.Serializable;
+
 /**
  * A property value validator.
  * 
@@ -30,7 +32,7 @@ public interface IPropertyValueValidator
      * 
      * @return the validated value. It does not implicitly equal given <var>value</var>
      */
-    public String validatePropertyValue(final PropertyTypePE propertyType, final String value)
+    public Serializable validatePropertyValue(final PropertyTypePE propertyType, final Serializable value)
             throws UserFailureException;
 
 }

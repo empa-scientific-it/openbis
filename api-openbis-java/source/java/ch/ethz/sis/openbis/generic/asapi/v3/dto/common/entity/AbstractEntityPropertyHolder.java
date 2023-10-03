@@ -30,6 +30,8 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @JsonObject("as.dto.common.entity.AbstractEntityPropertyHolder")
 public abstract class AbstractEntityPropertyHolder implements Serializable, IPropertiesHolder
@@ -45,11 +47,17 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     public abstract void setProperties(Map<String, Serializable> properties);
 
     @Override
-    public Serializable getProperty(String propertyName) // String!!!
+    public String getPropertyAsString(String propertyName)
     {
         return getProperties() != null ?
                 PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) :
                 null;
+    }
+
+    @Override
+    public Serializable getProperty(String propertyName)
+    {
+        return getProperties() != null ? getProperties().get(propertyName) : null;
     }
 
     @Override
@@ -65,7 +73,7 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     @Override
     public Long getIntegerProperty(String propertyName)
     {
-        String propertyValue = (String) getProperty(propertyName);
+        String propertyValue = getPropertyAsString(propertyName);
         return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Long.parseLong(propertyValue);
@@ -121,7 +129,10 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     public ZonedDateTime getTimestampProperty(String propertyName)
     {
         String propertyValue = (String) getProperty(propertyName);
-        return propertyValue == null ? null : ZonedDateTime.parse(propertyValue);
+        return propertyValue == null ?
+                null :
+                ZonedDateTime.parse(propertyValue,
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X"));
     }
 
     @Override
@@ -129,7 +140,7 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     {
         String value = (propertyValue == null) ?
                 null :
-                propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX"));
+                propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z"));
         setProperty(propertyName, value);
     }
 
@@ -150,56 +161,29 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     }
 
     @Override
-    public String[] getControlledVocabularyProperty(String propertyName)
+    public String getControlledVocabularyProperty(String propertyName)
     {
-        if (getProperties() == null || getProperties().get(propertyName) == null)
-        {
-            return null;
-        }
-        Serializable value = getProperties().get(propertyName);
-        if (value.getClass().isArray())
-        {
-            Serializable[] values = (Serializable[]) value;
-            return Arrays.stream(values).map(x -> (String) x).toArray(String[]::new);
-        } else
-        {
-            String propertyValue = (String) value;
-            return new String[] { propertyValue };
-        }
+        return (String) getProperty(propertyName);
     }
 
     @Override
-    public void setControlledVocabularyProperty(String propertyName, String[] propertyValue)
+    public void setControlledVocabularyProperty(String propertyName, String propertyValue)
     {
         setProperty(propertyName, propertyValue);
     }
 
     @Override
-    public SamplePermId[] getSampleProperty(String propertyName)
+    public SamplePermId getSampleProperty(String propertyName)
     {
-        if (getProperties() == null || getProperties().get(propertyName) == null)
-        {
-            return null;
-        }
-        Serializable value = getProperties().get(propertyName);
-        if (value.getClass().isArray())
-        {
-            Serializable[] values = (Serializable[]) value;
-            return Arrays.stream(values).map(x -> new SamplePermId((String) x))
-                    .toArray(SamplePermId[]::new);
-        } else
-        {
-            String propertyValue = (String) value;
-            return new SamplePermId[] { new SamplePermId(propertyValue) };
-        }
+
+        String propertyValue = (String) getProperty(propertyName);
+        return new SamplePermId(propertyValue);
     }
 
     @Override
-    public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
+    public void setSampleProperty(String propertyName, SamplePermId propertyValue)
     {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue)
-                .map(ObjectPermId::getPermId)
-                .toArray(String[]::new));
+        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());
     }
 
     @Override
@@ -301,8 +285,9 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)
     {
         String[] value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
-                .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")))
-                        .toArray(String[]::new);
+                .map(dateTime -> dateTime.format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z")))
+                .toArray(String[]::new);
         setProperty(propertyName, value);
     }
 
@@ -316,5 +301,360 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     public void setJsonProperty(String propertyName, String propertyValue)
     {
         setProperty(propertyName, propertyValue);
+    }
+
+    private <T> List<T> getListOfValues(Serializable generalValue, Function<Serializable, T> fun)
+    {
+        if (generalValue != null)
+        {
+            if (generalValue.getClass().isArray())
+            {
+                List<T> result = new ArrayList<>();
+                for (Serializable singleValue : (Serializable[]) generalValue)
+                {
+                    result.add(fun.apply(singleValue));
+                }
+                return result;
+            } else
+            {
+                return List.of(fun.apply(generalValue));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Long> getMultiValueIntegerProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> Long.parseLong((String) x));
+    }
+
+    @Override
+    public void setMultiValueIntegerProperty(String propertyName, List<Long> propertyValues)
+    {
+        if (propertyValues != null)
+        {
+            setProperty(propertyName, propertyValues.toArray(Long[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<String> getMultiValueVarcharProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> (String) x);
+    }
+
+    @Override
+    public void setMultiValueVarcharProperty(String propertyName, List<String> propertyValues)
+    {
+        if (propertyValues != null)
+        {
+            setProperty(propertyName, propertyValues.toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    public List<String> getMultiValueControlledVocabularyProperty(String propertyName)
+    {
+        if (getProperties() == null || getProperties().get(propertyName) == null)
+        {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if (value.getClass().isArray())
+        {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> (String) x).collect(Collectors.toList());
+        } else
+        {
+            return List.of((String) value);
+        }
+    }
+
+    @Override
+    public void setMultiValueControlledVocabularyProperty(String propertyName,
+            List<String> propertyValues)
+    {
+        if (propertyValues != null)
+        {
+            setProperty(propertyName, propertyValues.toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<SamplePermId> getMultiValueSampleProperty(String propertyName)
+    {
+        if (getProperties() == null || getProperties().get(propertyName) == null)
+        {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if (value.getClass().isArray())
+        {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> new SamplePermId((String) x))
+                    .collect(Collectors.toList());
+        } else
+        {
+            String propertyValue = (String) value;
+            return List.of(new SamplePermId(propertyValue));
+        }
+    }
+
+    @Override
+    public void setMultiValueSampleProperty(String propertyName, List<SamplePermId> propertyValue)
+    {
+        setProperty(propertyName, propertyValue == null ? null : propertyValue.stream()
+                .map(ObjectPermId::getPermId)
+                .toArray(String[]::new));
+    }
+
+    @Override
+    public List<String> getMultiValueMultilineVarcharProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> (String) x);
+    }
+
+    @Override
+    public void setMultiValueMultilineVarcharProperty(String propertyName,
+            List<String> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<Double> getMultiValueRealProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> Double.parseDouble((String) x));
+    }
+
+    @Override
+    public void setMultiValueRealProperty(String propertyName, List<Double> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(Double[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<ZonedDateTime> getMultiValueTimestampProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> ZonedDateTime.parse((String)x,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")));
+    }
+
+    @Override
+    public void setMultiValueTimestampProperty(String propertyName,
+            List<ZonedDateTime> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.stream()
+                    .map(x -> x.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z")))
+                    .toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<Boolean> getMultiValueBooleanProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> Boolean.parseBoolean((String) x));
+    }
+
+    @Override
+    public void setMultiValueBooleanProperty(String propertyName, List<Boolean> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(Boolean[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<String> getMultiValueHyperlinkProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> (String) x);
+    }
+
+    @Override
+    public void setMultiValueHyperlinkProperty(String propertyName, List<String> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<String> getMultiValueXmlProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> (String) x);
+    }
+
+    @Override
+    public void setMultiValueXmlProperty(String propertyName, List<String> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<Long[]> getMultiValueIntegerArrayProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue,
+                (x) -> Arrays.stream((Serializable[]) x)
+                        .map(Serializable::toString)
+                        .map(Long::parseLong)
+                        .toArray(Long[]::new));
+    }
+
+    @Override
+    public void setMultiValueIntegerArrayProperty(String propertyName, List<Long[]> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(Long[][]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<Double[]> getMultiValueRealArrayProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue,
+                (x) -> Arrays.stream((Serializable[]) x)
+                        .map(Serializable::toString)
+                        .map(Double::parseDouble)
+                        .toArray(Double[]::new));
+    }
+
+    @Override
+    public void setMultiValueRealArrayProperty(String propertyName, List<Double[]> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(Double[][]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<String[]> getMultiValueStringArrayProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue,
+                (x) -> Arrays.stream((Serializable[]) x)
+                        .map(Serializable::toString)
+                        .toArray(String[]::new));
+    }
+
+    @Override
+    public void setMultiValueStringArrayProperty(String propertyName, List<String[]> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(String[][]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+    }
+
+    @Override
+    public List<ZonedDateTime[]> getMultiValueTimestampArrayProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue,
+                (x) -> Arrays.stream((Serializable[]) x)
+                        .map(Serializable::toString)
+                        .map(dateTime -> ZonedDateTime.parse(dateTime,
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")))
+                        .toArray(ZonedDateTime[]::new));
+    }
+
+    @Override
+    public void setMultiValueTimestampArrayProperty(String propertyName,
+            List<ZonedDateTime[]> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.stream()
+                    .map(dateTimeArray -> Arrays.stream(dateTimeArray)
+                            .map(x -> x.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z")))
+                            .toArray(String[]::new))
+                    .toArray(String[][]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
+        //        String[] value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
+        //                .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")))
+        //                .toArray(String[]::new);
+        //        setProperty(propertyName, value);
+    }
+
+    @Override
+    public List<String> getMultiValueJsonProperty(String propertyName)
+    {
+        Serializable propertyValue = getProperty(propertyName);
+        return getListOfValues(propertyValue, (x) -> (String) x);
+    }
+
+    @Override
+    public void setMultiValueJsonProperty(String propertyName, List<String> propertyValue)
+    {
+        if (propertyValue != null)
+        {
+            setProperty(propertyName, propertyValue.toArray(String[]::new));
+        } else
+        {
+            setProperty(propertyName, null);
+        }
     }
 }
