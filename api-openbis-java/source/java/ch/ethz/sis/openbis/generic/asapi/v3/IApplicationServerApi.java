@@ -75,6 +75,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
@@ -2261,6 +2264,6 @@ public interface IApplicationServerApi extends IRpcService
 
     public void executeImport(String sessionToken, IImportData importData, ImportOptions importOptions);
 
-//    public ExportResult executeExport(String sessionToken, ExportData exportData, ExportOptions exportOptions);
+    public ExportResult executeExport(String sessionToken, ExportData exportData, ExportOptions exportOptions);
 
 }

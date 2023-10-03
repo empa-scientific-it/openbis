@@ -146,6 +146,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentType
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.UpdateExperimentTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.UpdateExperimentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.CreateExternalDmsOperationResult;
@@ -1818,7 +1823,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         executeOperation(sessionToken, new ImportOperation(importData, importOptions));
     }
 
-    @Override public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
+    @Override
+    public ExportResult executeExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
+    {
+        final ExportOperationResult operationResult = executeOperation(sessionToken, new ExportOperation(exportData, exportOptions));
+        return operationResult.getExportResult();
+    }
+
+    @Override
+    public IApplicationServerApi createPersonalAccessTokenInvocationHandler(final IPersonalAccessTokenInvocation invocation)
     {
         return new ApplicationServerApiPersonalAccessTokenInvocationHandler(invocation);
     }
