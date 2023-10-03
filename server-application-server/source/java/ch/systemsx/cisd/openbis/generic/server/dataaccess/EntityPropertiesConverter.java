@@ -313,30 +313,43 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     private Serializable translateProperty(PropertyTypePE propertyType, Serializable value) {
+        final String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
         if(value == null || !value.getClass().equals(String.class)) {
-            //Nothing to translate
-            return value;
+            if(propertyType.isMultiValue() && ARRAY_TYPES.contains(propertyType.getType().getCode())) {
+                Serializable[] array = (Serializable[]) value;
+                List<Serializable> values = new ArrayList<>();
+                for (Serializable element : array)
+                {
+                    if (element.getClass().equals(String.class))
+                    {
+                        values.add(stripBracketsIfPresent((String) element).split(regex));
+                    } else
+                    {
+                        // value is properly serialized already, nothing to do here
+                        return value;
+                    }
+                }
+                return values.toArray(Serializable[]::new);
+            } else {
+                //Nothing to translate
+                return value;
+            }
         }
 
-        String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
         String propertyValue = value.toString().trim();
         if(propertyValue.isEmpty()) {
             return null;
         }
 
         if(propertyType.isMultiValue()) {
-            if(propertyValue.startsWith("[")) {
-                propertyValue = propertyValue.substring(1, propertyValue.length()-1).trim();
-            }
+            propertyValue = stripBracketsIfPresent(propertyValue);
             if(propertyValue.isEmpty()) {
                 return null;
             }
             if(ARRAY_TYPES.contains(propertyType.getType().getCode())) {
                 // Multi-value array properties
                 String multiArrayRegex = "\\],\\s*\\[";
-                if(propertyValue.startsWith("[")) {
-                    propertyValue = propertyValue.substring(1, propertyValue.length()-1).trim();
-                }
+                propertyValue = stripBracketsIfPresent(propertyValue);
                 return Arrays.stream(propertyValue.split(multiArrayRegex))
                         .map(String::trim)
                         .map(x -> Arrays.stream(x.split(regex))
@@ -350,9 +363,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         } else {
             if(ARRAY_TYPES.contains(propertyType.getType().getCode())) {
-                if(propertyValue.startsWith("[")) {
-                    propertyValue = propertyValue.substring(1, propertyValue.length()-1);
-                }
+                propertyValue = stripBracketsIfPresent(propertyValue);
                 return Arrays.stream(propertyValue.split(regex))
                                     .map(String::trim)
                                     .toArray(String[]::new);
@@ -360,6 +371,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 return propertyValue;
             }
         }
+    }
+
+    private String stripBracketsIfPresent(String value) {
+        if(value.startsWith("[")) {
+            value = value.substring(1, value.length()-1).trim();
+        }
+        return value;
     }
 
     private Serializable getPropertyValue(final IEntityProperty property) {
