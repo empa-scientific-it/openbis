@@ -102,10 +102,6 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         for (final S stpt : entityTypesPropertyTypes)
         {
             String value = initialProperties.get(stpt.getPropertyType().getCode());
-            if (stpt.getPropertyType().getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY)
-            {
-                result.add(createPropertyField(stpt, value, propertyTypes));
-            }
             result.add(createPropertyField(stpt, value, propertyTypes));
         }
         return result;
