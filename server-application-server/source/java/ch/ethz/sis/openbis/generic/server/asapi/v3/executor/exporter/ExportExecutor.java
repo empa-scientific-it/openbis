@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
@@ -38,7 +39,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
@@ -62,6 +66,7 @@ public class ExportExecutor implements IExportExecutor
             final ExportData exportData = operation.getExportData();
             final ExportOptions exportOptions = operation.getExportOptions();
             final Set<ExportFormat> formats = exportOptions.getFormats();
+            final String sessionToken = context.getSession().getSessionToken();
 
             if (formats.contains(ExportFormat.XLS))
             {
@@ -98,7 +103,16 @@ public class ExportExecutor implements IExportExecutor
                         exportFields.put("TYPE", selectedAttributes);
                     }
 
-                    final List<PropertyTypePermId> properties = selectedFields.getProperties();
+                    final Collection<IPropertyTypeId> properties = new ArrayList<>(selectedFields.getProperties());
+
+                    // Do similar for experiments and datasets
+                    final SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+                    searchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
+                    final SearchResult<SampleType> sampleTypeSearchResult =
+                            applicationServerApi.searchSampleTypes(sessionToken, searchCriteria, new SampleTypeFetchOptions());
+                    final List<SampleType> sampleTypes = sampleTypeSearchResult.getObjects();
+                    selectedFields.getProperties().get(0).
+
                     // TODO: how to map PropertyTypePermId to entity kind?
                     properties.stream().collect(Collectors.toMap(propertyTypePermId -> propertyTypePermId.))
                 } else
@@ -107,7 +121,7 @@ public class ExportExecutor implements IExportExecutor
                 }
 
                 // TODO: file prefix probably should be configurable
-                final XLSExport.ExportResult exportResult = XLSExport.export("export", applicationServerApi, context.getSession().getSessionToken(),
+                final XLSExport.ExportResult exportResult = XLSExport.export("export", applicationServerApi, sessionToken,
                         exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                         XLSExport.TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
             }
