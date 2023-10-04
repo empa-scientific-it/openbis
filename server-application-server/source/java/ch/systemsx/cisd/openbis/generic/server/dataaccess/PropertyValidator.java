@@ -20,8 +20,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
@@ -29,8 +28,6 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -312,7 +309,13 @@ public final class PropertyValidator implements IPropertyValueValidator
         public final Serializable validate(final Serializable val) throws UserFailureException
         {
             assert val != null : "Unspecified value.";
-            String value = (String) val;
+            String value;
+            if (val.getClass().equals(Material.class)) {
+                value = ((Material)val).getIdentifier();
+            } else {
+                value = val.toString();
+            }
+
 
             if (StringUtils.isBlank(value))
             {
