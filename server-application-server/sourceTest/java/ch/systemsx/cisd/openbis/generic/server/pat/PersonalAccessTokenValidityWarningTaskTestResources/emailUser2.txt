@@ -1,2 +1,2 @@
 The following personal access tokens are going to expire soon:
-- hash: token-4, session name: session-C, valid from: 2022-01-01 00:00:00, valid to: 2022-01-02 00:00:00, expires in: 24h
+- session name: session-C, valid from: 2022-01-01 00:00:00, valid to: 2022-01-02 00:00:00, expires in: 24h

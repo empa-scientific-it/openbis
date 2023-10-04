@@ -1,3 +1,3 @@
 The following personal access tokens are going to expire soon:
-- hash: token-2, session name: session-A, valid from: 2022-01-01 00:00:00, valid to: 2022-01-02 00:00:00, expires in: 24h
-- hash: token-2b, session name: session-A, valid from: 2022-01-01 01:00:00, valid to: 2022-01-02 01:00:00, expires in: 25h
+- session name: session-A, valid from: 2022-01-01 00:00:00, valid to: 2022-01-02 00:00:00, expires in: 24h
+- session name: session-A, valid from: 2022-01-01 01:00:00, valid to: 2022-01-02 01:00:00, expires in: 25h
