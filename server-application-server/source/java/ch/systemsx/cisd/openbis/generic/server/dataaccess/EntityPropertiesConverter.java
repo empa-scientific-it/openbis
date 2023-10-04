@@ -336,12 +336,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
 
-        String propertyValue = value.toString().trim();
-        if(propertyValue.isEmpty()) {
+        String propertyValue = value.toString();
+        if(propertyValue.trim().isEmpty()) {
             return null;
         }
 
         if(propertyType.isMultiValue()) {
+            propertyValue = propertyValue.trim();
             propertyValue = stripBracketsIfPresent(propertyValue);
             if(propertyValue.isEmpty()) {
                 return null;
@@ -363,6 +364,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         } else {
             if(ARRAY_TYPES.contains(propertyType.getType().getCode())) {
+                propertyValue = propertyValue.trim();
                 propertyValue = stripBracketsIfPresent(propertyValue);
                 return Arrays.stream(propertyValue.split(regex))
                                     .map(String::trim)
