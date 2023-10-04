@@ -34,7 +34,7 @@ def export(context, parameters):
                         "<SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY_TYPE | SPACE | PROJECT>": [
                           {"type": "ATTRIBUTE", "id": "<attribute name>"},
                           ...
-                        ] - attribute for each type and entity without types to be exported,
+                        ] - attributes for each type and entity without types to be exported,
                             if the list is empty no attributes will be exported for the given one
                         ...
                     },

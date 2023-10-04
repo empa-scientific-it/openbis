@@ -70,6 +70,11 @@ public class XLSExport
 
     private static final String TYPE_KEY = "TYPE";
 
+    private XLSExport()
+    {
+        throw new UnsupportedOperationException("Instantiation of a utility class.");
+    }
+
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
