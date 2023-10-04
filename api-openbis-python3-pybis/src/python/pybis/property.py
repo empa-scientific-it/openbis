@@ -14,10 +14,6 @@
 #
 from tabulate import tabulate
 
-from pybis.utils import (
-    check_datatype,
-)
-
 
 class PropertyHolder:
     def __init__(self, openbis_obj, type=None):
@@ -163,8 +159,9 @@ class PropertyHolder:
         elif data_type in (
             "INTEGER", "BOOLEAN", "VARCHAR", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING",
                 "ARRAY_TIMESTAMP"):
-            if not check_datatype(data_type, value):
-                raise ValueError(f"Value must be of type {data_type}")
+            pass
+            # if not check_datatype(data_type, value):
+            #     raise ValueError(f"Value must be of type {data_type}")
         self.__dict__[name] = value
 
     def __setitem__(self, key, value):

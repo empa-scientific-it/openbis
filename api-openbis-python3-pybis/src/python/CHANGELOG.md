@@ -1,3 +1,10 @@
+## Changes with pybis-1.36.3
+
+- Refactored metaData and multiValue properties to be backwards-compatible.
+- Refactored get_children/get_parents methods
+- Refactored property formatting functionality 
+
+
 ## Changes with pybis-1.36.2
 
 - Refactoring of the set_token method.

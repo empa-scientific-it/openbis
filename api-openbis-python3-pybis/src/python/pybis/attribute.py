@@ -745,6 +745,8 @@ class AttrHolder:
         """get the current parents and return them as a list (Things/DataFrame)
         or return empty list
         """
+        if self.parents is None or self.parents == []:
+            return self.parents
         return getattr(self._openbis, "get_" + self._entity.lower())(
             self.parents, **kwargs
         )
@@ -791,6 +793,8 @@ class AttrHolder:
         """get the current children and return them as a list (Things/DataFrame)
         or return empty list
         """
+        if self.children is None or self.children == []:
+            return self.children
         return getattr(self._openbis, "get_" + self._entity.lower())(
             self.children, **kwargs
         )

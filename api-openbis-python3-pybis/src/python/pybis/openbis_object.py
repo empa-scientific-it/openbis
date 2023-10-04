@@ -71,8 +71,26 @@ class OpenBisObject:
         # put the properties in the self.p namespace (without checking them)
         if "properties" in data:
             for key, value in data["properties"].items():
-                if self.p.type:
-                    data_type = self.p._property_names[key.lower()]['dataType']
+                property_type = self.p._property_names[key.lower()]
+                data_type = property_type['dataType']
+                if "multiValue" in property_type:
+                    if property_type['multiValue'] is True:
+                        if type(value) is not list:
+                            value = [value]
+                        if data_type in (
+                        "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                            value = [self.formatter.to_array(data_type, x) for x in value]
+                        else:
+                            value = self.formatter.to_array(data_type, value)
+                    else:
+                        if type(value) is list and data_type not in (
+                        "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                            raise ValueError(
+                                f'Property type {property_type} is not a multi-value property!')
+                        if data_type in (
+                        "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                            value = self.formatter.to_array(data_type, value)
+                else:
                     if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
                         value = self.formatter.to_array(data_type, value)
                 self.p.__dict__[key.lower()] = value
@@ -208,6 +226,16 @@ class OpenBisObject:
         # NEW
         if self.is_new:
             request = self._new_attrs()
+
+            version = self.openbis.get_server_information().openbis_version
+            if version is not None:
+                if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
+                    if request['method'] == 'createPropertyTypes' and 'multiValue' in request['params'][1][0]:
+                        del request['params'][1][0]['multiValue']
+                    if (request['method'] in ('createSampleTypes', 'createExperimentTypes', 'createDataSetTypes')
+                            and 'metaData' in request['params'][1][0]):
+                        del request['params'][1][0]['metaData']
+
             if props:
                 request["params"][1][0]["properties"] = props
 
@@ -222,6 +250,13 @@ class OpenBisObject:
         # UPDATE
         else:
             request = self._up_attrs(method_name=None, permId=self._permId)
+
+            version = self.openbis.get_server_information().openbis_version
+            if version is not None:
+                if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
+                    if (request['method'] in ('updateSampleTypes', 'updateExperimentTypes', 'updateDataSetTypes')
+                            and 'metaData' in request['params'][1][0]):
+                        del request['params'][1][0]['metaData']
 
             if props:
                 request["params"][1][0]["properties"] = props
