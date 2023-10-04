@@ -16,6 +16,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             }
             this.properties[propertyName] = propertyValue;
         };
+        prototype.getPropertyAsString = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
 
         prototype.getIntegerProperty = function(propertyName) {
             return this.getProperty(propertyName);
