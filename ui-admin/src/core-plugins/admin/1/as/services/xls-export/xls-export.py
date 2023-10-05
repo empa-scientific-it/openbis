@@ -39,7 +39,7 @@ def export(context, parameters):
                         ...
                     },
                     "SAMPLE": {
-                        "<typePermID>": [
+                        "<sampleTypePermID>": [
                           {"type": "PROPERTY", "id": "<property code>"},
                           {"type": "ATTRIBUTE", "id": "<attribute name>"},
                           ...
@@ -48,7 +48,7 @@ def export(context, parameters):
                             for the sample type
                     },
                     "EXPERIMENT": {
-                        "<typePermID>": [
+                        "<experimentTypePermID>": [
                             {"type": "PROPERTY", "id": "<property code>"},
                             {"type": "ATTRIBUTE", "id": "<attribute name>"},
                             ...
@@ -57,7 +57,7 @@ def export(context, parameters):
                             for the experiment type
                     },
                     "DATASET": {
-                        "<typePermID>": [
+                        "<dataSetTypePermID>": [
                           {"type": "PROPERTY", "id": "<property code>"},
                           {"type": "ATTRIBUTE", "id": "<attribute name>"} ,
                           ...
