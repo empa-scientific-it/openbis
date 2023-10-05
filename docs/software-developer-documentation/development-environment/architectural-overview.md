@@ -1,7 +1,6 @@
-Architectural Overview
-======================
+# Architectural Overview
 
-# Repository organization
+## Repository organization
 
 The repository contains these kind of modules used to build the openBIS distributable:
 - api-*: API Facades

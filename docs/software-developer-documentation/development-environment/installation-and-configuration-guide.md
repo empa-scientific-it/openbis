@@ -1,9 +1,7 @@
-Installation And Configuration Guide
-====================================
+# Installation And Configuration Guide
 
-# Building openBIS
 
-## Step By Step:
+## Building openBIS
 
 ```
 git clone https://sissource.ethz.ch/sispub/openbis.git
@@ -118,22 +116,22 @@ Last, set the Copyright Profile under the Copyright section as the image below i
 
 ## Typical Errors
 
-# IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
+### IntelliJ can't find package com.sun.*, but I can compile the project using the command line!
 
 Turn off "File | Settings | Build, Execution, Deployment | Compiler | Java Compiler | Use --release
 option for cross-compilation".
 
-# IntelliJ can't find a particular method
+### IntelliJ can't find a particular method
 
 Code compatiblity 1.8 is set by default to work well with our javadoc tools but it can be set to 17 on IntelliJ. See image below.
 !["IntelliJ Configuration 1"](../../readme/intellij-config-1.png "IntelliJ Configuration 1")
 
-# Test seem to run through Gradle and fail
+### Test seem to run through Gradle and fail
 
 They need to be set to run using IntelliJ.
 !["IntelliJ Configuration 2"](../../readme/intellij-config-2.png "IntelliJ Configuration 2")
 
-# Test seem to run through intelliJ but throw a package not open error
+### Test seem to run through intelliJ but throw a package not open error
 
 The project does not uses modules yet. Add '--add-opens' statements manually when launching the tests as shown below.
 !["IntelliJ Configuration 3"](../../readme/intellij-config-3.png "IntelliJ Configuration 3")
