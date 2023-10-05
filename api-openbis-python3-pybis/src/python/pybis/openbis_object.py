@@ -233,7 +233,9 @@ class OpenBisObject:
                 if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
                     if request['method'] == 'createPropertyTypes' and 'multiValue' in request['params'][1][0]:
                         del request['params'][1][0]['multiValue']
-                    if (request['method'] in ('createSampleTypes', 'createExperimentTypes', 'createDataSetTypes')
+                    if (request['method'] in ('createSampleTypes', 'createSamples',
+                                              'createExperimentTypes', 'createExperiments',
+                                              'createDataSetTypes', 'createDataSets')
                             and 'metaData' in request['params'][1][0]):
                         del request['params'][1][0]['metaData']
 
@@ -255,7 +257,9 @@ class OpenBisObject:
             version = self.openbis.get_server_information().openbis_version
             if version is not None:
                 if 'SNAPSHOT' not in version and not version.startswith('7') and 'UNKNOWN' not in version:
-                    if (request['method'] in ('updateSampleTypes', 'updateExperimentTypes', 'updateDataSetTypes')
+                    if (request['method'] in ('updateSampleTypes', 'updateSamples',
+                                              'updateExperimentTypes', 'updateExperiments',
+                                              'updateDataSetTypes', 'updateDataSets')
                             and 'metaData' in request['params'][1][0]):
                         del request['params'][1][0]['metaData']
 
@@ -327,11 +331,14 @@ class Transaction:
 
         import copy
 
+        version = None
         for entity_type in self.entities:
             for mode in self.entities[entity_type]:
 
                 request_coll = []
                 for entity in self.entities[entity_type][mode]:
+                    if version is None:
+                        version = entity.openbis.get_server_information().openbis_version
                     if mode == "delete":
                         delete_options = get_type_for_entity(entity_type, "delete")
                         delete_options["reason"] = self.reason
@@ -373,6 +380,22 @@ class Transaction:
 
                     else:
                         raise ValueError(f"Unkown mode: {mode}")
+
+                    if version is not None:
+                        if 'SNAPSHOT' not in version and not version.startswith(
+                                '7') and 'UNKNOWN' not in version:
+                            if request['method'] == 'createPropertyTypes' and 'multiValue' in \
+                                    request['params'][1][0]:
+                                del request['params'][1][0]['multiValue']
+                            if (request['method'] in ('createSampleTypes', 'createSamples',
+                                                      'createExperimentTypes', 'createExperiments',
+                                                      'createDataSetTypes', 'createDataSets',
+                                                      'updateSampleTypes', 'updateSamples',
+                                                      'updateExperimentTypes', 'updateExperiments',
+                                                      'updateDataSetTypes', 'updateDataSets'
+                                                      )
+                                    and 'metaData' in request['params'][1][0]):
+                                del request['params'][1][0]['metaData']
 
                     request_coll.append(request)
 
