@@ -128,14 +128,11 @@ public class AbstractGenerator
 
     public static void addProperties(DtoGenerator gen)
     {
-        gen.addPluralFetchedField("Map<String, String>", Map.class.getName(), "properties",
-                        "Properties", PropertyFetchOptions.class)
-                .withInterface(IPropertiesHolder.class);
         gen.addClassForImport(Map.class);
         gen.addPluralFetchedField("Map<String, Material>", Map.class.getName(),
                 "materialProperties", "Material Properties",
                 MaterialFetchOptions.class).withInterface(IMaterialPropertiesHolder.class);
-        gen.addPluralFetchedField("Map<String, Sample>", Map.class.getName(), "sampleProperties",
+        gen.addPluralFetchedField("Map<String, Sample[]>", Map.class.getName(), "sampleProperties",
                 "Sample Properties",
                 SampleFetchOptions.class);
         gen.addClassForImport(Map.class);
@@ -143,21 +140,6 @@ public class AbstractGenerator
         gen.addClassForImport(Material.class);
         gen.addClassForImport(Sample.class);
 
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperties() != null ? getProperties().get(propertyName) : null;\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        if (properties == null)\n"
-                + "        {\n"
-                + "            properties = new HashMap<String, String>();\n"
-                + "        }\n"
-                + "        properties.put(propertyName, propertyValue);\n"
-                + "    }");
 
         gen.addAdditionalMethod("@Override\n"
                 + "    public Material getMaterialProperty(String propertyName)\n"
@@ -175,189 +157,7 @@ public class AbstractGenerator
                 + "        materialProperties.put(propertyName, propertyValue);\n"
                 + "    }");
 
-        gen.addClassForImport(Objects.class);
-        gen.addClassForImport(ZonedDateTime.class);
-        gen.addClassForImport(DateTimeFormatter.class);
-        gen.addClassForImport(Arrays.class);
 
-        // Integer
-        gen.addAdditionalMethod(
-                addPlaceholderTypedGetProperty("Long", "getIntegerProperty", "",
-                        "Long.parseLong(propertyValue)"));
-        gen.addAdditionalMethod(
-                addPlaceholderTypedSetProperty("Long", "setIntegerProperty", "",
-                        "Objects.toString(propertyValue, null)"));
-
-        // Varchar
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getVarcharProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperty(propertyName);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setVarcharProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue);\n"
-                + "    }");
-
-        // Multiline Varchar
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getMultilineVarcharProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperty(propertyName);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setMultilineVarcharProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue);\n"
-                + "    }");
-
-        // Real
-        gen.addAdditionalMethod(
-                addPlaceholderTypedGetProperty("Double", "getRealProperty", "",
-                        "Double.parseDouble(propertyValue)"));
-        gen.addAdditionalMethod(
-                addPlaceholderTypedSetProperty("Double", "setRealProperty", "",
-                        "Objects.toString(propertyValue, null)"));
-
-        // Timestamp
-        gen.addAdditionalMethod("@Override\n"
-                + "    public ZonedDateTime getTimestampProperty(String propertyName)\n"
-                + "    {\n"
-                + "        String propertyValue = getProperty(propertyName);\n"
-                + "        return propertyValue == null ? null : ZonedDateTime.parse(getProperty(propertyName));\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)\n"
-                + "    {\n"
-                + "        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ssX\"));\n"
-                + "        setProperty(propertyName, value);\n"
-                + "    }");
-
-
-        // Boolean
-        gen.addAdditionalMethod(
-                addPlaceholderTypedGetProperty("Boolean", "getBooleanProperty", "",
-                        "Boolean.parseBoolean(propertyValue)"));
-        gen.addAdditionalMethod(
-                addPlaceholderTypedSetProperty("Boolean", "setBooleanProperty", "",
-                        "Objects.toString(propertyValue, null)"));
-
-
-        // Controlled Vocabulary
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getControlledVocabularyProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperty(propertyName);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setControlledVocabularyProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue);\n"
-                + "    }");
-
-        // Sample
-        gen.addAdditionalMethod("@Override\n"
-                + "    public SamplePermId getSampleProperty(String propertyName)\n"
-                + "    {\n"
-                + "        String propertyValue = getProperty(propertyName);\n"
-                + "        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : new SamplePermId(propertyValue);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setSampleProperty(String propertyName, SamplePermId propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());\n"
-                + "    }");
-
-        // Hyperlink
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getHyperlinkProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperty(propertyName);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setHyperlinkProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue);\n"
-                + "    }");
-
-        // Xml
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getXmlProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperty(propertyName);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setXmlProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue);\n"
-                + "    }");
-
-        // Integer array
-        gen.addAdditionalMethod(
-                addPlaceholderTypedGetProperty("Long[]", "getIntegerArrayProperty", "",
-                        "Arrays.stream(propertyValue.split(\",\")).map(String::trim).map(Long::parseLong).toArray(Long[]::new)"));
-        gen.addAdditionalMethod(
-                addPlaceholderTypedSetProperty("Long[]", "setIntegerArrayProperty", "",
-                        "propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + \", \" + b).get()"));
-
-        // Real array
-        gen.addAdditionalMethod(
-                addPlaceholderTypedGetProperty("Double[]", "getRealArrayProperty", "",
-                        "Arrays.stream(propertyValue.split(\",\")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new)"));
-        gen.addAdditionalMethod(
-                addPlaceholderTypedSetProperty("Double[]", "setRealArrayProperty", "",
-                        "propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + \", \" + b).get()"));
-
-        // String array
-        gen.addAdditionalMethod(
-                addPlaceholderTypedGetProperty("String[]", "getStringArrayProperty", "",
-                        "Arrays.stream(propertyValue.split(\",\")).map(String::trim).toArray(String[]::new)"));
-        gen.addAdditionalMethod(
-                addPlaceholderTypedSetProperty("String[]", "setStringArrayProperty", "",
-                        "propertyValue == null ? null : Arrays.stream(propertyValue).reduce((a,b) -> a + \", \" + b).get()"));
-
-
-        // Timestamp array
-        gen.addAdditionalMethod("@Override\n"
-                + "    public ZonedDateTime[] getTimestampArrayProperty(String propertyName)\n"
-                + "    {\n"
-                + "        String propertyValue = getProperty(propertyName);\n"
-                + "        return propertyValue == null ? null : Arrays.stream(propertyValue.split(\",\"))\n"
-                + "             .map(String::trim)\n"
-                + "             .map(dateTime -> ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss X\")))\n"
-                + "             .toArray(ZonedDateTime[]::new);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)\n"
-                + "    {\n"
-                + "        String value = (propertyValue == null) ? null : Arrays.stream(propertyValue)\n"
-                + "                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ssX\")))\n"
-                + "                 .reduce((a,b) -> a + \", \" + b)\n"
-                + "                 .get();\n"
-                + "        setProperty(propertyName, value);\n"
-                + "    }");
-
-        // Json
-        gen.addAdditionalMethod("@Override\n"
-                + "    public String getJsonProperty(String propertyName)\n"
-                + "    {\n"
-                + "        return getProperty(propertyName);\n"
-                + "    }");
-
-        gen.addAdditionalMethod("@Override\n"
-                + "    public void setJsonProperty(String propertyName, String propertyValue)\n"
-                + "    {\n"
-                + "        setProperty(propertyName, propertyValue);\n"
-                + "    }");
     }
 
     private static String addPlaceholderTypedGetProperty(String type, String methodName,

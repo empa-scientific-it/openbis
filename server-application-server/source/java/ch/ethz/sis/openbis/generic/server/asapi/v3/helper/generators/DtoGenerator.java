@@ -60,9 +60,13 @@ public class DtoGenerator
 
     private String toStringContent;
 
+    private String extendsClass;
+
     private Set<String> implementedInterfaces;
 
     private boolean deprecated;
+
+    private DTOField fetchOptionsField;
 
     public DtoGenerator(String subPackage, String className, Class<?> fetchOptionsClass)
     {
@@ -80,13 +84,18 @@ public class DtoGenerator
         addClassForImport(NotFetchedException.class);
 
         this.fetchOptionsClass = fetchOptionsClass;
-        addSimpleField(fetchOptionsClass, "fetchOptions");
+        fetchOptionsField = addSimpleField(fetchOptionsClass, "fetchOptions");
     }
 
     @Override
     public String toString()
     {
         return className;
+    }
+
+    public DTOField getFetchOptionsField()
+    {
+        return fetchOptionsField;
     }
 
     private DTOField create(String fieldName, Class<?> fieldClass, String description,
@@ -126,6 +135,11 @@ public class DtoGenerator
         Class<?> interfaceClass;
 
         boolean deprecated;
+
+        String customSetter;
+        String customGetter;
+
+        boolean isInherited = false;
 
         private DTOField(String fieldName, Class<?> fieldClass, String description,
                 Class<?> fetchOptions, String fetchOptionsFieldName,
@@ -186,6 +200,14 @@ public class DtoGenerator
         {
             addImplementedInterfaceGeneric(i);
             interfaceClass = i;
+        }
+
+        void withCustomGetter(String getter) {
+            customGetter = getter;
+        }
+
+        void withCustomSetter(String setter) {
+            customSetter = setter;
         }
 
         DTOField deprecated()
@@ -300,6 +322,10 @@ public class DtoGenerator
         additionalImports.add(i.getName());
     }
 
+    public void addExtendsClass(String className) {
+        this.extendsClass = className;
+    }
+
     public DtoGenerator deprecated()
     {
         deprecated = true;
@@ -378,7 +404,7 @@ public class DtoGenerator
         printPackage(subPackage);
         printImports();
 
-        printClassHeader(className, subPackage, null, implementedInterfaces);
+        printClassHeader(className, subPackage, extendsClass, implementedInterfaces);
         startBlock();
         printFields();
 
@@ -403,7 +429,7 @@ public class DtoGenerator
     public void generateFetchOptions() throws FileNotFoundException
     {
         generateFetchOptions(
-                "/home/alaskowski/openbis/api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
+                "../api-openbis-java/source/java/ch/ethz/sis/openbis/generic/asapi/v3/dto/" + subPackage.replaceAll(
                         "\\.", "/")
                         + "/fetchoptions/" + className + "FetchOptions.java");
     }
@@ -411,7 +437,7 @@ public class DtoGenerator
     public void generateFetchOptionsJS() throws FileNotFoundException
     {
         generateFetchOptionsJS(
-                "/home/alaskowski/openbis/test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
+                "../test-api-openbis-javascript/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
                         + "FetchOptions.js");
     }
 
@@ -505,15 +531,28 @@ public class DtoGenerator
 
     private void printAccessors(DTOField field)
     {
-        if (field.fetchOptions != null)
+
+        if(field.customGetter != null)
         {
-            printGetterWithFetchOptions(field);
+            print(field.customGetter);
         } else
         {
-            printBasicGetter(field);
+            if (field.fetchOptions != null)
+            {
+                printGetterWithFetchOptions(field);
+            } else
+            {
+                printBasicGetter(field);
+            }
         }
 
-        printBasicSetter(field);
+        if(field.customSetter != null)
+        {
+            print(field.customSetter);
+        } else
+        {
+            printBasicSetter(field);
+        }
     }
 
     private void printAccessorsJS(DTOField field)
@@ -824,7 +863,10 @@ public class DtoGenerator
         print("");
         for (DTOField field : fields)
         {
-            printField(field);
+            if(!field.isInherited)
+            {
+                printField(field);
+            }
         }
     }
 

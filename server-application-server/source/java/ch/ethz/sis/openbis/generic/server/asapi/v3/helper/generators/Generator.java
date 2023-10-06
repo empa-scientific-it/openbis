@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntity;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.Relationship;
@@ -154,6 +155,7 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("sample", "Sample", SampleFetchOptions.class);
 
+        gen.addExtendsClass("AbstractEntity<Sample>");
         addPermId(gen, SamplePermId.class);
         gen.addSimpleField(SampleIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
@@ -164,6 +166,20 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(boolean.class, "frozenForParents");
         gen.addSimpleField(boolean.class, "frozenForDataSets");
 
+        DTOField fetchOptionField = gen.getFetchOptionsField();
+        fetchOptionField.isInherited = true;
+        fetchOptionField.withCustomSetter("public void setFetchOptions(SampleFetchOptions fetchOptions)\n" +
+                "    {\n" +
+                "        super.setFetchOptions(fetchOptions);\n" +
+                "    }\n");
+
+        fetchOptionField.withCustomGetter("@JsonIgnore\n" +
+                "    @Override\n" +
+                "    public SampleFetchOptions getFetchOptions()\n" +
+                "    {\n" +
+                "        return (SampleFetchOptions) super.getFetchOptions();\n" +
+                "    }\n");
+
         addRegistrationDate(gen);
         addModificationDate(gen);
 
@@ -173,6 +189,7 @@ public class Generator extends AbstractGenerator
         addExperiment(gen);
         addProperties(gen);
 
+        gen.addClassForImport(AbstractEntity.class);
         gen.addClassForImport(ISampleId.class);
         gen.addClassForImport(Relationship.class);
 
@@ -300,10 +317,26 @@ public class Generator extends AbstractGenerator
     private static DtoGenerator createExperimentGenerator()
     {
         DtoGenerator gen = new DtoGenerator("experiment", "Experiment", ExperimentFetchOptions.class);
+        gen.addExtendsClass("AbstractEntity<Experiment>");
 
         addPermId(gen, ExperimentPermId.class);
         gen.addSimpleField(ExperimentIdentifier.class, "identifier").withInterface(IIdentifierHolder.class);
         addCode(gen);
+
+        DTOField fetchOptionField = gen.getFetchOptionsField();
+        fetchOptionField.isInherited = true;
+        fetchOptionField.withCustomSetter("public void setFetchOptions(ExperimentFetchOptions fetchOptions)\n" +
+                "    {\n" +
+                "        super.setFetchOptions(fetchOptions);\n" +
+                "    }\n");
+
+        fetchOptionField.withCustomGetter("@JsonIgnore\n" +
+                "    @Override\n" +
+                "    public ExperimentFetchOptions getFetchOptions()\n" +
+                "    {\n" +
+                "        return (ExperimentFetchOptions) super.getFetchOptions();\n" +
+                "    }\n");
+        gen.addClassForImport(AbstractEntity.class);
 
         gen.addSimpleField(boolean.class, "frozen");
         gen.addSimpleField(boolean.class, "frozenForDataSets");
@@ -370,8 +403,24 @@ public class Generator extends AbstractGenerator
     {
         DtoGenerator gen = new DtoGenerator("dataset", "DataSet", DataSetFetchOptions.class);
 
+        gen.addExtendsClass("AbstractEntity<DataSet>");
         addPermId(gen, DataSetPermId.class);
         addCode(gen);
+
+        DTOField fetchOptionField = gen.getFetchOptionsField();
+        fetchOptionField.isInherited = true;
+        fetchOptionField.withCustomSetter("public void setFetchOptions(DataSetFetchOptions fetchOptions)\n" +
+                "    {\n" +
+                "        super.setFetchOptions(fetchOptions);\n" +
+                "    }\n");
+
+        fetchOptionField.withCustomGetter("@JsonIgnore\n" +
+                "    @Override\n" +
+                "    public DataSetFetchOptions getFetchOptions()\n" +
+                "    {\n" +
+                "        return (DataSetFetchOptions) super.getFetchOptions();\n" +
+                "    }\n");
+        gen.addClassForImport(AbstractEntity.class);
 
         gen.addSimpleField(boolean.class, "frozen");
         gen.addSimpleField(boolean.class, "frozenForChildren");
