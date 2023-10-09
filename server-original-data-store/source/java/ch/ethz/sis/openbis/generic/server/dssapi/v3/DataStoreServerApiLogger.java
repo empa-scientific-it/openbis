@@ -20,6 +20,8 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.UploadedDataSetCreation;
@@ -87,6 +89,14 @@ public class DataStoreServerApiLogger extends AbstractServerLogger implements
     public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
     {
         logAccess(sessionToken, "create-data-sets", "DATA_SETS(%s)", newDataSets);
+        return null;
+    }
+
+    @Override
+    public Object executeCustomDSSService(String sessionToken, ICustomDSSServiceId serviceId,
+            CustomDSSServiceExecutionOptions options)
+    {
+        logAccess(sessionToken, "execute-custom-dss-service", "SERVICE_ID(%s) SERVICE_OPTIONS(%s)", serviceId, options);
         return null;
     }
 }
