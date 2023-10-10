@@ -859,7 +859,6 @@ mail.smtp.password = <can be empty>
 |configuration-file-path|Optional configuration file defining groups.|
 |count-all-entities|If `true` shows the number of all entities (collections, objects, data sets) in an additional column. Default: `false`|
 
-
 **Example**:
 
 ```
@@ -868,8 +867,38 @@ interval = 7 days
 email-addresses = ab@c.de, a@bc.de
 ```
 
+### PersonalAccessTokenValidityWarningTask
 
-  
+**Environment**: AS
+
+**Relevancy:** Rare
+
+**Automatic Configuration**:
+This task is automatically configured, added and run with a default interval of 1 day. If needed, the default interval can be changed. In order to do
+that please configure the task just like any other maintenance task in `core-plugins` folder.
+
+**Description**: Sends out warning emails about soon to be expired PATs (Personal Access Tokens). Emails are sent to PATs owners. Each email contains
+a list of PATs that have the remaining validity period shorter than the `personal-access-tokens-validity-warning-period` defined in
+AS `service.properties`. The task does not send any information about the already expired PATs. It removes them.
+
+For more details on Personal Access Tokens please see [Personal Access Tokens](../../software-developer-documentation/apis/personal-access-tokens.md).
+
+In order to be able to send an e-mail the following properties in
+`service.properties` have to be defined:
+
+```
+mail.from = openbis@<host>
+mail.smtp.host = <SMTP host>
+mail.smtp.user = <can be empty>
+mail.smtp.password = <can be empty>
+```
+
+**Example**:
+
+```
+class = ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenValidityWarningTask
+interval = 7 d
+```
 
 ## Consistency Repair and Manual Migrations
 
