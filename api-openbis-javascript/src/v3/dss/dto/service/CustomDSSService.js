@@ -38,7 +38,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 	}, {
 		fetchOptions : "CustomDSSServiceFetchOptions",
-		code: "CustomDSSServiceCode"
+		code: "CustomDssServiceCode"
 	});
 	return CustomDSSService;
 })
