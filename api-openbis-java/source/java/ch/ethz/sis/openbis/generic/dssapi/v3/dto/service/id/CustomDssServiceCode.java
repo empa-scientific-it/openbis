@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * Custom DSS service code. This is the name of an DS core plugin of type 'services'.
  *
  */
-@JsonObject("as.dto.service.id.CustomDssServiceCode")
+@JsonObject("dss.dto.service.id.CustomDssServiceCode")
 public class CustomDssServiceCode extends ObjectPermId implements ICustomDSSServiceId
 {
     private static final long serialVersionUID = 1L;

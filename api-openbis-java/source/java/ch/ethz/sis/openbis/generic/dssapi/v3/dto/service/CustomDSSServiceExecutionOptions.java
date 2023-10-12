@@ -20,7 +20,7 @@ package ch.ethz.sis.openbis.generic.dssapi.v3.dto.service;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.service.CustomDSSServiceExecutionOptions")
+@JsonObject("dss.dto.service.CustomDSSServiceExecutionOptions")
 public class CustomDSSServiceExecutionOptions extends AbstractExecutionOptionsWithParameters<CustomDSSServiceExecutionOptions, Object>
 {
     private static final long serialVersionUID = 1L;

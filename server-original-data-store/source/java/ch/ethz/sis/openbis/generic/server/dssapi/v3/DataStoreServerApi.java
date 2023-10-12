@@ -32,12 +32,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperation;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.IExecuteCustomDSSServiceExecutor;
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,6 +108,9 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
     @Autowired
     private ICreateUploadedDataSetExecutor createUploadedDataSetExecutor;
+
+    @Autowired
+    private IExecuteCustomDSSServiceExecutor executor;
 
     /**
      * The designated constructor.
@@ -438,15 +438,9 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
     public Object executeCustomDSSService(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options)
     {
-        ExecuteCustomDSSServiceOperationResult
-                result = executeOperation(sessionToken, new ExecuteCustomDSSServiceOperation(serviceId, options));
-        return result.getResult();
-    }
+        getOpenBISService().checkSession(sessionToken);
 
-    @SuppressWarnings("unchecked")
-    private <T extends IOperationResult> T executeOperation(String sessionToken, IOperation operation)
-    {
-        return (T) new ExecuteCustomDSSServiceOperationResult("DummyResult");
+        return executor.execute(sessionToken, serviceId, options);
     }
 
     private void injectDataStoreIdAndCodesIfNeeded(List<FullDataSetCreation> newDataSets)

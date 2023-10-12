@@ -21,7 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSService;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.service.fetchoptions.CustomDSSServiceSortOptions")
+@JsonObject("dss.dto.service.fetchoptions.CustomDSSServiceSortOptions")
 public class CustomDSSServiceSortOptions extends SortOptions<CustomDSSService>
 {
     private static final long serialVersionUID = 1L;

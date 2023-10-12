@@ -17,10 +17,10 @@
 
 package ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("as.dto.service.execute.ExecuteCustomDSSServiceOperationResult")
+@JsonObject("dss.dto.service.execute.ExecuteCustomDSSServiceOperationResult")
 public class ExecuteCustomDSSServiceOperationResult implements IOperationResult
 {
     private static final long serialVersionUID = 1L;

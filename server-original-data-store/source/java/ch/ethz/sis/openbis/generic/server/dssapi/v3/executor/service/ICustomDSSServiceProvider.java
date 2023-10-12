@@ -15,16 +15,15 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSService;
 
-/**
- * Holds information that uniquely identifies a custom DSS service.
- *
- */
-@JsonObject("dss.dto.service.id.ICustomDSSServiceId")
-public interface ICustomDSSServiceId extends IObjectId
+import java.util.List;
+
+public interface ICustomDSSServiceProvider
 {
+    public List<CustomDSSService> getCustomDSSServices();
+
+    public ICustomDSSServiceExecutor tryGetCustomDSSServiceExecutor(String code);
 }

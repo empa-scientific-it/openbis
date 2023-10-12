@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
-@JsonObject("as.dto.service.CustomDSSService")
+@JsonObject("dss.dto.service.CustomDSSService")
 public class CustomDSSService implements ILabelHolder, Serializable
 {
     private static final long serialVersionUID = 1L;

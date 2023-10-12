@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
-@JsonObject("as.dto.service.fetchoptions.CustomDSSServiceFetchOptions")
+@JsonObject("dss.dto.service.fetchoptions.CustomDSSServiceFetchOptions")
 public class CustomDSSServiceFetchOptions extends FetchOptions<CustomDSSService> implements
         Serializable
 {

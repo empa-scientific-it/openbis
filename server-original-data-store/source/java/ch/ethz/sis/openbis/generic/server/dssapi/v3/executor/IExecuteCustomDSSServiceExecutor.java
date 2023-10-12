@@ -15,16 +15,14 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 
-/**
- * Holds information that uniquely identifies a custom DSS service.
- *
- */
-@JsonObject("dss.dto.service.id.ICustomDSSServiceId")
-public interface ICustomDSSServiceId extends IObjectId
+public interface IExecuteCustomDSSServiceExecutor
 {
+    ExecuteCustomDSSServiceOperationResult execute(String sessionToken, ICustomDSSServiceId serviceId,
+            CustomDSSServiceExecutionOptions options);
 }
