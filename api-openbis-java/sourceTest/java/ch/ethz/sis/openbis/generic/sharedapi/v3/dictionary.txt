@@ -240,6 +240,11 @@ Custom AS Service Fetch Options
 Custom AS Service Search Criteria
 Custom AS Service Sort Options
 custom Import
+CustomDSSService
+CustomDssServiceCode
+CustomDSSServiceExecutionOptions
+CustomDSSServiceFetchOptions
+CustomDSSServiceSortOptions
 DATA
 Data Set Archive Options
 Data Set Lock Options
@@ -479,6 +484,8 @@ ExecuteCustomASServiceOperation
 ExecuteCustomASServiceOperationResult
 executeImport
 executeOperations
+executeCustomDSSService
+ExecuteCustomDSSServiceOperationResult
 Execution Options
 EXPERIMENT
 Experiment
@@ -1217,6 +1224,7 @@ IAuthorizationGroupId
 ICodeHolder
 IContentCopyId
 ICreationIdHolder
+ICustomDSSServiceId
 ID
 id
 IDataSetFileId
