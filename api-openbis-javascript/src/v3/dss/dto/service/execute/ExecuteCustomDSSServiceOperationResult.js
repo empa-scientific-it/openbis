@@ -5,7 +5,7 @@ define([ "stjs", "dss/dto/common/operation/IOperationResult" ], function(stjs, I
 		this.result = result;
 	};
 	stjs.extend(ExecuteCustomDSSServiceOperationResult, null, [ IOperationResult ], function(constructor, prototype) {
-		prototype['@type'] = 'dss.dto.service.execute.ExecuteCustomASServiceOperationResult';
+		prototype['@type'] = 'dss.dto.service.execute.ExecuteCustomDSSServiceOperationResult';
 		prototype.result = null;
 		prototype.getResult = function() {
 			return this.result;
