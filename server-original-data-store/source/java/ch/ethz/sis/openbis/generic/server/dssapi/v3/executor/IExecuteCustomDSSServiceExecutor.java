@@ -21,8 +21,10 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecuti
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 
+import java.io.Serializable;
+
 public interface IExecuteCustomDSSServiceExecutor
 {
-    ExecuteCustomDSSServiceOperationResult execute(String sessionToken, ICustomDSSServiceId serviceId,
+    Serializable execute(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options);
 }

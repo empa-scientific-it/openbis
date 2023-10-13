@@ -28,6 +28,8 @@ import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSS
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
 @Component
 public class ExecuteCustomDSSServiceExecutor implements IExecuteCustomDSSServiceExecutor
 {
@@ -36,7 +38,7 @@ public class ExecuteCustomDSSServiceExecutor implements IExecuteCustomDSSService
     private ICustomDSSServiceProvider serviceProvider;
 
     @Override
-    public ExecuteCustomDSSServiceOperationResult execute(String sessionToken, ICustomDSSServiceId serviceId,
+    public Serializable execute(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options)
     {
         if (serviceId instanceof CustomDssServiceCode == false)
@@ -50,7 +52,7 @@ public class ExecuteCustomDSSServiceExecutor implements IExecuteCustomDSSService
             throw new ObjectNotFoundException(serviceId);
         }
 
-        return new ExecuteCustomDSSServiceOperationResult(serviceExecutor.executeService(sessionToken, serviceId, options));
+        return serviceExecutor.executeService(sessionToken, serviceId, options);
     }
 
 }
