@@ -20,6 +20,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -78,6 +80,13 @@ public class DataStoreServerApiJson implements IDataStoreServerApi
     public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets)
     {
         return api.createDataSets(sessionToken, newDataSets);
+    }
+
+    @Override
+    public Object executeCustomDSSService(String sessionToken, ICustomDSSServiceId serviceId,
+            CustomDSSServiceExecutionOptions options)
+    {
+        return api.executeCustomDSSService(sessionToken, serviceId, options);
     }
 
     @Override

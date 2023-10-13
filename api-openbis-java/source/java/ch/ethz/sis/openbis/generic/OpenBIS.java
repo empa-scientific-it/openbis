@@ -209,6 +209,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ReportingService
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.SearchDomainServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
@@ -256,6 +257,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fastdownload.FastDo
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
@@ -960,6 +962,10 @@ public class OpenBIS {
 
     public List<DataSetPermId> createDataSetsDSS(List<FullDataSetCreation> newDataSets) {
         return dssFacade.createDataSets(sessionToken, newDataSets);
+    }
+
+    public Object executeCustomDSSService(ICustomDSSServiceId serviceId, CustomDSSServiceExecutionOptions options) {
+        return dssFacade.executeCustomDSSService(sessionToken, serviceId, options);
     }
 
     //
