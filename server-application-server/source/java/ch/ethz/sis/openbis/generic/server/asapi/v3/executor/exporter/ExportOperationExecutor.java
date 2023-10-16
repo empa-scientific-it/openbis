@@ -22,8 +22,10 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
 @Component
 public class ExportOperationExecutor extends OperationExecutor<ExportOperation, ExportOperationResult>
@@ -41,8 +43,8 @@ public class ExportOperationExecutor extends OperationExecutor<ExportOperation, 
     @Override
     protected ExportOperationResult doExecute(final IOperationContext context, final ExportOperation operation)
     {
-        executor.doExport(context, operation);
-        return new ExportOperationResult();
+        final XLSExport.ExportResult exportResult = executor.doExport(context, operation);
+        return new ExportOperationResult(new ExportResult(exportResult.getFileName(), exportResult.getWarnings()));
     }
 
 }

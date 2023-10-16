@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +68,7 @@ public class ExportExecutor implements IExportExecutor
     private static final String ID = "id";
 
     @Override
-    public void doExport(final IOperationContext context, final ExportOperation operation)
+    public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
     {
         try {
             final ExportData exportData = operation.getExportData();
@@ -134,10 +136,12 @@ public class ExportExecutor implements IExportExecutor
                     exportFields = null;
                 }
 
-                // TODO: file prefix probably should be configurable
-                final XLSExport.ExportResult exportResult = XLSExport.export("export", applicationServerApi, sessionToken,
+                return export("export", applicationServerApi, sessionToken,
                         exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
-                        XLSExport.TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
+                        TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
+            } else {
+                // TODO: implement other formats.
+                return null;
             }
         } catch (final IOException e)
         {
@@ -183,6 +187,7 @@ public class ExportExecutor implements IExportExecutor
                 break;
             }
         }
+        return result;
     }
 
     private static void importXls(final IOperationContext context, final ImportOperation operation, final Map<String, String> scripts,

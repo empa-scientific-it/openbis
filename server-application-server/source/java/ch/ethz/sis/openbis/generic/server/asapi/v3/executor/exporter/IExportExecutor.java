@@ -19,10 +19,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 
 public interface IExportExecutor
 {
 
-    void doExport(final IOperationContext context, final ExportOperation operation);
+    ExportResult doExport(final IOperationContext context, final ExportOperation operation);
 
 }
