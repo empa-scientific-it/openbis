@@ -40,6 +40,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setMetaData = function(metaData) {
 			this.metaData = metaData;
 		};
+		prototype.toString = function() {
+            return "ImagingDataSetPreview: " + this.config;
+        };
 
 	}, {
 		config : {

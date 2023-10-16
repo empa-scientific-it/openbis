@@ -141,4 +141,10 @@ public class ImagingDataSetControl implements Serializable
     {
         this.metaData = metaData;
     }
+
+    @Override
+    public String toString()
+    {
+        return "ImagingDataSetControl: " + label;
+    }
 }

@@ -59,4 +59,10 @@ public class ImagingDataSetImage implements Serializable
         this.metaData = metaData;
     }
 
+    @Override
+    public String toString()
+    {
+        return "ImagingDataSetImage:";
+    }
+
 }

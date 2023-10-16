@@ -144,4 +144,10 @@ public class ImagingDataSetConfig implements Serializable
     {
         this.metaData = metaData;
     }
+
+    @Override
+    public String toString()
+    {
+        return "ImagingDataSetConfig: " + adaptor;
+    }
 }
