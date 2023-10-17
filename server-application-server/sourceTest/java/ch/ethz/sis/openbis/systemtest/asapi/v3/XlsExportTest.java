@@ -88,7 +88,7 @@ public class XlsExportTest extends AbstractTest
 
         final ExportData exportData = new ExportData(List.of(
                 new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("/DEFAULT/DEFAULT/DEFAULT"))), new AllFields());
-        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), null, withReferredTypes, withImportCompatibility);
+        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
         v3api.executeExport(sessionToken, exportData, exportOptions);
     }
 
