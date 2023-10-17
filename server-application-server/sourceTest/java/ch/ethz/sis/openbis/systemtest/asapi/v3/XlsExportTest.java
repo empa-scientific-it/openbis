@@ -56,7 +56,15 @@ public class XlsExportTest extends AbstractTest
 
     private static final Object[][] EXPORT_DATA = {
             {
-                    // "/TEST-SPACE/TEST-PROJECT/FV-TEST"
+                    // Non-existing sample
+                    "empty.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
+                    XlsTextFormat.PLAIN,
+                    true,
+                    false
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     XlsTextFormat.PLAIN,
