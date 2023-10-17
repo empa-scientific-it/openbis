@@ -22,11 +22,15 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -42,6 +46,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 public class XlsExportTest extends AbstractTest
@@ -51,8 +56,11 @@ public class XlsExportTest extends AbstractTest
 
     private static final Object[][] EXPORT_DATA = {
             {
+                    // "/TEST-SPACE/TEST-PROJECT/FV-TEST"
+                    "export-sample.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     XlsTextFormat.PLAIN,
-                    false,
+                    true,
                     false
             }
     };
@@ -81,8 +89,8 @@ public class XlsExportTest extends AbstractTest
     }
 
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
-    public void testDataExportAllFields(final XlsTextFormat xlsTextFormat,
-            final boolean withReferredTypes, final boolean withImportCompatibility)
+    public void testDataExportAllFields(final String expectedResultFileName, final List<ExportablePermId> permIds, final XlsTextFormat xlsTextFormat,
+            final boolean withReferredTypes, final boolean withImportCompatibility) throws Exception
     {
 //        // TODO: specify values here.
 //        final String expectedResultFileName;
@@ -99,8 +107,7 @@ public class XlsExportTest extends AbstractTest
 //                boolean.class).newInstance(api, exportReferred);
 //        mockery.checking(expectations);
 
-        final ExportData exportData = new ExportData(List.of(
-                new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("/DEFAULT/DEFAULT/DEFAULT"))), new AllFields());
+        final ExportData exportData = new ExportData(permIds, new AllFields());
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
         final String downloadUrl = exportResult.getDownloadURL();
@@ -115,6 +122,17 @@ public class XlsExportTest extends AbstractTest
         assertTrue(file.getName().startsWith("export."));
 
         System.out.println(sessionWorkspace);
+
+        final InputStream expectedResultStream = getClass().getClassLoader().getResourceAsStream(
+                "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/" + expectedResultFileName);
+        if (expectedResultStream == null)
+        {
+            throw new IllegalArgumentException("File not found.");
+        }
+        final Workbook expectedResult = new XSSFWorkbook(expectedResultStream);
+        final Workbook actualResult = new XSSFWorkbook(new FileInputStream(file));
+
+        XLSExportTest.assertWorkbooksEqual(actualResult, expectedResult);
     }
 
 }
