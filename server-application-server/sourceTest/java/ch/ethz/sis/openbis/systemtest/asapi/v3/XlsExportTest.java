@@ -17,14 +17,23 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
@@ -33,6 +42,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 public class XlsExportTest extends AbstractTest
 {
@@ -48,6 +58,9 @@ public class XlsExportTest extends AbstractTest
     };
 
     protected String sessionToken;
+
+    @Autowired
+    private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
     @DataProvider
     protected Object[][] xlsExportData()
@@ -89,7 +102,19 @@ public class XlsExportTest extends AbstractTest
         final ExportData exportData = new ExportData(List.of(
                 new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("/DEFAULT/DEFAULT/DEFAULT"))), new AllFields());
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
-        v3api.executeExport(sessionToken, exportData, exportOptions);
+        final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
+        final String downloadUrl = exportResult.getDownloadURL();
+        final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
+        final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(downloadUrl));
+
+        assertNotNull(files);
+        assertEquals(1, files.length);
+
+        final File file = files[0];
+
+        assertTrue(file.getName().startsWith("export."));
+
+        System.out.println(sessionWorkspace);
     }
 
 }
