@@ -987,6 +987,7 @@ var fullTypes = [
 "dss/dto/service/id/ICustomDSSServiceId",
 "dss/dto/imaging/ImagingDataSetConfig",
 "dss/dto/imaging/ImagingDataSetControl",
+"dss/dto/imaging/ImagingDataSetExport",
 "dss/dto/imaging/ImagingDataSetImage",
 "dss/dto/imaging/ImagingDataSetPreview",
 "util/DateFormat",

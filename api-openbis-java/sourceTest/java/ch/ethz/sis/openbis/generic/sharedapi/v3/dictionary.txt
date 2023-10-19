@@ -1268,6 +1268,7 @@ IImportData
 ILocatorTypeId
 ImagingDataSetConfig
 ImagingDataSetControl
+ImagingDataSetExport
 ImagingDataSetImage
 ImagingDataSetPreview
 IMaterialId

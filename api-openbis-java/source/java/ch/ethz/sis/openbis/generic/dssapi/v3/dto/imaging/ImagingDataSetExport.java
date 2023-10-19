@@ -27,8 +27,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-@JsonObject("dss.dto.imaging.ImagingDataSetPreview")
-public class ImagingDataSetPreview implements Serializable
+@JsonObject("dss.dto.imaging.ImagingDataSetExport")
+public class ImagingDataSetExport implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -107,7 +107,7 @@ public class ImagingDataSetPreview implements Serializable
     @Override
     public String toString()
     {
-        return "ImagingDataSetPreview";
+        return "ImagingDataSetExport";
     }
 
 }
