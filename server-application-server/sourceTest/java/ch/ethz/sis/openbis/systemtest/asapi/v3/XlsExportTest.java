@@ -60,16 +60,24 @@ public class XlsExportTest extends AbstractTest
                     "empty.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
                     XlsTextFormat.PLAIN,
-                    true,
-                    false
+                    true, // withReferredTypes
+                    false // withImportCompatibility
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     XlsTextFormat.PLAIN,
-                    true,
-                    false
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-compatible-with-import.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    true // withImportCompatibility
             }
     };
 
@@ -123,7 +131,7 @@ public class XlsExportTest extends AbstractTest
         final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(downloadUrl));
 
         assertNotNull(files);
-        assertEquals(1, files.length);
+        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.", downloadUrl));
 
         final File file = files[0];
 
