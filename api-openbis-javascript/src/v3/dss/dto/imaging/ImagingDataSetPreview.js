@@ -47,7 +47,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 	}, {
 		config : {
             name : "Map",
-            arguments : [ "String", "Serializable>" ]
+            arguments : [ "String", "Serializable" ]
         },
         metaData : {
             name : "Map",
