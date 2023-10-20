@@ -3167,7 +3167,7 @@ public class CommonServerTest extends SystemTestCase
         if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<PropertyType> types = commonServer.listPropertyTypes(session.getSessionToken(), false);
-            assertEquals(types.size(), 18);
+            assertEquals(types.size(), 19);
         } else
         {
             try

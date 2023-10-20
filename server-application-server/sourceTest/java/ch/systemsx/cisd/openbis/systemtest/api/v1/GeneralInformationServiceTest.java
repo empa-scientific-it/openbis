@@ -2039,8 +2039,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
             });
         assertEquals("CONTAINER_TYPE", types.get(0).getCode());
         assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("HCS_IMAGE", types.get(4).getCode());
-        List<PropertyTypeGroup> groups = types.get(4).getPropertyTypeGroups();
+        assertEquals("HCS_IMAGE", types.get(5).getCode());
+        List<PropertyTypeGroup> groups = types.get(5).getPropertyTypeGroups();
         List<PropertyType> propertyTypes = groups.get(0).getPropertyTypes();
         Collections.sort(propertyTypes, new Comparator<PropertyType>()
             {
