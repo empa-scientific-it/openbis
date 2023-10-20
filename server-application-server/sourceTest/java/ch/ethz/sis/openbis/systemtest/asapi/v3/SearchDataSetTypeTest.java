@@ -59,7 +59,7 @@ public class SearchDataSetTypeTest extends AbstractTest
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
         assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, "
-                + "HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
+                + "HCS_IMAGE_ANALYSIS_DATA, IMAGING_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
                 + "VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         v3api.logout(sessionToken);
@@ -79,7 +79,7 @@ public class SearchDataSetTypeTest extends AbstractTest
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
         assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, "
-                + "HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
+                + "HCS_IMAGE_ANALYSIS_DATA, IMAGING_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
                 + "VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         assertEquals(getDataSetTypePropertyTypeInfo(types).toString(), "[CONTAINER_TYPE:, "
@@ -162,7 +162,7 @@ public class SearchDataSetTypeTest extends AbstractTest
         List<String> codes = extractCodes(types);
         Collections.sort(codes);
         assertEquals(codes.toString(), "[CONTAINER_TYPE, DELETION_TEST, DELETION_TEST_CONTAINER, HCS_IMAGE, "
-                + "HCS_IMAGE_ANALYSIS_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
+                + "HCS_IMAGE_ANALYSIS_DATA, IMAGING_DATA, LINK_TYPE, REQUIRES_EXPERIMENT, UNKNOWN, VALIDATED_CONTAINER_TYPE, "
                 + "VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE, VALIDATED_NORMAL_TYPE]");
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         assertEquals(getDataSetTypePropertyTypeInfo(types).toString(), "[CONTAINER_TYPE:, "
