@@ -2069,17 +2069,12 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(1, groups.size());
         assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(4).getCode());
         assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
-        List<String> typesCodes = new ArrayList<>();
-        for(int i=0;i<types.size();i++) {
-            typesCodes.add(i + ":" + types.get(i).getCode());
-        }
-        assertEquals("[TYPE_CODES]", typesCodes.toString());
-        assertEquals("LINK_TYPE", types.get(7).getCode());
-        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("REQUIRES_EXPERIMENT", types.get(8).getCode());
+        assertEquals("LINK_TYPE", types.get(6).getCode());
+        assertEquals("[]", types.get(6).getPropertyTypeGroups().toString());
+        assertEquals("REQUIRES_EXPERIMENT", types.get(7).getCode());
+        assertEquals("[]", types.get(7).getPropertyTypeGroups().toString());
+        assertEquals("UNKNOWN", types.get(8).getCode());
         assertEquals("[]", types.get(8).getPropertyTypeGroups().toString());
-        assertEquals("UNKNOWN", types.get(9).getCode());
-        assertEquals("[]", types.get(9).getPropertyTypeGroups().toString());
         assertEquals(12, types.size());
     }
 
