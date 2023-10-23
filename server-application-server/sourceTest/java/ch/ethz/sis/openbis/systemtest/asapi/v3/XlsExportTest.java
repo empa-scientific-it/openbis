@@ -50,8 +50,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
@@ -60,7 +58,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
@@ -78,6 +76,14 @@ public class XlsExportTest extends AbstractTest
 //                    true, // withReferredTypes
 //                    false // withImportCompatibility
 //            },
+            {
+                    // Space: TEST-SPACE
+                    "export-space.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
 //            {
 //                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
 //                    "export-sample.xlsx",
@@ -110,14 +116,14 @@ public class XlsExportTest extends AbstractTest
 //                    false, // withReferredTypes
 //                    false // withImportCompatibility
 //            },
-            {
-                    // Dataset Type: HCS_IMAGE
-                    "export-data-set-type.xlsx",
-                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
-                    XlsTextFormat.PLAIN,
-                    false, // withReferredTypes
-                    false // withImportCompatibility
-            },
+//            {
+//                    // Dataset Type: HCS_IMAGE
+//                    "export-data-set-type.xlsx",
+//                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
+//                    XlsTextFormat.PLAIN,
+//                    false, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
     };
 
     private static final String ZIPPED_EXPORT_FILE_NAME = EXPORT_FILE_PREFIX + XLSX_EXTENSION;
