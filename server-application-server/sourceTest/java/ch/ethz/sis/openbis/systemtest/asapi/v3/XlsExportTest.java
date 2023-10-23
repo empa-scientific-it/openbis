@@ -95,11 +95,19 @@ public class XlsExportTest extends AbstractTest
                     true // withImportCompatibility
             },
             {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    // Sample Type: CELL_PLATE
                     "export-sample-type-with-referred-types.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Experiment Type: SIRNA_HCS
+                    "export-experiment-type.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
                     false // withImportCompatibility
             },
     };
