@@ -73,22 +73,22 @@ public class XlsExportTest extends AbstractTest
     private static final String EXPORT_DATA_PROVIDER = "xlsExportData";
 
     private static final Object[][] EXPORT_DATA = {
-//            {
-//                    // Non-existing sample
-//                    "empty.xlsx",
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
-//            {
-//                    // Space: TEST-SPACE
-//                    "export-space.xlsx",
-//                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
+            {
+                    // Non-existing sample
+                    "empty.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Space: TEST-SPACE
+                    "export-space.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
             {
                     // Project: TEST-PROJECT
                     "export-project.xlsx",
@@ -97,46 +97,54 @@ public class XlsExportTest extends AbstractTest
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
-//            {
-//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-//                    "export-sample.xlsx",
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
-//            {
-//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-//                    "export-sample-compatible-with-import.xlsx",
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    true // withImportCompatibility
-//            },
-//            {
-//                    // Sample Type: CELL_PLATE
-//                    "export-sample-type-with-referred-types.zip",
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
-//            {
-//                    // Experiment Type: SIRNA_HCS
-//                    "export-experiment-type.xlsx",
-//                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
-//                    XlsTextFormat.PLAIN,
-//                    false, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
-//            {
-//                    // Dataset Type: HCS_IMAGE
-//                    "export-data-set-type.xlsx",
-//                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
-//                    XlsTextFormat.PLAIN,
-//                    false, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
+            {
+                    // Experiment: EXP-SPACE-TEST
+                    "export-experiment.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-compatible-with-import.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    true // withImportCompatibility
+            },
+            {
+                    // Sample Type: CELL_PLATE
+                    "export-sample-type-with-referred-types.zip",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Experiment Type: SIRNA_HCS
+                    "export-experiment-type.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Dataset Type: HCS_IMAGE
+                    "export-data-set-type.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private static final String ZIPPED_EXPORT_FILE_NAME = EXPORT_FILE_PREFIX + XLSX_EXTENSION;
