@@ -2069,6 +2069,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(1, groups.size());
         assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(4).getCode());
         assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
+        for(int i=0;i<types.size();i++) {
+            System.out.println("||> " + i + " " + types.get(i).getCode());
+        }
         assertEquals("LINK_TYPE", types.get(7).getCode());
         assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
         assertEquals("REQUIRES_EXPERIMENT", types.get(8).getCode());
