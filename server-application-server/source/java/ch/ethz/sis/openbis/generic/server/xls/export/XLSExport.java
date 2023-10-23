@@ -64,9 +64,9 @@ import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 public class XLSExport
 {
 
-    private static final String XLSX_EXTENSION = ".xlsx";
+    public static final String XLSX_EXTENSION = ".xlsx";
 
-    private static final String ZIP_EXTENSION = ".zip";
+    public static final String ZIP_EXTENSION = ".zip";
 
     private static final String TYPE_KEY = "TYPE";
 

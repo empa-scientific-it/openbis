@@ -17,16 +17,29 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.EXPORT_FILE_PREFIX;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -37,6 +50,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
@@ -78,8 +93,18 @@ public class XlsExportTest extends AbstractTest
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     true // withImportCompatibility
-            }
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-type-with-referred-types.zip",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
+
+    private static final String ZIPPED_EXPORT_FILE_NAME = EXPORT_FILE_PREFIX + XLSX_EXTENSION;
 
     protected String sessionToken;
 
@@ -127,28 +152,114 @@ public class XlsExportTest extends AbstractTest
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
         final String downloadUrl = exportResult.getDownloadURL();
+
+        compareFiles("ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/" + expectedResultFileName, downloadUrl);
+    }
+
+    private void compareFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
+    {
+        if (expectedResultFilePath.endsWith(XLSX_EXTENSION) && actualResultFilePath.endsWith(XLSX_EXTENSION))
+        {
+            compareXlsxFiles(expectedResultFilePath, actualResultFilePath);
+        } else if (expectedResultFilePath.endsWith(ZIP_EXTENSION) && actualResultFilePath.endsWith(ZIP_EXTENSION))
+        {
+            compareZipFiles(expectedResultFilePath, actualResultFilePath);
+        } else
+        {
+            throw new IllegalArgumentException(String.format("Expected ('%s') and actual ('%s') files have different formats.",
+                    expectedResultFilePath, actualResultFilePath));
+        }
+    }
+
+    private void compareXlsxFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
+    {
+        final InputStream expectedResultStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath);
+        if (expectedResultStream == null)
+        {
+            throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
+        }
+        compareXlsxStreams(expectedResultStream, new FileInputStream(getActualFile(actualResultFilePath)));
+    }
+
+    private void compareZipFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
+    {
+        final URL expectedResultUrl = getClass().getClassLoader().getResource(expectedResultFilePath);
+        assertNotNull(expectedResultUrl);
+
+        final File actualFile = getActualFile(actualResultFilePath);
+
+        try (
+                final ZipFile extectedZipFile = new ZipFile(expectedResultUrl.getPath());
+                final ZipFile actualZipFile = new ZipFile(actualFile);
+        )
+        {
+            final Set<String> expectedZipEntries = extectedZipFile.stream().map(ZipEntry::getName).collect(Collectors.toSet());
+            final Set<String> actualZipEntries = actualZipFile.stream().map(ZipEntry::getName).collect(Collectors.toSet());
+            assertEquals(actualZipEntries, expectedZipEntries);
+
+            for (final String expectedZipEntry : expectedZipEntries)
+            {
+                if (expectedZipEntry.equals(ZIPPED_EXPORT_FILE_NAME))
+                {
+                    try (
+                            final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(ZIPPED_EXPORT_FILE_NAME));
+                            final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(ZIPPED_EXPORT_FILE_NAME));
+                    )
+                    {
+                        compareXlsxStreams(expectedInputStream, actualInputStream);
+                    }
+                } else
+                {
+                    try (
+                            final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(expectedZipEntry));
+                            final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(expectedZipEntry));
+                    )
+                    {
+                        compareStreams(expectedInputStream, actualInputStream);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private static void compareXlsxStreams(final InputStream expectedResultInputStream, final InputStream actualResultInputStream) throws IOException
+    {
+        final Workbook expectedResult = new XSSFWorkbook(expectedResultInputStream);
+        final Workbook actualResult = new XSSFWorkbook(actualResultInputStream);
+
+        XLSExportTest.assertWorkbooksEqual(actualResult, expectedResult);
+    }
+
+    private static void compareStreams(final InputStream expectedResultInputStream, final InputStream actualResultInputStream) throws IOException
+    {
+        try (
+                final BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expectedResultInputStream, StandardCharsets.UTF_8));
+                final BufferedReader actualReader = new BufferedReader(new InputStreamReader(actualResultInputStream, StandardCharsets.UTF_8));
+        )
+        {
+            String expectedLine;
+            while ((expectedLine = expectedReader.readLine()) != null)
+            {
+                final String actualLine = actualReader.readLine();
+                assertEquals(actualLine, expectedLine);
+            }
+        }
+    }
+
+    private File getActualFile(final String actualResultFilePath) throws FileNotFoundException
+    {
         final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(downloadUrl));
+        final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(actualResultFilePath));
 
         assertNotNull(files);
-        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.", downloadUrl));
+        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",
+                actualResultFilePath));
 
         final File file = files[0];
 
         assertTrue(file.getName().startsWith("export."));
-
-        System.out.println(sessionWorkspace);
-
-        final InputStream expectedResultStream = getClass().getClassLoader().getResourceAsStream(
-                "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/" + expectedResultFileName);
-        if (expectedResultStream == null)
-        {
-            throw new IllegalArgumentException("File not found.");
-        }
-        final Workbook expectedResult = new XSSFWorkbook(expectedResultStream);
-        final Workbook actualResult = new XSSFWorkbook(new FileInputStream(file));
-
-        XLSExportTest.assertWorkbooksEqual(actualResult, expectedResult);
+        return file;
     }
 
 }

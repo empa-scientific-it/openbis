@@ -63,6 +63,8 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 public class ExportExecutor implements IExportExecutor
 {
 
+    public static final String EXPORT_FILE_PREFIX = "export";
+
     private static final String TYPE = "type";
 
     private static final String ID = "id";
@@ -136,7 +138,7 @@ public class ExportExecutor implements IExportExecutor
                     exportFields = null;
                 }
 
-                return export("export", applicationServerApi, sessionToken,
+                return export(EXPORT_FILE_PREFIX, applicationServerApi, sessionToken,
                         exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                         TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
             } else {
