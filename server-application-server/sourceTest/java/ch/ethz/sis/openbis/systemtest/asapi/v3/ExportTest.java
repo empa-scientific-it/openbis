@@ -22,6 +22,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTEN
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.BufferedReader;
@@ -286,6 +287,7 @@ public class ExportTest extends AbstractTest
                 final String actualLine = actualReader.readLine();
                 assertEquals(actualLine, expectedLine);
             }
+            assertNull(actualReader.readLine());
         }
     }
 
