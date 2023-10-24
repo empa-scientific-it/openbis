@@ -59,6 +59,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
@@ -78,6 +79,7 @@ public class ExportTest extends AbstractTest
                     // Non-existing sample
                     "empty.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
@@ -86,6 +88,7 @@ public class ExportTest extends AbstractTest
                     // Space: TEST-SPACE
                     "export-space.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
@@ -94,6 +97,7 @@ public class ExportTest extends AbstractTest
                     // Project: TEST-PROJECT
                     "export-project.xlsx",
                     List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
@@ -102,6 +106,7 @@ public class ExportTest extends AbstractTest
                     // Experiment: EXP-SPACE-TEST
                     "export-experiment.xlsx",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
@@ -110,6 +115,7 @@ public class ExportTest extends AbstractTest
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
@@ -118,6 +124,7 @@ public class ExportTest extends AbstractTest
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-compatible-with-import.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     true // withImportCompatibility
@@ -126,6 +133,7 @@ public class ExportTest extends AbstractTest
                     // Sample Type: CELL_PLATE
                     "export-sample-type-with-referred-types.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
@@ -134,6 +142,7 @@ public class ExportTest extends AbstractTest
                     // Experiment Type: SIRNA_HCS
                     "export-experiment-type.xlsx",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false // withImportCompatibility
@@ -142,6 +151,7 @@ public class ExportTest extends AbstractTest
                     // Dataset Type: HCS_IMAGE
                     "export-data-set-type.xlsx",
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
+                    new AllFields(),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false // withImportCompatibility
@@ -174,8 +184,8 @@ public class ExportTest extends AbstractTest
     }
 
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
-    public void testDataExportAllFields(final String expectedResultFileName, final List<ExportablePermId> permIds, final XlsTextFormat xlsTextFormat,
-            final boolean withReferredTypes, final boolean withImportCompatibility) throws Exception
+    public void testXlsDataExport(final String expectedResultFileName, final List<ExportablePermId> permIds, final IExportableFields fields,
+            final XlsTextFormat xlsTextFormat, final boolean withReferredTypes, final boolean withImportCompatibility) throws Exception
     {
 //        // TODO: specify values here.
 //        final String expectedResultFileName;
@@ -192,7 +202,7 @@ public class ExportTest extends AbstractTest
 //                boolean.class).newInstance(api, exportReferred);
 //        mockery.checking(expectations);
 
-        final ExportData exportData = new ExportData(permIds, new AllFields());
+        final ExportData exportData = new ExportData(permIds, fields);
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
         final String downloadUrl = exportResult.getDownloadURL();
