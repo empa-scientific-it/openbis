@@ -36,7 +36,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 public class CollectionFieldSearchConditionTranslator implements IConditionTranslator<CollectionFieldSearchCriteria<?>>
 {
 
-    private static final Map<Class, Object[]> ARRAY_CASTING = new HashMap<>();
+    private static final Map<Class<?>, Object[]> ARRAY_CASTING = new HashMap<>();
 
     static
     {

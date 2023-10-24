@@ -22,6 +22,24 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum Attribute
 {
 
+    CODE,
+
+    PERM_ID,
+
+    IDENTIFIER,
+
+    PARENTS,
+
+    CHILDREN,
+
+    REGISTRATOR,
+
+    REGISTRATION_DATE,
+
+    MODIFIER,
+
+    MODIFICATION_DATE,
+
     SPACE,
 
     SAMPLE_TYPE,
