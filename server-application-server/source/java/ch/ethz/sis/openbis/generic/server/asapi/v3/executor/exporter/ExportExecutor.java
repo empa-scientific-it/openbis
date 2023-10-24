@@ -52,7 +52,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
-import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.ethz.sis.openbis.generic.server.xls.importer.XLSImport;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -63,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 public class ExportExecutor implements IExportExecutor
 {
 
-    public static final String EXPORT_FILE_PREFIX = "export";
+    public static final String METADATA_FILE_PREFIX = "metadata";
 
     private static final String TYPE = "type";
 
@@ -138,7 +137,7 @@ public class ExportExecutor implements IExportExecutor
                     exportFields = null;
                 }
 
-                return export(EXPORT_FILE_PREFIX, applicationServerApi, sessionToken,
+                return export(METADATA_FILE_PREFIX, applicationServerApi, sessionToken,
                         exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                         TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
             } else {

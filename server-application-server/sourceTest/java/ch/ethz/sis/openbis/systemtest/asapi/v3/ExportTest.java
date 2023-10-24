@@ -17,7 +17,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.EXPORT_FILE_PREFIX;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_PREFIX;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static org.testng.Assert.assertEquals;
@@ -67,7 +67,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
-public class XlsExportTest extends AbstractTest
+public class ExportTest extends AbstractTest
 {
 
     private static final String EXPORT_DATA_PROVIDER = "xlsExportData";
@@ -147,7 +147,7 @@ public class XlsExportTest extends AbstractTest
             },
     };
 
-    private static final String ZIPPED_EXPORT_FILE_NAME = EXPORT_FILE_PREFIX + XLSX_EXTENSION;
+    private static final String ZIPPED_EXPORT_FILE_NAME = METADATA_FILE_PREFIX + XLSX_EXTENSION;
 
     protected String sessionToken;
 
@@ -261,7 +261,6 @@ public class XlsExportTest extends AbstractTest
                         compareStreams(expectedInputStream, actualInputStream);
                     }
                 }
-
             }
         }
     }
@@ -301,7 +300,7 @@ public class XlsExportTest extends AbstractTest
 
         final File file = files[0];
 
-        assertTrue(file.getName().startsWith("export."));
+        assertTrue(file.getName().startsWith(METADATA_FILE_PREFIX + "."));
         return file;
     }
 
