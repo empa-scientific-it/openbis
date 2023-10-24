@@ -1,3 +1,8 @@
+## Changes with pybis-1.36.4
+
+- Changes to new_sample method to use v3api in all cases
+- Refactoring new_experiment documentation 
+
 ## Changes with pybis-1.36.3
 
 - Refactored metaData and multiValue properties to be backwards-compatible.

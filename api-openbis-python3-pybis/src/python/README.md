@@ -615,11 +615,10 @@ The new name for **experiment** is **collection**. You can use boths names inter
 ### create a new experiment
 
 ```python
-exp = o.new_experiment
+exp = o.new_experiment(
     code='MY_NEW_EXPERIMENT',
     type='DEFAULT_EXPERIMENT',
-    space='MY_SPACE',
-    project='YEASTS'
+    project='/MY_SPACE/YEASTS'
 )
 exp.save()
 ```
