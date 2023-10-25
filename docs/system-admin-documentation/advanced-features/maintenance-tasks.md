@@ -460,33 +460,43 @@ interval = 1 d
 start = 01:00  
 ```
 
-
 ### MultiDataSetArchiveSanityCheckMaintenanceTask
 
 **Environment**: DSS
 
 **Relevancy:** Default
 
-**Description**: Task that verifies checksums of data sets archived
-within a specific time window. It reads archives from the final
-destination and checks if they are consistent with path info database
-entries.
+**Description**: Performs sanity check of multi data set archives. The check compares archives stored in final and replica destinations with the
+information kept in the path info database. The check verifies: folder structure, file sizes and checksums. In case of found inconsistencies a
+notification email is sent to chosen email addresses.
+
+The task loads a list of archives to be checked from the multi data set archiver database. The archives from the list can be checked either
+chronologically (the oldest archive is checked first) or can be processed in a random order (see `check-in-random-order` property). The list of
+archives can be narrowed down to a specific time window (see `check-from-date` and `check-to-date` properties). During a single run the task can check
+all the archives from the list or just a chosen number of archives (see `run-size` property).
+
+The task provides additional properties (see `run-probability` and `run-max-random-delay`) that can be used to introduce some randomness to the time
+the task executes. This can be especially handy in cases when we want to have multiple instances of openBIS that share the same configuration for the
+task but at the same time we want to desynchronize the task execution among these instances not to cause a peak load on the common archive storage.
 
 ```{warning}
-The task assumes MultiDataSetArchiver task is configured (the
+The task assumes MultiDataSetArchiver task is configured (the
 task uses some of the multi data set archiver configuration properties
 e.g. final destination location).
 ```
 
 **Configuration**:
 
-| Property Key    | Description                                                                   |
-|-----------------|-------------------------------------------------------------------------------|
-| status-file     | Path to a JSON file that keeps a list of already checked archive containers   |
-| notify-emails   | List of emails to notify about problematic archive containers                 |
-| interval        | Interval in seconds                                                           |
-| check-to-date   | "To date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm   |
-| check-from-date | "From date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm |
+| Property Key          | Mandatory | Default Value | Description                                                                                                                                                                                                     |
+|-----------------------|-----------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| status-file           | true      |               | Path to a JSON file that keeps a list of already checked archive containers                                                                                                                                     |
+| notify-emails         | true      |               | List of emails to notify about problematic archive containers                                                                                                                                                   |
+| check-from-date       | false     | null          | "From date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm                                                                                                                                   |
+| check-to-date         | false     | null          | "To date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm                                                                                                                                     |
+| check-in-random-order | false     | false         | If set to "true" then archive containers are checked in a random order. If set to "false" then the containers are checked in chronological order (from the oldest to the newest). Allowed values: true / false. |
+| run-probability       | false     | 1.0           | Controls the probability of a task run (0.0 value means the task run will be always skipped, 1.0 value means the task run will always be executed normally). Float values between (0,1.0] are allowed.          |
+| run-max-random-delay  | false     | 0             | Maximum delay before the run. The actual delay before each run is randomly chosen from range [0, run-max-random-delay]. Different time units are allowed: sec/s, min/m, hours/h, days/d.                        |
+| run-size              | false     | -1            | Maximum number of archives to be checked in a single run, where -1 means all found archives will be checked. Integer values > 0 or equal to -1 are allowed.                                                     |
 
 **Example**:
 
@@ -494,9 +504,13 @@ e.g. final destination location).
 
 ```
 class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiveSanityCheckMaintenanceTask
-interval = 3600
-check-from-date = 2022-09-01 00:00
-check-to-date = 2022-10-01 00:00
+interval = 1d
+check-from-date = 2023-01-01 00:00:00
+check-to-date = 2023-12-31 23:59:59
+check-in-random-order = true
+run-probability = 0.25
+run-max-random-delay = 2h
+run-size = 1
 notify-emails = test1@email.com, test2@email.com
 status-file = ../../multi-dataset-sanity-check-statuses.json
 ```

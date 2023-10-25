@@ -40,14 +40,20 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
     @Select(sql = SELECT_CONTAINER)
     public List<MultiDataSetArchiverContainerDTO> listContainers();
 
+    @Select(sql = SELECT_CONTAINER + " ORDER BY ID ASC")
+    public List<MultiDataSetArchiverContainerDTO> listContainersInChronologicalOrder();
+
+    @Select(sql = SELECT_CONTAINER + " ORDER BY random()")
+    public List<MultiDataSetArchiverContainerDTO> listContainersInRandomOrder();
+
     @Select(sql = SELECT_CONTAINER + "WHERE unarchiving_requested = 't'")
     public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving();
 
     @Select(sql = SELECT_CONTAINER + "WHERE id in (" +
-                                        "select ctnr_id " +
-                                        "from data_sets " +
-                                        "where code = any(?{1})" +
-                                      ")", parameterBindings = {StringArrayMapper.class })
+            "select ctnr_id " +
+            "from data_sets " +
+            "where code = any(?{1})" +
+            ")", parameterBindings = { StringArrayMapper.class })
     public List<MultiDataSetArchiverContainerDTO> listContainersWithDataSets(String[] dataSetCodes);
 
     /*
