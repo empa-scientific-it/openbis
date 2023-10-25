@@ -182,7 +182,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         {
             if (runSize != -1 && counter >= runSize)
             {
-                operationLog.info("Reached the configured run size - already checked " + counter + " containers. Finishing the run.");
+                operationLog.info("Reached the configured run size - already checked " + counter + " container(s). Finishing the run.");
                 break;
             }
 
@@ -192,7 +192,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
             {
                 try
                 {
-                    operationLog.info("Found container without check status '" + container.getPath() + "'");
+                    operationLog.info("Found container to check '" + container.getPath() + "'");
 
                     if (shouldCheckConsistency(container))
                     {
