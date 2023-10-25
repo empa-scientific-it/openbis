@@ -15,19 +15,38 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
-import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.Map;
 
-public interface IImagingDataSetAdaptor
+public final class ImagingServiceContext implements Serializable
 {
+    private final String sessionToken;
+    private final IApplicationServerApi asApi;
+    private final IDataStoreServerApi dssApi;
 
-    Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> previewConfig, Map<String, String> metaData);
 
+    public ImagingServiceContext(String sessionToken, IApplicationServerApi asApi, IDataStoreServerApi dssApi) {
+        this.sessionToken = sessionToken;
+        this.asApi = asApi;
+        this.dssApi = dssApi;
+    }
+
+    public String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    public IApplicationServerApi getAsApi()
+    {
+        return asApi;
+    }
+
+    public IDataStoreServerApi getDssApi()
+    {
+        return dssApi;
+    }
 }

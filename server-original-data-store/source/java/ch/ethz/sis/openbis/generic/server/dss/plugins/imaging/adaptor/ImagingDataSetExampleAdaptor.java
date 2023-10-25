@@ -19,23 +19,54 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
 
 public final class ImagingDataSetExampleAdaptor implements IImagingDataSetAdaptor
 {
-    private final Properties properties;
+
+    private static final int WIDTH = 640;
+    private static final int HEIGHT = 640;
 
     public ImagingDataSetExampleAdaptor(Properties properties) {
-        this.properties = properties;
+
     }
 
     @Override
-    public Serializable process(IApplicationServerApi asApi, IDataStoreServerApi dssApi, File rootFile, Map<String, Serializable> previewConfig, Map<String, String> metaData)
+    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> previewConfig, Map<String, String> metaData)
     {
-        return "SomeDummyResult";
+        BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        for(int y=0;y<HEIGHT; y++)
+        {
+            for (int x = 0; x < WIDTH; x++)
+            {
+                int a = (int)(Math.random()*256);
+                int r = (int)(Math.random()*256);
+                int g = (int)(Math.random()*256);
+                int b = (int)(Math.random()*256);
+
+                //pixel
+                int p = (a<<24) | (r<<16) | (g<<8) | b;
+
+                img.setRGB(x, y, p);
+            }
+        }
+        try
+        {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(img, "png", byteArrayOutputStream);
+            byteArrayOutputStream.flush();
+            return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

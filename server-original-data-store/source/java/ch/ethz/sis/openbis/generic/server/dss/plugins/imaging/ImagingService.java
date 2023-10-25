@@ -64,8 +64,8 @@ public class ImagingService implements ICustomDSSServiceExecutor
     {
         this.properties = properties;
         scriptPath = PropertyUtils.getProperty(properties, SCRIPT_PATH);
-        //.getMandatoryProperty(properties, SCRIPT_PATH);
     }
+
     @Override
     public Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options)
@@ -73,18 +73,23 @@ public class ImagingService implements ICustomDSSServiceExecutor
         ImagingDataContainer data = getDataFromParams(options.getParameters());
         try
         {
-            if(data.getType().equalsIgnoreCase("preview")) {
+            if (data.getType().equalsIgnoreCase("preview"))
+            {
                 return processPreviewFlow(sessionToken, (ImagingPreviewContainer) data);
-            } else {
+            } else
+            {
                 return processExportFlow(sessionToken, data);
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             data.setError(e.toString());
         }
         return data;
     }
 
-    private ImagingPreviewContainer processPreviewFlow(String sessionToken, ImagingPreviewContainer data) {
+    private ImagingPreviewContainer processPreviewFlow(String sessionToken,
+            ImagingPreviewContainer data)
+    {
         DataSet dataSet = getDataSet(sessionToken, data);
 
         Config config =
@@ -100,29 +105,35 @@ public class ImagingService implements ICustomDSSServiceExecutor
                         dataSet.getPermId().getPermId());
         IHierarchicalContentNode root = content.getRootNode();
 
-
         File rootFile = root.getFile();
         Map<String, Serializable> previewParams = data.getPreview().getConfig();
         Map<String, String> meta = data.getPreview().getMetaData();
 
-        data.getPreview().setBytes(adaptor.process(getApplicationServerApi(), getDataStoreServerApi(), rootFile, previewParams, meta).toString());
+        ImagingServiceContext context = new ImagingServiceContext(sessionToken, getApplicationServerApi(), getDataStoreServerApi());
+
+        data.getPreview().setBytes(
+                adaptor.process(context,
+                        rootFile, previewParams, meta).toString());
         return data;
     }
 
-    private Serializable processExportFlow(String sessionToken, ImagingDataContainer data) {
+    private Serializable processExportFlow(String sessionToken, ImagingDataContainer data)
+    {
         //TODO
-        if(data.getType().equalsIgnoreCase("export")) {
+        if (data.getType().equalsIgnoreCase("export"))
+        {
             // Single export case
             ImagingExportContainer input = (ImagingExportContainer) data;
-        } else {
+        } else
+        {
             // multi export case
             ImagingMultiExportContainer input = (ImagingMultiExportContainer) data;
         }
         return data;
     }
 
-
-    private IHierarchicalContentProvider getHierarchicalContentProvider(String sessionToken) {
+    private IHierarchicalContentProvider getHierarchicalContentProvider(String sessionToken)
+    {
         if (contentProvider == null)
         {
             contentProvider = ServiceProvider.getHierarchicalContentProvider();
@@ -137,51 +148,63 @@ public class ImagingService implements ICustomDSSServiceExecutor
         return ServiceProvider.getV3ApplicationService();
     }
 
-    private IDataStoreServerApi getDataStoreServerApi() {
+    private IDataStoreServerApi getDataStoreServerApi()
+    {
         return ServiceProvider.getV3DataStoreService();
     }
 
-    private ObjectMapper getObjectMapper() {
+    private ObjectMapper getObjectMapper()
+    {
         return ServiceProvider.getObjectMapperV3();
     }
 
-
-    private <T> T readConfig(String val, Class<T> clazz) {
-        try {
+    private <T> T readConfig(String val, Class<T> clazz)
+    {
+        try
+        {
             ObjectMapper objectMapper = getObjectMapper();
             return objectMapper.readValue(new ByteArrayInputStream(val.getBytes()),
                     clazz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    private String mapToJson(Map<String, Object> map) {
-        try {
-            ObjectMapper objectMapper = getObjectMapper();
-            return objectMapper.writeValueAsString(map);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception e)
+        {
+            throw new UserFailureException("Could not read the parameters!", e);
         }
     }
 
-    private DataSet getDataSet(String sessionToken, ImagingDataContainer data) {
+    private String mapToJson(Map<String, Object> map)
+    {
+        try
+        {
+            ObjectMapper objectMapper = getObjectMapper();
+            return objectMapper.writeValueAsString(map);
+        } catch (Exception e)
+        {
+            throw new UserFailureException("Could not serialize the input parameters!", e);
+        }
+    }
+
+    private DataSet getDataSet(String sessionToken, ImagingDataContainer data)
+    {
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withProperties();
         fetchOptions.withType();
         fetchOptions.withDataStore();
         fetchOptions.withPhysicalData();
         Map<IDataSetId, DataSet> result = getApplicationServerApi()
-                .getDataSets(sessionToken, List.of(new DataSetPermId(data.getPermId())), fetchOptions);
-        if(result.isEmpty()) {
+                .getDataSets(sessionToken, List.of(new DataSetPermId(data.getPermId())),
+                        fetchOptions);
+        if (result.isEmpty())
+        {
             throw new UserFailureException("Could not find Dataset:" + data.getPermId());
         }
         return result.get(new DataSetPermId(data.getPermId()));
     }
 
-
-    public static final class Config {
+    public static final class Config
+    {
         @JsonProperty
         ImagingDataSetConfig config;
+
         @JsonProperty
         List<ImagingDataSetImage> images;
 
@@ -209,25 +232,31 @@ public class ImagingService implements ICustomDSSServiceExecutor
         }
     }
 
-    private void validateInputParams(Map<String, Object> params) {
-        if(!params.containsKey("permId")) {
+    private void validateInputParams(Map<String, Object> params)
+    {
+        if (!params.containsKey("permId"))
+        {
             throw new UserFailureException("Missing dataset permId!");
         }
-        if(!params.containsKey("type")) {
+        if (!params.containsKey("type"))
+        {
             throw new UserFailureException("Missing type!");
         }
-        if(!params.containsKey("index")) {
+        if (!params.containsKey("index"))
+        {
             throw new UserFailureException("Missing index!");
         }
     }
 
-    private ImagingDataContainer getDataFromParams(Map<String, Object> params) {
+    private ImagingDataContainer getDataFromParams(Map<String, Object> params)
+    {
         validateInputParams(params);
 
         String type = (String) params.get("type");
         String json = mapToJson(params);
 
-        switch (type.toLowerCase()) {
+        switch (type.toLowerCase())
+        {
             case "preview":
                 return readConfig(json, ImagingPreviewContainer.class);
             case "export":
@@ -238,38 +267,5 @@ public class ImagingService implements ICustomDSSServiceExecutor
                 throw new UserFailureException("Wrong type:" + type);
         }
     }
-
-//    private ImagingDataContainer getDataFromParams(Map<String, Object> params) {
-//        validateInputParams(params);
-//
-//        DataSetPermId permId = new DataSetPermId((String)params.get("permId"));
-//        int index = Integer.parseInt(params.get("index").toString());
-//
-//        String type = (String) params.get("type");
-//        ImagingDataContainer result = null;
-//        switch (type.toLowerCase()) {
-//            case "preview":
-//                ImagingPreviewContainer preview = new ImagingPreviewContainer();
-//                preview.setPreview((ImagingDataSetPreview) params.get("preview"));
-////                preview.setPreview(readConfig((String)params.get("preview"), ImagingDataSetPreview.class));
-////                return preview;
-//                result = preview;
-//                break;
-//            case "export":
-//                ImagingExportContainer export = new ImagingExportContainer();
-//                export.setExport((ImagingDataSetExport) params.get("export"));
-////                export.setExport(readConfig((String)params.get("export"), ImagingDataSetExport.class));
-////                return export;
-//                result = export;
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Wrong type:" + type);
-//        }
-//
-//        result.setPermId(permId.getPermId());
-//        result.setIndex(index);
-//        return result;
-//
-//    }
 
 }
