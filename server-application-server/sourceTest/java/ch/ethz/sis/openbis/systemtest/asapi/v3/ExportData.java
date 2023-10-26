@@ -137,7 +137,8 @@ public class ExportData
                     List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
-                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"))), XlsTextFormat.PLAIN,
+                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
+                    XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false // withImportCompatibility
             },
