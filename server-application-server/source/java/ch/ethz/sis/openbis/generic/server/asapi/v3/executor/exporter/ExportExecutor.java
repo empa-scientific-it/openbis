@@ -17,18 +17,20 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.*;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.export;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
@@ -40,8 +42,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -52,8 +54,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
-import ch.ethz.sis.openbis.generic.server.xls.importer.XLSImport;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -83,13 +83,6 @@ public class ExportExecutor implements IExportExecutor
 
                 final IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
 
-//                final ch.ethz.sis.openbis.generic.server.xls.export.ImportOptions importerImportOptions =
-//                        new ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions();
-//
-//                final boolean projectSamplesEnabled = Boolean.parseBoolean(applicationServerApi.getServerInformation(context.getSession().getSessionToken())
-//                        .get("project-samples-enabled"));
-//                importerImportOptions.setAllowProjectSamples(projectSamplesEnabled);
-
                 final List<ExportablePermId> exportablePermIds = exportData.getPermIds().stream().map(exportablePermIdDto ->
                         new ExportablePermId(
                                 ExportableKind.valueOf(exportablePermIdDto.getExportableKind().name()), exportablePermIdDto.getPermId())).collect(
@@ -102,35 +95,46 @@ public class ExportExecutor implements IExportExecutor
                     final SelectedFields selectedFields = (SelectedFields) fields;
                     exportFields = new HashMap<>();
 
-                    // TODO: are all attributes exported?
-                    final Collection<Attribute> attributes = EnumSet.copyOf(selectedFields.getAttributes());
-                    if (attributes.size() > 0)
-                    {
-                        final Map<String, List<Map<String, String>>> selectedAttributeMap =
-                                attributes.stream().collect(Collectors.toMap(Attribute::name, this::convertAttributeToMap));
-
-                        exportFields.put("TYPE", selectedAttributeMap);
-                    }
-                    final Set<PropertyTypePermId> selectedPropertyTypePermIds = new HashSet<>(selectedFields.getProperties());
-                    final Collection<IPropertyTypeId> properties = new ArrayList<>(selectedFields.getProperties());
+                    final Collection<Attribute> attributes = selectedFields.getAttributes();
+                    final Set<IPropertyTypeId> properties = new HashSet<>(selectedFields.getProperties());
 
 
                     // TODO: Do something similar for experiments and datasets
 
                     final SampleTypeSearchCriteria typeSearchCriteria = new SampleTypeSearchCriteria();
                     typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
+                    final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+                    fetchOptions.withPropertyAssignments().withPropertyType();
                     final SearchResult<SampleType> entityTypeSearchResult =
-                            applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, new SampleTypeFetchOptions());
+                            applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, fetchOptions);
 
                     final ExportableKind exportableKind = ExportableKind.SAMPLE;
 
+
                     final List<SampleType> sampleTypes = entityTypeSearchResult.getObjects();
-                    final Map<String, List<Map<String, String>>> sampleSelectedPropertyMap =
+                    final Map<String, Map<PropertyTypePermId, String>> propertyTypePermIdsBySampleType =
                             sampleTypes.stream().collect(Collectors.toMap(sampleType -> sampleType.getPermId().getPermId(),
-                                    sampleType -> sampleType.getPropertyAssignments().stream().filter(propertyAssignment ->
-                                                    selectedPropertyTypePermIds.contains(propertyAssignment.getPropertyType().getPermId()))
-                                            .map(propertyAssignment -> Map.of(TYPE, FieldType.PROPERTY.name(), ID,
-                                                    propertyAssignment.getPropertyType().getCode())).collect(Collectors.toList())));
+                                    sampleType -> sampleType.getPropertyAssignments().stream()
+                                            .map(PropertyAssignment::getPropertyType)
+                                            .collect(Collectors.toMap(PropertyType::getPermId, PropertyType::getCode))));
+
+                    final Collector<SampleType, ?, Map<String, List<Map<String, String>>>> sampleTypeToMapCollector =
+                            Collectors.toMap(sampleType -> sampleType.getPermId().getPermId(),
+                                    sampleType ->
+                                    {
+                                        final Map<PropertyTypePermId, String> propertyTypePermIds =
+                                                propertyTypePermIdsBySampleType.get(sampleType.getPermId().getPermId());
+                                        final List<String> selectedPropertyTypeCodes =
+                                                selectedFields.getProperties().stream().flatMap(
+                                                        propertyTypePermId ->
+                                                        {
+                                                            final String propertyTypeCode = propertyTypePermIds.get(propertyTypePermId);
+                                                            return propertyTypeCode != null ? Stream.of(propertyTypeCode) : Stream.empty();
+                                                        })
+                                                        .collect(Collectors.toList());
+                                        return getPropertyAssignmentList(sampleType, selectedPropertyTypeCodes, attributes);
+                                    });
+                    final Map<String, List<Map<String, String>>> sampleSelectedPropertyMap = sampleTypes.stream().collect(sampleTypeToMapCollector);
                     exportFields.put(exportableKind.name(), sampleSelectedPropertyMap);
                 } else
                 {
@@ -140,7 +144,8 @@ public class ExportExecutor implements IExportExecutor
                 return export(METADATA_FILE_PREFIX, applicationServerApi, sessionToken,
                         exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                         TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
-            } else {
+            } else
+            {
                 // TODO: implement other formats.
                 return null;
             }
@@ -150,64 +155,58 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private List<Map<String, String>> convertAttributeToMap(final Attribute attribute)
+    private static List<Map<String, String>> getPropertyAssignmentList(final SampleType sampleType,
+            final List<String> selectedPropertyTypeCodes,
+            final Collection<Attribute> attributes)
     {
-        final List<Map<String, String>> result = new ArrayList<>();
-        result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE.getName()));
-        result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION.getName()));
-        switch (attribute)
-        {
-            case SPACE:
-            {
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID,
-                        ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR.getName()));
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID,
-                        ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE.getName()));
-                break;
-            }
-            case SAMPLE_TYPE:
-            {
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID,
-                        ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODES.getName()));
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
-                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT.getName()));
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
-                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.GENERATED_CODE_PREFIX.getName()));
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
-                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.UNIQUE_SUBCODES.getName()));
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
-                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE.getName()));
-                break;
-            }
-            case EXPERIMENT_TYPE:
-            {
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
-                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT.getName()));
-                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
-                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE.getName()));
-                break;
-            }
-        }
-        return result;
+        final Stream<Map<String, String>> attributesStream = attributes.stream()
+                .map(attribute -> Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, attribute.name()));
+
+        final Stream<Map<String, String>> propertiesStream = selectedPropertyTypeCodes.stream()
+                .map(propertyTypeCode -> Map.of(TYPE, FieldType.PROPERTY.name(), ID, propertyTypeCode));
+
+        return Stream.concat(attributesStream, propertiesStream).collect(Collectors.toList());
     }
 
-    private static void importXls(final IOperationContext context, final ImportOperation operation, final Map<String, String> scripts,
-            final byte[] xlsContent)
-    {
-        final IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
-        final ImportOptions importOptions = operation.getImportOptions();
-
-        final ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions importerImportOptions =
-                new ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions();
-
-        final boolean projectSamplesEnabled = Boolean.parseBoolean(applicationServerApi.getServerInformation(context.getSession().getSessionToken())
-                .get("project-samples-enabled"));
-        importerImportOptions.setAllowProjectSamples(projectSamplesEnabled);
-
-        final XLSImport xlsImport = new XLSImport(context.getSession().getSessionToken(), applicationServerApi, scripts,
-                ImportModes.valueOf(importOptions.getMode().name()), importerImportOptions, "DEFAULT");
-
-        xlsImport.importXLS(xlsContent);
-    }
+//    private List<Map<String, String>> convertAttributeToMap(final Attribute attribute)
+//    {
+//        final List<Map<String, String>> result = new ArrayList<>();
+//        result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE.getName()));
+//        result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION.getName()));
+//        switch (attribute)
+//        {
+//            case SPACE:
+//            {
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID,
+//                        ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR.getName()));
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID,
+//                        ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE.getName()));
+//                break;
+//            }
+//            case SAMPLE_TYPE:
+//            {
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID,
+//                        ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODES.getName()));
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
+//                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT.getName()));
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
+//                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.GENERATED_CODE_PREFIX.getName()));
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
+//                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.UNIQUE_SUBCODES.getName()));
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
+//                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE.getName()));
+//                break;
+//            }
+//            case EXPERIMENT_TYPE:
+//            {
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
+//                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT.getName()));
+//                result.add(Map.of(TYPE, FieldType.ATTRIBUTE.name(),
+//                        ID, ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE.getName()));
+//                break;
+//            }
+//        }
+//        return result;
+//    }
 
 }

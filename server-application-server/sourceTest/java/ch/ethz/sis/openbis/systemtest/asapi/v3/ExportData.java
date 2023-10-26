@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
@@ -48,6 +47,7 @@ public class ExportData
 {
 
     static final Object[][] EXPORT_DATA = {
+            // All fields
             {
                     // Non-existing sample
                     "empty.xlsx",
@@ -86,11 +86,10 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-selected-fields.xlsx",
+                    "export-sample.xlsx",
                     List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-                    new SelectedFields(
-                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
-                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"))), XlsTextFormat.PLAIN,
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
@@ -127,6 +126,18 @@ public class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+
+            // Selected fields
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    new SelectedFields(
+                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
+                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"))), XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false // withImportCompatibility
             },
