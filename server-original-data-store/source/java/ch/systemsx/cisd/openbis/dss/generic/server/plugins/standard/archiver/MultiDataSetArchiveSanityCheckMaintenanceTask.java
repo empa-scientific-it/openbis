@@ -58,7 +58,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import net.lemnik.eodsql.QueryTool;
 
 public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenanceTask
@@ -342,9 +344,13 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         List<DatasetDescription> list = new ArrayList<>();
         for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
         {
-            DatasetDescription description = new DatasetDescription();
-            description.setDataSetCode(dataSet.getCode());
-            list.add(description);
+            AbstractExternalData externalData = ServiceProvider.getOpenBISService().tryGetDataSet(dataSet.getCode());
+            if (externalData == null)
+            {
+                throw new RuntimeException("Data set '" + dataSet.getCode() + "' was not found in the main openBIS database.");
+            }
+            DatasetDescription datasetDescription = DataSetTranslator.translateToDescription(externalData);
+            list.add(datasetDescription);
         }
         return list;
     }
