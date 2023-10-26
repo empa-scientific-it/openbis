@@ -24,6 +24,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.M
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFIER;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PARENTS;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PERM_ID;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PROJECT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
@@ -134,7 +135,8 @@ public class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-filtered-fields.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE,
+                            new SamplePermId("201206191219327-1054"))),
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
@@ -142,6 +144,18 @@ public class ExportData
                     false, // withReferredTypes
                     false // withImportCompatibility
             },
+//            {
+//                    // Experiment: EXP-SPACE-TEST
+//                    "export-experiment-filtered-fields.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT,
+//                            new ExperimentPermId("201206190940555-1032"))),
+//                    new SelectedFields(
+//                            List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
+//                            List.of(new PropertyTypePermId("GENDER"), new PropertyTypePermId("DESCRIPTION"))),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
     };
 
     private ExportData()

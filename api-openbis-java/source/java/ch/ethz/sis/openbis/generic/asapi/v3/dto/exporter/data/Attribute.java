@@ -42,6 +42,8 @@ public enum Attribute
 
     SPACE,
 
+    PROJECT,
+
     SAMPLE_TYPE,
 
     EXPERIMENT_TYPE,

@@ -28,13 +28,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
@@ -42,18 +39,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
-import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -64,9 +54,12 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String METADATA_FILE_PREFIX = "metadata";
 
-    private static final String TYPE = "type";
+//    private static final String TYPE = "type";
+//
+//    private static final String ID = "id";
 
-    private static final String ID = "id";
+    private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
+            Map.of(ExportableKind.SAMPLE, new SampleExportFieldsFinder());
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -87,6 +80,8 @@ public class ExportExecutor implements IExportExecutor
                         new ExportablePermId(
                                 ExportableKind.valueOf(exportablePermIdDto.getExportableKind().name()), exportablePermIdDto.getPermId())).collect(
                         Collectors.toList());
+                final Set<ExportableKind> exportableKinds = exportablePermIds.stream().map(ExportablePermId::getExportableKind)
+                        .collect(Collectors.toSet());
 
                 final IExportableFields fields = exportData.getFields();
                 final Map<String, Map<String, List<Map<String, String>>>> exportFields;
@@ -95,47 +90,21 @@ public class ExportExecutor implements IExportExecutor
                     final SelectedFields selectedFields = (SelectedFields) fields;
                     exportFields = new HashMap<>();
 
-                    final Collection<Attribute> attributes = selectedFields.getAttributes();
+                    final List<Attribute> attributes = selectedFields.getAttributes();
                     final Set<IPropertyTypeId> properties = new HashSet<>(selectedFields.getProperties());
 
 
                     // TODO: Do something similar for experiments and datasets
-
-                    final SampleTypeSearchCriteria typeSearchCriteria = new SampleTypeSearchCriteria();
-                    typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
-                    final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-                    fetchOptions.withPropertyAssignments().withPropertyType();
-                    final SearchResult<SampleType> entityTypeSearchResult =
-                            applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, fetchOptions);
-
-                    final ExportableKind exportableKind = ExportableKind.SAMPLE;
-
-
-                    final List<SampleType> sampleTypes = entityTypeSearchResult.getObjects();
-                    final Map<String, Map<PropertyTypePermId, String>> propertyTypePermIdsBySampleType =
-                            sampleTypes.stream().collect(Collectors.toMap(sampleType -> sampleType.getPermId().getPermId(),
-                                    sampleType -> sampleType.getPropertyAssignments().stream()
-                                            .map(PropertyAssignment::getPropertyType)
-                                            .collect(Collectors.toMap(PropertyType::getPermId, PropertyType::getCode))));
-
-                    final Collector<SampleType, ?, Map<String, List<Map<String, String>>>> sampleTypeToMapCollector =
-                            Collectors.toMap(sampleType -> sampleType.getPermId().getPermId(),
-                                    sampleType ->
-                                    {
-                                        final Map<PropertyTypePermId, String> propertyTypePermIds =
-                                                propertyTypePermIdsBySampleType.get(sampleType.getPermId().getPermId());
-                                        final List<String> selectedPropertyTypeCodes =
-                                                selectedFields.getProperties().stream().flatMap(
-                                                        propertyTypePermId ->
-                                                        {
-                                                            final String propertyTypeCode = propertyTypePermIds.get(propertyTypePermId);
-                                                            return propertyTypeCode != null ? Stream.of(propertyTypeCode) : Stream.empty();
-                                                        })
-                                                        .collect(Collectors.toList());
-                                        return getPropertyAssignmentList(sampleType, selectedPropertyTypeCodes, attributes);
-                                    });
-                    final Map<String, List<Map<String, String>>> sampleSelectedPropertyMap = sampleTypes.stream().collect(sampleTypeToMapCollector);
-                    exportFields.put(exportableKind.name(), sampleSelectedPropertyMap);
+                    exportableKinds.forEach(exportableKind ->
+                    {
+                        final IExportFieldsFinder fieldsFinder = FIELDS_FINDER_BY_EXPORTABLE_KIND.get(exportableKind);
+                        if (fieldsFinder != null)
+                        {
+                            final Map<String, List<Map<String, String>>> sampleSelectedFieldMap =
+                                    fieldsFinder.findExportFields(properties, applicationServerApi, sessionToken, selectedFields, attributes);
+                            exportFields.put(exportableKind.name(), sampleSelectedFieldMap);
+                        }
+                    }); // TODO: can be rewritten using mapping.
                 } else
                 {
                     exportFields = null;
@@ -155,18 +124,56 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static List<Map<String, String>> getPropertyAssignmentList(final SampleType sampleType,
-            final List<String> selectedPropertyTypeCodes,
-            final Collection<Attribute> attributes)
-    {
-        final Stream<Map<String, String>> attributesStream = attributes.stream()
-                .map(attribute -> Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, attribute.name()));
+//    private static Map<String, List<Map<String, String>>> findExportFields(final Set<IPropertyTypeId> properties,
+//            final IApplicationServerInternalApi applicationServerApi, final String sessionToken, final SelectedFields selectedFields,
+//            final Collection<Attribute> attributes)
+//    {
+//        final SampleTypeSearchCriteria typeSearchCriteria = new SampleTypeSearchCriteria();
+//        typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
+//        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+//        fetchOptions.withPropertyAssignments().withPropertyType();
+//        final SearchResult<SampleType> entityTypeSearchResult =
+//                applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, fetchOptions);
+//
+//        final List<SampleType> sampleTypes = entityTypeSearchResult.getObjects();
+//        final Map<String, Map<PropertyTypePermId, String>> propertyTypePermIdsBySampleType =
+//                sampleTypes.stream().collect(Collectors.toMap(sampleType -> sampleType.getPermId().getPermId(),
+//                        sampleType -> sampleType.getPropertyAssignments().stream()
+//                                .map(PropertyAssignment::getPropertyType)
+//                                .collect(Collectors.toMap(PropertyType::getPermId, PropertyType::getCode))));
+//
+//        final Collector<SampleType, ?, Map<String, List<Map<String, String>>>> sampleTypeToMapCollector =
+//                Collectors.toMap(sampleType -> sampleType.getPermId().getPermId(),
+//                        sampleType ->
+//                        {
+//                            final Map<PropertyTypePermId, String> propertyTypePermIds =
+//                                    propertyTypePermIdsBySampleType.get(sampleType.getPermId().getPermId());
+//                            final List<String> selectedPropertyTypeCodes =
+//                                    selectedFields.getProperties().stream().flatMap(
+//                                            propertyTypePermId ->
+//                                            {
+//                                                final String propertyTypeCode = propertyTypePermIds.get(propertyTypePermId);
+//                                                return propertyTypeCode != null ? Stream.of(propertyTypeCode) : Stream.empty();
+//                                            })
+//                                            .collect(Collectors.toList());
+//                            return getPropertyAssignmentList(sampleType, selectedPropertyTypeCodes, attributes);
+//                        });
+//        final Map<String, List<Map<String, String>>> sampleSelectedFieldMap = sampleTypes.stream().collect(sampleTypeToMapCollector);
+//        return sampleSelectedFieldMap;
+//    }
 
-        final Stream<Map<String, String>> propertiesStream = selectedPropertyTypeCodes.stream()
-                .map(propertyTypeCode -> Map.of(TYPE, FieldType.PROPERTY.name(), ID, propertyTypeCode));
-
-        return Stream.concat(attributesStream, propertiesStream).collect(Collectors.toList());
-    }
+//    private static List<Map<String, String>> getPropertyAssignmentList(final SampleType sampleType,
+//            final List<String> selectedPropertyTypeCodes,
+//            final Collection<Attribute> attributes)
+//    {
+//        final Stream<Map<String, String>> attributesStream = attributes.stream()
+//                .map(attribute -> Map.of(TYPE, FieldType.ATTRIBUTE.name(), ID, attribute.name()));
+//
+//        final Stream<Map<String, String>> propertiesStream = selectedPropertyTypeCodes.stream()
+//                .map(propertyTypeCode -> Map.of(TYPE, FieldType.PROPERTY.name(), ID, propertyTypeCode));
+//
+//        return Stream.concat(attributesStream, propertiesStream).collect(Collectors.toList());
+//    }
 
 //    private List<Map<String, String>> convertAttributeToMap(final Attribute attribute)
 //    {
