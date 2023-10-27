@@ -1,14 +1,14 @@
 /**
  * Test searching and executing DSS services.
  */
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ], function($, _, openbis, openbisExecuteOperations, common, dtos) {
+	var executeModule = function(moduleName, facade, dtos) {
 		QUnit.module(moduleName);
 
 		var testAction = function(c, fAction, fCheck) {
 			c.start();
 
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				c.ok("Login");
 				return fAction(facade).then(function(result) {
 					c.ok("Got results");
@@ -30,7 +30,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		var testActionWhichShouldFail = function(c, fAction, errorMessage) {
 			c.start();
 			
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				c.ok("Login");
 				return fAction(facade).then(function(result) {
 					c.fail("Action supposed to fail");
@@ -44,11 +44,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		}
 		
 		QUnit.test("searchSearchDomainService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fAction = function(facade) {
-				var criteria = new c.SearchDomainServiceSearchCriteria();
-				var fetchOptions = new c.SearchDomainServiceFetchOptions();
+				var criteria = new dtos.SearchDomainServiceSearchCriteria();
+				var fetchOptions = new dtos.SearchDomainServiceFetchOptions();
 				return facade.searchSearchDomainServices(criteria, fetchOptions);
 			}
 
@@ -68,10 +68,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeSearchDomainService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
-				var options = new c.SearchDomainServiceExecutionOptions();
+				var options = new dtos.SearchDomainServiceExecutionOptions();
 				options.withPreferredSearchDomain("echo-database");
 				options.withSearchString("key").withParameter("key", 
 						JSON.stringify({
@@ -104,13 +104,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("searchAggregationService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fAction = function(facade) {
-				var criteria = new c.AggregationServiceSearchCriteria();
-				var id = new c.DssServicePermId("js-test", new c.DataStorePermId("DSS1"));
+				var criteria = new dtos.AggregationServiceSearchCriteria();
+				var id = new dtos.DssServicePermId("js-test", new dtos.DataStorePermId("DSS1"));
 				criteria.withId().thatEquals(id);
-				var fetchOptions = new c.AggregationServiceFetchOptions();
+				var fetchOptions = new dtos.AggregationServiceFetchOptions();
 				return facade.searchAggregationServices(criteria, fetchOptions);
 			}
 
@@ -127,11 +127,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeAggregationService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId("js-test", new c.DataStorePermId("DSS1"));
-				var options = new c.AggregationServiceExecutionOptions();
+				var id = new dtos.DssServicePermId("js-test", new dtos.DataStorePermId("DSS1"));
+				var options = new dtos.AggregationServiceExecutionOptions();
 				options.withParameter("method", "test");
 				options.withParameter("answer", 42).withParameter("pi", 3.1415926);
 				return facade.executeAggregationService(id, options);
@@ -146,11 +146,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeAggregationService() with data store code is null", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId("js-test", new c.DataStorePermId(null));
-				var options = new c.AggregationServiceExecutionOptions();
+				var id = new dtos.DssServicePermId("js-test", new dtos.DataStorePermId(null));
+				var options = new dtos.AggregationServiceExecutionOptions();
 				return facade.executeAggregationService(id, options);
 			}
 			
@@ -158,11 +158,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeAggregationService() with data store id is null", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId("js-test", null);
-				var options = new c.AggregationServiceExecutionOptions();
+				var id = new dtos.DssServicePermId("js-test", null);
+				var options = new dtos.AggregationServiceExecutionOptions();
 				return facade.executeAggregationService(id, options);
 			}
 			
@@ -170,11 +170,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeAggregationService() with key is null", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
-				var id = new c.DssServicePermId(null, new c.DataStorePermId("DSS1"));
-				var options = new c.AggregationServiceExecutionOptions();
+				var id = new dtos.DssServicePermId(null, new dtos.DataStorePermId("DSS1"));
+				var options = new dtos.AggregationServiceExecutionOptions();
 				return facade.executeAggregationService(id, options);
 			}
 			
@@ -182,13 +182,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("searchReportingService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fAction = function(facade) {
-				var criteria = new c.ReportingServiceSearchCriteria();
-				var id = new c.DssServicePermId("test-reporting-service", new c.DataStorePermId("DSS1"));
+				var criteria = new dtos.ReportingServiceSearchCriteria();
+				var id = new dtos.DssServicePermId("test-reporting-service", new dtos.DataStorePermId("DSS1"));
 				criteria.withId().thatEquals(id);
-				var fetchOptions = new c.ReportingServiceFetchOptions();
+				var fetchOptions = new dtos.ReportingServiceFetchOptions();
 				return facade.searchReportingServices(criteria, fetchOptions);
 			}
 
@@ -205,14 +205,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeReportingService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var dataSetCode;
 			
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade)).then(function(permId) {
 					dataSetCode = permId.getPermId();
-					var serviceId = new c.DssServicePermId("test-reporting-service", new c.DataStorePermId("DSS1"));
-					var options = new c.ReportingServiceExecutionOptions();
+					var serviceId = new dtos.DssServicePermId("test-reporting-service", new dtos.DataStorePermId("DSS1"));
+					var options = new dtos.ReportingServiceExecutionOptions();
 					options.withDataSets(dataSetCode);
 					return facade.executeReportingService(serviceId, options);
 				});
@@ -227,13 +227,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("searchProcessingService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fAction = function(facade) {
-				var criteria = new c.ProcessingServiceSearchCriteria();
-				var id = new c.DssServicePermId("test-processing-service", new c.DataStorePermId("DSS1"));
+				var criteria = new dtos.ProcessingServiceSearchCriteria();
+				var id = new dtos.DssServicePermId("test-processing-service", new dtos.DataStorePermId("DSS1"));
 				criteria.withId().thatEquals(id);
-				var fetchOptions = new c.ProcessingServiceFetchOptions();
+				var fetchOptions = new dtos.ProcessingServiceFetchOptions();
 				return facade.searchProcessingServices(criteria, fetchOptions);
 			}
 
@@ -250,14 +250,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("executeProcessingService()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var dataSetCode;
 			
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade)).then(function(permId) {
 					dataSetCode = permId.getPermId();
-					var serviceId = new c.DssServicePermId("test-processing-service", new c.DataStorePermId("DSS1"));
-					var options = new c.ProcessingServiceExecutionOptions();
+					var serviceId = new dtos.DssServicePermId("test-processing-service", new dtos.DataStorePermId("DSS1"));
+					var options = new dtos.ProcessingServiceExecutionOptions();
 					options.withDataSets([dataSetCode]);
 					return facade.executeProcessingService(serviceId, options);
 				});
@@ -277,7 +277,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("DSS service tests", openbis);
-		executeModule("DSS service tests (executeOperations)", openbisExecuteOperations);
+		executeModule("DSS service tests (RequireJS)", new openbis(), dtos);
+		executeModule("DSS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
+		executeModule("DSS service tests (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("DSS service tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("DSS service tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+		executeModule("DSS service tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}
 })

@@ -17,7 +17,7 @@ is returned to its original state in the event of an error.
 By deafult python 2.5 is used, but it's possible to use python version
 2.7.
 
-Dropboxes are dss core plugins: [Core Plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html)
+Dropboxes are dss core plugins: [Core Plugins](./core-plugins.md#core-plugins)
 
 ### Simple Example
 
@@ -99,42 +99,24 @@ greater detail.
 
 The model underlying dropbox registration is the following: when a new
 file or folder is found in the dropbox folder, the process function of
-the script file is invoked with a [data set registration transaction](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#idatasetregistrationtransaction) as an argument.
+the script file is invoked with a [data set registration transaction](./dss-dropboxes.md#idatasetregistrationtransaction) as an argument.
 The process function has the responsibility of looking at the incoming
 file or folder and determining what needs to be registered or modified
 in the metadata database and what data needs to be stored on the file
 system. The
-[IDataSetRegistrationTransaction](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#idatasetregistrationtransaction) interface
+[IDataSetRegistrationTransaction](./dss-dropboxes.md#idatasetregistrationtransaction) interface
 defines the API for specifying entities to register and update.
 
-Committing a transaction is actually a two-part process. The metadata is
-stored in the openBIS application server's database; the data is kept on
-the file system in a sharded directory structure beneath the data store
-server's *store* directory. All modifications requested as part of a
-transaction are committed atomically — they either all succeed or all
-fail.
+Committing a transaction is actually a two-part process. The metadata is stored in the openBIS application server's database; the data is kept on the file system in a sharded directory structure beneath the data store server's *store* directory. All modifications requested as part of a transaction are committed atomically — they either all succeed or all fail.
 
-Several [Events](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#events-registration-process-hooks) occur in the process of committing a transaction. By defining jython functions, it is possible to be notified
-and intervene when an event occurs. Because the infrastructure reserves
-the right to delay or retry actions if resources become unavailable, the
-process function and event functions cannot use global variables to
-communicate with each other. Instead, they should use the registration
-context object to communicate. Anything stored in the registration
-context must, however, be serializable by Java serialization.
+Several [Events](./dss-dropboxes.md#events-registration-process-hooks) occur in the process of committing a transaction. By defining jython functions, it is possible to be notified and intervene when an event occurs. Because the infrastructure reserves the right to delay or retry actions if resources become unavailable, the process function and event functions cannot use global variables to communicate with each other. Instead, they should use the registration context object to communicate. Anything stored in the registration context must, however, be serializable by Java serialization.
 
 Details
 -------
 
 ### Dropbox Configuration
 
-A jython dropbox is typically distributed as a [core
-plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) and configured in its
-plugin.properties file. A dropbox configured to run a jython script,
-which is kept in the same directory as plugin.properties. The
-configuration requires a storage processor and the name of the script (a
-full path is not necessary if the script is in the same directory as the
-plugin.properties). Here is an example configuration for a dropbox that
-uses the jython handler.
+A jython dropbox is typically distributed as a [core plugin](./core-plugins.md#core-plugins) and configured in its plugin.properties file. A dropbox configured to run a jython script, which is kept in the same directory as plugin.properties. The configuration requires a storage processor and the name of the script (a full path is not necessary if the script is in the same directory as the plugin.properties). Here is an example configuration for a dropbox that uses the jython handler.
 
 **plugin.properties**
 
@@ -677,10 +659,7 @@ failed only after, the whole retrying / recovery process will fail. It
 means that it can take a long time before the .faulty\_paths file is
 created, even when there is a simple dropbox error.
 
-Therefor during development of a dropbox we recommend
-using **[development mode](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html#development-mode)** , wich
-basically sets all retry values to 0, thus disabling the auto-recovery
-feature.
+Therefor during development of a dropbox we recommend using **[development mode](./dss-dropboxes.md#development-mode)** , wich basically sets all retry values to 0, thus disabling the auto-recovery feature.
 
 |Key|Default Value|Meaning|
 |--- |--- |--- |
@@ -730,7 +709,7 @@ to the core plugin in a sub-folder `lib/`.
 Validation scripts
 ------------------
 
-See [Jython DataSetValidator](https://unlimited.ethz.ch/display/openBISDoc2010/Jython+DataSetValidator).
+See [Jython DataSetValidator](../../uncategorized/jython-datasetvalidator.md).
 
 Global Thread Parameters
 ------------------------
@@ -787,8 +766,7 @@ API is the same, this language transition process is quite painless.
 
 ### Configuration
 
-As with other dropboxes, a Java dropbox should be deployed as a
-core-plugin.
+As with other dropboxes, a Java dropbox should be deployed as a core-plugin.
 
 **plugin.properties**
 

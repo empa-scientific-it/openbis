@@ -1,5 +1,5 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ], function($, _, openbis, openbisExecuteOperations, common, dtos) {
+	var executeModule = function(moduleName, facade, dtos) {
 		QUnit.module(moduleName);
 
 		var testUpdate = function(c, entityKind, fCreate, fUpdate, fFind, freezings) {
@@ -11,7 +11,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				freezingMethodsByPermIds : {}
 			};
 			
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				ctx.facade = facade;
 				var codePrefix = c.generateId(entityKind);
 				var codes = [];
@@ -45,12 +45,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		}
 
 		QUnit.test("freeze spaces()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fCreate = function(facade, codes) {
 				var creations = [];
 				$.each(codes, function(index, code) {
-					var creation = new c.SpaceCreation();
+					var creation = new dtos.SpaceCreation();
 					creation.setCode(code);
 					creations.push(creation);
 				});
@@ -60,8 +60,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fUpdate = function(facade, freezingMethodsByPermIds) {
 				var updates = [];
 				$.each(freezingMethodsByPermIds, function(permId, method) {
-					var update = new c.SpaceUpdate();
-					update.setSpaceId(new c.SpacePermId(permId));
+					var update = new dtos.SpaceUpdate();
+					update.setSpaceId(new dtos.SpacePermId(permId));
 					update[method]();
 					updates.push(update);
 				});
@@ -81,13 +81,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	});
 	
 	QUnit.test("freeze projects()", function(assert) {
-		var c = new common(assert, openbis);
+		var c = new common(assert, dtos);
 		
 		var fCreate = function(facade, codes) {
 			var creations = [];
 			$.each(codes, function(index, code) {
-				var creation = new c.ProjectCreation();
-				creation.setSpaceId(new c.SpacePermId("TEST"));
+				var creation = new dtos.ProjectCreation();
+				creation.setSpaceId(new dtos.SpacePermId("TEST"));
 				creation.setCode(code);
 				creations.push(creation);
 			});
@@ -97,8 +97,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		var fUpdate = function(facade, freezingMethodsByPermIds) {
 			var updates = [];
 			$.each(freezingMethodsByPermIds, function(permId, method) {
-				var update = new c.ProjectUpdate();
-				update.setProjectId(new c.ProjectPermId(permId));
+				var update = new dtos.ProjectUpdate();
+				update.setProjectId(new dtos.ProjectPermId(permId));
 				update[method]();
 				updates.push(update);
 			});
@@ -117,15 +117,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	});
 	
 	QUnit.test("freeze experiments()", function(assert) {
-		var c = new common(assert, openbis);
+		var c = new common(assert, dtos);
 		
 		var fCreate = function(facade, codes) {
 			var creations = [];
 			$.each(codes, function(index, code) {
-				var creation = new c.ExperimentCreation();
+				var creation = new dtos.ExperimentCreation();
 				creation.setCode(code);
-				creation.setTypeId(new c.EntityTypePermId("HT_SEQUENCING"));
-				creation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+				creation.setTypeId(new dtos.EntityTypePermId("HT_SEQUENCING"));
+				creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				creations.push(creation);
 			});
 			return facade.createExperiments(creations);
@@ -134,8 +134,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		var fUpdate = function(facade, freezingMethodsByPermIds) {
 			var updates = [];
 			$.each(freezingMethodsByPermIds, function(permId, method) {
-				var update = new c.ExperimentUpdate();
-				update.setExperimentId(new c.ExperimentPermId(permId));
+				var update = new dtos.ExperimentUpdate();
+				update.setExperimentId(new dtos.ExperimentPermId(permId));
 				update[method]();
 				updates.push(update);
 			});
@@ -154,15 +154,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	});
 	
 	QUnit.test("freeze samples()", function(assert) {
-		var c = new common(assert, openbis);
+		var c = new common(assert, dtos);
 		
 		var fCreate = function(facade, codes) {
 			var creations = [];
 			$.each(codes, function(index, code) {
-				var creation = new c.SampleCreation();
-				creation.setSpaceId(new c.SpacePermId("TEST"));
+				var creation = new dtos.SampleCreation();
+				creation.setSpaceId(new dtos.SpacePermId("TEST"));
 				creation.setCode(code);
-				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creations.push(creation);
 			});
 			return facade.createSamples(creations);
@@ -171,8 +171,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		var fUpdate = function(facade, freezingMethodsByPermIds) {
 			var updates = [];
 			$.each(freezingMethodsByPermIds, function(permId, method) {
-				var update = new c.SampleUpdate();
-				update.setSampleId(new c.SamplePermId(permId));
+				var update = new dtos.SampleUpdate();
+				update.setSampleId(new dtos.SamplePermId(permId));
 				update[method]();
 				updates.push(update);
 			});
@@ -198,7 +198,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	});
 	
 	QUnit.test("freeze data sets()", function(assert) {
-		var c = new common(assert, openbis);
+		var c = new common(assert, dtos);
 		
 		var fCreate = function(facade, codes) {
 			var creations = [];
@@ -213,8 +213,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		var fUpdate = function(facade, freezingMethodsByPermIds) {
 			var updates = [];
 			$.each(freezingMethodsByPermIds, function(permId, method) {
-				var update = new c.DataSetUpdate();
-				update.setDataSetId(new c.DataSetPermId(permId));
+				var update = new dtos.DataSetUpdate();
+				update.setDataSetId(new dtos.DataSetPermId(permId));
 				update[method]();
 				updates.push(update);
 			});
@@ -241,6 +241,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 }
 
 	return function() {
-		executeModule("Freezing tests", openbis);
+		executeModule("Freezing tests (RequireJS)", new openbis(), dtos);
+		executeModule("Freezing tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
+		executeModule("Freezing tests (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("Freezing tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("Freezing tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+		executeModule("Freezing tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}
 });

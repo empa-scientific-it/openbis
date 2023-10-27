@@ -30,56 +30,56 @@ The main menu can be customised from the **Settings**, under
 
 1.  **showLabNotebook**: if unselected, the **Lab Notebook** section of
     the main menu ([Lab
-    Notebook)](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html)
+    Notebook)](../../general-users/lab-notebook.md)
     will be hidden.
 2.  **showInventory**: if unselected, the **Inventory** section of the
     main menu ([Inventory of Materials and
-    Methods](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html))
+    Methods](../../general-users/inventory-of-materials-and-methods.md))
     will be hidden.
 3.  **showStock**: if unselected, the **Stock** section of the main menu
     ([Managing Lab Stocks and
-    Orders](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/managing-lab-stocks-and-orders-2.html))
+    Orders](../../general-users/managing-lab-stocks-and-orders-2.md))
     will be hidden.
 4.  **showObjectBrowser**: if unselected, the **Object Browser** under
     **Utilities** in the main menu ([Object
-    Browser)](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#browse-entries-by-type)
+    Browser)](../../general-users/additional-functionalities.md#browse-entries-by-type)
     will be hidden.
 5.  **showStorageManager**: if unselected, the **Storage Manager** under
     **Utilities** in the main menu [(Storage
-    manager](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/managing-lab-stocks-and-orders-2.html#))
+    manager](../../general-users/managing-lab-stocks-and-orders-2.md#))
     will be hidden.
 6.  **showAdvancedSearch**: if unselected, the **Advanced Search** under
     **Utilities** in the main menu ([Advanced
-    Search)](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/search.html)
+    Search)](../../general-users/search.md)
     be hidden.
 7.  **showUnarchivingHelper**: if unselected, the **Unarchiving Helper**
     and **Archiving Helper** under **Utilities** in the main menu ([Data
-    archiving)](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-archiving.html)
+    archiving)](../../general-users/data-archiving.md)
     will be hidden.
 8.  **showTrashcan**: if unselected, the **Traschcan** under
     **Utilities** in the main menu
-    ([Trashcan](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#trashcan))
+    ([Trashcan](../../general-users/additional-functionalities.md#trashcan))
     will be hidden.
 9.  **showVocabularyViewer:** if unselected, the **Vocabulary
     Browser** under **Utilities** in the main menu ([Vocabulary
-    browser](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#vocabulary-browser))
+    browser](../../general-users/additional-functionalities.md#vocabulary-browser))
     will be hidden.
 10. **showUserManager**: if unselected, the **User Manager** under
     **Utilities** in the main menu ([User
-    Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html))
+    Registration](./user-registration.md))
     will be hidden.
 11. **showUserProfile**: if unselected, the **User Profile** under
     **Utilities** in the main menu ([User
-    Profile](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/user-registration.html#user-profile))
+    Profile](./user-registration.md#user-profile))
     will be hidden.
 12. **showZenodoExportBuilder**: if unselected, the **Zenodo
     Export** under **Utilities -> Exports** in the main menu 
     ([Export to
-    Zenodo](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-export.html#export-to-zenodo))
+    Zenodo](../../general-users/data-export.md#export-to-zenodo))
     will be hidden.
 13. **showBarcodes**: if unselected, the **Barcodes Generator** under
     **Utilities** in the main menu
-    ([Barcodes)](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/barcodes.html)
+    ([Barcodes)](../../general-users/barcodes.md)
     will be hidden.
 
 ## Lab Notebook menu

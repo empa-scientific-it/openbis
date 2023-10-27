@@ -17,6 +17,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.CANONICAL_DATE_FORMAT_PATTERN;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -104,6 +105,12 @@ public class PropertyBuilder
     }
 
     public PropertyBuilder value(String value)
+    {
+        property.setValue(value);
+        return this;
+    }
+
+    public PropertyBuilder value(Serializable value)
     {
         property.setValue(value);
         return this;

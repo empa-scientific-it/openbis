@@ -1,11 +1,11 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ], function($, _, openbis, openbisExecuteOperations, common, dtos) {
+	var executeModule = function(moduleName, facade, dtos) {
 		QUnit.module(moduleName);
 
 		var testAction = function(c, fAction, actionType) {
 			c.start();
 
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				c.ok("Login");
 				return fAction(facade).then(function(result) {
 					c.ok(actionType);
@@ -18,12 +18,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		}
 
 		QUnit.test("archiveDataSets()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
 					var ids = [ permId1, permId2 ];
-					return facade.archiveDataSets(ids, new c.DataSetArchiveOptions());
+					return facade.archiveDataSets(ids, new dtos.DataSetArchiveOptions());
 				});
 			}
 
@@ -31,13 +31,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("unarchiveDataSets()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
 					var ids = [ permId1, permId2 ];
-					return facade.archiveDataSets(ids, new c.DataSetArchiveOptions()).then(function() {
-						return facade.unarchiveDataSets(ids, new c.DataSetUnarchiveOptions());
+					return facade.archiveDataSets(ids, new dtos.DataSetArchiveOptions()).then(function() {
+						return facade.unarchiveDataSets(ids, new dtos.DataSetUnarchiveOptions());
 					});
 				});
 			}
@@ -46,12 +46,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("lockDataSets()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
 					var ids = [ permId1, permId2 ];
-					return facade.lockDataSets(ids, new c.DataSetLockOptions());
+					return facade.lockDataSets(ids, new dtos.DataSetLockOptions());
 				});
 			}
 			
@@ -59,13 +59,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("unlockDataSets()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
 			var fAction = function(facade) {
 				return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function(permId1, permId2) {
 					var ids = [ permId1, permId2 ];
-					return facade.lockDataSets(ids, new c.DataSetLockOptions()).then(function() {
-						return facade.unlockDataSets(ids, new c.DataSetUnlockOptions());
+					return facade.lockDataSets(ids, new dtos.DataSetLockOptions()).then(function() {
+						return facade.unlockDataSets(ids, new dtos.DataSetUnlockOptions());
 					});
 				});
 			}
@@ -76,7 +76,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("Archive/Unarchive", openbis);
-		executeModule("Archive/Unarchive (executeOperations)", openbisExecuteOperations);
+		executeModule("Archive/Unarchive (RequireJS)", new openbis(), dtos);
+		executeModule("Archive/Unarchive (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
+		executeModule("Archive/Unarchive (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("Archive/Unarchive (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("Archive/Unarchive (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+		executeModule("Archive/Unarchive (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}
 })

@@ -15,8 +15,8 @@
  *
  */
 
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ],
-  function($, _, openbis, openbisExecuteOperations, common) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ],
+  function($, _, openbis, openbisExecuteOperations, common, dtos) {
     var fileContent = "UEsDBBQACAgIAEh8FVcAAAAAAAAAAAAAAAALAAAAX3JlbHMvLnJlbHOtksFOwzAMhu97iir3Nd1ACKGmu0xIuyE0HsAkbhu1iaPEg/L2RBMSDI2" +
       "yw45xfn/+YqXeTG4s3jAmS16JVVmJAr0mY32nxMv+cXkvNs2ifsYROEdSb0Mqco9PSvTM4UHKpHt0kEoK6PNNS9EB52PsZAA9QIdyXVV3Mv5kiOaEWeyMEnFnVqLYfwS8hE1ta" +
       "zVuSR8cej4z4lcikyF2yEpMo3ynOLwSDWWGCnneZX25y9/vlA4ZDDBITRGXIebuyBbTt44h/ZTL6ZiYE7q55nJwYvQGzbwShDBndHtNI31ITO6fFR0zX0qLWp78y+YTUEsHCIW" +
@@ -73,13 +73,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
       "AFAAICAgASHwVV0WOLhL4AAAAmgEAABAAAAAAAAAAAAAAAAAA3Q8AAGRvY1Byb3BzL2FwcC54bWxQSwECFAAUAAgICABIfBVXtuOWgmMBAADUBQAAEwAAAAAAAAAAAAAAAAATE" +
       "QAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLBQYAAAAACgAKAIACAAC3EgAAAAA=";
 
-    var executeModule = function(moduleName, openbis) {
+    var executeModule = function(moduleName, facade, dtos) {
       QUnit.module(moduleName);
 
       var testAction = function(c, fAction, fCheck) {
         c.start();
 
-        c.createFacadeAndLogin().then(function(facade) {
+        c.login(facade).then(function() {
           c.ok("Login");
           return fAction(facade).then(function(result) {
             c.ok("Got results");
@@ -99,21 +99,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
       }
 
       QUnit.test("executeImport()", function(assert) {
-        var c = new common(assert, openbis);
+        var c = new common(assert, dtos);
 
         var fAction = function(facade) {
-          var importData = new c.UncompressedImportData();
+          var importData = new dtos.UncompressedImportData();
           importData.setFormat("XLS");
           importData.setFile(fileContent);
 
-          var importOptions = new c.ImportOptions();
+          var importOptions = new dtos.ImportOptions();
           importOptions.setMode("UPDATE_IF_EXISTS");
 
           return facade.executeImport(importData, importOptions);
         }
 
         var fCheck = function(facade) {
-          var criteria = new c.VocabularySearchCriteria();
+          var criteria = new dtos.VocabularySearchCriteria();
           criteria.withCode().thatEquals("VOCAB");
 
           var vocabularyFetchOptions = c.createVocabularyFetchOptions()
@@ -154,7 +154,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
     }
 
     return function() {
-      executeModule("Export/import tests", openbis);
-      executeModule("Export/import tests (executeOperations)", openbisExecuteOperations);
+        executeModule("Export/import tests (RequireJS)", new openbis(), dtos);
+        executeModule("Export/import tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
+        executeModule("Export/import tests (module VAR)", new window.openbis.openbis(), window.openbis);
+        executeModule("Export/import tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+        executeModule("Export/import tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+        executeModule("Export/import tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
     }
   });

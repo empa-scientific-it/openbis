@@ -2,13 +2,13 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
+define([ "stjs", "util/Exceptions", "as/dto/common/entity/AbstractEntity" ], function(stjs, exceptions, AbstractEntity) {
 	var DataSet = function() {
+	AbstractEntity.call(this);
 	};
-	stjs.extend(DataSet, null, [], function(constructor, prototype) {
+	stjs.extend(DataSet, AbstractEntity, [AbstractEntity], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.dataset.DataSet';
 		constructor.serialVersionUID = 1;
-		prototype.fetchOptions = null;
 		prototype.permId = null;
 		prototype.code = null;
 		prototype.frozen = null;
@@ -45,7 +45,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrator = null;
 		prototype.experiment = null;
 		prototype.sample = null;
-		prototype.properties = null;
 		prototype.materialProperties = null;
 		prototype.sampleProperties = null;
 		prototype.dataProducer = null;
@@ -53,10 +52,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.metaData = null;
 
 		prototype.getFetchOptions = function() {
-			return this.fetchOptions;
+			return AbstractEntity.prototype.getFetchOptions.call(this);
 		};
 		prototype.setFetchOptions = function(fetchOptions) {
-			this.fetchOptions = fetchOptions;
+			AbstractEntity.prototype.setFetchOptions.call(this, fetchOptions);
 		};
 		prototype.getPermId = function() {
 			return this.permId;
@@ -376,26 +375,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setSample = function(sample) {
 			this.sample = sample;
 		};
-		prototype.getProperty = function(propertyName) {
-			var properties = this.getProperties();
-			return properties ? properties[propertyName] : null;
-		};
-		prototype.setProperty = function(propertyName, propertyValue) {
-			if (this.properties == null) {
-				this.properties = {};
-			}
-			this.properties[propertyName] = propertyValue;
-		};
-		prototype.getProperties = function() {
-			if (this.getFetchOptions() && this.getFetchOptions().hasProperties()) {
-				return this.properties;
-			} else {
-				throw new exceptions.NotFetchedException("Properties has not been fetched.");
-			}
-		};
-		prototype.setProperties = function(properties) {
-			this.properties = properties;
-		};
 		prototype.getMaterialProperty = function(propertyName) {
 			var properties = this.getMaterialProperties();
 			return properties ? properties[propertyName] : null;
@@ -426,96 +405,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setSampleProperties = function(sampleProperties) {
 			this.sampleProperties = sampleProperties;
 		};
-		prototype.getIntegerProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setIntegerProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getMultilineVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setMultilineVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getRealProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setRealProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getTimestampProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setTimestampProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getBooleanProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setBooleanProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getControlledVocabularyProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setControlledVocabularyProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getSampleProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setSampleProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getHyperlinkProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setHyperlinkProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getXmlProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setXmlProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getIntegerArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setIntegerArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getRealArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setRealArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getStringArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setStringArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getTimestampArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setTimestampArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getJsonProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setJsonProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
+
 		prototype.getDataProducer = function() {
 			return this.dataProducer;
 		};
@@ -609,10 +499,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		registrator : "Person",
 		experiment : "Experiment",
 		sample : "Sample",
-		properties : {
-			name : "Map",
-			arguments : [ "String", "Serializable" ]
-		},
 		materialProperties : {
 			name : "Map",
 			arguments : [ "String", "Material" ]

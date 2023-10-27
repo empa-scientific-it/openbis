@@ -48,7 +48,7 @@ created by the *Instance admin*, based on the needs of the lab.
 
 It is possible to add additional folders in the Inventory, for example
 for **Equipment** (see **[Create new Inventory
-Spaces](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/space-management.html))**.
+Spaces](./space-management.md))**.
 
  
 

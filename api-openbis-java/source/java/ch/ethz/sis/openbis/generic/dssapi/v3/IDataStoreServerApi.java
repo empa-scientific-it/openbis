@@ -20,6 +20,8 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.FullDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.UploadedDataSetCreation;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
@@ -111,5 +113,17 @@ public interface IDataStoreServerApi extends IRpcService
      * @throws UserFailureException in case of any problems
      */
     public List<DataSetPermId> createDataSets(String sessionToken, List<FullDataSetCreation> newDataSets);
+
+
+    /**
+     * Executes a custom data store server service with the provided {@code ICustomDSSServiceId} id. Additional execution options (e.g. parameters)
+     * can be set via {@code CustomDSSServiceExecutionOptions}.
+     * <p>
+     * Required access rights: {@code PROJECT_OBSERVER} or stronger
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public Object executeCustomDSSService(String sessionToken, ICustomDSSServiceId serviceId, CustomDSSServiceExecutionOptions options);
 
 }

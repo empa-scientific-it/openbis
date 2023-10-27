@@ -1514,7 +1514,7 @@ public class GetSampleTest extends AbstractSampleTest
         assertPropertyHistory(history.get(1), simplePropertyCode, originalSimplePropertyValue);
         assertPropertyHistory(history.get(2), systemPropertyCode, update1.getProperty(systemPropertyCode) + " [PLATE_GEOMETRY]",
                 sample.getModificationDate(), null);
-        assertPropertyHistory(history.get(3), simplePropertyCode, update2.getProperty(simplePropertyCode), sample.getModificationDate(), null);
+        assertPropertyHistory(history.get(3), simplePropertyCode, (String)update2.getProperty(simplePropertyCode), sample.getModificationDate(), null);
         assertRelationshipHistory(history.get(4), creation.getSpaceId(), SampleRelationType.SPACE, sample.getRegistrationDate(), null);
     }
 

@@ -11,7 +11,7 @@ graphical overview of lab storages. 
 
 Lab storages need to be configured by a *lab manager* or *group admin*,
 as explained here: [Configure Lab
-Storage](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#configure-lab-storage)
+Storage](../general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.md#configure-lab-storage)
 
   
 This can be done in two ways:
@@ -35,7 +35,7 @@ below:
 2. In the widget that opens, select the appropriate **Storage** from the
 dropdown menu. Storage must be configured by a lab manager or group
 admin as explained in [Configure Lab
-Storages](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#configure-lab-storage)
+Storages](../general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.md#configure-lab-storage)
 
 ![image info](img/storage-selection-1024x202.png)
 
@@ -78,7 +78,7 @@ The additional information can be entered in the **Storage Position**
 With the new XLS batch registration, samples and their storage positions
 can be registered in one transaction using the XLS template file, as
 explained in [Batch register entries in a
-Collection](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#batch-register-entries-in-a-collection).
+Collection](./inventory-of-materials-and-methods.md#batch-register-entries-in-a-collection).
 
  
 
@@ -104,7 +104,7 @@ To assign storage positions in batch mode follow the steps below:
 > 6.  Save the file and upload with the **Batch Registration**.
 
 An example file can be found
-here: [SAMPLE-STORAGE\_POSITION-template.txt](att/SAMPLE-STORAGE_POSITION-template.txt?version=1&modificationDate=1502441624183&api=v2)
+here: [SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-STORAGE_POSITION-template.xlsx)
 
 Updated on April 26, 2023
  
@@ -125,9 +125,9 @@ from the Object Browser:
 ![image info](img/Batch-update-storage-positions.png)
 3.  Use the table **Filter** to select the storage positions you want to
     update
-    (see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
+    (see [Tables](./additional-functionalities.md#tables))
 4.  Export the table (see
-    [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
+    [Tables](./additional-functionalities.md#tables))
 5.  Edit the file to make the changes needed (e.g. change the name of a
     box, change the storage, change a box position, change box size etc)
 6.  Select **XLS Batch Update Objects** from the **More..** dropdown.
@@ -169,7 +169,7 @@ To delete a single storage position from a sample:
 Please note that the storage position deleted in this way is moved to
 the trashcan. To delete the position permanently, this has to be deleted
 from the trashcan (see
-[Trashcan](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#trashcan)).
+[Trashcan](./additional-functionalities.md#trashcan)).
 
  
 
@@ -219,7 +219,7 @@ the **Object Browser**.
 
 3\. **Filter** the table to find the storage positions you want to
 delete
-(see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
+(see [Tables](./additional-functionalities.md#tables))
 
 4\. Select the positions you want to delete from the table and click the
 **Delete** button (see picture below)
@@ -228,7 +228,7 @@ delete
 
 6\. The deleted storage positions will be moved to the trashcan and
 should be removed from there to be permanently deleted (see
-[Trashcan) ](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#trashcan)
+[Trashcan) ](./additional-functionalities.md#trashcan)
 
  
 

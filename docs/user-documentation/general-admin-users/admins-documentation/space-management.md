@@ -50,11 +50,11 @@ create a new *Space*:
 
 1.  **no group**. The new *Space* will have no prefix and the Settings
     defined in General Settings will apply (see [General ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#general-eln-settings)).
+    Settings](./multi-group-set-up.md#general-eln-settings)).
 2.  **in one of the existing groups**. The new *Space* will have the
     group prefix and the Settings of that group will apply (see [Group
     ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#group-eln-settings)).
+    Settings](./multi-group-set-up.md#group-eln-settings)).
 
  
 
@@ -157,11 +157,11 @@ create a new *Space*:
 
 1.  **no group**. The new *Space* will have no prefix and the Settings
     defined in General Settings will apply (see [General ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#general-eln-settings)).
+    Settings](./multi-group-set-up.md#general-eln-settings)).
 2.  **in one of the existing groups**. The new *Space* will have the
     group prefix and the Settings of that group will apply (see [Group
     ELN
-    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#group-eln-settings)). 
+    Settings](./multi-group-set-up.md#group-eln-settings)). 
 
  
 
@@ -181,8 +181,7 @@ Use cases where this could be useful:
 2.  in a multi-group instance it is not at all desired to have the lab
     notebooks organised by users, but rather by projects. A *system
     admin* can configure the user management config file not to create
-    users folders in the lab notebook section (see [Multi group
-    instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Management+for+Multi-groups+openBIS+Instances)).
+    users folders in the lab notebook section (see [Multi group instances](../../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md)).
 
  
 

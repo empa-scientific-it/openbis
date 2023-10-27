@@ -77,7 +77,11 @@ function SampleField(isRequired,
 	    } else if(samplePermId === undefined) {
 	        var selected = $plainSelect.select2('data');
 	        if(selected && selected[0]) {
-	            return selected.map(x => x.id);
+	            if(isSingleValue) {
+                    return selected[0].id;
+                } else {
+                    return selected.map(x => x.id);
+                }
 	        } else {
 	            return null;
 	        }

@@ -12,7 +12,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import re
 from datetime import datetime
 
 import pandas as pd
@@ -51,10 +50,14 @@ class PropertyReformatter:
             if property_type.dataType == 'TIMESTAMP':
                 properties[key] = self._format_timestamp(value)
             elif property_type.dataType == 'ARRAY_TIMESTAMP':
-                properties[key] = ",".join([self._format_timestamp(x) for x in value])
+                if property_type.multiValue:
+                    properties[key] = ["[" + ",".join(map(str, [self._format_timestamp(x) for x in arr])) + "]" for arr in value]
+                else:
+                    properties[key] = [self._format_timestamp(x) for x in value]
             elif property_type.dataType.startswith('ARRAY'):
-                properties[key] = ",".join(map(str, value))
-                
+                if property_type.multiValue:
+                    properties[key] = ["[" + ",".join(map(str, x)) + "]" for x in value]
+
         return properties
 
     def _format_timestamp(self, value):
@@ -72,12 +75,14 @@ class PropertyReformatter:
         if prop_value is None or prop_value == "":
             return []
         result = []
-        if data_type == "ARRAY_INTEGER":
-            result = [int(x.strip()) for x in prop_value.split(',')]
-        elif data_type == "ARRAY_REAL":
-            result = [float(x.strip()) for x in prop_value.split(',')]
-        elif data_type == "ARRAY_STRING":
-            result = [x.strip() for x in re.split(r"(?<!\\),", prop_value)]
-        elif data_type == "ARRAY_TIMESTAMP":
-            result = [x.strip() for x in prop_value.split(',')]
+        if data_type in ("ARRAY_INTEGER", "INTEGER"):
+            result = [int(x.strip()) for x in prop_value]
+        elif data_type in ("ARRAY_REAL", "REAL"):
+            result = [float(x.strip()) for x in prop_value]
+        elif data_type == "BOOLEAN":
+            result = [x.strip().lower() == "true" for x in prop_value]
+        elif data_type in ("ARRAY_TIMESTAMP", "TIMESTAMP", "DATE"):
+            result = [x.strip() for x in prop_value]
+        else:
+            result = prop_value
         return result

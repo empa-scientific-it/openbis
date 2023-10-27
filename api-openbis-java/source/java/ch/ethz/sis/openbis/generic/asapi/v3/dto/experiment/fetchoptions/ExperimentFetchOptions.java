@@ -16,7 +16,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.AbstractEntityFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -25,7 +25,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.fetchoptions.HistoryEntr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -36,7 +35,7 @@ import java.io.Serializable;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.experiment.fetchoptions.ExperimentFetchOptions")
-public class ExperimentFetchOptions extends FetchOptions<Experiment> implements Serializable
+public class ExperimentFetchOptions extends AbstractEntityFetchOptions<Experiment> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -69,9 +68,6 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
 
     @JsonProperty
     private HistoryEntryFetchOptions unknownHistory;
-
-    @JsonProperty
-    private PropertyFetchOptions properties;
 
     @JsonProperty
     private MaterialFetchOptions materialProperties;
@@ -314,27 +310,6 @@ public class ExperimentFetchOptions extends FetchOptions<Experiment> implements 
         return unknownHistory != null;
     }
 
-    // Method automatically generated with DtoGenerator
-    public PropertyFetchOptions withProperties()
-    {
-        if (properties == null)
-        {
-            properties = new PropertyFetchOptions();
-        }
-        return properties;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
-    {
-        return properties = fetchOptions;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public boolean hasProperties()
-    {
-        return properties != null;
-    }
 
     // Method automatically generated with DtoGenerator
     public MaterialFetchOptions withMaterialProperties()

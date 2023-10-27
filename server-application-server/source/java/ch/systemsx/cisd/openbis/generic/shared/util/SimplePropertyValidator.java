@@ -140,7 +140,7 @@ public class SimplePropertyValidator
             return builder.toString();
         } else
         {
-            String propertyValue = (String) value;
+            String propertyValue = value.toString();
             // don't validate error messages and placeholders
             if (propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
             {

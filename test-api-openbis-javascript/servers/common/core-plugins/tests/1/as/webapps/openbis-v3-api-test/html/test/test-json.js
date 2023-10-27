@@ -1,9 +1,9 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'util/Json' ], function($, _, openbis, openbisExecuteOperations, common, Json) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'test/common', 'test/dtos' ], function($, _, common, dtos) {
+	var executeModule = function(moduleName, dtos) {
 		QUnit.module(moduleName);
 
 		QUnit.test("fromJSON with object id before object definition (in top level maps)", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			c.start();
 
 			var json = {
@@ -79,7 +79,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			};
 
 			try {
-				Json.fromJson(returnType, json).done(function(result) {
+				dtos.Json.fromJson(returnType, json).done(function(result) {
 					c.assertEqual(result[22].getRegistrator().getUserId(), "openbis_test_js", "22.Registrator.userId");
 					c.assertEqual(result[23].getRegistrator().getUserId(), "openbis_test_js", "23.Registrator.userId");
 					c.finish();
@@ -94,7 +94,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("fromJSON with object id before object definition (in nested maps)", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			c.start();
 
 			var json = {
@@ -166,7 +166,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			};
 
 			try {
-				Json.fromJson(returnType, json).done(function(result) {
+				dtos.Json.fromJson(returnType, json).done(function(result) {
 					c.assertEqual(result[23].getCode(), "sample_1", "23.code");
 					c.assertEqual(result[23].getMaterialProperties()[230].getCode(), "material_1", "23.materialProperties.230.code");
 					c.assertEqual(result[23].getMaterialProperties()[230].getRegistrator().getUserId(), "person_2", "23.materialProperties.230.registrator.userId");
@@ -191,7 +191,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("Json tests", openbis);
-		executeModule("Json tests (executeOperations)", openbisExecuteOperations);
+		executeModule("Json tests (RequireJS)", dtos);
+		executeModule("Json tests (module VAR)", window.openbis);
+		executeModule("Json tests (module ESM)", window.openbisESM);
 	}
 });

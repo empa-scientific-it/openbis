@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "uglify-js": "^3.17.4"
+  },
+  "scripts": {
+    "uglifyjs": "uglifyjs",
+    "v3api.esm": "webpack-cli --config webpack.config.v3api.module-esm.js",
+    "v3api.var": "webpack-cli --config webpack.config.v3api.module-var.js"
+  }
+}

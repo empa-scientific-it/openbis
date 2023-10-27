@@ -63,7 +63,7 @@ import de.schlichtherle.io.FileInputStream;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = HierarchicalContentProvider.class)
-public class ZipImportDataSetPackagerTest extends AbstractFileSystemTestCase
+public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "ds1";
 

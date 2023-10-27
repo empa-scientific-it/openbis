@@ -63,9 +63,9 @@ following steps.
 2.  Define a script that will handle the property
     (Administration->Scripts) or deploy a Java plugin. For details
     and examples of usage go to pages:  
-    -   [Dynamic Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties)
-    -   [Managed Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#managed-properties)
-    -   [Entity validation scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#entity-validation-scripts)
+    -   [Dynamic Properties](./properties-handled-by-scripts.md#dynamic-properties)
+    -   [Managed Properties](./properties-handled-by-scripts.md#managed-properties)
+    -   [Entity validation scripts](./properties-handled-by-scripts.md#entity-validation-scripts)
 3.  Assign the created property type to chosen entity type using the
     created script (e.g. for samples: Administration->Property
     Types->Assign to Sample Type):  
@@ -87,7 +87,7 @@ Dynamic Properties
 
 *Dynamic Properties* are one of two types of properties that use Jython
 scripts for providing special functionality to OpenBIS. To understand
-the basic concept read about [Properties Handled By Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#properties-handled-by-scripts).
+the basic concept read about [Properties Handled By Scripts](./properties-handled-by-scripts.md#properties-handled-by-scripts).
 
 ### Defining dynamic properties
 
@@ -366,7 +366,7 @@ existing one(update).
     parameters.  
     1.  the first argument is the entity. It will be the object
         implementing
-        the [IEntityAdaptor](http://svnsis.ethz.ch/doc/openbis/current/index.html?ch/systemsx/cisd/openbis/generic/server/dataaccess/dynamic_property/calculator/api/IEntityAdaptor.html) interface
+        the [IEntityAdaptor](https://openbis.ch/javadoc/20.10.x/javadoc-dynamic-api/ch/systemsx/cisd/openbis/generic/shared/hotdeploy_plugins/api/IEntityAdaptor.html) interface
     2.  the second argument is the boolean "isNewEntity". It will be
         true if the entity is new.
 2.  The script should return None (or nothing) if the validation is
@@ -445,7 +445,7 @@ the validations succeed after all the updates have been done.
 1.  Validation scripts should be read-only.  
     -   In theory it is possible to edit the entity during the
         validation. This is a bad practice. Consider using [Dynamic
-        Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties) if you
+        Properties](./properties-handled-by-scripts.md#dynamic-properties) if you
         want calculations being performed after the entity updates.
 2.  Think about performance  
     -   The plugins will be executed for every creation or update of
@@ -462,7 +462,7 @@ Managed Properties
 *Managed Properties* are one of two types of properties that use Jython
 scripts for providing special functionality to openBIS. To understand
 the basic concept read about [Properties Handled By
-Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#).
+Scripts](./properties-handled-by-scripts.md#).
 
 The feature is especially useful when a complex data structure should be
 stored in a single property. Properties holding XML documents are a good
@@ -546,32 +546,30 @@ script:
 
 -   ` IManagedInputWidgetDescriptionFactory inputWidgetFactory()`:
     returns a factory that can be used to create descriptions of input
-    fields used for modification of managed property value (see
-    [IManagedInputWidgetDescription](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/basic/dto/api/IManagedInputWidgetDescription.html)
-    and [example](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#example-3)).
+    fields used for modification of managed property value (see [example](./properties-handled-by-scripts.md#example-3)).
 
  
 
 -   ` IElementFactory elementFactory()`: returns a factory that can be
     used to create
-    [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
+    [IElement]( managed_property/api/IElement.html)-s.
     See [\#Storing structured content in managed
-    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
+    properties](./properties-handled-by-scripts.md#storing-structured-content-in-managed-properties).
 
  
 
 -   ` IStructuredPropertyConverter xmlPropertyConverter()`: returns a
     converter that can translate
-    [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
+    [IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to XML Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
-    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
+    properties](./properties-handled-by-scripts.md#storing-structured-content-in-managed-properties).
 -   ` IStructuredPropertyConverter jsonPropertyConverter()`: returns a
     converter that can translate
-    [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
+    [IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to JSON Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
-    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
+    properties](./properties-handled-by-scripts.md#storing-structured-content-in-managed-properties).
 
 #### Java API
 
@@ -639,7 +637,7 @@ tables like sorting, filtering, exporting etc.
 
 This is another example of showing how to configure a fixed table, but
 this time values in the table will be displayed as clickable links to
-openBIS entities (see [Linking to openBIS entities](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#linking-to-openbis-entities) for more details):
+openBIS entities (see [Linking to openBIS entities](./properties-handled-by-scripts.md#linking-to-openbis-entities) for more details):
 
 ```py
 def configureUI():
@@ -778,7 +776,7 @@ automatically to a value from the selected row.
 
 Whenever an action is defined in `configureUI` there should be
 `updateFromUI()` function defined that handles the actions (see [next
-example](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#example-5)). Otherwise clicking on action
+example](./properties-handled-by-scripts.md#example-5)). Otherwise clicking on action
 buttons will cause an error.
 
 ##### updateFromUI()
@@ -983,22 +981,22 @@ abstract data structure and persist it as a single property.
 ##### Supported structure elements
 
 The abstract data structure supported by the API is basically a list of
-[IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
+[IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
 IElements are named objects optionally having associated key-value
 attributes and optionally containing other IElements. Additionally,
 IElements can also be used as containers for larger chunks of raw data.
 
 To construct concrete instances of IElement one has to use
-[IElementFactory](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
+[IElementFactory](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
 available via the predefined function
-[elementFactory()](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#predefined-functions).
+[elementFactory()](./properties-handled-by-scripts.md#predefined-functions).
 
 ##### Linking to openBIS entities
 
 Astute readers may have already noticed that the
-[IElementFactory](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
+[IElementFactory](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
 also offers methods that create
-[IEntityLinkElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IEntityLinkElement.html)
+[IEntityLinkElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IEntityLinkElement.html)
 instances. An IEntityLinkElement denotes a link to another object in
 openBIS.
 
@@ -1009,13 +1007,13 @@ grids defined for managed properties.
 ##### Converting to property value
 
 Once you a have created the desired data structure in form of
-[IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s,
+[IElement](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s,
 you can use an
-[IStructuredPropertyConverter](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
+[IStructuredPropertyConverter](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
 to convert it to a property value. An instance of
-[IStructuredPropertyConverter](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
+[IStructuredPropertyConverter](https://openbis.ch/javadoc/20.10.x/javadoc-openbis/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
 can be created from the [\#Predefined
-Functions](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#predefined-functions).
+Functions](./properties-handled-by-scripts.md#predefined-functions).
 
 Managed properties can be stored either as XML Strings or as JSON
 Strings. The script writer makes the decision for a serialization type

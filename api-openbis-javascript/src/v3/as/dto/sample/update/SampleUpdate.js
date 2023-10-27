@@ -1,12 +1,13 @@
 /**
  * @author pkupczyk
  */
-define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue", 
+define([ "stjs", "as/dto/common/entity/AbstractEntityUpdate", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/IdListUpdateValue",
 			"as/dto/attachment/update/AttachmentListUpdateValue", "as/dto/common/update/RelationshipUpdate",
 			"as/dto/common/update/ListUpdateMapValues" ],
-			function(stjs, FieldUpdateValue, IdListUpdateValue, AttachmentListUpdateValue,
+			function(stjs, AbstractEntityUpdate, FieldUpdateValue, IdListUpdateValue, AttachmentListUpdateValue,
 			RelationshipUpdate, ListUpdateMapValues) {
 	var SampleUpdate = function() {
+	    AbstractEntityUpdate.call(this);
 		this.properties = {};
 		this.experimentId = new FieldUpdateValue();
 		this.projectId = new FieldUpdateValue();		
@@ -20,7 +21,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		this.attachments = new AttachmentListUpdateValue();
 		this.metaData = new ListUpdateMapValues();
 	};
-	stjs.extend(SampleUpdate, null, [], function(constructor, prototype) {
+	stjs.extend(SampleUpdate, AbstractEntityUpdate, [AbstractEntityUpdate], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.sample.update.SampleUpdate';
 		constructor.serialVersionUID = 1;
 		prototype.sampleId = null;
@@ -29,7 +30,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.freezeForChildren = null;
 		prototype.freezeForParents = null;
 		prototype.freezeForDataSets = null;
-		prototype.properties = null;
 		prototype.experimentId = null;
 		prototype.projectId = null;
 		prototype.spaceId = null;
@@ -109,108 +109,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		prototype.setContainerId = function(containerId) {
 			this.containerId.setValue(containerId);
 		};
-		prototype.getProperty = function(propertyName) {
-			return this.properties[propertyName];
-		};
-		prototype.setProperty = function(propertyName, propertyValue) {
-			this.properties[propertyName] = propertyValue;
-		};
-		prototype.getProperties = function() {
-			return this.properties;
-		};
-		prototype.setProperties = function(properties) {
-			this.properties = properties;
-		};
-		prototype.getIntegerProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setIntegerProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getMultilineVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setMultilineVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getRealProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setRealProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getTimestampProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setTimestampProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getBooleanProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setBooleanProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getControlledVocabularyProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setControlledVocabularyProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getSampleProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setSampleProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getHyperlinkProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setHyperlinkProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getXmlProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setXmlProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getIntegerArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setIntegerArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getRealArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setRealArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getStringArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setStringArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getTimestampArrayProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setTimestampArrayProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getJsonProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setJsonProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
 		prototype.getTagIds = function() {
 			return this.tagIds;
 		};
@@ -278,10 +176,6 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue", "as/dto/common/update/
 		tagIds : {
 			name : "IdListUpdateValue",
 			arguments : [ "ITagId" ]
-		},
-		properties : {
-			name : "Map",
-			arguments : [ "String", "Serializable" ]
 		},
 		containerId : {
 			name : "FieldUpdateValue",

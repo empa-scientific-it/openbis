@@ -55,66 +55,57 @@ public abstract class PropertyTranslator extends
                         records.stream().filter(r -> r.sample_id != null).map(r -> r.sample_id)
                                 .collect(Collectors.toSet()));
 
-        Map<Long, Map<String, Serializable>> properties = new HashMap<Long, Map<String, Serializable>>();
+        Map<Long, Map<String, Serializable>> properties =
+                new HashMap<Long, Map<String, Serializable>>();
         for (PropertyRecord record : records)
         {
             Map<String, Serializable> objectProperties = properties.get(record.objectId);
 
             if (objectProperties == null)
             {
-                objectProperties = new HashMap<String, Serializable>();
+                objectProperties = new HashMap<>();
                 properties.put(record.objectId, objectProperties);
             }
 
             if (record.propertyValue != null)
             {
-                objectProperties.put(record.propertyCode, record.propertyValue);
+                updateObjectProperty(objectProperties, record.propertyCode, record.propertyValue);
             } else if (record.materialPropertyValueCode != null)
             {
-                objectProperties.put(record.propertyCode,
+                updateObjectProperty(objectProperties, record.propertyCode,
                         record.materialPropertyValueCode + " (" + record.materialPropertyValueTypeCode
                                 + ")");
             } else if (record.vocabularyPropertyValue != null)
             {
-                if(objectProperties.containsKey(record.propertyCode)) {
-                    Serializable current = objectProperties.get(record.propertyCode);
-                    Serializable newValue = composeMultiValueProperty(current, record.vocabularyPropertyValue);
-                    objectProperties.put(record.propertyCode, newValue);
-                } else {
-                    objectProperties.put(record.propertyCode, record.vocabularyPropertyValue);
-                }
+                updateObjectProperty(objectProperties, record.propertyCode,
+                        record.vocabularyPropertyValue);
             } else if (record.sample_perm_id != null)
             {
                 if (visibaleSamples.contains(record.sample_id))
                 {
-                    if(objectProperties.containsKey(record.propertyCode)) {
-                        Serializable current = objectProperties.get(record.propertyCode);
-                        Serializable newValue = composeMultiValueProperty(current, record.sample_perm_id);
-                        objectProperties.put(record.propertyCode, newValue);
-                    } else
-                    {
-                        objectProperties.put(record.propertyCode, record.sample_perm_id);
-                    }
+                    updateObjectProperty(objectProperties, record.propertyCode,
+                            record.sample_perm_id);
                 }
             } else if (record.integerArrayPropertyValue != null)
             {
-                objectProperties.put(record.propertyCode,
-                        convertArrayToString(record.integerArrayPropertyValue));
+                updateArrayObjectProperty(objectProperties, record.propertyCode,
+                        record.integerArrayPropertyValue);
             } else if (record.realArrayPropertyValue != null)
             {
-                objectProperties.put(record.propertyCode,
-                        convertArrayToString(record.realArrayPropertyValue));
+                updateArrayObjectProperty(objectProperties, record.propertyCode,
+                        record.realArrayPropertyValue);
             } else if (record.stringArrayPropertyValue != null)
             {
-                objectProperties.put(record.propertyCode,
-                        convertArrayToString(record.stringArrayPropertyValue));
+                updateArrayObjectProperty(objectProperties, record.propertyCode,
+                        record.stringArrayPropertyValue);
             } else if (record.timestampArrayPropertyValue != null)
             {
-                objectProperties.put(record.propertyCode,
-                        convertArrayToString(record.timestampArrayPropertyValue));
+                updateArrayObjectProperty(objectProperties, record.propertyCode,
+                        record.timestampArrayPropertyValue);
             } else if (record.jsonPropertyValue != null)
             {
-                objectProperties.put(record.propertyCode, record.jsonPropertyValue);
+                updateObjectProperty(objectProperties, record.propertyCode,
+                        record.jsonPropertyValue);
             } else
             {
                 // SAMPLE property with deleted sample. Thus, nothing is put to objectProperties
@@ -124,15 +115,57 @@ public abstract class PropertyTranslator extends
         return properties;
     }
 
-    private Serializable composeMultiValueProperty(Serializable current, Serializable newValue) {
+    private void updateObjectProperty(Map<String, Serializable> objectProperties,
+            String propertyCode, Serializable propertyValue)
+    {
+        if (objectProperties.containsKey(propertyCode))
+        {
+            Serializable current = objectProperties.get(propertyCode);
+            Serializable newValue = composeMultiValueProperty(current, propertyValue);
+            objectProperties.put(propertyCode, newValue);
+        } else
+        {
+            objectProperties.put(propertyCode, propertyValue);
+        }
+    }
+
+    private void updateArrayObjectProperty(Map<String, Serializable> objectProperties,
+            String propertyCode, Serializable[] propertyValue)
+    {
+        if (objectProperties.containsKey(propertyCode))
+        {
+            Serializable[] current = (Serializable[]) objectProperties.get(propertyCode);
+            Serializable[] result;
+            if(current.length > 0) {
+                if(current[0].getClass().isArray()) {
+                    result = new Serializable[current.length + 1];
+                    System.arraycopy(current, 0, result, 0, current.length);
+                    result[current.length] = propertyValue;
+                } else {
+                    result = new Serializable[] {current, propertyValue};
+                }
+            } else {
+                result = propertyValue;
+            }
+            objectProperties.put(propertyCode, result);
+        } else
+        {
+            objectProperties.put(propertyCode, propertyValue);
+        }
+    }
+
+    private Serializable composeMultiValueProperty(Serializable current, Serializable newValue)
+    {
         Serializable[] result;
-        if(current.getClass().isArray()) {
+        if (current.getClass().isArray())
+        {
             Serializable[] values = (Serializable[]) current;
             result = new Serializable[values.length + 1];
             System.arraycopy(values, 0, result, 0, values.length);
             result[values.length] = newValue;
-        } else {
-            result = new Serializable[] {current, newValue};
+        } else
+        {
+            result = new Serializable[] { current, newValue };
         }
         return result;
     }
@@ -150,7 +183,8 @@ public abstract class PropertyTranslator extends
             ObjectHolder<Map<String, Serializable>> result, Object relations,
             PropertyFetchOptions fetchOptions)
     {
-        Map<Long, Map<String, Serializable>> properties = (Map<Long, Map<String, Serializable>>) relations;
+        Map<Long, Map<String, Serializable>> properties =
+                (Map<Long, Map<String, Serializable>>) relations;
         Map<String, Serializable> objectProperties = properties.get(objectId);
 
         if (objectProperties == null)

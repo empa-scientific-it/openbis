@@ -57,7 +57,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.getResultDetails = function() {
 			return this.resultDetails;
 		};
-		prototype.setResultDetails = function(entityPermId) {
+		prototype.setResultDetails = function(resultDetails) {
 			this.entityPresultDetailsermId = resultDetails;
 		}
 	}, {

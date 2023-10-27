@@ -6,4 +6,4 @@ Development Environment
 
    system-requirements
    architectural-overview
-   installation-and configuration-guide
+   installation-and-configuration-guide

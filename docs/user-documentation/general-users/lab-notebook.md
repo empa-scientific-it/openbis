@@ -127,7 +127,7 @@ Step/Entry,* to keep the connection between the two.
 The name of this section and which parents should be shown in the form,
 is customisable by the *lab manager* or *group admin* as described in
 [Customise Parents and Children Sections in Object
-Forms](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.html)
+Forms](../general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.md)
 
 ### Adding a parent
 
@@ -222,7 +222,7 @@ To remove a parent, choose **Remove** from the **Operations** drop down in th
 Children of *Experimental Steps* are usually derivative *Experimental
 Steps,* or products of the *Experimental Step.* As for the **Parents**
 section, this section can also be customised by a *group admin* or *lab
-manager* in the **ELN Settings** ([Customise Parents and Children Sections in Object Forms)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.html).
+manager* in the **ELN Settings** ([Customise Parents and Children Sections in Object Forms)](../general-admin-users/admins-documentation/customise-parents-and-children-sections-in-object-forms.md).
 
 The procedure for adding and removing children is the same as explained
 for parents.
@@ -340,11 +340,7 @@ Updated on April 25, 2023
 
  
 
-Templates need to be defined by the lab manager in the [**ELN
-Settings**](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/create-templates-for-objects.html).
-If templates have been created for a given *Experimental Step*, you can
-choose from the list of available templates by clicking the **Template**
-button on the *Object* form, as shown below.  
+Templates need to be defined by the lab manager in the [**ELN Settings**](../general-admin-users/admins-documentation/multi-group-set-up.md#general-eln-settings). If templates have been created for a given *Experimental Step*, you can choose from the list of available templates by clicking the **Template** button on the *Object* form, as shown below.  
 
  
 
@@ -380,7 +376,7 @@ This table shows the metadata of the datasets. The content of the datasets can b
 
 To navigate and open data registered in openBIS via Finder or Explorer, open the *Dataset* folder and click on the drive icon next to the Dataset type name (see above). *If* SFTP has been configured by a system admin, you will be provided with a link to copy/paste in an application such as [Cyberduck](https://cyberduck.io/) or other.
 
-Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-datastore-server-configuration.html)
+Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](../../system-admin-documentation/installation/optional-datastore-server-configuration.md)
 
  
 
@@ -653,7 +649,7 @@ Please be aware that, by default, only users with *Space Admin and
 Instance Admin*  role have permission to delete. Default permissions can
 be modified only by a *system admin* (see [Changing the openBIS
 capability role
-map](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#changing-the-capability-role-map))
+map](../../system-admin-documentation/installation/installation-and-configuration-guide.md#changing-the-capability-role-map))
 
 Updated on April 25, 2023
  

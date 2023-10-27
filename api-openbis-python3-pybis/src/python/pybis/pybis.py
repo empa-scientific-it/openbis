@@ -4112,7 +4112,7 @@ class Openbis:
 
     get_collection_types = get_experiment_types  # Alias
 
-    def get_experiment_type(self, type, only_data=False):
+    def get_experiment_type(self, type, only_data=False, **kwargs):
         return self.get_entity_type(
             entity="experimentType",
             cls=ExperimentType,
@@ -4133,7 +4133,7 @@ class Openbis:
             count=count,
         )
 
-    def get_dataset_type(self, type, only_data=False):
+    def get_dataset_type(self, type, only_data=False, **kwargs):
         return self.get_entity_type(
             entity="dataSetType",
             identifier=type,

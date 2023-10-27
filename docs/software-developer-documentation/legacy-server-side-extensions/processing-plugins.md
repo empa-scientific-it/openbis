@@ -5,7 +5,7 @@ Processing Plugins
 
 A processing plugin runs on the DSS. It processes a specified set of data sets. The user can trigger a processing plugin in the openBIS Web application. After processing an e-mail is sent to the user.
 
-A processing plugin is configured on the DSS best by introducing a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type `processing-plugins`. All processing plugins have the following properties in common:
+A processing plugin is configured on the DSS best by introducing a [core plugin](../server-side-extensions/core-plugins.md) of type `processing-plugins`. All processing plugins have the following properties in common:
 
 |Property Key|Description|
 |--- |--- |
@@ -153,9 +153,7 @@ rename-to-dataset-code = true
 
 ### JythonBasedProcessingPlugin
 
-**Description**: Invokes a Jython script to do the processing. For more
-details see [Jython-based Reporting and Processing
-Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Jython-based+Reporting+and+Processing+Plugins).
+**Description**: Invokes a Jython script to do the processing. For more details see [Jython-based Reporting and Processing Plugins](../../uncategorized/jython-based-reporting-and-processing-plugins.md).
 
 **Configuration**:
 

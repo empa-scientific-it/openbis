@@ -1,6 +1,6 @@
-define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/CodeSearchCriteria", 
+define([ "require", "stjs", "as/dto/common/search/AbstractObjectSearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/common/search/CodeSearchCriteria", 
 		"as/dto/common/search/CodesSearchCriteria"], 
-	function(require, stjs, AbstractObjectSearchCriteria) {
+	function(require, stjs, AbstractObjectSearchCriteria, SearchOperator) {
 	var CustomASServiceSearchCriteria = function() {
 		AbstractObjectSearchCriteria.call(this);
 	};

@@ -35,6 +35,6 @@ barcode icon will be added above the menu.
 
 Information on how to use the Barcode functionality in openBIS can be
 found
-here: [Barcodes](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/barcodes.html)
+here: [Barcodes](../../general-users/barcodes.md)
 
 Updated on April 26, 2023

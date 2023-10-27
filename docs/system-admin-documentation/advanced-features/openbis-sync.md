@@ -13,7 +13,7 @@ data from several data-source instances.
 
 ## Data Source
 
-The Data Source instance provides a service based on the ResourceSync Framework Specification (see <http://www.openarchives.org/rs/1.1/resourcesync>). This service is provided as [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) module `openbis-sync` which has a DSS service based on [Service Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Service+Plugins).
+The Data Source instance provides a service based on the ResourceSync Framework Specification (see <http://www.openarchives.org/rs/1.1/resourcesync>). This service is provided as [core plugin](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) module `openbis-sync` which has a DSS service based on [Service Plugins](../../uncategorized/service-plugins.md).
 
 This DSS service access the main openBIS database directly. If the name of this database isn't {{openbis\_prod}} the property `database.kind` in DSS service.properties should be defined with the same value as the same property in AS service.properties. Example:
 
@@ -84,7 +84,7 @@ Remarks:
 
 ## Harvester
 
-In order to get the data and meta-data from a Data Source openBIS instance a DSS harvester [maintenance task](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#maintenance-tasks) has to be configured on the Harvester openBIS instance. This maintenance task reads another configuration file each time the task is executed.
+In order to get the data and meta-data from a Data Source openBIS instance a DSS harvester [maintenance task](./maintenance-tasks.md#maintenance-tasks) has to be configured on the Harvester openBIS instance. This maintenance task reads another configuration file each time the task is executed.
 
 **plugin.properties**
 

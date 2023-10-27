@@ -149,34 +149,14 @@ function DataGridController(
                     var value = null
 
                     if (column.render) {
-                        if(Array.isArray(params.value)) {
-                            var values = params.value.sort();
-                            value = [];
-                            for (var x of values) {
-                                if(value.length > 0) {
-                                    value.push(', ');
-                                }
-                                value.push(column.render(params.row, {
-                                    lastReceivedData: _this.lastReceivedData,
-                                    lastUsedOptions: _this.lastUsedOptions,
-                                    container: params.container,
-                                    value: x
-                                }));
-                            }
-                        } else {
-                            value = column.render(params.row, {
-                                lastReceivedData: _this.lastReceivedData,
-                                lastUsedOptions: _this.lastUsedOptions,
-                                container: params.container,
-                                value: params.value
-                            });
-                        }
+                        value = column.render(params.row, {
+                            lastReceivedData: _this.lastReceivedData,
+                            lastUsedOptions: _this.lastUsedOptions,
+                            container: params.container,
+                            value: params.value
+                        });
                     } else {
-                        if(Array.isArray(params.value)) {
-                            value = params.value.sort().join(', ');
-                        } else {
-                            value = params.value;
-                        }
+                        value = params.value;
                     }
 
                     if (value === null || value === undefined || value === "") {

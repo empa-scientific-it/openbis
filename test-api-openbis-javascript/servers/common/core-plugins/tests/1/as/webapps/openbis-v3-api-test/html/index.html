@@ -4,10 +4,21 @@
 <meta charset="utf-8">
 <title>Openbis V3 Api Test</title>
 
-<link rel="stylesheet" href="test/lib/qunit/css/qunit.css">
+	<link rel="stylesheet" href="test/lib/qunit/css/qunit.css">
 
-<script src="/openbis/resources/api/v3/config.js"></script>
-<script>
+	<!-- ESM module (assigned to window.openbisESM) -->
+	<script type="module">
+    import openbisESM from '/openbis/resources/api/v3/openbis.esm.js'
+    window.openbisESM = openbisESM
+
+	</script>
+
+	<!-- VAR module (assigned to window.openbis) -->
+	<script src="/openbis/resources/api/v3/openbis.var.js"></script>
+
+	<!-- AMD module (using requireJS) -->
+	<script src="/openbis/resources/api/v3/config.js"></script>
+	<script>
 	var testPath = "/openbis/webapp/openbis-v3-api-test/test";
 
 	require.paths["test"] = testPath;

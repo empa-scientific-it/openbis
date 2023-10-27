@@ -215,7 +215,7 @@ the flow variables `openbis.DATA_SET`, `openbis.EXPERIMENT`, or
 ### openBIS Aggregation Service Report Reader
 
 This nodes allows to get an [aggregation
-service](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#openbis-aggregation-service-report-reader) report. Only
+service](./openbis-kinme-nodes.md#openbis-aggregation-service-report-reader) report. Only
 aggregation services where the service key starts with `knime-` can be
 chosen by the user in the node settings dialog.  After the service has
 been chosen the aggregation service will be invoked with the parameter
@@ -225,12 +225,12 @@ its type. This is used to created an appropriated form in the node
 settings dialog. The values specified by the user will be used to invoke
 the aggregation service when the node is executed. The result will be
 available as a KNIME table. See also section [KNIME Aggregation Service
-Specifications](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#knime-aggregation-service-specifications).
+Specifications](./openbis-kinme-nodes.md#knime-aggregation-service-specifications).
 
 ### openBIS Aggregated Data File Importer
 
 This nodes allows to invoke an [aggregation
-service](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#knime-aggregation-service-specifications) which returns a name
+service](./openbis-kinme-nodes.md#knime-aggregation-service-specifications) which returns a name
 of a file in the session workspace which will be downloaded and made
 available for nodes with input ports of type
 `org.knime.core.data.uri.URIPortObject`. Such nodes exist in
@@ -249,10 +249,10 @@ KNIME Aggregation Service Specifications
 
 Nodes of type 'openBIS Aggregation Service Report Reader' and 'openBIS
 Aggregated Data File Importer' rely on [aggregation
-services](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#knime-aggregation-service-specifications) which follow a
+services](./openbis-kinme-nodes.md#knime-aggregation-service-specifications) which follow a
 certain protocol. In order to distinguish these services from other
 aggregation services the service key (i.e. [core
-plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) ID) has to start
+plugins](../../software-developer-documentation/server-side-extensions/core-plugins.md) ID) has to start
 with `knime-`. The specifications of such services are the following:
 
 1.  If there is a parameter `_REQUEST_ `with

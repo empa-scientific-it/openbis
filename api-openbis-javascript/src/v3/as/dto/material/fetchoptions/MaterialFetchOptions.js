@@ -2,18 +2,18 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/material/fetchoptions/MaterialTypeFetchOptions", "as/dto/history/fetchoptions/HistoryEntryFetchOptions",
-		"as/dto/person/fetchoptions/PersonFetchOptions", "as/dto/property/fetchoptions/PropertyFetchOptions", "as/dto/tag/fetchoptions/TagFetchOptions", "as/dto/material/fetchoptions/MaterialSortOptions" ],
-		function(require, stjs, FetchOptions) {
+define([ "require", "stjs", "as/dto/common/fetchoptions/AbstractEntityFetchOptions", "as/dto/material/fetchoptions/MaterialTypeFetchOptions", "as/dto/history/fetchoptions/HistoryEntryFetchOptions",
+		"as/dto/person/fetchoptions/PersonFetchOptions", "as/dto/tag/fetchoptions/TagFetchOptions", "as/dto/material/fetchoptions/MaterialSortOptions" ],
+		function(require, stjs, AbstractEntityFetchOptions) {
 			var MaterialFetchOptions = function() {
+			    AbstractEntityFetchOptions.call(this);
 			};
-			stjs.extend(MaterialFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
+			stjs.extend(MaterialFetchOptions, AbstractEntityFetchOptions, [ AbstractEntityFetchOptions ], function(constructor, prototype) {
 				prototype['@type'] = 'as.dto.material.fetchoptions.MaterialFetchOptions';
 				constructor.serialVersionUID = 1;
 				prototype.type = null;
 				prototype.history = null;
 				prototype.registrator = null;
-				prototype.properties = null;
 				prototype.materialProperties = null;
 				prototype.tags = null;
 				prototype.sort = null;
@@ -56,19 +56,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/m
 				prototype.hasRegistrator = function() {
 					return this.registrator != null;
 				};
-				prototype.withProperties = function() {
-					if (this.properties == null) {
-						var PropertyFetchOptions = require("as/dto/property/fetchoptions/PropertyFetchOptions");
-						this.properties = new PropertyFetchOptions();
-					}
-					return this.properties;
-				};
-				prototype.withPropertiesUsing = function(fetchOptions) {
-					return this.properties = fetchOptions;
-				};
-				prototype.hasProperties = function() {
-					return this.properties != null;
-				};
 				prototype.withMaterialProperties = function() {
 					if (this.materialProperties == null) {
 						this.materialProperties = new MaterialFetchOptions();
@@ -108,7 +95,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/m
 				type : "MaterialTypeFetchOptions",
 				history : "HistoryEntryFetchOptions",
 				registrator : "PersonFetchOptions",
-				properties : "PropertyFetchOptions",
 				materialProperties : "MaterialFetchOptions",
 				tags : "TagFetchOptions",
 				sort : "MaterialSortOptions"

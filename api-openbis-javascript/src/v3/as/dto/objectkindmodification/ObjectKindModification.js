@@ -35,7 +35,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.toString = function() {
 			return "Last " + this.operationKind + " operation of an object of kind " + this.objectKind 
-					+ " occured at " +  lastModificationTimeStamp;
+					+ " occured at " +  this.lastModificationTimeStamp;
 		};
 	}, {
 		fetchOptions : "ObjectKindModificationFetchOptions",

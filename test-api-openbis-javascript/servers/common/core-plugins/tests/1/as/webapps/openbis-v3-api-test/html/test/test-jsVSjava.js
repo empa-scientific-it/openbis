@@ -1,9 +1,9 @@
 /**
  *
  */
-define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openbis, common) {
-    return function () {
-        QUnit.module("JS VS JAVA API")
+define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function ($, _, openbis, common, dtos) {
+    var executeModule = function (moduleName, facade, dtos) {
+        QUnit.module(moduleName)
 
         //
         // Ignore specific Java classes giving a custom message
@@ -171,8 +171,14 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
                             })
                         }
 
-                        if (_.isObject(jsField) && jsField.arguments) {
-                            jsTypeArguments = jsField.arguments
+                        if(_.isFunction(jsField)){
+                            if(jsField().arguments){
+                                jsTypeArguments = jsField().arguments;
+                            }
+                        }else if (_.isObject(jsField)) {
+                            if(jsField.arguments){
+                                jsTypeArguments = jsField.arguments
+                            }
                         }
 
                         if (JSON.stringify(jsTypeArguments) !== JSON.stringify(javaTypeArguments)) {
@@ -297,10 +303,21 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
 
                                 loadedHandler = loadedHandler(circularDependencyConfig)
 
-                                var requireJsPath = jsClassName.replace(/\./g, "/")
-                                require([requireJsPath], loadedHandler(javaClassReport), failedLoadingErrorHandler(
-                                    javaClassName
-                                ))
+                                try{
+                                    var dto = eval("dtos." + jsClassName)
+
+                                    if(dto){
+                                        loadedHandler(javaClassReport)(dto)
+                                    }else{
+                                        failedLoadingErrorHandler(
+                                            javaClassName
+                                        )("Not found")
+                                    }
+                                }catch(e){
+                                    failedLoadingErrorHandler(
+                                        javaClassName
+                                    )(e)
+                                }
                             } else {
                                 var errorResult = "Java class missing jsonObjectAnnotation: " + javaClassName
                                 testsResults.error.push(errorResult)
@@ -336,7 +353,7 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
         }
 
         QUnit.test("get Java report from aggregation service", function (assert) {
-            var c = new common(assert)
+            var c = new common(assert, dtos)
             c.start()
 
             var getV3APIReport = function (facade) {
@@ -375,7 +392,13 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
                 )
             }
 
-            c.createFacadeAndLogin().then(getV3APIReport)
+            c.login(facade).then(getV3APIReport)
         })
+    }
+
+    return function(){
+        executeModule("JS VS JAVA API (RequireJS)", new openbis(), dtos);
+        executeModule("JS VS JAVA API (module VAR)", new window.openbis.openbis(), window.openbis);
+        executeModule("JS VS JAVA API (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
     }
 })

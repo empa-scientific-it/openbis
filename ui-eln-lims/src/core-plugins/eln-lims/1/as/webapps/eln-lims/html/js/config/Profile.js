@@ -1129,9 +1129,8 @@ $.extend(DefaultProfile.prototype, {
 
 		this.initPropertyTypes = function(callback) {
 			var _this = this;
-			this.serverFacade.listPropertyTypes(function(data) {
-				_this.allPropertyTypes = data.result;
-
+			this.serverFacade.listPropertyTypesV3(function(data) {
+				_this.allPropertyTypes = data;
 				_this.serverFacade.listVocabularies(function(result) {
 					//Init Vocabularies, so we don't miss vocabularies missing on sample types used only on annotations, etc...
 					_this.allVocabularies = result.result;

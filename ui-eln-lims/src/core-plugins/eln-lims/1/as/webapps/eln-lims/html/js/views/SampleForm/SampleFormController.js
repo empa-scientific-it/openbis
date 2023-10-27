@@ -520,7 +520,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 var properties = {};
                 Object.keys(sampleProperties).forEach(function(key) {
                     var sampleProperty = sampleProperties[key];
-                    if (sampleProperty == "") {
+                    if (sampleProperty === "") {
                         sampleProperty = null;
                     }
                     properties[key] = sampleProperty;

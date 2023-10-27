@@ -143,6 +143,8 @@ def test_create_delete_dataset(space):
     # delete datasets
     dataset.delete("dataset creation test on " + timestamp, True)
 
+    # Give openbis some time to process it
+    time.sleep(1)
     # check that permanent deletion is working
     deletions = o.get_deletions(0, 10)
     assert len(deletions) == 0

@@ -18,7 +18,7 @@ Maintenance Tasks
 
 ## Introduction
 
-A maintenance task is a process which runs once or in regular time intervals. It is defined by a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) of type `maintenance-tasks`. Usually a maintenance task can only run on AS or DSS but not in both environments.
+A maintenance task is a process which runs once or in regular time intervals. It is defined by a [core plugin](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) of type `maintenance-tasks`. Usually a maintenance task can only run on AS or DSS but not in both environments.
 
 The following properties are common for all maintenance tasks:
 
@@ -400,7 +400,7 @@ link-naming-strategy.component-template = ${space}/${project}/${experiment}/${co
 
 **Description**: Deletes data sets which are already deleted on AS also
 from multi-data-set archives. This maintenance task works only if the
-[Multi Data Set Archiver](/pages/viewpage.action?pageId=80699422)  is
+[Multi Data Set Archiver](../../uncategorized/multi-data-set-archiving.md)  is
 configured. It does the following:
 
 1.  Extracts the not-deleted data sets of a TAR container with deleted
@@ -410,7 +410,7 @@ configured. It does the following:
 4.  Requests archiving of the non-deleted data sets.
 
 The last step requires that the maintenance task
-[ArchivingByRequestTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#archivingbyrequesttask) is configured.
+[ArchivingByRequestTask](./maintenance-tasks.md#archivingbyrequesttask) is configured.
 
 **Configuration**:
 
@@ -442,7 +442,7 @@ archiver when the archive data should be deletable.
 
 **Description**: Triggers unarchiving of multi data set archives. Is
 only needed if the configuration property `delay-unarchiving` of the
-[Multi Data Set Archiver](/pages/viewpage.action?pageId=80699422) is
+[Multi Data Set Archiver](../../uncategorized/multi-data-set-archiving.md) is
 set `true`.
 
 This maintenance task allows to reduce the stress of the tape system by
@@ -460,33 +460,43 @@ interval = 1 d
 start = 01:00  
 ```
 
-
 ### MultiDataSetArchiveSanityCheckMaintenanceTask
 
 **Environment**: DSS
 
 **Relevancy:** Default
 
-**Description**: Task that verifies checksums of data sets archived
-within a specific time window. It reads archives from the final
-destination and checks if they are consistent with path info database
-entries.
+**Description**: Performs sanity check of multi data set archives. The check compares archives stored in final and replica destinations with the
+information kept in the path info database. The check verifies: folder structure, file sizes and checksums. In case of found inconsistencies a
+notification email is sent to chosen email addresses.
+
+The task loads a list of archives to be checked from the multi data set archiver database. The archives from the list can be checked either
+chronologically (the oldest archive is checked first) or can be processed in a random order (see `check-in-random-order` property). The list of
+archives can be narrowed down to a specific time window (see `check-from-date` and `check-to-date` properties). During a single run the task can check
+all the archives from the list or just a chosen number of archives (see `run-size` property).
+
+The task provides additional properties (see `run-probability` and `run-max-random-delay`) that can be used to introduce some randomness to the time
+the task executes. This can be especially handy in cases when we want to have multiple instances of openBIS that share the same configuration for the
+task but at the same time we want to desynchronize the task execution among these instances not to cause a peak load on the common archive storage.
 
 ```{warning}
-The task assumes MultiDataSetArchiver task is configured (the
+The task assumes MultiDataSetArchiver task is configured (the
 task uses some of the multi data set archiver configuration properties
 e.g. final destination location).
 ```
 
 **Configuration**:
 
-| Property Key    | Description                                                                   |
-|-----------------|-------------------------------------------------------------------------------|
-| status-file     | Path to a JSON file that keeps a list of already checked archive containers   |
-| notify-emails   | List of emails to notify about problematic archive containers                 |
-| interval        | Interval in seconds                                                           |
-| check-to-date   | "To date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm   |
-| check-from-date | "From date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm |
+| Property Key          | Mandatory | Default Value | Description                                                                                                                                                                                                     |
+|-----------------------|-----------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| status-file           | true      |               | Path to a JSON file that keeps a list of already checked archive containers                                                                                                                                     |
+| notify-emails         | true      |               | List of emails to notify about problematic archive containers                                                                                                                                                   |
+| check-from-date       | false     | null          | "From date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm                                                                                                                                   |
+| check-to-date         | false     | null          | "To date" of the time window to be checked. Date in format yyyy-MM-dd HH:mm                                                                                                                                     |
+| check-in-random-order | false     | false         | If set to "true" then archive containers are checked in a random order. If set to "false" then the containers are checked in chronological order (from the oldest to the newest). Allowed values: true / false. |
+| run-probability       | false     | 1.0           | Controls the probability of a task run (0.0 value means the task run will be always skipped, 1.0 value means the task run will always be executed normally). Float values between (0,1.0] are allowed.          |
+| run-max-random-delay  | false     | 0             | Maximum delay before the run. The actual delay before each run is randomly chosen from range [0, run-max-random-delay]. Different time units are allowed: sec/s, min/m, hours/h, days/d.                        |
+| run-size              | false     | -1            | Maximum number of archives to be checked in a single run, where -1 means all found archives will be checked. Integer values > 0 or equal to -1 are allowed.                                                     |
 
 **Example**:
 
@@ -494,9 +504,13 @@ e.g. final destination location).
 
 ```
 class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiveSanityCheckMaintenanceTask
-interval = 3600
-check-from-date = 2022-09-01 00:00
-check-to-date = 2022-10-01 00:00
+interval = 1d
+check-from-date = 2023-01-01 00:00:00
+check-to-date = 2023-12-31 23:59:59
+check-in-random-order = true
+run-probability = 0.25
+run-max-random-delay = 2h
+run-size = 1
 notify-emails = test1@email.com, test2@email.com
 status-file = ../../multi-dataset-sanity-check-statuses.json
 ```
@@ -622,9 +636,7 @@ interval = 60 s
 experiments for all members of an LDAP authorization group or an
 explicit list of user ids. A configuration file (in JSON format) will be
 read each time this task is executed. All actions are logged in an audit
-log file. For more details see [User Group Management for Multi-groups
-openBIS
-Instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Management+for+Multi-groups+openBIS+Instances)
+log file. For more details see [User Group Management for Multi-groups openBIS Instances](../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md)
 
 **Configuration:**
 
@@ -836,7 +848,7 @@ If you put a foreign key constraint on the material code of one of the material 
 e-mail recipients about the usage (i.e. creation of experiments, samples
 and data sets) by users or groups. For more details see [User Group
 Management for Multi-groups openBIS
-Instances](/pages/viewpage.action?pageId=80699449).
+Instances](../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md).
 
 In order to be able to send an e-mail the following properties in
 `service.properties` have to be defined:
@@ -861,7 +873,6 @@ mail.smtp.password = <can be empty>
 |configuration-file-path|Optional configuration file defining groups.|
 |count-all-entities|If `true` shows the number of all entities (collections, objects, data sets) in an additional column. Default: `false`|
 
-
 **Example**:
 
 ```
@@ -870,8 +881,38 @@ interval = 7 days
 email-addresses = ab@c.de, a@bc.de
 ```
 
+### PersonalAccessTokenValidityWarningTask
 
-  
+**Environment**: AS
+
+**Relevancy:** Rare
+
+**Automatic Configuration**:
+This task is automatically configured, added and run with a default interval of 1 day. If needed, the default interval can be changed. In order to do
+that please configure the task just like any other maintenance task in `core-plugins` folder.
+
+**Description**: Sends out warning emails about soon to be expired PATs (Personal Access Tokens). Emails are sent to PATs owners. Each email contains
+a list of PATs that have the remaining validity period shorter than the `personal-access-tokens-validity-warning-period` defined in
+AS `service.properties`. The task does not send any information about the already expired PATs. It removes them.
+
+For more details on Personal Access Tokens please see [Personal Access Tokens](../../software-developer-documentation/apis/personal-access-tokens.md).
+
+In order to be able to send an e-mail the following properties in
+`service.properties` have to be defined:
+
+```
+mail.from = openbis@<host>
+mail.smtp.host = <SMTP host>
+mail.smtp.user = <can be empty>
+mail.smtp.password = <can be empty>
+```
+
+**Example**:
+
+```
+class = ch.systemsx.cisd.openbis.generic.server.pat.PersonalAccessTokenValidityWarningTask
+interval = 7 d
+```
 
 ## Consistency Repair and Manual Migrations
 
@@ -902,7 +943,7 @@ in `service.properties` of AS.
 **Description**: Removes data sets from the unarchiving scratch share
 which have status ARCHIVED and which are present in archive. For more
 details see [Multi data set
-archiving](/pages/viewpage.action?pageId=80699422).
+archiving](../../uncategorized/multi-data-set-archiving.md).
 
 **Configuration**:
 
@@ -1152,7 +1193,7 @@ data-set-type = HCS_IMAGE
 
 **Relevancy:** Rare
 
-**Description**: Removes unofficial unused vocabulary terms. For more details about unofficial vocabulary terms see [Ad Hoc Vocabulary Terms](https://unlimited.ethz.ch/display/openBISDoc2010/Ad+Hoc+Vocabulary+Terms).
+**Description**: Removes unofficial unused vocabulary terms. For more details about unofficial vocabulary terms see [Ad Hoc Vocabulary Terms](../../uncategorized/ad-hoc-vocabulary-terms.md).
 
 **Configuration:**
 
@@ -1311,9 +1352,9 @@ if int(seriesNum) % 2 == 0:
 **Relevancy:** Relevant
 
 **Description**: Deletes database entries from the imaging database.
-This is special variant of [DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask) with the same configuration parameters.
+This is special variant of [DeleteFromExternalDBMaintenanceTask](./maintenance-tasks.md#deletefromexternaldbmaintenancetask) with the same configuration parameters.
 
-**Configuration**: See [DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask)
+**Configuration**: See [DeleteFromExternalDBMaintenanceTask](./maintenance-tasks.md#deletefromexternaldbmaintenancetask)
 
 **Example**:
 

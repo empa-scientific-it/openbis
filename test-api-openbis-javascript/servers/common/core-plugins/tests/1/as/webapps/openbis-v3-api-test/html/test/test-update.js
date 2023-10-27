@@ -1,5 +1,5 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ], function($, _, openbis, openbisExecuteOperations, common, dtos) {
+	var executeModule = function(moduleName, facade, dtos) {
 		QUnit.module(moduleName);
 
 		var testUpdate = function(c, fCreate, fUpdate, fFind, fCheck, fCheckError) {
@@ -9,7 +9,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				facade : null,
 				permIds : null
 			};
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				ctx.facade = facade;
 				return fCreate(facade)
 			}).then(function(permIds) {
@@ -38,18 +38,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		}
 
 		QUnit.test("updateSpaces()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("SPACE");
 
 			var fCreate = function(facade) {
-				var creation = new c.SpaceCreation();
+				var creation = new dtos.SpaceCreation();
 				creation.setCode(code);
 				creation.setDescription("test description");
 				return facade.createSpaces([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.SpaceUpdate();
+				var update = new dtos.SpaceUpdate();
 				update.setSpaceId(permId);
 				update.setDescription("test description 2");
 				return facade.updateSpaces([ update ]);
@@ -64,22 +64,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateProjects() added attachments", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("PROJECT");
 
 			var fCreate = function(facade) {
-				var projectCreation = new c.ProjectCreation();
-				projectCreation.setSpaceId(new c.SpacePermId("TEST"));
+				var projectCreation = new dtos.ProjectCreation();
+				projectCreation.setSpaceId(new dtos.SpacePermId("TEST"));
 				projectCreation.setCode(code);
 				projectCreation.setDescription("JS test project");
 				return facade.createProjects([ projectCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var projectUpdate = new c.ProjectUpdate();
+				var projectUpdate = new dtos.ProjectUpdate();
 				projectUpdate.setProjectId(permId);
-				projectUpdate.setSpaceId(new c.SpacePermId("PLATONIC"));
-				attachmentCreation = new c.AttachmentCreation();
+				projectUpdate.setSpaceId(new dtos.SpacePermId("PLATONIC"));
+				attachmentCreation = new dtos.AttachmentCreation();
 				attachmentCreation.setFileName("test_file");
 				attachmentCreation.setTitle("test_title");
 				attachmentCreation.setDescription("test_description");
@@ -104,19 +104,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateProjects() changed attributes", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("PROJECT");
 
 			var fCreate = function(facade) {
-				var projectCreation = new c.ProjectCreation();
-				projectCreation.setSpaceId(new c.SpacePermId("TEST"));
+				var projectCreation = new dtos.ProjectCreation();
+				projectCreation.setSpaceId(new dtos.SpacePermId("TEST"));
 				projectCreation.setCode(code);
 				projectCreation.setDescription("JS test project");
 				return facade.createProjects([ projectCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var projectUpdate = new c.ProjectUpdate();
+				var projectUpdate = new dtos.ProjectUpdate();
 				projectUpdate.setProjectId(permId);
 				projectUpdate.setDescription("test_description");
 				return facade.updateProjects([ projectUpdate ]);
@@ -132,19 +132,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateProjects() removed space", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("PROJECT");
 
 			var fCreate = function(facade) {
-				var projectCreation = new c.ProjectCreation();
-				projectCreation.setSpaceId(new c.SpacePermId("TEST"));
+				var projectCreation = new dtos.ProjectCreation();
+				projectCreation.setSpaceId(new dtos.SpacePermId("TEST"));
 				projectCreation.setCode(code);
 				projectCreation.setDescription("JS test project");
 				return facade.createProjects([ projectCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var projectUpdate = new c.ProjectUpdate();
+				var projectUpdate = new dtos.ProjectUpdate();
 				projectUpdate.setProjectId(permId);
 				projectUpdate.setSpaceId(null);
 				return facade.updateProjects([ projectUpdate ]);
@@ -158,20 +158,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExperimentTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("EXPERIMENT_TYPE");
 
 			var fCreate = function(facade) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setInitialValueForExistingEntities("initial value");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
 
-				var creation = new c.ExperimentTypeCreation();
+				var creation = new dtos.ExperimentTypeCreation();
 				creation.setCode(code);
 				creation.setDescription("a new description");
 				creation.setPropertyAssignments([ assignmentCreation ]);
@@ -181,19 +181,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section 2");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("1.0");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
-				var update = new c.ExperimentTypeUpdate();
+				var update = new dtos.ExperimentTypeUpdate();
 				update.setTypeId(permId);
 				update.setDescription("another new description");
-				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.setValidationPluginId(new dtos.PluginPermId("Has_Parents"));
 				update.getPropertyAssignments().set([ assignmentCreation ]);
 				update.getMetaData().put("experiment_type_update", "new_value");
 				update.getMetaData().add({"experiment_type_add":"add_value"});
@@ -227,26 +227,26 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExperiments() changed attributes + added tag + added attachment", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
-				var experimentCreation = new c.ExperimentCreation();
+				var experimentCreation = new dtos.ExperimentCreation();
 				experimentCreation.setCode(code);
-				experimentCreation.setTypeId(new c.EntityTypePermId("HT_SEQUENCING"));
+				experimentCreation.setTypeId(new dtos.EntityTypePermId("HT_SEQUENCING"));
 				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
-				experimentCreation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
-				experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+				experimentCreation.setTagIds([ new dtos.TagCode("CREATE_JSON_TAG") ]);
+				experimentCreation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				experimentCreation.setMetaData({"experiment_update":"old_value", "experiment_delete":"del_value"});
 				return facade.createExperiments([ experimentCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var experimentUpdate = new c.ExperimentUpdate();
+				var experimentUpdate = new dtos.ExperimentUpdate();
 				experimentUpdate.setExperimentId(permId);
-				experimentUpdate.setProjectId(new c.ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
-				experimentUpdate.getTagIds().add(new c.TagCode("CREATE_ANOTHER_JSON_TAG"));
-				attachmentCreation = new c.AttachmentCreation();
+				experimentUpdate.setProjectId(new dtos.ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+				experimentUpdate.getTagIds().add(new dtos.TagCode("CREATE_ANOTHER_JSON_TAG"));
+				attachmentCreation = new dtos.AttachmentCreation();
 				attachmentCreation.setFileName("test_file");
 				attachmentCreation.setTitle("test_title");
 				attachmentCreation.setDescription("test_description");
@@ -284,24 +284,24 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExperiments() changed properties + removed tag", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
-				var experimentCreation = new c.ExperimentCreation();
+				var experimentCreation = new dtos.ExperimentCreation();
 				experimentCreation.setCode(code);
-				experimentCreation.setTypeId(new c.EntityTypePermId("HT_SEQUENCING"));
+				experimentCreation.setTypeId(new dtos.EntityTypePermId("HT_SEQUENCING"));
 				experimentCreation.setProperty("EXPERIMENT_DESIGN", "EXPRESSION");
-				experimentCreation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
-				experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+				experimentCreation.setTagIds([ new dtos.TagCode("CREATE_JSON_TAG") ]);
+				experimentCreation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				return facade.createExperiments([ experimentCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var experimentUpdate = new c.ExperimentUpdate();
+				var experimentUpdate = new dtos.ExperimentUpdate();
 				experimentUpdate.setExperimentId(permId);
 				experimentUpdate.setProperty("EXPERIMENT_DESIGN", "OTHER");
-				experimentUpdate.getTagIds().remove([ new c.TagCode("UNKNOWN_TAG"), new c.TagCode("CREATE_JSON_TAG") ]);
+				experimentUpdate.getTagIds().remove([ new dtos.TagCode("UNKNOWN_TAG"), new dtos.TagCode("CREATE_JSON_TAG") ]);
 				return facade.updateExperiments([ experimentUpdate ]);
 			}
 
@@ -320,19 +320,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExperiments() removed project", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
-				var experimentCreation = new c.ExperimentCreation();
+				var experimentCreation = new dtos.ExperimentCreation();
 				experimentCreation.setCode(code);
-				experimentCreation.setTypeId(new c.EntityTypePermId("HT_SEQUENCING"));
-				experimentCreation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+				experimentCreation.setTypeId(new dtos.EntityTypePermId("HT_SEQUENCING"));
+				experimentCreation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				return facade.createExperiments([ experimentCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var experimentUpdate = new c.ExperimentUpdate();
+				var experimentUpdate = new dtos.ExperimentUpdate();
 				experimentUpdate.setExperimentId(permId);
 				experimentUpdate.setProjectId(null);
 				return facade.updateExperiments([ experimentUpdate ]);
@@ -346,28 +346,28 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExperiment() change property of type SAMPLE", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var propertyTypeCode = c.generateId("PROPERTY_TYPE");
 			var experimentTypeCode = c.generateId("EXPERIMENT_TYPE");
 			var code = c.generateId("EXPERIMENT");
 
 			var fCreate = function(facade) {
-				var propertyTypeCreation = new c.PropertyTypeCreation();
+				var propertyTypeCreation = new dtos.PropertyTypeCreation();
 				propertyTypeCreation.setCode(propertyTypeCode);
 				propertyTypeCreation.setDescription("hello");
-				propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+				propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
 				propertyTypeCreation.setLabel("Test Property Type");
 				return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-					var assignmentCreation = new c.PropertyAssignmentCreation();
-					assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-					var experimentTypeCreation = new c.ExperimentTypeCreation();
+					var assignmentCreation = new dtos.PropertyAssignmentCreation();
+					assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+					var experimentTypeCreation = new dtos.ExperimentTypeCreation();
 					experimentTypeCreation.setCode(experimentTypeCode);
 					experimentTypeCreation.setPropertyAssignments([ assignmentCreation ]);
 					return facade.createExperimentTypes([ experimentTypeCreation ]).then(function(results) {
-						var creation = new c.ExperimentCreation();
-						creation.setTypeId(new c.EntityTypePermId(experimentTypeCode));
+						var creation = new dtos.ExperimentCreation();
+						creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode));
 						creation.setCode(code);
-						creation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+						creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
 						creation.setProperty(propertyTypeCode, "20130412140147735-20");
 						return facade.createExperiments([ creation ]);
 					});
@@ -375,7 +375,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.ExperimentUpdate();
+				var update = new dtos.ExperimentUpdate();
 				update.setExperimentId(permId);
 				update.setProperty(propertyTypeCode, "20130412140147736-21");
 				return facade.updateExperiments([ update ]);
@@ -395,29 +395,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExperiment() change multi-value property of type SAMPLE", function(assert) {
-            var c = new common(assert, openbis);
+            var c = new common(assert, dtos);
             var propertyTypeCode = c.generateId("PROPERTY_TYPE");
             var experimentTypeCode = c.generateId("EXPERIMENT_TYPE");
             var code = c.generateId("EXPERIMENT");
 
             var fCreate = function(facade) {
-                var propertyTypeCreation = new c.PropertyTypeCreation();
+                var propertyTypeCreation = new dtos.PropertyTypeCreation();
                 propertyTypeCreation.setCode(propertyTypeCode);
                 propertyTypeCreation.setDescription("hello");
-                propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+                propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
                 propertyTypeCreation.setLabel("Test Property Type");
                 propertyTypeCreation.setMultiValue(true);
                 return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-                    var assignmentCreation = new c.PropertyAssignmentCreation();
-                    assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-                    var experimentTypeCreation = new c.ExperimentTypeCreation();
+                    var assignmentCreation = new dtos.PropertyAssignmentCreation();
+                    assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+                    var experimentTypeCreation = new dtos.ExperimentTypeCreation();
                     experimentTypeCreation.setCode(experimentTypeCode);
                     experimentTypeCreation.setPropertyAssignments([ assignmentCreation ]);
                     return facade.createExperimentTypes([ experimentTypeCreation ]).then(function(results) {
-                        var creation = new c.ExperimentCreation();
-                        creation.setTypeId(new c.EntityTypePermId(experimentTypeCode));
+                        var creation = new dtos.ExperimentCreation();
+                        creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode));
                         creation.setCode(code);
-                        creation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+                        creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
                         creation.setProperty(propertyTypeCode, ["20130412140147735-20", "20130424134657597-433"]);
                         return facade.createExperiments([ creation ]);
                     });
@@ -425,7 +425,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
             }
 
             var fUpdate = function(facade, permId) {
-                var update = new c.ExperimentUpdate();
+                var update = new dtos.ExperimentUpdate();
                 update.setExperimentId(permId);
                 update.setProperty(propertyTypeCode, "20130412140147736-21");
                 return facade.updateExperiments([ update ]);
@@ -448,21 +448,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         });
 		
 		QUnit.test("updateSampleTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("SAMPLE_TYPE");
 
 			var fCreate = function(facade) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("initial value");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
 
-				var creation = new c.SampleTypeCreation();
+				var creation = new dtos.SampleTypeCreation();
 				creation.setCode(code);
 				creation.setDescription("a new description");
 				creation.setGeneratedCodePrefix("TEST_PREFIX");
@@ -473,16 +473,16 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section 2");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("1.0");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
-				var update = new c.SampleTypeUpdate();
+				var update = new dtos.SampleTypeUpdate();
 				update.setTypeId(permId);
 				update.setAutoGeneratedCode(true);
 				update.setSubcodeUnique(true);
@@ -492,9 +492,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.setShowContainer(true);
 				update.setShowParents(true);
 				update.setShowParentMetadata(true);
-				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.setValidationPluginId(new dtos.PluginPermId("Has_Parents"));
 				update.getPropertyAssignments().add([ assignmentCreation ]);
-				update.getPropertyAssignments().remove([ new c.PropertyAssignmentPermId(permId, new c.PropertyTypePermId("DESCRIPTION")) ]);
+				update.getPropertyAssignments().remove([ new dtos.PropertyAssignmentPermId(permId, new dtos.PropertyTypePermId("DESCRIPTION")) ]);
                 update.getMetaData().put("sample_type_update", "new_value");
                 update.getMetaData().add({"sample_type_add":"add_value"});
                 update.getMetaData().remove("sample_type_delete");
@@ -534,25 +534,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateSamples()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("SAMPLE");
 
 			var fCreate = function(facade) {
-				var creation = new c.SampleCreation();
-				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
+				var creation = new dtos.SampleCreation();
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creation.setCode(code);
-				creation.setSpaceId(new c.SpacePermId("TEST"));
-				creation.setTagIds([ new c.TagCode("CREATE_JSON_TAG") ]);
+				creation.setSpaceId(new dtos.SpacePermId("TEST"));
+				creation.setTagIds([ new dtos.TagCode("CREATE_JSON_TAG") ]);
 				creation.setMetaData({"sample_update":"old_value", "sample_delete":"del_value"});
 				return facade.createSamples([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.SampleUpdate();
+				var update = new dtos.SampleUpdate();
 				update.setSampleId(permId);
-				update.getTagIds().remove(new c.TagCode("CREATE_JSON_TAG"));
-				update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_2"));
-				update.getTagIds().add(new c.TagCode("CREATE_JSON_TAG_3"));
+				update.getTagIds().remove(new dtos.TagCode("CREATE_JSON_TAG"));
+				update.getTagIds().add(new dtos.TagCode("CREATE_JSON_TAG_2"));
+				update.getTagIds().add(new dtos.TagCode("CREATE_JSON_TAG_3"));
 				update.getMetaData().put("sample_update", "new_value");
                 update.getMetaData().add({"sample_add":"add_value"});
                 update.getMetaData().remove("sample_delete");
@@ -576,23 +576,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateSamples() turn project sample into a space sample", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("SAMPLE");
 
 			var fCreate = function(facade) {
-				var creation = new c.SampleCreation();
-				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
+				var creation = new dtos.SampleCreation();
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creation.setCode(code);
-				creation.setSpaceId(new c.SpacePermId("TEST"));
-				creation.setProjectId(new c.ProjectIdentifier("/TEST/TEST-PROJECT"));
+				creation.setSpaceId(new dtos.SpacePermId("TEST"));
+				creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
 				return facade.createSamples([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.SampleUpdate();
+				var update = new dtos.SampleUpdate();
 				update.setSampleId(permId);
 				update.setProjectId(null);
-				update.setSpaceId(new c.SpacePermId("PLATONIC"));
+				update.setSpaceId(new dtos.SpacePermId("PLATONIC"));
 				return facade.updateSamples([ update ]);
 			}
 
@@ -608,22 +608,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateSamples() turn space sample into a project sample", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("SAMPLE");
 
 			var fCreate = function(facade) {
-				var creation = new c.SampleCreation();
-				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
+				var creation = new dtos.SampleCreation();
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creation.setCode(code);
-				creation.setSpaceId(new c.SpacePermId("TEST"));
+				creation.setSpaceId(new dtos.SpacePermId("TEST"));
 				return facade.createSamples([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.SampleUpdate();
+				var update = new dtos.SampleUpdate();
 				update.setSampleId(permId);
-				update.setProjectId(new c.ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
-				update.setSpaceId(new c.SpacePermId("PLATONIC"));
+				update.setProjectId(new dtos.ProjectIdentifier("/PLATONIC/SCREENING-EXAMPLES"));
+				update.setSpaceId(new dtos.SpacePermId("PLATONIC"));
 				return facade.updateSamples([ update ]);
 			}
 
@@ -639,16 +639,16 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateSamples() with annotated parent and child", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("SAMPLE");
-			var parentId = new c.SampleIdentifier("/TEST/TEST-SAMPLE-1");
-			var childId = new c.SampleIdentifier("/TEST/TEST-PROJECT/TEST-SAMPLE-2");
+			var parentId = new dtos.SampleIdentifier("/TEST/TEST-SAMPLE-1");
+			var childId = new dtos.SampleIdentifier("/TEST/TEST-PROJECT/TEST-SAMPLE-2");
 			
 			var fCreate = function(facade) {
-				var creation = new c.SampleCreation();
-				creation.setTypeId(new c.EntityTypePermId("UNKNOWN"));
+				var creation = new dtos.SampleCreation();
+				creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
 				creation.setCode(code);
-				creation.setSpaceId(new c.SpacePermId("TEST"));
+				creation.setSpaceId(new dtos.SpacePermId("TEST"));
 				creation.setParentIds([ parentId ]);
 				creation.setChildIds([ childId ]);
 				creation.relationship(parentId).addParentAnnotation("type", "father").addChildAnnotation("type", "daughter");
@@ -658,7 +658,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 			
 			var fUpdate = function(facade, permId) {
-				var update = new c.SampleUpdate();
+				var update = new dtos.SampleUpdate();
 				update.setSampleId(permId);
 				var parentRelationShip = update.relationship(parentId);
 				parentRelationShip.removeChildAnnotations("type").addChildAnnotation("color", "blue")
@@ -690,28 +690,28 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("updateSamples() change property of type SAMPLE", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var propertyTypeCode = c.generateId("PROPERTY_TYPE");
 			var sampleTypeCode = c.generateId("SAMPLE_TYPE");
 			var code = c.generateId("SAMPLE");
 
 			var fCreate = function(facade) {
-				var propertyTypeCreation = new c.PropertyTypeCreation();
+				var propertyTypeCreation = new dtos.PropertyTypeCreation();
 				propertyTypeCreation.setCode(propertyTypeCode);
 				propertyTypeCreation.setDescription("hello");
-				propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+				propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
 				propertyTypeCreation.setLabel("Test Property Type");
 				return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-					var assignmentCreation = new c.PropertyAssignmentCreation();
-					assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-					var sampleTypeCreation = new c.SampleTypeCreation();
+					var assignmentCreation = new dtos.PropertyAssignmentCreation();
+					assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+					var sampleTypeCreation = new dtos.SampleTypeCreation();
 					sampleTypeCreation.setCode(sampleTypeCode);
 					sampleTypeCreation.setPropertyAssignments([ assignmentCreation ]);
 					return facade.createSampleTypes([ sampleTypeCreation ]).then(function(results) {
-						var creation = new c.SampleCreation();
-						creation.setTypeId(new c.EntityTypePermId(sampleTypeCode));
+						var creation = new dtos.SampleCreation();
+						creation.setTypeId(new dtos.EntityTypePermId(sampleTypeCode));
 						creation.setCode(code);
-						creation.setSpaceId(new c.SpacePermId("TEST"));
+						creation.setSpaceId(new dtos.SpacePermId("TEST"));
 						creation.setProperty(propertyTypeCode, "20130412140147735-20");
 						return facade.createSamples([ creation ]);
 					});
@@ -719,7 +719,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.SampleUpdate();
+				var update = new dtos.SampleUpdate();
 				update.setSampleId(permId);
 				update.setProperty(propertyTypeCode, "20130412140147736-21");
 				return facade.updateSamples([ update ]);
@@ -738,29 +738,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateSamples() change multi-value property of type SAMPLE", function(assert) {
-            var c = new common(assert, openbis);
+            var c = new common(assert, dtos);
             var propertyTypeCode = c.generateId("PROPERTY_TYPE");
             var sampleTypeCode = c.generateId("SAMPLE_TYPE");
             var code = c.generateId("SAMPLE");
 
             var fCreate = function(facade) {
-                var propertyTypeCreation = new c.PropertyTypeCreation();
+                var propertyTypeCreation = new dtos.PropertyTypeCreation();
                 propertyTypeCreation.setCode(propertyTypeCode);
                 propertyTypeCreation.setDescription("hello");
-                propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+                propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
                 propertyTypeCreation.setLabel("Test Property Type");
                 propertyTypeCreation.setMultiValue(true);
                 return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-                    var assignmentCreation = new c.PropertyAssignmentCreation();
-                    assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-                    var sampleTypeCreation = new c.SampleTypeCreation();
+                    var assignmentCreation = new dtos.PropertyAssignmentCreation();
+                    assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+                    var sampleTypeCreation = new dtos.SampleTypeCreation();
                     sampleTypeCreation.setCode(sampleTypeCode);
                     sampleTypeCreation.setPropertyAssignments([ assignmentCreation ]);
                     return facade.createSampleTypes([ sampleTypeCreation ]).then(function(results) {
-                        var creation = new c.SampleCreation();
-                        creation.setTypeId(new c.EntityTypePermId(sampleTypeCode));
+                        var creation = new dtos.SampleCreation();
+                        creation.setTypeId(new dtos.EntityTypePermId(sampleTypeCode));
                         creation.setCode(code);
-                        creation.setSpaceId(new c.SpacePermId("TEST"));
+                        creation.setSpaceId(new dtos.SpacePermId("TEST"));
                         creation.setProperty(propertyTypeCode, ["20130412140147735-20", "20130424134657597-433"]);
                         return facade.createSamples([ creation ]);
                     });
@@ -768,7 +768,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
             }
 
             var fUpdate = function(facade, permId) {
-                var update = new c.SampleUpdate();
+                var update = new dtos.SampleUpdate();
                 update.setSampleId(permId);
                 update.setProperty(propertyTypeCode, "20130412140147736-21");
                 return facade.updateSamples([ update ]);
@@ -788,28 +788,28 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         });
 		
 		QUnit.test("updateSamples() remove property of type SAMPLE", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var propertyTypeCode = c.generateId("PROPERTY_TYPE");
 			var sampleTypeCode = c.generateId("SAMPLE_TYPE");
 			var code = c.generateId("SAMPLE");
 			
 			var fCreate = function(facade) {
-				var propertyTypeCreation = new c.PropertyTypeCreation();
+				var propertyTypeCreation = new dtos.PropertyTypeCreation();
 				propertyTypeCreation.setCode(propertyTypeCode);
 				propertyTypeCreation.setDescription("hello");
-				propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+				propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
 				propertyTypeCreation.setLabel("Test Property Type");
 				return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-					var assignmentCreation = new c.PropertyAssignmentCreation();
-					assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-					var sampleTypeCreation = new c.SampleTypeCreation();
+					var assignmentCreation = new dtos.PropertyAssignmentCreation();
+					assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+					var sampleTypeCreation = new dtos.SampleTypeCreation();
 					sampleTypeCreation.setCode(sampleTypeCode);
 					sampleTypeCreation.setPropertyAssignments([ assignmentCreation ]);
 					return facade.createSampleTypes([ sampleTypeCreation ]).then(function(results) {
-						var creation = new c.SampleCreation();
-						creation.setTypeId(new c.EntityTypePermId(sampleTypeCode));
+						var creation = new dtos.SampleCreation();
+						creation.setTypeId(new dtos.EntityTypePermId(sampleTypeCode));
 						creation.setCode(code);
-						creation.setSpaceId(new c.SpacePermId("TEST"));
+						creation.setSpaceId(new dtos.SpacePermId("TEST"));
 						creation.setProperty(propertyTypeCode, "20130412140147735-20");
 						return facade.createSamples([ creation ]);
 					});
@@ -817,7 +817,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 			
 			var fUpdate = function(facade, permId) {
-				var update = new c.SampleUpdate();
+				var update = new dtos.SampleUpdate();
 				update.setSampleId(permId);
 				update.setProperty(propertyTypeCode, null);
 				return facade.updateSamples([ update ]);
@@ -836,21 +836,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateDataSetTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("DATA_SET_TYPE");
 
 			var fCreate = function(facade) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("initial value");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
 
-				var creation = new c.DataSetTypeCreation();
+				var creation = new dtos.DataSetTypeCreation();
 				creation.setCode(code);
 				creation.setDescription("a new description");
 				creation.setPropertyAssignments([ assignmentCreation ]);
@@ -860,19 +860,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section 2");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("1.0");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
-				var update = new c.DataSetTypeUpdate();
+				var update = new dtos.DataSetTypeUpdate();
 				update.setTypeId(permId);
 				update.setDescription("another new description");
-				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.setValidationPluginId(new dtos.PluginPermId("Has_Parents"));
 				update.setMainDataSetPattern(".*\\.jpg");
 				update.setMainDataSetPath("original/images/");
 				update.setDisallowDeletion(true);
@@ -912,7 +912,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateDataSets()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = null;
 
 			var fCreate = function(facade) {
@@ -923,11 +923,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var physicalUpdate = new c.PhysicalDataUpdate();
-				physicalUpdate.setFileFormatTypeId(new c.FileFormatTypePermId("TIFF"));
+				var physicalUpdate = new dtos.PhysicalDataUpdate();
+				physicalUpdate.setFileFormatTypeId(new dtos.FileFormatTypePermId("TIFF"));
 				physicalUpdate.setArchivingRequested(true);
 
-				var update = new c.DataSetUpdate();
+				var update = new dtos.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setProperty("NOTES", "new 409 description");
 				update.setPhysicalData(physicalUpdate);
@@ -946,30 +946,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateDataSet() change property of type SAMPLE", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var propertyTypeCode = c.generateId("PROPERTY_TYPE");
 			var dataSetTypeCode = c.generateId("DATA_SET_TYPE");
 			var code = c.generateId("DATA_SET");
 			
 			var fCreate = function(facade) {
-				var propertyTypeCreation = new c.PropertyTypeCreation();
+				var propertyTypeCreation = new dtos.PropertyTypeCreation();
 				propertyTypeCreation.setCode(propertyTypeCode);
 				propertyTypeCreation.setDescription("hello");
-				propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+				propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
 				propertyTypeCreation.setLabel("Test Property Type");
 				return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-					var assignmentCreation = new c.PropertyAssignmentCreation();
-					assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-					var dataSetTypeCreation = new c.DataSetTypeCreation();
+					var assignmentCreation = new dtos.PropertyAssignmentCreation();
+					assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+					var dataSetTypeCreation = new dtos.DataSetTypeCreation();
 					dataSetTypeCreation.setCode(dataSetTypeCode);
 					dataSetTypeCreation.setPropertyAssignments([ assignmentCreation ]);
 					return facade.createDataSetTypes([ dataSetTypeCreation ]).then(function(results) {
-						var creation = new c.DataSetCreation();
-						creation.setTypeId(new c.EntityTypePermId(dataSetTypeCode));
+						var creation = new dtos.DataSetCreation();
+						creation.setTypeId(new dtos.EntityTypePermId(dataSetTypeCode));
 						creation.setCode(code);
-						creation.setDataSetKind(c.DataSetKind.CONTAINER);
-						creation.setDataStoreId(new c.DataStorePermId("DSS1"));
-						creation.setExperimentId(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+						creation.setDataSetKind(dtos.DataSetKind.CONTAINER);
+						creation.setDataStoreId(new dtos.DataStorePermId("DSS1"));
+						creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
 						creation.setProperty(propertyTypeCode, "20130412140147735-20");
 						creation.setMetaData({"dataset_update":"old_value", "dataset_delete":"del_value"});
 						return facade.createDataSets([ creation ]);
@@ -978,7 +978,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.DataSetUpdate();
+				var update = new dtos.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setProperty(propertyTypeCode, "20130412140147736-21");
 				update.getMetaData().put("dataset_update", "new_value");
@@ -1004,31 +1004,31 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateDataSet() change multi-value property of type SAMPLE", function(assert) {
-            var c = new common(assert, openbis);
+            var c = new common(assert, dtos);
             var propertyTypeCode = c.generateId("PROPERTY_TYPE");
             var dataSetTypeCode = c.generateId("DATA_SET_TYPE");
             var code = c.generateId("DATA_SET");
 
             var fCreate = function(facade) {
-                var propertyTypeCreation = new c.PropertyTypeCreation();
+                var propertyTypeCreation = new dtos.PropertyTypeCreation();
                 propertyTypeCreation.setCode(propertyTypeCode);
                 propertyTypeCreation.setDescription("hello");
-                propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+                propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
                 propertyTypeCreation.setLabel("Test Property Type");
                 propertyTypeCreation.setMultiValue(true);
                 return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-                    var assignmentCreation = new c.PropertyAssignmentCreation();
-                    assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-                    var dataSetTypeCreation = new c.DataSetTypeCreation();
+                    var assignmentCreation = new dtos.PropertyAssignmentCreation();
+                    assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+                    var dataSetTypeCreation = new dtos.DataSetTypeCreation();
                     dataSetTypeCreation.setCode(dataSetTypeCode);
                     dataSetTypeCreation.setPropertyAssignments([ assignmentCreation ]);
                     return facade.createDataSetTypes([ dataSetTypeCreation ]).then(function(results) {
-                        var creation = new c.DataSetCreation();
-                        creation.setTypeId(new c.EntityTypePermId(dataSetTypeCode));
+                        var creation = new dtos.DataSetCreation();
+                        creation.setTypeId(new dtos.EntityTypePermId(dataSetTypeCode));
                         creation.setCode(code);
-                        creation.setDataSetKind(c.DataSetKind.CONTAINER);
-                        creation.setDataStoreId(new c.DataStorePermId("DSS1"));
-                        creation.setExperimentId(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+                        creation.setDataSetKind(dtos.DataSetKind.CONTAINER);
+                        creation.setDataStoreId(new dtos.DataStorePermId("DSS1"));
+                        creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
                         creation.setProperty(propertyTypeCode, ["20130412140147735-20", "20130424134657597-433"]);
                         creation.setMetaData({"dataset_update":"old_value", "dataset_delete":"del_value"});
                         return facade.createDataSets([ creation ]);
@@ -1037,7 +1037,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
             }
 
             var fUpdate = function(facade, permId) {
-                var update = new c.DataSetUpdate();
+                var update = new dtos.DataSetUpdate();
                 update.setDataSetId(permId);
                 update.setProperty(propertyTypeCode, "20130412140147736-21");
                 update.getMetaData().put("dataset_update", "new_value");
@@ -1064,18 +1064,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         });
 		
 		QUnit.test("updateDataSets() link data set", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = "20160613195437233-437";
 
 			var fCreate = function(facade) {
-				return [ new c.DataSetPermId(code) ];
+				return [ new dtos.DataSetPermId(code) ];
 			}
 
 			var fUpdate = function(facade, permId) {
-				var linkUpdate = new c.LinkedDataUpdate();
+				var linkUpdate = new dtos.LinkedDataUpdate();
 				linkUpdate.setExternalCode("new code");
 
-				var update = new c.DataSetUpdate();
+				var update = new dtos.DataSetUpdate();
 				update.setDataSetId(permId);
 				update.setLinkedData(linkUpdate);
 
@@ -1092,7 +1092,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateDataSets() add content copy to link data set", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var edmsId = null;
 
 			var fCreate = function(facade) {
@@ -1106,8 +1106,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				return c.findDataSet(facade, permId).then(function(dataSet) {
 					var contentCopy = dataSet.getLinkedData().getContentCopies()[0];
 					edmsId = contentCopy.getExternalDms().getPermId();
-					var contentCopyListUpdateValue = new c.ContentCopyListUpdateValue();
-					var contentCopyCreation = new c.ContentCopyCreation();
+					var contentCopyListUpdateValue = new dtos.ContentCopyListUpdateValue();
+					var contentCopyCreation = new dtos.ContentCopyCreation();
 					contentCopyCreation.setExternalDmsId(edmsId);
 					contentCopyCreation.setPath("my/data/path");
 					contentCopyCreation.setGitCommitHash("my-git-hash");
@@ -1115,10 +1115,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					contentCopyListUpdateValue.add([ contentCopyCreation ]);
 					contentCopyListUpdateValue.remove([ contentCopy.getId() ]);
 
-					var linkUpdate = new c.LinkedDataUpdate();
+					var linkUpdate = new dtos.LinkedDataUpdate();
 					linkUpdate.setContentCopyActions(contentCopyListUpdateValue.getActions());
 
-					var update = new c.DataSetUpdate();
+					var update = new dtos.DataSetUpdate();
 					update.setDataSetId(permId);
 					update.setLinkedData(linkUpdate);
 
@@ -1141,21 +1141,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateMaterialTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("MATERIAL_TYPE");
 
 			var fCreate = function(facade) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("DESCRIPTION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("DESCRIPTION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("initial value");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
 
-				var creation = new c.MaterialTypeCreation();
+				var creation = new dtos.MaterialTypeCreation();
 				creation.setCode(code);
 				creation.setDescription("a new description");
 				creation.setPropertyAssignments([ assignmentCreation ]);
@@ -1164,21 +1164,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var assignmentCreation = new c.PropertyAssignmentCreation();
+				var assignmentCreation = new dtos.PropertyAssignmentCreation();
 				assignmentCreation.setSection("test section 2");
 				assignmentCreation.setOrdinal(10);
-				assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId("VERSION"));
-				assignmentCreation.setPluginId(new c.PluginPermId("Diff_time"));
+				assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId("VERSION"));
+				assignmentCreation.setPluginId(new dtos.PluginPermId("Diff_time"));
 				assignmentCreation.setMandatory(true);
 				assignmentCreation.setInitialValueForExistingEntities("1.0");
 				assignmentCreation.setShowInEditView(true);
 				assignmentCreation.setShowRawValueInForms(true);
-				var update = new c.MaterialTypeUpdate();
+				var update = new dtos.MaterialTypeUpdate();
 				update.setTypeId(permId);
 				update.setDescription("another new description");
-				update.setValidationPluginId(new c.PluginPermId("Has_Parents"));
+				update.setValidationPluginId(new dtos.PluginPermId("Has_Parents"));
 				update.getPropertyAssignments().add([ assignmentCreation ]);
-				update.getPropertyAssignments().remove([ new c.PropertyAssignmentPermId(permId, new c.PropertyTypePermId("DESCRIPTION")) ]);
+				update.getPropertyAssignments().remove([ new dtos.PropertyAssignmentPermId(permId, new dtos.PropertyTypePermId("DESCRIPTION")) ]);
 				return facade.updateMaterialTypes([ update ]);
 			}
 
@@ -1203,19 +1203,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateMaterials()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("MATERIAL");
 
 			var fCreate = function(facade) {
-				var materialCreation = new c.MaterialCreation();
-				materialCreation.setTypeId(new c.EntityTypePermId("COMPOUND"));
+				var materialCreation = new dtos.MaterialCreation();
+				materialCreation.setTypeId(new dtos.EntityTypePermId("COMPOUND"));
 				materialCreation.setCode(code);
 				materialCreation.setProperty("DESCRIPTION", "Metal");
 				return facade.createMaterials([ materialCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var materialUpdate = new c.MaterialUpdate();
+				var materialUpdate = new dtos.MaterialUpdate();
 				materialUpdate.setMaterialId(permId);
 				materialUpdate.setProperty("DESCRIPTION", "Alloy");
 				return facade.updateMaterials([ materialUpdate ]);
@@ -1232,25 +1232,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updatePropertyTypes()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("PROPERTY_TYPE");
 			var description = "Description of " + code;
 			var label = "Label of " + code;
 			var metaData1 = {"greetings" : "hello test"};
 
 			var fCreate = function(facade) {
-				var creation = new c.PropertyTypeCreation();
+				var creation = new dtos.PropertyTypeCreation();
 				creation.setCode(code);
 				creation.setLabel("Testing");
 				creation.setDescription("testing");
-				creation.setDataType(c.DataType.VARCHAR);
+				creation.setDataType(dtos.DataType.VARCHAR);
 				creation.setMetaData(metaData1);
 				return facade.createPropertyTypes([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.PropertyTypeUpdate();
-				update.setTypeId(new c.PropertyTypePermId(code));
+				var update = new dtos.PropertyTypeUpdate();
+				update.setTypeId(new dtos.PropertyTypePermId(code));
 				update.setDescription(description);
 				update.setLabel(label);
 				var metaData = update.getMetaData();
@@ -1270,30 +1270,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updatePropertyTypes() convert data type ", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var propertyTypeCode = c.generateId("PROPERTY_TYPE");
 			var dataSetTypeCode = c.generateId("DATA_SET_TYPE");
 			var code = c.generateId("DATA_SET");
 			
 			var fCreate = function(facade) {
-				var propertyTypeCreation = new c.PropertyTypeCreation();
+				var propertyTypeCreation = new dtos.PropertyTypeCreation();
 				propertyTypeCreation.setCode(propertyTypeCode);
 				propertyTypeCreation.setDescription("hello");
-				propertyTypeCreation.setDataType(c.DataType.SAMPLE);
+				propertyTypeCreation.setDataType(dtos.DataType.SAMPLE);
 				propertyTypeCreation.setLabel("Test Property Type");
 				return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
-					var assignmentCreation = new c.PropertyAssignmentCreation();
-					assignmentCreation.setPropertyTypeId(new c.PropertyTypePermId(propertyTypeCode));
-					var dataSetTypeCreation = new c.DataSetTypeCreation();
+					var assignmentCreation = new dtos.PropertyAssignmentCreation();
+					assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+					var dataSetTypeCreation = new dtos.DataSetTypeCreation();
 					dataSetTypeCreation.setCode(dataSetTypeCode);
 					dataSetTypeCreation.setPropertyAssignments([ assignmentCreation ]);
 					return facade.createDataSetTypes([ dataSetTypeCreation ]).then(function(results) {
-						var creation = new c.DataSetCreation();
-						creation.setTypeId(new c.EntityTypePermId(dataSetTypeCode));
+						var creation = new dtos.DataSetCreation();
+						creation.setTypeId(new dtos.EntityTypePermId(dataSetTypeCode));
 						creation.setCode(code);
-						creation.setDataSetKind(c.DataSetKind.CONTAINER);
-						creation.setDataStoreId(new c.DataStorePermId("DSS1"));
-						creation.setExperimentId(new c.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+						creation.setDataSetKind(dtos.DataSetKind.CONTAINER);
+						creation.setDataStoreId(new dtos.DataStorePermId("DSS1"));
+						creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
 						creation.setProperty(propertyTypeCode, "20130412140147735-20");
 						return facade.createDataSets([ creation ]);
 					});
@@ -1301,9 +1301,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 			
 			var fUpdate = function(facade, permId) {
-				var update = new c.PropertyTypeUpdate();
-				update.setTypeId(new c.PropertyTypePermId(propertyTypeCode));
-				update.convertToDataType(c.DataType.VARCHAR);
+				var update = new dtos.PropertyTypeUpdate();
+				update.setTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+				update.convertToDataType(dtos.DataType.VARCHAR);
 				return facade.updatePropertyTypes([ update ]);
 			}
 			
@@ -1318,24 +1318,24 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("updatePlugins()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var name = c.generateId("PLUGIN");
 			var description = "Description of " + name;
 			var script = "print 'hello'";
 
 			var fCreate = function(facade) {
-				var creation = new c.PluginCreation();
+				var creation = new dtos.PluginCreation();
 				creation.setName(name);
 				creation.setScript("pass");
 				creation.setDescription("old description");
 				creation.setAvailable(false);
-				creation.setPluginType(c.PluginType.MANAGED_PROPERTY);
+				creation.setPluginType(dtos.PluginType.MANAGED_PROPERTY);
 				return facade.createPlugins([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.PluginUpdate();
-				update.setPluginId(new c.PluginPermId(name));
+				var update = new dtos.PluginUpdate();
+				update.setPluginId(new dtos.PluginPermId(name));
 				update.setDescription(description);
 				update.setScript(script);
 				return facade.updatePlugins([ update ]);
@@ -1351,18 +1351,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateVocabularies()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("VOCABULARY");
 			var description = "Description of " + code;
 
 			var fCreate = function(facade) {
-				var creation = new c.VocabularyCreation();
+				var creation = new dtos.VocabularyCreation();
 				creation.setCode(code);
 				return facade.createVocabularies([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.VocabularyUpdate();
+				var update = new dtos.VocabularyUpdate();
 				update.setVocabularyId(permId);
 				update.setDescription(description);
 				update.setChosenFromList(true);
@@ -1381,19 +1381,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateVocabularyTerms()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("VOCABULARY_TERM");
 			var description = "Description of " + code;
 
 			var fCreate = function(facade) {
-				var termCreation = new c.VocabularyTermCreation();
-				termCreation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
+				var termCreation = new dtos.VocabularyTermCreation();
+				termCreation.setVocabularyId(new dtos.VocabularyPermId("TEST-VOCABULARY"));
 				termCreation.setCode(code);
 				return facade.createVocabularyTerms([ termCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var termUpdate = new c.VocabularyTermUpdate();
+				var termUpdate = new dtos.VocabularyTermUpdate();
 				termUpdate.setVocabularyTermId(permId);
 				termUpdate.setDescription(description);
 				return facade.updateVocabularyTerms([ termUpdate ]);
@@ -1409,20 +1409,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateExternalDms()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("EDMS");
 
 			var fCreate = function(facade) {
-				var edmsCreation = new c.ExternalDmsCreation();
+				var edmsCreation = new dtos.ExternalDmsCreation();
 				edmsCreation.setCode(code);
 				edmsCreation.setLabel("Test EDMS");
-				edmsCreation.setAddressType(c.ExternalDmsAddressType.OPENBIS);
+				edmsCreation.setAddressType(dtos.ExternalDmsAddressType.OPENBIS);
 				edmsCreation.setAddress("https://my-site/q=${term}")
 				return facade.createExternalDms([ edmsCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var edmsUpdate = new c.ExternalDmsUpdate();
+				var edmsUpdate = new dtos.ExternalDmsUpdate();
 				edmsUpdate.setExternalDmsId(permId);
 				edmsUpdate.setLabel("Test EDMS 2");
 				edmsUpdate.setAddress("https://my-second-site/q=${term}");
@@ -1442,18 +1442,18 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateTags()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("TAG");
 			var description = "Description of " + code;
 
 			var fCreate = function(facade) {
-				var tagCreation = new c.TagCreation();
+				var tagCreation = new dtos.TagCreation();
 				tagCreation.setCode(code);
 				return facade.createTags([ tagCreation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var tagUpdate = new c.TagUpdate();
+				var tagUpdate = new dtos.TagUpdate();
 				tagUpdate.setTagId(permId);
 				tagUpdate.setDescription(description);
 				return facade.updateTags([ tagUpdate ]);
@@ -1468,23 +1468,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateAuthorizationGroups()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var code = c.generateId("AUTHORIZATION_GROUP");
 			var description = "Description of " + code;
 
 			var fCreate = function(facade) {
-				var creation = new c.AuthorizationGroupCreation();
+				var creation = new dtos.AuthorizationGroupCreation();
 				creation.setCode(code);
-				creation.setUserIds([ new c.PersonPermId("power_user") ]);
+				creation.setUserIds([ new dtos.PersonPermId("power_user") ]);
 				return facade.createAuthorizationGroups([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.AuthorizationGroupUpdate();
+				var update = new dtos.AuthorizationGroupUpdate();
 				update.setAuthorizationGroupId(permId);
 				update.setDescription(description);
-				update.getUserIds().remove([ new c.PersonPermId("power_user") ]);
-				update.getUserIds().add([ new c.PersonPermId("admin"), new c.Me() ]);
+				update.getUserIds().remove([ new dtos.PersonPermId("power_user") ]);
+				update.getUserIds().add([ new dtos.PersonPermId("admin"), new dtos.Me() ]);
 				return facade.updateAuthorizationGroups([ update ]);
 			}
 
@@ -1502,16 +1502,16 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updatePersons()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var userId = c.generateId("USER");
 
 			var fCreate = function(facade) {
-				var creation = new c.PersonCreation();
+				var creation = new dtos.PersonCreation();
 				creation.setUserId(userId);
 				return facade.createPersons([ creation ]).then(function(permIds) {
-					var creation = new c.RoleAssignmentCreation();
+					var creation = new dtos.RoleAssignmentCreation();
 					creation.setUserId(permIds[0]);
-					creation.setRole(c.Role.ADMIN);
+					creation.setRole(dtos.Role.ADMIN);
 					return facade.createRoleAssignments([ creation ]).then(function(assignmentId) {
 						return permIds;
 					});
@@ -1519,9 +1519,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.PersonUpdate();
+				var update = new dtos.PersonUpdate();
 				update.setUserId(permId);
-				update.setSpaceId(new c.SpacePermId("TEST"))
+				update.setSpaceId(new dtos.SpacePermId("TEST"))
 				return facade.updatePersons([ update ]);
 			}
 
@@ -1535,17 +1535,17 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updatePersons() deactivate", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var userId = c.generateId("USER");
 
 			var fCreate = function(facade) {
-				var creation = new c.PersonCreation();
+				var creation = new dtos.PersonCreation();
 				creation.setUserId(userId);
 				return facade.createPersons([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.PersonUpdate();
+				var update = new dtos.PersonUpdate();
 				update.setUserId(permId);
 				update.deactivate();
 				return facade.updatePersons([ update ]);
@@ -1560,21 +1560,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("updatePersons() deactivate and activate", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var userId = c.generateId("USER");
 
 			var fCreate = function(facade) {
-				var creation = new c.PersonCreation();
+				var creation = new dtos.PersonCreation();
 				creation.setUserId(userId);
 				return facade.createPersons([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var deactivateUpdate = new c.PersonUpdate();
+				var deactivateUpdate = new dtos.PersonUpdate();
 				deactivateUpdate.setUserId(permId);
 				deactivateUpdate.deactivate();
 				return facade.updatePersons([ deactivateUpdate ]).then(function(){
-					var activateUpdate = new c.PersonUpdate();
+					var activateUpdate = new dtos.PersonUpdate();
 					activateUpdate.setUserId(permId);
 					activateUpdate.activate();
 					return facade.updatePersons([ activateUpdate ]);
@@ -1590,7 +1590,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updatePersons() webAppSettings", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var userId = c.generateId("USER");
 
 			var WEB_APP_1 = "webApp1";
@@ -1599,38 +1599,38 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var WEB_APP_4 = "webApp4";
 
 			var fCreate = function(facade) {
-				var creation = new c.PersonCreation();
+				var creation = new dtos.PersonCreation();
 				creation.setUserId(userId);
 				return facade.createPersons([ creation ]);
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.PersonUpdate();
+				var update = new dtos.PersonUpdate();
 				update.setUserId(permId);
 
 				var webApp1Update = update.getWebAppSettings(WEB_APP_1);
-				webApp1Update.add(new c.WebAppSettingCreation("n1a", "v1a"));
-				webApp1Update.add(new c.WebAppSettingCreation("n1b", "v1b"));
+				webApp1Update.add(new dtos.WebAppSettingCreation("n1a", "v1a"));
+				webApp1Update.add(new dtos.WebAppSettingCreation("n1b", "v1b"));
 
 				var webApp2Update = update.getWebAppSettings(WEB_APP_2);
-				webApp2Update.add(new c.WebAppSettingCreation("n2a", "v2a"));
+				webApp2Update.add(new dtos.WebAppSettingCreation("n2a", "v2a"));
 
 				var webApp3Update = update.getWebAppSettings(WEB_APP_3);
-				webApp3Update.add(new c.WebAppSettingCreation("n3a", "v3a"));
+				webApp3Update.add(new dtos.WebAppSettingCreation("n3a", "v3a"));
 
 				var webApp4Update = update.getWebAppSettings(WEB_APP_4);
-				webApp4Update.add(new c.WebAppSettingCreation("n4a", "v4a"));
+				webApp4Update.add(new dtos.WebAppSettingCreation("n4a", "v4a"));
 
 				return facade.updatePersons([ update ]).then(function() {
-					var update = new c.PersonUpdate();
+					var update = new dtos.PersonUpdate();
 					update.setUserId(permId);
 
 					var webApp1Update = update.getWebAppSettings(WEB_APP_1);
-					webApp1Update.add(new c.WebAppSettingCreation("n1c", "v1c"));
+					webApp1Update.add(new dtos.WebAppSettingCreation("n1c", "v1c"));
 					webApp1Update.remove("n1b");
 
 					var webApp2Update = update.getWebAppSettings(WEB_APP_2);
-					webApp2Update.set([ new c.WebAppSettingCreation("n2a", "v2a updated"), new c.WebAppSettingCreation("n2c", "v2c") ]);
+					webApp2Update.set([ new dtos.WebAppSettingCreation("n2a", "v2a updated"), new dtos.WebAppSettingCreation("n2c", "v2c") ]);
 
 					var webApp3Update = update.getWebAppSettings(WEB_APP_3);
 					webApp3Update.set();
@@ -1661,7 +1661,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateOperationExecutions()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			var permId = null;
 
 			var fCreate = function(facade) {
@@ -1672,7 +1672,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var executionUpdate = new c.OperationExecutionUpdate();
+				var executionUpdate = new dtos.OperationExecutionUpdate();
 				executionUpdate.setExecutionId(permId);
 				executionUpdate.setDescription("Description " + permId.getPermId());
 				return facade.updateOperationExecutions([ executionUpdate ]);
@@ -1687,7 +1687,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updateSemanticAnnotations()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fCreate = function(facade) {
 				return c.createSemanticAnnotation(facade).then(function(permId) {
@@ -1696,7 +1696,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.SemanticAnnotationUpdate();
+				var update = new dtos.SemanticAnnotationUpdate();
 				update.setSemanticAnnotationId(permId);
 				update.setPredicateOntologyId("updatedPredicateOntologyId");
 				update.setPredicateOntologyVersion("updatedPredicateOntologyVersion");
@@ -1720,13 +1720,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("updateQueries()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 			
-			var update = new c.QueryUpdate();
+			var update = new dtos.QueryUpdate();
 			update.setName(c.generateId("query"));
 			update.setDescription("updated description");
-			update.setDatabaseId(new c.QueryDatabaseName("openbisDB2"));
-			update.setQueryType(c.QueryType.SAMPLE);
+			update.setDatabaseId(new dtos.QueryDatabaseName("openbisDB2"));
+			update.setQueryType(dtos.QueryType.SAMPLE);
 			update.setEntityTypeCodePattern("sample type pattern");
 			update.setSql("select * from samples where perm_id = ${key};");
 			update.setPublic(true);
@@ -1756,9 +1756,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("updatePersonalAccessTokens()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
-			var update = new c.PersonalAccessTokenUpdate();
+			var update = new dtos.PersonalAccessTokenUpdate();
 			update.setAccessDate(new Date().getTime());
 
 			var fCreate = function(facade) {
@@ -1781,7 +1781,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("Update tests", openbis);
-		executeModule("Update tests (executeOperations)", openbisExecuteOperations);
+		executeModule("Update tests (RequireJS)", new openbis(), dtos);
+		executeModule("Update tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
+		executeModule("Update tests (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("Update tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("Update tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+		executeModule("Update tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}
 });

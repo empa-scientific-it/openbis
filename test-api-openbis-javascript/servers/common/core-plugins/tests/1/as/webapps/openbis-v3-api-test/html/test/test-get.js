@@ -1,10 +1,10 @@
-define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common' ], function($, _, openbis, openbisExecuteOperations, common) {
-	var executeModule = function(moduleName, openbis) {
+define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', 'test/common', 'test/dtos' ], function($, _, openbis, openbisExecuteOperations, common, dtos) {
+	var executeModule = function(moduleName, facade, dtos) {
 		QUnit.module(moduleName);
 
 		var testGet = function(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig) {
 			c.start();
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				return fCreate(facade).then(function(permIds) {
 					c.assertTrue(permIds != null && permIds.length > 0, "Entities were created");
 					return fGet(facade, permIds).then(function(map) {
@@ -33,7 +33,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		var testGetManual = function(c, fCreate, fGet, fCheck) {
 			c.start();
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				return fCreate(facade).then(function(permIds) {
 					return fGet(facade, permIds).then(function(persons) {
 						fCheck(permIds, persons);
@@ -128,8 +128,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		}
 
 		QUnit.test("getSpaces()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.SpaceFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.SpaceFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -145,15 +145,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getSpaces(permIds, new c.SpaceFetchOptions());
+				return facade.getSpaces(permIds, new dtos.SpaceFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getProjects()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.ProjectFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.ProjectFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -170,15 +170,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getProjects(permIds, new c.ProjectFetchOptions());
+				return facade.getProjects(permIds, new dtos.ProjectFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getExperiments()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.ExperimentFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.ExperimentFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -194,15 +194,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getExperiments(permIds, new c.ExperimentFetchOptions());
+				return facade.getExperiments(permIds, new dtos.ExperimentFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getSamples()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.SampleFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.SampleFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -218,15 +218,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getSamples(permIds, new c.SampleFetchOptions());
+				return facade.getSamples(permIds, new dtos.SampleFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getDataSets()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.DataSetFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.DataSetFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -250,7 +250,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				var result = facade.getDataSets(permIds, new c.DataSetFetchOptions());
+				var result = facade.getDataSets(permIds, new dtos.DataSetFetchOptions());
 
 				result.then(function(map) {
 					permIds.forEach(function(permId) {
@@ -265,8 +265,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getMaterials()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.MaterialFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.MaterialFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -282,15 +282,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getMaterials(permIds, new c.MaterialFetchOptions());
+				return facade.getMaterials(permIds, new dtos.MaterialFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getPropertyTypes()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.PropertyTypeFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.PropertyTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -306,15 +306,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getPropertyTypes(permIds, new c.PropertyTypeFetchOptions());
+				return facade.getPropertyTypes(permIds, new dtos.PropertyTypeFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getPlugins()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.PluginFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.PluginFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -329,15 +329,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getPlugins(permIds, new c.PluginFetchOptions());
+				return facade.getPlugins(permIds, new dtos.PluginFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getVocabularies()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.VocabularyFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.VocabularyFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -353,15 +353,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getVocabularies(permIds, new c.VocabularyFetchOptions());
+				return facade.getVocabularies(permIds, new dtos.VocabularyFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getVocabularyTerms()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.VocabularyTermFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.VocabularyTermFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -377,15 +377,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getVocabularyTerms(permIds, new c.VocabularyTermFetchOptions());
+				return facade.getVocabularyTerms(permIds, new dtos.VocabularyTermFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getExternalDms()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.ExternalDmsFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.ExternalDmsFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -400,15 +400,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getExternalDataManagementSystems(permIds, new c.ExternalDmsFetchOptions());
+				return facade.getExternalDataManagementSystems(permIds, new dtos.ExternalDmsFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getTags()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.TagFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.TagFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -424,15 +424,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getTags(permIds, new c.TagFetchOptions());
+				return facade.getTags(permIds, new dtos.TagFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getAuthorizationGroups()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.AuthorizationGroupFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.AuthorizationGroupFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
@@ -448,15 +448,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getAuthorizationGroups(permIds, new c.AuthorizationGroupFetchOptions());
+				return facade.getAuthorizationGroups(permIds, new dtos.AuthorizationGroupFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getRoleAssignments() with user", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.RoleAssignmentFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.RoleAssignmentFetchOptions();
 			fo.withUser();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -479,15 +479,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getRoleAssignments(permIds, new c.RoleAssignmentFetchOptions());
+				return facade.getRoleAssignments(permIds, new dtos.RoleAssignmentFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getRoleAssignments() with authorization group", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.RoleAssignmentFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.RoleAssignmentFetchOptions();
 			fo.withAuthorizationGroup();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
@@ -510,14 +510,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getRoleAssignments(permIds, new c.RoleAssignmentFetchOptions());
+				return facade.getRoleAssignments(permIds, new dtos.RoleAssignmentFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getPersons()", function(assert) {
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fCreate = function(facade) {
 				return $.when(c.createPerson(facade), c.createPerson(facade)).then(function(permId1, permId2) {
@@ -526,7 +526,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGet = function(facade, permIds) {
-				var fo = new c.PersonFetchOptions();
+				var fo = new dtos.PersonFetchOptions();
 				return facade.getPersons(permIds, fo);
 			}
 
@@ -542,23 +542,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var WEB_APP_2 = "webApp2";
 			var WEB_APP_3 = "webApp3";
 
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fCreate = function(facade) {
 				return c.createPerson(facade).then(function(permId) {
-					var update = new c.PersonUpdate();
+					var update = new dtos.PersonUpdate();
 					update.setUserId(permId);
 
 					var webApp1Update = update.getWebAppSettings(WEB_APP_1);
-					webApp1Update.add(new c.WebAppSettingCreation("n1a", "v1a"));
-					webApp1Update.add(new c.WebAppSettingCreation("n1b", "v1b"));
+					webApp1Update.add(new dtos.WebAppSettingCreation("n1a", "v1a"));
+					webApp1Update.add(new dtos.WebAppSettingCreation("n1b", "v1b"));
 
 					var webApp2Update = update.getWebAppSettings(WEB_APP_2);
-					webApp2Update.add(new c.WebAppSettingCreation("n2a", "v2a"));
-					webApp2Update.add(new c.WebAppSettingCreation("n2b", "v2b"));
+					webApp2Update.add(new dtos.WebAppSettingCreation("n2a", "v2a"));
+					webApp2Update.add(new dtos.WebAppSettingCreation("n2b", "v2b"));
 
 					var webApp3Update = update.getWebAppSettings(WEB_APP_3);
-					webApp3Update.add(new c.WebAppSettingCreation("n3a", "v3a"));
+					webApp3Update.add(new dtos.WebAppSettingCreation("n3a", "v3a"));
 
 					return facade.updatePersons([ update ]).then(function() {
 						return [ permId ];
@@ -567,7 +567,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGet = function(facade, permIds) {
-				var fo = new c.PersonFetchOptions();
+				var fo = new dtos.PersonFetchOptions();
 
 				var webApp1Fo = fo.withWebAppSettings(WEB_APP_1);
 				webApp1Fo.withAllSettings();
@@ -602,20 +602,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var WEB_APP_2 = "webApp2";
 			var WEB_APP_3 = "webApp3";
 
-			var c = new common(assert, openbis);
+			var c = new common(assert, dtos);
 
 			var fCreate = function(facade) {
 				return c.createPerson(facade).then(function(permId) {
-					var update = new c.PersonUpdate();
+					var update = new dtos.PersonUpdate();
 					update.setUserId(permId);
 
 					var webApp1Update = update.getWebAppSettings(WEB_APP_1);
-					webApp1Update.add(new c.WebAppSettingCreation("n1a", "v1a"));
-					webApp1Update.add(new c.WebAppSettingCreation("n1b", "v1b"));
+					webApp1Update.add(new dtos.WebAppSettingCreation("n1a", "v1a"));
+					webApp1Update.add(new dtos.WebAppSettingCreation("n1b", "v1b"));
 
 					var webApp2Update = update.getWebAppSettings(WEB_APP_2);
-					webApp2Update.add(new c.WebAppSettingCreation("n2a", "v2a"));
-					webApp2Update.add(new c.WebAppSettingCreation("n2b", "v2b"));
+					webApp2Update.add(new dtos.WebAppSettingCreation("n2a", "v2a"));
+					webApp2Update.add(new dtos.WebAppSettingCreation("n2b", "v2b"));
 
 					return facade.updatePersons([ update ]).then(function() {
 						return [ permId ];
@@ -624,7 +624,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGet = function(facade, permIds) {
-				var fo = new c.PersonFetchOptions();
+				var fo = new dtos.PersonFetchOptions();
 				fo.withAllWebAppSettings();
 
 				return facade.getPersons(permIds, fo);
@@ -651,8 +651,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getOperationExecutions()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.OperationExecutionFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.OperationExecutionFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -667,15 +667,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getOperationExecutions(permIds, new c.OperationExecutionFetchOptions());
+				return facade.getOperationExecutions(permIds, new dtos.OperationExecutionFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getSemanticAnnotations()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.SemanticAnnotationFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.SemanticAnnotationFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -690,15 +690,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getSemanticAnnotations(permIds, new c.SemanticAnnotationFetchOptions());
+				return facade.getSemanticAnnotations(permIds, new dtos.SemanticAnnotationFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getQueries()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.QueryFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.QueryFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -713,20 +713,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, techIds) {
-				return facade.getQueries(techIds, new c.QueryFetchOptions());
+				return facade.getQueries(techIds, new dtos.QueryFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getQueryDatabases()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.QueryDatabaseFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.QueryDatabaseFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
 				var dfd = $.Deferred();
-				dfd.resolve([ new c.QueryDatabaseName("openbisDB"), new c.QueryDatabaseName("test-query-database") ]);
+				dfd.resolve([ new dtos.QueryDatabaseName("openbisDB"), new dtos.QueryDatabaseName("test-query-database") ]);
 				return dfd.promise();
 			}
 
@@ -736,15 +736,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, techIds) {
-				return facade.getQueryDatabases(techIds, new c.QueryDatabaseFetchOptions());
+				return facade.getQueryDatabases(techIds, new dtos.QueryDatabaseFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getExperimentTypes()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.ExperimentTypeFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.ExperimentTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -759,15 +759,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getExperimentTypes(permIds, new c.ExperimentTypeFetchOptions());
+				return facade.getExperimentTypes(permIds, new dtos.ExperimentTypeFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getSampleTypes()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.SampleTypeFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.SampleTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -782,15 +782,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getSampleTypes(permIds, new c.SampleTypeFetchOptions());
+				return facade.getSampleTypes(permIds, new dtos.SampleTypeFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getDataSetTypes()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.DataSetTypeFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.DataSetTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -805,15 +805,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getDataSetTypes(permIds, new c.DataSetTypeFetchOptions());
+				return facade.getDataSetTypes(permIds, new dtos.DataSetTypeFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getMaterialTypes()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.MaterialTypeFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.MaterialTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -828,19 +828,19 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getMaterialTypes(permIds, new c.MaterialTypeFetchOptions());
+				return facade.getMaterialTypes(permIds, new dtos.MaterialTypeFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
 		QUnit.test("getRights()", function(assert) {
-			var c = new common(assert);
-			var sampleId = new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-2");
+			var c = new common(assert, dtos);
+			var sampleId = new dtos.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-2");
 			c.start();
 			
-			c.createFacadeAndLogin().then(function(facade) {
-				return facade.getRights([sampleId], new c.RightsFetchOptions()).then(function(rights) {
+			c.login(facade).then(function() {
+				return facade.getRights([sampleId], new dtos.RightsFetchOptions()).then(function(rights) {
                     var rights = rights[sampleId].rights;
                     rights.sort();
                     c.assertEqual(rights, "DELETE,UPDATE", "Rights");
@@ -853,10 +853,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 		
 		QUnit.test("getServerInformation()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, dtos);
 			c.start();
 
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				return facade.getServerInformation().then(function(serverInformation) {
 					c.assertTrue(serverInformation != null);
 					c.assertEqual(serverInformation["api-version"], "3.6", "api-version");
@@ -870,10 +870,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getServerPublicInformation()", function(assert) {
-			var c = new common(assert);
+			var c = new common(assert, dtos);
 			c.start();
 
-			c.createFacadeAndLogin().then(function(facade) {
+			c.login(facade).then(function() {
 				return facade.getServerPublicInformation().then(function(serverInformation) {
 					c.assertTrue(serverInformation != null);
 					c.assertEqual(Object.keys(serverInformation).length, 4);
@@ -890,8 +890,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		});
 
 		QUnit.test("getPersonalAccessTokens()", function(assert) {
-			var c = new common(assert, openbis);
-			var fo = new c.PersonalAccessTokenFetchOptions();
+			var c = new common(assert, dtos);
+			var fo = new dtos.PersonalAccessTokenFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 
 			var fCreate = function(facade) {
@@ -906,7 +906,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getPersonalAccessTokens(permIds, new c.PersonalAccessTokenFetchOptions());
+				return facade.getPersonalAccessTokens(permIds, new dtos.PersonalAccessTokenFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
@@ -914,8 +914,12 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 	}
 
-	return function() {
-		executeModule("Get tests", openbis);
-		executeModule("Get tests (executeOperations)", openbisExecuteOperations);
-	}
+    return function() {
+        executeModule("Get tests (RequireJS)", new openbis(), dtos);
+        executeModule("Get tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
+        executeModule("Get tests (module VAR)", new window.openbis.openbis(), window.openbis);
+        executeModule("Get tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+        executeModule("Get tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+        executeModule("Get tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
+    }
 });

@@ -77,14 +77,6 @@ export default class EntityTypeFormControllerValidate extends PageControllerVali
       messages.get(messages.DATA_TYPE)
     )
 
-    if(property.dataType.value != 'SAMPLE' && property.dataType.value != 'CONTROLLEDVOCABULARY') {
-      validator.validateBooleanNotSet(
-        property,
-        'isMultiValue',
-        messages.get(messages.IS_MULTI_VALUE)
-      )
-    }
-
     if (property.vocabulary.visible) {
       validator.validateNotEmpty(
         property,

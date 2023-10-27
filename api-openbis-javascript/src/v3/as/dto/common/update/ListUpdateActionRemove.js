@@ -1,5 +1,5 @@
 define([ "stjs", "as/dto/common/update/ListUpdateAction" ], function(stjs, ListUpdateAction) {
-	ListUpdateActionRemove = function() {
+	var ListUpdateActionRemove = function() {
 		ListUpdateAction.call(this);
 	};
 	stjs.extend(ListUpdateActionRemove, ListUpdateAction, [ ListUpdateAction ], function(constructor, prototype) {

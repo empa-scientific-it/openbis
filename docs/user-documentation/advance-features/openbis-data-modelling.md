@@ -76,7 +76,7 @@ in the *Materials* folder. For example:
   
 
 An openBIS Instance admin can customise the Inventory folders for the
-lab and create the needed Object types ([Register Master Data via the Admin Interface](https://unlimited.ethz.ch/display/openBISDoc2010/Register+Master+Data+via+the+Admin+Interface)).
+lab and create the needed Object types ([Register Master Data via the Admin Interface](../../uncategorized/register-master-data-via-the-admin-interface.md)).
 
 ## Lab Notebook
 

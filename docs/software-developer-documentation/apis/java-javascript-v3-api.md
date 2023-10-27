@@ -116,73 +116,144 @@ property [javax.net](http://javax.net).ssl.trustStore. Example:
     java -Djavax.net.ssl.trustStore=/home/openbis/openbis/servers/openBIS-server/jetty/etc/openBIS.keystore -jar the-client.jar
 ```
 
-Connecting in Java
+### Connecting in Java
 
-**V3ConnectionExample.java**
+In order to connect to openBIS V3 API in Java you can:
+
+- use IApplicationServerApi (AS) and IDataStoreServerApi (DSS) interfaces directly
+- use OpenBIS facade (that talks to IApplicationServerApi and IDataStoreServerApi interfaces internally)
+
+Using the OpenBIS facade has some advantages over using the AS and DSS interfaces directly:
+
+- it hides the details of the protocol and the data serialization format used between the client and the server
+- it does not require you to know V3 API endpoints for both AS and DSS and their URLs
+- it provides additional utility methods (e.g. getManagedPersonalAccessToken)
+
+Because of these reasons, OpenBIS facade is the recommended way of connecting to V3 API in Java.
+
+Code examples for both approaches are presented below.
+
+**V3ConnectionExampleUsingASAndDSSInterfaces.java**
 
 ```java
-    import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
-    import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-    import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
-    public class V3ConnectionExample
+public class V3ConnectionExampleUsingASAndDSSInterfaces
+{
+
+    private static final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
+
+    private static final int TIMEOUT = 10000;
+
+    public static void main(String[] args)
     {
+        // get a reference to AS API
+        IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
 
-        private static final String URL = "http://localhost:8888/openbis/openbis" + IApplicationServerApi.SERVICE_URL;
+        // login to obtain a session token
+        String sessionToken = v3.login("admin", "password");
 
-        private static final int TIMEOUT = 10000;
+        // invoke other API methods using the session token, for instance search for spaces
+        SearchResult<Space> spaces = v3.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+        System.out.println("Number of spaces: " + spaces.getObjects().size());
 
-        public static void main(String[] args)
-        {
-            // get a reference to AS API
-            IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, URL, TIMEOUT);
-
-            // login to obtain a session token
-            String sessionToken = v3.login("admin", "password");
-
-            // invoke other API methods using the session token, for instance search for spaces
-            SearchResult<Space> spaces = v3.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
-            System.out.println("Number of spaces: " + spaces.getObjects().size());
-
-            // logout to release the resources related with the session
-            v3.logout(sessionToken);
-        }
-
-
+        // logout to release the resources related with the session
+        v3.logout(sessionToken);
     }
+
+}
+```
+
+**V3ConnectionExampleUsingOpenBISFacade.java**
+
+```java
+import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+
+public class V3ConnectionExampleUsingOpenBISFacade
+{
+
+    private static final String URL = "http://localhost:8888";
+
+    private static final int TIMEOUT = 10000;
+
+    public static void main(String[] args)
+    {
+        // create OpenBIS facade (it aggregates methods from both IApplicationServerApi and IDataStoreServerApi)
+        OpenBIS v3 = new OpenBIS(URL, TIMEOUT);
+
+        // login to obtain a session token (the token is stored in the facade and used for subsequent calls)
+        v3.login("admin", "password");
+
+        // invoke other API methods, for instance search for spaces
+        SearchResult<Space> spaces = v3.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
+        System.out.println("Number of spaces: " + spaces.getObjects().size());
+
+        // logout to release the resources related with the session
+        v3.logout();
+    }
+
+}
 ```
 
 ### Connecting in Javascript
 
-We have put a lot of effort to make the use of the API in Javascript and
-Java almost identical. The DTOs which are a big part of the API are
-exactly the same in both languages. The methods you can invoke via the
-Javascript and Java APIs are also exactly the same. This makes the
-switch from Javascript to Java or the other way round very easy. Because
-of some major differences between Javascript and Java development still
-some things had to be done a bit differently. But even then we tried to
-be conceptually consistent.
+We have put a lot of effort to make the use of the API in Javascript and Java almost identical. The DTOs which are a big part of the API are exactly
+the same in both languages. The methods you can invoke via the Javascript and Java APIs are also exactly the same. This makes the switch from
+Javascript to Java or the other way round very easy. Because of some major differences between Javascript and Java development still some things had
+to be done a bit differently. But even then we tried to be conceptually consistent.
 
-**V3ConnectionExample.html**
+Before we go into details let's mention that there are actually 4 different ways the Javascript V3 API can be loaded and used. These are:
+
+1) AMD / RequireJS
+2) AMD / RequireJS bundle
+3) VAR bundle
+4) ESM bundle
+
+IMPORTANT: VAR and ESM bundles are currently the recommended way of using the Javascript V3 API. AMD / RequireJS approach is still supported but no
+longer recommended.
+
+#### AMD / RequireJS
+
+Initially, the only way to load and use the V3 API in Javascript was based on AMD modules and RequireJS (see code example below). In that approach,
+what we had to do first was to load RequireJS library itself and its config. Once that was done, we could start loading all the necessary V3 API
+classes and the V3 API facade to make our V3 API calls.
+
+This approach worked fine, but there were also some drawbacks:
+
+- each V3 API class we wanted to use had to be explicitly "required" and its full class name had to be provided (e.g. as/dto/space/Space)
+- classes were loaded asynchronously making the code using the V3 API more complex
+- every V3 API class was loaded with a separate HTTP request to the server (loading multiple classes resulted in multiple requests to the server)
+- it required a third party dependency manager (here RequireJS)
+
+Because of these shortcomings this approach is no longer recommended, but still fully supported. Please use VAR or ESM bundles instead
+(depending on your use case).
+
+**V3ConnectionExampleUsingRequireJS.html**
 
 ```html
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>V3ConnectionExample</title>
-        <!-- 
-            These two js files, i.e. config.js and require.js are RequireJS configuration and RequireJS library itself.
-            Please check http://requirejs.org/ for more details on how RequireJS makes loading dependencies in Javascript easier.
-        -->
-        <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/config.js"></script>
-        <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/require.js"></script>
-    </head>
-    <body>
-        <script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>V3ConnectionExampleUsingRequireJS</title>
+    <!-- 
+        These two js files, i.e. config.js and require.js are RequireJS configuration and RequireJS library itself.
+        Please check http://requirejs.org/ for more details on how RequireJS makes loading dependencies in Javascript easier.
+    -->
+    <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/config.js"></script>
+    <script type="text/javascript" src="http://localhost:8888/openbis/resources/api/v3/require.js"></script>
+</head>
+<body>
+<script>
 
 
             // With "require" call we asynchronously load "openbis", "SpaceSearchCriteria" and "SpaceFetchOptions" classes that we will need for our example.
@@ -210,37 +281,248 @@ be conceptually consistent.
                     });
                 });
             });
-        </script>
-    </body>
-    </html>
+
+</script>
+</body>
+</html>
 ```
-  
 
-##   IV. AS Methods  
+#### AMD / RequireJS bundle
 
-The sections below describe how to use different methods of the V3 API.
-Each section describes a group of similar methods. For instance, we have
-one section that describes creation of entities. Even though the API
-provides us methods for creation of spaces, projects, experiments,
-samples and materials, vocabulary terms, tags we only concentrate here
-on creation of samples. Samples are the most complex entity kind. Once
-you understand how creation of samples works you will also know how to
-create other kinds of entities as all creation methods follow the same
-patterns. The same applies for other methods like updating of entities,
-searching or getting entities. We will introduce them using the sample
-example.
+To improve the performance of AMD / RequireJS approach, we started to also provide a bundled version of the "config.js" called "config.bundle.js"
+(found in the same folder).
 
-Each section will be split into Java and Javascript subsections. We want
-to keep Java and Javascript code examples close to each other so that
-you can easily see what are the similarities and differences in the API
-usage between these two languages.
+Using the bundled version of the config makes RequireJS issue only one request to the server to load all DTOs at once instead of separate requests for
+each DTO. This will significantly reduce the loading times of your webapp. What is also really nice is the fact it is so easy to start using this
+improvement. Just load "config.bundle.js" instead of "config.js" and that's it!
 
-NOTE: The following code examples assume that we have already got a
-reference to the V3 API and we have already authenticated to get a
-session token. Moreover in Javascript example we do not include the html
-page template to make them shorter and more readable. Please
-check "Accessing the API" section for examples on how to get a reference
-to V3 API, authenticate or build a simple html page.
+Even though AMD / RequireJS solution is not recommended anymore, if you have a lot of existing code written with AMD / RequireJS approach then it
+makes perfect sense to use this improvement before migrating to either VAR or ESM.
+
+#### VAR bundle
+
+VAR bundle (bundle assigned to window.openbis variable) allows you to overcome the shortcomings of AMD / RequireJS solution. First, the VAR bundle
+consists of V3 API facade and all V3 API classes. Therefore, once the bundle is loaded, no further calls to the server are needed. Second, the bundle
+exposes the V3 API classes both via their simple names and their full names (see code example below) which makes it far easier for developers to use.
+Third, it does not require any additional library.
+
+VAR bundle can be loaded at an HTML page using a standard script tag.
+
+**V3ConnectionExampleUsingVARBundle.html**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>V3ConnectionExampleUsingVARBundle</title>
+
+    <!--
+
+    Import VAR openBIS V3 API Javascript bundle as "openbis".
+    The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
+
+    The facade can be accessed via:
+    - "openbis" name (e.g. var v3 = new openbis.openbis())
+
+    The classes can be accessed via:
+    - simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
+    - full name (e.g. var space = new opebis.as.dto.space.Space()) - works for all classes
+
+    Classes with a unique simple name (e.g. Space) can be accessed using both their simple name (e.g. openbis.Space)
+    and their full name (e.g. openbis.as.dto.space.Space).
+    Classes with a non-unique simple name (e.g. ExternalDmsSearchCriteria) can be accessed only using their full name
+    (i.e. as.dto.dataset.search.ExternalDmsSearchCriteria and as.dto.externaldms.search.ExternalDmsSearchCriteria).
+
+    List of classes with duplicated simple names (i.e. accessible only via their full names):
+    - as.dto.dataset.search.ExternalDmsSearchCriteria
+    - as.dto.externaldms.search.ExternalDmsSearchCriteria
+    - as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria
+    - as.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria
+
+    -->
+
+    <!-- Import the bundle as "openbis" (the bundle content is assigned to window.openbis field). 
+         In case window.openbis field is already used to store something different, then please
+         call openbis.noConflict() function right after the VAR bundle is loaded. It will bring back
+         the original value of window.openbis field and return the loaded VAR bundle for it to be
+         assigned to a different field (works similar to jquery.noConflict() function). 
+    -->
+    <script src="http://localhost:8888/openbis/resources/api/v3/openbis.var.js"></script>
+</head>
+<body>
+<script>
+            // create an instance of the Javascript facade
+            var v3 = new openbis.openbis();
+
+            // login to obtain a session token (the token it is automatically stored in openbis object and will be used for all subsequent API calls)
+            v3.login("admin", "admin").done(function() {
+
+                // invoke other API methods, for instance search for spaces
+                v3.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions()).done(function(result) {
+
+                    alert("Number of spaces: " + result.getObjects().length);
+
+                    // logout to release the resources related with the session
+                    v3.logout();
+                });
+
+            });
+</script>
+</body>
+</html>
+```
+
+#### ESM bundle
+
+Similar to VAR bundle, ESM bundle (ECMAScript module) is a bundle that contains the V3 API facade and all V3 API classes. It also exposes the V3 API
+classes via both their simple names and their full names. The main difference between VAR and ESM is the format of the bundle and how and where it can
+be imported.
+
+ESM bundle can be loaded at an HTML page using a standard script tag with type="module". It is also well suited for webapps that bundle all their
+resources with tools like Webpack.
+
+**V3ConnectionExampleUsingESMBundle.html**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>V3ConnectionExampleUsingESMBundle</title>
+</head>
+<body>
+
+<!--
+
+Import ESM (ECMAScript module) openBIS V3 API Javascript bundle as "openbis".
+The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
+
+The facade can be accessed via:
+- "openbis" name (e.g. var v3 = new openbis.openbis())
+
+The classes can be accessed via:
+- simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
+- full name (e.g. var space = new opebis.as.dto.space.Space()) - works for all classes
+
+Classes with a unique simple name (e.g. Space) can be accessed using both their simple name (e.g. openbis.Space)
+and their full name (e.g. openbis.as.dto.space.Space).
+Classes with a non-unique simple name (e.g. ExternalDmsSearchCriteria) can be accessed only using their full name
+(i.e. as.dto.dataset.search.ExternalDmsSearchCriteria and as.dto.externaldms.search.ExternalDmsSearchCriteria).
+
+List of classes with duplicated simple names (i.e. accessible only via their full names):
+- as.dto.dataset.search.ExternalDmsSearchCriteria
+- as.dto.externaldms.search.ExternalDmsSearchCriteria
+- as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria
+- as.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria
+
+-->
+
+<script type="module">
+            // import the bundle as "openbis" (the bundle can be imported with a different name)
+            import openbis from "http://localhost:8888/openbis/resources/api/v3/openbis.esm.js"
+
+            // create an instance of the Javascript facade
+            var v3 = new openbis.openbis();
+
+            // login to obtain a session token (the token it is automatically stored in openbis object and will be used for all subsequent API calls)
+            v3.login("admin", "admin").done(function() {
+
+                // invoke other API methods, for instance search for spaces
+                v3.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions()).done(function(result) {
+
+                    alert("Number of spaces: " + result.getObjects().length);
+
+                    // logout to release the resources related with the session
+                    v3.logout();
+                });
+
+            });
+
+</script>
+</body>
+</html>
+```
+
+### Synchronous Java vs Asynchronous Javascript
+
+Even though the V3 API code examples in both Java and Javascript look similar there is one major difference between them. All the methods in the Java
+API that connect to the openBIS server are synchronous, while all their Javascript counterparts are asynchronous. Let's compare how that looks.
+
+**V3JavaCallsAreSynchronous.java**
+
+```java
+public class V3JavaCallsAreSynchronous
+{
+
+    public static void main(String[] args)
+    {
+        // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
+
+        // this makes a synchronous (blocking) call to the server 
+        SearchResult<Space> spaces = v3.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
+
+        // this loop will execute only after searchSpaces method call is finished and spaces have been fetched from the server
+        for (Space space : spaces)
+        {
+            System.out.println(space.getCode());
+        }
+    }
+}
+```
+
+**V3JavascriptCallsAreAsynchronous.java**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>V3JavascriptCallsAreAsynchronous</title>
+</head>
+<body>
+
+<script>
+            // we assume here that v3 object has been already created and we have already called login (please check "Accessing the API" section for more details)
+
+            // this makes a non-blocking (asynchronous) call to the server
+            v3.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions()).done(
+            
+                // we need to put the loop in "done" callback for it to be executed once spaces have been fetched from the server 
+                function(result) {
+                    result.getObjects().forEach(function(space){
+                        console.log(space.getCode());
+                    });
+                }
+            );
+
+</script>
+</body>
+</html>
+```
+
+What Javascript V3 API asynchronous functions actually return is a jQuery Promise object, which offers methods like: then, done, fail (
+see: https://api.jquery.com/category/deferred-object/). These methods can be used for registering different callbacks that will be either executed
+when a call succeeds or fails (e.g. due to a network problem).
+
+A more modern and an easier to understand way of working with Promise objects is the async / await syntax (
+see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function). Our asynchronous Javascript V3 API methods support
+it as well.
+
+## IV. AS Methods
+
+The sections below describe how to use different methods of the V3 API. Each section describes a group of similar methods. For instance, we have one
+section that describes creation of entities. Even though the API provides us methods for creation of spaces, projects, experiments, samples and
+materials, vocabulary terms, tags we only concentrate here on creation of samples. Samples are the most complex entity kind. Once you understand how
+creation of samples works you will also know how to create other kinds of entities as all creation methods follow the same patterns. The same applies
+for other methods like updating of entities, searching or getting entities. We will introduce them using the sample example.
+
+Each section will be split into Java and Javascript subsections. We want to keep Java and Javascript code examples close to each other so that you can
+easily see what are the similarities and differences in the API usage between these two languages.
+
+NOTE: The following code examples assume that we have already got a reference to the V3 API and we have already authenticated to get a session token.
+Moreover in Javascript example we do not include the html page template to make them shorter and more readable. Please check "Accessing the API"
+section for examples on how to get a reference to V3 API, authenticate or build a simple html page.
 
 ### Login
 
@@ -267,7 +549,7 @@ was incorrect the login methods return null.
         public static void main(String[] args)
         {
             // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
-     
+
             // login as a specific user
             String sessionToken = v3.login("admin", "password");
             System.out.println(sessionToken);
@@ -287,10 +569,11 @@ was incorrect the login methods return null.
 **V3LoginExample.html**
 
 ```html
-    <script>
-     
+
+<script>
+    
         // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
-     
+    
         // login as a specific user
         v3.login("admin", "password").done(function(sessionToken) {
             alert(sessionToken);
@@ -310,7 +593,7 @@ was incorrect the login methods return null.
 
 ### Personal Access Tokens
 
-A personal access token (in short: PAT) can be thought of as a longer lived session token which can be used for integrating openBIS with external systems. If you would like to learn more about the idea behind PATs please read: [Personal Access Tokens](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/personal-access-tokens.html#personal-access-tokens)).
+A personal access token (in short: PAT) can be thought of as a longer lived session token which can be used for integrating openBIS with external systems. If you would like to learn more about the idea behind PATs please read: [Personal Access Tokens](./personal-access-tokens.md#personal-access-tokens)).
 
 Example of how to create and use a PAT:
 
@@ -1727,7 +2010,7 @@ project and sample update:
 
 ### Custom AS Services
 
-In order to extend openBIS API new custom services can be established by core plugins of type `services` (see [Custom Application Server Services](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/as-services.html#custom-application-server-services)). The API offers a method to search for a service and to execute a service.
+In order to extend openBIS API new custom services can be established by core plugins of type `services` (see [Custom Application Server Services](../server-side-extensions/as-services.md#custom-application-server-services)). The API offers a method to search for a service and to execute a service.
 
 #### Search for custom services
 

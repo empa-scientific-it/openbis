@@ -23,7 +23,7 @@ For example, if we want to create a collection of raw samples, we need
 to adopt the following steps:
 
 1.  Create an *Object* *type* called Sample. This can only be done by an
-    *Instance admin*, from the admin interface, as explained here: [New Entity Type Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)
+    *Instance admin*, from the admin interface, as explained here: [New Entity Type Registration](./new-entity-type-registration.md)
 2.  Create a first folder called Samples inside the **Materials** folder *(Project)*
 3.  Create a second folder called **Raw Samples (Collection)**
 
@@ -58,7 +58,7 @@ To register the *Collection* folder, inside the *Project* folder:
 3.  Replace the automatically generated **Code** with something pertinent to the collection (e.g RAW\_SAMPLES)
 4.  Fill in the **Name** field (e.g. Raw Samples). Note that by default, the navigation menu on the left shows the name. If the name is not provided, the code is shown.
 5.  Select the **Default object type** from the list of available types. This is the *Object* for which the *Collection* is used. In this case, **Sample**.
-6.  Select the **Default collection view** (see **[Customise Collection View](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/inventory-of-materials-and-methods.html#customise-collection-view))**
+6.  Select the **Default collection view** (see **[Customise Collection View](../../general-users/inventory-of-materials-and-methods.md#customise-collection-view))**
 
  
 
@@ -101,10 +101,10 @@ Updated on February 6, 2023
 
 
   
-When a new *Object type* is created by an *Instance admin* (see [New Entity Type Registration)](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html), the storage widget is disabled by default.
+When a new *Object type* is created by an *Instance admin* (see [New Entity Type Registration)](./new-entity-type-registration.md), the storage widget is disabled by default.
 
   
-If we want to track storage positions for this particular *Object type* as described in [Allocate storage positions to samples](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/managing-storage-of-samples.html#allocate-storage-positions-to-samples), the **Storage** should be enabled in the **Settings**, under **Utilities**. This can be done by a *group admin*.
+If we want to track storage positions for this particular *Object type* as described in [Allocate storage positions to samples](../../general-users/managing-storage-of-samples.md#allocate-storage-positions-to-samples), the **Storage** should be enabled in the **Settings**, under **Utilities**. This can be done by a *group admin*.
 
 For this, follow the steps below:  
   
@@ -170,6 +170,6 @@ Storage positions by default have the following metadata:
 
 It is possible to add additional information. This can be done by an
 *Instance Admin* by editing the *Object* Type **STORAGE\_POSITION** in
-the admin interface (see [New Entity Type Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)).
+the admin interface (see [New Entity Type Registration](./new-entity-type-registration.md)).
 
 Updated on February 6, 2023

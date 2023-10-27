@@ -67,7 +67,7 @@ var SampleDataGridUtil = new function() {
         if(profile.mainMenu.showBarcodes || true) {
             var permIdLabel = "PermId";
             if(profile.mainMenu.showBarcodes) {
-                permIdLabel += " / Default Barcode";
+                permIdLabel += " / Default Barcode/QR Code";
             }
             columnsFirst.push({
                 label : permIdLabel,
@@ -795,7 +795,7 @@ var SampleDataGridUtil = new function() {
 				$list.append($move);
 
                 if(profile.mainMenu.showBarcodes) {
-                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode'}).append("Update Barcode"));
+                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode/QR Code'}).append("Update Barcode/QR Code"));
                     $updateBarcode.click(function(event) {
                         stopEventsBuble(event);
                         BarcodeUtil.readBarcode([data]);
@@ -963,7 +963,18 @@ var SampleDataGridUtil = new function() {
                 } else if(propertyType.dataType === "SAMPLE") {
                     renderValue = (function(propertyType){
                           return function(row, params){
-                              return FormUtil.getFormLink(params.value, "Sample", params.value)
+                            if(Array.isArray(params.value)) {
+                               var result = [];
+                               for (var singleValue of params.value) {
+                                   if(result.length > 0) {
+                                       result.push(', ')
+                                   }
+                                   result.push(FormUtil.getFormLink(singleValue, "Sample", singleValue));
+                               }
+                               return result;
+                            } else {
+                               return FormUtil.getFormLink(params.value, "Sample", params.value);
+}
                           }
                       })(propertyType)
                 }
@@ -999,10 +1010,10 @@ var SampleDataGridUtil = new function() {
 
     this.getTerm = function(params, propertyType) {
         var value = params.row[propertyType.code]
-        if(Array.isArray(value)) {
-            return value.sort().toString();
-        } else {
+//        if(Array.isArray(value)) {
+//            return value.sort().toString();
+//        } else {
             return value ? value : "";
-        }
+//        }
     }
 }

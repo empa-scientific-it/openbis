@@ -174,6 +174,16 @@ public final class MockMultiDataSetArchiverDBTransaction
         return containers;
     }
 
+    @Override public List<MultiDataSetArchiverContainerDTO> listContainersInChronologicalOrder()
+    {
+        return containers;
+    }
+
+    @Override public List<MultiDataSetArchiverContainerDTO> listContainersInRandomOrder()
+    {
+        return containers;
+    }
+
     @Override
     public List<MultiDataSetArchiverContainerDTO> listContainersForUnarchiving()
     {

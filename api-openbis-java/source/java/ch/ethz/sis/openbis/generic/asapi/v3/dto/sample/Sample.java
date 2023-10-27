@@ -17,7 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.Relationship;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntity;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IAttachmentsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDataSetsHolder;
@@ -35,7 +35,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
@@ -52,29 +51,26 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /*
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.sample.Sample")
-public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder, IEntityTypeHolder, IExperimentHolder, IIdentifierHolder, IMaterialPropertiesHolder, IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder, IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder, ISpaceHolder, ITagsHolder
+public class Sample extends AbstractEntity<Sample>
+        implements Serializable, IAttachmentsHolder, ICodeHolder, IDataSetsHolder,
+        IEntityTypeHolder, IExperimentHolder, IIdentifierHolder, IMaterialPropertiesHolder,
+        IModificationDateHolder, IModifierHolder, IParentChildrenHolder<Sample>, IPermIdHolder,
+        IProjectHolder, IPropertiesHolder, IRegistrationDateHolder, IRegistratorHolder,
+        ISpaceHolder, ITagsHolder
 {
     private static final long serialVersionUID = 1L;
-
-    @JsonProperty
-    private SampleFetchOptions fetchOptions;
 
     @JsonProperty
     private SamplePermId permId;
@@ -117,10 +113,6 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     @JsonProperty
     private Experiment experiment;
-
-    @JsonProperty
-    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, Serializable> properties;
 
     @JsonProperty
     private Map<String, Material> materialProperties;
@@ -199,15 +191,16 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
+    @Override
     public SampleFetchOptions getFetchOptions()
     {
-        return fetchOptions;
+        return (SampleFetchOptions) super.getFetchOptions();
     }
 
     // Method automatically generated with DtoGenerator
     public void setFetchOptions(SampleFetchOptions fetchOptions)
     {
-        this.fetchOptions = fetchOptions;
+        super.setFetchOptions(fetchOptions);
     }
 
     // Method automatically generated with DtoGenerator
@@ -353,8 +346,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasType())
         {
             return type;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Sample type has not been fetched.");
         }
@@ -374,8 +366,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasProject())
         {
             return project;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Project has not been fetched.");
         }
@@ -395,8 +386,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasSpace())
         {
             return space;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Space has not been fetched.");
         }
@@ -416,8 +406,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasExperiment())
         {
             return experiment;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Experiment has not been fetched.");
         }
@@ -432,35 +421,12 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, Serializable> getProperties()
-    {
-        if (getFetchOptions() != null && getFetchOptions().hasProperties())
-        {
-            return properties;
-        }
-        else
-        {
-            throw new NotFetchedException("Properties have not been fetched.");
-        }
-    }
-
-    // Method automatically generated with DtoGenerator
-    @Override
-    public void setProperties(Map<String, Serializable> properties)
-    {
-        this.properties = properties;
-    }
-
-    // Method automatically generated with DtoGenerator
-    @JsonIgnore
-    @Override
     public Map<String, Material> getMaterialProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasMaterialProperties())
         {
             return materialProperties;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Material Properties have not been fetched.");
         }
@@ -480,8 +446,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasSampleProperties())
         {
             return sampleProperties;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Sample Properties have not been fetched.");
         }
@@ -501,8 +466,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parents;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Parents have not been fetched.");
         }
@@ -521,8 +485,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasParents())
         {
             return parentsRelationships;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Parents have not been fetched.");
         }
@@ -542,8 +505,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return children;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Children have not been fetched.");
         }
@@ -562,8 +524,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasChildren())
         {
             return childrenRelationships;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Children have not been fetched.");
         }
@@ -582,8 +543,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasContainer())
         {
             return container;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Container sample has not been fetched.");
         }
@@ -602,8 +562,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasComponents())
         {
             return components;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Component samples have not been fetched.");
         }
@@ -623,8 +582,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasDataSets())
         {
             return dataSets;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Data sets have not been fetched.");
         }
@@ -643,8 +601,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasHistory())
         {
             return history;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("History have not been fetched.");
         }
@@ -663,8 +620,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasPropertiesHistory())
         {
             return propertiesHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Properties history have not been fetched.");
         }
@@ -683,8 +639,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasSpaceHistory())
         {
             return spaceHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Space history have not been fetched.");
         }
@@ -703,8 +658,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasProjectHistory())
         {
             return projectHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Project history have not been fetched.");
         }
@@ -723,8 +677,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasExperimentHistory())
         {
             return experimentHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Experiment history have not been fetched.");
         }
@@ -743,8 +696,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasParentsHistory())
         {
             return parentsHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Parents history have not been fetched.");
         }
@@ -763,8 +715,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasChildrenHistory())
         {
             return childrenHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Children history have not been fetched.");
         }
@@ -783,8 +734,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasContainerHistory())
         {
             return containerHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Container history have not been fetched.");
         }
@@ -803,8 +753,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasComponentsHistory())
         {
             return componentsHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Components history have not been fetched.");
         }
@@ -823,8 +772,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasDataSetsHistory())
         {
             return dataSetsHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Data sets history have not been fetched.");
         }
@@ -843,8 +791,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasUnknownHistory())
         {
             return unknownHistory;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Unknown history have not been fetched.");
         }
@@ -864,8 +811,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasTags())
         {
             return tags;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Tags have not been fetched.");
         }
@@ -885,8 +831,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasRegistrator())
         {
             return registrator;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Registrator has not been fetched.");
         }
@@ -906,8 +851,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasModifier())
         {
             return modifier;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Modifier has not been fetched.");
         }
@@ -927,8 +871,7 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
         if (getFetchOptions() != null && getFetchOptions().hasAttachments())
         {
             return attachments;
-        }
-        else
+        } else
         {
             throw new NotFetchedException("Attachments have not been fetched.");
         }
@@ -938,22 +881,6 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
     public void setAttachments(List<Attachment> attachments)
     {
         this.attachments = attachments;
-    }
-
-    @Override
-    public String getProperty(String propertyName)
-    {
-        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
-    }
-
-    @Override
-    public void setProperty(String propertyName, Serializable propertyValue)
-    {
-        if (properties == null)
-        {
-            properties = new HashMap<>();
-        }
-        properties.put(propertyName, propertyValue);
     }
 
     @Override
@@ -970,224 +897,6 @@ public class Sample implements Serializable, IAttachmentsHolder, ICodeHolder, ID
             materialProperties = new HashMap<String, Material>();
         }
         materialProperties.put(propertyName, propertyValue);
-    }
-
-    @Override
-    public Long getIntegerProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Long.parseLong(propertyValue);
-    }
-
-    @Override
-    public void setIntegerProperty(String propertyName, Long propertyValue)
-    {
-        setProperty(propertyName, Objects.toString(propertyValue, null));
-    }
-
-    @Override
-    public String getVarcharProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setVarcharProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String getMultilineVarcharProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setMultilineVarcharProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public Double getRealProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Double.parseDouble(propertyValue);
-    }
-
-    @Override
-    public void setRealProperty(String propertyName, Double propertyValue)
-    {
-        setProperty(propertyName, Objects.toString(propertyValue, null));
-    }
-
-    @Override
-    public ZonedDateTime getTimestampProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return propertyValue == null ? null : ZonedDateTime.parse(getProperty(propertyName));
-    }
-
-    @Override
-    public void setTimestampProperty(String propertyName, ZonedDateTime propertyValue)
-    {
-        String value = (propertyValue == null) ? null : propertyValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX"));
-        setProperty(propertyName, value);
-    }
-
-    @Override
-    public Boolean getBooleanProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Boolean.parseBoolean(propertyValue);
-    }
-
-    @Override
-    public void setBooleanProperty(String propertyName, Boolean propertyValue)
-    {
-        setProperty(propertyName, Objects.toString(propertyValue, null));
-    }
-
-    @Override
-    public String getHyperlinkProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setHyperlinkProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String getXmlProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setXmlProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String[] getControlledVocabularyProperty(String propertyName)
-    {
-        if(getProperties() == null || getProperties().get(propertyName) == null) {
-            return null;
-        }
-        Serializable value = getProperties().get(propertyName);
-        if(value.getClass().isArray()) {
-            Serializable[] values = (Serializable[]) value;
-            return Arrays.stream(values).map(x->(String)x).toArray(String[]::new);
-        } else {
-            String propertyValue = (String) value;
-            return new String[]{ propertyValue };
-        }
-    }
-
-    @Override
-    public void setControlledVocabularyProperty(String propertyName, String[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public SamplePermId[] getSampleProperty(String propertyName)
-    {
-        if(getProperties() == null || getProperties().get(propertyName) == null) {
-            return null;
-        }
-        Serializable value = getProperties().get(propertyName);
-        if(value.getClass().isArray()) {
-            Serializable[] values = (Serializable[]) value;
-            return Arrays.stream(values).map(x -> new SamplePermId((String)x)).toArray(SamplePermId[]::new);
-        } else {
-            String propertyValue = (String) value;
-            return new SamplePermId[]{new SamplePermId(propertyValue)};
-        }
-    }
-
-    @Override
-    public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue)
-                .map(ObjectPermId::getPermId)
-                .toArray(String[]::new));
-    }
-
-    @Override
-    public Long[] getIntegerArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
-    }
-
-    @Override
-    public void setIntegerArrayProperty(String propertyName, Long[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + ", " + b).get());
-    }
-
-    @Override
-    public Double[] getRealArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
-    }
-
-    @Override
-    public void setRealArrayProperty(String propertyName, Double[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).map(Object::toString).reduce((a,b) -> a + ", " + b).get());
-    }
-
-    @Override
-    public String[] getStringArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
-    }
-
-    @Override
-    public void setStringArrayProperty(String propertyName, String[] propertyValue)
-    {
-        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue).reduce((a,b) -> a + ", " + b).get());
-    }
-
-    @Override
-    public ZonedDateTime[] getTimestampArrayProperty(String propertyName)
-    {
-        String propertyValue = getProperty(propertyName);
-        return propertyValue == null ? null : Arrays.stream(propertyValue.split(","))
-             .map(String::trim)
-             .map(dateTime -> ZonedDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss X")))
-             .toArray(ZonedDateTime[]::new);
-    }
-
-    @Override
-    public void setTimestampArrayProperty(String propertyName, ZonedDateTime[] propertyValue)
-    {
-        String value = (propertyValue == null) ? null : Arrays.stream(propertyValue)
-                 .map(dateTime -> dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX")))
-                 .reduce((a,b) -> a + ", " + b)
-                 .get();
-        setProperty(propertyName, value);
-    }
-
-    @Override
-    public String getJsonProperty(String propertyName)
-    {
-        return getProperty(propertyName);
-    }
-
-    @Override
-    public void setJsonProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
     }
 
     @JsonIgnore

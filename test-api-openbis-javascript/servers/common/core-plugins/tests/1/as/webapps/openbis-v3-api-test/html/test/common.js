@@ -1,425 +1,15 @@
-define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOpenbis, _, dtos) {
+define([ 'jquery', 'underscore'], function($, _) {
 
 	/*
 	 * These tests should be run against openBIS instance with screening sprint
 	 * server database version
 	 */
 
-	var testProtocol = window.location.protocol;
-	var testHost = window.location.hostname;
-	var testPort = window.location.port;
-	var testUrl = testProtocol + "//" + testHost + ":" + testPort;
-	var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
-
 	var testUserId = "openbis_test_js";
 	var testUserPassword = "password";
 
-	var Common = function(assert, openbis) {
+	var Common = function(assert, dtos) {
 		this.assert = assert;
-
-		if (!openbis) {
-			openbis = defaultOpenbis;
-		}
-
-		this.SpaceCreation = dtos.SpaceCreation;
-		this.ProjectCreation = dtos.ProjectCreation;
-		this.ExperimentCreation = dtos.ExperimentCreation;
-		this.SampleCreation = dtos.SampleCreation;
-		this.MaterialCreation = dtos.MaterialCreation;
-		this.AttachmentCreation = dtos.AttachmentCreation;
-		this.VocabularyCreation = dtos.VocabularyCreation;
-		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
-		this.TagCreation = dtos.TagCreation;
-		this.AuthorizationGroupCreation = dtos.AuthorizationGroupCreation;
-		this.RoleAssignmentCreation = dtos.RoleAssignmentCreation;
-		this.PersonCreation = dtos.PersonCreation;
-		this.Role = require('as/dto/roleassignment/Role');
-		this.RoleLevel = require('as/dto/roleassignment/RoleLevel');
-		this.DataType = require('as/dto/property/DataType');
-		this.EntityKind = require('as/dto/entitytype/EntityKind');
-		this.DataSetKind = require('as/dto/dataset/DataSetKind');
-		this.PluginKind = require('as/dto/plugin/PluginKind');
-		this.PluginType = require('as/dto/plugin/PluginType');
-		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
-		this.DataSetCreation = dtos.DataSetCreation;
-		this.FullDataSetCreation = dtos.FullDataSetCreation;
-		this.UploadedDataSetCreation = dtos.UploadedDataSetCreation;
-		this.DataSetFileCreation = dtos.DataSetFileCreation;
-		this.LinkedDataCreation = dtos.LinkedDataCreation;
-		this.ContentCopyCreation = dtos.ContentCopyCreation;
-		this.ExternalDmsCreation = dtos.ExternalDmsCreation;
-		this.WebAppSettingCreation = dtos.WebAppSettingCreation;
-		this.QueryCreation = dtos.QueryCreation;
-		this.PersonalAccessTokenCreation = dtos.PersonalAccessTokenCreation;
-		this.ExternalDmsAddressType = require('as/dto/externaldms/ExternalDmsAddressType');
-		this.SpaceUpdate = dtos.SpaceUpdate;
-		this.ProjectUpdate = dtos.ProjectUpdate;
-		this.ExperimentTypeUpdate = dtos.ExperimentTypeUpdate;
-		this.ExperimentUpdate = dtos.ExperimentUpdate;
-		this.SampleTypeUpdate = dtos.SampleTypeUpdate;
-		this.SampleUpdate = dtos.SampleUpdate;
-		this.DataSetTypeUpdate = dtos.DataSetTypeUpdate;
-		this.DataSetUpdate = dtos.DataSetUpdate;
-		this.PhysicalDataUpdate = dtos.PhysicalDataUpdate;
-		this.LinkedDataUpdate = dtos.LinkedDataUpdate;
-		this.SemanticAnnotationUpdate = dtos.SemanticAnnotationUpdate;
-		this.ContentCopyListUpdateValue = dtos.ContentCopyListUpdateValue;
-		this.DataStorePermId = dtos.DataStorePermId;
-		this.MaterialTypeUpdate = dtos.MaterialTypeUpdate;
-		this.MaterialUpdate = dtos.MaterialUpdate;
-		this.VocabularyUpdate = dtos.VocabularyUpdate;
-		this.VocabularyTermUpdate = dtos.VocabularyTermUpdate;
-		this.ExternalDmsUpdate = dtos.ExternalDmsUpdate;
-		this.TagUpdate = dtos.TagUpdate;
-		this.AuthorizationGroupUpdate = dtos.AuthorizationGroupUpdate;
-		this.PersonUpdate = dtos.PersonUpdate;
-		this.QueryUpdate = dtos.QueryUpdate;
-		this.PersonalAccessTokenUpdate = dtos.PersonalAccessTokenUpdate;
-		this.SpaceDeletionOptions = dtos.SpaceDeletionOptions;
-		this.ProjectDeletionOptions = dtos.ProjectDeletionOptions;
-		this.ExperimentDeletionOptions = dtos.ExperimentDeletionOptions;
-		this.SampleDeletionOptions = dtos.SampleDeletionOptions;
-		this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
-		this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
-		this.PluginDeletionOptions = dtos.PluginDeletionOptions;
-		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
-		this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
-		this.TagDeletionOptions = dtos.TagDeletionOptions;
-		this.AuthorizationGroupDeletionOptions = dtos.AuthorizationGroupDeletionOptions;
-		this.RoleAssignmentDeletionOptions = dtos.RoleAssignmentDeletionOptions;
-		this.SemanticAnnotationDeletionOptions = dtos.SemanticAnnotationDeletionOptions;
-		this.QueryDeletionOptions = dtos.QueryDeletionOptions;
-		this.PersonalAccessTokenDeletionOptions = dtos.PersonalAccessTokenDeletionOptions;
-		this.PersonDeletionOptions = dtos.PersonDeletionOptions;
-		this.PersonPermId = dtos.PersonPermId;
-		this.Me = dtos.Me;
-		this.EntityTypePermId = dtos.EntityTypePermId;
-		this.SpacePermId = dtos.SpacePermId;
-		this.ProjectPermId = dtos.ProjectPermId;
-		this.ProjectIdentifier = dtos.ProjectIdentifier;
-		this.ExperimentPermId = dtos.ExperimentPermId;
-		this.ExperimentIdentifier = dtos.ExperimentIdentifier;
-		this.SamplePermId = dtos.SamplePermId;
-		this.SampleIdentifier = dtos.SampleIdentifier;
-		this.DataSetPermId = dtos.DataSetPermId;
-		this.FileFormatTypePermId = dtos.FileFormatTypePermId;
-		this.MaterialPermId = dtos.MaterialPermId;
-		this.ContentCopyPermId = dtos.ContentCopyPermId;
-		this.ExternalDmsPermId = dtos.ExternalDmsPermId;
-		this.VocabularyPermId = dtos.VocabularyPermId;
-		this.VocabularyTermPermId = dtos.VocabularyTermPermId;
-		this.AuthorizationGroupPermId = dtos.AuthorizationGroupPermId;
-		this.RoleAssignmentTechId = dtos.RoleAssignmentTechId;
-		this.TagPermId = dtos.TagPermId;
-		this.TagCode = dtos.TagCode;
-		this.SemanticAnnotationsPermId = dtos.SemanticAnnotationsPermId;
-		this.QueryName = dtos.QueryName;
-		this.QueryType = require('as/dto/query/QueryType');
-		this.QueryDatabaseName = dtos.QueryDatabaseName;
-		this.PersonalAccessTokenPermId = dtos.PersonalAccessTokenPermId;
-		this.SpaceSearchCriteria = dtos.SpaceSearchCriteria;
-		this.ProjectSearchCriteria = dtos.ProjectSearchCriteria;
-		this.ExperimentSearchCriteria = dtos.ExperimentSearchCriteria;
-		this.ExperimentTypeSearchCriteria = dtos.ExperimentTypeSearchCriteria;
-		this.SampleSearchCriteria = dtos.SampleSearchCriteria;
-		this.SampleTypeSearchCriteria = dtos.SampleTypeSearchCriteria;
-		this.DataSetSearchCriteria = dtos.DataSetSearchCriteria;
-		this.DataSetTypeSearchCriteria = dtos.DataSetTypeSearchCriteria;
-		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
-		this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
-		this.ExternalDmsSearchCriteria = dtos.ExternalDmsSearchCriteria;
-		this.PluginSearchCriteria = dtos.PluginSearchCriteria;
-		this.VocabularySearchCriteria = dtos.VocabularySearchCriteria;
-		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
-		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
-		this.TagSearchCriteria = dtos.TagSearchCriteria;
-		this.AuthorizationGroupSearchCriteria = dtos.AuthorizationGroupSearchCriteria;
-		this.RoleAssignmentSearchCriteria = dtos.RoleAssignmentSearchCriteria;
-		this.PersonSearchCriteria = dtos.PersonSearchCriteria;
-		this.DataStoreSearchCriteria = dtos.DataStoreSearchCriteria;
-		this.PropertyTypeSearchCriteria = dtos.PropertyTypeSearchCriteria;
-		this.PropertyAssignmentSearchCriteria = dtos.PropertyAssignmentSearchCriteria;
-		this.SemanticAnnotationSearchCriteria = dtos.SemanticAnnotationSearchCriteria;
-		this.QuerySearchCriteria = dtos.QuerySearchCriteria;
-		this.QueryDatabaseSearchCriteria = dtos.QueryDatabaseSearchCriteria;
-		this.PersonalAccessTokenSearchCriteria = dtos.PersonalAccessTokenSearchCriteria;
-		this.SpaceFetchOptions = dtos.SpaceFetchOptions;
-		this.ProjectFetchOptions = dtos.ProjectFetchOptions;
-		this.ExperimentFetchOptions = dtos.ExperimentFetchOptions;
-		this.ExperimentTypeFetchOptions = dtos.ExperimentTypeFetchOptions;
-		this.SampleFetchOptions = dtos.SampleFetchOptions;
-		this.SampleTypeFetchOptions = dtos.SampleTypeFetchOptions;
-		this.DataSetFetchOptions = dtos.DataSetFetchOptions;
-		this.DataSetTypeFetchOptions = dtos.DataSetTypeFetchOptions;
-		this.MaterialFetchOptions = dtos.MaterialFetchOptions;
-		this.MaterialTypeFetchOptions = dtos.MaterialTypeFetchOptions;
-		this.ExternalDmsFetchOptions = dtos.ExternalDmsFetchOptions;
-		this.VocabularyFetchOptions = dtos.VocabularyFetchOptions;
-		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
-		this.TagFetchOptions = dtos.TagFetchOptions;
-		this.AuthorizationGroupFetchOptions = dtos.AuthorizationGroupFetchOptions;
-		this.RoleAssignmentFetchOptions = dtos.RoleAssignmentFetchOptions;
-		this.PersonFetchOptions = dtos.PersonFetchOptions;
-		this.PluginFetchOptions = dtos.PluginFetchOptions;
-		this.PropertyTypeFetchOptions = dtos.PropertyTypeFetchOptions;
-		this.PropertyAssignmentFetchOptions = dtos.PropertyAssignmentFetchOptions;
-		this.SemanticAnnotationFetchOptions = dtos.SemanticAnnotationFetchOptions;
-		this.QueryFetchOptions = dtos.QueryFetchOptions;
-		this.QueryDatabaseFetchOptions = dtos.QueryDatabaseFetchOptions;
-		this.PersonalAccessTokenFetchOptions = dtos.PersonalAccessTokenFetchOptions;
-		this.DeletionFetchOptions = dtos.DeletionFetchOptions;
-		this.DeletionSearchCriteria = dtos.DeletionSearchCriteria;
-		this.EventFetchOptions = dtos.EventFetchOptions;
-		this.EventSearchCriteria = dtos.EventSearchCriteria;
-		this.EventType = require('as/dto/event/EventType');
-		this.EntityType = require('as/dto/event/EntityType');
-		this.CustomASServiceSearchCriteria = dtos.CustomASServiceSearchCriteria;
-		this.CustomASServiceFetchOptions = dtos.CustomASServiceFetchOptions;
-		this.CustomASServiceCode = dtos.CustomASServiceCode;
-		this.DssServicePermId = dtos.DssServicePermId;
-		this.CustomASServiceExecutionOptions = dtos.CustomASServiceExecutionOptions;
-		this.SearchDomainServiceSearchCriteria = dtos.SearchDomainServiceSearchCriteria;
-		this.SearchDomainServiceFetchOptions = dtos.SearchDomainServiceFetchOptions;
-		this.SearchDomainServiceExecutionOptions = dtos.SearchDomainServiceExecutionOptions;
-		this.AggregationServiceExecutionOptions = dtos.AggregationServiceExecutionOptions;
-		this.AggregationServiceSearchCriteria = dtos.AggregationServiceSearchCriteria;
-		this.AggregationServiceFetchOptions = dtos.AggregationServiceFetchOptions;
-		this.ReportingServiceSearchCriteria = dtos.ReportingServiceSearchCriteria;
-		this.ReportingServiceFetchOptions = dtos.ReportingServiceFetchOptions;
-		this.ReportingServiceExecutionOptions = dtos.ReportingServiceExecutionOptions;
-		this.Rights = dtos.Rights;
-		this.RightsFetchOptions = dtos.RightsFetchOptions;
-		this.ProcessingServiceSearchCriteria = dtos.ProcessingServiceSearchCriteria;
-		this.ProcessingServiceFetchOptions = dtos.ProcessingServiceFetchOptions;
-		this.ProcessingServiceExecutionOptions = dtos.ProcessingServiceExecutionOptions;
-		this.QueryExecutionOptions = dtos.QueryExecutionOptions;
-		this.SqlExecutionOptions = dtos.SqlExecutionOptions;
-		this.EvaluatePluginOperation = dtos.EvaluatePluginOperation;
-		this.DynamicPropertyPluginEvaluationOptions = dtos.DynamicPropertyPluginEvaluationOptions;
-		this.EntityValidationPluginEvaluationOptions = dtos.EntityValidationPluginEvaluationOptions;
-		this.GlobalSearchCriteria = dtos.GlobalSearchCriteria;
-		this.GlobalSearchObjectFetchOptions = dtos.GlobalSearchObjectFetchOptions;
-		this.ObjectKindModificationSearchCriteria = dtos.ObjectKindModificationSearchCriteria;
-		this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
-		this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
-		this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
-		this.DataSetLockOptions = dtos.DataSetLockOptions;
-		this.DataSetUnlockOptions = dtos.DataSetUnlockOptions;
-		this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
-		this.PropertyTypePermId = dtos.PropertyTypePermId;
-		this.PropertyAssignmentPermId = dtos.PropertyAssignmentPermId;
-		this.PluginPermId = dtos.PluginPermId;
-		this.Plugin = dtos.Plugin;
-		this.PluginCreation = dtos.PluginCreation;
-		this.ExperimentTypeCreation = dtos.ExperimentTypeCreation;
-		this.SampleTypeCreation = dtos.SampleTypeCreation;
-		this.DataSetTypeCreation = dtos.DataSetTypeCreation;
-		this.MaterialTypeCreation = dtos.MaterialTypeCreation;
-		this.PropertyTypeCreation = dtos.PropertyTypeCreation;
-		this.PropertyTypeUpdate = dtos.PropertyTypeUpdate;
-		this.PluginUpdate = dtos.PluginUpdate;
-		this.WebAppSettings = dtos.WebAppSettings;
-
-		this.VocabularyDeletionOptions = dtos.VocabularyDeletionOptions;
-		this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
-
-		// operations
-
-		this.GetSessionInformationOperation = dtos.GetSessionInformationOperation;
-		this.GetSpacesOperation = dtos.GetSpacesOperation;
-		this.GetProjectsOperation = dtos.GetProjectsOperation;
-		this.GetExperimentsOperation = dtos.GetExperimentsOperation;
-		this.GetExperimentTypesOperation = dtos.GetExperimentTypesOperation;
-		this.GetSamplesOperation = dtos.GetSamplesOperation;
-		this.GetSampleTypesOperation = dtos.GetSampleTypesOperation;
-		this.GetDataSetsOperation = dtos.GetDataSetsOperation;
-		this.GetDataSetTypesOperation = dtos.GetDataSetTypesOperation;
-		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
-		this.GetMaterialTypesOperation = dtos.GetMaterialTypesOperation;
-		this.GetPluginsOperation = dtos.GetPluginsOperation;
-		this.GetPropertyTypesOperation = dtos.GetPropertyTypesOperation;
-		this.GetVocabulariesOperation = dtos.GetVocabulariesOperation;
-		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
-		this.GetTagsOperation = dtos.GetTagsOperation;
-		this.GetAuthorizationGroupsOperation = dtos.GetAuthorizationGroupsOperation;
-		this.GetRoleAssignmentsOperation = dtos.GetRoleAssignmentsOperation;
-		this.GetRightsOperation = dtos.GetRightsOperation;
-		this.GetPersonsOperation = dtos.GetPersonsOperation;
-		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
-		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
-		this.GetServerInformationOperation = dtos.GetServerInformationOperation;
-		this.GetServerPublicInformationOperation = dtos.GetServerPublicInformationOperation;
-
-		this.CreateSpacesOperation = dtos.CreateSpacesOperation;
-		this.CreateProjectsOperation = dtos.CreateProjectsOperation;
-		this.CreateExperimentsOperation = dtos.CreateExperimentsOperation;
-		this.CreateExperimentTypesOperation = dtos.CreateExperimentTypesOperation;
-		this.CreateSamplesOperation = dtos.CreateSamplesOperation;
-		this.CreateSampleTypesOperation = dtos.CreateSampleTypesOperation;
-		this.CreateDataSetsOperation = dtos.CreateDataSetsOperation;
-		this.CreateDataSetTypesOperation = dtos.CreateDataSetTypesOperation;
-		this.CreateMaterialsOperation = dtos.CreateMaterialsOperation;
-		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
-		this.CreatePropertyTypesOperation = dtos.CreatePropertyTypesOperation;
-		this.CreatePluginsOperation = dtos.CreatePluginsOperation;
-		this.CreateVocabulariesOperation = dtos.CreateVocabulariesOperation;
-		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
-		this.CreateTagsOperation = dtos.CreateTagsOperation;
-		this.CreateAuthorizationGroupsOperation = dtos.CreateAuthorizationGroupsOperation;
-		this.CreateRoleAssignmentsOperation = dtos.CreateRoleAssignmentsOperation;
-		this.CreatePersonsOperation = dtos.CreatePersonsOperation;
-		this.CreateSemanticAnnotationsOperation = dtos.CreateSemanticAnnotationsOperation;
-		this.CreateExternalDmsOperation = dtos.CreateExternalDmsOperation;
-		this.CreateQueriesOperation = dtos.CreateQueriesOperation;
-		this.CreateCodesOperation = dtos.CreateCodesOperation;
-		this.CreatePermIdsOperation = dtos.CreatePermIdsOperation;
-		this.CreatePersonalAccessTokensOperation = dtos.CreatePersonalAccessTokensOperation;
-
-		this.UpdateSpacesOperation = dtos.UpdateSpacesOperation;
-		this.UpdateProjectsOperation = dtos.UpdateProjectsOperation;
-		this.UpdateExperimentsOperation = dtos.UpdateExperimentsOperation;
-		this.UpdateExperimentTypesOperation = dtos.UpdateExperimentTypesOperation;
-		this.UpdateSamplesOperation = dtos.UpdateSamplesOperation;
-		this.UpdateSampleTypesOperation = dtos.UpdateSampleTypesOperation;
-		this.UpdateDataSetsOperation = dtos.UpdateDataSetsOperation;
-		this.UpdateDataSetTypesOperation = dtos.UpdateDataSetTypesOperation;
-		this.UpdateMaterialsOperation = dtos.UpdateMaterialsOperation;
-		this.UpdateMaterialTypesOperation = dtos.UpdateMaterialTypesOperation;
-		this.UpdatePropertyTypesOperation = dtos.UpdatePropertyTypesOperation;
-		this.UpdatePluginsOperation = dtos.UpdatePluginsOperation;
-		this.UpdateVocabulariesOperation = dtos.UpdateVocabulariesOperation;
-		this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
-		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
-		this.UpdateTagsOperation = dtos.UpdateTagsOperation;
-		this.UpdateAuthorizationGroupsOperation = dtos.UpdateAuthorizationGroupsOperation;
-		this.UpdatePersonsOperation = dtos.UpdatePersonsOperation;
-		this.UpdateOperationExecutionsOperation = dtos.UpdateOperationExecutionsOperation;
-		this.UpdateSemanticAnnotationsOperation = dtos.UpdateSemanticAnnotationsOperation;
-		this.UpdateQueriesOperation = dtos.UpdateQueriesOperation;
-		this.UpdatePersonalAccessTokensOperation = dtos.UpdatePersonalAccessTokensOperation;
-
-		this.GetSpacesOperation = dtos.GetSpacesOperation;
-		this.GetProjectsOperation = dtos.GetProjectsOperation;
-		this.GetExperimentsOperation = dtos.GetExperimentsOperation;
-		this.GetSamplesOperation = dtos.GetSamplesOperation;
-		this.GetDataSetsOperation = dtos.GetDataSetsOperation;
-		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
-		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
-		this.GetTagsOperation = dtos.GetTagsOperation;
-		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;
-		this.GetOperationExecutionsOperation = dtos.GetOperationExecutionsOperation;
-		this.GetQueriesOperation = dtos.GetQueriesOperation;
-		this.GetQueryDatabasesOperation = dtos.GetQueryDatabasesOperation;
-		this.GetPersonalAccessTokensOperation = dtos.GetPersonalAccessTokensOperation;
-
-		this.SearchSpacesOperation = dtos.SearchSpacesOperation;
-		this.SearchProjectsOperation = dtos.SearchProjectsOperation;
-		this.SearchExperimentsOperation = dtos.SearchExperimentsOperation;
-		this.SearchExperimentTypesOperation = dtos.SearchExperimentTypesOperation;
-		this.SearchSamplesOperation = dtos.SearchSamplesOperation;
-		this.SearchSampleTypesOperation = dtos.SearchSampleTypesOperation;
-		this.SearchDataSetsOperation = dtos.SearchDataSetsOperation;
-		this.SearchDataSetTypesOperation = dtos.SearchDataSetTypesOperation;
-		this.SearchMaterialsOperation = dtos.SearchMaterialsOperation;
-		this.SearchMaterialTypesOperation = dtos.SearchMaterialTypesOperation;
-		this.SearchPluginsOperation = dtos.SearchPluginsOperation;
-		this.SearchVocabulariesOperation = dtos.SearchVocabulariesOperation;
-		this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
-		this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
-		this.SearchTagsOperation = dtos.SearchTagsOperation;
-		this.SearchAuthorizationGroupsOperation = dtos.SearchAuthorizationGroupsOperation;
-		this.SearchRoleAssignmentsOperation = dtos.SearchRoleAssignmentsOperation;
-		this.SearchPersonsOperation = dtos.SearchPersonsOperation;
-		this.SearchCustomASServicesOperation = dtos.SearchCustomASServicesOperation;
-		this.SearchSearchDomainServicesOperation = dtos.SearchSearchDomainServicesOperation;
-		this.SearchAggregationServicesOperation = dtos.SearchAggregationServicesOperation;
-		this.SearchReportingServicesOperation = dtos.SearchReportingServicesOperation;
-		this.SearchProcessingServicesOperation = dtos.SearchProcessingServicesOperation;
-		this.SearchObjectKindModificationsOperation = dtos.SearchObjectKindModificationsOperation;
-		this.SearchGloballyOperation = dtos.SearchGloballyOperation;
-		this.SearchOperationExecutionsOperation = dtos.SearchOperationExecutionsOperation;
-		this.SearchDeletionsOperation = dtos.SearchDeletionsOperation;
-		this.SearchEventsOperation = dtos.SearchEventsOperation;
-		this.SearchDataStoresOperation = dtos.SearchDataStoresOperation;
-		this.SearchPropertyTypesOperation = dtos.SearchPropertyTypesOperation;
-		this.SearchPropertyAssignmentsOperation = dtos.SearchPropertyAssignmentsOperation;
-		this.SearchSemanticAnnotationsOperation = dtos.SearchSemanticAnnotationsOperation;
-		this.SearchQueriesOperation = dtos.SearchQueriesOperation;
-		this.SearchQueryDatabasesOperation = dtos.SearchQueryDatabasesOperation;
-		this.SearchPersonalAccessTokensOperation = dtos.SearchPersonalAccessTokensOperation;
-		this.SearchSessionInformationOperation = dtos.SearchSessionInformationOperation;
-
-		this.DeleteSpacesOperation = dtos.DeleteSpacesOperation;
-		this.DeleteProjectsOperation = dtos.DeleteProjectsOperation;
-		this.DeleteExperimentsOperation = dtos.DeleteExperimentsOperation;
-		this.DeleteSamplesOperation = dtos.DeleteSamplesOperation;
-		this.DeleteDataSetsOperation = dtos.DeleteDataSetsOperation;
-		this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
-		this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
-		this.DeletePluginsOperation = dtos.DeletePluginsOperation;
-		this.DeletePropertyTypesOperation = dtos.DeletePropertyTypesOperation;
-		this.DeleteVocabulariesOperation = dtos.DeleteVocabulariesOperation;
-		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
-		this.DeleteExperimentTypesOperation = dtos.DeleteExperimentTypesOperation;
-		this.DeleteSampleTypesOperation = dtos.DeleteSampleTypesOperation;
-		this.DeleteDataSetTypesOperation = dtos.DeleteDataSetTypesOperation;
-		this.DeleteMaterialTypesOperation = dtos.DeleteMaterialTypesOperation;
-		this.DeleteTagsOperation = dtos.DeleteTagsOperation;
-		this.DeleteAuthorizationGroupsOperation = dtos.DeleteAuthorizationGroupsOperation;
-		this.DeleteRoleAssignmentsOperation = dtos.DeleteRoleAssignmentsOperation;
-		this.DeleteOperationExecutionsOperation = dtos.DeleteOperationExecutionsOperation;
-		this.DeleteSemanticAnnotationsOperation = dtos.DeleteSemanticAnnotationsOperation;
-		this.DeleteQueriesOperation = dtos.DeleteQueriesOperation;
-		this.DeletePersonsOperation = dtos.DeletePersonsOperation;
-		this.DeletePersonalAccessTokensOperation = dtos.DeletePersonalAccessTokensOperation;
-
-		this.RevertDeletionsOperation = dtos.RevertDeletionsOperation;
-		this.ConfirmDeletionsOperation = dtos.ConfirmDeletionsOperation;
-		this.ExecuteCustomASServiceOperation = dtos.ExecuteCustomASServiceOperation;
-		this.ExecuteAggregationServiceOperation = dtos.ExecuteAggregationServiceOperation;
-		this.ExecuteReportingServiceOperation = dtos.ExecuteReportingServiceOperation;
-		this.ExecuteProcessingServiceOperation = dtos.ExecuteProcessingServiceOperation;
-		this.ExecuteSearchDomainServiceOperation = dtos.ExecuteSearchDomainServiceOperation;
-		this.ExecuteQueryOperation = dtos.ExecuteQueryOperation;
-		this.ExecuteSqlOperation = dtos.ExecuteSqlOperation;
-		this.ArchiveDataSetsOperation = dtos.ArchiveDataSetsOperation;
-		this.UnarchiveDataSetsOperation = dtos.UnarchiveDataSetsOperation;
-		this.LockDataSetsOperation = dtos.LockDataSetsOperation;
-		this.UnlockDataSetsOperation = dtos.UnlockDataSetsOperation;
-
-		this.SynchronousOperationExecutionOptions = dtos.SynchronousOperationExecutionOptions;
-		this.AsynchronousOperationExecutionOptions = dtos.AsynchronousOperationExecutionOptions;
-		this.OperationExecutionDeletionOptions = dtos.OperationExecutionDeletionOptions;
-		this.OperationExecutionFetchOptions = dtos.OperationExecutionFetchOptions;
-		this.OperationExecutionPermId = dtos.OperationExecutionPermId;
-		this.OperationExecutionSearchCriteria = dtos.OperationExecutionSearchCriteria;
-		this.OperationExecutionUpdate = dtos.OperationExecutionUpdate;
-
-		this.AllFields = dtos.AllFields;
-		this.Attribute = dtos.Attribute;
-		this.ExportableKind = dtos.ExportableKind;
-		this.ExportablePermId = dtos.ExportablePermId;
-		this.ExportData = dtos.ExportData;
-		this.IExportableFields = dtos.IExportableFields;
-		this.SelectedFields = dtos.SelectedFields;
-		this.ExportFormat = dtos.ExportFormat;
-		this.ExportOptions = dtos.ExportOptions;
-		this.XlsTextFormat = dtos.XlsTextFormat;
-		this.ExportResult = dtos.ExportResult;
-
-		this.IImportData = dtos.IImportData;
-		this.ImportFormat = dtos.ImportFormat;
-		this.ImportScript = dtos.ImportScript;
-		this.UncompressedImportData = dtos.UncompressedImportData;
-		this.ZipImportData = dtos.ZipImportData;
-		this.ImportMode = dtos.ImportMode;
-		this.ImportOptions = dtos.ImportOptions;
-		this.ImportOperation = dtos.ImportOperation;
-		this.ImportOperationResult = dtos.ImportOperationResult;
-
-		this.getDtos = function() {
-			return dtos;
-		}
 
 		this.getId = function(entity) {
 			if (typeof entity["getPermId"] === 'function') {
@@ -490,11 +80,11 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return c.createFileExternalDms(facade).then(function(emdsPermId) {
 					var dataSet = new dtos.DataSetCreation();
 					dataSet.setAutoGeneratedCode(true);
-					dataSet.setTypeId(new c.EntityTypePermId("LINK_TYPE"));
+					dataSet.setTypeId(new dtos.EntityTypePermId("LINK_TYPE"));
 					dataSet.setExperimentId(experimentPermId);
-					dataSet.setDataStoreId(new c.DataStorePermId("DSS1"));
-					var linkedData = new c.LinkedDataCreation();
-					var cc = new c.ContentCopyCreation();
+					dataSet.setDataStoreId(new dtos.DataStorePermId("DSS1"));
+					var linkedData = new dtos.LinkedDataCreation();
+					var cc = new dtos.ContentCopyCreation();
 					cc.setExternalDmsId(emdsPermId);
 					cc.setPath(path);
 					cc.setGitCommitHash(gitCommitHash);
@@ -550,7 +140,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var start = new Date().getTime();
 
 			var searchAndWait = function() {
-				var criteria = new c.DataSetSearchCriteria();
+				var criteria = new dtos.DataSetSearchCriteria();
 				criteria.withPermId().thatEquals(dataSetCode);
 
 				facade.searchDataSets(criteria, c.createDataSetFetchOptions()).then(function(result) {
@@ -574,7 +164,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.getResponseFromJSTestAggregationService = function(facade, params, callback) {
 			var c = this;
 			return $.ajax({
-				"url" : "http://" + testHost + ":20001/datastore_server/rmi-dss-api-v1.json",
+				"url" : "http://" + window.location.hostname + ":20001/datastore_server/rmi-dss-api-v1.json",
 				"type" : "POST",
 				"processData" : false,
 				"dataType" : "json",
@@ -603,7 +193,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			creation.setCode(c.generateId("PROPERTY_TYPE"));
 			creation.setLabel("Testing");
 			creation.setDescription("testing");
-			creation.setDataType(c.DataType.VARCHAR);
+			creation.setDataType(dtos.DataType.VARCHAR);
 			creation.setMultiValue(false);
 			return facade.createPropertyTypes([ creation ]).then(function(permIds) {
 				return permIds[0];
@@ -614,9 +204,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.PluginCreation();
 			creation.setName(c.generateId("PLUGIN"));
-			creation.setPluginType(c.PluginType.DYNAMIC_PROPERTY);
+			creation.setPluginType(dtos.PluginType.DYNAMIC_PROPERTY);
 			creation.setScript("42");
-			creation.setEntityKind(c.EntityKind.SAMPLE);
+			creation.setEntityKind(dtos.EntityKind.SAMPLE);
 			return facade.createPlugins([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -635,7 +225,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.VocabularyTermCreation();
 			creation.setCode(c.generateId("VOCABULARY_TERM"));
-			creation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
+			creation.setVocabularyId(new dtos.VocabularyPermId("TEST-VOCABULARY"));
 			return facade.createVocabularyTerms([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -681,7 +271,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.ExternalDmsCreation();
 			creation.setCode(c.generateId("EMDS"));
-			creation.setAddressType(c.ExternalDmsAddressType.URL);
+			creation.setAddressType(dtos.ExternalDmsAddressType.URL);
 			creation.setAddress("https://my-server:8443/my-app/q=${term}")
 			return facade.createExternalDms([ creation ]).then(function(permIds) {
 				return permIds[0];
@@ -690,10 +280,10 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.createFileExternalDms = function(facade) {
 			var c = this;
-			var creation = new c.ExternalDmsCreation();
+			var creation = new dtos.ExternalDmsCreation();
 			creation.setCode(c.generateId("EMDS"));
 			creation.setLabel("Test File EDMS");
-			creation.setAddressType(c.ExternalDmsAddressType.FILE_SYSTEM);
+			creation.setAddressType(dtos.ExternalDmsAddressType.FILE_SYSTEM);
 			creation.setAddress("host:my/path")
 			return facade.createExternalDms([ creation ]).then(function(permIds) {
 				return permIds[0];
@@ -713,7 +303,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.AuthorizationGroupCreation();
 			creation.setCode(c.generateId("AUTHORIZATION_GROUP"));
-			creation.setUserIds([ new c.PersonPermId("power_user") ]);
+			creation.setUserIds([ new dtos.PersonPermId("power_user") ]);
 			return facade.createAuthorizationGroups([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
@@ -723,11 +313,11 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			return c.createSpace(facade).then(function(spaceId) {
 				var creation = new dtos.RoleAssignmentCreation();
-				creation.setRole(c.Role.ADMIN);
+				creation.setRole(dtos.Role.ADMIN);
 				if (isUser) {
-					creation.setUserId(new c.PersonPermId("power_user"));
+					creation.setUserId(new dtos.PersonPermId("power_user"));
 				} else {
-					creation.setAuthorizationGroupId(new c.AuthorizationGroupPermId("TEST-GROUP"));
+					creation.setAuthorizationGroupId(new dtos.AuthorizationGroupPermId("TEST-GROUP"));
 				}
 				creation.setSpaceId(spaceId);
 				return facade.createRoleAssignments([ creation ]).then(function(permIds) {
@@ -774,8 +364,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.QueryCreation();
 			creation.setName(c.generateId("QUERY"));
-			creation.setDatabaseId(new c.QueryDatabaseName("openbisDB"));
-			creation.setQueryType(c.QueryType.GENERIC);
+			creation.setDatabaseId(new dtos.QueryDatabaseName("openbisDB"));
+			creation.setQueryType(dtos.QueryType.GENERIC);
 			creation.setSql("select code from spaces");
 			return facade.createQueries([ creation ]).then(function(techIds) {
 				return techIds[0];
@@ -817,7 +407,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.findExperimentType = function(facade, id) {
 			var c = this;
-			var criteria = new c.ExperimentTypeSearchCriteria();
+			var criteria = new dtos.ExperimentTypeSearchCriteria();
 			criteria.withId().thatEquals(id);
 			return facade.searchExperimentTypes(criteria, c.createExperimentTypeFetchOptions()).then(function(results) {
 				return results.getObjects()[0];
@@ -833,7 +423,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.findSampleType = function(facade, id) {
 			var c = this;
-			var criteria = new c.SampleTypeSearchCriteria();
+			var criteria = new dtos.SampleTypeSearchCriteria();
 			criteria.withId().thatEquals(id);
 			return facade.searchSampleTypes(criteria, c.createSampleTypeFetchOptions()).then(function(results) {
 				return results.getObjects()[0];
@@ -849,7 +439,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.findDataSetType = function(facade, id) {
 			var c = this;
-			var criteria = new c.DataSetTypeSearchCriteria();
+			var criteria = new dtos.DataSetTypeSearchCriteria();
 			criteria.withId().thatEquals(id);
 			return facade.searchDataSetTypes(criteria, c.createDataSetTypeFetchOptions()).then(function(results) {
 				return results.getObjects()[0];
@@ -865,7 +455,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.findMaterialType = function(facade, id) {
 			var c = this;
-			var criteria = new c.MaterialTypeSearchCriteria();
+			var criteria = new dtos.MaterialTypeSearchCriteria();
 			criteria.withId().thatEquals(id);
 			return facade.searchMaterialTypes(criteria, c.createMaterialTypeFetchOptions()).then(function(results) {
 				return results.getObjects()[0];
@@ -874,7 +464,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 
 		this.findPropertyType = function(facade, id) {
 			var c = this;
-			var criteria = new c.PropertyTypeSearchCriteria();
+			var criteria = new dtos.PropertyTypeSearchCriteria();
 			criteria.withId().thatEquals(id);
 			return facade.searchPropertyTypes(criteria, c.createPropertyTypeFetchOptions()).then(function(results) {
 				return results.getObjects()[0];
@@ -1074,7 +664,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();
 			options.setReason("test reason");
-			options.replace(id, new c.VocabularyTermPermId("TEST-TERM-1", "TEST-VOCABULARY"));
+			options.replace(id, new dtos.VocabularyTermPermId("TEST-TERM-1", "TEST-VOCABULARY"));
 			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
 
@@ -1142,21 +732,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return object;
 		};
 
-		this.createFacade = function() {
-			var dfd = $.Deferred();
-			dfd.resolve(new openbis(testApiUrl));
-			return dfd.promise();
-		};
-
-		this.createFacadeAndLogin = function() {
+		this.login = function(facade) {
 			var dfd = $.Deferred();
 
-			this.createFacade().then(function(facade) {
-				facade.login(testUserId, testUserPassword).done(function() {
-					dfd.resolve(facade);
-				}).fail(function() {
-					dfd.reject(arguments);
-				});
+			facade.login(testUserId, testUserPassword).done(function() {
+				dfd.resolve(facade);
+			}).fail(function() {
+				dfd.reject(arguments);
 			});
 
 			return dfd.promise();

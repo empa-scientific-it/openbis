@@ -9,7 +9,7 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.CODE,
 			sortable : true,
 			render : function(data, grid) {
-				return FormUtil.getFormLink(data.code, "Experiment", data.identifier.identifier);
+				return FormUtil.getFormLink(data.code, "Experiment", data.identifier);
 			},
 			filter : function(data, filter) {
 				return data.code.toLowerCase().indexOf(filter) !== -1;
@@ -31,7 +31,7 @@ var ExperimentDataGridUtil = new function() {
                 if(data[profile.propertyReplacingCode]) {
                     nameToUse = data[profile.propertyReplacingCode];
                 }
-                return FormUtil.getFormLink(nameToUse, "Experiment", data.identifier.identifier);
+                return FormUtil.getFormLink(nameToUse, "Experiment", data.identifier);
             }
         });
 
@@ -41,14 +41,14 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.IDENTIFIER,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.identifier.identifier, "Experiment", data.identifier.identifier);
+				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
 			},
 			filter : function(data, filter) {
-				return data.identifier.identifier.toLowerCase().indexOf(filter) !== -1;
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
 			},
 			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier.identifier;
-				var value2 = data2.identifier.identifier;
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
 				var sortDirection = (asc)? 1 : -1;
 				return sortDirection * naturalSort(value1, value2);
 			}
@@ -59,14 +59,14 @@ var ExperimentDataGridUtil = new function() {
 			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
 			sortable : true,
 			render : function(data) {
-				return FormUtil.getFormLink(data.permId.permId, "Experiment", data.identifier.identifier);
+				return FormUtil.getFormLink(data.permId, "Experiment", data.identifier);
 			},
 			filter : function(data, filter) {
-				return data.identifier.identifier.toLowerCase().indexOf(filter) !== -1;
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
 			},
 			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier.identifier;
-				var value2 = data2.identifier.identifier;
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
 				var sortDirection = (asc)? 1 : -1;
 				return sortDirection * naturalSort(value1, value2);
 			}

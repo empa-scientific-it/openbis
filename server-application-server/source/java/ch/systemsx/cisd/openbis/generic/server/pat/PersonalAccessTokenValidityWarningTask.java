@@ -127,8 +127,7 @@ public class PersonalAccessTokenValidityWarningTask implements IMaintenanceTask
 
             if (validityPeriodLeft > 0)
             {
-                emailContent.append("- hash: ").append(userToken.getHash())
-                        .append(", session name: ").append(userToken.getSessionName())
+                emailContent.append("- session name: ").append(userToken.getSessionName())
                         .append(", valid from: ").append(DATE_FORMAT.format(userToken.getValidFromDate()))
                         .append(", valid to: ").append(DATE_FORMAT.format(userToken.getValidToDate()))
                         .append(", expires in: ").append(DateTimeUtils.renderDuration(validityPeriodLeft))

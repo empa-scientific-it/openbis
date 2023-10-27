@@ -108,6 +108,11 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     protected boolean entityFrozen;
 
+    /**
+     * Special field for multi-value properties hashcode computing
+     */
+    protected transient Long index;
+
     public <T extends EntityTypePropertyTypePE> void setEntityTypePropertyType(
             final T entityTypePropertyType)
     {
@@ -117,6 +122,11 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    public void setIndex(final long index)
+    {
+        this.index = index;
     }
 
     public void setEntityFrozen(boolean frozen)
@@ -415,6 +425,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         builder.append(getEntity());
         builder.append(getEntityTypePropertyType());
         builder.append(tryGetUntypedValue());
+        builder.append(index);
+        builder.append(id);
         return builder.toHashCode();
     }
 

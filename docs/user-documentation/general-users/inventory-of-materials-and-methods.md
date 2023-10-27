@@ -321,7 +321,7 @@ objects simultaneously via batch update. This can be done in two ways:
 ![image info](img/Batch-update-entries-one-collection-column-selection-1024x584.png)
 
 3\. If you have several entries you can filter the table
-(see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
+(see [Tables](./additional-functionalities.md#tables))
 
 4\. **Export** the table choosing the options **Import Compatible= YES;
 Selected Columns; All pages/Current page/Selected rows** (depending on
@@ -511,4 +511,4 @@ To register a new General Protocol in the General Protocols folder, follow these
 
 When writing a protocol, it is possible to create links to samples, materials or other protocols stored in the Inventory. These are parent-child relationships in openBIS.
 
-Everything that is used in the protocol can be added as Parent of the protocol itself. This can be done as described fo Experimental Steps: [Add parents and children to Experimental Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps)
+Everything that is used in the protocol can be added as Parent of the protocol itself. This can be done as described fo Experimental Steps: [Add parents and children to Experimental Steps](./lab-notebook.md#add-parents-and-children-to-experimental-steps)

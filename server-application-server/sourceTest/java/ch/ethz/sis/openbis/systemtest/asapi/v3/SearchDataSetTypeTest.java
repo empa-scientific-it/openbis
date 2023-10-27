@@ -16,23 +16,24 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
@@ -264,6 +265,40 @@ public class SearchDataSetTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = types.get(0).getPropertyAssignments();
         assertOrder(propertyAssignments, "ORGANISM", "DESCRIPTION", "BACTERIUM");
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithPropertyAssignments()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
+        final Set<String> requiredPropertyTypeCodes = Set.of("ORGANISM", "DESCRIPTION", "BACTERIUM");
+        searchCriteria.withPropertyAssignments().withPropertyType().withCodes().thatIn(requiredPropertyTypeCodes);
+
+        final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().sortBy().code().desc();
+
+        final SearchResult<DataSetType> searchResult = v3api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+        final List<DataSetType> dataSetTypes = searchResult.getObjects();
+
+        assertTrue(dataSetTypes.get(0).getFetchOptions().hasPropertyAssignments());
+
+        for (final DataSetType dataSetType : dataSetTypes)
+        {
+            final Set<String> propertyTypeCodes = dataSetType.getPropertyAssignments().stream()
+                    .map(propertyAssignment -> propertyAssignment.getPropertyType().getCode())
+                    .collect(Collectors.toSet());
+            final Set<String> originalPropertyTypeCodes = new HashSet<>(propertyTypeCodes);
+            if (!originalPropertyTypeCodes.isEmpty())
+            {
+                propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
+                assertFalse(propertyTypeCodes.isEmpty(),
+                        String.format("DataSet type %s contains assignments to property types %s which do not have any of the required ones %s.",
+                                dataSetType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
+            }
+        }
+
         v3api.logout(sessionToken);
     }
 

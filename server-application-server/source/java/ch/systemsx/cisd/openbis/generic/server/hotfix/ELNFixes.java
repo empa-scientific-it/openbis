@@ -45,6 +45,7 @@ public class ELNFixes {
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         storageValidationLevelFix(sessionToken, api);
         nameNoRTFFix(sessionToken, api);
+        // TODO(alaskowski): SSDM-13831: Do migration here!!!
         fixProperties("sample_properties", "sample_type_property_types", "stpt_id");
         fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id");
         fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id");
@@ -66,7 +67,7 @@ public class ELNFixes {
         List<SampleUpdate> storageUpdates = new ArrayList<>();
         for (Sample storage:storages.getObjects()) {
             if(storage.getProperty(STORAGE_VALIDATION_LEVEL_PROPERTY_CODE) == null ||
-                    storage.getProperty(STORAGE_VALIDATION_LEVEL_PROPERTY_CODE).isEmpty()) {
+                    ((String)storage.getProperty(STORAGE_VALIDATION_LEVEL_PROPERTY_CODE)).isEmpty()) {
                 SampleUpdate storageUpdate = new SampleUpdate();
                 storageUpdate.setSampleId(storage.getPermId());
                 storageUpdate.setProperty(STORAGE_VALIDATION_LEVEL_PROPERTY_CODE, STORAGE_VALIDATION_LEVEL_DEFAULT_VALUE);
@@ -95,7 +96,7 @@ public class ELNFixes {
         for (Sample nameRTF:namesRTF.getObjects()) {
             SampleUpdate nameUpdate = new SampleUpdate();
             nameUpdate.setSampleId(nameRTF.getPermId());
-            nameUpdate.setProperty(NAME_PROPERTY_CODE, nameRTF.getProperty(NAME_PROPERTY_CODE).replaceAll( "(<([^>]+)>)", ""));
+            nameUpdate.setProperty(NAME_PROPERTY_CODE, ((String)nameRTF.getProperty(NAME_PROPERTY_CODE)).replaceAll( "(<([^>]+)>)", ""));
             nameUpdates.add(nameUpdate);
         }
 

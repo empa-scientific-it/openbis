@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.AbstractEntityFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -38,7 +39,7 @@ import java.io.Serializable;
  * Class automatically generated with DtoGenerator
  */
 @JsonObject("as.dto.dataset.fetchoptions.DataSetFetchOptions")
-public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serializable
+public class DataSetFetchOptions extends AbstractEntityFetchOptions<DataSet> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -59,9 +60,6 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
 
     @JsonProperty
     private SampleFetchOptions sample;
-
-    @JsonProperty
-    private PropertyFetchOptions properties;
 
     @JsonProperty
     private MaterialFetchOptions materialProperties;
@@ -253,28 +251,6 @@ public class DataSetFetchOptions extends FetchOptions<DataSet> implements Serial
     public boolean hasSample()
     {
         return sample != null;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public PropertyFetchOptions withProperties()
-    {
-        if (properties == null)
-        {
-            properties = new PropertyFetchOptions();
-        }
-        return properties;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
-    {
-        return properties = fetchOptions;
-    }
-
-    // Method automatically generated with DtoGenerator
-    public boolean hasProperties()
-    {
-        return properties != null;
     }
 
     // Method automatically generated with DtoGenerator
