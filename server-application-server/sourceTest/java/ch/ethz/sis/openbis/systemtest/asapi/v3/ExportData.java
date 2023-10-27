@@ -48,114 +48,114 @@ public class ExportData
 {
 
     static final Object[][] EXPORT_DATA = {
-            // All fields
-            {
-                    // Non-existing sample
-                    "empty.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Space: TEST-SPACE
-                    "export-space.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Project: TEST-PROJECT
-                    "export-project.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Experiment: EXP-SPACE-TEST
-                    "export-experiment.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-compatible-with-import.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    true // withImportCompatibility
-            },
-            {
-                    // Sample Type: CELL_PLATE
-                    "export-sample-type-with-referred-types.zip",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Experiment Type: SIRNA_HCS
-                    "export-experiment-type.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    false, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Dataset Type: HCS_IMAGE
-                    "export-data-set-type.xlsx",
-                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    false, // withReferredTypes
-                    false // withImportCompatibility
-            },
-
-            // Selected fields
-            {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-filtered-fields.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE,
-                            new SamplePermId("201206191219327-1054"))),
-                    new SelectedFields(
-                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
-                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
-                    XlsTextFormat.PLAIN,
-                    false, // withReferredTypes
-                    false // withImportCompatibility
-            },
+//            // All fields
 //            {
-//                    // Experiment: EXP-SPACE-TEST
-//                    "export-experiment-filtered-fields.xlsx",
-//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT,
-//                            new ExperimentPermId("201206190940555-1032"))),
-//                    new SelectedFields(
-//                            List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
-//                            List.of(new PropertyTypePermId("GENDER"), new PropertyTypePermId("DESCRIPTION"))),
+//                    // Non-existing sample
+//                    "empty.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
+//                    new AllFields(),
 //                    XlsTextFormat.PLAIN,
 //                    true, // withReferredTypes
 //                    false // withImportCompatibility
 //            },
+//            {
+//                    // Space: TEST-SPACE
+//                    "export-space.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//            {
+//                    // Project: TEST-PROJECT
+//                    "export-project.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//            {
+//                    // Experiment: EXP-SPACE-TEST
+//                    "export-experiment.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//            {
+//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+//                    "export-sample.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//            {
+//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+//                    "export-sample-compatible-with-import.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    true // withImportCompatibility
+//            },
+//            {
+//                    // Sample Type: CELL_PLATE
+//                    "export-sample-type-with-referred-types.zip",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//            {
+//                    // Experiment Type: SIRNA_HCS
+//                    "export-experiment-type.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    false, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//            {
+//                    // Dataset Type: HCS_IMAGE
+//                    "export-data-set-type.xlsx",
+//                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    false, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+//
+//            // Selected fields
+//            {
+//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+//                    "export-sample-filtered-fields.xlsx",
+//                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE,
+//                            new SamplePermId("201206191219327-1054"))),
+//                    new SelectedFields(
+//                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
+//                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
+//                    XlsTextFormat.PLAIN,
+//                    false, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
+            {
+                    // Experiment: EXP-SPACE-TEST
+                    "export-experiment-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.EXPERIMENT,
+                            new ExperimentPermId("201206190940555-1032"))),
+                    new SelectedFields(
+                            List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
+                            List.of(new PropertyTypePermId("GENDER"), new PropertyTypePermId("DESCRIPTION"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private ExportData()

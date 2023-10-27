@@ -37,7 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 
-public abstract class AbstractExportFieldsFinderImpl<ENTITY_TYPE extends IEntityType & IPermIdHolder> implements IExportFieldsFinder
+public abstract class AbstractExportFieldsFinder<ENTITY_TYPE extends IEntityType & IPermIdHolder> implements IExportFieldsFinder
 {
     private static final String TYPE = "type";
 
@@ -73,8 +73,7 @@ public abstract class AbstractExportFieldsFinderImpl<ENTITY_TYPE extends IEntity
                                             .collect(Collectors.toList());
                             return mergePropertiesAndAttributes(selectedPropertyTypeCodes, attributes);
                         });
-        final Map<String, List<Map<String, String>>> entitySelectedFieldMap = entityTypes.stream().collect(entityTypeToMapCollector);
-        return entitySelectedFieldMap;
+        return entityTypes.stream().collect(entityTypeToMapCollector);
     }
 
     private static List<Map<String, String>> mergePropertiesAndAttributes(final List<String> selectedPropertyTypeCodes,

@@ -17,60 +17,35 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
-import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 
-public class SampleExportFieldsFinder extends AbstractExportFieldsFinderImpl<SampleType>
+public class SampleExportFieldsFinder extends AbstractExportFieldsFinder<SampleType>
 {
 
     @Override
     public SearchResult<SampleType> findEntityTypes(final Set<IPropertyTypeId> properties,
             final IApplicationServerInternalApi applicationServerApi, final String sessionToken)
     {
-        final SampleTypeSearchCriteria typeSearchCriteria = getTypeSearchCriteria(properties);
-        final SampleTypeFetchOptions fetchOptions = getFetchOptions();
+        final SampleTypeSearchCriteria typeSearchCriteria = new SampleTypeSearchCriteria();
+//        typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
 
-        final SearchResult<SampleType> entityTypeSearchResult =
-                applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, fetchOptions);
-        return entityTypeSearchResult;
+        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().withPropertyType();
+
+        return applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, fetchOptions);
     }
 
     @Override
     public String getPermId(final SampleType sampleType)
     {
         return sampleType.getPermId().getPermId();
-    }
-
-    private static SampleTypeFetchOptions getFetchOptions()
-    {
-        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withPropertyAssignments().withPropertyType();
-        return fetchOptions;
-    }
-
-    private static SampleTypeSearchCriteria getTypeSearchCriteria(final Set<IPropertyTypeId> properties)
-    {
-        final SampleTypeSearchCriteria typeSearchCriteria = new SampleTypeSearchCriteria();
-        typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
-        return typeSearchCriteria;
     }
 
 }
