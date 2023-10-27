@@ -86,6 +86,15 @@ public enum TableMapper
     SAMPLE_PROPERTY_ASSIGNMENT(SAMPLE_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, SAMPLE_TYPE_COLUMN, null,
             null, null, null, null, null, null, null, null, null, EntityKind.SAMPLE, true, false),
 
+    EXPERIMENT_PROPERTY_ASSIGNMENT(EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, EXPERIMENT_TYPE_COLUMN, null,
+            null, null, null, null, null, null, null, null, null, EntityKind.EXPERIMENT, true, false),
+
+    DATA_SET_PROPERTY_ASSIGNMENT(DATA_SET_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, DATA_SET_TYPE_COLUMN, null,
+            null, null, null, null, null, null, null, null, null, EntityKind.DATA_SET, true, false),
+
+    MATERIAL_PROPERTY_ASSIGNMENT(MATERIAL_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, MATERIAL_TYPE_COLUMN, null,
+            null, null, null, null, null, null, null, null, null, EntityKind.MATERIAL, true, false),
+
     CONTENT_COPIES(CONTENT_COPIES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, true, false),
 
