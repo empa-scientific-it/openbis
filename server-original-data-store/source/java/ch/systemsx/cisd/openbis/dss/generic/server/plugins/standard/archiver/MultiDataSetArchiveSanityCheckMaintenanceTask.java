@@ -101,6 +101,8 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
     private boolean checkInRandomOrder;
 
+    private boolean verifyChecksums;
+
     private double runProbability;
 
     private long runMaxRandomDelay;
@@ -122,6 +124,11 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         checkFromDate = getDateProperty(properties, CHECK_FROM_DATE_KEY);
         checkToDate = getDateProperty(properties, CHECK_TO_DATE_KEY);
         checkInRandomOrder = PropertyUtils.getBoolean(properties, CHECK_IN_RANDOM_ORDER_KEY, CHECK_IN_RANDOM_ORDER_DEFAULT);
+
+        Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+        verifyChecksums = PropertyUtils.getBoolean(archiverProperties, MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY,
+                MultiDataSetArchiver.DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS);
+
         runProbability = PropertyUtils.getDouble(properties, RUN_PROBABILITY_KEY, RUN_PROBABILITY_DEFAULT);
         if (runProbability <= 0 || runProbability > 1.0)
         {
@@ -299,7 +306,8 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         try
         {
             mainContent = operationsManager.getContainerAsHierarchicalContent(container.getPath(), containerDataSetDescriptions);
-            MultiDataSetArchivingUtils.sanityCheck(mainContent, containerDataSetDescriptions, archiverContext, new Log4jSimpleLogger(operationLog));
+            MultiDataSetArchivingUtils.sanityCheck(mainContent, containerDataSetDescriptions, verifyChecksums, archiverContext,
+                    new Log4jSimpleLogger(operationLog));
         } catch (Exception e)
         {
             throw new RuntimeException("Sanity check of the main copy of failed", e);
@@ -316,7 +324,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         {
             replicaContent =
                     operationsManager.getReplicaAsHierarchicalContent(container.getPath(), containerDataSetDescriptions);
-            MultiDataSetArchivingUtils.sanityCheck(replicaContent, containerDataSetDescriptions, archiverContext,
+            MultiDataSetArchivingUtils.sanityCheck(replicaContent, containerDataSetDescriptions, verifyChecksums, archiverContext,
                     new Log4jSimpleLogger(operationLog));
         } catch (Exception e)
         {

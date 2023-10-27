@@ -373,8 +373,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
                     replicaContent =
                             operationsManager.getReplicaAsHierarchicalContent(parameters.getContainerPath(), dataSets);
 
-                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, archiverContext,
-                            new Log4jSimpleLogger(operationLog));
+                    return MultiDataSetArchivingUtils.sanityCheck(replicaContent, dataSets, parameters.isSanityCheckVerifyChecksums(),
+                            archiverContext, new Log4jSimpleLogger(operationLog));
                 } finally
                 {
                     if (replicaContent != null)
@@ -467,6 +467,14 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
             parameters.setWaitForSanityCheckMaxWaitingTime(MultiDataSetArchiver.DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
         }
 
+        if (parameterBindings.containsKey(MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY))
+        {
+            parameters.setSanityCheckVerifyChecksums(getBoolean(parameterBindings, MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY));
+        } else
+        {
+            parameters.setSanityCheckVerifyChecksums(MultiDataSetArchiver.DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS);
+        }
+
         return parameters;
     }
 
@@ -539,6 +547,8 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         private long waitForSanityCheckInitialWaitingTime;
 
         private long waitForSanityCheckMaxWaitingTime;
+
+        private boolean sanityCheckVerifyChecksums;
 
         private boolean waitForTFlag;
 
@@ -670,6 +680,16 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         public void setWaitForSanityCheckMaxWaitingTime(final long waitForSanityCheckMaxWaitingTime)
         {
             this.waitForSanityCheckMaxWaitingTime = waitForSanityCheckMaxWaitingTime;
+        }
+
+        public boolean isSanityCheckVerifyChecksums()
+        {
+            return sanityCheckVerifyChecksums;
+        }
+
+        public void setSanityCheckVerifyChecksums(final boolean sanityCheckVerifyChecksums)
+        {
+            this.sanityCheckVerifyChecksums = sanityCheckVerifyChecksums;
         }
 
         public boolean isWaitForTFlag()

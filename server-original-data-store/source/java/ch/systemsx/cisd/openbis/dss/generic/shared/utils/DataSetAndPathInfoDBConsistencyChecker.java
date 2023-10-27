@@ -231,10 +231,10 @@ public class DataSetAndPathInfoDBConsistencyChecker
         if (fileRoot != null && pathInfoRoot != null)
         {
             compare(fileRoot, pathInfoRoot, diffs);
-        } else if (fileRoot == null && pathInfoRoot != null)
+        } else if (fileRoot == null ^ pathInfoRoot == null)
         {
-            diffs.add(new RootExistenceDifference());
-        } else if (fileRoot == null && pathInfoRoot == null)
+            diffs.add(new RootExistenceDifference(fileRoot != null));
+        } else
         {
             diffs.add(new RootExistence());
         }
@@ -416,15 +416,25 @@ public class DataSetAndPathInfoDBConsistencyChecker
     private class RootExistenceDifference extends Difference
     {
 
-        public RootExistenceDifference()
+        private boolean existsInFS;
+
+        public RootExistenceDifference(boolean existsInFS)
         {
             super(null);
+            this.existsInFS = existsInFS;
         }
 
         @Override
         public String getDescription()
         {
-            return "exists in the path info database but does not exist in the file system";
+
+            if (existsInFS)
+            {
+                return "exists in the file system but does not exist in the path info database";
+            } else
+            {
+                return "exists in the path info database but does not exist in the file system";
+            }
         }
 
     }
