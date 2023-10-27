@@ -20,32 +20,32 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 
-public class SampleExportFieldsFinder extends AbstractExportFieldsFinder<SampleType>
+public class DataSetExportFieldsFinder extends AbstractExportFieldsFinder<DataSetType>
 {
 
     @Override
-    public SearchResult<SampleType> findEntityTypes(final Set<IPropertyTypeId> properties,
+    public SearchResult<DataSetType> findEntityTypes(final Set<IPropertyTypeId> properties,
             final IApplicationServerInternalApi applicationServerApi, final String sessionToken)
     {
-        final SampleTypeSearchCriteria typeSearchCriteria = new SampleTypeSearchCriteria();
+        final DataSetTypeSearchCriteria typeSearchCriteria = new DataSetTypeSearchCriteria();
         typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
 
-        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType();
 
-        return applicationServerApi.searchSampleTypes(sessionToken, typeSearchCriteria, fetchOptions);
+        return applicationServerApi.searchDataSetTypes(sessionToken, typeSearchCriteria, fetchOptions);
     }
 
     @Override
-    public String getPermId(final SampleType sampleType)
+    public String getPermId(final DataSetType dataSetType)
     {
-        return sampleType.getPermId().getPermId();
+        return dataSetType.getPermId().getPermId();
     }
 
 }

@@ -153,7 +153,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             case SIZE:
             {
                 final PhysicalData physicalData = dataSet.getPhysicalData();
-                return physicalData != null ? physicalData.getSize().toString() : null;
+                return physicalData != null && physicalData.getSize() != null ? physicalData.getSize().toString() : null;
             }
             case IDENTIFIER:
             case CODE:

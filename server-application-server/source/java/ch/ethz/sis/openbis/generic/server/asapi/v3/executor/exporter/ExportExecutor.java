@@ -56,7 +56,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
             Map.of(ExportableKind.SAMPLE, new SampleExportFieldsFinder(),
-                    ExportableKind.EXPERIMENT, new ExperimentExportFieldsFinder());
+                    ExportableKind.EXPERIMENT, new ExperimentExportFieldsFinder(),
+                    ExportableKind.DATASET, new DataSetExportFieldsFinder());
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -91,7 +92,7 @@ public class ExportExecutor implements IExportExecutor
                     final Set<IPropertyTypeId> properties = new HashSet<>(selectedFields.getProperties());
 
 
-                    // TODO: Do something similar for experiments and datasets
+                    // TODO: Do something similar for datasets
                     exportableKinds.forEach(exportableKind ->
                     {
                         final IExportFieldsFinder fieldsFinder = FIELDS_FINDER_BY_EXPORTABLE_KIND.get(exportableKind);

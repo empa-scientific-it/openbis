@@ -19,18 +19,24 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CHILDREN;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFIER;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PARENTS;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PERM_ID;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PRESENT_IN_ARCHIVE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.PROJECT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SAMPLE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.STORAGE_CONFIRMATION;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -152,6 +158,40 @@ public class ExportData
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
                             List.of(new PropertyTypePermId("GENDER"), new PropertyTypePermId("DESCRIPTION"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Project: TEST-PROJECT
+                    "export-project-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+                    new SelectedFields(
+                            List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, SPACE, DESCRIPTION),
+                            List.of()),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Data set: "ROOT_CONTAINER"
+                    "export-data-set.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
+                            ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Data set: "20081105092159188-3"
+                    "export-data-set-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
+                            ExportableKind.DATASET, new DataSetPermId("20081105092159188-3"))),
+                    new SelectedFields(
+                            List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, PARENTS, CHILDREN, STORAGE_CONFIRMATION, PRESENT_IN_ARCHIVE,
+                                    SAMPLE, EXPERIMENT),
+                            List.of(new PropertyTypePermId("COMMENT"), new PropertyTypePermId("GENDER"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
