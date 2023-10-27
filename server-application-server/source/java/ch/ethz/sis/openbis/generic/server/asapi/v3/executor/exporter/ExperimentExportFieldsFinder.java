@@ -32,28 +32,6 @@ public class ExperimentExportFieldsFinder extends AbstractExportFieldsFinder<Exp
     public SearchResult<ExperimentType> findEntityTypes(final Set<IPropertyTypeId> properties,
             final IApplicationServerInternalApi applicationServerApi, final String sessionToken)
     {
-        // TODO: !!!!!!!!! Not sure if it's not a bug in the search engine!!!!!!!!
-        // The following is produced:
-        //
-        // 2023-10-26 18:52:14,762 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
-        //FROM property_types t0
-        //WHERE (t0.code IN (SELECT UNNEST(?)))
-        //2023-10-26 18:52:14,762 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[DESCRIPTION, GENDER]]
-        //2023-10-26 18:52:14,770 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 2
-        //2023-10-26 18:52:14,770 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=1}, {id=13}]
-        //2023-10-26 18:52:14,771 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
-        //FROM sample_type_property_types t0 <--- why sample???????
-        //WHERE (t0.prty_id IN (SELECT UNNEST(?)))
-        //2023-10-26 18:52:14,771 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[1, 13]]
-        //2023-10-26 18:52:14,771 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 3
-        //2023-10-26 18:52:14,771 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=3}, {id=4}, {id=17}]
-        //2023-10-26 18:52:14,771 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
-        //FROM experiment_types t0
-        //WHERE (t0.id IN (SELECT UNNEST(?))) <---- why t0.id??????
-        //2023-10-26 18:52:14,771 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[17, 3, 4]]
-        //2023-10-26 18:52:14,772 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 1
-        //2023-10-26 18:52:14,772 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=3}]
-
         final ExperimentTypeSearchCriteria typeSearchCriteria = new ExperimentTypeSearchCriteria();
         typeSearchCriteria.withPropertyAssignments().withPropertyType().withIds().thatIn(properties);
 
