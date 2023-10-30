@@ -4,8 +4,12 @@ Advanced Features
 .. toctree::
    :maxdepth: 4
 
-   archive-datasets
-   authentication-system
-   share-ids
+   authentication-systems
+   authorization
    maintenance-tasks
+   master-data
+   archiving-datasets
+   querying-project-db
+   share-ids
    openbis-sync
+   logging
