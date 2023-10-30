@@ -109,7 +109,7 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
                 IDataSetFileOperationsManagerFactory fileOperationsManagerFactory, IShareIdManager shareIdManager)
         {
             super(properties, storeRoot, fileOperationsManagerFactory, RsyncArchiver.DeleteAction.DELETE,
-                    ChecksumVerificationCondition.YES_IF_PRECALCULATED_OTHERWISE_NO);
+                    ChecksumVerificationCondition.IF_AVAILABLE);
             setService(service);
             setStatusUpdater(new IDataSetStatusUpdater()
                 {

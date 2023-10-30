@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_UNARCHIVING_CAPACITY_IN_MEGABYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.HDF5_FILES_IN_DATA_SET;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.REPLICATED_DESTINATION_KEY;
@@ -413,7 +412,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         RecordingMatcher<HostAwareFile> freeSpaceRecorder = prepareFreeSpace(600 * FileUtils.ONE_MB, 100 * FileUtils.ONE_MB, 6);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         properties.setProperty(MultiDataSetFileOperationsManager.WAITING_FOR_FREE_SPACE_POLLING_TIME_KEY, "2 min");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
@@ -485,7 +483,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
         properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, "5 min");
         properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, "2 days");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
         final RecordingMatcher<Map<String, String>> parametersRecorder = new RecordingMatcher<Map<String, String>>();
         context.checking(new Expectations()
             {
@@ -548,7 +545,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                         + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
                         + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=false, status=ARCHIVED, "
-                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, sanity-check-verify-checksums=false}",
+                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, sanity-check-verify-checksums=true}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[]\n", dataSetDeleter.toString());
         assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",
@@ -571,7 +568,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
         properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, "5 min");
         properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, "2 days");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
 
         final RecordingMatcher<Map<String, String>> parametersRecorder = new RecordingMatcher<Map<String, String>>();
         context.checking(new Expectations()
@@ -639,7 +635,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                         + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
                         + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=false, status=ARCHIVED, "
-                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, sanity-check-verify-checksums=false}",
+                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, sanity-check-verify-checksums=true}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[Dataset 'ds1']\n", dataSetDeleter.toString());
         assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",
@@ -677,7 +673,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.remove(STAGING_DESTINATION_KEY);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         properties.setProperty(HDF5_FILES_IN_DATA_SET, "false");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, false);
@@ -781,7 +776,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         prepareLockAndReleaseDataSet(ds1);
         prepareFixedFreeSpace(20 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "5");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
         MultiDataSetArchiverContainerDTO container = transaction.createContainer("path");
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds2, container);
@@ -976,7 +970,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         prepareLockAndReleaseDataSet(ds2);
         prepareFixedFreeSpace(35 * FileUtils.ONE_GB);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
         AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "
@@ -1060,7 +1053,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         prepareFixedFreeSpace(35 * FileUtils.ONE_GB);
         properties.setProperty(MultiDataSetArchiver.DELAY_UNARCHIVING, "true");
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "5");
-        properties.setProperty(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, "false");
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverContext, true);
         AssertionUtil.assertContainsLines("INFO  OPERATION.AbstractDatastorePlugin - "

@@ -78,27 +78,12 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                         return true;
                     }
                 },
-        YES_IF_PRECALCULATED_OTHERWISE_NO()
+        IF_AVAILABLE()
                 {
                     @Override
                     boolean verifyChecksum(IHierarchicalContentNode node)
                     {
                         return node.isChecksumCRC32Precalculated();
-                    }
-                },
-        YES_IF_PRECALCULATED_OTHERWISE_FAIL()
-                {
-                    @Override
-                    boolean verifyChecksum(IHierarchicalContentNode node)
-                    {
-                        if (node.isChecksumCRC32Precalculated())
-                        {
-                            return true;
-                        } else
-                        {
-                            throw new RuntimeException(
-                                    "Checksum not precalculated for node: " + node.getName() + " with path: " + node.getRelativePath());
-                        }
                     }
                 };
 

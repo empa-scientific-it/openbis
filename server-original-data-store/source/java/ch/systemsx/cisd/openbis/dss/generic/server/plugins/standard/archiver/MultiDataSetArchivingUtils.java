@@ -79,7 +79,7 @@ class MultiDataSetArchivingUtils
                 IHierarchicalContentNode archiveDataSetRoot = archivedContent.getNode(dataSetCode);
 
                 Status status = RsyncArchiver.checkHierarchySizeAndChecksums(root, dataSetCode, archiveDataSetRoot,
-                        verifyChecksums ? ChecksumVerificationCondition.YES_IF_PRECALCULATED_OTHERWISE_FAIL : ChecksumVerificationCondition.NO);
+                        verifyChecksums ? ChecksumVerificationCondition.YES : ChecksumVerificationCondition.NO);
 
                 if (status.isError())
                 {

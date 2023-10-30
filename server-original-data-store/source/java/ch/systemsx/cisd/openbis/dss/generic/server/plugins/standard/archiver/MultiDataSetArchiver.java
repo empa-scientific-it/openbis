@@ -582,6 +582,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             operationLog.info("Starts consistency check between data store and pathinfo database for "
                     + CollectionUtils.abbreviate(dataSets, 20));
             DataSetAndPathInfoDBConsistencyChecker createChecker = createChecker();
+            createChecker.setForceChecksumVerification(sanityCheckVerifyChecksums);
             createChecker.check(dataSets);
             operationLog.info("Consistency check finished.");
             if (createChecker.noErrorAndInconsistencyFound() == false)

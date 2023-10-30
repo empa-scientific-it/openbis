@@ -79,11 +79,18 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     private List<String> dataSets = new ArrayList<>();
 
+    private boolean forceChecksumVerification;
+
     public DataSetAndPathInfoDBConsistencyChecker(
             IHierarchicalContentProvider fileProvider, IHierarchicalContentProvider pathInfoProvider)
     {
         this.fileProvider = fileProvider;
         this.pathInfoProvider = pathInfoProvider;
+    }
+
+    public void setForceChecksumVerification(final boolean forceChecksumVerification)
+    {
+        this.forceChecksumVerification = forceChecksumVerification;
     }
 
     public void check(List<? extends IDatasetLocation> datasets)
@@ -106,7 +113,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
     	checkDataSet(dataSetCode, false, true);
     }
-    
+
     public void checkDataSet(String dataSetCode, boolean h5Folders, boolean h5arFolders)
     {
         dataSets.add(dataSetCode);
@@ -314,6 +321,10 @@ public class DataSetAndPathInfoDBConsistencyChecker
                     .getFileLength(), pathInfoNode.getFileLength()));
         }
         // check CRC32 checksums if stored in path Info db
+        if (!pathInfoNode.isChecksumCRC32Precalculated() && forceChecksumVerification)
+        {
+            diffs.add(new CRC32ExistenceDifference(fileNode.getRelativePath()));
+        }
         if (pathInfoNode.isChecksumCRC32Precalculated()
                 && (fileNode.getChecksumCRC32() != pathInfoNode.getChecksumCRC32()))
         {
@@ -514,6 +525,20 @@ public class DataSetAndPathInfoDBConsistencyChecker
         {
             return "'" + getPath() + "' size in the file system = " + sizeInFS
                     + " bytes but in the path info database = " + sizeInDB + " bytes.";
+        }
+    }
+
+    private class CRC32ExistenceDifference extends Difference
+    {
+        public CRC32ExistenceDifference(String path)
+        {
+            super(path);
+        }
+
+        @Override
+        public String getDescription()
+        {
+            return "'" + getPath() + "' CRC32 checksum is missing in the path info database";
         }
     }
 
