@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi
 
 public class ExperimentExportFieldsFinder extends AbstractExportFieldsFinder<ExperimentType>
 {
+
     @Override 
     public SearchResult<ExperimentType> findEntityTypes(final Set<IPropertyTypeId> properties,
             final IApplicationServerInternalApi applicationServerApi, final String sessionToken)

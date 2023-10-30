@@ -183,19 +183,6 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
-            {
-                    // Data set: "20081105092159188-3"
-                    "export-data-set-filtered-fields.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
-                            ExportableKind.DATASET, new DataSetPermId("20081105092159188-3"))),
-                    new SelectedFields(
-                            List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, PARENTS, CHILDREN, STORAGE_CONFIRMATION, PRESENT_IN_ARCHIVE,
-                                    SAMPLE, EXPERIMENT),
-                            List.of(new PropertyTypePermId("COMMENT"), new PropertyTypePermId("GENDER"))),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
     };
 
     private ExportData()

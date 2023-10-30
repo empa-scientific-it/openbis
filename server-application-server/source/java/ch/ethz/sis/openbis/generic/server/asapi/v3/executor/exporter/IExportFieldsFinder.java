@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
@@ -30,8 +28,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi
 public interface IExportFieldsFinder
 {
 
+    String TYPE = "type";
+
+    String ID = "id";
+
     Map<String, List<Map<String, String>>> findExportFields(Set<IPropertyTypeId> properties,
-            IApplicationServerInternalApi applicationServerApi, String sessionToken, SelectedFields selectedFields,
-            List<Attribute> attributes);
+            IApplicationServerInternalApi applicationServerApi, String sessionToken, SelectedFields selectedFields);
 
 }

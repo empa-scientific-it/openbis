@@ -39,41 +39,43 @@ import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 
 public abstract class AbstractExportFieldsFinder<ENTITY_TYPE extends IEntityType & IPermIdHolder> implements IExportFieldsFinder
 {
-    private static final String TYPE = "type";
 
-    private static final String ID = "id";
-
-    @Override 
+    @Override
     public Map<String, List<Map<String, String>>> findExportFields(final Set<IPropertyTypeId> properties,
-            final IApplicationServerInternalApi applicationServerApi, final String sessionToken, final SelectedFields selectedFields,
-            final List<Attribute> attributes)
+            final IApplicationServerInternalApi applicationServerApi, final String sessionToken, final SelectedFields selectedFields)
     {
         final SearchResult<ENTITY_TYPE> entityTypeSearchResult = findEntityTypes(properties, applicationServerApi, sessionToken);
 
         final List<ENTITY_TYPE> entityTypes = entityTypeSearchResult.getObjects();
+        final Collector<ENTITY_TYPE, ?, Map<String, List<Map<String, String>>>> entityTypeToMapCollector =
+                getEntityTypeMapCollector(selectedFields, entityTypes);
+        return entityTypes.stream().collect(entityTypeToMapCollector);
+    }
+
+    private Collector<ENTITY_TYPE, ?, Map<String, List<Map<String, String>>>> getEntityTypeMapCollector(final SelectedFields selectedFields,
+            final List<ENTITY_TYPE> entityTypes)
+    {
         final Map<String, Map<PropertyTypePermId, String>> propertyTypePermIdsByEntityType =
                 entityTypes.stream().collect(Collectors.toMap(this::getPermId,
                         entityType -> entityType.getPropertyAssignments().stream()
                                 .map(PropertyAssignment::getPropertyType)
                                 .collect(Collectors.toMap(PropertyType::getPermId, PropertyType::getCode))));
 
-        final Collector<ENTITY_TYPE, ?, Map<String, List<Map<String, String>>>> entityTypeToMapCollector =
-                Collectors.toMap(this::getPermId,
-                        entityType ->
-                        {
-                            final Map<PropertyTypePermId, String> propertyTypePermIds =
-                                    propertyTypePermIdsByEntityType.get(getPermId(entityType));
-                            final List<String> selectedPropertyTypeCodes =
-                                    selectedFields.getProperties().stream().flatMap(
-                                                    propertyTypePermId ->
-                                                    {
-                                                        final String propertyTypeCode = propertyTypePermIds.get(propertyTypePermId);
-                                                        return propertyTypeCode != null ? Stream.of(propertyTypeCode) : Stream.empty();
-                                                    })
-                                            .collect(Collectors.toList());
-                            return mergePropertiesAndAttributes(selectedPropertyTypeCodes, attributes);
-                        });
-        return entityTypes.stream().collect(entityTypeToMapCollector);
+        return Collectors.toMap(this::getPermId,
+                entityType ->
+                {
+                    final Map<PropertyTypePermId, String> propertyTypePermIds =
+                            propertyTypePermIdsByEntityType.get(getPermId(entityType));
+                    final List<String> selectedPropertyTypeCodes =
+                            selectedFields.getProperties().stream().flatMap(
+                                            propertyTypePermId ->
+                                            {
+                                                final String propertyTypeCode = propertyTypePermIds.get(propertyTypePermId);
+                                                return propertyTypeCode != null ? Stream.of(propertyTypeCode) : Stream.empty();
+                                            })
+                                    .collect(Collectors.toList());
+                    return mergePropertiesAndAttributes(selectedPropertyTypeCodes, selectedFields.getAttributes());
+                });
     }
 
     private static List<Map<String, String>> mergePropertiesAndAttributes(final List<String> selectedPropertyTypeCodes,
