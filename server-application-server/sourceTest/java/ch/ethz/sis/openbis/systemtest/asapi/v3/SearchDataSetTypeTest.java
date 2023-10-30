@@ -273,7 +273,7 @@ public class SearchDataSetTypeTest extends AbstractTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
         final DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
-        final Set<String> requiredPropertyTypeCodes = Set.of("ORGANISM", "DESCRIPTION", "BACTERIUM");
+        final Set<String> requiredPropertyTypeCodes = Set.of("GENDER", "COMMENT");
         searchCriteria.withPropertyAssignments().withPropertyType().withCodes().thatIn(requiredPropertyTypeCodes);
 
         final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
@@ -290,13 +290,10 @@ public class SearchDataSetTypeTest extends AbstractTest
                     .map(propertyAssignment -> propertyAssignment.getPropertyType().getCode())
                     .collect(Collectors.toSet());
             final Set<String> originalPropertyTypeCodes = new HashSet<>(propertyTypeCodes);
-            if (!originalPropertyTypeCodes.isEmpty())
-            {
-                propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
-                assertFalse(propertyTypeCodes.isEmpty(),
-                        String.format("DataSet type %s contains assignments to property types %s which do not have any of the required ones %s.",
-                                dataSetType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
-            }
+            propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
+            assertFalse(propertyTypeCodes.isEmpty(),
+                    String.format("DataSet type %s contains assignments to property types %s which do not have any of the required ones %s.",
+                            dataSetType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
         }
 
         v3api.logout(sessionToken);

@@ -83,8 +83,9 @@ public class PropertyAssignmentSearchManager extends
             throw new IllegalArgumentException(String.format("Table mapper not found for the parent criterion class %s.", parentCriteria.getClass()));
         }
 
+        final String typeIdColumnName = tableMapper.getEntityTypesAttributeTypesTableEntityTypeIdField();
         final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
-                criteria, tableMapper, idsColumnName, authorisationInformation);
+                criteria, tableMapper, typeIdColumnName, authorisationInformation);
 
         final Set<Long> finalResults;
         // Very special case when property assignments should be linked with semantic annotations both directly and via attribute types
@@ -97,7 +98,7 @@ public class PropertyAssignmentSearchManager extends
                     compositeSearchCriterion, TableMapper.SEMANTIC_ANNOTATION, PROPERTY_TYPE_COLUMN, authorisationInformation);
 
             final Set<Long> assignmentIDsWithoutAnnotations = assignmentsSearchDAO.findAssignmentsWithoutAnnotations(
-                    propertyTypesIds, idsColumnName);
+                    propertyTypesIds, typeIdColumnName);
 
             finalResults = new HashSet<>(mainCriteriaIntermediateResults);
             finalResults.addAll(assignmentIDsWithoutAnnotations);

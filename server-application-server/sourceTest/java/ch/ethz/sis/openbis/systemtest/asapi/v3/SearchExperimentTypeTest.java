@@ -196,13 +196,10 @@ public class SearchExperimentTypeTest extends AbstractTest
                     .map(propertyAssignment -> propertyAssignment.getPropertyType().getCode())
                     .collect(Collectors.toSet());
             final Set<String> originalPropertyTypeCodes = new HashSet<>(propertyTypeCodes);
-            if (!originalPropertyTypeCodes.isEmpty())
-            {
-                propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
-                assertFalse(propertyTypeCodes.isEmpty(),
-                        String.format("Experiment type %s contains assignments to property types %s which do not have any of the required ones %s.",
-                                experimentType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
-            }
+            propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
+            assertFalse(propertyTypeCodes.isEmpty(),
+                    String.format("Experiment type %s contains assignments to property types %s which do not have any of the required ones %s.",
+                            experimentType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
         }
 
         v3api.logout(sessionToken);
