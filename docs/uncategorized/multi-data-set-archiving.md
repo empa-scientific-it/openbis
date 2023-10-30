@@ -127,9 +127,9 @@ non-existing files will always be handled successfully.
         named `disabled`.
 
 -   Enable archiver
-    -   Configure a new DSS core plugin of type `miscellaneous`:
+    - Configure a new DSS core plugin of type `miscellaneous`:
 
-        **multi-dataset-archiver/1/dss/miscellaneous/archiver/plugin.properties**
+      **multi-dataset-archiver/1/dss/miscellaneous/archiver/plugin.properties**
 
             archiver.class = ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver
 
@@ -157,6 +157,9 @@ non-existing files will always be handled successfully.
             archiver.batch-size-in-bytes = 80000000
 
             # (since version 20.10.4) Check consistency between file meta data of the files in the store and from the pathinfo database.
+            # If path info db entries are missing or are different than the original files kept in the store, then the archiving is aborted.
+            # If "sanity-check-verify-checksums" is also set to "true", then this consistency check will also verify that the entries stored in the
+            # path info db do have the checksums filled in.
             # Default value: true 
             # check-consistency-between-store-and-pathinfo-db = true
 
@@ -186,6 +189,12 @@ non-existing files will always be handled successfully.
             # Maximum total waiting time for failed sanity check attempts. Works only if 'wait-for-sanity-check = true'
             # Default: 30min
             archiver.wait-for-sanity-check-max-waiting-time = 5 min
+
+            # If set to "true", then the sanity check will verify that checksums of the original files and checksums of the archived files are the same.
+            # If "check-consistency-between-store-and-pathinfo-db" is also set to "true", then the checksums stored in the path info db will be used
+            # for the verification of all files. Otherwise, the checksums of the original files may be either taken from the path info db or be calculated on the fly (depending on what is available).
+            # Default: true
+            archiver.sanity-check-verify-checksums = true
 
             # A template of a shell command to be executed before unarchiving. The template may use ${container-path} and ${container-id} variables which will be replaced with an absolute container path (full path of the tar file to be unarchived)
             # and a container id (id of the container to be unarchived used in the archiving database). The command created from the template is executed only once for a given container (just before the first unarchiving attempt) and is not retried.

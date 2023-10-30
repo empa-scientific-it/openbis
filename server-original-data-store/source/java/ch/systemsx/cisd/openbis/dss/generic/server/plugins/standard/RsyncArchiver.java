@@ -63,29 +63,29 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     public enum ChecksumVerificationCondition
     {
         NO()
-        {
-            @Override
-            boolean verifyChecksum(IHierarchicalContentNode node)
-            {
-                return false;
-            }
-        },
+                {
+                    @Override
+                    boolean verifyChecksum(IHierarchicalContentNode node)
+                    {
+                        return false;
+                    }
+                },
         YES()
-        {
-            @Override
-            boolean verifyChecksum(IHierarchicalContentNode node)
-            {
-                return true;
-            }
-        },
+                {
+                    @Override
+                    boolean verifyChecksum(IHierarchicalContentNode node)
+                    {
+                        return true;
+                    }
+                },
         IF_AVAILABLE()
-        {
-            @Override
-            boolean verifyChecksum(IHierarchicalContentNode node)
-            {
-                return node.isChecksumCRC32Precalculated();
-            }
-        };
+                {
+                    @Override
+                    boolean verifyChecksum(IHierarchicalContentNode node)
+                    {
+                        return node.isChecksumCRC32Precalculated();
+                    }
+                };
 
         abstract boolean verifyChecksum(IHierarchicalContentNode node);
     }

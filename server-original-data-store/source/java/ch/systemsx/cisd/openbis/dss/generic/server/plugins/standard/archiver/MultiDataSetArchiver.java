@@ -39,7 +39,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.ExceptionWithStatus;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -163,6 +162,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final String WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY = "wait-for-sanity-check-max-waiting-time";
 
+    public static final String SANITY_CHECK_VERIFY_CHECKSUMS_KEY = "sanity-check-verify-checksums";
+
     public static final String UNARCHIVING_PREPARE_COMMAND_TEMPLATE = "unarchiving-prepare-command-template";
 
     public static final String UNARCHIVING_PREPARE_COMMAND_CONTAINER_ID = "container-id";
@@ -180,6 +181,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME = 10 * 1000;
 
     public static final long DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME = 30 * DateUtils.MILLIS_PER_MINUTE;
+
+    public static final boolean DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS = true;
 
     public static final boolean DEFAULT_UNARCHIVING_WAIT_FOR_T_FLAG = false;
 
@@ -216,6 +219,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private final long waitForSanityCheckInitialWaitingTime;
 
     private final long waitForSanityCheckMaxWaitingTime;
+
+    private final boolean sanityCheckVerifyChecksums;
 
     private final String unarchivingPrepareCommandTemplate;
 
@@ -266,6 +271,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         DEFAULT_WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME);
         waitForSanityCheckMaxWaitingTime = DateTimeUtils.getDurationInMillis(properties, WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY,
                 DEFAULT_WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME);
+        sanityCheckVerifyChecksums = PropertyUtils.getBoolean(properties, SANITY_CHECK_VERIFY_CHECKSUMS_KEY, DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS);
 
         unarchivingPrepareCommandTemplate = PropertyUtils.getProperty(properties, UNARCHIVING_PREPARE_COMMAND_TEMPLATE);
 
@@ -558,6 +564,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         parameterBindings.put(WAIT_FOR_SANITY_CHECK_KEY, Boolean.toString(waitForSanityCheck));
         parameterBindings.put(WAIT_FOR_SANITY_CHECK_INITIAL_WAITING_TIME_KEY, Long.toString(waitForSanityCheckInitialWaitingTime));
         parameterBindings.put(WAIT_FOR_SANITY_CHECK_MAX_WAITING_TIME_KEY, Long.toString(waitForSanityCheckMaxWaitingTime));
+        parameterBindings.put(SANITY_CHECK_VERIFY_CHECKSUMS_KEY, Boolean.toString(sanityCheckVerifyChecksums));
 
         getDataStoreService().scheduleTask(ARCHIVING_FINALIZER, task, parameterBindings, dataSets,
                 userId, userEmail, userSessionToken);
@@ -575,6 +582,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             operationLog.info("Starts consistency check between data store and pathinfo database for "
                     + CollectionUtils.abbreviate(dataSets, 20));
             DataSetAndPathInfoDBConsistencyChecker createChecker = createChecker();
+            createChecker.setForceChecksumVerification(sanityCheckVerifyChecksums);
             createChecker.check(dataSets);
             operationLog.info("Consistency check finished.");
             if (createChecker.noErrorAndInconsistencyFound() == false)
@@ -627,7 +635,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 try
                 {
                     archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
-                    return MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context,
+                    return MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, sanityCheckVerifyChecksums, context,
                             new Log4jSimpleLogger(operationLog));
                 } finally
                 {
