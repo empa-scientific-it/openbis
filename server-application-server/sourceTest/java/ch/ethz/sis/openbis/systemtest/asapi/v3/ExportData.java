@@ -183,6 +183,37 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
+            {
+                    // TODO: the dataset does has the property "COMMENT", but that one does not appear in the search results!!!!!!!
+
+                    // 2023-10-30 17:07:21,620 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
+                    //FROM property_types t0
+                    //WHERE (t0.code IN (SELECT UNNEST(?)))
+                    //2023-10-30 17:07:21,620 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[GENDER, COMMENT]]
+                    //2023-10-30 17:07:21,688 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 2
+                    //2023-10-30 17:07:21,688 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=13}, {id=14}]
+                    //2023-10-30 17:07:21,692 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id <-- t0.dsty_id is needed here!!!!!!
+                    //FROM data_set_type_property_types t0
+                    //WHERE (t0.prty_id IN (SELECT UNNEST(?)))
+                    //2023-10-30 17:07:21,692 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[13, 14]]
+                    //2023-10-30 17:07:21,694 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 2
+                    //2023-10-30 17:07:21,695 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=1}, {id=4}]
+                    //2023-10-30 17:07:21,695 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
+                    //FROM data_set_types t0
+                    //WHERE (t0.id IN (SELECT UNNEST(?)))
+
+                    // Data set: "20081105092159188-3", type: "HCS_IMAGE"
+                    "export-data-set-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
+                            ExportableKind.DATASET, new DataSetPermId("20081105092159188-3"))),
+                    new SelectedFields(
+                            List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, PARENTS, CHILDREN, STORAGE_CONFIRMATION, PRESENT_IN_ARCHIVE,
+                                    SAMPLE, EXPERIMENT),
+                            List.of(new PropertyTypePermId("COMMENT"), new PropertyTypePermId("GENDER"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private ExportData()
