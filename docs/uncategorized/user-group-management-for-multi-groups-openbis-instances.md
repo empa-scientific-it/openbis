@@ -157,7 +157,8 @@ post-registration.eager-shuffling.share-finder.mapping-file = ../../data/shares-
 ```
 
 
-Eager shuffling moves the just registered data set from share 1 to the share of the group as specified in `<installation path>/data/shares-mapping.txt`. For more details about share mapping see [Mapping File for Share Ids and Archiving Folders](https://unlimited.ethz.ch/display/openBISDoc2010/Mapping+File+for+Share+Ids+and+Archiving+Folders).
+Eager shuffling moves the just registered data set from share 1 to the share of the group as specified in `<installation path>/data/shares-mapping.txt`. For more details about share mapping see [Mapping File for Share Ids and Archiving Folders](../system-admin-documentation/advanced-features/share-ids.md)
+
 
 ### Dynamic Configurations
 
@@ -228,7 +229,6 @@ needs to be created manually:
     ]
 }
 ```
-
 
 Example:
 
