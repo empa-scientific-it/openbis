@@ -22,13 +22,14 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormat
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.export;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
@@ -105,25 +106,26 @@ public class ExportExecutor implements IExportExecutor
         if (fields instanceof SelectedFields)
         {
             final SelectedFields selectedFields = (SelectedFields) fields;
-            exportFields = new HashMap<>();
 
             final Set<IPropertyTypeId> properties = new HashSet<>(selectedFields.getProperties());
 
-            // TODO: can be rewritten using mapping.
-            exportableKinds.forEach(exportableKind ->
+            exportFields = exportableKinds.stream().flatMap(exportableKind ->
             {
                 final IExportFieldsFinder fieldsFinder = FIELDS_FINDER_BY_EXPORTABLE_KIND.get(exportableKind);
                 if (fieldsFinder != null)
                 {
                     final Map<String, List<Map<String, String>>> selectedFieldMap =
                             fieldsFinder.findExportFields(properties, applicationServerApi, sessionToken, selectedFields);
-                    exportFields.put(exportableKind.name(), selectedFieldMap);
+                    return Stream.of(new AbstractMap.SimpleEntry<>(exportableKind.name(), selectedFieldMap));
                 } else if (TYPE_EXPORTABLE_KINDS.contains(exportableKind))
                 {
                     final Map<String, List<Map<String, String>>> selectedAttributesMap = findExportAttributes(exportableKind, selectedFields);
-                    exportFields.put(TYPE_EXPORT_FIELD_KEY, selectedAttributesMap);
+                    return Stream.of(new AbstractMap.SimpleEntry<>(TYPE_EXPORT_FIELD_KEY, selectedAttributesMap));
+                } else
+                {
+                    return Stream.empty();
                 }
-            });
+            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } else
         {
             exportFields = null;

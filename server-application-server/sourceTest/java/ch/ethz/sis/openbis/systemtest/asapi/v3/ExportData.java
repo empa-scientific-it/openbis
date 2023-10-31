@@ -21,6 +21,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.A
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CHILDREN;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DISALLOW_DELETION;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.GENERATED_CODE_PREFIX;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
@@ -229,6 +230,15 @@ public class ExportData
                     "export-experiment-type-filtered-attributes.xlsx",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
                     new SelectedFields(List.of(DESCRIPTION, CODE, MODIFICATION_DATE), List.of()),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Dataset Type: HCS_IMAGE
+                    "export-data-set-type-filtered-attributes.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
+                    new SelectedFields(List.of(CODE, DISALLOW_DELETION, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
                     false // withImportCompatibility
