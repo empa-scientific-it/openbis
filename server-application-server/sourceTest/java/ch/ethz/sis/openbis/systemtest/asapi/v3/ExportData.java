@@ -121,6 +121,15 @@ public class ExportData
             },
             {
                     // Sample Type: CELL_PLATE
+                    "export-sample-type.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample Type: CELL_PLATE
                     "export-sample-type-with-referred-types.zip",
                     List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new AllFields(),
