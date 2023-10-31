@@ -224,6 +224,15 @@ public class ExportData
                     false, // withReferredTypes
                     false // withImportCompatibility
             },
+            {
+                    // Experiment Type: SIRNA_HCS
+                    "export-experiment-type-filtered-attributes.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
+                    new SelectedFields(List.of(DESCRIPTION, CODE, MODIFICATION_DATE), List.of()),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private ExportData()
