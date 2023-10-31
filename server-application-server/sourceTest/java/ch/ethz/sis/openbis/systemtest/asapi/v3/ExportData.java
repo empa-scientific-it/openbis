@@ -17,10 +17,12 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.AUTO_GENERATE_CODES;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CHILDREN;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.GENERATED_CODE_PREFIX;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.MODIFIER;
@@ -33,6 +35,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.R
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SAMPLE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.STORAGE_CONFIRMATION;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.UNIQUE_SUBCODES;
 
 import java.util.List;
 
@@ -159,7 +162,7 @@ public class ExportData
             // Selected fields
             {
                     // Space: TEST-SPACE
-                    "export-space-filtered-fields.xlsx",
+                    "export-space-filtered-attributes.xlsx",
                     List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
                     new SelectedFields(List.of(CODE, REGISTRATOR, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
@@ -210,6 +213,15 @@ public class ExportData
                             List.of(new PropertyTypePermId("COMMENT"), new PropertyTypePermId("GENDER"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample Type: CELL_PLATE
+                    "export-sample-type-filtered-attributes.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
+                    new SelectedFields(List.of(CODE, AUTO_GENERATE_CODES, DESCRIPTION, GENERATED_CODE_PREFIX, UNIQUE_SUBCODES), List.of()),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
                     false // withImportCompatibility
             },
     };
