@@ -1,4 +1,4 @@
-Configuration
+Installation
 ============
 
 .. toctree::

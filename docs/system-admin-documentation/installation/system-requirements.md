@@ -61,7 +61,7 @@ After clicking on "Generate", you get the matching settings of the postgresql.co
 
 ## Operating System
 
-We recommend to set up openBIS on a Linux operating system. We provide support for installing and operating openBIS on supported [https://ubuntu.com/server](Ubuntu Server LTS releases).
+We recommend to set up openBIS on a Linux operating system. We provide support for installing and operating openBIS on supported [Ubuntu Server LTS releases ](https://ubuntu.com/server).
 - Operating System: Linux / MacOS X
 
 
