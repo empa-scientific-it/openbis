@@ -110,6 +110,16 @@ public class ExportData
                     true // withImportCompatibility
             },
             {
+                    // Data set: "ROOT_CONTAINER"
+                    "export-data-set.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
+                            ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
                     // Sample Type: CELL_PLATE
                     "export-sample-type-with-referred-types.zip",
                     List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
@@ -139,15 +149,24 @@ public class ExportData
 
             // Selected fields
             {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-filtered-fields.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE,
-                            new SamplePermId("201206191219327-1054"))),
-                    new SelectedFields(
-                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
-                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
+                    // Space: TEST-SPACE
+                    "export-space-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    new SelectedFields(List.of(CODE, REGISTRATOR, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Project: TEST-PROJECT
+                    "export-project-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.PROJECT,
+                            new ProjectPermId("20120814110011738-105"))),
+                    new SelectedFields(
+                            List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, SPACE, DESCRIPTION),
+                            List.of()),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
                     false // withImportCompatibility
             },
             {
@@ -163,45 +182,18 @@ public class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Project: TEST-PROJECT
-                    "export-project-filtered-fields.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-filtered-fields.xlsx",
+                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(ExportableKind.SAMPLE,
+                            new SamplePermId("201206191219327-1054"))),
                     new SelectedFields(
-                            List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, SPACE, DESCRIPTION),
-                            List.of()),
+                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
+                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false // withImportCompatibility
             },
             {
-                    // Data set: "ROOT_CONTAINER"
-                    "export-data-set.xlsx",
-                    List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
-                            ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // TODO: the dataset does has the property "COMMENT", but that one does not appear in the search results!!!!!!!
-
-                    // 2023-10-30 17:07:21,620 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
-                    //FROM property_types t0
-                    //WHERE (t0.code IN (SELECT UNNEST(?)))
-                    //2023-10-30 17:07:21,620 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[GENDER, COMMENT]]
-                    //2023-10-30 17:07:21,688 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 2
-                    //2023-10-30 17:07:21,688 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=13}, {id=14}]
-                    //2023-10-30 17:07:21,692 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id <-- t0.dsty_id is needed here!!!!!!
-                    //FROM data_set_type_property_types t0
-                    //WHERE (t0.prty_id IN (SELECT UNNEST(?)))
-                    //2023-10-30 17:07:21,692 INFO  [main] OPERATION.AbstractSQLExecutor - ARGS: [[13, 14]]
-                    //2023-10-30 17:07:21,694 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS COUNT: 2
-                    //2023-10-30 17:07:21,695 INFO  [main] OPERATION.AbstractSQLExecutor - RESULTS: [{id=1}, {id=4}]
-                    //2023-10-30 17:07:21,695 INFO  [main] OPERATION.AbstractSQLExecutor - QUERY: SELECT DISTINCT t0.id
-                    //FROM data_set_types t0
-                    //WHERE (t0.id IN (SELECT UNNEST(?)))
-
                     // Data set: "20081105092159188-3", type: "HCS_IMAGE"
                     "export-data-set-filtered-fields.xlsx",
                     List.of(new ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId(
