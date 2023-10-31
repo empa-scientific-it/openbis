@@ -1,4 +1,5 @@
-# openBIS Sync
+openBIS Sync
+============
 
 ## Introduction
 
