@@ -31,6 +31,7 @@ import java.util.Map;
 public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdaptor
 {
 
+
     protected String pythonPath;
 
     protected String scriptPath;

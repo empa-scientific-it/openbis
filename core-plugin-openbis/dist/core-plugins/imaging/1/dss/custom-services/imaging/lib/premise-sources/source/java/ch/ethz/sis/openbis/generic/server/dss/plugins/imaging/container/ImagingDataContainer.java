@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 public abstract class ImagingDataContainer implements Serializable
 {
+
     @JsonProperty
     private String type;
     @JsonProperty

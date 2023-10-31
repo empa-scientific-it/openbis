@@ -37,6 +37,7 @@ public final class NanonisSxmAdaptor extends ImagingDataSetPythonAdaptor
 {
     private final String SXM_SCRIPT_PROPERTY = "nanonis-sxm";
 
+
     public NanonisSxmAdaptor(Properties properties)
     {
 

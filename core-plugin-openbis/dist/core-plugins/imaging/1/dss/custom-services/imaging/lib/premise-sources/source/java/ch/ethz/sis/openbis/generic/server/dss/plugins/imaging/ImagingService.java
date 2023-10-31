@@ -55,6 +55,7 @@ import java.util.*;
 
 public class ImagingService implements ICustomDSSServiceExecutor
 {
+
     private final Properties properties;
 
     private IHierarchicalContentProvider contentProvider;

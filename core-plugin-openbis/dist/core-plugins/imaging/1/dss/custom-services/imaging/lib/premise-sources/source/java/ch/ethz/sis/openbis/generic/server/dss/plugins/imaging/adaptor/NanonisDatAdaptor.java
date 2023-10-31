@@ -28,6 +28,7 @@ public class NanonisDatAdaptor extends ImagingDataSetPythonAdaptor
 {
     private final String DAT_SCRIPT_PROPERTY = "nanonis-dat";
 
+
     public NanonisDatAdaptor(Properties properties)
     {
 

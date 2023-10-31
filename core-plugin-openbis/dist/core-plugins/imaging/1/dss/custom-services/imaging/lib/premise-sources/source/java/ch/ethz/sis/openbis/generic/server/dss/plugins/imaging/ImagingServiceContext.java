@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 public final class ImagingServiceContext implements Serializable
 {
+
     private final String sessionToken;
     private final IApplicationServerApi asApi;
     private final IDataStoreServerApi dssApi;

@@ -32,6 +32,7 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
 {
     private final String scriptPath;
 
+
     public ImagingDataSetJythonAdaptor(Properties properties) {
         this.scriptPath = properties.getProperty("script-path", "");
         if(scriptPath.isBlank()) {

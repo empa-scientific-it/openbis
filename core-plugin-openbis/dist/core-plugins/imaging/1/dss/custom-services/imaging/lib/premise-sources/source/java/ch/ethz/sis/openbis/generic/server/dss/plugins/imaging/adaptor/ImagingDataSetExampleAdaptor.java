@@ -35,7 +35,6 @@ public final class ImagingDataSetExampleAdaptor implements IImagingDataSetAdapto
     private static final int HEIGHT = 640;
 
     public ImagingDataSetExampleAdaptor(Properties properties) {
-
     }
 
     @Override

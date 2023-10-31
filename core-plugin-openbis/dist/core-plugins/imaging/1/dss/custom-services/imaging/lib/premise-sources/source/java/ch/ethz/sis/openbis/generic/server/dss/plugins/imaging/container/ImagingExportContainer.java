@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class ImagingExportContainer extends ImagingDataContainer
 {
+
     @JsonProperty
     private ImagingDataSetExport export = null;
 

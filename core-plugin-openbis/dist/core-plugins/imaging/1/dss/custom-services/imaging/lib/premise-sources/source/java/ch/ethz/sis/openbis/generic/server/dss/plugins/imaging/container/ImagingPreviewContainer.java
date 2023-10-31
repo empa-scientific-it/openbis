@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class ImagingPreviewContainer extends ImagingDataContainer
 {
+
     @JsonProperty
     private ImagingDataSetPreview preview = null;
 
