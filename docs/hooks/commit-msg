@@ -9,8 +9,8 @@
 # To enable this hook, move it to .git/hooks directory and make it executable.
 # Remember to keep the name of the file as "commit-msg".
 
-commit_regex='(SSDM-[0-9]+:|merge|rebase)'
-error_msg="Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:')"
+commit_regex='(SSDM-[0-9]+:|BIS-[0-9]+:|merge|rebase)'
+error_msg="Aborting commit. Your commit message is missing an issue number ('SSDM-XXXXX:' or 'BIS-XXX:')"
 error_project_mix="Aborting commit. UI and non-UI projects should be committed separately."
 
 ui_projects="^ui-admin|ui-eln-lims"

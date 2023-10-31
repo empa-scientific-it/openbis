@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver.ChecksumVerificationCondition;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -59,9 +60,11 @@ class MultiDataSetArchivingUtils
     }
 
     static Map<String, Status> sanityCheck(IHierarchicalContent archivedContent,
-                                                  List<DatasetDescription> dataSets,
-                                                  ArchiverTaskContext context,
-                                                  ISimpleLogger logger) {
+            List<DatasetDescription> dataSets,
+            boolean verifyChecksums,
+            ArchiverTaskContext context,
+            ISimpleLogger logger)
+    {
         Map<String, Status> statuses = new LinkedHashMap<>();
         logger.log(LogLevel.INFO, "Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
         for (DatasetDescription dataSet : dataSets)
@@ -76,7 +79,7 @@ class MultiDataSetArchivingUtils
                 IHierarchicalContentNode archiveDataSetRoot = archivedContent.getNode(dataSetCode);
 
                 Status status = RsyncArchiver.checkHierarchySizeAndChecksums(root, dataSetCode, archiveDataSetRoot,
-                        RsyncArchiver.ChecksumVerificationCondition.IF_AVAILABLE);
+                        verifyChecksums ? ChecksumVerificationCondition.YES : ChecksumVerificationCondition.NO);
 
                 if (status.isError())
                 {

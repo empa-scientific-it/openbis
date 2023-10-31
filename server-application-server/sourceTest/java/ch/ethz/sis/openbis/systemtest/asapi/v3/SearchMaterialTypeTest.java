@@ -101,7 +101,7 @@ public class SearchMaterialTypeTest extends AbstractTest
         final List<MaterialType> types = searchResult.getObjects();
         final List<String> codes = extractCodes(types);
         Collections.sort(codes);
-        assertEquals(codes.toString(), "[SELF_REF, VIRUS]");
+        assertEquals(codes.toString(), "[BACTERIUM, SELF_REF, VIRUS]");
         v3api.logout(sessionToken);
     }
 

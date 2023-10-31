@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBCon
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Processing plugin which cheks consitency between data set files in the store and the information stored in pathinfo database.
- * 
+ * Processing plugin which checks consistency between data set files in the store and the information stored in pathinfo database.
+ *
  * @author pkupczyk
  */
 public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IProcessingPluginTask

@@ -15,6 +15,9 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import static org.apache.commons.io.FileUtils.ONE_KB;
+import static org.apache.commons.io.FileUtils.ONE_MB;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,9 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-
-import static org.apache.commons.io.FileUtils.ONE_KB;
-import static org.apache.commons.io.FileUtils.ONE_MB;
 
 public class MultiDataSetDeletionMaintenanceTask
         extends AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
@@ -343,7 +343,12 @@ public class MultiDataSetDeletionMaintenanceTask
         List<DatasetDescription> dataSets = convertToDataSetDescription(notDeletedDataSets);
         IHierarchicalContent archivedContent = getMultiDataSetFileOperationsManager().getContainerAsHierarchicalContent(containerPath, dataSets);
         ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, getHierarchicalContentProvider());
-        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, getOperationLogAsSimpleLogger());
+        Properties archiverProperties = getDataStoreService().getArchiverProperties();
+        boolean verifyChecksums =
+                PropertyUtils.getBoolean(archiverProperties, MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY,
+                        MultiDataSetArchiver.DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS);
+
+        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, verifyChecksums, context, getOperationLogAsSimpleLogger());
     }
 
     private void updateDataSetsStatusAndFlags(List<SimpleDataSetInformationDTO> notDeletedDataSets)

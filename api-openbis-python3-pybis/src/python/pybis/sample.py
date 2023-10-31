@@ -16,7 +16,6 @@ from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
 from .property import PropertyHolder
 from .property_reformatter import PropertyReformatter
-from .utils import VERBOSE
 
 
 class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample"):
@@ -94,15 +93,22 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
         for key, value in data["properties"].items():
             property_type = self.p._property_names[key.lower()]
             data_type = property_type['dataType']
-            if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
-                value = self.formatter.to_array(data_type, value)
-            elif "multiValue" in property_type:
+            if "multiValue" in property_type:
                 if property_type['multiValue'] is True:
                     if type(value) is not list:
                         value = [value]
+                    if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                        value = [self.formatter.to_array(data_type, x) for x in value]
+                    else:
+                        value = self.formatter.to_array(data_type, value)
                 else:
-                    if type(value) is list:
+                    if type(value) is list and data_type not in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
                         raise ValueError(f'Property type {property_type} is not a multi-value property!')
+                    if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                        value = self.formatter.to_array(data_type, value)
+            else:
+                if data_type in ("ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING", "ARRAY_TIMESTAMP"):
+                    value = self.formatter.to_array(data_type, value)
             self.p.__dict__[key.lower()] = value
 
     def __dir__(self):
@@ -245,53 +251,21 @@ class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample
                             raise ValueError(
                                 f"Property '{prop_name}' is mandatory and must not be None"
                             )
-
-            sampleProject = self.project.code if self.project else None
-            sampleExperiment = self.experiment.code if self.experiment else None
             properties = PropertyReformatter(self.openbis).format(self.props())
 
-            request = {
-                "method": "createReportFromAggregationService",
-                "params": [
-                    self.openbis.token,
-                    self.openbis.get_datastores()["code"][0],
-                    "eln-lims-api",
-                    {
-                        "method": "insertSample",
-                        "sampleSpace": self.space.code,
-                        "sampleProject": sampleProject,
-                        "sampleExperiment": sampleExperiment,
-                        "sampleCode": self.code,
-                        "sampleType": self.type.code,
-                        "sampleProperties": properties,
-                        "sampleParents": self.parents,
-                        "sampleParentsNew": None,
-                        "sampleChildrenNew": self.children,
-                        "sampleChildrenAdded": [],
-                        "sampleChildrenRemoved": [],
-                        "changesToDo": [],
-                        "sessionToken": self.openbis.token,
-                    },
-                ],
-            }
-            resp = self.openbis._post_request(self.openbis.reg_v1, request)
-            try:
-                if resp["rows"][0][0]["value"] != "OK":
-                    raise ValueError("Status is not OK")
-                if VERBOSE:
-                    print(f"{self.entity} successfully created.")
-                permId = resp["rows"][0][2]["value"]
-                new_entity_data = self.openbis.get_sample(permId, only_data=True)
-                self._set_data(new_entity_data)
-                return self
-            except Exception as exc:
-                errmsg = f"Could not create {self.entity}"
-                try:
-                    errmsg = resp["rows"][0][1]["value"]
-                    errmsg = errmsg.split("\n")[0].split("UserFailureException: ")[1]
-                except IndexError:
-                    pass
-                raise ValueError(errmsg) from exc
+            for attr in request['params'][1][0]:
+                if request['params'][1][0][attr] is not None and 'isModified' in request['params'][1][0][attr]:
+                    del request['params'][1][0][attr]['isModified']
+
+            request['params'][1][0]['properties'] = properties
+
+            resp = self.openbis._post_request(self.openbis.as_v3, request)
+
+            permId = resp[0]['permId']
+            new_entity_data = self.openbis.get_sample(permId, only_data=True)
+            self._set_data(new_entity_data)
+            return self
+
 
         else:
             super().save()

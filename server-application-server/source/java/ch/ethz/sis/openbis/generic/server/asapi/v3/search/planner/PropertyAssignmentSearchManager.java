@@ -17,6 +17,9 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
@@ -31,6 +34,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PROPERTY_TYPE_COLUMN;
@@ -43,6 +47,14 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PROPERTY_T
 public class PropertyAssignmentSearchManager extends
         AbstractLocalSearchManager<PropertyAssignmentSearchCriteria, PropertyAssignment, Long>
 {
+
+    /** What property assignment table mapper to use based on the type of the parent criterion. */
+    private static final Map<Class<? extends AbstractCompositeSearchCriteria>, TableMapper> TABLE_MAPPER_BY_CRITERIA = Map.of(
+            SampleTypeSearchCriteria.class, TableMapper.SAMPLE_PROPERTY_ASSIGNMENT,
+            ExperimentTypeSearchCriteria.class, TableMapper.EXPERIMENT_PROPERTY_ASSIGNMENT,
+            DataSetTypeSearchCriteria.class, TableMapper.DATA_SET_PROPERTY_ASSIGNMENT,
+            MaterialTypeSearchCriteria.class, TableMapper.MATERIAL_PROPERTY_ASSIGNMENT
+    );
 
     private final IPropertyAssignmentSearchDAO assignmentsSearchDAO;
 
@@ -65,9 +77,15 @@ public class PropertyAssignmentSearchManager extends
             final PropertyAssignmentSearchCriteria criteria,
             final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
-        // TODO: not always related to samples.
+        final TableMapper tableMapper = TABLE_MAPPER_BY_CRITERIA.get(parentCriteria.getClass());
+        if (tableMapper == null)
+        {
+            throw new IllegalArgumentException(String.format("Table mapper not found for the parent criterion class %s.", parentCriteria.getClass()));
+        }
+
+        final String typeIdColumnName = tableMapper.getEntityTypesAttributeTypesTableEntityTypeIdField();
         final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
-                criteria, TableMapper.SAMPLE_PROPERTY_ASSIGNMENT, idsColumnName, authorisationInformation);
+                criteria, tableMapper, typeIdColumnName, authorisationInformation);
 
         final Set<Long> finalResults;
         // Very special case when property assignments should be linked with semantic annotations both directly and via attribute types
@@ -80,7 +98,7 @@ public class PropertyAssignmentSearchManager extends
                     compositeSearchCriterion, TableMapper.SEMANTIC_ANNOTATION, PROPERTY_TYPE_COLUMN, authorisationInformation);
 
             final Set<Long> assignmentIDsWithoutAnnotations = assignmentsSearchDAO.findAssignmentsWithoutAnnotations(
-                    propertyTypesIds, idsColumnName);
+                    propertyTypesIds, typeIdColumnName);
 
             finalResults = new HashSet<>(mainCriteriaIntermediateResults);
             finalResults.addAll(assignmentIDsWithoutAnnotations);

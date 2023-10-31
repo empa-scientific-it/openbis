@@ -282,11 +282,16 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
         directoryProvider = context.mock(IDataSetDirectoryProvider.class);
         configProvider = context.mock(IConfigProvider.class);
 
+        Properties properties = createProperties(true, true);
+
         context.checking(new Expectations()
         {
             {
                 allowing(dataStoreService).getDataSetDirectoryProvider();
                 will(returnValue(directoryProvider));
+
+                allowing(dataStoreService).getArchiverProperties();
+                will(returnValue(properties));
 
                 allowing(configProvider).getStoreRoot();
                 will(returnValue(store));
@@ -299,7 +304,6 @@ public class MultiDataSetDeletionMaintenanceTaskTest extends AbstractFileSystemT
             }
         });
 
-        Properties properties = createProperties(true, true);
         IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
         task = new MockMultiDataSetDeletionMaintenanceTask(
                 transaction, transaction, openBISService, dataStoreService,

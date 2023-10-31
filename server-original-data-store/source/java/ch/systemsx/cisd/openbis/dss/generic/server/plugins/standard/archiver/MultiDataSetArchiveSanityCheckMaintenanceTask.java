@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -56,7 +58,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import net.lemnik.eodsql.QueryTool;
 
 public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenanceTask
@@ -71,6 +75,22 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
     private static final String CHECK_TO_DATE_KEY = "check-to-date";
 
+    private static final String CHECK_IN_RANDOM_ORDER_KEY = "check-in-random-order";
+
+    private static final boolean CHECK_IN_RANDOM_ORDER_DEFAULT = false;
+
+    private static final String RUN_PROBABILITY_KEY = "run-probability";
+
+    private static final double RUN_PROBABILITY_DEFAULT = 1.0;
+
+    private static final String RUN_MAX_RANDOM_DELAY_KEY = "run-max-random-delay";
+
+    private static final long RUN_MAX_RANDOM_DELAY_DEFAULT = 0L;
+
+    private static final String RUN_SIZE = "run-size";
+
+    private static final int RUN_SIZE_DEFAULT = -1;
+
     private static final String NOTIFY_EMAILS_KEY = "notify-emails";
 
     private static final String STATUS_FILE_KEY = "status-file";
@@ -78,6 +98,16 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
     private Date checkFromDate;
 
     private Date checkToDate;
+
+    private boolean checkInRandomOrder;
+
+    private boolean verifyChecksums;
+
+    private double runProbability;
+
+    private long runMaxRandomDelay;
+
+    private int runSize;
 
     private List<String> notifyEmails;
 
@@ -91,8 +121,26 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
     @Override public void setUp(final String pluginName, final Properties properties)
     {
-        checkFromDate = getMandatoryDateProperty(properties, CHECK_FROM_DATE_KEY);
-        checkToDate = getMandatoryDateProperty(properties, CHECK_TO_DATE_KEY);
+        checkFromDate = getDateProperty(properties, CHECK_FROM_DATE_KEY);
+        checkToDate = getDateProperty(properties, CHECK_TO_DATE_KEY);
+        checkInRandomOrder = PropertyUtils.getBoolean(properties, CHECK_IN_RANDOM_ORDER_KEY, CHECK_IN_RANDOM_ORDER_DEFAULT);
+
+        Properties archiverProperties = ServiceProvider.getDataStoreService().getArchiverProperties();
+        verifyChecksums = PropertyUtils.getBoolean(archiverProperties, MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY,
+                MultiDataSetArchiver.DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS);
+
+        runProbability = PropertyUtils.getDouble(properties, RUN_PROBABILITY_KEY, RUN_PROBABILITY_DEFAULT);
+        if (runProbability <= 0 || runProbability > 1.0)
+        {
+            throw new IllegalArgumentException(
+                    "'" + RUN_PROBABILITY_KEY + "' must be greater than 0 and less than or equal 1 (i.e. must be in range (0,1]).");
+        }
+        runMaxRandomDelay = DateTimeUtils.getDurationInMillis(properties, RUN_MAX_RANDOM_DELAY_KEY, RUN_MAX_RANDOM_DELAY_DEFAULT);
+        runSize = PropertyUtils.getInt(properties, RUN_SIZE, RUN_SIZE_DEFAULT);
+        if (runSize <= 0 && runSize != -1)
+        {
+            throw new IllegalArgumentException("'" + RUN_SIZE + "' must be greater than 0 or equal -1 (i.e. check all).");
+        }
         notifyEmails = PropertyUtils.getMandatoryList(properties, NOTIFY_EMAILS_KEY);
         statusFile = PropertyUtils.getMandatoryProperty(properties, STATUS_FILE_KEY);
 
@@ -104,30 +152,74 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
     {
         operationLog.info("Starting consistency check task");
 
-        CheckStatuses statuses = loadCheckStatuses();
-
-        for (MultiDataSetArchiverContainerDTO container : multiDataSetDAO.listContainers())
+        if (runProbability < 1.0)
         {
+            boolean execute = Math.random() < runProbability;
+            operationLog.info("The check is configured to run with " + runProbability + " probability. " + (execute ?
+                    "This time the run will be executed." : "This time the run will be skipped."));
+            if (!execute)
+            {
+                return;
+            }
+        }
+
+        if (runMaxRandomDelay > 0)
+        {
+            long runRandomDelay = (long) (Math.random() * runMaxRandomDelay);
+            operationLog.info("The check is configured to be run with a maximum random delay of " + DateTimeUtils.renderDuration(runMaxRandomDelay)
+                    + ". Delay used for this run: " + DateTimeUtils.renderDuration(runRandomDelay));
+            ConcurrencyUtilities.sleep(runRandomDelay);
+            operationLog.info("The random delay of " + DateTimeUtils.renderDuration(runRandomDelay) + " used for this run is over.");
+        }
+
+        List<MultiDataSetArchiverContainerDTO> containers = null;
+
+        if (checkInRandomOrder)
+        {
+            operationLog.info("Loading containers to check in a random order.");
+            containers = multiDataSetDAO.listContainersInRandomOrder();
+        } else
+        {
+            operationLog.info("Loading containers to check in a chronological order.");
+            containers = multiDataSetDAO.listContainersInChronologicalOrder();
+        }
+
+        CheckStatuses statuses = loadCheckStatuses();
+        int counter = 0;
+
+        for (MultiDataSetArchiverContainerDTO container : containers)
+        {
+            if (runSize != -1 && counter >= runSize)
+            {
+                operationLog.info("Reached the configured run size - already checked " + counter + " container(s). Finishing the run.");
+                break;
+            }
+
             CheckStatus status = statuses.getStatus(container.getPath());
 
             if (status == null)
             {
                 try
                 {
+                    operationLog.info("Found container to check '" + container.getPath() + "'");
+
                     if (shouldCheckConsistency(container))
                     {
                         operationLog.info("Starting consistency check of container '" + container.getPath() + "'");
                         checkConsistency(container);
                         operationLog.info("Finished consistency check of container '" + container.getPath() + "'.");
                         status = CheckStatus.OK;
+                        counter++;
                     } else
                     {
+                        operationLog.info("Skipping consistency check of container '" + container.getPath() + "'");
                         status = CheckStatus.SKIPPED;
                     }
                 } catch (Exception e)
                 {
                     operationLog.error("Consistency check of container '" + container.getPath() + "' failed.", e);
                     status = new CheckStatus(true, null, e);
+                    counter++;
                 }
 
                 if (status.isError())
@@ -140,7 +232,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
             }
         }
 
-        operationLog.info("Finished consistency check task.");
+        operationLog.info("Finished consistency check task. Checked " + counter + " container(s).");
     }
 
     private boolean shouldCheckConsistency(final MultiDataSetArchiverContainerDTO container)
@@ -149,45 +241,47 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
 
         if (tar.exists())
         {
-            BasicFileAttributes attributes = null;
-
-            try
+            if (checkFromDate != null || checkToDate != null)
             {
-                attributes = Files.readAttributes(tar.toPath(), BasicFileAttributes.class);
-            } catch (IOException e)
-            {
-                throw new RuntimeException("Could not read attributes of tar file '" + tar.getAbsolutePath() + "'", e);
-            }
+                BasicFileAttributes attributes = null;
 
-            Date creationDate = new Date(attributes.creationTime().toMillis());
-
-            if (creationDate.getTime() > 0)
-            {
-                if (checkFromDate.before(creationDate) && creationDate.before(checkToDate))
+                try
                 {
-                    List<MultiDataSetArchiverDataSetDTO> containerDataSets = multiDataSetDAO.listDataSetsForContainerId(container.getId());
+                    attributes = Files.readAttributes(tar.toPath(), BasicFileAttributes.class);
+                } catch (IOException e)
+                {
+                    throw new RuntimeException("Could not read attributes of tar file '" + tar.getAbsolutePath() + "'", e);
+                }
 
-                    for (MultiDataSetArchiverDataSetDTO containerDataSet : containerDataSets)
+                Date creationDate = new Date(attributes.creationTime().toMillis());
+
+                if (creationDate.getTime() > 0)
+                {
+                    if ((checkFromDate != null && creationDate.before(checkFromDate)) || (checkToDate != null && creationDate.after(checkToDate)))
                     {
-                        Long pathInfoDataSetId = pathInfoDAO.tryGetDataSetId(containerDataSet.getCode());
-
-                        if (pathInfoDataSetId == null)
-                        {
-                            throw new RuntimeException("Path info database does not have information about data set '" + containerDataSet.getCode()
-                                    + "' which is part of '" + tar.getAbsolutePath() + "' tar file. Consistency cannot be checked.", null);
-                        }
+                        return false;
                     }
-
-                    return true;
                 } else
                 {
-                    return false;
+                    throw new RuntimeException(
+                            "Cannot check if tar file '" + tar.getAbsolutePath() + "' should be verified, because its creation date is 0.", null);
                 }
-            } else
-            {
-                throw new RuntimeException(
-                        "Cannot check if tar file '" + tar.getAbsolutePath() + "' should be verified, because its creation date is 0.", null);
             }
+
+            List<MultiDataSetArchiverDataSetDTO> containerDataSets = multiDataSetDAO.listDataSetsForContainerId(container.getId());
+
+            for (MultiDataSetArchiverDataSetDTO containerDataSet : containerDataSets)
+            {
+                Long pathInfoDataSetId = pathInfoDAO.tryGetDataSetId(containerDataSet.getCode());
+
+                if (pathInfoDataSetId == null)
+                {
+                    throw new RuntimeException("Path info database does not have information about data set '" + containerDataSet.getCode()
+                            + "' which is part of '" + tar.getAbsolutePath() + "' tar file. Consistency cannot be checked.", null);
+                }
+            }
+
+            return true;
         } else
         {
             throw new RuntimeException(
@@ -212,7 +306,8 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         try
         {
             mainContent = operationsManager.getContainerAsHierarchicalContent(container.getPath(), containerDataSetDescriptions);
-            MultiDataSetArchivingUtils.sanityCheck(mainContent, containerDataSetDescriptions, archiverContext, new Log4jSimpleLogger(operationLog));
+            MultiDataSetArchivingUtils.sanityCheck(mainContent, containerDataSetDescriptions, verifyChecksums, archiverContext,
+                    new Log4jSimpleLogger(operationLog));
         } catch (Exception e)
         {
             throw new RuntimeException("Sanity check of the main copy of failed", e);
@@ -229,7 +324,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         {
             replicaContent =
                     operationsManager.getReplicaAsHierarchicalContent(container.getPath(), containerDataSetDescriptions);
-            MultiDataSetArchivingUtils.sanityCheck(replicaContent, containerDataSetDescriptions, archiverContext,
+            MultiDataSetArchivingUtils.sanityCheck(replicaContent, containerDataSetDescriptions, verifyChecksums, archiverContext,
                     new Log4jSimpleLogger(operationLog));
         } catch (Exception e)
         {
@@ -257,25 +352,36 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         List<DatasetDescription> list = new ArrayList<>();
         for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
         {
-            DatasetDescription description = new DatasetDescription();
-            description.setDataSetCode(dataSet.getCode());
-            list.add(description);
+            AbstractExternalData externalData = ServiceProvider.getOpenBISService().tryGetDataSet(dataSet.getCode());
+            if (externalData == null)
+            {
+                throw new RuntimeException("Data set '" + dataSet.getCode() + "' was not found in the main openBIS database.");
+            }
+            DatasetDescription datasetDescription = DataSetTranslator.translateToDescription(externalData);
+            list.add(datasetDescription);
         }
         return list;
     }
 
-    private static Date getMandatoryDateProperty(Properties properties, String propertyKey)
+    private static Date getDateProperty(Properties properties, String propertyKey)
     {
-        String value = PropertyUtils.getMandatoryProperty(properties, propertyKey);
-        try
+        String value = PropertyUtils.getProperty(properties, propertyKey);
+
+        if (value != null)
         {
-            return DATE_FORMAT.parse(value);
-        } catch (Exception e)
+            try
+            {
+                return DATE_FORMAT.parse(value);
+            } catch (Exception e)
+            {
+                throw new ConfigurationFailureException(
+                        "Could not parse property '" + propertyKey + "' to date. Property value '" + value + "'. Expected date format '"
+                                + DATE_FORMAT_PATTERN
+                                + "'");
+            }
+        } else
         {
-            throw new ConfigurationFailureException(
-                    "Could not parse property '" + propertyKey + "' to date. Property value '" + value + "'. Expected date format '"
-                            + DATE_FORMAT_PATTERN
-                            + "'");
+            return null;
         }
     }
 

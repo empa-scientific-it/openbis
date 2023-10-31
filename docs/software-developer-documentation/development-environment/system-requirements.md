@@ -1,4 +1,5 @@
-System Requirements
-===================
+# System Requirements
 
-To be written
+- JDK 17
+- Postgres 15
+

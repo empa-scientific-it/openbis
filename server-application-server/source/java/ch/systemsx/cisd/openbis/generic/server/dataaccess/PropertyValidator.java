@@ -15,9 +15,12 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
@@ -25,8 +28,6 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -61,14 +62,14 @@ public final class PropertyValidator implements IPropertyValueValidator
     }
 
     @Override
-    public final String validatePropertyValue(final PropertyTypePE propertyType, final String value)
+    public final Serializable validatePropertyValue(final PropertyTypePE propertyType, final Serializable value)
             throws UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
         assert value != null : "Unspecified value.";
 
         // don't validate error messages and placeholders
-        if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+        if (value.getClass().equals(String.class) &&  ((String)value).startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
         {
             return value;
         }
@@ -118,26 +119,37 @@ public final class PropertyValidator implements IPropertyValueValidator
          * @return the validated value. Note that it can differ from the given one.
          * @throws UserFailureException if given <var>value</var> is not valid.
          */
-        public String validate(final String value) throws UserFailureException;
+        public Serializable validate(final Serializable value) throws UserFailureException;
     }
 
     private final static class SampleValidator implements IDataTypeValidator
     {
         @Override
-        public String validate(String value) throws UserFailureException {
+        public Serializable validate(Serializable value) throws UserFailureException {
             assert value != null : "Unspecified value.";
 
-            if (StringUtils.isBlank(value))
-            {
-                return null;
-            }
-
-            if (value.startsWith("/")) {
-                // Is well formed identifier?
+            if(value.getClass().isArray()) {
+                Serializable[] arrayValues = (Serializable[]) value;
+                if(arrayValues.length == 0) {
+                    return null;
+                }
             } else {
-                // Is well formed permId?
+                String stringValue;
+                if(value.getClass().equals(Sample.class)) {
+                    stringValue = ((Sample) value).getPermId();
+                } else {
+                    stringValue = value.toString();
+                }
+                if (StringUtils.isBlank(stringValue))
+                {
+                    return null;
+                }
+                if (stringValue.startsWith("/")) {
+                    // Is well formed identifier?
+                } else {
+                    // Is well formed permId?
+                }
             }
-
             return value;
         }
     }
@@ -145,14 +157,21 @@ public final class PropertyValidator implements IPropertyValueValidator
     private final static class JsonValidator implements IDataTypeValidator
     {
         @Override
-        public String validate(String value) throws UserFailureException {
+        public Serializable validate(Serializable value) throws UserFailureException {
             assert value != null : "Unspecified value.";
 
-            if (StringUtils.isBlank(value))
-            {
-                return null;
+            if(value.getClass().isArray()) {
+                Serializable[] arrayValues = (Serializable[]) value;
+                if(arrayValues.length == 0) {
+                    return null;
+                }
+            } else {
+                String val = (String) value;
+                if (StringUtils.isBlank(val))
+                {
+                    return null;
+                }
             }
-            //TODO: implement validation for json
             return value;
         }
     }
@@ -167,14 +186,13 @@ public final class PropertyValidator implements IPropertyValueValidator
         }
 
         @Override
-        public String validate(String value) throws UserFailureException {
+        public Serializable validate(Serializable value) throws UserFailureException {
             assert value != null : "Unspecified value.";
 
-            if (StringUtils.isBlank(value))
-            {
-                return null;
+            if(!value.getClass().isArray()) {
+                throw UserFailureException.fromTemplate("Array value '%s' is not valid. "
+                                + "Provided value is not an array", value);
             }
-            //TODO: implement validation for array types
             return value;
         }
     }
@@ -196,29 +214,40 @@ public final class PropertyValidator implements IPropertyValueValidator
         //
 
         @Override
-        public final String validate(final String value) throws UserFailureException
+        public Serializable validate(final Serializable value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
             assert vocabulary != null : "Unspecified vocabulary.";
 
-            String upperCaseValue = value.toUpperCase();
-            boolean guard = true;
-            if(propertyTypePE.isMultiValue()) {
-                if(upperCaseValue.startsWith("[") && upperCaseValue.endsWith("]")) {
-                    upperCaseValue = upperCaseValue.substring(1, upperCaseValue.length()-1);
+            if(value.getClass().isArray()) {
+                Serializable[] arrayValues = (Serializable[]) value;
+                if(arrayValues.length == 0) {
+                    return null;
                 }
-                final String[] split = upperCaseValue.split(",");
-                for(String singleValue : split) {
-                    guard = guard && hasTerm(singleValue.trim());
-                }
+                return Arrays.stream(arrayValues)
+                        .map(x -> validateSingleValue((String)x))
+                        .toArray(Serializable[]::new);
             } else {
-                guard = hasTerm(upperCaseValue);
+                String val = value.toString();
+                if(value.getClass().equals(VocabularyTerm.class)) {
+                    val = ((VocabularyTerm)value).getCode();
+                }
+
+                if (StringUtils.isBlank(val))
+                {
+                    return null;
+                }
+                return validateSingleValue(val);
             }
-            if(guard) {
+        }
+
+        private Serializable validateSingleValue(final String value) {
+            String upperCaseValue = value.toUpperCase();
+            if(hasTerm(upperCaseValue)) {
                 return upperCaseValue;
             }
             throw UserFailureException.fromTemplate("Vocabulary value '%s' of property '%s' is not valid. "
-                    + "It must exist in '%s' controlled vocabulary %s", upperCaseValue, propertyTypePE.getCode(),
+                            + "It must exist in '%s' controlled vocabulary %s", upperCaseValue, propertyTypePE.getCode(),
                     vocabulary.getCode(), getVocabularyDetails());
         }
 
@@ -277,9 +306,16 @@ public final class PropertyValidator implements IPropertyValueValidator
         //
 
         @Override
-        public final String validate(final String value) throws UserFailureException
+        public final Serializable validate(final Serializable val) throws UserFailureException
         {
-            assert value != null : "Unspecified value.";
+            assert val != null : "Unspecified value.";
+            String value;
+            if (val.getClass().equals(Material.class)) {
+                value = ((Material)val).getIdentifier();
+            } else {
+                value = val.toString();
+            }
+
 
             if (StringUtils.isBlank(value))
             {
@@ -335,10 +371,23 @@ public final class PropertyValidator implements IPropertyValueValidator
         //
 
         @Override
-        public final String validate(final String value) throws UserFailureException
+        public final Serializable validate(final Serializable value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
 
+            if(value.getClass().isArray()) {
+                for(Serializable singleValue : (Serializable[]) value) {
+                    validateSingleValue(singleValue);
+                }
+            } else {
+                validateSingleValue(value);
+            }
+            // validated value is valid
+            return value;
+        }
+
+        private Serializable validateSingleValue(Serializable val) {
+            String value = (String) val;
             // parsing checks if the value is a well-formed XML document
             Document document = XmlUtils.parseXmlDocument(value);
             if (xmlSchema != null)
@@ -356,7 +405,6 @@ public final class PropertyValidator implements IPropertyValueValidator
                             e.getMessage());
                 }
             }
-
             // validated value is valid
             return value;
         }

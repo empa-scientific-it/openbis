@@ -241,7 +241,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
      */
     private Integer originalDeletion;
 
-    private Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
+    private Set<SamplePropertyPE> properties = new LinkedHashSet<>();
 
     /**
      * Person who registered this entity.
@@ -464,6 +464,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
+    @OrderBy(clause = "id ASC")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @BatchSize(size = 100)
     private Set<SamplePropertyPE> getSampleProperties()

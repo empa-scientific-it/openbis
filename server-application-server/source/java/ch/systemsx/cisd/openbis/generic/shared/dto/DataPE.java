@@ -760,9 +760,10 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.experimentFrozen = experimentFrozen;
     }
 
-    private Set<DataSetPropertyPE> properties = new HashSet<DataSetPropertyPE>();
+    private Set<DataSetPropertyPE> properties = new LinkedHashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
+    @OrderBy(clause = "id ASC")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @BatchSize(size = 100)
     private Set<DataSetPropertyPE> getDataSetProperties()

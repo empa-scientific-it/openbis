@@ -387,6 +387,12 @@ sample_type.revoke_property('diff_time')
 sample_type.get_property_assignments()
 ```
 
+***⚠️ Note: ordinal position***
+
+If a new property is assigned in a place of an existing property, the old property assignment ordinal value will be increased by 1
+
+
+
 ### create a dataset type
 
 The second step (after creating a **property type**, see above) is to create the **dataset type**. The third step is to **assign or revoke the properties** to the newly created dataset type.
@@ -662,6 +668,14 @@ experiments = o.get_experiments(
  0  /MY_SPACE/YEASTS/EXP1  20230407070122991-46  DEFAULT_EXPERIMENT  admin          2023-04-07 09:01:23  admin       2023-04-07 09:02:22  ['/MY_SPACE/YEASTS/EXP2']  []
 
 ```
+
+**⚠️ Clarification**
+
+- `get_datasets()` method is always downloading object properties
+- Not downloaded attributes (e.g `parents`, `children`) will not be removed upon `save()` unless explicitly done by the user.
+- `None` values of list `attributes` are ignored during saving process
+
+
 
 #### Experiment attributes
 
@@ -949,8 +963,8 @@ However, if you want to include specific attributes in the results, you can do s
 
 The `get_samples()` method results include only `identifier`, `permId`, `type`, `registrator`, `registrationDate`, `modifier`, `modificationDate`
 
-```get attributes
-experiments = o.get_samples(
+```python
+samples = o.get_samples(
     space         = 'MY_SPACE',
     type          = 'YEAST',
     attrs          = ["parents", "children"]
@@ -960,6 +974,50 @@ experiments = o.get_samples(
 --  ---------------------     --------------------  -----------------  -------------  -------------------  ----------  -------------------  -------------------------  ----------
  0  /MY_SPACE/YEASTS/SAMPLE1  20230407070121337-47  YEAST              admin          2023-04-07 09:06:23  admin       2023-04-07 09:06:22  ['/MY_SPACE/YEASTS/EXP2']  []
 
+```
+
+
+**⚠️ Clarification**
+
+- `get_samples()` method is always downloading object properties
+- Not downloaded attributes (e.g `parents`, `children`) will not be removed upon `save()` unless explicitly done by the user.
+- `None` values of list `attributes` are ignored during saving process
+
+**Example:**
+```python
+# get sample with get_sample() method
+sample = o.get_sample('/DEFAULT/DEFAULT/EXP2')
+sample
+
+Out[1]: 
+attribute            value
+-------------------  ------------------------------
+code                 EXP2
+permId               20230823205338303-49
+identifier           /DEFAULT/DEFAULT/EXP2
+type                 EXPERIMENTAL_STEP
+project              /DEFAULT/DEFAULT
+parents              [] # empty list
+children             ['/DEFAULT/DEFAULT/EXP3']
+components           []
+```
+
+```python
+# get sample with get_samples() method
+samples = o.get_samples(identifier='/DEFAULT/DEFAULT/EXP2')
+samples[0]
+
+Out[1]: 
+attribute            value
+-------------------  ------------------------------
+code                 EXP2
+permId               20230823205338303-49
+identifier           /DEFAULT/DEFAULT/EXP2
+type                 EXPERIMENTAL_STEP
+project              /DEFAULT/DEFAULT
+parents                 # None value
+children                # None value
+components           []
 ```
 
 #### freezing samples
@@ -1010,8 +1068,8 @@ However, if you want to include specific attributes in the results, you can do s
 The `get_datasets()` method results include only `permId`, `type`, `experiment`, `sample`, `registrationDate`, `modificationDate`,
 `location`, `status`, `presentInArchive`, `size`
 
-```get attributes
-experiments = o.get_datasets(
+```python
+datasets = o.get_datasets(
     space         = 'MY_SPACE',
     attrs          = ["parents", "children"]
 )
@@ -1021,6 +1079,13 @@ experiments = o.get_datasets(
  0  20230526101657295-48  RAW_DATA  /MY_SPACE/DEFAULT/DEFAULT  /MY_SPACE/DEFAULT/EXP1  2023-05-26 12:16:58  2023-05-26 12:17:37  1F60C7DC-63D8-4C07/20230526101657295-48  AVAILABLE  False                  469  []                        ['20230526101737019-49']
  1  20230526101737019-49  RAW_DATA  /MY_SPACE/DEFAULT/DEFAULT  /MY_SPACE/DEFAULT/EXP1  2023-05-26 12:17:37  2023-05-26 12:17:37  1F60C7DC-63D8-4C07/20230526101737019-49  AVAILABLE  False                  127  ['20230526101657295-48']  []
 ```
+
+**⚠️ Clarification**
+
+- `get_datasets()` method is always downloading object properties
+- Not downloaded attributes (e.g `parents`, `children`) will not be removed upon `save()` unless explicitly done by the user.
+- `None` values of list `attributes` are ignored during saving process
+
 
 **More dataset functions:**
 

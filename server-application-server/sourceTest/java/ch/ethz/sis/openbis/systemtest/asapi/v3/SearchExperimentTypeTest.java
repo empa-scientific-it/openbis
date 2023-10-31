@@ -16,9 +16,11 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
@@ -169,6 +171,37 @@ public class SearchExperimentTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = types.get(0).getPropertyAssignments();
         assertOrder(propertyAssignments, "ORGANISM", "DESCRIPTION", "BACTERIUM");
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithPropertyAssignments()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
+        final Set<String> requiredPropertyTypeCodes = Set.of("DESCRIPTION", "GENDER");
+        searchCriteria.withPropertyAssignments().withPropertyType().withCodes().thatIn(requiredPropertyTypeCodes);
+
+        final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().sortBy().code().desc();
+
+        final SearchResult<ExperimentType> searchResult = v3api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+        final List<ExperimentType> experimentTypes = searchResult.getObjects();
+
+        assertTrue(experimentTypes.get(0).getFetchOptions().hasPropertyAssignments());
+
+        for (final ExperimentType experimentType : experimentTypes)
+        {
+            final Set<String> propertyTypeCodes = experimentType.getPropertyAssignments().stream()
+                    .map(propertyAssignment -> propertyAssignment.getPropertyType().getCode())
+                    .collect(Collectors.toSet());
+            final Set<String> originalPropertyTypeCodes = new HashSet<>(propertyTypeCodes);
+            propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
+            assertFalse(propertyTypeCodes.isEmpty(),
+                    String.format("Experiment type %s contains assignments to property types %s which do not have any of the required ones %s.",
+                            experimentType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
+        }
+
         v3api.logout(sessionToken);
     }
 

@@ -240,6 +240,11 @@ Custom AS Service Fetch Options
 Custom AS Service Search Criteria
 Custom AS Service Sort Options
 custom Import
+CustomDSSService
+CustomDssServiceCode
+CustomDSSServiceExecutionOptions
+CustomDSSServiceFetchOptions
+CustomDSSServiceSortOptions
 DATA
 Data Set Archive Options
 Data Set Lock Options
@@ -479,6 +484,8 @@ ExecuteCustomASServiceOperation
 ExecuteCustomASServiceOperationResult
 executeImport
 executeOperations
+executeCustomDSSService
+ExecuteCustomDSSServiceOperationResult
 Execution Options
 EXPERIMENT
 Experiment
@@ -919,6 +926,21 @@ getMode
 getModificationDate
 getModifier
 getMultilineVarcharProperty
+getMultiValueBooleanProperty
+getMultiValueControlledVocabularyProperty
+getMultiValueHyperlinkProperty
+getMultiValueIntegerArrayProperty
+getMultiValueIntegerProperty
+getMultiValueJsonProperty
+getMultiValueMultilineVarcharProperty
+getMultiValueRealArrayProperty
+getMultiValueRealProperty
+getMultiValueSampleProperty
+getMultiValueStringArrayProperty
+getMultiValueTimestampArrayProperty
+getMultiValueTimestampProperty
+getMultiValueVarcharProperty
+getMultiValueXmlProperty
 getNotification
 getNotificationOptions
 getNumItemsProcessed
@@ -1202,6 +1224,7 @@ IAuthorizationGroupId
 ICodeHolder
 IContentCopyId
 ICreationIdHolder
+ICustomDSSServiceId
 ID
 id
 IDataSetFileId
@@ -2136,6 +2159,21 @@ setModificationDate
 setModifier
 setMultilineVarcharProperty
 setMultiValue
+setMultiValueBooleanProperty
+setMultiValueControlledVocabularyProperty
+setMultiValueHyperlinkProperty
+setMultiValueIntegerArrayProperty
+setMultiValueIntegerProperty
+setMultiValueJsonProperty
+setMultiValueMultilineVarcharProperty
+setMultiValueRealArrayProperty
+setMultiValueRealProperty
+setMultiValueSampleProperty
+setMultiValueStringArrayProperty
+setMultiValueTimestampArrayProperty
+setMultiValueTimestampProperty
+setMultiValueVarcharProperty
+setMultiValueXmlProperty
 setName
 setNegated
 setNotification

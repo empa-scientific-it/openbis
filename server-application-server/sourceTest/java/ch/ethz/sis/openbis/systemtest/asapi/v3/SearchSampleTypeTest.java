@@ -16,12 +16,17 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
@@ -449,6 +454,37 @@ public class SearchSampleTypeTest extends AbstractTest
         assertEquals(types.get(0).getFetchOptions().hasPropertyAssignments(), true);
         List<PropertyAssignment> propertyAssignments = types.get(0).getPropertyAssignments();
         assertOrder(propertyAssignments, "BACTERIUM", "ORGANISM", "DESCRIPTION");
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithPropertyAssignments()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+        final Set<String> requiredPropertyTypeCodes = Set.of("BACTERIUM", "ORGANISM", "DESCRIPTION");
+        searchCriteria.withPropertyAssignments().withPropertyType().withCodes().thatIn(requiredPropertyTypeCodes);
+
+        final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().sortBy().code().desc();
+
+        final SearchResult<SampleType> searchResult = v3api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+        final List<SampleType> sampleTypes = searchResult.getObjects();
+
+        assertTrue(sampleTypes.get(0).getFetchOptions().hasPropertyAssignments());
+
+        for (final SampleType sampleType : sampleTypes)
+        {
+            final Set<String> propertyTypeCodes = sampleType.getPropertyAssignments().stream()
+                    .map(propertyAssignment -> propertyAssignment.getPropertyType().getCode())
+                    .collect(Collectors.toSet());
+            final Set<String> originalPropertyTypeCodes = new HashSet<>(propertyTypeCodes);
+            propertyTypeCodes.retainAll(requiredPropertyTypeCodes);
+            assertFalse(propertyTypeCodes.isEmpty(),
+                    String.format("Sample type %s contains assignments to property types %s which do not have any of the required ones %s.",
+                            sampleType, originalPropertyTypeCodes, requiredPropertyTypeCodes));
+        }
+
         v3api.logout(sessionToken);
     }
 

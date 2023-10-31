@@ -1214,7 +1214,7 @@ public class SearchMaterialTest extends AbstractTest
                 v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
 
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
-                vocabularyPermId);
+                vocabularyPermId, false);
         final MaterialPermId entityPermId = createMaterial(sessionToken, propertyTypeId, value);
         final MaterialSearchCriteria searchCriteria = new MaterialSearchCriteria();
         new AbstractSearchPropertyTest.StringQueryInjector(searchCriteria, propertyTypeId).buildCriteria(queryString);

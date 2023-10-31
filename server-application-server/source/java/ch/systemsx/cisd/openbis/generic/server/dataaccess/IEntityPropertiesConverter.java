@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public interface IEntityPropertiesConverter
      * Modifies value of given {@link EntityPropertyPE}. Value should be already validated.
      */
     public <T extends EntityPropertyPE> void setPropertyValue(final T entityProperty,
-            final PropertyTypePE propertyType, final String validatedValue);
+            final PropertyTypePE propertyType, final Serializable validatedValue);
 
     /** Updates Set<T> of properties. */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,

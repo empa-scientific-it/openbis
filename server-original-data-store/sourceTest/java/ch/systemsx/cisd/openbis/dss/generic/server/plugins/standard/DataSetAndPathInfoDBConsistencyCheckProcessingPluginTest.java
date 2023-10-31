@@ -305,11 +305,11 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                 {
                     if (parameters.failurePoints.contains(TestCaseParameters.FailurePoint.CHECKSUM))
                     {
-                        oneOf(pathInfoChildNode).isChecksumCRC32Precalculated();
+                        allowing(pathInfoChildNode).isChecksumCRC32Precalculated();
                         will(returnValue(true));
                     } else
                     {
-                        oneOf(pathInfoChildNode).isChecksumCRC32Precalculated();
+                        allowing(pathInfoChildNode).isChecksumCRC32Precalculated();
                         will(returnValue(false));
                     }
                     allowing(fileChildNode).getChecksum();
