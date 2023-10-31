@@ -21,7 +21,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSServiceExecutor;
+import ch.ethz.sis.openbis.generic.dssapi.v3.plugin.service.ICustomDSSServiceExecutor;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.helper.IDssServiceScriptRunner;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.helper.ScriptRunnerFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;

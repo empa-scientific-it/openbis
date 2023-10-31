@@ -15,17 +15,31 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service;
+package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import ch.ethz.sis.openbis.generic.dssapi.v3.plugin.service.ICustomDSSServiceExecutor;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.Properties;
 
-@JsonIgnoreType
-public interface ICustomDSSServiceExecutor
+public class PingPongService implements ICustomDSSServiceExecutor
 {
-    Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
-            CustomDSSServiceExecutionOptions options);
+    public PingPongService(Properties properties)
+    {
+        System.out.println("||> INIT PING PONG SERVICE");
+    }
+    @Override
+    public Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
+            CustomDSSServiceExecutionOptions options)
+    {
+        Map<String, Object> params = options.getParameters();
+        if(params.containsKey("key") && params.get("key").toString().equalsIgnoreCase("PING"))
+        {
+            return "PONG";
+        }
+        throw new IllegalArgumentException("Missing Ping parameter");
+    }
 }

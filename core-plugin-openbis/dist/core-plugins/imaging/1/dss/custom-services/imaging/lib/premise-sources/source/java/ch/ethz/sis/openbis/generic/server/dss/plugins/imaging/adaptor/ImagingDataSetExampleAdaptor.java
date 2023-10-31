@@ -17,8 +17,6 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 
 import javax.imageio.ImageIO;

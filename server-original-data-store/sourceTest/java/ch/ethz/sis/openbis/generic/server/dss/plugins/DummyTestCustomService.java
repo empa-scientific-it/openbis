@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSServiceExecutor;
+import ch.ethz.sis.openbis.generic.dssapi.v3.plugin.service.ICustomDSSServiceExecutor;
 
 import java.io.Serializable;
 import java.util.Map;

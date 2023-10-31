@@ -32,8 +32,9 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container.ImagingD
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container.ImagingExportContainer;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container.ImagingMultiExportContainer;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container.ImagingPreviewContainer;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSServiceExecutor;
+import ch.ethz.sis.openbis.generic.dssapi.v3.plugin.service.ICustomDSSServiceExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -44,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -56,6 +59,9 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
     private IHierarchicalContentProvider contentProvider;
 
+    private static final Logger
+            operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImagingService.class);
+
     private static final String SCRIPT_PATH = "script-path";
 
     private String scriptPath;
@@ -63,13 +69,14 @@ public class ImagingService implements ICustomDSSServiceExecutor
     public ImagingService(Properties properties)
     {
         this.properties = properties;
-        scriptPath = PropertyUtils.getProperty(properties, SCRIPT_PATH);
+        this.scriptPath = PropertyUtils.getProperty(properties, SCRIPT_PATH);
     }
 
     @Override
     public Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options)
     {
+        operationLog.info("Executing service:" + serviceId);
         ImagingDataContainer data = getDataFromParams(options.getParameters());
         try
         {
@@ -119,15 +126,17 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
     private Serializable processExportFlow(String sessionToken, ImagingDataContainer data)
     {
-        //TODO
+        DataSet dataSet = getDataSet(sessionToken, data);
         if (data.getType().equalsIgnoreCase("export"))
         {
             // Single export case
-            ImagingExportContainer input = (ImagingExportContainer) data;
+            ImagingExportContainer export = (ImagingExportContainer) data;
+
+
         } else
         {
             // multi export case
-            ImagingMultiExportContainer input = (ImagingMultiExportContainer) data;
+            ImagingMultiExportContainer multiExport = (ImagingMultiExportContainer) data;
         }
         return data;
     }

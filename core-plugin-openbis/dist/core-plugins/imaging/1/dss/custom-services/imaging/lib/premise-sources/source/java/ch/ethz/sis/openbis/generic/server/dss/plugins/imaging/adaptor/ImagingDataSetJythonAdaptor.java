@@ -17,8 +17,6 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.helper.IDssServiceScriptRunner;
@@ -29,8 +27,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
-
-import static ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider.getApplicationServerApi;
 
 public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
 {

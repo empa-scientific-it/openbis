@@ -27,22 +27,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Properties;
 
-public class ImagingDataSetPythonAdaptor implements IImagingDataSetAdaptor
+public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdaptor
 {
 
-    private final String pythonPath;
+    protected String pythonPath;
 
-    private final String scriptPath;
-
-    public ImagingDataSetPythonAdaptor(Properties properties) {
-        this.scriptPath = properties.getProperty("script-path", "");
-        if(scriptPath.isBlank()) {
-            throw new UserFailureException("There is no script defined for this adaptor!");
-        }
-        this.pythonPath = properties.getProperty("python3-path", "python3");
-    }
+    protected String scriptPath;
 
     @Override
     public Serializable process(ImagingServiceContext context, File rootFile,
@@ -71,6 +62,9 @@ public class ImagingDataSetPythonAdaptor implements IImagingDataSetAdaptor
         }
 
         String[] resultSplit = fullOutput.split("\n");
+//        for(int i=0;i< resultSplit.length;i++) {
+//            System.out.println("||> " + resultSplit[i].substring(0, Math.min(resultSplit[i].length(), 1000)));
+//        }
         return resultSplit[resultSplit.length-1];
     }
 
