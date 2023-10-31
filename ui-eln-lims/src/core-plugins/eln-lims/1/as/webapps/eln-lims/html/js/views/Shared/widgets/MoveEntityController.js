@@ -137,7 +137,7 @@ function MoveEntityController(entityType, entityPermId) {
                                 _this.gatherAllDescendants(samplesToUpdate, map[permId]);
                                 var updates = []
                                 samplesToUpdate.forEach(function(sample) {
-                                    if (currentExperiment == sample.getExperiment().getPermId().getPermId()) {
+                                    if (sample.getExperiment() != null && currentExperiment == sample.getExperiment().getPermId().getPermId()) {
                                         var sampleUpdate = new SampleUpdate();
                                         sampleUpdate.setSampleId(sample.getPermId());
                                         sampleUpdate.setExperimentId(experimentId);
