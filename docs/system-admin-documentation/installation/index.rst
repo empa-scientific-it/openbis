@@ -4,6 +4,8 @@ Installation
 .. toctree::
    :maxdepth: 4
 
-   required-configuration
-   optional-application-server-configuration
-   optional-datastore-server-configuration
+   system-requirements
+   installation
+   starting-and-stopping
+   troubleshooting
+

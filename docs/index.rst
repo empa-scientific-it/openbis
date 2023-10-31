@@ -32,6 +32,7 @@ The complete solution for managing your research data.
    :caption: System Admin Documentation
 
    Installation </system-admin-documentation/installation/index>
+   Configuration </system-admin-documentation/configuration/index>
    Docker Installation </system-admin-documentation/docker-installation/index>
    Advanced Features </system-admin-documentation/advanced-features/index>
 
