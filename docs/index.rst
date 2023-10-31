@@ -60,6 +60,7 @@ Software Developer Documentation
 System Admin Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
    - :doc:`Installation </system-admin-documentation/installation/index>`
+   - :doc:`Configuration </system-admin-documentation/configuration/index>`
    - :doc:`Docker Installation </system-admin-documentation/docker-installation/index>`
    - :doc:`Advanced Features </system-admin-documentation/advanced-features/index>`
 
