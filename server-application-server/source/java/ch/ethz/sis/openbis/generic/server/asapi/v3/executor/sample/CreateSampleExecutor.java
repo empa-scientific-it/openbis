@@ -179,11 +179,28 @@ public class CreateSampleExecutor extends AbstractCreateEntityExecutor<SampleCre
 
     private void checkData(final IOperationContext context, final CollectionBatch<SampleCreation> batch, final Map<IEntityTypeId, EntityTypePE> types)
     {
+        Properties serviceProperties = configurer.getResolvedProps();
+
+        boolean sharedSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.SHARED_SAMPLES_ENABLED_KEY, true);
+        boolean spaceSamplesEnabled = PropertyUtils.getBoolean(serviceProperties, Constants.SPACE_SAMPLES_ENABLED_KEY, true);
+
         new CollectionBatchProcessor<SampleCreation>(context, batch)
             {
                 @Override
                 public void process(SampleCreation creation)
                 {
+                    if (sharedSamplesEnabled == false &&
+                            creation.getSpaceId() == null) {
+                        throw new UserFailureException("Space id cannot be null, shared samples are disabled.");
+                    }
+
+                    if (spaceSamplesEnabled == false &&
+                            creation.getSpaceId() != null &&
+                            creation.getProjectId() == null &&
+                            creation.getExperimentId() == null) {
+                        throw new UserFailureException("Both Project id and Experiment id cannot be null, space samples are disabled.");
+                    }
+
                     SampleTypePE type = (SampleTypePE) types.get(creation.getTypeId());
 
                     if (creation.getTypeId() == null)
