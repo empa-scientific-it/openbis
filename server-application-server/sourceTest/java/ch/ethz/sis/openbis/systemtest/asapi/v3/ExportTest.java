@@ -51,6 +51,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
@@ -58,6 +60,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
@@ -68,7 +73,17 @@ public class ExportTest extends AbstractTest
 
     private static final String ZIPPED_EXPORT_FILE_NAME = METADATA_FILE_PREFIX + XLSX_EXTENSION;
 
+    private static final String PLAIN_TEXT_VALUE = "Rich format test";
+
+    private static final String RICH_TEXT_VALUE = String.format("<b>%s</b>", PLAIN_TEXT_VALUE);
+
+    private static final String RICH_TEXT_PROPERTY_NAME = "COMMENT";
+
+    private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
+
     protected String sessionToken;
+
+    private SamplePermId samplePermId;
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
@@ -83,11 +98,22 @@ public class ExportTest extends AbstractTest
     public void beforeTest()
     {
         sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode(RICH_TEXT_SAMPLE_CODE);
+        creation.setTypeId(new EntityTypePermId("VALIDATE_CHILDREN"));
+        creation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
+
+        samplePermId = v3api.createSamples(sessionToken, List.of(creation)).get(0);
     }
 
     @AfterMethod
     public void afterTest()
     {
+        final SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("Test");
+        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(samplePermId), deletionOptions);
+        v3api.confirmDeletions(systemSessionToken, List.of(deletionId));
         v3api.logout(sessionToken);
     }
 
