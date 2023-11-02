@@ -267,7 +267,7 @@ class VocabularyTerm(OpenBisObject):
 
     def delete(self, reason="no particular reason"):
         self.openbis.delete_openbis_entity(
-            entity="VocabularyTerm", objectId=self.data["permId"], reason=reason
+            entity="vocabularyTerm", objectId=self.data["permId"], reason=reason
         )
         if VERBOSE:
             print("VocabularyTerm successfully deleted.")
