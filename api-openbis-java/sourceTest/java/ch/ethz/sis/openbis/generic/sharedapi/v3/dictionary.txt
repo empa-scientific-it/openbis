@@ -1235,6 +1235,7 @@ IAuthorizationGroupId
 ICodeHolder
 IContentCopyId
 ICreationIdHolder
+ICustomDSSServiceExecutor
 ICustomDSSServiceId
 ID
 id
