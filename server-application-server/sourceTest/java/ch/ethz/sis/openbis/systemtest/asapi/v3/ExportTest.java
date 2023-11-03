@@ -29,7 +29,6 @@ import static org.testng.Assert.assertTrue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -289,10 +288,15 @@ public class ExportTest extends AbstractTest
         }
     }
 
-    private File getActualFile(final String actualResultFilePath) throws FileNotFoundException
+    private File getActualFile(final String actualResultFilePath)
     {
+        final int pathSeparatorLocation = actualResultFilePath.lastIndexOf("/");
+        final String intermediatePath = pathSeparatorLocation > 0 ? actualResultFilePath.substring(0, pathSeparatorLocation) : "";
+        final String actualResultFileName = pathSeparatorLocation > 0
+                ? actualResultFilePath.substring(pathSeparatorLocation + 1) : actualResultFilePath;
         final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(actualResultFilePath));
+        final File sessionWorkspaceSubfolder = new File(sessionWorkspace, intermediatePath);
+        final File[] files = sessionWorkspaceSubfolder.listFiles((FilenameFilter) new NameFileFilter(actualResultFileName));
 
         assertNotNull(files);
         assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",

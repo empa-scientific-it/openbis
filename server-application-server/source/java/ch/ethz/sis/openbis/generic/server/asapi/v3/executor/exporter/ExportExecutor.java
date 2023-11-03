@@ -20,7 +20,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.export;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.EnumSet;
@@ -31,6 +36,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
@@ -47,6 +54,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 @SuppressWarnings("SizeReplaceableByIsEmpty")
 @Component
@@ -57,6 +65,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
+    private static final String XLS_FOLDER = "xls";
+
     private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
             Map.of(ExportableKind.SAMPLE, new SampleExportFieldsFinder(),
                     ExportableKind.EXPERIMENT, new ExperimentExportFieldsFinder(),
@@ -64,6 +74,9 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Set<ExportableKind> TYPE_EXPORTABLE_KINDS = EnumSet.of(ExportableKind.SAMPLE_TYPE, ExportableKind.EXPERIMENT_TYPE,
             ExportableKind.DATASET_TYPE, ExportableKind.VOCABULARY_TYPE, ExportableKind.SPACE, ExportableKind.PROJECT);
+
+    @Autowired
+    private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -88,7 +101,7 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static ExportResult doXlsExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
+    private ExportResult doXlsExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
             throws IOException
     {
         final IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
@@ -106,7 +119,6 @@ public class ExportExecutor implements IExportExecutor
         if (fields instanceof SelectedFields)
         {
             final SelectedFields selectedFields = (SelectedFields) fields;
-
             final Set<IPropertyTypeId> properties = new HashSet<>(selectedFields.getProperties());
 
             exportFields = exportableKinds.stream().flatMap(exportableKind ->
@@ -131,9 +143,42 @@ public class ExportExecutor implements IExportExecutor
             exportFields = null;
         }
 
-        return export(METADATA_FILE_PREFIX, applicationServerApi, sessionToken,
+        final ExportResult exportResult = export(METADATA_FILE_PREFIX, applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
+        final String fileName = exportResult.getFileName();
+        final File file = getActualFile(sessionToken, fileName);
+        final String newParentPath = file.getParent() + "/" + XLS_FOLDER + "/";
+        final String newFileName = newParentPath + file.getName();
+
+        final boolean directoryCreated = new File(newParentPath).mkdir();
+        if (!directoryCreated)
+        {
+            throw new IOException(String.format("Failed create directory %s.", newParentPath));
+        }
+
+        final boolean renamed = file.renameTo(new File(newFileName));
+        if (!renamed)
+        {
+            throw new IOException(String.format("Failed to rename the file %s.", fileName));
+        }
+
+        return new ExportResult(XLS_FOLDER + "/" + fileName, exportResult.getWarnings());
+    }
+
+    private File getActualFile(final String sessionToken, final String actualResultFilePath)
+    {
+        final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
+        final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(actualResultFilePath));
+
+        assertNotNull(files);
+        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",
+                actualResultFilePath));
+
+        final File file = files[0];
+
+        assertTrue(file.getName().startsWith(METADATA_FILE_PREFIX + "."));
+        return file;
     }
 
     private static Map<String, List<Map<String, String>>> findExportAttributes(final ExportableKind exportableKind, final SelectedFields selectedFields)

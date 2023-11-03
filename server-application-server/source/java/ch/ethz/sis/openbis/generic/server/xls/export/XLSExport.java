@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -216,7 +215,7 @@ public class XLSExport
             final String sessionToken, final ExportablePermId exportablePermId,
             final Set<ExportablePermId> processedIds, final ExportHelperFactory exportHelperFactory)
     {
-        final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
+        final IXLSExportHelper<? extends IEntityType> helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
         if (helper != null)
         {
             final IPropertyAssignmentsHolder propertyAssignmentsHolder = helper
