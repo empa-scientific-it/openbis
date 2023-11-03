@@ -20,6 +20,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_PREFIX;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
+import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -46,7 +47,9 @@ import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -103,13 +106,13 @@ public class ExportTest extends AbstractTest
         return ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.EXPORT_DATA;
     }
 
-    @BeforeMethod
-    public void beforeTest()
+    @BeforeClass
+    public void beforeClass()
     {
         sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
-        propertyTypeCreation.setCode(ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME);
+        propertyTypeCreation.setCode(RICH_TEXT_PROPERTY_NAME);
         propertyTypeCreation.setLabel("Multiline");
         propertyTypeCreation.setDescription("Property type with multiline text value");
         propertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
@@ -125,14 +128,18 @@ public class ExportTest extends AbstractTest
         final SampleCreation sampleCreation = new SampleCreation();
         sampleCreation.setCode(RICH_TEXT_SAMPLE_CODE);
         sampleCreation.setTypeId(sampleTypePermId);
-        sampleCreation.setProperty(ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
+        sampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
 
         samplePermId = v3api.createSamples(sessionToken, List.of(sampleCreation)).get(0);
+
+        v3api.logout(sessionToken);
     }
 
-    @AfterMethod
-    public void afterTest()
+    @AfterClass
+    public void afterClass()
     {
+        sessionToken = v3api.login(TEST_USER, PASSWORD);
+
         final SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
         sampleDeletionOptions.setReason("Test");
         final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(samplePermId), sampleDeletionOptions);
@@ -149,25 +156,22 @@ public class ExportTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        sessionToken = v3api.login(TEST_USER, PASSWORD);
+    }
+
+    @AfterMethod
+    public void afterMethod()
+    {
+        v3api.logout(sessionToken);
+    }
+
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
     public void testXlsDataExport(final String expectedResultFileName, final List<ExportablePermId> permIds, final IExportableFields fields,
             final XlsTextFormat xlsTextFormat, final boolean withReferredTypes, final boolean withImportCompatibility) throws Exception
     {
-//        // TODO: specify values here.
-//        final String expectedResultFileName;
-//        final Map<String, String> expectedScripts;
-//        final Class<IApplicationServerApi> expectationsClass;
-//        final List<ExportablePermId> exportablePermIds;
-//        final boolean exportReferred;
-//        final Map<String, Map<String, List<Map<String, String>>>> exportFields;
-//        final XLSExport.TextFormatting textFormatting;
-//        final List<String> expectedWarnings;
-//        final boolean compatibleWithImport;
-//
-//        final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
-//                boolean.class).newInstance(api, exportReferred);
-//        mockery.checking(expectations);
-
         processPermIds(permIds);
 
         final ExportData exportData = new ExportData(permIds, fields);
