@@ -60,8 +60,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
@@ -77,11 +84,13 @@ public class ExportTest extends AbstractTest
 
     private static final String RICH_TEXT_VALUE = String.format("<b>%s</b>", PLAIN_TEXT_VALUE);
 
-    private static final String RICH_TEXT_PROPERTY_NAME = "COMMENT";
-
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
     protected String sessionToken;
+
+    private PropertyTypePermId propertyTypePermId;
+
+    private EntityTypePermId sampleTypePermId;
 
     private SamplePermId samplePermId;
 
@@ -99,21 +108,44 @@ public class ExportTest extends AbstractTest
     {
         sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final SampleCreation creation = new SampleCreation();
-        creation.setCode(RICH_TEXT_SAMPLE_CODE);
-        creation.setTypeId(new EntityTypePermId("VALIDATE_CHILDREN"));
-        creation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
+        final PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode(ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME);
+        propertyTypeCreation.setLabel("Multiline");
+        propertyTypeCreation.setDescription("Property type with multiline text value");
+        propertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
+        propertyTypePermId = v3api.createPropertyTypes(sessionToken, List.of(propertyTypeCreation)).get(0);
 
-        samplePermId = v3api.createSamples(sessionToken, List.of(creation)).get(0);
+        final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
+        final PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
+        propertyAssignmentCreation.setPropertyTypeId(propertyTypePermId);
+        sampleTypeCreation.setCode("MULTI_LINE_VALUE_SAMPLE_TYPE");
+        sampleTypeCreation.setPropertyAssignments(List.of(propertyAssignmentCreation));
+        sampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
+
+        final SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode(RICH_TEXT_SAMPLE_CODE);
+        sampleCreation.setTypeId(sampleTypePermId);
+        sampleCreation.setProperty(ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
+
+        samplePermId = v3api.createSamples(sessionToken, List.of(sampleCreation)).get(0);
     }
 
     @AfterMethod
     public void afterTest()
     {
-        final SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
-        deletionOptions.setReason("Test");
-        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(samplePermId), deletionOptions);
+        final SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
+        sampleDeletionOptions.setReason("Test");
+        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(samplePermId), sampleDeletionOptions);
         v3api.confirmDeletions(systemSessionToken, List.of(deletionId));
+
+        final SampleTypeDeletionOptions sampleTypeDeletionOptions = new SampleTypeDeletionOptions();
+        sampleTypeDeletionOptions.setReason("Test");
+        v3api.deleteSampleTypes(sessionToken, List.of(sampleTypePermId), sampleTypeDeletionOptions);
+
+        final PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
+        propertyTypeDeletionOptions.setReason("Test");
+        v3api.deletePropertyTypes(sessionToken, List.of(propertyTypePermId), propertyTypeDeletionOptions);
+
         v3api.logout(sessionToken);
     }
 
@@ -136,12 +168,30 @@ public class ExportTest extends AbstractTest
 //                boolean.class).newInstance(api, exportReferred);
 //        mockery.checking(expectations);
 
+        processPermIds(permIds);
+
         final ExportData exportData = new ExportData(permIds, fields);
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
         final String downloadUrl = exportResult.getDownloadURL();
 
         compareFiles("ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/" + expectedResultFileName, downloadUrl);
+    }
+
+    /**
+     * Searches for ExportablePermIds with null perm IDs, which should indicate that it should be replaced with {@link #samplePermId}.
+     *
+     * @param permIds the list of ExportablePermId values to be processed.
+     */
+    private void processPermIds(final List<ExportablePermId> permIds)
+    {
+        permIds.forEach(exportablePermId ->
+        {
+            if (exportablePermId.getPermId() == null)
+            {
+                exportablePermId.setPermId(samplePermId);
+            }
+        });
     }
 
     private void compareFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException

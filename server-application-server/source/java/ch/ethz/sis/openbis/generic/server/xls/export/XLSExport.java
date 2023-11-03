@@ -89,9 +89,10 @@ public class XLSExport
         final String fullFileName = filePrefix + "." +
                 new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                 (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
-        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
-        writeToOutputStream(os, filePrefix, exportResult, scripts);
-        IOUtils.closeQuietly(os);
+        try(final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
+        {
+            writeToOutputStream(os, filePrefix, exportResult, scripts);
+        }
         return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 

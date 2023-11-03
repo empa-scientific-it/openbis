@@ -57,6 +57,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 public class ExportData
 {
 
+    static final String RICH_TEXT_PROPERTY_NAME = "MULTILINE";
+
     static final Object[][] EXPORT_DATA = {
             // All fields
             {
@@ -241,6 +243,33 @@ public class ExportData
                     new SelectedFields(List.of(CODE, DISALLOW_DELETION, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-plain-text.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
+                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-rich-text.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
+                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
+                    XlsTextFormat.RICH,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-rich-text.xlsx",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
+                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
+                    XlsTextFormat.RICH,
+                    true, // withReferredTypes
                     false // withImportCompatibility
             },
     };
