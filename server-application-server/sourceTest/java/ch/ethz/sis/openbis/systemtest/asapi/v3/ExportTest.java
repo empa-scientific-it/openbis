@@ -18,6 +18,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_PREFIX;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.METADATA_FILE_NAME;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
@@ -26,6 +27,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,12 +35,17 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -72,8 +79,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
-import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 public class ExportTest extends AbstractTest
 {
@@ -88,6 +95,8 @@ public class ExportTest extends AbstractTest
 
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
+    private static final String XLS_EXPORT_RESOURCES_PATH = "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/";
+
     protected String sessionToken;
 
     private PropertyTypePermId propertyTypePermId;
@@ -95,9 +104,6 @@ public class ExportTest extends AbstractTest
     private EntityTypePermId sampleTypePermId;
 
     private SamplePermId samplePermId;
-
-    @Autowired
-    private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
     @DataProvider
     protected Object[][] xlsExportData()
@@ -175,10 +181,12 @@ public class ExportTest extends AbstractTest
 
         final ExportData exportData = new ExportData(permIds, fields);
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
-        final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
-        final String downloadUrl = exportResult.getDownloadURL();
 
-        compareFiles("ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/" + expectedResultFileName, downloadUrl);
+        final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
+        final String xlsDirectory = String.format("%s/%s", exportResult.getDownloadURL(), XLSExport.XLS_DIRECTORY);
+
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName,
+                String.format("%s/%s", xlsDirectory, expectedResultFileName.endsWith(XLSX_EXTENSION) ? METADATA_FILE_NAME : ""));
     }
 
     /**
@@ -199,7 +207,27 @@ public class ExportTest extends AbstractTest
 
     private void compareFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
     {
-        if (expectedResultFilePath.endsWith(XLSX_EXTENSION) && actualResultFilePath.endsWith(XLSX_EXTENSION))
+        final URL expectedResultUrl = getClass().getClassLoader().getResource(expectedResultFilePath);
+        assertNotNull(expectedResultUrl);
+
+        final File expectedResultFile;
+        try
+        {
+            expectedResultFile = new File(expectedResultUrl.toURI());
+        } catch (final URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
+        assertTrue(expectedResultFile.exists());
+
+        final File actualResultFile = new File(actualResultFilePath);
+        assertTrue(actualResultFile.exists());
+
+        if (expectedResultFile.isDirectory())
+        {
+            assertTrue(actualResultFile.isDirectory());
+            compareDirectories(expectedResultFile, actualResultFile);
+        } else if (expectedResultFilePath.endsWith(XLSX_EXTENSION) && actualResultFilePath.endsWith(XLSX_EXTENSION))
         {
             compareXlsxFiles(expectedResultFilePath, actualResultFilePath);
         } else if (expectedResultFilePath.endsWith(ZIP_EXTENSION) && actualResultFilePath.endsWith(ZIP_EXTENSION))
@@ -219,7 +247,7 @@ public class ExportTest extends AbstractTest
         {
             throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
         }
-        compareXlsxStreams(expectedResultStream, new FileInputStream(getActualFile(actualResultFilePath)));
+        compareXlsxStreams(expectedResultStream, new FileInputStream(actualResultFilePath));
     }
 
     private void compareZipFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
@@ -255,6 +283,50 @@ public class ExportTest extends AbstractTest
                             final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(expectedZipEntry));
                             final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(expectedZipEntry));
                     )
+                    {
+                        compareStreams(expectedInputStream, actualInputStream);
+                    }
+                }
+            }
+        }
+    }
+
+    private void compareDirectories(final File expectedDirectory, final File actualDirectory) throws IOException
+    {
+        final File[] expectedFiles = expectedDirectory.listFiles();
+        final File[] actualFiles = actualDirectory.listFiles();
+        final Set<String> expectedFileNames = Stream.of(Objects.requireNonNull(expectedFiles)).map(File::getName)
+                .collect(Collectors.toSet());
+        final Set<String> actualFileNames = Stream.of(Objects.requireNonNull(actualFiles)).map(File::getName)
+                .collect(Collectors.toSet());
+
+        assertEquals(actualFileNames, expectedFileNames);
+
+        final Map<String, File> actualFileByName = Stream.of(Objects.requireNonNull(actualFiles))
+                .collect(Collectors.toMap(File::getName, Function.identity()));
+
+        for (final File expectedFile : expectedFiles)
+        {
+            final String expectedFileName = expectedFile.getName();
+            final File actualFile = actualFileByName.get(expectedFileName);
+            final boolean expectedFileIsDirectory = expectedFile.isDirectory();
+            final boolean actualFileIsDirectory = actualFile.isDirectory();
+
+            assertEquals(actualFileIsDirectory, expectedFileIsDirectory, "One of the compared files is a directory whereas the other is not.");
+            if (expectedFileIsDirectory)
+            {
+                compareDirectories(expectedFile, actualFile);
+            } else
+            {
+                try (
+                        final InputStream expectedInputStream = new BufferedInputStream(new FileInputStream(expectedFile));
+                        final InputStream actualInputStream = new BufferedInputStream(new FileInputStream(actualFile));
+                )
+                {
+                    if (expectedFileName.equals(METADATA_FILE_NAME))
+                    {
+                        compareXlsxStreams(expectedInputStream, actualInputStream);
+                    } else
                     {
                         compareStreams(expectedInputStream, actualInputStream);
                     }

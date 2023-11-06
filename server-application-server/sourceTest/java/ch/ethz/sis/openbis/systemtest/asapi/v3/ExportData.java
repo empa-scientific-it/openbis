@@ -136,7 +136,7 @@ public class ExportData
             },
             {
                     // Sample Type: CELL_PLATE
-                    "export-sample-type-with-referred-types.zip",
+                    "export-sample-type-with-referred-types",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,

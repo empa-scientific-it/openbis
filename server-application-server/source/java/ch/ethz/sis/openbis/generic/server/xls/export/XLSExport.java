@@ -24,6 +24,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -67,11 +68,70 @@ public class XLSExport
 
     public static final String ZIP_EXTENSION = ".zip";
 
+    public static final String METADATA_FILE_NAME = "metadata" + XLSX_EXTENSION;
+
+    public static final String XLS_DIRECTORY = "xls";
+
+    private static final String PYTHON_EXTENSION = ".py";
+
+    private static final String SCRIPTS_DIRECTORY = "scripts";
+
     private static final String TYPE_KEY = "TYPE";
 
     private XLSExport()
     {
         throw new UnsupportedOperationException("Instantiation of a utility class.");
+    }
+
+    public static ExportResult exportExploded(final IApplicationServerApi api,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
+            final boolean exportReferredMasterData,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
+    {
+        final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
+        final Map<String, String> scripts = exportResult.getScripts();
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final String fullFileName = String.format("%s/%s", XLS_DIRECTORY, METADATA_FILE_NAME);
+        final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
+        final File xlsDirectory = createDirectory(sessionWorkspace, XLS_DIRECTORY);
+
+        try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
+        {
+            writeToOutputStream(os, null, exportResult, Map.of());
+        }
+
+        if (!scripts.isEmpty())
+        {
+            final File scriptsDirectory = createDirectory(xlsDirectory, SCRIPTS_DIRECTORY);
+
+            for (final Map.Entry<String, String> script : scripts.entrySet())
+            {
+                try (
+                        final FileOutputStream os = new FileOutputStream(new File(scriptsDirectory, script.getKey() + PYTHON_EXTENSION));
+                        final BufferedOutputStream bos = new BufferedOutputStream(os)
+                )
+                {
+                    bos.write(script.getValue().getBytes());
+                }
+            }
+        }
+
+        return new ExportResult(sessionWorkspace.getAbsolutePath(), exportResult.getWarnings());
+    }
+
+    private static File createDirectory(final File parentDirectory, final String directoryName) throws IOException
+    {
+        final File scriptsDirectory = new File(parentDirectory, directoryName);
+        final boolean directoryCreated = scriptsDirectory.mkdir();
+
+        if (!directoryCreated)
+        {
+            throw new IOException(String.format("Failed create directory %s.", scriptsDirectory.getAbsolutePath()));
+        }
+
+        return scriptsDirectory;
     }
 
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
@@ -88,7 +148,7 @@ public class XLSExport
         final String fullFileName = filePrefix + "." +
                 new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                 (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
-        try(final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
+        try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
         {
             writeToOutputStream(os, filePrefix, exportResult, scripts);
         }
@@ -119,7 +179,7 @@ public class XLSExport
             {
                 for (final Map.Entry<String, String> script : scripts.entrySet())
                 {
-                    zos.putNextEntry(new ZipEntry(String.format("scripts/%s.py", script.getKey())));
+                    zos.putNextEntry(new ZipEntry(String.format("%s/%s.py", SCRIPTS_DIRECTORY, script.getKey())));
                     bos.write(script.getValue().getBytes());
                     bos.flush();
                     zos.closeEntry();

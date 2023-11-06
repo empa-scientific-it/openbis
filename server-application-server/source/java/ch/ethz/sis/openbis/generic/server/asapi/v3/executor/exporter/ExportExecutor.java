@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.export;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.exportExploded;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -64,8 +64,6 @@ public class ExportExecutor implements IExportExecutor
     public static final String METADATA_FILE_PREFIX = "metadata";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
-
-    private static final String XLS_FOLDER = "xls";
 
     private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
             Map.of(ExportableKind.SAMPLE, new SampleExportFieldsFinder(),
@@ -143,27 +141,11 @@ public class ExportExecutor implements IExportExecutor
             exportFields = null;
         }
 
-        final ExportResult exportResult = export(METADATA_FILE_PREFIX, applicationServerApi, sessionToken,
+        final ExportResult exportResult = exportExploded(applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
-        final String fileName = exportResult.getFileName();
-        final File file = getActualFile(sessionToken, fileName);
-        final String newParentPath = file.getParent() + "/" + XLS_FOLDER + "/";
-        final String newFileName = newParentPath + file.getName();
 
-        final boolean directoryCreated = new File(newParentPath).mkdir();
-        if (!directoryCreated)
-        {
-            throw new IOException(String.format("Failed create directory %s.", newParentPath));
-        }
-
-        final boolean renamed = file.renameTo(new File(newFileName));
-        if (!renamed)
-        {
-            throw new IOException(String.format("Failed to rename the file %s.", fileName));
-        }
-
-        return new ExportResult(XLS_FOLDER + "/" + fileName, exportResult.getWarnings());
+        return exportResult;
     }
 
     private File getActualFile(final String sessionToken, final String actualResultFilePath)
