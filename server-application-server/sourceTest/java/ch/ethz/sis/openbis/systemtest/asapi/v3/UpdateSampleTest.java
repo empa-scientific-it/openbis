@@ -1452,6 +1452,61 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateParentAnnotationsBidirectional()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation childCreation = masterPlateCreation("CISD", "TEST_CHILD");
+        SampleCreation parent1Creation = masterPlateCreation("CISD", "TEST_PARENT_1");
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(childCreation, parent1Creation));
+
+        // Update parent, add annotation on the child relationship
+        SampleUpdate updateParent = new SampleUpdate();
+        updateParent.setSampleId(ids.get(1));
+        updateParent.getChildIds().add(ids.get(0));
+        updateParent.relationship(ids.get(0)).addChildAnnotation("note", "annotation set updating the father");
+
+        v3api.updateSamples(sessionToken, Arrays.asList(updateParent));
+
+        SampleFetchOptions options = new SampleFetchOptions();
+        options.withParents();
+        options.withChildren();
+        Map<ISampleId, Sample> foundAnnotationsParent = v3api.getSamples(sessionToken, ids, options);
+        Map<String, String> annotationsParentBefore = foundAnnotationsParent.get(ids.get(1)).getChildrenRelationships().values().iterator().next().getChildAnnotations();
+
+        // Update child, add annotation on the parent relationship
+        SampleUpdate updateChild = new SampleUpdate();
+        updateChild.setSampleId(ids.get(0));
+        updateChild.relationship(ids.get(1)).addParentAnnotation("note", "annotation set updating the child");
+
+        v3api.updateSamples(sessionToken, Arrays.asList(updateChild));
+
+        Map<ISampleId, Sample> foundAnnotationsChild = v3api.getSamples(sessionToken, ids, options);
+        Map<String, String> annotationsParentAfter = foundAnnotationsChild.get(ids.get(1)).getChildrenRelationships().values().iterator().next().getChildAnnotations();
+
+        // Annotations should persist in one direction
+        assertEquals(annotationsParentBefore, annotationsParentAfter);
+        //
+
+        // And if we update parent again
+        Map<String, String> annotationsChildBefore = foundAnnotationsChild.get(ids.get(0)).getParentsRelationships().values().iterator().next().getChildAnnotations();
+
+        SampleUpdate updateParentB = new SampleUpdate();
+        updateParentB.setSampleId(ids.get(1));
+        updateParentB.relationship(ids.get(0)).addChildAnnotation("note", "annotation set updating the father");
+        v3api.updateSamples(sessionToken, Arrays.asList(updateParentB));
+        Map<ISampleId, Sample> foundAnnotationsParentB = v3api.getSamples(sessionToken, ids, options);
+
+        // Annotations should persist in the other direction
+        Map<String, String> annotationsChildAfter = foundAnnotationsParentB.get(ids.get(0)).getParentsRelationships().values().iterator().next().getChildAnnotations();
+
+        assertEquals(annotationsChildBefore, annotationsChildAfter);
+    }
+
+
+    @Test
     public void testUpdateParentAnnotations()
     {
         // Given

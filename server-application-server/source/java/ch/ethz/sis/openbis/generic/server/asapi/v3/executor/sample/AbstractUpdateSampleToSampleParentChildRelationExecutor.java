@@ -81,10 +81,10 @@ public abstract class AbstractUpdateSampleToSampleParentChildRelationExecutor
     @SuppressWarnings("unchecked")
     private Map<String, String> updateAnnotations(Map<String, String> currentAnnotations, ListUpdateMapValues annotations)
     {
-        if (annotations.hasActions() == false)
-        {
-            return null;
-        }
+//        if (annotations.hasActions() == false)
+//        {
+//            return null;
+//        }
         Map<String, String> result = currentAnnotations == null ? new HashMap<>() : new HashMap<>(currentAnnotations);
         List<ListUpdateAction<Object>> actions = annotations.getActions();
         for (ListUpdateAction<Object> action : actions)
