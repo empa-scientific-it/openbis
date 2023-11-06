@@ -385,6 +385,8 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					//Parent links
 					"sampleParents": (sampleParentsRemovedFinal.length === 0 && sampleParentsAddedFinal.length === 0)?null:sampleParentsFinal,
 					"sampleParentsNew": newSampleParents,
+					"sampleParentsAdded": sampleParentsAddedFinal,
+					"sampleParentsRemoved": sampleParentsRemovedFinal,
 					//Children links
 					"sampleChildrenNew": samplesToCreate,
 					"sampleChildrenAdded": sampleChildrenAddedFinal,
@@ -608,19 +610,26 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 if (parents) {
                     creation.setParentIds(parents);
                 }
-                creation.setChildIds(getChildren());
+                var children = getChildren();
+                if(children) {
+                    creation.setChildIds(children);
+                }
                 // End of 'insertSample' section
             } else if (method === "updateSample") {
                 var update = new SampleUpdate();
                 sampleUpdates.push(update);
                 setBasics(update, parameters);
-                var parents = getParents();
-                if (parents) {
-                    update.getParentIds().set(parents);
+                var sampleParentsAdded = parameters["sampleParentsAdded"];
+                if (sampleParentsAdded) {
+                    update.getParentIds().add(sampleParentsAdded.map(c => new SampleIdentifier(c)));
                 }
-                var children = getChildren();
-                if (children.length > 0) {
-                    update.getChildIds().add(children);
+                var sampleParentsRemoved = parameters["sampleParentsRemoved"];
+                if (sampleParentsRemoved) {
+                    update.getParentIds().remove(sampleParentsRemoved.map(c => new SampleIdentifier(c)));
+                }
+                var sampleChildrenAdded = parameters["sampleChildrenAdded"];
+                if (sampleChildrenAdded) {
+                    update.getChildIds().add(sampleChildrenAdded.map(c => new SampleIdentifier(c)));
                 }
                 var sampleChildrenRemoved = parameters["sampleChildrenRemoved"];
                 if (sampleChildrenRemoved) {
