@@ -70,7 +70,7 @@ public class XLSExport
 
     public static final String METADATA_FILE_NAME = "metadata" + XLSX_EXTENSION;
 
-    public static final String XLS_DIRECTORY = "xls";
+    public static final String XLSX_DIRECTORY = "xlsx";
 
     private static final String PYTHON_EXTENSION = ".py";
 
@@ -93,9 +93,9 @@ public class XLSExport
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final String fullFileName = String.format("%s/%s", XLS_DIRECTORY, METADATA_FILE_NAME);
+        final String fullFileName = String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME);
         final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File xlsDirectory = createDirectory(sessionWorkspace, XLS_DIRECTORY);
+        final File xlsDirectory = createDirectory(sessionWorkspace, XLSX_DIRECTORY);
 
         try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
         {

@@ -52,7 +52,6 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -180,10 +179,10 @@ public class ExportTest extends AbstractTest
         processPermIds(permIds);
 
         final ExportData exportData = new ExportData(permIds, fields);
-        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLS), xlsTextFormat, withReferredTypes, withImportCompatibility);
+        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), xlsTextFormat, withReferredTypes, withImportCompatibility);
 
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
-        final String xlsDirectory = String.format("%s/%s", exportResult.getDownloadURL(), XLSExport.XLS_DIRECTORY);
+        final String xlsDirectory = String.format("%s/%s", exportResult.getDownloadURL(), XLSExport.XLSX_DIRECTORY);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName,
                 String.format("%s/%s", xlsDirectory, expectedResultFileName.endsWith(XLSX_EXTENSION) ? METADATA_FILE_NAME : ""));

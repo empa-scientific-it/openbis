@@ -22,7 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum ExportFormat
 {
 
-    XLS,
+    XLSX,
 
     PDF,
 

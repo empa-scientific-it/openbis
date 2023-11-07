@@ -85,7 +85,7 @@ public class ExportExecutor implements IExportExecutor
             final Set<ExportFormat> formats = exportOptions.getFormats();
             final String sessionToken = context.getSession().getSessionToken();
 
-            if (formats.contains(ExportFormat.XLS))
+            if (formats.contains(ExportFormat.XLSX))
             {
                 return doXlsExport(sessionToken, exportData, exportOptions);
             } else
