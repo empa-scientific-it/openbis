@@ -63,7 +63,7 @@ public class ExportData
             // All fields
             {
                     // Non-existing sample
-                    "empty.xlsx",
+                    "empty-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -72,7 +72,7 @@ public class ExportData
             },
             {
                     // Space: TEST-SPACE
-                    "export-space.xlsx",
+                    "export-space-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -81,7 +81,7 @@ public class ExportData
             },
             {
                     // Project: TEST-PROJECT
-                    "export-project.xlsx",
+                    "export-project-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -90,7 +90,7 @@ public class ExportData
             },
             {
                     // Experiment: EXP-SPACE-TEST
-                    "export-experiment.xlsx",
+                    "export-experiment-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -99,7 +99,7 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample.xlsx",
+                    "export-sample-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -108,7 +108,7 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-compatible-with-import.xlsx",
+                    "export-sample-compatible-with-import-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -117,9 +117,8 @@ public class ExportData
             },
             {
                     // Data set: "ROOT_CONTAINER"
-                    "export-data-set.xlsx",
-                    List.of(new ExportablePermId(
-                            ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
+                    "export-data-set-xlsx.zip",
+                    List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
@@ -127,7 +126,7 @@ public class ExportData
             },
             {
                     // Sample Type: CELL_PLATE
-                    "export-sample-type.xlsx",
+                    "export-sample-type-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -136,7 +135,7 @@ public class ExportData
             },
             {
                     // Sample Type: CELL_PLATE
-                    "export-sample-type-with-referred-types",
+                    "export-sample-type-with-referred-types-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -145,7 +144,7 @@ public class ExportData
             },
             {
                     // Experiment Type: SIRNA_HCS
-                    "export-experiment-type.xlsx",
+                    "export-experiment-type-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -154,7 +153,7 @@ public class ExportData
             },
             {
                     // Dataset Type: HCS_IMAGE
-                    "export-data-set-type.xlsx",
+                    "export-data-set-type-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -165,7 +164,7 @@ public class ExportData
             // Selected fields
             {
                     // Space: TEST-SPACE
-                    "export-space-filtered-attributes.xlsx",
+                    "export-space-filtered-attributes-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
                     new SelectedFields(List.of(CODE, REGISTRATOR, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
@@ -174,7 +173,7 @@ public class ExportData
             },
             {
                     // Project: TEST-PROJECT
-                    "export-project-filtered-fields.xlsx",
+                    "export-project-filtered-fields-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
                     new SelectedFields(
                             List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, SPACE, DESCRIPTION),
@@ -185,7 +184,7 @@ public class ExportData
             },
             {
                     // Experiment: EXP-SPACE-TEST
-                    "export-experiment-filtered-fields.xlsx",
+                    "export-experiment-filtered-fields-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
@@ -196,9 +195,8 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-filtered-fields.xlsx",
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE,
-                            new SamplePermId("201206191219327-1054"))),
+                    "export-sample-filtered-fields-xlsx.zip",
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
@@ -208,7 +206,7 @@ public class ExportData
             },
             {
                     // Data set: "20081105092159188-3", type: "HCS_IMAGE"
-                    "export-data-set-filtered-fields.xlsx",
+                    "export-data-set-filtered-fields-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("20081105092159188-3"))),
                     new SelectedFields(
                             List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, PARENTS, CHILDREN, STORAGE_CONFIRMATION, PRESENT_IN_ARCHIVE,
@@ -220,7 +218,7 @@ public class ExportData
             },
             {
                     // Sample Type: CELL_PLATE
-                    "export-sample-type-filtered-attributes.xlsx",
+                    "export-sample-type-filtered-attributes-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new SelectedFields(List.of(CODE, AUTO_GENERATE_CODES, DESCRIPTION, GENERATED_CODE_PREFIX, UNIQUE_SUBCODES), List.of()),
                     XlsTextFormat.PLAIN,
@@ -229,7 +227,7 @@ public class ExportData
             },
             {
                     // Experiment Type: SIRNA_HCS
-                    "export-experiment-type-filtered-attributes.xlsx",
+                    "export-experiment-type-filtered-attributes-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
                     new SelectedFields(List.of(DESCRIPTION, CODE, MODIFICATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
@@ -238,7 +236,7 @@ public class ExportData
             },
             {
                     // Dataset Type: HCS_IMAGE
-                    "export-data-set-type-filtered-attributes.xlsx",
+                    "export-data-set-type-filtered-attributes-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
                     new SelectedFields(List.of(CODE, DISALLOW_DELETION, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
@@ -247,7 +245,7 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-plain-text.xlsx",
+                    "export-sample-plain-text-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
@@ -256,16 +254,7 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-rich-text.xlsx",
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
-                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
-                    XlsTextFormat.RICH,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-rich-text.xlsx",
+                    "export-sample-rich-text-xlsx.zip",
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,

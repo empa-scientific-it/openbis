@@ -86,8 +86,6 @@ public class ExportTest extends AbstractTest
 
     private static final String EXPORT_DATA_PROVIDER = "xlsExportData";
 
-    private static final String ZIPPED_EXPORT_FILE_NAME = METADATA_FILE_PREFIX + XLSX_EXTENSION;
-
     private static final String PLAIN_TEXT_VALUE = "Rich format test";
 
     private static final String RICH_TEXT_VALUE = String.format("<b>%s</b>", PLAIN_TEXT_VALUE);
@@ -182,10 +180,8 @@ public class ExportTest extends AbstractTest
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), xlsTextFormat, withReferredTypes, withImportCompatibility);
 
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
-        final String xlsDirectory = String.format("%s/%s", exportResult.getDownloadURL(), XLSExport.XLSX_DIRECTORY);
 
-        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName,
-                String.format("%s/%s", xlsDirectory, expectedResultFileName.endsWith(XLSX_EXTENSION) ? METADATA_FILE_NAME : ""));
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
     }
 
     /**
@@ -207,7 +203,7 @@ public class ExportTest extends AbstractTest
     private void compareFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
     {
         final URL expectedResultUrl = getClass().getClassLoader().getResource(expectedResultFilePath);
-        assertNotNull(expectedResultUrl);
+        assertNotNull(expectedResultUrl, String.format("Expected result file path produces null URL: %s.", expectedResultFilePath));
 
         final File expectedResultFile;
         try
@@ -217,13 +213,13 @@ public class ExportTest extends AbstractTest
         {
             throw new RuntimeException(e);
         }
-        assertTrue(expectedResultFile.exists());
-
-        final File actualResultFile = new File(actualResultFilePath);
-        assertTrue(actualResultFile.exists());
+        assertTrue(expectedResultFile.exists(), String.format("Expected result file does not exist: %s.", expectedResultUrl.getPath()));
 
         if (expectedResultFile.isDirectory())
         {
+            final File actualResultFile = getActualFile(actualResultFilePath);
+            assertTrue(actualResultFile.exists(), String.format("Actual result file does not exist: %s.", actualResultFilePath));
+
             assertTrue(actualResultFile.isDirectory());
             compareDirectories(expectedResultFile, actualResultFile);
         } else if (expectedResultFilePath.endsWith(XLSX_EXTENSION) && actualResultFilePath.endsWith(XLSX_EXTENSION))
@@ -246,7 +242,7 @@ public class ExportTest extends AbstractTest
         {
             throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
         }
-        compareXlsxStreams(expectedResultStream, new FileInputStream(actualResultFilePath));
+        compareXlsxStreams(expectedResultStream, new FileInputStream(getActualFile(actualResultFilePath)));
     }
 
     private void compareZipFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
@@ -267,11 +263,11 @@ public class ExportTest extends AbstractTest
 
             for (final String expectedZipEntry : expectedZipEntries)
             {
-                if (expectedZipEntry.equals(ZIPPED_EXPORT_FILE_NAME))
+                if (expectedZipEntry.endsWith(XLSX_EXTENSION))
                 {
                     try (
-                            final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(ZIPPED_EXPORT_FILE_NAME));
-                            final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(ZIPPED_EXPORT_FILE_NAME));
+                            final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(expectedZipEntry));
+                            final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(expectedZipEntry));
                     )
                     {
                         compareXlsxStreams(expectedInputStream, actualInputStream);
@@ -375,7 +371,6 @@ public class ExportTest extends AbstractTest
 
         final File file = files[0];
 
-        assertTrue(file.getName().startsWith(METADATA_FILE_PREFIX + "."));
         return file;
     }
 

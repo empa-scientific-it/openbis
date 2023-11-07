@@ -19,7 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.exportExploded;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.exportZipped;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -141,7 +141,7 @@ public class ExportExecutor implements IExportExecutor
             exportFields = null;
         }
 
-        final ExportResult exportResult = exportExploded(applicationServerApi, sessionToken,
+        final ExportResult exportResult = exportZipped(applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
 

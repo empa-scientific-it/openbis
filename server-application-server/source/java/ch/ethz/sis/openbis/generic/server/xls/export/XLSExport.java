@@ -68,6 +68,8 @@ public class XLSExport
 
     public static final String ZIP_EXTENSION = ".zip";
 
+    public static final String EXPORT_FILE_PREFIX = "export";
+
     public static final String METADATA_FILE_NAME = "metadata" + XLSX_EXTENSION;
 
     public static final String XLSX_DIRECTORY = "xlsx";
@@ -83,7 +85,7 @@ public class XLSExport
         throw new UnsupportedOperationException("Instantiation of a utility class.");
     }
 
-    public static ExportResult exportExploded(final IApplicationServerApi api,
+    public static ExportResult exportZipped(final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
@@ -93,32 +95,38 @@ public class XLSExport
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final String fullFileName = String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME);
-        final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File xlsDirectory = createDirectory(sessionWorkspace, XLSX_DIRECTORY);
 
-        try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
-        {
-            writeToOutputStream(os, null, exportResult, Map.of());
-        }
+        final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
+                ZIP_EXTENSION);
 
-        if (!scripts.isEmpty())
+        try
+                (
+                        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
+                        final Workbook wb = exportResult.getWorkbook();
+                        final ZipOutputStream zos = new ZipOutputStream(os);
+                        final BufferedOutputStream bos = new BufferedOutputStream(zos)
+                )
         {
-            final File scriptsDirectory = createDirectory(xlsDirectory, SCRIPTS_DIRECTORY);
+            zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
+
+            if (!scripts.isEmpty())
+            {
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
+            }
 
             for (final Map.Entry<String, String> script : scripts.entrySet())
             {
-                try (
-                        final FileOutputStream os = new FileOutputStream(new File(scriptsDirectory, script.getKey() + PYTHON_EXTENSION));
-                        final BufferedOutputStream bos = new BufferedOutputStream(os)
-                )
-                {
-                    bos.write(script.getValue().getBytes());
-                }
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
+                bos.write(script.getValue().getBytes());
+                bos.flush();
+                zos.closeEntry();
             }
+
+            zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
+            wb.write(bos);
         }
 
-        return new ExportResult(sessionWorkspace.getAbsolutePath(), exportResult.getWarnings());
+        return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 
     private static File createDirectory(final File parentDirectory, final String directoryName) throws IOException
