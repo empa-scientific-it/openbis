@@ -160,14 +160,14 @@ public class ExportExecutor implements IExportExecutor
             exportFields = null;
         }
 
-        final ExportResult exportResult = exportZipped(applicationServerApi, sessionToken,
+        final ExportResult exportResult = exportXls(applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
 
         return exportResult;
     }
 
-    private static ExportResult exportZipped(final IApplicationServerApi api,
+    private static ExportResult exportXls(final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
@@ -209,6 +209,16 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return new ExportResult(fullFileName, exportResult.getWarnings());
+    }
+
+    private static ExportResult exportPdf(final IApplicationServerApi api,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
+            final boolean exportReferredMasterData,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
+    {
+        // TODO: implement.
+        return null;
     }
 
     private File getActualFile(final String sessionToken, final String actualResultFilePath)
