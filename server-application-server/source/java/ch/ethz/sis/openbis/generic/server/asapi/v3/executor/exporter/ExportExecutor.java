@@ -18,16 +18,21 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.SCRIPTS_DIRECTORY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.exportZipped;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -35,11 +40,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
@@ -52,6 +61,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
@@ -63,6 +73,12 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String METADATA_FILE_PREFIX = "metadata";
 
+    public static final String EXPORT_FILE_PREFIX = "export";
+
+    public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
+
+    public static final String XLSX_DIRECTORY = "xlsx";
+
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
     private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
@@ -72,6 +88,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Set<ExportableKind> TYPE_EXPORTABLE_KINDS = EnumSet.of(ExportableKind.SAMPLE_TYPE, ExportableKind.EXPERIMENT_TYPE,
             ExportableKind.DATASET_TYPE, ExportableKind.VOCABULARY_TYPE, ExportableKind.SPACE, ExportableKind.PROJECT);
+
+    private static final String PYTHON_EXTENSION = ".py";
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
@@ -85,6 +103,7 @@ public class ExportExecutor implements IExportExecutor
             final Set<ExportFormat> formats = exportOptions.getFormats();
             final String sessionToken = context.getSession().getSessionToken();
 
+            // TODO: combination of results is also possible, so combine them afterwards
             if (formats.contains(ExportFormat.XLSX))
             {
                 return doXlsExport(sessionToken, exportData, exportOptions);
@@ -146,6 +165,50 @@ public class ExportExecutor implements IExportExecutor
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
 
         return exportResult;
+    }
+
+    private static ExportResult exportZipped(final IApplicationServerApi api,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
+            final boolean exportReferredMasterData,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
+    {
+        final XLSExport.PrepareWorkbookResult exportResult = XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds,
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
+        final Map<String, String> scripts = exportResult.getScripts();
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+
+        final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
+                ZIP_EXTENSION);
+
+        try
+                (
+                        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
+                        final Workbook wb = exportResult.getWorkbook();
+                        final ZipOutputStream zos = new ZipOutputStream(os);
+                        final BufferedOutputStream bos = new BufferedOutputStream(zos)
+                )
+        {
+            zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
+
+            if (!scripts.isEmpty())
+            {
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
+            }
+
+            for (final Map.Entry<String, String> script : scripts.entrySet())
+            {
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
+                bos.write(script.getValue().getBytes());
+                bos.flush();
+                zos.closeEntry();
+            }
+
+            zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
+            wb.write(bos);
+        }
+
+        return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 
     private File getActualFile(final String sessionToken, final String actualResultFilePath)
