@@ -30,13 +30,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
+import java.util.Base64;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,17 +49,52 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.TreeNode;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
@@ -81,6 +120,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
+
     private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
             Map.of(ExportableKind.SAMPLE, new SampleExportFieldsFinder(),
                     ExportableKind.EXPERIMENT, new ExperimentExportFieldsFinder(),
@@ -90,6 +131,18 @@ public class ExportExecutor implements IExportExecutor
             ExportableKind.DATASET_TYPE, ExportableKind.VOCABULARY_TYPE, ExportableKind.SPACE, ExportableKind.PROJECT);
 
     private static final String PYTHON_EXTENSION = ".py";
+
+    private static final String COMMON_STYLE = "border: 1px solid black;";
+
+    private static final String TABLE_STYLE = COMMON_STYLE + " border-collapse: collapse;";
+
+    private static final String DATA_TAG_START = "<DATA>";
+
+    private static final int DATA_TAG_START_LENGTH = DATA_TAG_START.length();
+
+    private static final String DATA_TAG_END = "</DATA>";
+
+    private static final int DATA_TAG_END_LENGTH = DATA_TAG_END.length();
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
@@ -219,6 +272,215 @@ public class ExportExecutor implements IExportExecutor
     {
         // TODO: implement.
         return null;
+    }
+
+    private static String getHtml(final String sessionToken, final ICodeHolder entityObj) throws IOException
+    {
+        final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
+
+        final DocumentBuilder documentBuilder = new DocumentBuilder();
+        documentBuilder.addTitle(entityObj.getCode());
+        documentBuilder.addHeader("Identification Info");
+
+        final IEntityType typeObj;
+        if (entityObj instanceof Experiment)
+        {
+            documentBuilder.addProperty("Kind", "Experiment");
+            final ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
+            searchCriteria.withCode().thatEquals(((Experiment) entityObj).getType().getCode());
+            final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
+            fetchOptions.withPropertyAssignments().withPropertyType();
+            final SearchResult<ExperimentType> results = v3.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+            typeObj = results.getObjects().get(0);
+        } else if (entityObj instanceof Sample)
+        {
+            documentBuilder.addProperty("Kind", "Sample");
+            final SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
+            searchCriteria.withCode().thatEquals(((Sample) entityObj).getType().getCode());
+            final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
+            fetchOptions.withPropertyAssignments().withPropertyType();
+            final SearchResult<SampleType> results = v3.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+            typeObj = results.getObjects().get(0);
+        } else if (entityObj instanceof DataSet)
+        {
+            final DataSet dataSet = (DataSet) entityObj;
+            documentBuilder.addProperty("Kind", "DataSet");
+            final DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
+            searchCriteria.withCode().thatEquals(dataSet.getType().getCode());
+            final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
+            fetchOptions.withPropertyAssignments().withPropertyType();
+            final SearchResult<DataSetType> results = v3.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+            typeObj = results.getObjects().get(0);
+        } else
+        {
+            typeObj = null;
+        }
+
+        if (entityObj instanceof Project)
+        {
+            documentBuilder.addProperty("Kind", "Project");
+        } else
+        {
+            documentBuilder.addProperty("Type", ((IEntityTypeHolder) entityObj).getType().getCode());
+        }
+
+        if (entityObj instanceof IRegistratorHolder)
+        {
+            documentBuilder.addProperty("Registrator", ((IRegistratorHolder) entityObj).getRegistrator().getUserId());
+        }
+
+        if (entityObj instanceof IRegistrationDateHolder)
+        {
+            documentBuilder.addProperty("Registration Date", String.valueOf(((IRegistrationDateHolder) entityObj).getRegistrationDate()));
+        }
+
+        if (entityObj instanceof IModifierHolder)
+        {
+            documentBuilder.addProperty("Modifier", ((IModifierHolder) entityObj).getModifier().getUserId());
+        }
+
+        if (entityObj instanceof IModificationDateHolder)
+        {
+            documentBuilder.addProperty("Modification Date", String.valueOf(((IModificationDateHolder) entityObj).getModificationDate()));
+        }
+
+        if (entityObj instanceof Project)
+        {
+            final String description = ((Project) entityObj).getDescription();
+            if (description != null)
+            {
+                documentBuilder.addHeader("Description");
+                documentBuilder.addParagraph(description);
+            }
+        }
+
+        if (entityObj instanceof IParentChildrenHolder<?>)
+        {
+            final IParentChildrenHolder<?> parentChildrenHolder = (IParentChildrenHolder<?>) entityObj;
+            documentBuilder.addHeader("Parents");
+            final List<?> parents = parentChildrenHolder.getParents();
+            for (final Object parent : parents)
+            {
+                final String relCodeName = ((ICodeHolder) parent).getCode();
+                final Map<String, Serializable> properties = ((IPropertiesHolder) parent).getProperties();
+                if (properties.containsKey("NAME"))
+                {
+                    documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
+                }
+            }
+
+            documentBuilder.addHeader("Children");
+            final List<?> children = parentChildrenHolder.getChildren();
+            for (final Object child : children)
+            {
+                final String relCodeName = ((ICodeHolder) child).getCode();
+                final Map<String, Serializable> properties = ((IPropertiesHolder) child).getProperties();
+                if (properties.containsKey("NAME"))
+                {
+                    documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
+                }
+            }
+        }
+
+        if (entityObj instanceof IPropertiesHolder)
+        {
+            documentBuilder.addHeader("Properties");
+            if (typeObj != null)
+            {
+                final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
+                if (propertyAssignments != null)
+                {
+                    final Map<String, Serializable> properties = ((IPropertiesHolder) entityObj).getProperties();
+                    for (final PropertyAssignment propertyAssignment : propertyAssignments)
+                    {
+                        final PropertyType propertyType = propertyAssignment.getPropertyType();
+                        if (properties.containsKey(propertyType.getCode()))
+                        {
+                            final StringBuilder propertyValue = new StringBuilder(String.valueOf(properties.get(propertyType.getCode())));
+                            if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
+                                    Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
+                            {
+                                final Document doc = Jsoup.parse(propertyValue.toString());
+                                final Elements imageElements = doc.select("img");
+                                for (final Element imageElement : imageElements)
+                                {
+                                    final String imageSrc = imageElement.attr("src");
+                                    replaceAll(propertyValue, imageSrc, // TODO: find out the server URL
+                                            /*ApplicationServer.getConfigParameters().getServerURL() +*/ imageSrc + "?sessionID=" + sessionToken);
+                                }
+                            }
+
+                            final String propertyValueString = propertyValue.toString();
+                            if (propertyType.getDataType() == DataType.XML
+                                    && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
+                                    && propertyValueString.toUpperCase().startsWith(DATA_TAG_START) && propertyValueString.toUpperCase()
+                                    .endsWith(DATA_TAG_END))
+                            {
+                                final String subString = propertyValue.substring(DATA_TAG_START_LENGTH, propertyValue.length() - DATA_TAG_END_LENGTH);
+                                final String decodedString = new String(Base64.getDecoder().decode(subString), StandardCharsets.UTF_8);
+
+                                try (final JsonParser jsonParser = JSON_FACTORY.createParser(decodedString))
+                                {
+                                    final String htmlValue = convertJsonToHtml(jsonParser.readValueAsTree());
+
+                                    if (!Objects.equals(htmlValue, "\uFFFD(undefined)"))
+                                    {
+                                        documentBuilder.addProperty(propertyType.getLabel(), htmlValue);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return documentBuilder.getHtml();
+    }
+
+    private static String convertJsonToHtml(final TreeNode node) throws IOException
+    {
+        final TreeNode data = node.get("data");
+        final TreeNode styles = node.get("style");
+
+        final StringBuilder tableBody = new StringBuilder();
+        for (int i = 0; i < data.size(); i++)
+        {
+            final TreeNode dataRow = data.get(i);
+            tableBody.append("<tr>\n");
+            for (int j = 0; j < dataRow.size(); j++)
+            {
+                final String stylesKey = convertNumericToAlphanumeric(i, j);
+                final String style = ((TextNode) styles.get(stylesKey)).text();
+                final TextNode cell = (TextNode) dataRow.get(j);
+                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.text()).append(" </td>\n");
+            }
+            tableBody.append("</tr>\n");
+        }
+        return String.format("<table style='%s'>\n%s\n%s", TABLE_STYLE, tableBody, "</table>");
+    }
+
+    private static String convertNumericToAlphanumeric(final int row, final int col)
+    {
+        final int aCharCode = (int) 'A';
+        final int ord0 = col % 26;
+        final int ord1 = col / 26;
+        final char char0 = (char) (aCharCode + ord0);
+        final char char1 = (char) (aCharCode + ord1 - 1);
+        return String.valueOf(ord1 > 0 ? char1 : "") + char0 + (row + 1);
+    }
+
+    private static void replaceAll(final StringBuilder sb, final String target, final String replacement)
+    {
+        // Start index for the first search
+        int startIndex = sb.indexOf(target);
+        while (startIndex != -1)
+        {
+            final int endIndex = startIndex + target.length();
+            sb.replace(startIndex, endIndex, replacement);
+            // Update the start index for the next search
+            startIndex = sb.indexOf(target, startIndex + replacement.length());
+        }
     }
 
     private File getActualFile(final String sessionToken, final String actualResultFilePath)
