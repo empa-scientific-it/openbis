@@ -332,11 +332,38 @@ class spm:
                 show_params = params['show_params']
             else:
                 show_params = False
-                
+
             if 'show' in params:
                 show = params['show']
             else:
                 show = True
+
+            # PREMISE - specific params
+
+            if 'hide' in params:
+                hide = params['hide']
+            else:
+                hide = False
+
+            if 'color_scale' in params:
+                color_scale = params['color_scale']
+            else:
+                color_scale = False
+
+            if 'x_axis' in params:
+                x_axis = params['x_axis']
+            else:
+                x_axis = False
+
+            if 'y_axis' in params:
+                y_axis = params['y_axis']
+            else:
+                y_axis = False
+
+            if 'colormap_scaling' in params:
+                colormap_scaling = params['colormap_scaling']
+            else:
+                colormap_scaling = False
                 
                 
             
@@ -348,41 +375,83 @@ class spm:
             width = self.get_param('width')
             height = self.get_param('height')
             pix_y,pix_x = np.shape(chData)
-            
+
+            # fig = plt.figure(figsize=(6, 4))
             fig = plt.figure()#figsize=(6,4))
-            
+
             
             ImgOrigin = 'lower'
             if self.get_param('scan_dir') == 'down':
                 ImgOrigin = 'upper'
-            
-            
+
+            if color_scale:
+                chData = np.clip(chData, color_scale[0], color_scale[1])
+
+            if x_axis and y_axis:
+                plt.ylim(y_axis[0], y_axis[1])
+                plt.xlim(x_axis[0], x_axis[1])
+                # plt.axis([x_axis[0], x_axis[1], y_axis[0], y_axis[1]])
+
+            plot_params = dict(
+                X = np.abs(chData) if log else chData,
+                aspect = 'equal',
+                extent = [0,width[0],0,height[0]],
+                cmap = cmap,
+                origin = ImgOrigin,
+                interpolation = 'none'
+            )
             if log:
-                im = plt.imshow(np.abs(chData), aspect = 'equal', extent = [0,width[0],0,height[0]], cmap = cmap, norm=LogNorm(), origin = ImgOrigin)
-            else:
-                im = plt.imshow(chData, aspect = 'equal',extent = [0,width[0],0,height[0]], cmap = cmap, origin = ImgOrigin)
+                plot_params['norm'] = LogNorm()
+
+            if colormap_scaling:
+                min_x = x_axis[0]
+                max_x = x_axis[1]
+                min_y = y_axis[0]
+                max_y = y_axis[1]
+
+                shape = chData.shape
+                minx = int(np.floor(shape[0] * min_x / width[0]))
+                maxx = int(np.ceil(shape[0] * max_x / width[0]))
+                miny = int(np.floor(shape[1] * min_y / height[0]))
+                maxy = int(np.ceil(shape[1] * max_y / height[0]))
+
+                mini = np.min(chData[minx:maxx, miny:maxy])
+                maxi = np.max(chData[minx:maxx, miny:maxy])
+
+                mini = int(mini*100)/100
+                maxi = int(maxi*100)/100
+                plot_params['vmin'] = mini
+                plot_params['vmax'] = maxi
+
+            im = plt.imshow(**plot_params)
+
+            # if log:
+            #     im = plt.imshow(np.abs(chData), aspect = 'equal', extent = [0,width[0],0,height[0]], cmap = cmap, norm=LogNorm(), origin = ImgOrigin)
+            # else:
+            #     im = plt.imshow(chData, aspect = 'equal',extent = [0,width[0],0,height[0]], cmap = cmap, origin = ImgOrigin)
             
             
             if clim:
                 plt.clim(clim)
                 
             
-            im.axes.set_xticks([0,width[0]])
-            im.axes.set_xticklabels([0,np.round(width[0],2)])
-            im.axes.set_yticks([0,height[0]])
-            im.axes.set_yticklabels([0,np.round(height[0],2)])
+            # im.axes.set_xticks([0,width[0]])
+            # im.axes.set_xticklabels([0,np.round(width[0],2)])
+            # im.axes.set_yticks([0,height[0]])
+            # im.axes.set_yticklabels([0,np.round(height[0],2)])
             
             if show_params:
                 title = self.print_params(show = False);
             else:
                 title = self.path  
-                
-            # plt.title(title + '\n', loc='left')
-            # plt.xlabel('x (%s)' % width[1])
-            # plt.ylabel('y (%s)' % height[1])
-            
-            # cbar = plt.colorbar(im,fraction=0.046, pad=0.02, format='%.2g',shrink = 0.5,aspect=10)
-            # cbar.set_label('%s (%s)' % (channel,chUnit))
+
+            if not hide:
+                # plt.title(title + '\n', loc='left')
+                plt.xlabel('x (%s)' % width[1])
+                plt.ylabel('y (%s)' % height[1])
+                print(f'AXES={im.axes}')
+                cbar = plt.colorbar(im)#,fraction=0.046, pad=0.02, format='%.2g',shrink = 0.5,aspect=10)
+                cbar.set_label('channel:%s (%s)' % (channel,chUnit))
             
             if show:
                 plt.show()
@@ -561,17 +630,61 @@ def specs_plot(specs,**params):
     else:
         offset = 0
 
-    
+    # PREMISE specific
+    if 'show' in params:
+        show = params['show']
+    else:
+        show = True
+
+    if 'colormap' in params:
+        colormap = params['colormap']
+        cmap = plt.get_cmap(colormap)
+        color = cmap(np.linspace(0,1,len(specs)))
+    else:
+        colormap = False
+
+    if 'scaling' in params:
+        scaling = params['scaling']
+    else:
+        scaling = False
+
+    if 'x_axis' in params:
+        x_axis = params['x_axis']
+    else:
+        x_axis = False
+
+    if 'y_axis' in params:
+        y_axis = params['y_axis']
+    else:
+        y_axis = False
+    #######
+
     fig = plt.figure(figsize=(6,4))
 
     counter = 0
-    for (s,c) in zip(specs,color):
+    for (s, c) in zip(specs, color):
         
-        (x_data,x_unit) = s.get_channel(channelx,direction=direction)
-        (y_data,y_unit) = s.get_channel(channely,direction=direction)
-        
-        
-        plt.plot(x_data,y_data+counter*offset,color = c,label = s.name)
+        (x_data, x_unit) = s.get_channel(channelx, direction=direction)
+        if x_axis:
+            x_data = np.clip(x_data, x_axis[0], x_axis[1])
+
+        (y_data, y_unit) = s.get_channel(channely, direction=direction)
+        if y_axis:
+            y_data = np.clip(y_data, y_axis[0], y_axis[1])
+
+        if scaling:
+            if scaling == 'lin-lin':
+                plt.plot(x_data, y_data, color=c, label=s.name)
+            elif scaling == "lin-log":
+                plt.semilogy(x_data, np.abs(y_data), color=c, label=s.name)
+            elif scaling == 'log-lin':
+                plt.semilogx(np.abs(x_data), y_data, color=c, label=s.name)
+            elif scaling == 'log-log':
+                plt.loglog(np.abs(x_data), np.abs(y_data), color=c, label=s.name)
+            else:
+                plt.plot(x_data, y_data, color=c, label=s.name)
+        else:
+            plt.plot(x_data,y_data+counter*offset,color = c,label = s.name)
         counter = counter + 1
     
     plt.xlabel('%s (%s)' % (channelx,x_unit))
@@ -579,8 +692,9 @@ def specs_plot(specs,**params):
     
     if print_legend:
         plt.legend()
-    
-    plt.show()
+
+    if show:
+        plt.show()
     
     return fig
 

@@ -38,11 +38,11 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
 
     @Override
     public Serializable process(ImagingServiceContext context, File rootFile,
-            Map<String, Serializable> previewConfig, Map<String, String> metaData)
+            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
     {
 
         ProcessBuilder processBuilder = new ProcessBuilder(pythonPath,
-                scriptPath, rootFile.getAbsolutePath(), convertMapToJson(previewConfig), convertMapToJson(metaData));
+                scriptPath, rootFile.getAbsolutePath(), convertMapToJson(previewConfig), convertMapToJson(metaData), format);
         processBuilder.redirectErrorStream(false);
 
         String fullOutput;
@@ -63,9 +63,6 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
         }
 
         String[] resultSplit = fullOutput.split("\n");
-//        for(int i=0;i< resultSplit.length;i++) {
-//            System.out.println("||> " + resultSplit[i].substring(0, Math.min(resultSplit[i].length(), 1000)));
-//        }
         return resultSplit[resultSplit.length-1];
     }
 

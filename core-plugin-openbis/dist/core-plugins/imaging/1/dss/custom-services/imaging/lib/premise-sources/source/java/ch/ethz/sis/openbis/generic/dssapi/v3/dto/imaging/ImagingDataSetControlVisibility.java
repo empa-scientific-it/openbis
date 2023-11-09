@@ -23,36 +23,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-@JsonObject("dss.dto.imaging.ImagingDataSetControl")
-public class ImagingDataSetControl implements Serializable
+@JsonObject("dss.dto.imaging.ImagingDataSetControlVisibility")
+public class ImagingDataSetControlVisibility implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
     private String label;
-
-    @JsonProperty
-    private String type;
-
     @JsonProperty
     private List<String> values;
-
     @JsonProperty
-    private List<Integer> range;
-
+    private List<String> range;
     @JsonProperty
-    private boolean multiselect;
-
-    @JsonProperty
-    private Boolean playable;
-
-    @JsonProperty
-    private List<Integer> speeds;
-
-    @JsonProperty
-    private Map<String, String> metaData;
+    private String unit;
 
     @JsonIgnore
     public String getLabel()
@@ -64,18 +48,6 @@ public class ImagingDataSetControl implements Serializable
     {
         this.label = label;
     }
-
-    @JsonIgnore
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
     @JsonIgnore
     public List<String> getValues()
     {
@@ -86,65 +58,31 @@ public class ImagingDataSetControl implements Serializable
     {
         this.values = values;
     }
-
     @JsonIgnore
-    public boolean isMultiselect()
-    {
-        return multiselect;
-    }
-
-    public void setMultiselect(boolean multiselect)
-    {
-        this.multiselect = multiselect;
-    }
-
-    @JsonIgnore
-    public Boolean getPlayable()
-    {
-        return playable;
-    }
-
-    public void setPlayable(Boolean playable)
-    {
-        this.playable = playable;
-    }
-
-    @JsonIgnore
-    public List<Integer> getSpeeds()
-    {
-        return speeds;
-    }
-
-    public void setSpeeds(List<Integer> speeds)
-    {
-        this.speeds = speeds;
-    }
-
-    @JsonIgnore
-    public List<Integer> getRange()
+    public List<String> getRange()
     {
         return range;
     }
 
-    public void setRange(List<Integer> range)
+    public void setRange(List<String> range)
     {
         this.range = range;
     }
 
     @JsonIgnore
-    public Map<String, String> getMetaData()
+    public String getUnit()
     {
-        return metaData;
+        return unit;
     }
 
-    public void setMetaData(Map<String, String> metaData)
+    public void setUnit(String unit)
     {
-        this.metaData = metaData;
+        this.unit = unit;
     }
 
     @Override
     public String toString()
     {
-        return "ImagingDataSetControl: " + label;
+        return "ImagingDataSetControlVisibility: " + label;
     }
 }

@@ -8,6 +8,7 @@ import os
 import sys
 from spmpy_terry import spm   # <--- class spm defines objects of type spm with their attributes and class functions
 import spmpy_terry as spmpy   # <--- spmpy has other methods
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 # %matplotlib inline
@@ -32,6 +33,7 @@ def get_channel(img, channel_name = 'z'):
 file = sys.argv[1]
 params = json.loads(sys.argv[2])
 meta_data = json.loads(sys.argv[3])
+format = sys.argv[4]
 
 
 folder_dir = os.path.join(file, 'original')
@@ -43,43 +45,56 @@ def generate_random_image(height, width):
     imarray = numpy.random.rand(height,width,3) * 255
     im = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
     img_byte_arr = io.BytesIO()
-    im.save(img_byte_arr, format='PNG')
+    im.save(img_byte_arr, format=format)
     img_byte_arr = img_byte_arr.getvalue()
     encoded = base64.b64encode(img_byte_arr)
     return encoded
 
 
-def get_sxm_image():
-    img = load_image(file_path)
-    channel = get_channel(img, 'z')
-    img_byte_arr = io.BytesIO()
-    plt.imshow(channel[0])
-    plt.savefig(img_byte_arr, format="png")
-    # print(img.header)
-    img_byte_arr = img_byte_arr.getvalue()
-    encoded = base64.b64encode(img_byte_arr)
-    return encoded
+def get_dat_image(channel_x, channel_y, x_axis, y_axis, colormap, scaling, grouping, print_legend):
+    specs = spmpy.importall(folder_dir, '', 'spec')
 
+    for spec in specs:
+        date_time = spec.get_param('Saved Date')
+        spec.date_time = datetime.strptime(date_time, "%d.%m.%Y %H:%M:%S")
 
-def get_sxm_image2():
-    img = load_image(file_path)
-    channel = get_channel(img, 'z')[0]
+    # sort measurements according to date
+    specs.sort(key=lambda d: d.date_time)
+    specs_sub = list(filter(lambda spec:spec.name in grouping, specs))
 
-    min_val = numpy.min(channel)
-    max_val = numpy.max(channel)
-    scaled_data = (channel - min_val) / (max_val - min_val)
-    img = Image.fromarray(numpy.uint8(scaled_data * 255), 'L')
+    print_legend = print_legend
+    show = False
+    fig = spmpy.specs_plot(specs_sub, channelx=channel_x, channely=channel_y, direction='forward',
+                           print_legend=print_legend, show=show, colormap=colormap, scaling=scaling,
+                           x_axis=x_axis, y_axis=y_axis)
 
     img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
+    plt.savefig(img_byte_arr, format=format)
     img_byte_arr = img_byte_arr.getvalue()
     encoded = base64.b64encode(img_byte_arr)
     return encoded
+
+
+
+
 
 print(params)
 if params['mode'] == '1':
-    print(get_sxm_image())
-elif params['mode'] == '2':
-    print(get_sxm_image2())
-elif params['mode'] == '3':
     print(generate_random_image(640, 640))
+elif params['mode'] == '2':
+    parameters = dict(
+        channel_x=params['channel x'],
+        channel_y=params['channel y'],
+        x_axis=[float(x) for x in params['x-axis']],
+        y_axis=[float(x) for x in params['y-axis']],
+        colormap=params['colormap'],
+        scaling=params['scaling'],
+        grouping=params['grouping']
+    )
+    if "color" in params:
+        parameters['color'] = params['color']
+    if "print_legend" in params:
+        parameters['print_legend'] = params['print_legend'].upper() == "TRUE"
+    else:
+        parameters['print_legend'] = True
+    print(get_dat_image(**parameters))

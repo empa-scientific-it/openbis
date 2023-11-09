@@ -40,7 +40,8 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
         }
     }
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> previewConfig, Map<String, String> metaData)
+    public Serializable process(ImagingServiceContext context, File rootFile,
+            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
     {
         CustomDSSServiceExecutionOptions options = new CustomDSSServiceExecutionOptions();
         options.withParameter("sessionToken", context.getSessionToken());

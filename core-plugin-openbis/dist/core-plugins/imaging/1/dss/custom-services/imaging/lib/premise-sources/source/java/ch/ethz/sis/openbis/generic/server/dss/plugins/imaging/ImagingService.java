@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetConfig;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPropertyConfig;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.IImagingDataSetAdaptor;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -63,21 +65,17 @@ public class ImagingService implements ICustomDSSServiceExecutor
     private static final Logger
             operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImagingService.class);
 
-    private static final String SCRIPT_PATH = "script-path";
-
-    private String scriptPath;
 
     public ImagingService(Properties properties)
     {
         this.properties = properties;
-        this.scriptPath = PropertyUtils.getProperty(properties, SCRIPT_PATH);
     }
 
     @Override
     public Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options)
     {
-        operationLog.info("Executing service:" + serviceId);
+        operationLog.info("Executing imaging service:" + serviceId);
         ImagingDataContainer data = getDataFromParams(options.getParameters());
         try
         {
@@ -100,14 +98,21 @@ public class ImagingService implements ICustomDSSServiceExecutor
     {
         DataSet dataSet = getDataSet(sessionToken, data);
 
-        Config config =
-                readConfig(dataSet.getJsonProperty("$IMAGING_DATA_CONFIG"), Config.class);
-        final String adaptorName = config.config.getAdaptor();
+        ImagingDataSetPropertyConfig config =
+                readConfig(dataSet.getJsonProperty("$IMAGING_DATA_CONFIG"), ImagingDataSetPropertyConfig.class);
+        final String adaptorName = config.getConfig().getAdaptor();
 
-        IImagingDataSetAdaptor
-                adaptor =
-                ClassUtils.create(IImagingDataSetAdaptor.class, adaptorName, properties);
+        if(adaptorName == null || adaptorName.isBlank()) {
+            throw new UserFailureException("Adaptor name is missing from the config!");
+        }
 
+        IImagingDataSetAdaptor adaptor = null;
+        try
+        {
+            adaptor = ClassUtils.create(IImagingDataSetAdaptor.class, adaptorName, properties);
+        } catch(Exception e) {
+            throw new UserFailureException("Could not load adapter: " + adaptorName, e);
+        }
         IHierarchicalContent content =
                 getHierarchicalContentProvider(sessionToken).asContent(
                         dataSet.getPermId().getPermId());
@@ -116,12 +121,13 @@ public class ImagingService implements ICustomDSSServiceExecutor
         File rootFile = root.getFile();
         Map<String, Serializable> previewParams = data.getPreview().getConfig();
         Map<String, String> meta = data.getPreview().getMetaData();
+        String format = data.getPreview().getFormat();
 
         ImagingServiceContext context = new ImagingServiceContext(sessionToken, getApplicationServerApi(), getDataStoreServerApi());
 
         data.getPreview().setBytes(
                 adaptor.process(context,
-                        rootFile, previewParams, meta).toString());
+                        rootFile, previewParams, meta, format).toString());
         return data;
     }
 
@@ -175,6 +181,8 @@ public class ImagingService implements ICustomDSSServiceExecutor
             ObjectMapper objectMapper = getObjectMapper();
             return objectMapper.readValue(new ByteArrayInputStream(val.getBytes()),
                     clazz);
+        } catch (JsonMappingException mappingException) {
+            throw new UserFailureException(mappingException.toString(), mappingException);
         } catch (Exception e)
         {
             throw new UserFailureException("Could not read the parameters!", e);
@@ -208,38 +216,6 @@ public class ImagingService implements ICustomDSSServiceExecutor
             throw new UserFailureException("Could not find Dataset:" + data.getPermId());
         }
         return result.get(new DataSetPermId(data.getPermId()));
-    }
-
-    public static final class Config
-    {
-        @JsonProperty
-        ImagingDataSetConfig config;
-
-        @JsonProperty
-        List<ImagingDataSetImage> images;
-
-        @JsonIgnore
-        public ImagingDataSetConfig getConfig()
-        {
-            return config;
-        }
-
-        public void setConfig(ImagingDataSetConfig config)
-        {
-            this.config = config;
-        }
-
-        @JsonIgnore
-        public List<ImagingDataSetImage> getImages()
-        {
-            return images;
-        }
-
-        public void setImages(
-                List<ImagingDataSetImage> images)
-        {
-            this.images = images;
-        }
     }
 
     private void validateInputParams(Map<String, Object> params)
