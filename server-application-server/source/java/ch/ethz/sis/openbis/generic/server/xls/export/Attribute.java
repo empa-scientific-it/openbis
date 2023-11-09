@@ -84,9 +84,7 @@ public enum Attribute
 
     URL_TEMPLATE("URL Template", false, false, true),
 
-    VALIDATION_SCRIPT("Validation script", true, true, true),
-
-    VERSION("Version", true, true, false);
+    VALIDATION_SCRIPT("Validation script", true, true, true);
 
     final String name;
 

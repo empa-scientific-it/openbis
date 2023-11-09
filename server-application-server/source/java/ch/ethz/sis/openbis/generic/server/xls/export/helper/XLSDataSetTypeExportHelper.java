@@ -22,7 +22,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATTERN;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,8 +39,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelper<DataSetType>
 {
@@ -74,7 +71,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
     @Override
     protected Attribute[] getAttributes(final DataSetType entityType)
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT, MAIN_DATA_SET_PATTERN, MAIN_DATA_SET_PATH, DISALLOW_DELETION,
+        return new Attribute[] { CODE, DESCRIPTION, VALIDATION_SCRIPT, MAIN_DATA_SET_PATTERN, MAIN_DATA_SET_PATH, DISALLOW_DELETION,
                 MODIFICATION_DATE };
     }
 
@@ -83,10 +80,6 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
     {
         switch (attribute)
         {
-            case VERSION:
-            {
-                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.DATASET_TYPE, null, dataSetType.getCode()));
-            }
             case CODE:
             {
                 return dataSetType.getCode();

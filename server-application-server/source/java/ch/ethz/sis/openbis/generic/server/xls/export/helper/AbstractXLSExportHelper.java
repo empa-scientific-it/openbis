@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> implements IXLSExportHelper<ENTITY_TYPE>
 {
 
-    protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Mandatory",
+    protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
             "Metadata", "Dynamic script", "Multivalued" };
 
@@ -56,8 +56,6 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     public static final String FIELD_TYPE_KEY = "type";
 
     public static final String FIELD_ID_KEY = "id";
-
-    protected static final String INTERNAL_PROPERTY_PREFIX = "$";
 
     final Workbook wb;
     
@@ -127,7 +125,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                String kindDisplayName = null;
+                final String kindDisplayName;
                 if (exportableKind == ExportableKind.SAMPLE)
                 {
                     kindDisplayName = "OBJECT";

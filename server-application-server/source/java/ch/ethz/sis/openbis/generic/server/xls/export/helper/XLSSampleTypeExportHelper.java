@@ -22,7 +22,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.GENERATED_
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.UNIQUE_SUBCODES;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,8 +39,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper<SampleType>
 {
@@ -73,7 +70,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
     @Override
     protected Attribute[] getAttributes(final SampleType sampleType)
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, AUTO_GENERATE_CODES, VALIDATION_SCRIPT,
+        return new Attribute[] { CODE, DESCRIPTION, AUTO_GENERATE_CODES, VALIDATION_SCRIPT,
                 GENERATED_CODE_PREFIX, UNIQUE_SUBCODES, MODIFICATION_DATE };
     }
 
@@ -100,10 +97,6 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
             case GENERATED_CODE_PREFIX:
             {
                 return sampleType.getGeneratedCodePrefix();
-            }
-            case VERSION:
-            {
-                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.SAMPLE_TYPE, null, sampleType.getCode()));
             }
             case AUTO_GENERATE_CODES:
             {

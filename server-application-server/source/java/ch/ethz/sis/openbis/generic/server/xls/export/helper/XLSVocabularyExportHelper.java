@@ -15,7 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.valueOf;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,24 +48,15 @@ import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
-    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Label", "Description" };
-
-    protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
+    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Label", "Description" };
 
     public XLSVocabularyExportHelper(final Workbook wb)
     {
         super(wb);
-    }
-
-    public static void setAllVersions(final Map<String, Integer> allVersions)
-    {
-        XLSVocabularyExportHelper.allVersions = allVersions;
     }
 
     @Override
@@ -164,20 +160,15 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
             }
 
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, compatibleWithImport
-                    ? VOCABULARY_ASSIGNMENT_COLUMNS
-                    : Arrays.copyOfRange(VOCABULARY_ASSIGNMENT_COLUMNS, 1, VOCABULARY_ASSIGNMENT_COLUMNS.length)));
+            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, VOCABULARY_ASSIGNMENT_COLUMNS));
 
             for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
             {
                 final String[] values = {
-                        String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, vocabularyTerm.getCode(),
-                                vocabulary.getCode())),
                         vocabularyTerm.getCode(),
                         vocabularyTerm.getLabel(),
                         vocabularyTerm.getDescription() };
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId,
-                        compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
+                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId, values));
             }
 
             return new AdditionResult(rowNumber + 1, warnings);
@@ -189,17 +180,13 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
 
     protected Attribute[] getAttributes()
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
+        return new Attribute[] { CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
     }
 
     protected String getAttributeValue(final Vocabulary vocabulary, final Attribute attribute)
     {
         switch (attribute)
         {
-            case VERSION:
-            {
-                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, null, vocabulary.getCode()));
-            }
             case CODE:
             {
                 return vocabulary.getCode();
