@@ -206,7 +206,7 @@ public class ExportExecutor implements IExportExecutor
             exportFields = null;
         }
 
-        final ExportResult exportResult = exportXls(applicationServerApi, sessionToken,
+        final ExportResult exportResult = doExport(applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility(),
                 exportOptions.getFormats());
@@ -214,7 +214,7 @@ public class ExportExecutor implements IExportExecutor
         return exportResult;
     }
 
-    private static ExportResult exportXls(final IApplicationServerApi api,
+    private static ExportResult doExport(final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
@@ -224,6 +224,10 @@ public class ExportExecutor implements IExportExecutor
         final XLSExport.PrepareWorkbookResult xlsExportResult = exportFormats.contains(ExportFormat.XLSX)
                 ? XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting,
                         compatibleWithImport)
+                : null;
+
+        final Collection<ICodeHolder> entities = exportFormats.contains(ExportFormat.PDF)
+                ? EntitiesFinder.getEntities(api, sessionToken, exportablePermIds)
                 : null;
 
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
