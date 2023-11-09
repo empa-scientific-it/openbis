@@ -34,7 +34,9 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -153,25 +155,16 @@ public class ExportExecutor implements IExportExecutor
         try {
             final ExportData exportData = operation.getExportData();
             final ExportOptions exportOptions = operation.getExportOptions();
-            final Set<ExportFormat> formats = exportOptions.getFormats();
             final String sessionToken = context.getSession().getSessionToken();
 
-            // TODO: combination of results is also possible, so combine them afterwards
-            if (formats.contains(ExportFormat.XLSX))
-            {
-                return doXlsExport(sessionToken, exportData, exportOptions);
-            } else
-            {
-                // TODO: implement other formats.
-                return null;
-            }
+            return doExport(sessionToken, exportData, exportOptions);
         } catch (final IOException e)
         {
             throw UserFailureException.fromTemplate(e, "IO exception exporting.");
         }
     }
 
-    private ExportResult doXlsExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
+    private ExportResult doExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
             throws IOException
     {
         final IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
@@ -215,7 +208,8 @@ public class ExportExecutor implements IExportExecutor
 
         final ExportResult exportResult = exportXls(applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
-                TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility());
+                TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility(),
+                exportOptions.getFormats());
 
         return exportResult;
     }
@@ -224,44 +218,52 @@ public class ExportExecutor implements IExportExecutor
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
+            final TextFormatting textFormatting, final boolean compatibleWithImport,
+            final Set<ExportFormat> exportFormats) throws IOException
     {
-        final XLSExport.PrepareWorkbookResult exportResult = XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
-        final Map<String, String> scripts = exportResult.getScripts();
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final XLSExport.PrepareWorkbookResult xlsExportResult = exportFormats.contains(ExportFormat.XLSX)
+                ? XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting,
+                        compatibleWithImport)
+                : null;
 
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
-
+        final Collection<String> warnings = new ArrayList<>();
         try
                 (
+                        final Workbook wb = xlsExportResult != null ? xlsExportResult.getWorkbook() : null;
                         final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
-                        final Workbook wb = exportResult.getWorkbook();
                         final ZipOutputStream zos = new ZipOutputStream(os);
                         final BufferedOutputStream bos = new BufferedOutputStream(zos)
                 )
         {
-            zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
-
-            if (!scripts.isEmpty())
+            if (xlsExportResult != null)
             {
-                zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
-            }
+                zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
 
-            for (final Map.Entry<String, String> script : scripts.entrySet())
-            {
-                zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
-                bos.write(script.getValue().getBytes());
-                bos.flush();
-                zos.closeEntry();
-            }
+                final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
+                if (!xlsExportScripts.isEmpty())
+                {
+                    zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
+                }
 
-            zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
-            wb.write(bos);
+                for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
+                {
+                    zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
+                    bos.write(script.getValue().getBytes());
+                    bos.flush();
+                    zos.closeEntry();
+                }
+
+                zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
+                wb.write(bos);
+
+                warnings.addAll(xlsExportResult.getWarnings());
+            }
         }
 
-        return new ExportResult(fullFileName, exportResult.getWarnings());
+        return new ExportResult(fullFileName, warnings);
     }
 
     private static ExportResult exportPdf(final IApplicationServerApi api,
@@ -397,6 +399,8 @@ public class ExportExecutor implements IExportExecutor
                         if (properties.containsKey(propertyType.getCode()))
                         {
                             final StringBuilder propertyValue = new StringBuilder(String.valueOf(properties.get(propertyType.getCode())));
+
+                            // TODO: maybe we will need to convert images to Base64. But how to fetch the content?
                             if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                     Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                             {
@@ -405,7 +409,7 @@ public class ExportExecutor implements IExportExecutor
                                 for (final Element imageElement : imageElements)
                                 {
                                     final String imageSrc = imageElement.attr("src");
-                                    replaceAll(propertyValue, imageSrc, // TODO: find out the server URL
+                                    replaceAll(propertyValue, imageSrc,
                                             /*ApplicationServer.getConfigParameters().getServerURL() +*/ imageSrc + "?sessionID=" + sessionToken);
                                 }
                             }
