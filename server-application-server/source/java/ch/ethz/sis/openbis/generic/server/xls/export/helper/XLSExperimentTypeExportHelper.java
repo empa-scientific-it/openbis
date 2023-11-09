@@ -19,7 +19,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,8 +36,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHelper<ExperimentType>
 {
@@ -51,7 +48,7 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
     @Override
     protected Attribute[] getAttributes(final ExperimentType entityType)
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT, MODIFICATION_DATE };
+        return new Attribute[] { CODE, DESCRIPTION, VALIDATION_SCRIPT, MODIFICATION_DATE };
     }
 
     @Override
@@ -73,10 +70,6 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
                 return validationPlugin != null
                         ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            }
-            case VERSION:
-            {
-                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.EXPERIMENT_TYPE, null, experimentType.getCode()));
             }
             case MODIFICATION_DATE:
             {

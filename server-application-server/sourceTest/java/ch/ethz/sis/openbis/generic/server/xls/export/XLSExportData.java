@@ -29,7 +29,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCAB
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +39,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSExportData
 {
@@ -62,39 +59,6 @@ public class XLSExportData
                     + "Value exceeds the maximum size supported by Excel: 32767.",
             "Line: 5 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
                     + "Value exceeds the maximum size supported by Excel: 32767.");
-
-    static final Map<String, Integer> VERSIONS = new HashMap<>();
-
-    static
-    {
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.VOCABULARY_TYPE.getType(), "ANTIBODY.HOST"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.VOCABULARY_TYPE.getType(), "ANTIBODY.DETECTION"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.EXPERIMENT_TYPE.getType(), "DEFAULT_EXPERIMENT"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.DATASET_TYPE.getType(), "ATTACHMENT"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "DEFAULT"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "ANTIBODY"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "VIRUS"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "PERSON"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "COURSE"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "DEPARTMENT"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.SAMPLE_TYPE.getType(), "ENTRY"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "$NAME"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "$BARCODE"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "$DEFAULT_OBJECT_TYPE"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "NOTES"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "ANTIBODY.HOST"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "FIRST_NAME"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "LAST_NAME"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "OPEN"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "START_DATE"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "END_DATE"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "TEACHER"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "ADDRESS"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "DEPARTMENT"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "$XMLCOMMENTS"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "$DOCUMENT"), 1);
-        VERSIONS.put(VersionUtils.getKey(ImportTypes.PROPERTY_TYPE.getType(), "$ANNOTATIONS_STATE"), 1);
-    }
 
     public static final Map<String, Map<String, List<Map<String, String>>>> EXPORT_FIELDS =
             Map.of(
