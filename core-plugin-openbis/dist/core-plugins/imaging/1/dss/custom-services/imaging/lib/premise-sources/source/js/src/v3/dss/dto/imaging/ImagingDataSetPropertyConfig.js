@@ -30,5 +30,5 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             arguments : [ "ImagingDataSetImage"]
         }
 	});
-	return ImagingDataSetControl;
+	return ImagingDataSetPropertyConfig;
 })
