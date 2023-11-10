@@ -162,21 +162,33 @@ def get_sxm_image4(channel_name, x_axis, y_axis, scaling, color_scale, colormap,
     return encoded
 
 print(params)
-if params['mode'] == '1':
-    # print(f'IMG={get_sxm_image()}')
-    print(f'{get_sxm_image()}')
-elif params['mode'] == '2':
-    # print(f'IMG={get_sxm_image2()}')
-    print(f'{get_sxm_image2()}')
-elif params['mode'] == '3':
-    # print(f'IMG={generate_random_image(320, 320)}')
-    print(f'{generate_random_image(256, 256)}')
-elif params['mode'] == '4':
-    channel = params['channel']
-    scaling = params['scaling']
-    color_scale = [float(x) for x in params['color-scale']]
-    print(f'{get_sxm_image3(channel, scaling, color_scale)}')
-elif params['mode'] == '5':
+if 'mode' in params:
+    if params['mode'] == '1':
+        # print(f'IMG={get_sxm_image()}')
+        print(f'{get_sxm_image()}')
+    elif params['mode'] == '2':
+        # print(f'IMG={get_sxm_image2()}')
+        print(f'{get_sxm_image2()}')
+    elif params['mode'] == '3':
+        # print(f'IMG={generate_random_image(320, 320)}')
+        print(f'{generate_random_image(256, 256)}')
+    elif params['mode'] == '4':
+        channel = params['channel']
+        scaling = params['scaling']
+        color_scale = [float(x) for x in params['color-scale']]
+        print(f'{get_sxm_image3(channel, scaling, color_scale)}')
+    elif params['mode'] == '5':
+        channel = params['channel']
+        x_axis = [float(x) for x in params['x-axis']]
+        y_axis = [float(x) for x in params['y-axis']]
+        color_scale = [float(x) for x in params['color-scale']]
+        colormap = params['colormap']
+        scaling = params['scaling']
+        colormap_scaling = False
+        if "colormap_scaling" in params:
+            colormap_scaling = params['colormap_scaling'].upper() == "TRUE"
+        print(f'{get_sxm_image4(channel, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling)}')
+else:
     channel = params['channel']
     x_axis = [float(x) for x in params['x-axis']]
     y_axis = [float(x) for x in params['y-axis']]

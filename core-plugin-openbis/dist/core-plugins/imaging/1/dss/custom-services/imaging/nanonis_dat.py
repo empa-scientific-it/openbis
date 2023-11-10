@@ -79,9 +79,27 @@ def get_dat_image(channel_x, channel_y, x_axis, y_axis, colormap, scaling, group
 
 
 print(params)
-if params['mode'] == '1':
-    print(generate_random_image(640, 640))
-elif params['mode'] == '2':
+if 'mode' in params:
+    if params['mode'] == '1':
+        print(generate_random_image(640, 640))
+    elif params['mode'] == '2':
+        parameters = dict(
+            channel_x=params['channel x'],
+            channel_y=params['channel y'],
+            x_axis=[float(x) for x in params['x-axis']],
+            y_axis=[float(x) for x in params['y-axis']],
+            colormap=params['colormap'],
+            scaling=params['scaling'],
+            grouping=params['grouping']
+        )
+        if "color" in params:
+            parameters['color'] = params['color']
+        if "print_legend" in params:
+            parameters['print_legend'] = params['print_legend'].upper() == "TRUE"
+        else:
+            parameters['print_legend'] = True
+        print(get_dat_image(**parameters))
+else:
     parameters = dict(
         channel_x=params['channel x'],
         channel_y=params['channel y'],
