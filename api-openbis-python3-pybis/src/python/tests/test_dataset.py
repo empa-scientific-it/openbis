@@ -210,25 +210,25 @@ def test_things_initialization(space):
     assert things.is_objects_initialised()
 
 
-# def test_create_new_dataset_v1(space):
-#     """Create dataset and upload file using upload scheme from before 3.6 api version"""
-#     openbis_instance = space.openbis
-#
-#     testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
-#
-#     # It is a hack to force old way of upload for testing.
-#     openbis_instance.get_server_information()._info["api-version"] = "3.5"
-#
-#     dataset = openbis_instance.new_dataset(
-#         type="RAW_DATA",
-#         experiment="/DEFAULT/DEFAULT/DEFAULT",
-#         files=[testfile_path],
-#         props={"$name": "some good name"},
-#     )
-#     dataset.save()
-#
-#     assert dataset.permId is not None
-#     assert dataset.file_list == ["original/testfile"]
+def test_create_new_dataset_v1(space):
+    """Create dataset and upload file using upload scheme from before 3.6 api version"""
+    openbis_instance = space.openbis
+
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+
+    # It is a hack to force old way of upload for testing.
+    openbis_instance.get_server_information()._info["api-version"] = "3.5"
+
+    dataset = openbis_instance.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    assert dataset.permId is not None
+    assert dataset.file_list == ["original/testfile"]
 
 
 def test_create_new_dataset_v3_single_file(space):
