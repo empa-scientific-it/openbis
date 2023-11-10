@@ -253,7 +253,7 @@ public class FileServiceServlet extends AbstractServlet
         return new Template(template);
     }
     
-    private File getFilesRepository()
+    public File getFilesRepository()
     {
         return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
     }

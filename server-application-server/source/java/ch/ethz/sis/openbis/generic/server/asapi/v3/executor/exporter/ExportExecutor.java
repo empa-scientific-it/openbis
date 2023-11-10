@@ -25,16 +25,20 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
@@ -44,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -97,6 +102,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.server.FileServiceServlet;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
@@ -119,6 +126,8 @@ public class ExportExecutor implements IExportExecutor
     public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
 
     public static final String XLSX_DIRECTORY = "xlsx";
+
+    public static final String PDF_DIRECTORY = "pdf";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
@@ -146,8 +155,34 @@ public class ExportExecutor implements IExportExecutor
 
     private static final int DATA_TAG_END_LENGTH = DATA_TAG_END.length();
 
+    private static final String PNG_MEDIA_TYPE = "image/png";
+
+    private static final String JPEG_MEDIA_TYPE = "image/jpeg";
+
+    /** Buffer size for the buffer stream for Base64 encoding. Should be a multiple of 3. */
+    private static final int BUFFER_SIZE = 3 * 1024;
+
+    private static final Map<String, String> MEDIA_TYPE_BY_EXTENSION = Map.of(
+            ".png", PNG_MEDIA_TYPE,
+            ".jpg", JPEG_MEDIA_TYPE,
+            ".jpeg", JPEG_MEDIA_TYPE,
+            ".jfif", JPEG_MEDIA_TYPE,
+            ".pjpeg", JPEG_MEDIA_TYPE,
+            ".pjp", JPEG_MEDIA_TYPE,
+            ".gif", "image/gif",
+            ".bmp", "image/bmp",
+            ".webp", "image/webp",
+            ".tiff", "image/tiff");
+
+    private static final String DEFAULT_MEDIA_TYPE = JPEG_MEDIA_TYPE;
+
+    private static final String DATA_PREFIX_TEMPLATE = "data:%s;base64,";
+
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
+
+    @Autowired
+    private FileServiceServlet fileServiceServlet;
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -214,7 +249,7 @@ public class ExportExecutor implements IExportExecutor
         return exportResult;
     }
 
-    private static ExportResult doExport(final IApplicationServerApi api,
+    private ExportResult doExport(final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
@@ -226,61 +261,118 @@ public class ExportExecutor implements IExportExecutor
                         compatibleWithImport)
                 : null;
 
-        final Collection<ICodeHolder> entities = exportFormats.contains(ExportFormat.PDF)
-                ? EntitiesFinder.getEntities(api, sessionToken, exportablePermIds)
-                : null;
-
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
         final Collection<String> warnings = new ArrayList<>();
+        final Set<String> existingZipEntries = new HashSet<>();
         try
                 (
                         final Workbook wb = xlsExportResult != null ? xlsExportResult.getWorkbook() : null;
                         final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
                         final ZipOutputStream zos = new ZipOutputStream(os);
-                        final BufferedOutputStream bos = new BufferedOutputStream(zos)
+                        final BufferedOutputStream bos = new BufferedOutputStream(zos, BUFFER_SIZE)
                 )
         {
             if (xlsExportResult != null)
             {
-                zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
+                exportXls(zos, bos, xlsExportResult, wb, warnings);
+            }
 
-                final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
-                if (!xlsExportScripts.isEmpty())
-                {
-                    zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
-                }
+            final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+            final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+            if (hasPdfFormat || hasHtmlFormat)
+            {
+                putNextZipEntry(existingZipEntries, zos, "%s/", PDF_DIRECTORY);
 
-                for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
-                {
-                    zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
-                    bos.write(script.getValue().getBytes());
-                    bos.flush();
-                    zos.closeEntry();
-                }
+                final Collector<ExportablePermId, List<String>, List<String>> downstreamCollector = Collector.of(ArrayList::new,
+                        (stringPermIds, exportablePermId) -> stringPermIds.add(exportablePermId.getPermId().getPermId()),
+                        (left, right) ->
+                        {
+                            left.addAll(right);
+                            return left;
+                        });
+                final Map<ExportableKind, List<String>> groupedExportablePermIds =
+                        exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
 
-                zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
-                wb.write(bos);
-
-                warnings.addAll(xlsExportResult.getWarnings());
+                exportSpaces(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
             }
         }
 
         return new ExportResult(fullFileName, warnings);
     }
 
-    private static ExportResult exportPdf(final IApplicationServerApi api,
-            final String sessionToken, final List<ExportablePermId> exportablePermIds,
-            final boolean exportReferredMasterData,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
+    private void exportSpaces(final ZipOutputStream zos, final BufferedOutputStream bos, final IApplicationServerApi api, final String sessionToken,
+            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            throws IOException
     {
-        // TODO: implement.
-        return null;
+        final Collection<Space> spaces = EntitiesFinder.getSpaces(api, sessionToken, groupedExportablePermIds.get(ExportableKind.SPACE));
+        for (final Space space : spaces)
+        {
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, space.getCode());
+
+            final byte[] htmlBytes = getHtml(sessionToken, space).getBytes(StandardCharsets.UTF_8);
+            writeInChunks(bos, htmlBytes);
+
+            zos.closeEntry();
+        }
     }
 
-    private static String getHtml(final String sessionToken, final ICodeHolder entityObj) throws IOException
+    private static void writeInChunks(final OutputStream os, final byte[] bytes) throws IOException
+    {
+        for (int pos = 0; pos < bytes.length; pos += BUFFER_SIZE)
+        {
+            os.write(Arrays.copyOfRange(bytes, pos, pos + BUFFER_SIZE));
+        }
+        os.flush();
+    }
+
+    /**
+     * Adds an entry only if it is needed.
+     *
+     * @param existingZipEntries a set of existing entries
+     * @param zos zip output stream to write to
+     * @param entryFormat a format string
+     * @param args arguments referenced by the format specifiers in the format string
+     * @throws IOException if an I/O error has occurred
+     */
+    private static void putNextZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final String entryFormat,
+            final String... args) throws IOException
+    {
+        final String entry = String.format(entryFormat, (Object[]) args);
+        if (!existingZipEntries.contains(entry))
+        {
+            zos.putNextEntry(new ZipEntry(entry));
+            existingZipEntries.add(entry);
+        }
+    }
+
+    private static void exportXls(final ZipOutputStream zos, final BufferedOutputStream bos, final XLSExport.PrepareWorkbookResult xlsExportResult,
+            final Workbook wb, final Collection<String> warnings) throws IOException
+    {
+        zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
+
+        final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
+        if (!xlsExportScripts.isEmpty())
+        {
+            zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
+        }
+
+        for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
+        {
+            zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
+            bos.write(script.getValue().getBytes());
+            bos.flush();
+            zos.closeEntry();
+        }
+
+        zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
+        wb.write(bos);
+
+        warnings.addAll(xlsExportResult.getWarnings());
+    }
+
+    private String getHtml(final String sessionToken, final ICodeHolder entityObj) throws IOException
     {
         final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
 
@@ -402,29 +494,25 @@ public class ExportExecutor implements IExportExecutor
                         final PropertyType propertyType = propertyAssignment.getPropertyType();
                         if (properties.containsKey(propertyType.getCode()))
                         {
-                            final StringBuilder propertyValue = new StringBuilder(String.valueOf(properties.get(propertyType.getCode())));
-
-                            // TODO: maybe we will need to convert images to Base64. But how to fetch the content?
+                            final String propertyValueString = String.valueOf(properties.get(propertyType.getCode()));
                             if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                     Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                             {
-                                final Document doc = Jsoup.parse(propertyValue.toString());
+                                final StringBuilder propertyValue = new StringBuilder(propertyValueString);
+                                final Document doc = Jsoup.parse(propertyValueString);
                                 final Elements imageElements = doc.select("img");
                                 for (final Element imageElement : imageElements)
                                 {
                                     final String imageSrc = imageElement.attr("src");
-                                    replaceAll(propertyValue, imageSrc,
-                                            /*ApplicationServer.getConfigParameters().getServerURL() +*/ imageSrc + "?sessionID=" + sessionToken);
+                                    replaceAll(propertyValue, imageSrc, encodeImageContentToString(imageSrc));
                                 }
-                            }
-
-                            final String propertyValueString = propertyValue.toString();
-                            if (propertyType.getDataType() == DataType.XML
+                            } else if (propertyType.getDataType() == DataType.XML
                                     && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
                                     && propertyValueString.toUpperCase().startsWith(DATA_TAG_START) && propertyValueString.toUpperCase()
                                     .endsWith(DATA_TAG_END))
                             {
-                                final String subString = propertyValue.substring(DATA_TAG_START_LENGTH, propertyValue.length() - DATA_TAG_END_LENGTH);
+                                final String subString = propertyValueString.substring(DATA_TAG_START_LENGTH,
+                                        propertyValueString.length() - DATA_TAG_END_LENGTH);
                                 final String decodedString = new String(Base64.getDecoder().decode(subString), StandardCharsets.UTF_8);
 
                                 try (final JsonParser jsonParser = JSON_FACTORY.createParser(decodedString))
@@ -444,6 +532,33 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return documentBuilder.getHtml();
+    }
+
+    private String encodeImageContentToString(final String imageSrc) throws IOException
+    {
+        final Base64.Encoder encoder = Base64.getEncoder();
+        final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
+        final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
+        final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
+        final String filePath = fileServiceServlet.getFilesRepository().getPath() + imageSrc;
+
+        final StringBuilder result = new StringBuilder(dataPrefix);
+        final FileInputStream fileInputStream = new FileInputStream(filePath);
+        try (final BufferedInputStream in = new BufferedInputStream(fileInputStream, BUFFER_SIZE))
+        {
+            byte[] chunk = new byte[BUFFER_SIZE];
+            int len;
+            while ((len = in.read(chunk)) == BUFFER_SIZE) {
+                result.append(encoder.encodeToString(chunk));
+            }
+
+            if (len > 0) {
+                chunk = Arrays.copyOf(chunk, len);
+                result.append(encoder.encodeToString(chunk));
+            }
+        }
+
+        return result.toString();
     }
 
     private static String convertJsonToHtml(final TreeNode node) throws IOException

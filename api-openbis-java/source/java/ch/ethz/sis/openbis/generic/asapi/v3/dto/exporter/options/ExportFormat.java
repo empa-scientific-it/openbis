@@ -26,6 +26,8 @@ public enum ExportFormat
 
     PDF,
 
+    HTML,
+
     DATA
 
 }
