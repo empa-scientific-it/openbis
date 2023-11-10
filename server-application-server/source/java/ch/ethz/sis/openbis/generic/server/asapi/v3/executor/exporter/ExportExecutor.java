@@ -297,6 +297,7 @@ public class ExportExecutor implements IExportExecutor
 
                 exportSpaces(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
                 exportProjects(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportExperiments(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
             }
         }
 
@@ -335,6 +336,32 @@ public class ExportExecutor implements IExportExecutor
                 writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();
+            }
+        }
+    }
+
+    private void exportExperiments(final ZipOutputStream zos, final BufferedOutputStream bos, final IApplicationServerApi api,
+            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            throws IOException
+    {
+        final Collection<Experiment> experiments = EntitiesFinder.getExperiments(api, sessionToken,
+                groupedExportablePermIds.get(ExportableKind.EXPERIMENT));
+        for (final Experiment experiment : experiments)
+        {
+            final Project project = experiment.getProject();
+            if (project != null)
+            {
+                final Space space = project.getSpace();
+                if (space != null)
+                {
+                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, space.getCode(), project.getCode(),
+                            experiment.getVarcharProperty("$NAME"), experiment.getCode());
+
+                    final byte[] htmlBytes = getHtml(sessionToken, experiment).getBytes(StandardCharsets.UTF_8);
+                    writeInChunks(bos, htmlBytes);
+
+                    zos.closeEntry();
+                }
             }
         }
     }
