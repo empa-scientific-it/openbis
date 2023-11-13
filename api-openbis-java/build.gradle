@@ -70,7 +70,9 @@ generateTypeScript {
                             "**.generic.shared.**",
                             "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria",
                             "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria",
-                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria"]
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria",
+                            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult",
+                            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters"]
     outputKind = 'module'
     outputFileType = 'declarationFile'
     customTypeNaming = ["ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteria", "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:DSExternalDmsSearchCriteria"]

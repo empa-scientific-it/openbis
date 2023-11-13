@@ -1,0 +1,6 @@
+apply from: '../build/javaproject.gradle'
+
+dependencies {
+    implementation 'fasterxml:jackson-core:2.9.10', 'fasterxml:jackson-databind:2.9.10.8', 'cz.habarta.typescript-generator:typescript-generator-core:3.2.1263'
+    testImplementation 'testng:testng:6.8-CISD', 'javax.activation:javax.activation-api:1.2.0'
+}
