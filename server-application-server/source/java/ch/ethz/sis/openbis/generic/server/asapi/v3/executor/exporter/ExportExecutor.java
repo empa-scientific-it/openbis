@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.SCRIPTS_DIRECTORY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
@@ -53,6 +55,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -111,6 +115,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
@@ -128,6 +133,8 @@ public class ExportExecutor implements IExportExecutor
     public static final String XLSX_DIRECTORY = "xlsx";
 
     public static final String PDF_DIRECTORY = "pdf";
+
+    public static final String HTML_EXTENSION = ".html";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
@@ -181,8 +188,8 @@ public class ExportExecutor implements IExportExecutor
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
-    @Autowired
-    private FileServiceServlet fileServiceServlet;
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -313,8 +320,8 @@ public class ExportExecutor implements IExportExecutor
         {
             putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, space.getCode());
 
-            final byte[] htmlBytes = getHtml(sessionToken, space).getBytes(StandardCharsets.UTF_8);
-            writeInChunks(bos, htmlBytes);
+//            final byte[] htmlBytes = getHtml(sessionToken, space).getBytes(StandardCharsets.UTF_8);
+//            writeInChunks(bos, htmlBytes);
 
             zos.closeEntry();
         }
@@ -332,8 +339,8 @@ public class ExportExecutor implements IExportExecutor
             {
                 putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY, space.getCode(), project.getCode());
 
-                final byte[] htmlBytes = getHtml(sessionToken, project).getBytes(StandardCharsets.UTF_8);
-                writeInChunks(bos, htmlBytes);
+//                final byte[] htmlBytes = getHtml(sessionToken, project).getBytes(StandardCharsets.UTF_8);
+//                writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();
             }
@@ -356,6 +363,9 @@ public class ExportExecutor implements IExportExecutor
                 {
                     putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, space.getCode(), project.getCode(),
                             experiment.getVarcharProperty("$NAME"), experiment.getCode());
+
+                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s/", PDF_DIRECTORY, space.getCode(), project.getCode(),
+                            experiment.getVarcharProperty("$NAME"), experiment.getCode(), HTML_EXTENSION);
 
                     final byte[] htmlBytes = getHtml(sessionToken, experiment).getBytes(StandardCharsets.UTF_8);
                     writeInChunks(bos, htmlBytes);
@@ -588,7 +598,7 @@ public class ExportExecutor implements IExportExecutor
         final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
         final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
         final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
-        final String filePath = fileServiceServlet.getFilesRepository().getPath() + imageSrc;
+        final String filePath = getFilesRepository().getPath() + imageSrc;
 
         final StringBuilder result = new StringBuilder(dataPrefix);
         final FileInputStream fileInputStream = new FileInputStream(filePath);
@@ -675,6 +685,11 @@ public class ExportExecutor implements IExportExecutor
                 .map(attribute -> Map.of(IExportFieldsFinder.TYPE, FieldType.ATTRIBUTE.name(), IExportFieldsFinder.ID, attribute.name()))
                 .collect(Collectors.toList());
         return Map.of(exportableKind.name(), attributes);
+    }
+
+    private File getFilesRepository()
+    {
+        return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
     }
 
 }

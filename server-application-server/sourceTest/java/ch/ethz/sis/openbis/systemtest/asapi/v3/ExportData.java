@@ -60,7 +60,7 @@ public class ExportData
     static final String RICH_TEXT_PROPERTY_NAME = "MULTILINE";
 
     static final Object[][] EXPORT_DATA = {
-            // All fields
+            // XLS: All fields
             {
                     // Non-existing sample
                     "empty-xlsx.zip",
@@ -161,7 +161,7 @@ public class ExportData
                     false // withImportCompatibility
             },
 
-            // Selected fields
+            // XLS: Selected fields
             {
                     // Space: TEST-SPACE
                     "export-space-filtered-attributes-xlsx.zip",
@@ -261,6 +261,17 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
+
+//            // HTML: All fields
+//            {
+//                    // Experiment: EXP-SPACE-TEST
+//                    "export-experiment-html.zip",
+//                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
     };
 
     private ExportData()

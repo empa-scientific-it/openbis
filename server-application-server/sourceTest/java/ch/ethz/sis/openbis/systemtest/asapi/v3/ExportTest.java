@@ -176,7 +176,6 @@ public class ExportTest extends AbstractTest
 
         final ExportData exportData = new ExportData(permIds, fields);
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), xlsTextFormat, withReferredTypes, withImportCompatibility);
-
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
