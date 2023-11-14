@@ -599,7 +599,7 @@ Import** option is available under the **Utilities** in the **main
 menu**.
 
 The available custom imports can be selected from the **Custom Import
-Service** drop down menu in the Custom Import page (see below)
+Service** drop down menu in the Custom Import page (see below).
 
 ![image info](img/custom-imports-1024x459.png)
 
