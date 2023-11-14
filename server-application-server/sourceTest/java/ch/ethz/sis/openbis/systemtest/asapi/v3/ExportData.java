@@ -38,6 +38,7 @@ import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.S
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.STORAGE_CONFIRMATION;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.UNIQUE_SUBCODES;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -48,6 +49,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
@@ -64,6 +66,7 @@ public class ExportData
             {
                     // Non-existing sample
                     "empty-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -73,6 +76,7 @@ public class ExportData
             {
                     // Space: TEST-SPACE
                     "export-space-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -82,6 +86,7 @@ public class ExportData
             {
                     // Project: TEST-PROJECT
                     "export-project-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -91,6 +96,7 @@ public class ExportData
             {
                     // Experiment: EXP-SPACE-TEST
                     "export-experiment-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -100,6 +106,7 @@ public class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -109,6 +116,7 @@ public class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-compatible-with-import-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -118,6 +126,7 @@ public class ExportData
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -127,6 +136,7 @@ public class ExportData
             {
                     // Sample Type: CELL_PLATE
                     "export-sample-type-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -136,6 +146,7 @@ public class ExportData
             {
                     // Sample Type: CELL_PLATE
                     "export-sample-type-with-referred-types-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -145,6 +156,7 @@ public class ExportData
             {
                     // Experiment Type: SIRNA_HCS
                     "export-experiment-type-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -154,6 +166,7 @@ public class ExportData
             {
                     // Dataset Type: HCS_IMAGE
                     "export-data-set-type-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -165,6 +178,7 @@ public class ExportData
             {
                     // Space: TEST-SPACE
                     "export-space-filtered-attributes-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
                     new SelectedFields(List.of(CODE, REGISTRATOR, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
@@ -174,6 +188,7 @@ public class ExportData
             {
                     // Project: TEST-PROJECT
                     "export-project-filtered-fields-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
                     new SelectedFields(
                             List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, SPACE, DESCRIPTION),
@@ -185,6 +200,7 @@ public class ExportData
             {
                     // Experiment: EXP-SPACE-TEST
                     "export-experiment-filtered-fields-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
@@ -196,6 +212,7 @@ public class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-filtered-fields-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new SelectedFields(
                             List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
@@ -207,6 +224,7 @@ public class ExportData
             {
                     // Data set: "20081105092159188-3", type: "HCS_IMAGE"
                     "export-data-set-filtered-fields-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("20081105092159188-3"))),
                     new SelectedFields(
                             List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, PARENTS, CHILDREN, STORAGE_CONFIRMATION, PRESENT_IN_ARCHIVE,
@@ -219,6 +237,7 @@ public class ExportData
             {
                     // Sample Type: CELL_PLATE
                     "export-sample-type-filtered-attributes-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE_TYPE, new EntityTypePermId("CELL_PLATE", EntityKind.SAMPLE))),
                     new SelectedFields(List.of(CODE, AUTO_GENERATE_CODES, DESCRIPTION, GENERATED_CODE_PREFIX, UNIQUE_SUBCODES), List.of()),
                     XlsTextFormat.PLAIN,
@@ -228,6 +247,7 @@ public class ExportData
             {
                     // Experiment Type: SIRNA_HCS
                     "export-experiment-type-filtered-attributes-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT_TYPE, new EntityTypePermId("SIRNA_HCS", EntityKind.EXPERIMENT))),
                     new SelectedFields(List.of(DESCRIPTION, CODE, MODIFICATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
@@ -237,6 +257,7 @@ public class ExportData
             {
                     // Dataset Type: HCS_IMAGE
                     "export-data-set-type-filtered-attributes-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.DATASET_TYPE, new EntityTypePermId("HCS_IMAGE", EntityKind.DATA_SET))),
                     new SelectedFields(List.of(CODE, DISALLOW_DELETION, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
@@ -246,6 +267,7 @@ public class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-plain-text-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
@@ -255,6 +277,7 @@ public class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-rich-text-xlsx.zip",
+                    EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
@@ -262,16 +285,17 @@ public class ExportData
                     false // withImportCompatibility
             },
 
-//            // HTML: All fields
-//            {
-//                    // Experiment: EXP-SPACE-TEST
-//                    "export-experiment-html.zip",
-//                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
-//                    new AllFields(),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
+            // HTML: All fields
+            {
+                    // Experiment: EXP-SPACE-TEST
+                    "export-experiment-html.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private ExportData()

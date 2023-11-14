@@ -169,13 +169,14 @@ public class ExportTest extends AbstractTest
     }
 
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
-    public void testXlsDataExport(final String expectedResultFileName, final List<ExportablePermId> permIds, final IExportableFields fields,
-            final XlsTextFormat xlsTextFormat, final boolean withReferredTypes, final boolean withImportCompatibility) throws Exception
+    public void testXlsDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
+            final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
+            final boolean withImportCompatibility) throws Exception
     {
         processPermIds(permIds);
 
         final ExportData exportData = new ExportData(permIds, fields);
-        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), xlsTextFormat, withReferredTypes, withImportCompatibility);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());

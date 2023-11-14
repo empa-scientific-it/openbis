@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -107,7 +108,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
-import ch.ethz.sis.openbis.generic.server.FileServiceServlet;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
@@ -184,6 +184,8 @@ public class ExportExecutor implements IExportExecutor
     private static final String DEFAULT_MEDIA_TYPE = JPEG_MEDIA_TYPE;
 
     private static final String DATA_PREFIX_TEMPLATE = "data:%s;base64,";
+
+    private static final String NAME_PROPERTY_NAME = "$NAME";
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
@@ -302,77 +304,231 @@ public class ExportExecutor implements IExportExecutor
                 final Map<ExportableKind, List<String>> groupedExportablePermIds =
                         exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
 
-                exportSpaces(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportProjects(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportExperiments(zos, bos, api, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportSpaces(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportProjects(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportExperiments(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
             }
         }
 
         return new ExportResult(fullFileName, warnings);
     }
 
-    private void exportSpaces(final ZipOutputStream zos, final BufferedOutputStream bos, final IApplicationServerApi api, final String sessionToken,
+    private void exportSpaces(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
             throws IOException
     {
-        final Collection<Space> spaces = EntitiesFinder.getSpaces(api, sessionToken, groupedExportablePermIds.get(ExportableKind.SPACE));
-        for (final Space space : spaces)
-        {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, space.getCode());
+        final Collection<Space> spaces =
+                EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, spaces, ExportExecutor::getSpaceCode);
 
-//            final byte[] htmlBytes = getHtml(sessionToken, space).getBytes(StandardCharsets.UTF_8);
+        final Collection<Project> projects =
+                EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, projects, ExportExecutor::getSpaceCode);
+
+        final Collection<Experiment> experiments =
+                EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, experiments, ExportExecutor::getSpaceCode);
+
+        final Collection<Sample> samples =
+                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, samples, ExportExecutor::getSpaceCode);
+    }
+
+    private static void putZipEntriesForSpacesOfEntities(final ZipOutputStream zos, final Set<String> existingZipEntries,
+            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor) throws IOException
+    {
+        for (final Object entity : entities)
+        {
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, spaceCodeExtractor.apply(entity));
+
+//            final byte[] htmlBytes = getHtml(sessionToken, entity).getBytes(StandardCharsets.UTF_8);
 //            writeInChunks(bos, htmlBytes);
 
             zos.closeEntry();
         }
     }
 
-    private void exportProjects(final ZipOutputStream zos, final BufferedOutputStream bos, final IApplicationServerApi api, final String sessionToken,
+    private void exportProjects(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
             throws IOException
     {
-        final Collection<Project> projects = EntitiesFinder.getProjects(api, sessionToken, groupedExportablePermIds.get(ExportableKind.PROJECT));
-        for (final Project project : projects)
-        {
-            final Space space = project.getSpace();
-            if (space != null)
-            {
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY, space.getCode(), project.getCode());
+        final Collection<Project> projects =
+                EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
+        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, projects, ExportExecutor::getSpaceCode, ExportExecutor::getProjectCode);
+        final Collection<Experiment> experiments =
+                EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
+        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, experiments, ExportExecutor::getSpaceCode, ExportExecutor::getProjectCode);
+        final Collection<Sample> samples =
+                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
+        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, samples, ExportExecutor::getSpaceCode, ExportExecutor::getProjectCode);
+    }
 
-//                final byte[] htmlBytes = getHtml(sessionToken, project).getBytes(StandardCharsets.UTF_8);
-//                writeInChunks(bos, htmlBytes);
+    private static void putZipEntriesForProjectsOfEntities(final ZipOutputStream zos, final Set<String> existingZipEntries,
+            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor,
+            final Function<Object, String> projectCodeExtractor) throws IOException
+    {
+        for (final Object entity : entities)
+        {
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
+                    projectCodeExtractor.apply(entity));
+
+            //            final byte[] htmlBytes = getHtml(sessionToken, entity).getBytes(StandardCharsets.UTF_8);
+            //            writeInChunks(bos, htmlBytes);
+
+            zos.closeEntry();
+        }
+    }
+
+    private void exportExperiments(final ZipOutputStream zos, final BufferedOutputStream bos,
+            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            throws IOException
+    {
+        final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
+                groupedExportablePermIds.get(ExportableKind.EXPERIMENT));
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, ExportExecutor::getSpaceCode,
+                ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName);
+    }
+
+    private void putZipEntriesForExperimentsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries,
+            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor,
+            final Function<Object, String> projectCodeExtractor, final Function<Object, String> experimentCodeExtractor,
+            final Function<Object, String> experimentNameExtractor) throws IOException
+    {
+        for (final Object entity : entities)
+        {
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
+                    projectCodeExtractor.apply(entity), experimentNameExtractor.apply(entity), experimentCodeExtractor.apply(entity));
+            zos.closeEntry();
+
+            if (entity instanceof Experiment)
+            {
+                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
+                        projectCodeExtractor.apply(entity), experimentNameExtractor.apply(entity), experimentCodeExtractor.apply(entity),
+                        HTML_EXTENSION);
+
+                final byte[] htmlBytes = getHtml(sessionToken, (Experiment) entity).getBytes(StandardCharsets.UTF_8);
+                writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();
             }
         }
     }
 
-    private void exportExperiments(final ZipOutputStream zos, final BufferedOutputStream bos, final IApplicationServerApi api,
-            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
-            throws IOException
+    private static String getSpaceCode(final Object entity)
     {
-        final Collection<Experiment> experiments = EntitiesFinder.getExperiments(api, sessionToken,
-                groupedExportablePermIds.get(ExportableKind.EXPERIMENT));
-        for (final Experiment experiment : experiments)
+        if (entity instanceof Space)
         {
-            final Project project = experiment.getProject();
-            if (project != null)
+            return ((Space) entity).getCode();
+        } else if (entity instanceof Project)
+        {
+            return ((Project) entity).getSpace().getCode();
+        } else if (entity instanceof Experiment)
+        {
+            return ((Experiment) entity).getProject().getSpace().getCode();
+        } else if (entity instanceof Sample)
+        {
+            final Sample sample = (Sample) entity;
+            final Space space = sample.getSpace();
+            if (space != null)
             {
-                final Space space = project.getSpace();
-                if (space != null)
+                return sample.getSpace().getCode();
+            } else
+            {
+                final Experiment experiment = sample.getExperiment();
+                if (experiment != null)
                 {
-                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, space.getCode(), project.getCode(),
-                            experiment.getVarcharProperty("$NAME"), experiment.getCode());
-
-                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s/", PDF_DIRECTORY, space.getCode(), project.getCode(),
-                            experiment.getVarcharProperty("$NAME"), experiment.getCode(), HTML_EXTENSION);
-
-                    final byte[] htmlBytes = getHtml(sessionToken, experiment).getBytes(StandardCharsets.UTF_8);
-                    writeInChunks(bos, htmlBytes);
-
-                    zos.closeEntry();
+                    return experiment.getProject().getSpace().getCode();
+                } else
+                {
+                    return sample.getProject().getSpace().getCode();
                 }
             }
+        } else
+        {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static String getProjectCode(final Object entity)
+    {
+        if (entity instanceof Project)
+        {
+            return ((Project) entity).getCode();
+        } else if (entity instanceof Experiment)
+        {
+            return ((Experiment) entity).getProject().getCode();
+        } else if (entity instanceof Sample)
+        {
+            final Sample sample = (Sample) entity;
+            final Experiment experiment = sample.getExperiment();
+            final Project project = sample.getProject();
+            if (experiment != null)
+            {
+                return experiment.getProject().getCode();
+            } else if (project != null)
+            {
+                return project.getCode();
+            } else
+            {
+                return null;
+            }
+        } else
+        {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static String getExperimentCode(final Object entity)
+    {
+        if (entity instanceof Experiment)
+        {
+            return ((Experiment) entity).getCode();
+        } else if (entity instanceof Sample)
+        {
+            final Sample sample = (Sample) entity;
+            final Experiment experiment = sample.getExperiment();
+            return (experiment != null) ? experiment.getCode() : null;
+        } else
+        {
+            throw new IllegalArgumentException();
+        }
+    }
+    private static String getExperimentName(final Object entity)
+    {
+        if (entity instanceof Experiment)
+        {
+            return ((Experiment) entity).getVarcharProperty(NAME_PROPERTY_NAME);
+        } else if (entity instanceof Sample)
+        {
+            final Sample sample = (Sample) entity;
+            final Experiment experiment = sample.getExperiment();
+            return (experiment != null) ? experiment.getVarcharProperty(NAME_PROPERTY_NAME) : null;
+        } else
+        {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static String getSampleCode(final Object entity)
+    {
+        if (entity instanceof Sample)
+        {
+            return ((Sample) entity).getCode();
+        } else
+        {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static String getSampleName(final Object entity)
+    {
+        if (entity instanceof Sample)
+        {
+            return ((Sample) entity).getVarcharProperty(NAME_PROPERTY_NAME);
+        } else
+        {
+            throw new IllegalArgumentException();
         }
     }
 

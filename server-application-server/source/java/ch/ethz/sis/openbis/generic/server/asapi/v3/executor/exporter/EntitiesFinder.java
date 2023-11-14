@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -53,14 +52,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 class EntitiesFinder
 {
 
-    public static Collection<ICodeHolder> getEntities(final IApplicationServerApi api, final String sessionToken,
-            final Collection<ExportablePermId> permIds)
+    public static Collection<ICodeHolder> getEntities(final String sessionToken, final Collection<ExportablePermId> permIds)
     {
         final Map<ExportableKind, List<ExportablePermId>> groupedExportables =
                 permIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind));
@@ -73,39 +73,39 @@ class EntitiesFinder
             {
                 case SAMPLE_TYPE:
                 {
-                    return Stream.of(getSampleTypes(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getSampleTypes(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case EXPERIMENT_TYPE:
                 {
-                    return Stream.of(getExperimentTypes(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getExperimentTypes(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case DATASET_TYPE:
                 {
-                    return Stream.of(getDataSetTypes(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getDataSetTypes(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case VOCABULARY_TYPE:
                 {
-                    return Stream.of(getVocabularies(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getVocabularies(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case SPACE:
                 {
-                    return Stream.of(getSpaces(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getSpaces(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case PROJECT:
                 {
-                    return Stream.of(getProjects(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getProjects(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case SAMPLE:
                 {
-                    return Stream.of(getSamples(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getSamples(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case EXPERIMENT:
                 {
-                    return Stream.of(getExperiments(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getExperiments(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 case DATASET:
                 {
-                    return Stream.of(getDataSets(api, sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
+                    return Stream.of(getDataSets(sessionToken, stringPermIds)).map(value -> (ICodeHolder) value);
                 }
                 default:
                 {
@@ -115,9 +115,9 @@ class EntitiesFinder
         }).collect(Collectors.toList());
     }
 
-    public static Collection<DataSetType> getDataSetTypes(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<DataSetType> getDataSetTypes(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
@@ -133,8 +133,9 @@ class EntitiesFinder
         return dataSetTypes.values();
     }
 
-    public static Collection<DataSet> getDataSets(final IApplicationServerApi api, final String sessionToken, final Collection<String> permIds)
+    public static Collection<DataSet> getDataSets(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final List<DataSetPermId> dataSetPermIds = permIds.stream().map(DataSetPermId::new)
                 .collect(Collectors.toList());
         final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
@@ -150,13 +151,13 @@ class EntitiesFinder
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
     }
 
-    public static Collection<Experiment> getExperiments(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<Experiment> getExperiments(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final List<ExperimentPermId> experimentPermIds = permIds.stream().map(ExperimentPermId::new)
                 .collect(Collectors.toList());
         final ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.withProject();
+        fetchOptions.withProject().withSpace();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
@@ -164,9 +165,9 @@ class EntitiesFinder
         return api.getExperiments(sessionToken, experimentPermIds, fetchOptions).values();
     }
 
-    public static Collection<ExperimentType> getExperimentTypes(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<ExperimentType> getExperimentTypes(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
@@ -182,9 +183,9 @@ class EntitiesFinder
         return experimentTypes.values();
     }
 
-    public static Collection<Project> getProjects(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<Project> getProjects(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final List<ProjectPermId> projectPermIds = permIds.stream().map(ProjectPermId::new)
                 .collect(Collectors.toList());
         final ProjectFetchOptions fetchOptions = new ProjectFetchOptions();
@@ -194,9 +195,9 @@ class EntitiesFinder
         return api.getProjects(sessionToken, projectPermIds, fetchOptions).values();
     }
 
-    public static Collection<Sample> getSamples(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<Sample> getSamples(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final List<SamplePermId> samplePermIds = permIds.stream().map(SamplePermId::new)
                 .collect(Collectors.toList());
         final SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -212,8 +213,9 @@ class EntitiesFinder
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
     }
 
-    public static Collection<SampleType> getSampleTypes(final IApplicationServerApi api, final String sessionToken, final Collection<String> permIds)
+    public static Collection<SampleType> getSampleTypes(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
         final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
@@ -229,18 +231,18 @@ class EntitiesFinder
         return sampleTypes.values();
     }
 
-    public static Collection<Space> getSpaces(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<Space> getSpaces(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final List<SpacePermId> spacePermIds = permIds.stream().map(SpacePermId::new).collect(Collectors.toList());
         final SpaceFetchOptions fetchOptions = new SpaceFetchOptions();
         fetchOptions.withRegistrator();
         return api.getSpaces(sessionToken, spacePermIds, fetchOptions).values();
     }
 
-    public static Collection<Vocabulary> getVocabularies(final IApplicationServerApi api, final String sessionToken,
-            final Collection<String> permIds)
+    public static Collection<Vocabulary> getVocabularies(final String sessionToken, final Collection<String> permIds)
     {
+        final IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         final VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
         fetchOptions.withTerms();
         fetchOptions.withRegistrator();
