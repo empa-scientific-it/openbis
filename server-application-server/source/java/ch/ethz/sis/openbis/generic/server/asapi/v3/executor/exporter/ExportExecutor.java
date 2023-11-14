@@ -196,7 +196,8 @@ public class ExportExecutor implements IExportExecutor
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
     {
-        try {
+        try
+        {
             final ExportData exportData = operation.getExportData();
             final ExportOptions exportOptions = operation.getExportOptions();
             final String sessionToken = context.getSession().getSessionToken();
@@ -304,16 +305,17 @@ public class ExportExecutor implements IExportExecutor
                 final Map<ExportableKind, List<String>> groupedExportablePermIds =
                         exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
 
-                exportSpaces(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportProjects(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportExperiments(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
             }
         }
 
         return new ExportResult(fullFileName, warnings);
     }
 
-    private void exportSpaces(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+    private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
             throws IOException
     {
@@ -348,7 +350,7 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private void exportProjects(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+    private void exportProjectsDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
             throws IOException
     {
@@ -379,13 +381,17 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private void exportExperiments(final ZipOutputStream zos, final BufferedOutputStream bos,
+    private void exportExperimentsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
             final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
             throws IOException
     {
         final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
-                groupedExportablePermIds.get(ExportableKind.EXPERIMENT));
+                groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
         putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, ExportExecutor::getSpaceCode,
+                ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName);
+        final Collection<Sample> samples =
+                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, ExportExecutor::getSpaceCode,
                 ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName);
     }
 
@@ -408,6 +414,41 @@ public class ExportExecutor implements IExportExecutor
                         HTML_EXTENSION);
 
                 final byte[] htmlBytes = getHtml(sessionToken, (Experiment) entity).getBytes(StandardCharsets.UTF_8);
+                writeInChunks(bos, htmlBytes);
+
+                zos.closeEntry();
+            }
+        }
+    }
+
+    private void exportSamplesDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
+            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            throws IOException
+    {
+        final Collection<Sample> samples =
+                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
+        putZipEntriesForSamples(zos, bos, sessionToken, existingZipEntries, samples, ExportExecutor::getSpaceCode,
+                ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName,
+                ExportExecutor::getSampleCode, ExportExecutor::getSampleName);
+    }
+
+    private void putZipEntriesForSamples(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries,
+            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor,
+            final Function<Object, String> projectCodeExtractor, final Function<Object, String> experimentCodeExtractor,
+            final Function<Object, String> experimentNameExtractor, final Function<Object, String> sampleCodeExtractor,
+            final Function<Object, String> sampleNameExtractor) throws IOException
+    {
+        for (final Object entity : entities)
+        {
+            if (entity instanceof Sample)
+            {
+                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
+                        projectCodeExtractor.apply(entity), experimentNameExtractor.apply(entity), experimentCodeExtractor.apply(entity),
+                        sampleNameExtractor.apply(entity), sampleCodeExtractor.apply(entity),
+                        HTML_EXTENSION);
+
+                final byte[] htmlBytes = getHtml(sessionToken, (Sample) entity).getBytes(StandardCharsets.UTF_8);
                 writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();

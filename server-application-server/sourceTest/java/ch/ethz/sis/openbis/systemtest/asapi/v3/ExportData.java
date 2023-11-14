@@ -268,7 +268,7 @@ public class ExportData
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-plain-text-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
@@ -278,7 +278,7 @@ public class ExportData
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-rich-text-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in set up should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
@@ -291,6 +291,16 @@ public class ExportData
                     "export-experiment-html.zip",
                     EnumSet.of(ExportFormat.PDF),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
