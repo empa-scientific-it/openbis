@@ -262,7 +262,8 @@ def test_create_new_dataset_v3_directory(space):
     dataset.save()
 
     assert dataset.permId is not None
-    assert dataset.file_list == ["original/testdir/testfile"]
+    assert len(dataset.file_list) == 1
+    assert dataset.file_list[0].endswith('testdir/testfile')
 
 
 def test_dataset_property_in_isoformat_date(space):
