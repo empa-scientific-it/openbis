@@ -135,11 +135,15 @@ below.
 > Tables are exported to **XLS** format. Exported tables can be used for
 > updates via the **XLS Batch Update Objects**. 
 >
->  
->
->  
->
->  
+
+
+Note: Excel has a character limit of 32767 characters in each cell. If you export entries where a field exceeds this limit, you get a warning and the exported Excel file will not contain the content of the cell which is above this limit and the cell is highlighted in red, as shown below.
+
+![image info](img/Excel-character-limit-warning.png)
+
+
+![image info](img/Excel-download-exceeded-chraracter-limit.png)
+
 
 ### Columns
 
