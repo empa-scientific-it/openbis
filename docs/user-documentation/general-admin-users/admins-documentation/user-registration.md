@@ -93,6 +93,31 @@ the page. 
 Note: for using the ELN interface, it is necessary to assign every user
 or user group the OBSERVER role to the space ELN\_SETTINGS.
 
+
+## Deactivate users
+
+Users can be deactivated in the admin UI:
+
+1. Select the user to deactivate in the left menu of the **USERS** tab
+
+2. Click the **EDIT** button on the right bottom corner
+
+3. Unselect the **Active** checkbox
+
+![](img/deactivate-user.png)
+
+
+
+## Remove users
+
+Users can be removed from openBIS only if they have not registered anything in the system. If they have, they can only be deactivated, not removed.
+
+Users can be removed in the admin UI, by selecting the user in the left menu of the **USERS** tab and clicking the **REMOVE** button at the bottom of the menu, as shown below.
+
+![](img/remove-user.png)
+
+
+
 ## Create users groups in admin UI
  
 
