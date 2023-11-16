@@ -37,7 +37,6 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +89,7 @@ public class ExportTest extends AbstractTest
 
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
-    private static final String XLS_EXPORT_RESOURCES_PATH = "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/xls/export/";
+    private static final String XLS_EXPORT_RESOURCES_PATH = "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/export/";
 
     protected String sessionToken;
 

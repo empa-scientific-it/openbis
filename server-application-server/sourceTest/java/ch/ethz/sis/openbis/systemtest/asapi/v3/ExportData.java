@@ -289,7 +289,7 @@ public class ExportData
             {
                     // Experiment: EXP-SPACE-TEST
                     "export-experiment-html.zip",
-                    EnumSet.of(ExportFormat.PDF),
+                    EnumSet.of(ExportFormat.HTML),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
