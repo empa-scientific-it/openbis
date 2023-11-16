@@ -734,6 +734,8 @@ public class ExportExecutor implements IExportExecutor
                         if (properties.containsKey(propertyType.getCode()))
                         {
                             final String propertyValueString = String.valueOf(properties.get(propertyType.getCode()));
+
+                            // TODO: test image and spreadsheet encoding.
                             if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                     Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                             {
@@ -763,6 +765,9 @@ public class ExportExecutor implements IExportExecutor
                                         documentBuilder.addProperty(propertyType.getLabel(), htmlValue);
                                     }
                                 }
+                            } else
+                            {
+                                // TODO: there should be this default branch.
                             }
                         }
                     }
