@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -321,27 +320,27 @@ public class ExportExecutor implements IExportExecutor
     {
         final Collection<Space> spaces =
                 EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, spaces, ExportExecutor::getSpaceCode);
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, spaces);
 
         final Collection<Project> projects =
                 EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, projects, ExportExecutor::getSpaceCode);
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, projects);
 
         final Collection<Experiment> experiments =
                 EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, experiments, ExportExecutor::getSpaceCode);
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, experiments);
 
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, samples, ExportExecutor::getSpaceCode);
+        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, samples);
     }
 
     private static void putZipEntriesForSpacesOfEntities(final ZipOutputStream zos, final Set<String> existingZipEntries,
-            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor) throws IOException
+            final Collection<?> entities) throws IOException
     {
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, spaceCodeExtractor.apply(entity));
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, getSpaceCode(entity));
 
 //            final byte[] htmlBytes = getHtml(sessionToken, entity).getBytes(StandardCharsets.UTF_8);
 //            writeInChunks(bos, htmlBytes);
@@ -356,23 +355,21 @@ public class ExportExecutor implements IExportExecutor
     {
         final Collection<Project> projects =
                 EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, projects, ExportExecutor::getSpaceCode, ExportExecutor::getProjectCode);
+        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, projects);
         final Collection<Experiment> experiments =
                 EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, experiments, ExportExecutor::getSpaceCode, ExportExecutor::getProjectCode);
+        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, experiments);
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, samples, ExportExecutor::getSpaceCode, ExportExecutor::getProjectCode);
+        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, samples);
     }
 
     private static void putZipEntriesForProjectsOfEntities(final ZipOutputStream zos, final Set<String> existingZipEntries,
-            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor,
-            final Function<Object, String> projectCodeExtractor) throws IOException
+            final Collection<?> entities) throws IOException
     {
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
-                    projectCodeExtractor.apply(entity));
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY,getSpaceCode(entity), getProjectCode(entity));
 
             //            final byte[] htmlBytes = getHtml(sessionToken, entity).getBytes(StandardCharsets.UTF_8);
             //            writeInChunks(bos, htmlBytes);
@@ -387,30 +384,25 @@ public class ExportExecutor implements IExportExecutor
     {
         final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
                 groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, ExportExecutor::getSpaceCode,
-                ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments);
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, ExportExecutor::getSpaceCode,
-                ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples);
     }
 
     private void putZipEntriesForExperimentsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Set<String> existingZipEntries,
-            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor,
-            final Function<Object, String> projectCodeExtractor, final Function<Object, String> experimentCodeExtractor,
-            final Function<Object, String> experimentNameExtractor) throws IOException
+            final Set<String> existingZipEntries, final Collection<?> entities) throws IOException
     {
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
-                    projectCodeExtractor.apply(entity), experimentNameExtractor.apply(entity), experimentCodeExtractor.apply(entity));
+            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, getSpaceCode(entity),
+                    getProjectCode(entity), getExperimentName(entity), getExperimentCode(entity));
             zos.closeEntry();
 
             if (entity instanceof Experiment)
             {
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
-                        projectCodeExtractor.apply(entity), experimentNameExtractor.apply(entity), experimentCodeExtractor.apply(entity),
+                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, getSpaceCode(entity),
+                        getProjectCode(entity), getExperimentName(entity), getExperimentCode(entity),
                         HTML_EXTENSION);
 
                 final byte[] htmlBytes = getHtml(sessionToken, (Experiment) entity).getBytes(StandardCharsets.UTF_8);
@@ -427,26 +419,18 @@ public class ExportExecutor implements IExportExecutor
     {
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForSamples(zos, bos, sessionToken, existingZipEntries, samples, ExportExecutor::getSpaceCode,
-                ExportExecutor::getProjectCode, ExportExecutor::getExperimentCode, ExportExecutor::getExperimentName,
-                ExportExecutor::getSampleCode, ExportExecutor::getSampleName);
+        putZipEntriesForSamples(zos, bos, sessionToken, existingZipEntries, samples);
     }
 
     private void putZipEntriesForSamples(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Set<String> existingZipEntries,
-            final Collection<?> entities, final Function<Object, String> spaceCodeExtractor,
-            final Function<Object, String> projectCodeExtractor, final Function<Object, String> experimentCodeExtractor,
-            final Function<Object, String> experimentNameExtractor, final Function<Object, String> sampleCodeExtractor,
-            final Function<Object, String> sampleNameExtractor) throws IOException
+            final Set<String> existingZipEntries, final Collection<?> entities) throws IOException
     {
         for (final Object entity : entities)
         {
             if (entity instanceof Sample)
             {
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, spaceCodeExtractor.apply(entity),
-                        projectCodeExtractor.apply(entity), experimentNameExtractor.apply(entity), experimentCodeExtractor.apply(entity),
-                        sampleNameExtractor.apply(entity), sampleCodeExtractor.apply(entity),
-                        HTML_EXTENSION);
+                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, getSpaceCode(entity), getProjectCode(entity),
+                        getExperimentName(entity), getExperimentCode(entity), getSampleName(entity), getSampleCode(entity), HTML_EXTENSION);
 
                 final byte[] htmlBytes = getHtml(sessionToken, (Sample) entity).getBytes(StandardCharsets.UTF_8);
                 writeInChunks(bos, htmlBytes);
