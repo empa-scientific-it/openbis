@@ -70,7 +70,7 @@ public class XLSExport
 
     public static final String SCRIPTS_DIRECTORY = "scripts";
 
-    private static final String TYPE_KEY = "TYPE";
+    private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
     private XLSExport()
     {
@@ -182,10 +182,7 @@ public class XLSExport
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
 
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
-                    ? null
-                    : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
-                            ? TYPE_KEY : exportableKind.toString());
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, exportableKind);
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
@@ -213,6 +210,15 @@ public class XLSExport
         }
 
         return new PrepareWorkbookResult(wb, scripts, warnings);
+    }
+
+    private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final ExportableKind exportableKind)
+    {
+        return exportFields == null
+                ? null
+                : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
+                ? TYPE_EXPORT_FIELD_KEY : exportableKind.toString());
     }
 
     private static List<ExportablePermId> expandReference(final IApplicationServerApi api,

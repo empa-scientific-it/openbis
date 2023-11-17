@@ -306,18 +306,18 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
-//            {
-//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-//                    "export-sample-filtered-fields-html.zip",
-//                    EnumSet.of(ExportFormat.HTML),
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-//                    new SelectedFields(
-//                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
-//                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
-//                    XlsTextFormat.PLAIN,
-//                    false, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-filtered-fields-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    new SelectedFields(
+                            List.of(CODE, PARENTS, CHILDREN, MODIFIER, MODIFICATION_DATE),
+                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
+                    XlsTextFormat.PLAIN,
+                    false, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private ExportData()

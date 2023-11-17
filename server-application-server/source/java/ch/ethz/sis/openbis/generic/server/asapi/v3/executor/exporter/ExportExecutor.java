@@ -19,10 +19,19 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.ATTRIBUTE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.PROPERTY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.SCRIPTS_DIRECTORY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormatting;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -76,9 +85,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IParentChildrenHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
@@ -92,6 +103,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
@@ -185,6 +197,8 @@ public class ExportExecutor implements IExportExecutor
     private static final String DATA_PREFIX_TEMPLATE = "data:%s;base64,";
 
     private static final String NAME_PROPERTY_NAME = "$NAME";
+
+    private static final String KIND_DOCUMENT_PROPERTY_ID = "Kind";
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
@@ -304,10 +318,10 @@ public class ExportExecutor implements IExportExecutor
                 final Map<ExportableKind, List<String>> groupedExportablePermIds =
                         exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
 
-                exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
-                exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries);
+                exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
+                exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
+                exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
+                exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
             }
         }
 
@@ -315,7 +329,8 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
             throws IOException
     {
         final Collection<Space> spaces =
@@ -350,7 +365,8 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void exportProjectsDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
             throws IOException
     {
         final Collection<Project> projects =
@@ -379,19 +395,21 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void exportExperimentsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
-            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
             throws IOException
     {
         final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
                 groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields);
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields);
     }
 
     private void putZipEntriesForExperimentsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Set<String> existingZipEntries, final Collection<?> entities) throws IOException
+            final Set<String> existingZipEntries, final Collection<?> entities,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
     {
         for (final Object entity : entities)
         {
@@ -405,7 +423,9 @@ public class ExportExecutor implements IExportExecutor
                         getProjectCode(entity), getExperimentName(entity), getExperimentCode(entity),
                         HTML_EXTENSION);
 
-                final byte[] htmlBytes = getHtml(sessionToken, (Experiment) entity).getBytes(StandardCharsets.UTF_8);
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, EXPERIMENT);
+
+                final byte[] htmlBytes = getHtml(sessionToken, (Experiment) entity, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
                 writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();
@@ -414,16 +434,28 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void exportSamplesDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
-            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries)
+            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
             throws IOException
     {
+        final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, SAMPLE);
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForSamples(zos, bos, sessionToken, existingZipEntries, samples);
+        putZipEntriesForSamples(zos, bos, sessionToken, existingZipEntries, samples, entityTypeExportFieldsMap);
+    }
+
+    private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final ExportableKind exportableKind)
+    {
+        return exportFields == null
+                ? null
+                : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
+                ? TYPE_EXPORT_FIELD_KEY : exportableKind.toString());
     }
 
     private void putZipEntriesForSamples(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Set<String> existingZipEntries, final Collection<?> entities) throws IOException
+            final Set<String> existingZipEntries, final Collection<?> entities,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap) throws IOException
     {
         for (final Object entity : entities)
         {
@@ -432,7 +464,7 @@ public class ExportExecutor implements IExportExecutor
                 putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, getSpaceCode(entity), getProjectCode(entity),
                         getExperimentName(entity), getExperimentCode(entity), getSampleName(entity), getSampleCode(entity), HTML_EXTENSION);
 
-                final byte[] htmlBytes = getHtml(sessionToken, (Sample) entity).getBytes(StandardCharsets.UTF_8);
+                final byte[] htmlBytes = getHtml(sessionToken, (Sample) entity, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
                 writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();
@@ -611,7 +643,8 @@ public class ExportExecutor implements IExportExecutor
         warnings.addAll(xlsExportResult.getWarnings());
     }
 
-    private String getHtml(final String sessionToken, final ICodeHolder entityObj) throws IOException
+    private String getHtml(final String sessionToken, final ICodeHolder entityObj,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap) throws IOException
     {
         final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
 
@@ -622,7 +655,7 @@ public class ExportExecutor implements IExportExecutor
         final IEntityType typeObj;
         if (entityObj instanceof Experiment)
         {
-            documentBuilder.addProperty("Kind", "Experiment");
+            documentBuilder.addProperty(KIND_DOCUMENT_PROPERTY_ID, "Experiment");
             final ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
             searchCriteria.withCode().thatEquals(((Experiment) entityObj).getType().getCode());
             final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
@@ -631,7 +664,7 @@ public class ExportExecutor implements IExportExecutor
             typeObj = results.getObjects().get(0);
         } else if (entityObj instanceof Sample)
         {
-            documentBuilder.addProperty("Kind", "Sample");
+            documentBuilder.addProperty(KIND_DOCUMENT_PROPERTY_ID, "Sample");
             final SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
             searchCriteria.withCode().thatEquals(((Sample) entityObj).getType().getCode());
             final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
@@ -641,7 +674,7 @@ public class ExportExecutor implements IExportExecutor
         } else if (entityObj instanceof DataSet)
         {
             final DataSet dataSet = (DataSet) entityObj;
-            documentBuilder.addProperty("Kind", "DataSet");
+            documentBuilder.addProperty(KIND_DOCUMENT_PROPERTY_ID, "DataSet");
             final DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
             searchCriteria.withCode().thatEquals(dataSet.getType().getCode());
             final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
@@ -655,33 +688,64 @@ public class ExportExecutor implements IExportExecutor
 
         if (entityObj instanceof Project)
         {
-            documentBuilder.addProperty("Kind", "Project");
+            documentBuilder.addProperty(KIND_DOCUMENT_PROPERTY_ID, "Project");
         } else
         {
             documentBuilder.addProperty("Type", ((IEntityTypeHolder) entityObj).getType().getCode());
         }
 
-        if (entityObj instanceof IRegistratorHolder)
+        // TODO: what to do when typeObj is null?
+        final List<Map<String, String>> selectedExportFields =
+                entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() || typeObj == null
+                        ? null
+                        : entityTypeExportFieldsMap.get(typeObj.getCode());
+
+        final Set<String> selectedExportAttributes = selectedExportFields != null
+                ? selectedExportFields.stream().filter(map -> Objects.equals(map.get(FIELD_TYPE_KEY), ATTRIBUTE.name()))
+                .map(map -> map.get(FIELD_ID_KEY)).collect(Collectors.toSet())
+                : null;
+
+        final Set<String> selectedExportProperties = selectedExportFields != null
+                ? selectedExportFields.stream().filter(map -> Objects.equals(map.get(FIELD_TYPE_KEY), PROPERTY.name()))
+                .map(map -> map.get(FIELD_ID_KEY)).collect(Collectors.toSet())
+                : null;
+
+        if (allowsValue(selectedExportAttributes, Attribute.CODE.name()))
+        {
+            documentBuilder.addProperty("Code", entityObj.getCode());
+        }
+
+        if (entityObj instanceof IPermIdHolder && allowsValue(selectedExportAttributes, Attribute.PERM_ID.name()))
+        {
+            documentBuilder.addProperty("Perm ID", ((IPermIdHolder) entityObj).getPermId().toString());
+        }
+
+        if (entityObj instanceof IIdentifierHolder && allowsValue(selectedExportAttributes, Attribute.IDENTIFIER.name()))
+        {
+            documentBuilder.addProperty("Identifier", entityObj.getCode());
+        }
+
+        if (entityObj instanceof IRegistratorHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATOR.name()))
         {
             documentBuilder.addProperty("Registrator", ((IRegistratorHolder) entityObj).getRegistrator().getUserId());
         }
 
-        if (entityObj instanceof IRegistrationDateHolder)
+        if (entityObj instanceof IRegistrationDateHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATION_DATE.name()))
         {
             documentBuilder.addProperty("Registration Date", String.valueOf(((IRegistrationDateHolder) entityObj).getRegistrationDate()));
         }
 
-        if (entityObj instanceof IModifierHolder)
+        if (entityObj instanceof IModifierHolder && allowsValue(selectedExportAttributes, Attribute.MODIFIER.name()))
         {
             documentBuilder.addProperty("Modifier", ((IModifierHolder) entityObj).getModifier().getUserId());
         }
 
-        if (entityObj instanceof IModificationDateHolder)
+        if (entityObj instanceof IModificationDateHolder && allowsValue(selectedExportAttributes, Attribute.MODIFICATION_DATE.name()))
         {
             documentBuilder.addProperty("Modification Date", String.valueOf(((IModificationDateHolder) entityObj).getModificationDate()));
         }
 
-        if (entityObj instanceof Project)
+        if (entityObj instanceof Project && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
         {
             final String description = ((Project) entityObj).getDescription();
             if (description != null)
@@ -694,27 +758,33 @@ public class ExportExecutor implements IExportExecutor
         if (entityObj instanceof IParentChildrenHolder<?>)
         {
             final IParentChildrenHolder<?> parentChildrenHolder = (IParentChildrenHolder<?>) entityObj;
-            documentBuilder.addHeader("Parents");
-            final List<?> parents = parentChildrenHolder.getParents();
-            for (final Object parent : parents)
+            if (allowsValue(selectedExportAttributes, Attribute.PARENTS.name()))
             {
-                final String relCodeName = ((ICodeHolder) parent).getCode();
-                final Map<String, Serializable> properties = ((IPropertiesHolder) parent).getProperties();
-                if (properties.containsKey("NAME"))
+                documentBuilder.addHeader("Parents");
+                final List<?> parents = parentChildrenHolder.getParents();
+                for (final Object parent : parents)
                 {
-                    documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
+                    final String relCodeName = ((ICodeHolder) parent).getCode();
+                    final Map<String, Serializable> properties = ((IPropertiesHolder) parent).getProperties();
+                    if (properties.containsKey("NAME"))
+                    {
+                        documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
+                    }
                 }
             }
 
-            documentBuilder.addHeader("Children");
-            final List<?> children = parentChildrenHolder.getChildren();
-            for (final Object child : children)
+            if (allowsValue(selectedExportAttributes, Attribute.CHILDREN.name()))
             {
-                final String relCodeName = ((ICodeHolder) child).getCode();
-                final Map<String, Serializable> properties = ((IPropertiesHolder) child).getProperties();
-                if (properties.containsKey("NAME"))
+                documentBuilder.addHeader("Children");
+                final List<?> children = parentChildrenHolder.getChildren();
+                for (final Object child : children)
                 {
-                    documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
+                    final String relCodeName = ((ICodeHolder) child).getCode();
+                    final Map<String, Serializable> properties = ((IPropertiesHolder) child).getProperties();
+                    if (properties.containsKey("NAME"))
+                    {
+                        documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
+                    }
                 }
             }
         }
@@ -730,11 +800,15 @@ public class ExportExecutor implements IExportExecutor
                     final Map<String, Serializable> properties = ((IPropertiesHolder) entityObj).getProperties();
                     for (final PropertyAssignment propertyAssignment : propertyAssignments)
                     {
-                        final PropertyType propertyType = propertyAssignment.getPropertyType();
+                        System.out.println(selectedExportFields);
 
-                        if (properties.containsKey(propertyType.getCode()))
+                        final PropertyType propertyType = propertyAssignment.getPropertyType();
+                        final String propertyTypeCode = propertyType.getCode();
+                        final Object rawPropertyValue = properties.get(propertyTypeCode);
+
+                        if (rawPropertyValue != null && allowsValue(selectedExportProperties, propertyTypeCode))
                         {
-                            final String initialPropertyValue = String.valueOf(properties.get(propertyType.getCode()));
+                            final String initialPropertyValue = String.valueOf(rawPropertyValue);
                             final String propertyValue;
 
                             // TODO: test image and spreadsheet encoding.
@@ -808,6 +882,18 @@ public class ExportExecutor implements IExportExecutor
         return result.toString();
     }
 
+    /**
+     * Whether the set does not forbid a value.
+     *
+     * @param set the set to look in
+     * @param value the value to be found
+     * @return <code>true</code> if set is <code>null</code> or value is in the set
+     */
+    private boolean allowsValue(final Set<String> set, final String value)
+    {
+        return set == null || set.contains(value);
+    }
+
     private static String convertJsonToHtml(final TreeNode node) throws IOException
     {
         final TreeNode data = node.get("data");
@@ -871,7 +957,7 @@ public class ExportExecutor implements IExportExecutor
     private static Map<String, List<Map<String, String>>> findExportAttributes(final ExportableKind exportableKind, final SelectedFields selectedFields)
     {
         final List<Map<String, String>> attributes = selectedFields.getAttributes().stream()
-                .map(attribute -> Map.of(IExportFieldsFinder.TYPE, FieldType.ATTRIBUTE.name(), IExportFieldsFinder.ID, attribute.name()))
+                .map(attribute -> Map.of(IExportFieldsFinder.TYPE, ATTRIBUTE.name(), IExportFieldsFinder.ID, attribute.name()))
                 .collect(Collectors.toList());
         return Map.of(exportableKind.name(), attributes);
     }
