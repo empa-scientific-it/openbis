@@ -297,6 +297,17 @@ public class ExportData
                     false // withImportCompatibility
             },
             {
+                    // Experiment: EXP-SPACE-TEST
+                    "export-experiment-filtered-fields-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    new SelectedFields(List.of(CODE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
+                            List.of(new PropertyTypePermId("DESCRIPTION"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-html.zip",
                     EnumSet.of(ExportFormat.HTML),
