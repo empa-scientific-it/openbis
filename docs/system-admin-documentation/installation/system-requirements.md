@@ -70,7 +70,7 @@ We recommend to set up openBIS on a Linux operating system. We provide support f
 The following software packages are required:
 
 - The binaries `bash`, `awk`, `sed` and `unzip` need to be installed and in the `PATH` of the openBIS user.
-- Java Runtime Environment: recent versions of Oracle JRE 11
+- Java Runtime Environment: recent versions of Oracle JRE 11 or OpenJDK 11
 - PostgreSQL 15
 
 
