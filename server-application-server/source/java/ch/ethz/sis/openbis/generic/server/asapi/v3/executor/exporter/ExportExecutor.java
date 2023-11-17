@@ -731,43 +731,46 @@ public class ExportExecutor implements IExportExecutor
                     for (final PropertyAssignment propertyAssignment : propertyAssignments)
                     {
                         final PropertyType propertyType = propertyAssignment.getPropertyType();
+
                         if (properties.containsKey(propertyType.getCode()))
                         {
-                            final String propertyValueString = String.valueOf(properties.get(propertyType.getCode()));
+                            final String initialPropertyValue = String.valueOf(properties.get(propertyType.getCode()));
+                            final String propertyValue;
 
                             // TODO: test image and spreadsheet encoding.
                             if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                     Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                             {
-                                final StringBuilder propertyValue = new StringBuilder(propertyValueString);
-                                final Document doc = Jsoup.parse(propertyValueString);
+                                final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
+                                final Document doc = Jsoup.parse(initialPropertyValue);
                                 final Elements imageElements = doc.select("img");
                                 for (final Element imageElement : imageElements)
                                 {
                                     final String imageSrc = imageElement.attr("src");
-                                    replaceAll(propertyValue, imageSrc, encodeImageContentToString(imageSrc));
+                                    replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
                                 }
+                                propertyValue = propertyValueBuilder.toString();
                             } else if (propertyType.getDataType() == DataType.XML
                                     && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
-                                    && propertyValueString.toUpperCase().startsWith(DATA_TAG_START) && propertyValueString.toUpperCase()
+                                    && initialPropertyValue.toUpperCase().startsWith(DATA_TAG_START) && initialPropertyValue.toUpperCase()
                                     .endsWith(DATA_TAG_END))
                             {
-                                final String subString = propertyValueString.substring(DATA_TAG_START_LENGTH,
-                                        propertyValueString.length() - DATA_TAG_END_LENGTH);
+                                final String subString = initialPropertyValue.substring(DATA_TAG_START_LENGTH,
+                                        initialPropertyValue.length() - DATA_TAG_END_LENGTH);
                                 final String decodedString = new String(Base64.getDecoder().decode(subString), StandardCharsets.UTF_8);
 
                                 try (final JsonParser jsonParser = JSON_FACTORY.createParser(decodedString))
                                 {
-                                    final String htmlValue = convertJsonToHtml(jsonParser.readValueAsTree());
-
-                                    if (!Objects.equals(htmlValue, "\uFFFD(undefined)"))
-                                    {
-                                        documentBuilder.addProperty(propertyType.getLabel(), htmlValue);
-                                    }
+                                    propertyValue = convertJsonToHtml(jsonParser.readValueAsTree());
                                 }
                             } else
                             {
-                                // TODO: there should be this default branch.
+                                propertyValue = initialPropertyValue;
+                            }
+
+                            if (!Objects.equals(propertyValue, "\uFFFD(undefined)"))
+                            {
+                                documentBuilder.addProperty(propertyType.getLabel(), propertyValue);
                             }
                         }
                     }
