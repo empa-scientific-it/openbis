@@ -81,6 +81,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -147,6 +148,8 @@ public class ExportExecutor implements IExportExecutor
     public static final String PDF_DIRECTORY = "pdf";
 
     public static final String HTML_EXTENSION = ".html";
+
+    public static final String PDF_EXTENSION = ".pdf";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
@@ -321,7 +324,7 @@ public class ExportExecutor implements IExportExecutor
 
                 exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
                 exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
-                exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
+                exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
                 exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
             }
         }
@@ -393,19 +396,19 @@ public class ExportExecutor implements IExportExecutor
 
     private void exportExperimentsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
             final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
         final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
                 groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields, exportFormats);
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields, exportFormats);
     }
 
     private void putZipEntriesForExperimentsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Set<String> existingZipEntries, final Collection<?> entities,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
         for (final Object entity : entities)
         {
@@ -422,20 +425,37 @@ public class ExportExecutor implements IExportExecutor
                 }
             }
 
-            if (entity instanceof Experiment)
+            final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+            final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+
+            if (entity instanceof Experiment && (hasHtmlFormat || hasPdfFormat))
             {
                 final Experiment experiment = (Experiment) entity;
                 final Project project = experiment.getProject();
 
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
-                        project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(), HTML_EXTENSION);
-
                 final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, EXPERIMENT);
+                final String html = getHtml(sessionToken, (Experiment) entity, entityTypeExportFieldsMap);
+                final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
 
-                final byte[] htmlBytes = getHtml(sessionToken, (Experiment) entity, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
-                writeInChunks(bos, htmlBytes);
+                if (hasHtmlFormat)
+                {
+                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
+                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(), HTML_EXTENSION);
+                    writeInChunks(bos, htmlBytes);
+                    zos.closeEntry();
+                }
 
-                zos.closeEntry();
+                if (hasPdfFormat)
+                {
+                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
+                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(), PDF_EXTENSION);
+
+                    final PdfRendererBuilder builder = new PdfRendererBuilder();
+
+                    builder.withHtmlContent(html, null);
+                    builder.toStream(bos);
+                    builder.run(); // zos is closed here, closing it later throws an exception
+                }
             }
         }
     }
@@ -561,59 +581,6 @@ public class ExportExecutor implements IExportExecutor
             {
                 return null;
             }
-        } else
-        {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private static String getExperimentCode(final Object entity)
-    {
-        if (entity instanceof Experiment)
-        {
-            return ((Experiment) entity).getCode();
-        } else if (entity instanceof Sample)
-        {
-            final Sample sample = (Sample) entity;
-            final Experiment experiment = sample.getExperiment();
-            return (experiment != null) ? experiment.getCode() : null;
-        } else
-        {
-            throw new IllegalArgumentException();
-        }
-    }
-    private static String getExperimentName(final Object entity)
-    {
-        if (entity instanceof Experiment)
-        {
-            return ((Experiment) entity).getVarcharProperty(NAME_PROPERTY_NAME);
-        } else if (entity instanceof Sample)
-        {
-            final Sample sample = (Sample) entity;
-            final Experiment experiment = sample.getExperiment();
-            return (experiment != null) ? experiment.getVarcharProperty(NAME_PROPERTY_NAME) : null;
-        } else
-        {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private static String getSampleCode(final Object entity)
-    {
-        if (entity instanceof Sample)
-        {
-            return ((Sample) entity).getCode();
-        } else
-        {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private static String getSampleName(final Object entity)
-    {
-        if (entity instanceof Sample)
-        {
-            return ((Sample) entity).getVarcharProperty(NAME_PROPERTY_NAME);
         } else
         {
             throw new IllegalArgumentException();

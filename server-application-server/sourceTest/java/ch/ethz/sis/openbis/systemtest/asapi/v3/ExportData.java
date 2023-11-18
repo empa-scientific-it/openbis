@@ -352,6 +352,26 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
+            {
+                    // Experiment: EXP-SPACE-TEST
+                    "export-experiment-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+//            {
+//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+//                    "export-sample-pdf.zip",
+//                    EnumSet.of(ExportFormat.PDF),
+//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+//                    new AllFields(),
+//                    XlsTextFormat.PLAIN,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
     };
 
     private ExportData()
