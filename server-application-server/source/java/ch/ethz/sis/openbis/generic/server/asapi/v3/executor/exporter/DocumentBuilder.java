@@ -156,16 +156,6 @@ class DocumentBuilder
                     }
                 }
             }
-
-            // Converts to Base64
-            final String src = element.attr("src");
-            try
-            {
-                element.attr("src", getDataUriFromUri(src));
-            } catch (final Exception ex)
-            {
-                LOG.error("Error while converting to Base64", ex);
-            }
         }
 
         return jsoupDoc.html();
