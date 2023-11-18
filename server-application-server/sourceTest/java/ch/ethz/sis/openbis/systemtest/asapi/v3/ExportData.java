@@ -61,6 +61,8 @@ public class ExportData
 
     static final String RICH_TEXT_PROPERTY_NAME = "MULTILINE";
 
+    static final String RICH_TEXT_WITH_IMAGE_PROPERTY_NAME = "MULTILINE_WITH_IMAGE";
+
     static final Object[][] EXPORT_DATA = {
             // XLS: All fields
             {
@@ -327,6 +329,16 @@ public class ExportData
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-with-image-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME))),
+                    XlsTextFormat.RICH,
+                    true, // withReferredTypes
                     false // withImportCompatibility
             },
     };

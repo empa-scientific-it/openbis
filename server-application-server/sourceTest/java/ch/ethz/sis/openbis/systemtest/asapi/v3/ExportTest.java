@@ -17,10 +17,13 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_NAME;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
+import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_IMAGE_PROPERTY_NAME;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -47,6 +50,8 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -59,6 +64,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
@@ -66,6 +72,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
@@ -76,7 +83,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 
 public class ExportTest extends AbstractTest
 {
@@ -87,17 +96,27 @@ public class ExportTest extends AbstractTest
 
     private static final String RICH_TEXT_VALUE = String.format("<b>%s</b>", PLAIN_TEXT_VALUE);
 
+    private static final String XLS_EXPORT_RESOURCES_PATH = "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/export/";
+
+    private static final String RICH_TEXT_WITH_IMAGE_VALUE = String.format("<b>Here goes the image: <figure class=\"image\">\n"
+            + "<img src=\"%snature.png\"/></figure></b>", XLS_EXPORT_RESOURCES_PATH);
+
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
-    private static final String XLS_EXPORT_RESOURCES_PATH = "ch/ethz/sis/openbis/systemtest/asapi/v3/test_files/export/";
+    private static final String JAVA_FOLDER_PATH = "./sourceTest/java/";
 
     protected String sessionToken;
 
-    private PropertyTypePermId propertyTypePermId;
+    private PropertyTypePermId richTextPropertyTypePermId;
+
+    private PropertyTypePermId richTextWithImagePropertyTypePermId;
 
     private EntityTypePermId sampleTypePermId;
 
     private SamplePermId samplePermId;
+
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
 
     @DataProvider
     protected Object[][] xlsExportData()
@@ -108,28 +127,48 @@ public class ExportTest extends AbstractTest
     @BeforeClass
     public void beforeClass()
     {
+        configurer.getResolvedProps().setProperty(REPO_PATH_KEY, JAVA_FOLDER_PATH);
+
         sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
-        propertyTypeCreation.setCode(RICH_TEXT_PROPERTY_NAME);
-        propertyTypeCreation.setLabel("Multiline");
-        propertyTypeCreation.setDescription("Property type with multiline text value");
-        propertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
-        propertyTypePermId = v3api.createPropertyTypes(sessionToken, List.of(propertyTypeCreation)).get(0);
+        final PropertyTypeCreation richTextPropertyTypeCreation = new PropertyTypeCreation();
+        richTextPropertyTypeCreation.setCode(RICH_TEXT_PROPERTY_NAME);
+        richTextPropertyTypeCreation.setLabel("Multiline");
+        richTextPropertyTypeCreation.setDescription("Property type with multiline text value");
+        richTextPropertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
+
+        final PropertyTypeCreation richTextWithImagePropertyTypeCreation = new PropertyTypeCreation();
+        richTextWithImagePropertyTypeCreation.setCode(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME);
+        richTextWithImagePropertyTypeCreation.setLabel("Image");
+        richTextWithImagePropertyTypeCreation.setDescription("Property type with image");
+        richTextWithImagePropertyTypeCreation.setMetaData(Map.of("custom_widget", "Word Processor"));
+        richTextWithImagePropertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
+
+        final List<PropertyTypePermId> propertyTypes =
+                v3api.createPropertyTypes(sessionToken, List.of(richTextPropertyTypeCreation, richTextWithImagePropertyTypeCreation));
+        richTextPropertyTypePermId = propertyTypes.get(0);
+        richTextWithImagePropertyTypePermId = propertyTypes.get(1);
 
         final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
-        final PropertyAssignmentCreation propertyAssignmentCreation = new PropertyAssignmentCreation();
-        propertyAssignmentCreation.setPropertyTypeId(propertyTypePermId);
         sampleTypeCreation.setCode("MULTI_LINE_VALUE_SAMPLE_TYPE");
-        sampleTypeCreation.setPropertyAssignments(List.of(propertyAssignmentCreation));
+
+        final PropertyAssignmentCreation richTextPropertyAssignmentCreation = new PropertyAssignmentCreation();
+        richTextPropertyAssignmentCreation.setPropertyTypeId(richTextPropertyTypePermId);
+
+        final PropertyAssignmentCreation richTextWithImagePropertyAssignmentCreation = new PropertyAssignmentCreation();
+        richTextWithImagePropertyAssignmentCreation.setPropertyTypeId(richTextWithImagePropertyTypePermId);
+
+        sampleTypeCreation.setPropertyAssignments(List.of(richTextPropertyAssignmentCreation, richTextWithImagePropertyAssignmentCreation));
         sampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
 
-        final SampleCreation sampleCreation = new SampleCreation();
-        sampleCreation.setCode(RICH_TEXT_SAMPLE_CODE);
-        sampleCreation.setTypeId(sampleTypePermId);
-        sampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
+        final SampleCreation richTextSampleCreation = new SampleCreation();
+        richTextSampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        richTextSampleCreation.setCode(RICH_TEXT_SAMPLE_CODE);
+        richTextSampleCreation.setTypeId(sampleTypePermId);
+        richTextSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
+        richTextSampleCreation.setProperty(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME, RICH_TEXT_WITH_IMAGE_VALUE);
 
-        samplePermId = v3api.createSamples(sessionToken, List.of(sampleCreation)).get(0);
+        samplePermId = v3api.createSamples(sessionToken, List.of(richTextSampleCreation)).get(0);
 
         v3api.logout(sessionToken);
     }
@@ -150,7 +189,7 @@ public class ExportTest extends AbstractTest
 
         final PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
         propertyTypeDeletionOptions.setReason("Test");
-        v3api.deletePropertyTypes(sessionToken, List.of(propertyTypePermId), propertyTypeDeletionOptions);
+        v3api.deletePropertyTypes(sessionToken, List.of(richTextPropertyTypePermId), propertyTypeDeletionOptions);
 
         v3api.logout(sessionToken);
     }

@@ -861,7 +861,7 @@ public class ExportExecutor implements IExportExecutor
         final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
         final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
         final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
-        final String filePath = getFilesRepository().getPath() + imageSrc;
+        final String filePath = getFilesRepository().getCanonicalPath() + "/" + imageSrc;
 
         final StringBuilder result = new StringBuilder(dataPrefix);
         final FileInputStream fileInputStream = new FileInputStream(filePath);
