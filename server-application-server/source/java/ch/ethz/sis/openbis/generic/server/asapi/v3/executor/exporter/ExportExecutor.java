@@ -357,10 +357,6 @@ public class ExportExecutor implements IExportExecutor
         for (final Object entity : entities)
         {
             putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, getSpaceCode(entity));
-
-//            final byte[] htmlBytes = getHtml(sessionToken, entity).getBytes(StandardCharsets.UTF_8);
-//            writeInChunks(bos, htmlBytes);
-
             zos.closeEntry();
         }
     }
@@ -386,19 +382,18 @@ public class ExportExecutor implements IExportExecutor
     {
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY,getSpaceCode(entity), getProjectCode(entity));
-
-            //            final byte[] htmlBytes = getHtml(sessionToken, entity).getBytes(StandardCharsets.UTF_8);
-            //            writeInChunks(bos, htmlBytes);
-
-            zos.closeEntry();
+            final String projectCode = getProjectCode(entity);
+            if (projectCode != null)
+            {
+                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY, getSpaceCode(entity), projectCode);
+                zos.closeEntry();
+            }
         }
     }
 
     private void exportExperimentsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
             final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
-            throws IOException
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
     {
         final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
                 groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
@@ -414,15 +409,26 @@ public class ExportExecutor implements IExportExecutor
     {
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, getSpaceCode(entity),
-                    getProjectCode(entity), getExperimentName(entity), getExperimentCode(entity));
-            zos.closeEntry();
+            if (entity instanceof Sample || entity instanceof Experiment)
+            {
+                final Experiment experiment = entity instanceof Experiment ? (Experiment) entity : ((Sample) entity).getExperiment();
+                if (experiment != null)
+                {
+                    final Project project = experiment.getProject();
+
+                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, project.getSpace().getCode(),
+                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode());
+                    zos.closeEntry();
+                }
+            }
 
             if (entity instanceof Experiment)
             {
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, getSpaceCode(entity),
-                        getProjectCode(entity), getExperimentName(entity), getExperimentCode(entity),
-                        HTML_EXTENSION);
+                final Experiment experiment = (Experiment) entity;
+                final Project project = experiment.getProject();
+
+                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
+                        project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(), HTML_EXTENSION);
 
                 final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, EXPERIMENT);
 
@@ -462,11 +468,34 @@ public class ExportExecutor implements IExportExecutor
         {
             if (entity instanceof Sample)
             {
-                // TODO: this should be rewritten
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, getSpaceCode(entity), getProjectCode(entity),
-                        getExperimentName(entity), getExperimentCode(entity), getSampleName(entity), getSampleCode(entity), HTML_EXTENSION);
+                final Sample sample = (Sample) entity;
 
-                final byte[] htmlBytes = getHtml(sessionToken, (Sample) entity, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
+                final Experiment experiment = sample.getExperiment();
+                if (experiment != null)
+                {
+                    final Project project = experiment.getProject();
+                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
+                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(),
+                            sample.getVarcharProperty(NAME_PROPERTY_NAME), sample.getCode(), HTML_EXTENSION);
+                } else
+                {
+                    final Project project = sample.getProject();
+                    if (project != null)
+                    {
+                        putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
+                                project.getCode(), sample.getVarcharProperty(NAME_PROPERTY_NAME), sample.getCode(), HTML_EXTENSION);
+                    } else
+                    {
+                        final Space space = sample.getSpace();
+                        if (space != null)
+                        {
+                            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s (%s)%s", PDF_DIRECTORY, space.getCode(),
+                                    sample.getVarcharProperty(NAME_PROPERTY_NAME), sample.getCode(), HTML_EXTENSION);
+                        }
+                    }
+                }
+
+                final byte[] htmlBytes = getHtml(sessionToken, sample, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
                 writeInChunks(bos, htmlBytes);
 
                 zos.closeEntry();
