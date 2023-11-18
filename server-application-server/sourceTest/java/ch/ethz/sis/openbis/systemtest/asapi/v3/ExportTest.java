@@ -24,6 +24,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTEN
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_IMAGE_PROPERTY_NAME;
+import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -111,6 +112,8 @@ public class ExportTest extends AbstractTest
 
     private PropertyTypePermId richTextWithImagePropertyTypePermId;
 
+    private PropertyTypePermId richTextWithSpreadsheetPropertyTypePermId;
+
     private EntityTypePermId sampleTypePermId;
 
     private SamplePermId samplePermId;
@@ -144,10 +147,19 @@ public class ExportTest extends AbstractTest
         richTextWithImagePropertyTypeCreation.setMetaData(Map.of("custom_widget", "Word Processor"));
         richTextWithImagePropertyTypeCreation.setDataType(DataType.MULTILINE_VARCHAR);
 
+        final PropertyTypeCreation richTextWithSpreadsheetPropertyTypeCreation = new PropertyTypeCreation();
+        richTextWithSpreadsheetPropertyTypeCreation.setCode(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME);
+        richTextWithSpreadsheetPropertyTypeCreation.setLabel("Spreadsheet");
+        richTextWithSpreadsheetPropertyTypeCreation.setDescription("Property type with spreadsheet");
+        richTextWithSpreadsheetPropertyTypeCreation.setMetaData(Map.of("custom_widget", "Spreadsheet"));
+        richTextWithSpreadsheetPropertyTypeCreation.setDataType(DataType.XML);
+
         final List<PropertyTypePermId> propertyTypes =
-                v3api.createPropertyTypes(sessionToken, List.of(richTextPropertyTypeCreation, richTextWithImagePropertyTypeCreation));
+                v3api.createPropertyTypes(sessionToken, List.of(richTextPropertyTypeCreation, richTextWithImagePropertyTypeCreation,
+                        richTextWithSpreadsheetPropertyTypeCreation));
         richTextPropertyTypePermId = propertyTypes.get(0);
         richTextWithImagePropertyTypePermId = propertyTypes.get(1);
+        richTextWithSpreadsheetPropertyTypePermId = propertyTypes.get(2);
 
         final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
         sampleTypeCreation.setCode("MULTI_LINE_VALUE_SAMPLE_TYPE");
@@ -158,7 +170,11 @@ public class ExportTest extends AbstractTest
         final PropertyAssignmentCreation richTextWithImagePropertyAssignmentCreation = new PropertyAssignmentCreation();
         richTextWithImagePropertyAssignmentCreation.setPropertyTypeId(richTextWithImagePropertyTypePermId);
 
-        sampleTypeCreation.setPropertyAssignments(List.of(richTextPropertyAssignmentCreation, richTextWithImagePropertyAssignmentCreation));
+        final PropertyAssignmentCreation richTextWithSpreadsheetPropertyAssignmentCreation = new PropertyAssignmentCreation();
+        richTextWithSpreadsheetPropertyAssignmentCreation.setPropertyTypeId(richTextWithSpreadsheetPropertyTypePermId);
+
+        sampleTypeCreation.setPropertyAssignments(List.of(richTextPropertyAssignmentCreation, richTextWithImagePropertyAssignmentCreation,
+                richTextWithSpreadsheetPropertyAssignmentCreation));
         sampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
 
         final SampleCreation richTextSampleCreation = new SampleCreation();
@@ -167,6 +183,7 @@ public class ExportTest extends AbstractTest
         richTextSampleCreation.setTypeId(sampleTypePermId);
         richTextSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
         richTextSampleCreation.setProperty(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME, RICH_TEXT_WITH_IMAGE_VALUE);
+        richTextSampleCreation.setProperty(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME, SpreadsheetData.BASE64_SPREADSHEET_DATA);
 
         samplePermId = v3api.createSamples(sessionToken, List.of(richTextSampleCreation)).get(0);
 

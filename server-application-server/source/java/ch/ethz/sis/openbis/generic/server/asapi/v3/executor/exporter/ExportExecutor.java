@@ -72,14 +72,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -461,6 +462,7 @@ public class ExportExecutor implements IExportExecutor
         {
             if (entity instanceof Sample)
             {
+                // TODO: this should be rewritten
                 putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, getSpaceCode(entity), getProjectCode(entity),
                         getExperimentName(entity), getExperimentCode(entity), getSampleName(entity), getSampleCode(entity), HTML_EXTENSION);
 
@@ -832,11 +834,9 @@ public class ExportExecutor implements IExportExecutor
                                 final String subString = initialPropertyValue.substring(DATA_TAG_START_LENGTH,
                                         initialPropertyValue.length() - DATA_TAG_END_LENGTH);
                                 final String decodedString = new String(Base64.getDecoder().decode(subString), StandardCharsets.UTF_8);
-
-                                try (final JsonParser jsonParser = JSON_FACTORY.createParser(decodedString))
-                                {
-                                    propertyValue = convertJsonToHtml(jsonParser.readValueAsTree());
-                                }
+                                final ObjectMapper objectMapper = new ObjectMapper();
+                                final JsonNode jsonNode = objectMapper.readTree(decodedString);
+                                propertyValue = convertJsonToHtml(jsonNode);
                             } else
                             {
                                 propertyValue = initialPropertyValue;
@@ -907,9 +907,10 @@ public class ExportExecutor implements IExportExecutor
             for (int j = 0; j < dataRow.size(); j++)
             {
                 final String stylesKey = convertNumericToAlphanumeric(i, j);
-                final String style = ((TextNode) styles.get(stylesKey)).text();
+                final String style = ((TextNode) styles.get(stylesKey)).textValue();
                 final TextNode cell = (TextNode) dataRow.get(j);
-                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.text()).append(" </td>\n");
+                tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
+                        .append(" </td>\n");
             }
             tableBody.append("</tr>\n");
         }
