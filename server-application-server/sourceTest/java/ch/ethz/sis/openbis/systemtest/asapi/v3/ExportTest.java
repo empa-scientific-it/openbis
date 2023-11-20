@@ -17,9 +17,9 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_NAME;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
@@ -65,7 +65,6 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
@@ -73,7 +72,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
@@ -224,7 +222,7 @@ public class ExportTest extends AbstractTest
     }
 
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
-    public void testXlsDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
+    public void testDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
             final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
             final boolean withImportCompatibility) throws Exception
     {
@@ -325,7 +323,7 @@ public class ExportTest extends AbstractTest
                     {
                         compareXlsxStreams(expectedInputStream, actualInputStream);
                     }
-                } else
+                } else if (!expectedZipEntry.endsWith(PDF_EXTENSION)) // We ignore PDF files in comparison
                 {
                     try (
                             final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(expectedZipEntry));
@@ -422,9 +420,7 @@ public class ExportTest extends AbstractTest
         assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",
                 actualResultFilePath));
 
-        final File file = files[0];
-
-        return file;
+        return files[0];
     }
 
 }
