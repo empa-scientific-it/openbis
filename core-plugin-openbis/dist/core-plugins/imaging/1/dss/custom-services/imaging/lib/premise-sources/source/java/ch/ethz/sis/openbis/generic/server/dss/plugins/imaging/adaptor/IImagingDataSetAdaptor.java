@@ -25,7 +25,7 @@ import java.util.Map;
 
 public interface IImagingDataSetAdaptor
 {
-    Serializable process(ImagingServiceContext context, File rootFile,
+    Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
             Map<String, Serializable> previewConfig, Map<String, String> metaData, String format);
 
 }

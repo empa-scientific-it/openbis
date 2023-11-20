@@ -25,7 +25,44 @@ public final class ImagingExportContainer extends ImagingDataContainer
 {
 
     @JsonProperty
+    private String permId;
+    @JsonProperty
+    private int index;
+    @JsonProperty
+    private String url;
+    @JsonProperty
     private ImagingDataSetExport export = null;
+
+    @JsonIgnore
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId) {
+        this.permId = permId;
+    }
+
+    @JsonIgnore
+    public int getIndex()
+    {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    @JsonIgnore
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(String url)
+    {
+        this.url = url;
+    }
 
     @JsonIgnore
     public ImagingDataSetExport getExport()

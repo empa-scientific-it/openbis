@@ -17,7 +17,7 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetExport;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetMultiExport;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -27,16 +27,30 @@ public class ImagingMultiExportContainer extends ImagingDataContainer
 {
 
     @JsonProperty
-    private List<ImagingDataSetExport> export = null;
+    private String url;
+
+    @JsonProperty
+    private List<ImagingDataSetMultiExport> exports = null;
 
     @JsonIgnore
-    public List<ImagingDataSetExport> getExport()
+    public String getUrl()
     {
-        return export;
+        return url;
     }
 
-    public void setExport(List<ImagingDataSetExport> export)
+    public void setUrl(String url)
     {
-        this.export = export;
+        this.url = url;
+    }
+
+    @JsonIgnore
+    public List<ImagingDataSetMultiExport> getExports()
+    {
+        return exports;
+    }
+
+    public void setExports(List<ImagingDataSetMultiExport> exports)
+    {
+        this.exports = exports;
     }
 }

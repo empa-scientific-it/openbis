@@ -26,55 +26,67 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdaptor
 {
-
 
     protected String pythonPath;
 
     protected String scriptPath;
 
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile,
+    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
             Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
     {
 
         ProcessBuilder processBuilder = new ProcessBuilder(pythonPath,
-                scriptPath, rootFile.getAbsolutePath(), convertMapToJson(previewConfig), convertMapToJson(metaData), format);
+                scriptPath, rootFile.getAbsolutePath(), convertMapToJson(imageConfig),
+                convertMapToJson(previewConfig), convertMapToJson(metaData), format);
         processBuilder.redirectErrorStream(false);
 
         String fullOutput;
-        try {
+        try
+        {
             Process process = processBuilder.start();
-            fullOutput = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            fullOutput =
+                    new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             int exitCode = process.waitFor();
-            if(exitCode != 0) {
-                String error = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
+            if (exitCode != 0)
+            {
+                String error =
+                        new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
                 throw new UserFailureException("Script evaluation failed: " + error);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException e)
+        {
             throw new RuntimeException(e);
         }
 
-        if(fullOutput.isBlank()) {
+        if (fullOutput.isBlank())
+        {
             throw new UserFailureException("Script produced no results!");
         }
 
         String[] resultSplit = fullOutput.split("\n");
-        return resultSplit[resultSplit.length-1];
+        return resultSplit[resultSplit.length - 1];
     }
 
-    private String convertMapToJson(Map<String,?> map) {
-        try {
+    private String convertMapToJson(Map<String, ?> map)
+    {
+        Map<String, ?> mapToConvert = map;
+        if(map == null) {
+            mapToConvert = new HashMap<>();
+        }
+        try
+        {
             ObjectMapper objectMapper = new GenericObjectMapper();
-            return objectMapper.writeValueAsString(map);
-        }catch (Exception e) {
+            return objectMapper.writeValueAsString(mapToConvert);
+        } catch (Exception e)
+        {
             throw new UserFailureException("Couldn't convert map to string", e);
         }
     }
-
-
 
 }

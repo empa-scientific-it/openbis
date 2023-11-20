@@ -34,6 +34,9 @@ public class ImagingDataSetImage implements Serializable
     private List<ImagingDataSetPreview> previews;
 
     @JsonProperty
+    private Map<String, Serializable> config;
+
+    @JsonProperty
     private Map<String, String> metaData;
 
     @JsonIgnore
@@ -46,6 +49,16 @@ public class ImagingDataSetImage implements Serializable
             List<ImagingDataSetPreview> previews)
     {
         this.previews = previews;
+    }
+
+    public Map<String, Serializable> getConfig()
+    {
+        return config;
+    }
+
+    public void setConfig(Map<String, Serializable> config)
+    {
+        this.config = config;
     }
 
     @JsonIgnore

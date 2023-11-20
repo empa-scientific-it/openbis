@@ -38,7 +38,7 @@ public final class ImagingDataSetExampleAdaptor implements IImagingDataSetAdapto
     }
 
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile,
+    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
             Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
     {
         BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);

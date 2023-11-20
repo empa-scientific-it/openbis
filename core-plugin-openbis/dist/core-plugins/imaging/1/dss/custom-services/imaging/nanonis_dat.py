@@ -31,9 +31,10 @@ def get_channel(img, channel_name = 'z'):
 
 
 file = sys.argv[1]
-params = json.loads(sys.argv[2])
-meta_data = json.loads(sys.argv[3])
-format = sys.argv[4]
+image_params = json.loads(sys.argv[2])
+params = json.loads(sys.argv[3])
+meta_data = json.loads(sys.argv[4])
+format = sys.argv[5]
 
 
 folder_dir = os.path.join(file, 'original')

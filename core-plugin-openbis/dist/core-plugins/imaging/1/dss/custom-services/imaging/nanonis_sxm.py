@@ -36,14 +36,14 @@ def get_channel(img, channel_name = 'z'):
 
 print("SYS.ARGV:" + str(sys.argv))
 file = sys.argv[1]
-params = json.loads(sys.argv[2])
-meta_data = json.loads(sys.argv[3])
-format = sys.argv[4]
+image_params = json.loads(sys.argv[2])
+params = json.loads(sys.argv[3])
+meta_data = json.loads(sys.argv[4])
+format = sys.argv[5]
 
 
 folder_dir = os.path.join(file, 'original')
 file_path = os.path.join(folder_dir, os.listdir(folder_dir)[0])
-# print(file_path)
 
 
 def generate_random_image(height, width):
@@ -56,90 +56,7 @@ def generate_random_image(height, width):
     return encoded
 
 
-def get_sxm_image():
-    img = load_image(file_path)
-    channel = get_channel(img, 'z')
-    img_byte_arr = io.BytesIO()
-
-    # im = plt.imshow(channel[0])
-    # plt.savefig(img_byte_arr, format="png")
-    fig = img.plot(show=False, show_params=False)
-    fig.frameon=False
-    # plt.title(None)
-    # plt.axis('off')
-    plt.savefig(img_byte_arr, format=format)
-
-    # print(img.header)
-    img_byte_arr = img_byte_arr.getvalue()
-    encoded = base64.b64encode(img_byte_arr)
-    print_params = img.print_params(show=False).split('\n')
-    print_params = {x: y for x, y in (s.split(':') for s in print_params)}
-    print_params = json.dumps(print_params)
-    print(f'PARAMS={print_params}')
-    header = json.dumps(img.header, cls=NumpyEncoder)
-    print(f'HEADER={header}')
-
-    return encoded
-
-
-def get_sxm_image2():
-    img_orig = load_image(file_path)
-    channel = get_channel(img_orig, 'z')[0]
-
-    min_val = numpy.min(channel)
-    max_val = numpy.max(channel)
-    scaled_data = (channel - min_val) / (max_val - min_val)
-    img = Image.fromarray(numpy.uint8(scaled_data * 255), 'L')
-
-    img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format=format)
-    img_byte_arr = img_byte_arr.getvalue()
-    encoded = base64.b64encode(img_byte_arr)
-
-    print_params = img_orig.print_params(show=False).split('\n')
-    print_params = {x: y for x, y in (s.split(':') for s in print_params)}
-    print_params = json.dumps(print_params)
-    print(f'PARAMS={print_params}')
-    header = json.dumps(img_orig.header, cls=NumpyEncoder)
-    print(f'HEADER={header}')
-
-    return encoded
-
-
-def get_sxm_image3(channel_name, scaling, color_scale):
-    img = load_image(file_path)
-    # channel = get_channel(img, channel_name)
-    img_byte_arr = io.BytesIO()
-
-    log = False
-    if scaling == 'logarithmic':
-        log = True
-    fig = img.plot(show=False, show_params=False, hide=True, channel=channel_name, log=log)
-    fig.frameon=False
-    # plt.title('None')
-    plt.axis('off')
-    plt.savefig(img_byte_arr, format="png", bbox_inches='tight')
-
-    pilImg = Image.open(img_byte_arr)
-    print(f"SIZE={pilImg.size}")
-    im2 = pilImg.crop(pilImg.getbbox())
-    print(f"SIZE={im2.size}")
-    img_byte_arr = io.BytesIO()
-    im2.save(img_byte_arr, format='PNG')
-
-    # print(img.header)
-    img_byte_arr = img_byte_arr.getvalue()
-    encoded = base64.b64encode(img_byte_arr)
-    print_params = img.print_params(show=False).split('\n')
-    print_params = {x: y for x, y in (s.split(':') for s in print_params)}
-    print_params = json.dumps(print_params)
-    print(f'PARAMS={print_params}')
-    header = json.dumps(img.header, cls=NumpyEncoder)
-    print(f'HEADER={header}')
-
-    return encoded
-
-def get_sxm_image4(channel_name, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling):
+def get_sxm_image(channel_name, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling):
     img = load_image(file_path)
     img_byte_arr = io.BytesIO()
 
@@ -161,41 +78,23 @@ def get_sxm_image4(channel_name, x_axis, y_axis, scaling, color_scale, colormap,
 
     return encoded
 
+def sxm_mode(parameters):
+    channel = parameters['channel']
+    x_axis = [float(x) for x in parameters['x-axis']]
+    y_axis = [float(x) for x in parameters['y-axis']]
+    color_scale = [float(x) for x in parameters['color-scale']]
+    colormap = parameters['colormap']
+    scaling = parameters['scaling']
+    colormap_scaling = False
+    if "colormap_scaling" in parameters:
+        colormap_scaling = parameters['colormap_scaling'].upper() == "TRUE"
+    print(f'{get_sxm_image(channel, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling)}')
+
 print(params)
 if 'mode' in params:
-    if params['mode'] == '1':
-        # print(f'IMG={get_sxm_image()}')
-        print(f'{get_sxm_image()}')
-    elif params['mode'] == '2':
-        # print(f'IMG={get_sxm_image2()}')
-        print(f'{get_sxm_image2()}')
-    elif params['mode'] == '3':
-        # print(f'IMG={generate_random_image(320, 320)}')
+    if params['mode'] == '3':
         print(f'{generate_random_image(256, 256)}')
-    elif params['mode'] == '4':
-        channel = params['channel']
-        scaling = params['scaling']
-        color_scale = [float(x) for x in params['color-scale']]
-        print(f'{get_sxm_image3(channel, scaling, color_scale)}')
     elif params['mode'] == '5':
-        channel = params['channel']
-        x_axis = [float(x) for x in params['x-axis']]
-        y_axis = [float(x) for x in params['y-axis']]
-        color_scale = [float(x) for x in params['color-scale']]
-        colormap = params['colormap']
-        scaling = params['scaling']
-        colormap_scaling = False
-        if "colormap_scaling" in params:
-            colormap_scaling = params['colormap_scaling'].upper() == "TRUE"
-        print(f'{get_sxm_image4(channel, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling)}')
+        sxm_mode(params)
 else:
-    channel = params['channel']
-    x_axis = [float(x) for x in params['x-axis']]
-    y_axis = [float(x) for x in params['y-axis']]
-    color_scale = [float(x) for x in params['color-scale']]
-    colormap = params['colormap']
-    scaling = params['scaling']
-    colormap_scaling = False
-    if "colormap_scaling" in params:
-        colormap_scaling = params['colormap_scaling'].upper() == "TRUE"
-    print(f'{get_sxm_image4(channel, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling)}')
+    sxm_mode(params)

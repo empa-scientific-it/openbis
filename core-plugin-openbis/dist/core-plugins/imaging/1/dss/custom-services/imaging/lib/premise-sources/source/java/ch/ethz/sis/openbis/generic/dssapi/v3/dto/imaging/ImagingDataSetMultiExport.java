@@ -17,6 +17,7 @@
 
 package ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging;
 
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,12 +25,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
-@JsonObject("dss.dto.imaging.ImagingDataSetExport")
-public class ImagingDataSetExport implements Serializable
+@JsonObject("dss.dto.imaging.ImagingDataSetMultiExport")
+public class ImagingDataSetMultiExport implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    @JsonProperty
+    private String permId;
+    @JsonProperty
+    private int index;
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
@@ -38,6 +45,26 @@ public class ImagingDataSetExport implements Serializable
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
     private Map<String, String> metaData;
+
+    @JsonIgnore
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId) {
+        this.permId = permId;
+    }
+
+    @JsonIgnore
+    public int getIndex()
+    {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 
     @JsonIgnore
     public Map<String, Serializable> getConfig()
@@ -64,7 +91,7 @@ public class ImagingDataSetExport implements Serializable
     @Override
     public String toString()
     {
-        return "ImagingDataSetExport";
+        return "ImagingDataSetMultiExport:" + permId;
     }
 
 }

@@ -28,12 +28,9 @@ public abstract class ImagingDataContainer implements Serializable
 
     @JsonProperty
     private String type;
-    @JsonProperty
-    private String permId;
+
     @JsonProperty
     private String error;
-    @JsonProperty
-    private int index;
 
     @JsonIgnore
     public String getType()
@@ -43,16 +40,6 @@ public abstract class ImagingDataContainer implements Serializable
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    @JsonIgnore
-    public String getPermId()
-    {
-        return permId;
-    }
-
-    public void setPermId(String permId) {
-        this.permId = permId;
     }
 
     @JsonIgnore
@@ -66,14 +53,6 @@ public abstract class ImagingDataContainer implements Serializable
         this.error = error;
     }
 
-    @JsonIgnore
-    public int getIndex()
-    {
-        return index;
-    }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
 
 }

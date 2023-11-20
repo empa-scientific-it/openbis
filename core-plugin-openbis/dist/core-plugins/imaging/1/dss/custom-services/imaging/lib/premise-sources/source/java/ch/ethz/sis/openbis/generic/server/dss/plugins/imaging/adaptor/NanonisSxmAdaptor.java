@@ -37,7 +37,6 @@ public final class NanonisSxmAdaptor extends ImagingDataSetPythonAdaptor
 {
     private final String SXM_SCRIPT_PROPERTY = "nanonis-sxm";
 
-
     public NanonisSxmAdaptor(Properties properties)
     {
 
@@ -54,6 +53,26 @@ public final class NanonisSxmAdaptor extends ImagingDataSetPythonAdaptor
         }
         this.scriptPath = script.toString();
         this.pythonPath = properties.getProperty("python3-path", "python3");
+    }
+
+    @Override
+    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
+            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
+    {
+        Serializable result = super.process(context, rootFile, imageConfig, previewConfig, metaData, format);
+        if (result == null)
+        {
+            return result;
+        }
+        String str = result.toString();
+        if (str.length() > 3)
+        {
+            return str.substring(2, str.length() - 1);
+        } else
+        {
+            return "";
+        }
+
     }
 
 }

@@ -40,7 +40,7 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
         }
     }
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile,
+    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
             Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
     {
         CustomDSSServiceExecutionOptions options = new CustomDSSServiceExecutionOptions();
@@ -48,6 +48,7 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
         options.withParameter("asApi", context.getAsApi());
         options.withParameter("dssApi", context.getDssApi());
         options.withParameter("file", rootFile);
+        options.withParameter("imageConfig", imageConfig);
         options.withParameter("config", previewConfig);
         options.withParameter("metaData", metaData);
             IDssServiceScriptRunner
