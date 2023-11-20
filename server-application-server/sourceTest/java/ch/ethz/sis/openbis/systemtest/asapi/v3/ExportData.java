@@ -334,6 +334,26 @@ public class ExportData
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-plain-text-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-rich-text-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
+                    XlsTextFormat.RICH,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-with-image-html.zip",
                     EnumSet.of(ExportFormat.HTML),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
