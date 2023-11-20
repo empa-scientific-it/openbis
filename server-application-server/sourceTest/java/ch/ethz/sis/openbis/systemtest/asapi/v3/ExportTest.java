@@ -89,7 +89,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 public class ExportTest extends AbstractTest
 {
 
-    private static final String EXPORT_DATA_PROVIDER = "xlsExportData";
+    private static final String EXPORT_DATA_PROVIDER = "exportData";
 
     private static final String PLAIN_TEXT_VALUE = "Rich format test";
 
@@ -120,7 +120,7 @@ public class ExportTest extends AbstractTest
     private ExposablePropertyPlaceholderConfigurer configurer;
 
     @DataProvider
-    protected Object[][] xlsExportData()
+    protected Object[][] exportData()
     {
         return ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.EXPORT_DATA;
     }

@@ -84,6 +84,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntity;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
@@ -121,11 +122,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
+import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
-import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -152,8 +153,6 @@ public class ExportExecutor implements IExportExecutor
     public static final String PDF_EXTENSION = ".pdf";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
-
-    private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     private static final Map<ExportableKind, IExportFieldsFinder> FIELDS_FINDER_BY_EXPORTABLE_KIND =
             Map.of(ExportableKind.SAMPLE, new SampleExportFieldsFinder(),
@@ -200,9 +199,9 @@ public class ExportExecutor implements IExportExecutor
 
     private static final String DATA_PREFIX_TEMPLATE = "data:%s;base64,";
 
-    private static final String NAME_PROPERTY_NAME = "$NAME";
-
     private static final String KIND_DOCUMENT_PROPERTY_ID = "Kind";
+
+    static final String NAME_PROPERTY_NAME = "$NAME";
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
@@ -311,6 +310,7 @@ public class ExportExecutor implements IExportExecutor
             if (hasPdfFormat || hasHtmlFormat)
             {
                 putNextZipEntry(existingZipEntries, zos, "%s/", PDF_DIRECTORY);
+//                putNextZipEntry(existingZipEntries, zos, null, null, null, null, null, null);
 
                 final Collector<ExportablePermId, List<String>, List<String>> downstreamCollector = Collector.of(ArrayList::new,
                         (stringPermIds, exportablePermId) -> stringPermIds.add(exportablePermId.getPermId().getPermId()),
@@ -607,13 +607,13 @@ public class ExportExecutor implements IExportExecutor
      *
      * @param existingZipEntries a set of existing entries
      * @param zos zip output stream to write to
-     * @param entryFormat a format string
-     * @param args arguments referenced by the format specifiers in the format string
      * @throws IOException if an I/O error has occurred
      */
     private static void putNextZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final String entryFormat,
             final String... args) throws IOException
     {
+        // TODO: this one should be rewritten so that codes and names are taken into account
+
         final String entry = String.format(entryFormat, (Object[]) args);
         if (!existingZipEntries.contains(entry))
         {
@@ -621,6 +621,102 @@ public class ExportExecutor implements IExportExecutor
             existingZipEntries.add(entry);
         }
     }
+
+    private static void putNextZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos,
+            final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
+            final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
+            throws IOException
+    {
+        final String entry = getNextZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
+        if (!existingZipEntries.contains(entry))
+        {
+            zos.putNextEntry(new ZipEntry(entry));
+            existingZipEntries.add(entry);
+        }
+    }
+
+    static String getNextZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
+            final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
+    {
+        final StringBuilder entryBuilder = new StringBuilder("/" + PDF_DIRECTORY);
+
+        if (spaceCode == null && (projectCode != null || experimentCode != null || sampleCode != null || dataSetCode != null || extension != null))
+        {
+            throw new IllegalArgumentException();
+        } else if (spaceCode != null)
+        {
+            entryBuilder.append("/").append(spaceCode);
+        }
+
+        if (projectCode != null)
+        {
+            entryBuilder.append("/").append(projectCode);
+            if (experimentCode != null)
+            {
+                addFullEntityName(entryBuilder, experimentCode, experimentName);
+
+                if (sampleCode == null && dataSetCode != null)
+                {
+                    // Experiment data set
+                    entryBuilder.append("/").append(dataSetCode);
+                }
+            } else if (sampleCode == null && dataSetCode != null)
+            {
+                throw new IllegalArgumentException();
+            }
+        } else if (experimentCode != null || (dataSetCode != null && sampleCode == null))
+        {
+            throw new IllegalArgumentException();
+        }
+
+        if (sampleCode != null)
+        {
+            addFullEntityName(entryBuilder, sampleCode, sampleName);
+
+            if (dataSetCode != null)
+            {
+                // Sample data set
+                entryBuilder.append("/").append(dataSetCode);
+            }
+        }
+
+        if (extension != null)
+        {
+            entryBuilder.append(extension);
+        }
+        return entryBuilder.toString();
+    }
+
+    private static void addFullEntityName(final StringBuilder entryBuilder, final String entityCode, final String entityName)
+    {
+        if (entityName == null || entityName.isEmpty())
+        {
+            entryBuilder.append("/").append(entityCode);
+        } else
+        {
+            entryBuilder.append("/").append(entityName).append(" (").append(entityCode).append(")");
+        }
+    }
+
+//    private static <T extends AbstractEntity<?> & ICodeHolder> void addFullEntityName(final StringBuilder entryBuilder, final T entity)
+//    {
+//        String experimentName;
+//        try
+//        {
+//            experimentName = entity.getVarcharProperty(NAME_PROPERTY_NAME);
+//        } catch (final NotFetchedException e)
+//        {
+//            experimentName = null;
+//        }
+//
+//        if (experimentName == null || experimentName.isEmpty())
+//        {
+//            entryBuilder.append("/").append(entity.getCode());
+//        } else
+//        {
+//            entryBuilder.append("/").append(experimentName).append(" (").append(entity.getCode()).append(")");
+//        }
+//    }
 
     private static void exportXls(final ZipOutputStream zos, final BufferedOutputStream bos, final XLSExport.PrepareWorkbookResult xlsExportResult,
             final Workbook wb, final Collection<String> warnings) throws IOException
