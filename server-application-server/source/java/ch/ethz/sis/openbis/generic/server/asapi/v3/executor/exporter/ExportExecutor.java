@@ -76,7 +76,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -84,7 +83,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.entity.AbstractEntity;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
@@ -492,17 +490,29 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    pubZipEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, HTML_EXTENSION);
+                    final byte[] htmlBytes = getHtmlEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample,
+                            HTML_EXTENSION).getBytes(StandardCharsets.UTF_8);
+
+                    writeInChunks(bos, htmlBytes);
+
+                    zos.closeEntry();
                 }
+
                 if (hasPdfFormat)
                 {
-                    pubZipEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, PDF_EXTENSION);
+                    final String html =
+                            getHtmlEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, PDF_EXTENSION);
+                    final PdfRendererBuilder builder = new PdfRendererBuilder();
+
+                    builder.withHtmlContent(html, null);
+                    builder.toStream(bos);
+                    builder.run(); // zos is closed here, closing it later throws an exception
                 }
             }
         }
     }
 
-    private void pubZipEntryForSample(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+    private String getHtmlEntryForSample(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Set<String> existingZipEntries, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Sample sample,
             final String extension) throws IOException
     {
@@ -530,10 +540,7 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
-        final byte[] htmlBytes = getHtml(sessionToken, sample, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
-        writeInChunks(bos, htmlBytes);
-
-        zos.closeEntry();
+        return getHtml(sessionToken, sample, entityTypeExportFieldsMap);
     }
 
     private static String getSpaceCode(final Object entity)

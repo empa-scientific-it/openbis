@@ -382,16 +382,16 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
-//            {
-//                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-//                    "export-sample-pdf.zip",
-//                    EnumSet.of(ExportFormat.PDF),
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-//                    new AllFields(),
-//                    XlsTextFormat.PLAIN,
-//                    true, // withReferredTypes
-//                    false // withImportCompatibility
-//            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
     };
 
     private ExportData()
