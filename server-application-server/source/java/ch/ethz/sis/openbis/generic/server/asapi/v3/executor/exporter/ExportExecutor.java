@@ -492,37 +492,48 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    final Experiment experiment = sample.getExperiment();
-                    if (experiment != null)
-                    {
-                        final Project project = experiment.getProject();
-                        putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                                getEntityName(experiment), sample.getCode(), getEntityName(sample), null, HTML_EXTENSION);
-                    } else
-                    {
-                        final Project project = sample.getProject();
-                        if (project != null)
-                        {
-                            putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null,
-                                    sample.getCode(), getEntityName(sample), null, HTML_EXTENSION);
-                        } else
-                        {
-                            final Space space = sample.getSpace();
-                            if (space != null)
-                            {
-                                putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, sample.getCode(), getEntityName(sample),
-                                        null, HTML_EXTENSION);
-                            }
-                        }
-                    }
-
-                    final byte[] htmlBytes = getHtml(sessionToken, sample, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
-                    writeInChunks(bos, htmlBytes);
-
-                    zos.closeEntry();
+                    pubZipEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, HTML_EXTENSION);
+                }
+                if (hasPdfFormat)
+                {
+                    pubZipEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, PDF_EXTENSION);
                 }
             }
         }
+    }
+
+    private void pubZipEntryForSample(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Sample sample,
+            final String extension) throws IOException
+    {
+        final Experiment experiment = sample.getExperiment();
+        if (experiment != null)
+        {
+            final Project project = experiment.getProject();
+            putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                    getEntityName(experiment), sample.getCode(), getEntityName(sample), null, extension);
+        } else
+        {
+            final Project project = sample.getProject();
+            if (project != null)
+            {
+                putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null,
+                        sample.getCode(), getEntityName(sample), null, extension);
+            } else
+            {
+                final Space space = sample.getSpace();
+                if (space != null)
+                {
+                    putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, sample.getCode(), getEntityName(sample),
+                            null, extension);
+                }
+            }
+        }
+
+        final byte[] htmlBytes = getHtml(sessionToken, sample, entityTypeExportFieldsMap).getBytes(StandardCharsets.UTF_8);
+        writeInChunks(bos, htmlBytes);
+
+        zos.closeEntry();
     }
 
     private static String getSpaceCode(final Object entity)
@@ -886,7 +897,6 @@ public class ExportExecutor implements IExportExecutor
                             final String initialPropertyValue = String.valueOf(rawPropertyValue);
                             final String propertyValue;
 
-                            // TODO: test image and spreadsheet encoding.
                             if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                     Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                             {
