@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
@@ -110,6 +111,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -265,12 +267,10 @@ public class ExportExecutor implements IExportExecutor
             exportFields = null;
         }
 
-        final ExportResult exportResult = doExport(applicationServerApi, sessionToken,
+        return doExport(applicationServerApi, sessionToken,
                 exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
                 TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility(),
                 exportOptions.getFormats());
-
-        return exportResult;
     }
 
     private ExportResult doExport(final IApplicationServerApi api,
@@ -323,6 +323,7 @@ public class ExportExecutor implements IExportExecutor
                 exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
                 exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
                 exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
+                exportDataSetsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
             }
         }
 
@@ -543,6 +544,78 @@ public class ExportExecutor implements IExportExecutor
         return getHtml(sessionToken, sample, entityTypeExportFieldsMap);
     }
 
+    private void exportDataSetsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
+            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
+            throws IOException
+    {
+        final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, DATASET);
+        final Collection<DataSet> dataSets =
+                EntitiesFinder.getDataSets(sessionToken, groupedExportablePermIds.getOrDefault(DATASET, List.of()));
+        putZipEntriesForDataSets(zos, bos, sessionToken, existingZipEntries, dataSets, entityTypeExportFieldsMap, exportFormats);
+    }
+
+    private void putZipEntriesForDataSets(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries, final Collection<?> entities,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Set<ExportFormat> exportFormats) throws IOException
+    {
+        for (final Object entity : entities)
+        {
+            if (entity instanceof DataSet)
+            {
+                final DataSet dataSet = (DataSet) entity;
+                final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+                final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+
+                if (hasHtmlFormat)
+                {
+                    final byte[] htmlBytes = getHtmlEntryForDataSet(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, dataSet,
+                            HTML_EXTENSION).getBytes(StandardCharsets.UTF_8);
+
+                    writeInChunks(bos, htmlBytes);
+
+                    zos.closeEntry();
+                }
+
+                if (hasPdfFormat)
+                {
+                    final String html =
+                            getHtmlEntryForDataSet(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, dataSet, PDF_EXTENSION);
+                    final PdfRendererBuilder builder = new PdfRendererBuilder();
+
+                    builder.withHtmlContent(html, null);
+                    builder.toStream(bos);
+                    builder.run(); // zos is closed here, closing it later throws an exception
+                }
+            }
+        }
+    }
+
+    private String getHtmlEntryForDataSet(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final DataSet dataSet,
+            final String extension) throws IOException
+    {
+        final Sample sample = dataSet.getSample();
+        if (sample != null)
+        {
+            final Experiment experiment = sample.getExperiment();
+            final Project project = getProjectForSample(sample);
+            putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                    getEntityName(experiment), dataSet.getCode(), getEntityName(dataSet), null, extension);
+        } else
+        {
+            final Experiment experiment = dataSet.getExperiment();
+            if (experiment != null)
+            {
+                final Project project = experiment.getProject();
+                putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
+                        experiment.getCode(), getEntityName(experiment), null, null, dataSet.getCode(), extension);
+            }
+        }
+
+        return getHtml(sessionToken, dataSet, entityTypeExportFieldsMap);
+    }
+
     private static String getSpaceCode(final Object entity)
     {
         if (entity instanceof Space)
@@ -588,22 +661,23 @@ public class ExportExecutor implements IExportExecutor
             return ((Experiment) entity).getProject().getCode();
         } else if (entity instanceof Sample)
         {
-            final Sample sample = (Sample) entity;
-            final Experiment experiment = sample.getExperiment();
-            final Project project = sample.getProject();
-            if (experiment != null)
-            {
-                return experiment.getProject().getCode();
-            } else if (project != null)
-            {
-                return project.getCode();
-            } else
-            {
-                return null;
-            }
+            final Project project = getProjectForSample((Sample) entity);
+            return project != null ? project.getCode() : null;
         } else
         {
             throw new IllegalArgumentException();
+        }
+    }
+
+    private static Project getProjectForSample(final Sample sample)
+    {
+        final Experiment experiment = sample.getExperiment();
+        if (experiment != null)
+        {
+            return experiment.getProject();
+        } else
+        {
+            return sample.getProject();
         }
     }
 
@@ -817,22 +891,38 @@ public class ExportExecutor implements IExportExecutor
 
         if (entityObj instanceof IRegistratorHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATOR.name()))
         {
-            documentBuilder.addProperty("Registrator", ((IRegistratorHolder) entityObj).getRegistrator().getUserId());
+            final Person registrator = ((IRegistratorHolder) entityObj).getRegistrator();
+            if (registrator != null)
+            {
+                documentBuilder.addProperty("Registrator", registrator.getUserId());
+            }
         }
 
         if (entityObj instanceof IRegistrationDateHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATION_DATE.name()))
         {
-            documentBuilder.addProperty("Registration Date", String.valueOf(((IRegistrationDateHolder) entityObj).getRegistrationDate()));
+            final Date registrationDate = ((IRegistrationDateHolder) entityObj).getRegistrationDate();
+            if (registrationDate != null)
+            {
+                documentBuilder.addProperty("Registration Date", String.valueOf(registrationDate));
+            }
         }
 
         if (entityObj instanceof IModifierHolder && allowsValue(selectedExportAttributes, Attribute.MODIFIER.name()))
         {
-            documentBuilder.addProperty("Modifier", ((IModifierHolder) entityObj).getModifier().getUserId());
+            final Person modifier = ((IModifierHolder) entityObj).getModifier();
+            if (modifier != null)
+            {
+                documentBuilder.addProperty("Modifier", modifier.getUserId());
+            }
         }
 
         if (entityObj instanceof IModificationDateHolder && allowsValue(selectedExportAttributes, Attribute.MODIFICATION_DATE.name()))
         {
-            documentBuilder.addProperty("Modification Date", String.valueOf(((IModificationDateHolder) entityObj).getModificationDate()));
+            final Date modificationDate = ((IModificationDateHolder) entityObj).getModificationDate();
+            if (modificationDate != null)
+            {
+                documentBuilder.addProperty("Modification Date", String.valueOf(modificationDate));
+            }
         }
 
         if (entityObj instanceof Project && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
