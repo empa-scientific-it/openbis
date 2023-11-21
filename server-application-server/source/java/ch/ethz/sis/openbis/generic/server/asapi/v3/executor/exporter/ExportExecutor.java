@@ -309,8 +309,7 @@ public class ExportExecutor implements IExportExecutor
             final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
             if (hasPdfFormat || hasHtmlFormat)
             {
-                putNextZipEntry(existingZipEntries, zos, "%s/", PDF_DIRECTORY);
-//                putNextZipEntry(existingZipEntries, zos, null, null, null, null, null, null);
+                putNextZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null);
 
                 final Collector<ExportablePermId, List<String>, List<String>> downstreamCollector = Collector.of(ArrayList::new,
                         (stringPermIds, exportablePermId) -> stringPermIds.add(exportablePermId.getPermId().getPermId()),
@@ -359,7 +358,7 @@ public class ExportExecutor implements IExportExecutor
     {
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, "%s/%s/", PDF_DIRECTORY, getSpaceCode(entity));
+            putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null);
             zos.closeEntry();
         }
     }
@@ -388,7 +387,7 @@ public class ExportExecutor implements IExportExecutor
             final String projectCode = getProjectCode(entity);
             if (projectCode != null)
             {
-                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/", PDF_DIRECTORY, getSpaceCode(entity), projectCode);
+                putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null);
                 zos.closeEntry();
             }
         }
@@ -418,9 +417,8 @@ public class ExportExecutor implements IExportExecutor
                 if (experiment != null)
                 {
                     final Project project = experiment.getProject();
-
-                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/", PDF_DIRECTORY, project.getSpace().getCode(),
-                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode());
+                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
+                            experiment.getCode(), getEntityName(experiment), null, null, null, null);
                     zos.closeEntry();
                 }
             }
@@ -439,16 +437,16 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
-                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(), HTML_EXTENSION);
+                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                            getEntityName(experiment), null, null, null, HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
                 }
 
                 if (hasPdfFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
-                            project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(), PDF_EXTENSION);
+                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                            getEntityName(experiment), null, null, null, PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
 
@@ -498,23 +496,22 @@ public class ExportExecutor implements IExportExecutor
                     if (experiment != null)
                     {
                         final Project project = experiment.getProject();
-                        putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
-                                project.getCode(), experiment.getVarcharProperty(NAME_PROPERTY_NAME), experiment.getCode(),
-                                sample.getVarcharProperty(NAME_PROPERTY_NAME), sample.getCode(), HTML_EXTENSION);
+                        putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                                getEntityName(experiment), sample.getCode(), getEntityName(sample), null, HTML_EXTENSION);
                     } else
                     {
                         final Project project = sample.getProject();
                         if (project != null)
                         {
-                            putNextZipEntry(existingZipEntries, zos, "%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, project.getSpace().getCode(),
-                                    project.getCode(), sample.getVarcharProperty(NAME_PROPERTY_NAME), sample.getCode(), HTML_EXTENSION);
+                            putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null,
+                                    sample.getCode(), getEntityName(sample), null, HTML_EXTENSION);
                         } else
                         {
                             final Space space = sample.getSpace();
                             if (space != null)
                             {
-                                putNextZipEntry(existingZipEntries, zos, "%s/%s/%s (%s)%s", PDF_DIRECTORY, space.getCode(),
-                                        sample.getVarcharProperty(NAME_PROPERTY_NAME), sample.getCode(), HTML_EXTENSION);
+                                putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, sample.getCode(), getEntityName(sample),
+                                        null, HTML_EXTENSION);
                             }
                         }
                     }
@@ -609,19 +606,6 @@ public class ExportExecutor implements IExportExecutor
      * @param zos zip output stream to write to
      * @throws IOException if an I/O error has occurred
      */
-    private static void putNextZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final String entryFormat,
-            final String... args) throws IOException
-    {
-        // TODO: this one should be rewritten so that codes and names are taken into account
-
-        final String entry = String.format(entryFormat, (Object[]) args);
-        if (!existingZipEntries.contains(entry))
-        {
-            zos.putNextEntry(new ZipEntry(entry));
-            existingZipEntries.add(entry);
-        }
-    }
-
     private static void putNextZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos,
             final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
@@ -698,25 +682,16 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-//    private static <T extends AbstractEntity<?> & ICodeHolder> void addFullEntityName(final StringBuilder entryBuilder, final T entity)
-//    {
-//        String experimentName;
-//        try
-//        {
-//            experimentName = entity.getVarcharProperty(NAME_PROPERTY_NAME);
-//        } catch (final NotFetchedException e)
-//        {
-//            experimentName = null;
-//        }
-//
-//        if (experimentName == null || experimentName.isEmpty())
-//        {
-//            entryBuilder.append("/").append(entity.getCode());
-//        } else
-//        {
-//            entryBuilder.append("/").append(experimentName).append(" (").append(entity.getCode()).append(")");
-//        }
-//    }
+    private static <T extends IPropertiesHolder & ICodeHolder> String getEntityName(final T entity)
+    {
+        try
+        {
+            return entity.getVarcharProperty(NAME_PROPERTY_NAME);
+        } catch (final NotFetchedException e)
+        {
+            return null;
+        }
+    }
 
     private static void exportXls(final ZipOutputStream zos, final BufferedOutputStream bos, final XLSExport.PrepareWorkbookResult xlsExportResult,
             final Workbook wb, final Collection<String> warnings) throws IOException
