@@ -196,7 +196,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                 $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($fullCodeField, "Full Code"));
             }
             if (_this._spaceFormModel.isInventory) {
-                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory", "Indicates if writing the she space should be disabled for non admin users.");
+                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory", "Indicates if the space should be read-only for non admin users.");
                 $readOnlyField.change(function() {
                     _this._spaceFormModel.isReadOnly = $($(this).children()[0]).children()[0].checked;
                 });
