@@ -411,9 +411,9 @@ public class ExportExecutor implements IExportExecutor
     {
         for (final Object entity : entities)
         {
-            if (entity instanceof Sample || entity instanceof Experiment)
+            if (entity instanceof Sample)
             {
-                final Experiment experiment = entity instanceof Experiment ? (Experiment) entity : ((Sample) entity).getExperiment();
+                final Experiment experiment = ((Sample) entity).getExperiment();
                 if (experiment != null)
                 {
                     final Project project = experiment.getProject();
