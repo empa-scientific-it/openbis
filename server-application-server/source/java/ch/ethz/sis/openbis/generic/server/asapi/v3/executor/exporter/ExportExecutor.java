@@ -633,19 +633,19 @@ public class ExportExecutor implements IExportExecutor
     static String getNextZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
     {
-        final StringBuilder entryBuilder = new StringBuilder("/" + PDF_DIRECTORY);
+        final StringBuilder entryBuilder = new StringBuilder(PDF_DIRECTORY);
 
         if (spaceCode == null && (projectCode != null || experimentCode != null || sampleCode != null || dataSetCode != null || extension != null))
         {
             throw new IllegalArgumentException();
         } else if (spaceCode != null)
         {
-            entryBuilder.append("/").append(spaceCode);
+            entryBuilder.append('/').append(spaceCode);
         }
 
         if (projectCode != null)
         {
-            entryBuilder.append("/").append(projectCode);
+            entryBuilder.append('/').append(projectCode);
             if (experimentCode != null)
             {
                 addFullEntityName(entryBuilder, experimentCode, experimentName);
@@ -653,7 +653,7 @@ public class ExportExecutor implements IExportExecutor
                 if (sampleCode == null && dataSetCode != null)
                 {
                     // Experiment data set
-                    entryBuilder.append("/").append(dataSetCode);
+                    entryBuilder.append('/').append(dataSetCode);
                 }
             } else if (sampleCode == null && dataSetCode != null)
             {
@@ -671,14 +671,11 @@ public class ExportExecutor implements IExportExecutor
             if (dataSetCode != null)
             {
                 // Sample data set
-                entryBuilder.append("/").append(dataSetCode);
+                entryBuilder.append('/').append(dataSetCode);
             }
         }
 
-        if (extension != null)
-        {
-            entryBuilder.append(extension);
-        }
+        entryBuilder.append(extension != null ? extension : '/');
         return entryBuilder.toString();
     }
 

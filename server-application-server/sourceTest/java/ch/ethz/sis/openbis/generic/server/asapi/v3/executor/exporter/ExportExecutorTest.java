@@ -64,132 +64,132 @@ public class ExportExecutorTest
     private static final Object[][] DATA = {
             {
                     null, null, null, null, null, null, null, null,
-                    String.format("/%s", PDF_DIRECTORY)
+                    String.format("%s/", PDF_DIRECTORY)
             },
             {
                     SPACE_CODE, null, null, null, null, null, null, null,
-                    String.format("/%s/%s", PDF_DIRECTORY, SPACE_CODE)
+                    String.format("%s/%s/", PDF_DIRECTORY, SPACE_CODE)
             },
             {
                     SPACE_CODE, null, null, null, null, null, null, EXTENSION,
-                    String.format("/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, EXTENSION)
+                    String.format("%s/%s%s", PDF_DIRECTORY, SPACE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, null, null, null,
-                    String.format("/%s/%s/%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE)
+                    String.format("%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
-                    String.format("/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
-                    String.format("/%s/%s/%s (%s)", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE)
+                    String.format("%s/%s/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
-                    String.format("/%s/%s/%s/%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, DATA_SET_CODE)
+                    String.format("%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, EXTENSION,
-                    String.format("/%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
-                    String.format("/%s/%s/%s (%s)/%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
+                    String.format("%s/%s/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
                     SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
-                    String.format("/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
+                    String.format("%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, null, null, null,
-                    String.format("/%s/%s/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE)
+                    String.format("%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, null, null, EXTENSION,
-                    String.format("/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXTENSION)
+                    String.format("%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
-                    String.format("/%s/%s/%s/%s (%s)", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE)
+                    String.format("%s/%s/%s/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("/%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, null, null,
-                    String.format("/%s/%s/%s/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE)
+                    String.format("%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, null, EXTENSION,
-                    String.format("/%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
-                    String.format("/%s/%s/%s/%s (%s)/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
+                    String.format("%s/%s/%s/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
-                    String.format("/%s/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE,
+                    String.format("%s/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE,
                             EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
-                    String.format("/%s/%s/%s/%s/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, DATA_SET_CODE)
+                    String.format("%s/%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, DATA_SET_CODE, EXTENSION,
-                    String.format("/%s/%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, null,
-                    String.format("/%s/%s/%s/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE)
+                    String.format("%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, EXTENSION,
-                    String.format("/%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null,
-                    String.format("/%s/%s/%s/%s (%s)", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE)
+                    String.format("%s/%s/%s/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, EXTENSION,
-                    String.format("/%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, DATA_SET_CODE, null,
-                    String.format("/%s/%s/%s/%s (%s)/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, DATA_SET_CODE)
+                    String.format("%s/%s/%s/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, DATA_SET_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, DATA_SET_CODE, EXTENSION,
-                    String.format("/%s/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, DATA_SET_CODE,
+                    String.format("%s/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, DATA_SET_CODE,
                             EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, null, null,
-                    String.format("/%s/%s/%s/%s (%s)/%s (%s)", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, SAMPLE_NAME,
+                    String.format("%s/%s/%s/%s (%s)/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, SAMPLE_NAME,
                             SAMPLE_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("/%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
+                    String.format("%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
-                    String.format("/%s/%s/%s/%s (%s)/%s (%s)/%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
+                    String.format("%s/%s/%s/%s (%s)/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
-                    String.format("/%s/%s/%s/%s (%s)/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
+                    String.format("%s/%s/%s/%s (%s)/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
     };
