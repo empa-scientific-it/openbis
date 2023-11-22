@@ -363,6 +363,16 @@ public class ExportData
                     false // withImportCompatibility
             },
             {
+                    // Project: TEST-PROJECT
+                    "export-project-filtered-fields-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+                    new SelectedFields(List.of(PERM_ID, IDENTIFIER, REGISTRATOR, REGISTRATION_DATE), List.of()),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-filtered-fields-html.zip",
                     EnumSet.of(ExportFormat.HTML),
