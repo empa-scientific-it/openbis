@@ -627,6 +627,21 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 if (sampleParentsRemoved) {
                     update.getParentIds().remove(sampleParentsRemoved.map(c => new SampleIdentifier(c)));
                 }
+                var sampleParentsNew = parameters["sampleParentsNew"];
+                if (sampleParentsNew) {
+                    sampleParentsNew.forEach(function(newSampleParent) {
+                        var identifier = newSampleParent["identifier"];
+                        var parentCreation = createRelatedSampleCreation(newSampleParent);
+                        sampleCreations.push(parentCreation);
+                        if (!existingSamples[identifier]) {
+                            var parentCreation = createRelatedSampleCreation(newSampleParent);
+                            sampleCreations.push(parentCreation);
+                            update.getParentIds().add(parentCreation.getCreationId());
+                        } else {
+                            update.getParentIds().add(new SampleIdentifier(identifier));
+                        }
+                    });
+                }
                 var sampleChildrenAdded = parameters["sampleChildrenAdded"];
                 if (sampleChildrenAdded) {
                     update.getChildIds().add(sampleChildrenAdded.map(c => new SampleIdentifier(c)));
@@ -634,6 +649,19 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 var sampleChildrenRemoved = parameters["sampleChildrenRemoved"];
                 if (sampleChildrenRemoved) {
                     update.getChildIds().remove(sampleChildrenRemoved.map(c => new SampleIdentifier(c)));
+                }
+                var sampleChildrenNew = parameters["sampleChildrenNew"];
+                if (sampleChildrenNew) {
+                    sampleChildrenNew.forEach(function(newSampleChild) {
+                        var identifier = newSampleChild["identifier"];
+                        if (!existingSamples[identifier]) {
+                            var childCreation = createRelatedSampleCreation(newSampleChild);
+                            sampleCreations.push(childCreation);
+                            update.getChildIds().add(childCreation.getCreationId());
+                        } else {
+                            update.getChildIds().add(new SampleIdentifier(identifier));
+                        }
+                    });
                 }
                 // End of 'updateSample' section
             } else if (method === "copySample") {
