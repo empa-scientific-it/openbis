@@ -300,29 +300,9 @@ public class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Space: TEST-SPACE
-                    "export-space-pdf.zip",
-                    EnumSet.of(ExportFormat.PDF),
-                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
                     // Project: TEST-PROJECT
                     "export-project-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Project: TEST-PROJECT
-                    "export-project-pdf.zip",
-                    EnumSet.of(ExportFormat.PDF),
                     List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -361,39 +341,9 @@ public class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Experiment: EXP-SPACE-TEST
-                    "export-experiment-pdf.zip",
-                    EnumSet.of(ExportFormat.PDF),
-                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
-                    "export-sample-pdf.zip",
-                    EnumSet.of(ExportFormat.PDF),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
-                    new AllFields(),
-                    XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
-            {
-                    // Data set: "ROOT_CONTAINER"
-                    "export-data-set-pdf.zip",
-                    EnumSet.of(ExportFormat.PDF),
                     List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
@@ -451,6 +401,58 @@ public class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+
+            // PDF: All fields
+            {
+                    // Space: TEST-SPACE
+                    "export-space-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Project: TEST-PROJECT
+                    "export-project-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Experiment: EXP-SPACE-TEST
+                    "export-experiment-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId("201206190940555-1032"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Data set: "ROOT_CONTAINER"
+                    "export-data-set-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
