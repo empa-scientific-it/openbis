@@ -29,18 +29,18 @@ class Validator
 
     static void validateInputParams(Map<String, Object> params)
     {
-        if (!params.containsKey("permId"))
-        {
-            throw new UserFailureException("Missing dataset permId!");
-        }
+//        if (!params.containsKey("permId"))
+//        {
+//            throw new UserFailureException("Missing dataset permId!");
+//        }
         if (!params.containsKey("type"))
         {
             throw new UserFailureException("Missing type!");
         }
-        if (!params.containsKey("index"))
-        {
-            throw new UserFailureException("Missing index!");
-        }
+//        if (!params.containsKey("index"))
+//        {
+//            throw new UserFailureException("Missing index!");
+//        }
     }
 
 

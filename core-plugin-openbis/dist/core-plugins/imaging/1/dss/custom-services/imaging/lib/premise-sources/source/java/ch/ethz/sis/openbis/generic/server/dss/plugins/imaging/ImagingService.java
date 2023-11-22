@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetMultiExport;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPropertyConfig;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
@@ -159,8 +160,6 @@ public class ImagingService implements ICustomDSSServiceExecutor
             throw new UserFailureException("Format can not be empty!");
         }
 
-        previewParams.put("$COMMAND_TYPE", "PREVIEW");
-
         ImagingServiceContext context =
                 new ImagingServiceContext(sessionToken, getApplicationServerApi(),
                         getDataStoreServerApi());
@@ -190,42 +189,20 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
         final ImagingDataSetImage image = config.getImages().get(index);
 
+        // TODO: discuss image config as filtering for export
+        Map<String, Serializable> imageConfig = image.getConfig();
+
         Map<String, Serializable> exportConfig = data.getExport().getConfig();
         Validator.validateExportConfig(exportConfig);
 
-        String archiveFormat = exportConfig.get("archive-format").toString();
-        Map<String, String> meta = data.getExport().getMetaData();
         Serializable[] exportTypes = (Serializable[]) exportConfig.get("include");
-        String currentTimeMs = String.valueOf(System.currentTimeMillis());
-        AbstractDataSetPackager packager;
-        Function<InputStream, Long> checksumFunction;
-        File archiveFile;
-        String token = "export_" + currentTimeMs;
-        ISessionWorkspaceProvider sessionWorkspaceProvider = getSessionWorkspaceProvider(sessionToken);
-        File tempDirectory = sessionWorkspaceProvider.getSessionWorkspace();
-        String url = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=";
 
-        // Prepare temp directory for archive
+        ImagingArchiver archiver;
+
+        // Prepare archiver
         try
         {
-            Path tempDir = Files.createDirectory(Path.of(tempDirectory.getAbsolutePath(), token));
-            if (archiveFormat.equalsIgnoreCase("zip"))
-            {
-                archiveFile = Files.createFile(Path.of(tempDir.toAbsolutePath().toString(), "export.zip")).toFile();
-                checksumFunction = Util::getCRC32Checksum;
-                packager = new ZipDataSetPackager(archiveFile, true, null, null);
-            } else if (archiveFormat.equalsIgnoreCase("tar"))
-            {
-                archiveFile =
-                        Files.createFile(Path.of(tempDir.toAbsolutePath().toString(), "export.tar.gz")).toFile();
-                checksumFunction = (x) -> 0L;
-                packager = new TarDataSetPackager(archiveFile, null, null, DEFAULT_BUFFER_SIZE,
-                        5L * DEFAULT_BUFFER_SIZE);
-            } else
-            {
-                throw new UserFailureException("Unknown archive format!");
-            }
-
+            archiver = new ImagingArchiver(sessionToken, exportConfig.get("archive-format").toString());
         } catch (IOException exception)
         {
             throw new UserFailureException("Could not export data!", exception);
@@ -240,10 +217,10 @@ public class ImagingService implements ICustomDSSServiceExecutor
                         new ImagingServiceContext(sessionToken, getApplicationServerApi(),
                                 getDataStoreServerApi());
                 IImagingDataSetAdaptor adaptor = getAdaptor(config);
-                archiveImage(context, adaptor, image, exportConfig, packager, rootFile, "", checksumFunction, dataSet);
+                archiveImage(context, adaptor, image, index, exportConfig, rootFile, "", archiver);
             } else if (exportType.toString().equalsIgnoreCase("raw data"))
             {
-                archiveRawData(packager, rootFile, "", checksumFunction, dataSet);
+                archiveRawData(rootFile, "", archiver, dataSet);
             } else
             {
                 throw new UserFailureException("Unknown export type!");
@@ -251,36 +228,70 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
         }
 
-        packager.close();
-        data.setUrl(url + Path.of(token, archiveFile.getName()));
-
+        data.setUrl(archiver.build());
         return data;
     }
 
     private Serializable processMultiExportFlow(String sessionToken, ImagingMultiExportContainer data)
     {
-
-        {
             // multi export case
-//            String archiveFormat;
-//            for (ImagingDataSetExport export : data.getExport())
-//            {
-//                Map<String, Serializable> params = export.getConfig();
-//                Map<String, String> meta = export.getMetaData();
-//                String fullFormat = export.getFormat();
-//
-//                if (fullFormat == null || fullFormat.isBlank())
-//                {
-//                    throw new UserFailureException("Format can not be empty!");
-//                }
-//                String[] formats = fullFormat.split("/");
-//                archiveFormat = formats[0];
-//                String otherFormat = formats[1];
-//
-//            }
+            final String archiveFormat = "zip";
+            ImagingArchiver archiver;
+            try
+            {
+                archiver = new ImagingArchiver(sessionToken, archiveFormat);
+            } catch (IOException exception)
+            {
+                throw new UserFailureException("Could not export data!", exception);
+            }
 
-        }
-        return null;
+            for (ImagingDataSetMultiExport export : data.getExports())
+            {
+                DataSet dataSet = getDataSet(sessionToken, export.getPermId());
+                ImagingDataSetPropertyConfig config =
+                        Util.readConfig(dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME),
+                                ImagingDataSetPropertyConfig.class);
+
+                File rootFile = getRootFile(sessionToken, dataSet);
+
+                final int index = export.getIndex();
+                if (config.getImages().size() <= index)
+                {
+                    throw new UserFailureException("There is no image with index:" + index);
+                }
+
+                ImagingDataSetImage image = config.getImages().get(index);
+
+                // TODO: discuss image config as filtering for export
+                Map<String, Serializable> imageConfig = image.getConfig();
+
+                Map<String, Serializable> exportConfig = export.getConfig();
+                Validator.validateExportConfig(exportConfig);
+
+                Serializable[] exportTypes = (Serializable[]) exportConfig.get("include");
+
+                // For each export type, perform adequate action
+                for (Serializable exportType : exportTypes)
+                {
+                    if (exportType.toString().equalsIgnoreCase("image"))
+                    {
+                        ImagingServiceContext context =
+                                new ImagingServiceContext(sessionToken, getApplicationServerApi(),
+                                        getDataStoreServerApi());
+                        IImagingDataSetAdaptor adaptor = getAdaptor(config);
+                        archiveImage(context, adaptor, image, index, exportConfig, rootFile, export.getPermId(), archiver);
+                    } else if (exportType.toString().equalsIgnoreCase("raw data"))
+                    {
+                        archiveRawData(rootFile, export.getPermId(), archiver, dataSet);
+                    } else
+                    {
+                        throw new UserFailureException("Unknown export type!");
+                    }
+
+                }
+            }
+        data.setUrl(archiver.build());
+        return data;
     }
 
 
@@ -303,11 +314,6 @@ public class ImagingService implements ICustomDSSServiceExecutor
     private IDataStoreServerApi getDataStoreServerApi()
     {
         return ServiceProvider.getV3DataStoreService();
-    }
-
-    private ISessionWorkspaceProvider getSessionWorkspaceProvider(String sessionToken)
-    {
-        return ServiceProvider.getDataStoreService().getSessionWorkspaceProvider(sessionToken);
     }
 
     private DataSet getDataSet(String sessionToken, String permId)
@@ -349,45 +355,42 @@ public class ImagingService implements ICustomDSSServiceExecutor
         }
     }
 
-    private void archiveRawData(AbstractDataSetPackager packager, File rootFile, String rootFolderName,
-            Function<InputStream, Long> checksumFunction,  DataSet dataSet)
+    private void archiveRawData(File rootFile, String rootFolderName,
+            ImagingArchiver archiver,  DataSet dataSet)
     {
         //Add dataset files to archive
-        Util.archiveFiles(packager, rootFile, rootFolderName, checksumFunction);
+        archiver.addToArchive(rootFolderName, rootFile);
         //Add dataset properties to archive
         Map<String, Serializable> properties = dataSet.getProperties();
         properties.remove(IMAGING_CONFIG_PROPERTY_NAME);
-        byte[] json = Util.mapToJson(properties).getBytes(StandardCharsets.UTF_8);
-        packager.addEntry("properties.txt",
-                dataSet.getModificationDate().toInstant().toEpochMilli(),
-                json.length,
-                checksumFunction.apply(new ByteArrayInputStream(json)),
-                new ByteArrayInputStream(json));
+        if(!properties.isEmpty()) {
+            byte[] json = Util.mapToJson(properties).getBytes(StandardCharsets.UTF_8);
+            archiver.addToArchive(rootFolderName, "properties.txt", json);
+        }
     }
 
 
     private void archiveImage(ImagingServiceContext context, IImagingDataSetAdaptor adaptor,
-            ImagingDataSetImage image, Map<String, Serializable> exportConfig,
-            AbstractDataSetPackager packager, File rootFile, String rootFolderName,
-            Function<InputStream, Long> checksumFunction,  DataSet dataSet) {
+            ImagingDataSetImage image, int imageIdx, Map<String, Serializable> exportConfig,
+            File rootFile, String rootFolderName, ImagingArchiver archiver) {
 
         String imageFormat = exportConfig.get("image-format").toString();
         int previewIdx = 0;
         for(ImagingDataSetPreview preview : image.getPreviews())
         {
+            String format = imageFormat;
+            if(imageFormat.equalsIgnoreCase("original")) {
+                format = preview.getFormat();
+            }
             Map<String, Serializable> params = preview.getConfig();
             params.put("resolution", exportConfig.get("resolution"));
             Serializable img = adaptor.process(context,
-                    rootFile, image.getConfig(), params, image.getMetaData(), imageFormat);
+                    rootFile, image.getConfig(), params, image.getMetaData(), format);
             String imgString = img.toString();
             byte[] decoded = Base64.getDecoder().decode(imgString);
-            long size = decoded.length;
-            String name = "image" + previewIdx + "." + imageFormat;
-            packager.addEntry(Paths.get(rootFolderName, name).toString(),
-                    dataSet.getModificationDate().toInstant().toEpochMilli(),
-                    size,
-                    checksumFunction.apply(new ByteArrayInputStream(decoded)),
-                    new ByteArrayInputStream(decoded));
+            String fileName = "image" + imageIdx +"_preview" + previewIdx + "." + format;
+
+            archiver.addToArchive(rootFolderName, fileName, decoded);
             previewIdx++;
         }
     }

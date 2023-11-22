@@ -19,18 +19,18 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
+import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.Function;
 
 class ImagingArchiver
@@ -39,115 +39,119 @@ class ImagingArchiver
     private final String exportDirName;
     private final String exportArchiveName;
     private final Function<InputStream, Long> checksumFunction;
+    private final AbstractDataSetPackager packager;
+    private final File archiveFile;
+    private boolean isFinished;
+    private final long archiveDate;
 
+    private static final int DEFAULT_BUFFER_SIZE = (int) (10 * FileUtils.ONE_MB);
 
-
-    private ArchiveBuilder archive;
-    
-    private final String archiveFormat;
-    
-    ImagingArchiver(String sessionToken, Map<String, Serializable> exportConfig) {
+    ImagingArchiver(String sessionToken, String archiveFormat) throws IOException {
         this.sessionToken = sessionToken;
-        archiveFormat = exportConfig.get("archive-format").toString();
+        isFinished = false;
 
-        String currentTimeMs = String.valueOf(System.currentTimeMillis());
-        exportDirName = "imaging_export_" + currentTimeMs;
+        archiveDate = System.currentTimeMillis();
+        exportDirName = "imaging_export_" + String.valueOf(archiveDate);
+
+        ISessionWorkspaceProvider sessionWorkspaceProvider = getSessionWorkspaceProvider(sessionToken);
+        File rootDirectory = sessionWorkspaceProvider.getSessionWorkspace();
+
+        Path tempDir = Files.createDirectory(
+                Path.of(rootDirectory.getAbsolutePath(), exportDirName));
+
 
         if (archiveFormat.equalsIgnoreCase("zip"))
         {
             exportArchiveName = "export.zip";
+            archiveFile =
+                    Files.createFile(Path.of(tempDir.toAbsolutePath().toString(), exportArchiveName))
+                            .toFile();
+            packager = new ZipDataSetPackager(archiveFile, true, null, null);
             checksumFunction = Util::getCRC32Checksum;
         } else if (archiveFormat.equalsIgnoreCase("tar"))
         {
             exportArchiveName = "export.tar.gz";
+            archiveFile =
+                    Files.createFile(Path.of(tempDir.toAbsolutePath().toString(), exportArchiveName))
+                            .toFile();
+            packager = new TarDataSetPackager(archiveFile, null, null, DEFAULT_BUFFER_SIZE,
+                    5L * DEFAULT_BUFFER_SIZE);
             checksumFunction = (x) -> 0L;
         } else
         {
             throw new UserFailureException("Unknown archive format!");
         }
-        
-        
-    }
-    
-    void prepare() {
 
-//        try
-//        {
-//            Path tempDir = Files.createDirectory(Path.of(tempDirectory.getAbsolutePath(), token));
-//            if (archiveFormat.equalsIgnoreCase("zip"))
-//            {
-//                File archiveFile =
-//                        Files.createFile(Path.of(tempDir.toAbsolutePath().toString(), "export.zip"))
-//                                .toFile();
-//                checksumFunction = Util::getCRC32Checksum;
-//                packager = new ZipDataSetPackager(archiveFile, true, null, null);
-//            } else if (archiveFormat.equalsIgnoreCase("tar"))
-//            {
-//                archiveFile =
-//                        Files.createFile(
-//                                        Path.of(tempDir.toAbsolutePath().toString(), "export.tar.gz"))
-//                                .toFile();
-//                checksumFunction = (x) -> 0L;
-//                packager = new TarDataSetPackager(archiveFile, null, null, DEFAULT_BUFFER_SIZE,
-//                        5L * DEFAULT_BUFFER_SIZE);
-//            } else
-//            {
-//                throw new UserFailureException("Unknown archive format!");
-//            }
-//
-//        } catch (IOException exception)
-//        {
-//            throw new UserFailureException("Could not export data!", exception);
-//        }
-        
-        
+
     }
 
-    ArchiveBuilder newArchive() {
-        archive = new ArchiveBuilder();
-        return archive;
+    void addToArchive(String folderName, String fileName, byte[] byteArray) {
+        assertNotFinished();
+        long size = byteArray.length;
+        packager.addEntry(Paths.get(folderName, fileName).toString(),
+                archiveDate,
+                size,
+                checksumFunction.apply(new ByteArrayInputStream(byteArray)),
+                new ByteArrayInputStream(byteArray));
     }
 
-    ArchiveBuilder addToArchive() {
-        if(archive == null) {
-            newArchive();
+    void addToArchive(String folderName, File fileOrDirectoryToArchive) {
+        assertNotFinished();
+
+        Deque<Map.Entry<String, File>> queue = new LinkedList<>();
+
+        queue.add(new AbstractMap.SimpleImmutableEntry<>(folderName, fileOrDirectoryToArchive));
+        while (!queue.isEmpty())
+        {
+            Map.Entry<String, File> element = queue.pollFirst();
+            String prefixPath = element.getKey();
+            File file = element.getValue();
+            String path = Paths.get(prefixPath, file.getName()).toString();
+            if (file.isDirectory())
+            {
+                for (File f : file.listFiles())
+                {
+                    queue.add(new AbstractMap.SimpleImmutableEntry<>(path, f));
+                }
+                packager.addDirectoryEntry(path);
+            } else
+            {
+                try
+                {
+                    packager.addEntry(path,
+                            file.lastModified(),
+                            file.getTotalSpace(),
+                            checksumFunction.apply(new FileInputStream(file)),
+                            new FileInputStream(file));
+                } catch (IOException exc)
+                {
+                    throw new UserFailureException("Failed during export!", exc);
+                }
+            }
         }
-        
-        
-//        File archiveFile;
-//        String token = "export_" + currentTimeMs;
-//
-//        ISessionWorkspaceProvider sessionWorkspaceProvider =
-//                getSessionWorkspaceProvider(sessionToken);
-//        File tempDirectory = sessionWorkspaceProvider.getSessionWorkspace();
-        
-        return new ArchiveBuilder("");
+
     }
 
+    String build() {
+        if(!isFinished) {
+            isFinished = true;
+            packager.close();
+        }
+        String url = DataStoreServer.getConfigParameters().getDownloadURL() + "/datastore_server/session_workspace_file_download?sessionID=" + sessionToken + "&filePath=";
+        return url + Path.of(exportDirName, exportArchiveName);
+    }
 
     private ISessionWorkspaceProvider getSessionWorkspaceProvider(String sessionToken)
     {
         return ServiceProvider.getDataStoreService().getSessionWorkspaceProvider(sessionToken);
     }
-    
-    
-    class ArchiveBuilder {
 
-        private AbstractDataSetPackager packager;
-
-        private ArchiveBuilder(String exportArchiveName) {
-            if(exportArchiveName.equalsIgnoreCase("export.zip")) {
-
-            } else if(exportArchiveName.equalsIgnoreCase("export.tar.gz")) {
-
-            }
+    private void assertNotFinished()
+    {
+        if(isFinished){
+            throw new UserFailureException("Archive file is already closed!");
         }
-        
-        public String build() {
-            return "URL";
-        }
-        
     }
-    
+
     
 }
