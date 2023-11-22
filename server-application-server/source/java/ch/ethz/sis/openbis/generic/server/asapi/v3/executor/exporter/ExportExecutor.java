@@ -85,6 +85,7 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
@@ -929,10 +930,23 @@ public class ExportExecutor implements IExportExecutor
         }
 
         // TODO: what to do when typeObj is null?
-        final List<Map<String, String>> selectedExportFields =
-                entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() || typeObj == null
-                        ? null
-                        : entityTypeExportFieldsMap.get(typeObj.getCode());
+        final List<Map<String, String>> selectedExportFields;
+        if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty())
+        {
+            selectedExportFields = null;
+        } else if (typeObj != null)
+        {
+            selectedExportFields = entityTypeExportFieldsMap.get(typeObj.getCode());
+        } else if (entityObj instanceof Space)
+        {
+            selectedExportFields = entityTypeExportFieldsMap.get(SPACE.name());
+        } else if (entityObj instanceof Project)
+        {
+            selectedExportFields = entityTypeExportFieldsMap.get(PROJECT.name());
+        } else
+        {
+            selectedExportFields = null;
+        }
 
         final Set<String> selectedExportAttributes = selectedExportFields != null
                 ? selectedExportFields.stream().filter(map -> Objects.equals(map.get(FIELD_TYPE_KEY), ATTRIBUTE.name()))
@@ -995,9 +1009,9 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
-        if (entityObj instanceof Project && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
+        if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
         {
-            final String description = ((Project) entityObj).getDescription();
+            final String description = ((IDescriptionHolder) entityObj).getDescription();
             if (description != null)
             {
                 documentBuilder.addHeader("Description");

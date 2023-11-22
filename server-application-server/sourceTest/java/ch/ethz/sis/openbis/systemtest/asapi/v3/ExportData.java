@@ -353,6 +353,16 @@ public class ExportData
 
             // HTML: Selected fields
             {
+                    // Space: TEST-SPACE
+                    "export-space-filtered-fields-html.zip",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    new SelectedFields(List.of(CODE, PERM_ID, MODIFICATION_DATE), List.of()),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-filtered-fields-html.zip",
                     EnumSet.of(ExportFormat.HTML),
