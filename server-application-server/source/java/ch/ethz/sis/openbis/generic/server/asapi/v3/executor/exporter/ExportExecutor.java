@@ -79,8 +79,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -319,8 +319,8 @@ public class ExportExecutor implements IExportExecutor
                 final Map<ExportableKind, List<String>> groupedExportablePermIds =
                         exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
 
-                exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
-                exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields);
+                exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
+                exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
                 exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
                 exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
                 exportDataSetsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
@@ -332,7 +332,7 @@ public class ExportExecutor implements IExportExecutor
 
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
         final Collection<Space> spaces =
@@ -364,30 +364,65 @@ public class ExportExecutor implements IExportExecutor
 
     private void exportProjectsDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
         final Collection<Project> projects =
                 EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, projects);
+        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, projects, exportFields, exportFormats);
         final Collection<Experiment> experiments =
                 EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, experiments);
+        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields, exportFormats);
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, existingZipEntries, samples);
+        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields, exportFormats);
     }
 
-    private static void putZipEntriesForProjectsOfEntities(final ZipOutputStream zos, final Set<String> existingZipEntries,
-            final Collection<?> entities) throws IOException
+    private void putZipEntriesForProjectsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos,
+            final String sessionToken, final Set<String> existingZipEntries,
+            final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final Set<ExportFormat> exportFormats) throws IOException
     {
+        final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+        final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+
         for (final Object entity : entities)
         {
-            final String projectCode = getProjectCode(entity);
-            if (projectCode != null)
+            if (entity instanceof Project && (hasHtmlFormat || hasPdfFormat))
             {
-                putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null);
-                zos.closeEntry();
+                final Project project = (Project) entity;
+
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, PROJECT);
+                final String html = getHtml(sessionToken, project, entityTypeExportFieldsMap);
+                final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
+
+                if (hasHtmlFormat)
+                {
+                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
+                            HTML_EXTENSION);
+                    writeInChunks(bos, htmlBytes);
+                    zos.closeEntry();
+                }
+
+                if (hasPdfFormat)
+                {
+                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
+                            PDF_EXTENSION);
+
+                    final PdfRendererBuilder builder = new PdfRendererBuilder();
+
+                    builder.withHtmlContent(html, null);
+                    builder.toStream(bos);
+                    builder.run(); // zos is closed here, closing it later throws an exception
+                }
+            } else
+            {
+                final String projectCode = getProjectCode(entity);
+                if (projectCode != null)
+                {
+                    putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null);
+                    zos.closeEntry();
+                }
             }
         }
     }
