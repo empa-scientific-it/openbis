@@ -337,28 +337,60 @@ public class ExportExecutor implements IExportExecutor
     {
         final Collection<Space> spaces =
                 EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, spaces);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, spaces, exportFields, exportFormats);
 
         final Collection<Project> projects =
                 EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, projects);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, projects, exportFields, exportFormats);
 
         final Collection<Experiment> experiments =
                 EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, experiments);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields, exportFormats);
 
         final Collection<Sample> samples =
                 EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, existingZipEntries, samples);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields, exportFormats);
     }
 
-    private static void putZipEntriesForSpacesOfEntities(final ZipOutputStream zos, final Set<String> existingZipEntries,
-            final Collection<?> entities) throws IOException
+    private void putZipEntriesForSpacesOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries, final Collection<?> entities,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
+        final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+        final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+
         for (final Object entity : entities)
         {
-            putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null);
-            zos.closeEntry();
+            if (entity instanceof Space && (hasHtmlFormat || hasPdfFormat))
+            {
+                final Space space = (Space) entity;
+
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, SPACE);
+                final String html = getHtml(sessionToken, space, entityTypeExportFieldsMap);
+                final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
+
+                if (hasHtmlFormat)
+                {
+                    putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, HTML_EXTENSION);
+                    writeInChunks(bos, htmlBytes);
+                    zos.closeEntry();
+                }
+
+                if (hasPdfFormat)
+                {
+                    putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, PDF_EXTENSION);
+
+                    final PdfRendererBuilder builder = new PdfRendererBuilder();
+
+                    builder.withHtmlContent(html, null);
+                    builder.toStream(bos);
+                    builder.run(); // zos is closed here, closing it later throws an exception
+                }
+            } else
+            {
+                putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null);
+                zos.closeEntry();
+            }
         }
     }
 
@@ -888,6 +920,9 @@ public class ExportExecutor implements IExportExecutor
         if (entityObj instanceof Project)
         {
             documentBuilder.addProperty(KIND_DOCUMENT_PROPERTY_ID, "Project");
+        } else if (entityObj instanceof Space)
+        {
+            documentBuilder.addProperty(KIND_DOCUMENT_PROPERTY_ID, "Space");
         } else
         {
             documentBuilder.addProperty("Type", ((IEntityTypeHolder) entityObj).getType().getCode());
