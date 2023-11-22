@@ -300,6 +300,16 @@ public class ExportData
                     false // withImportCompatibility
             },
             {
+                    // Project: TEST-PROJECT
+                    "export-project-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId("20120814110011738-105"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
                     // Experiment: EXP-SPACE-TEST
                     "export-experiment-html.zip",
                     EnumSet.of(ExportFormat.HTML),
