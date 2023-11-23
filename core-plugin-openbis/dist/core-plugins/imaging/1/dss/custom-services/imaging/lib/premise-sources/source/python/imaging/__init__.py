@@ -12,11 +12,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-name = "premise"
+from . import imaging
+
+name = "imaging"
 __author__ = "ID SIS • ETH Zürich"
 __email__ = "openbis-support@id.ethz.ch"
 __version__ = "0.0.0"
 
-from . import imaging
-# from .pybis import DataSet
-# from .pybis import Openbis
+
