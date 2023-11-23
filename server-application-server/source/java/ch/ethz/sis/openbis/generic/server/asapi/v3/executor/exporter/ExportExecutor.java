@@ -88,6 +88,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModifierHolder;
@@ -96,6 +97,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -148,6 +150,8 @@ public class ExportExecutor implements IExportExecutor
     public static final String XLSX_DIRECTORY = "xlsx";
 
     public static final String PDF_DIRECTORY = "pdf";
+
+    public static final String DATA_DIRECTORY = "data";
 
     public static final String HTML_EXTENSION = ".html";
 
@@ -290,7 +294,6 @@ public class ExportExecutor implements IExportExecutor
         final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
         final Collection<String> warnings = new ArrayList<>();
-        final Set<String> existingZipEntries = new HashSet<>();
         try
                 (
                         final Workbook wb = xlsExportResult != null ? xlsExportResult.getWorkbook() : null;
@@ -306,51 +309,54 @@ public class ExportExecutor implements IExportExecutor
 
             final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
             final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-            if (hasPdfFormat || hasHtmlFormat)
+            final boolean hasDataFormat = exportFormats.contains(ExportFormat.DATA);
+
+            if (hasHtmlFormat || hasPdfFormat || hasDataFormat)
             {
-                putNextZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null);
+                final EntitiesVo entitiesVo = new EntitiesVo(sessionToken, exportablePermIds);
 
-                final Collector<ExportablePermId, List<String>, List<String>> downstreamCollector = Collector.of(ArrayList::new,
-                        (stringPermIds, exportablePermId) -> stringPermIds.add(exportablePermId.getPermId().getPermId()),
-                        (left, right) ->
-                        {
-                            left.addAll(right);
-                            return left;
-                        });
-                final Map<ExportableKind, List<String>> groupedExportablePermIds =
-                        exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
+                if (hasPdfFormat || hasHtmlFormat)
+                {
+                    final Set<String> existingZipEntries = new HashSet<>();
+                    putNextDocZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null);
+                    exportSpacesDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+                    exportProjectsDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+                    exportExperimentsDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+                    exportSamplesDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+                    exportDataSetsDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+                }
 
-                exportSpacesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
-                exportProjectsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
-                exportExperimentsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
-                exportSamplesDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
-                exportDataSetsDoc(zos, bos, sessionToken, groupedExportablePermIds, existingZipEntries, exportFields, exportFormats);
+//                if (hasDataFormat)
+//                {
+//                    final Set<String> existingZipEntries = new HashSet<>();
+//                    exportData(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields);
+//                }
             }
         }
 
         return new ExportResult(fullFileName, warnings);
     }
 
+//    private void exportData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+//            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
+//            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
+//    {
+//        final List<String> sampleExportablePermIds = groupedExportablePermIds.get(SAMPLE);
+//
+//
+//
+//        final List<String> experimentExportablePermIds = groupedExportablePermIds.get(EXPERIMENT);
+//    }
+
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
-        final Collection<Space> spaces =
-                EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, spaces, exportFields, exportFormats);
-
-        final Collection<Project> projects =
-                EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, projects, exportFields, exportFormats);
-
-        final Collection<Experiment> experiments =
-                EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields, exportFormats);
-
-        final Collection<Sample> samples =
-                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields, exportFormats);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getSpaces(), exportFields, exportFormats);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getProjects(), exportFields, exportFormats);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getExperiments(), exportFields, exportFormats);
+        putZipEntriesForSpacesOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
     private void putZipEntriesForSpacesOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
@@ -372,14 +378,14 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, HTML_EXTENSION);
+                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
                 }
 
                 if (hasPdfFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, PDF_EXTENSION);
+                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
 
@@ -389,26 +395,20 @@ public class ExportExecutor implements IExportExecutor
                 }
             } else
             {
-                putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null);
+                putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null);
                 zos.closeEntry();
             }
         }
     }
 
     private void exportProjectsDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
-        final Collection<Project> projects =
-                EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, projects, exportFields, exportFormats);
-        final Collection<Experiment> experiments =
-                EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields, exportFormats);
-        final Collection<Sample> samples =
-                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields, exportFormats);
+        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getProjects(), exportFields, exportFormats);
+        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getExperiments(), exportFields, exportFormats);
+        putZipEntriesForProjectsOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
     private void putZipEntriesForProjectsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos,
@@ -431,7 +431,7 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
                             HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
@@ -439,7 +439,7 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasPdfFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
                             PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -453,7 +453,7 @@ public class ExportExecutor implements IExportExecutor
                 final String projectCode = getProjectCode(entity);
                 if (projectCode != null)
                 {
-                    putNextZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null);
+                    putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null);
                     zos.closeEntry();
                 }
             }
@@ -461,15 +461,12 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void exportExperimentsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
-            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        final Collection<Experiment> experiments = EntitiesFinder.getExperiments(sessionToken,
-                groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, experiments, exportFields, exportFormats);
-        final Collection<Sample> samples =
-                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, samples, exportFields, exportFormats);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getExperiments(), exportFields, exportFormats);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getSamples(), exportFields, exportFormats);
+        putZipEntriesForExperimentsOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getDataSets(), exportFields, exportFormats);
     }
 
     private void putZipEntriesForExperimentsOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
@@ -478,13 +475,13 @@ public class ExportExecutor implements IExportExecutor
     {
         for (final Object entity : entities)
         {
-            if (entity instanceof Sample)
+            if (entity instanceof IExperimentHolder)
             {
-                final Experiment experiment = ((Sample) entity).getExperiment();
+                final Experiment experiment = ((IExperimentHolder) entity).getExperiment();
                 if (experiment != null)
                 {
                     final Project project = experiment.getProject();
-                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
                             experiment.getCode(), getEntityName(experiment), null, null, null, null);
                     zos.closeEntry();
                 }
@@ -504,7 +501,7 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
                             getEntityName(experiment), null, null, null, HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
@@ -512,7 +509,7 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasPdfFormat)
                 {
-                    putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
                             getEntityName(experiment), null, null, null, PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -526,14 +523,12 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void exportSamplesDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
-            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
         final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, SAMPLE);
-        final Collection<Sample> samples =
-                EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-        putZipEntriesForSamples(zos, bos, sessionToken, existingZipEntries, samples, entityTypeExportFieldsMap, exportFormats);
+        putZipEntriesForSamplesOfEntities(zos, bos, sessionToken, existingZipEntries, entitiesVo.getSamples(), entityTypeExportFieldsMap, exportFormats);
     }
 
     private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
@@ -545,19 +540,23 @@ public class ExportExecutor implements IExportExecutor
                 ? TYPE_EXPORT_FIELD_KEY : exportableKind.toString());
     }
 
-    private void putZipEntriesForSamples(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+    private void putZipEntriesForSamplesOfEntities(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final Set<String> existingZipEntries, final Collection<?> entities,
             final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Set<ExportFormat> exportFormats) throws IOException
     {
         for (final Object entity : entities)
         {
+            if (entity instanceof ISampleHolder)
+            {
+                final Sample sample = ((ISampleHolder) entity).getSample();
+                putNextDocZipEntryForSample(zos, existingZipEntries, sample, null);
+            }
+
             if (entity instanceof Sample)
             {
                 final Sample sample = (Sample) entity;
-                final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
-                final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
 
-                if (hasHtmlFormat)
+                if (exportFormats.contains(ExportFormat.HTML))
                 {
                     final byte[] htmlBytes = getHtmlEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample,
                             HTML_EXTENSION).getBytes(StandardCharsets.UTF_8);
@@ -567,7 +566,7 @@ public class ExportExecutor implements IExportExecutor
                     zos.closeEntry();
                 }
 
-                if (hasPdfFormat)
+                if (exportFormats.contains(ExportFormat.PDF))
                 {
                     final String html =
                             getHtmlEntryForSample(zos, bos, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, PDF_EXTENSION);
@@ -585,42 +584,45 @@ public class ExportExecutor implements IExportExecutor
             final Set<String> existingZipEntries, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Sample sample,
             final String extension) throws IOException
     {
+        putNextDocZipEntryForSample(zos, existingZipEntries, sample, extension);
+        return getHtml(sessionToken, sample, entityTypeExportFieldsMap);
+    }
+
+    private static void putNextDocZipEntryForSample(final ZipOutputStream zos, final Set<String> existingZipEntries, final Sample sample,
+            final String extension) throws IOException
+    {
         final Experiment experiment = sample.getExperiment();
         if (experiment != null)
         {
             final Project project = experiment.getProject();
-            putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+            putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
                     getEntityName(experiment), sample.getCode(), getEntityName(sample), null, extension);
         } else
         {
             final Project project = sample.getProject();
             if (project != null)
             {
-                putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null,
+                putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null,
                         sample.getCode(), getEntityName(sample), null, extension);
             } else
             {
                 final Space space = sample.getSpace();
                 if (space != null)
                 {
-                    putNextZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, sample.getCode(), getEntityName(sample),
+                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, sample.getCode(), getEntityName(sample),
                             null, extension);
                 }
             }
         }
-
-        return getHtml(sessionToken, sample, entityTypeExportFieldsMap);
     }
 
     private void exportDataSetsDoc(final ZipOutputStream zos, final BufferedOutputStream bos,
-            final String sessionToken, final Map<ExportableKind, List<String>> groupedExportablePermIds, final Set<String> existingZipEntries,
+            final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
         final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, DATASET);
-        final Collection<DataSet> dataSets =
-                EntitiesFinder.getDataSets(sessionToken, groupedExportablePermIds.getOrDefault(DATASET, List.of()));
-        putZipEntriesForDataSets(zos, bos, sessionToken, existingZipEntries, dataSets, entityTypeExportFieldsMap, exportFormats);
+        putZipEntriesForDataSets(zos, bos, sessionToken, existingZipEntries, entitiesVo.getDataSets(), entityTypeExportFieldsMap, exportFormats);
     }
 
     private void putZipEntriesForDataSets(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
@@ -668,7 +670,7 @@ public class ExportExecutor implements IExportExecutor
         {
             final Experiment experiment = sample.getExperiment();
             final Project project = getProjectForSample(sample);
-            putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+            putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
                     getEntityName(experiment), dataSet.getCode(), getEntityName(dataSet), null, extension);
         } else
         {
@@ -676,7 +678,7 @@ public class ExportExecutor implements IExportExecutor
             if (experiment != null)
             {
                 final Project project = experiment.getProject();
-                putNextZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
+                putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
                         experiment.getCode(), getEntityName(experiment), null, null, dataSet.getCode(), extension);
             }
         }
@@ -766,12 +768,12 @@ public class ExportExecutor implements IExportExecutor
      * @param zos zip output stream to write to
      * @throws IOException if an I/O error has occurred
      */
-    private static void putNextZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos,
+    private static void putNextDocZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos,
             final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
             throws IOException
     {
-        final String entry = getNextZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
+        final String entry = getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
         if (!existingZipEntries.contains(entry))
         {
             zos.putNextEntry(new ZipEntry(entry));
@@ -779,7 +781,7 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    static String getNextZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
+    static String getNextDocZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
     {
         final StringBuilder entryBuilder = new StringBuilder(PDF_DIRECTORY);
@@ -1227,6 +1229,70 @@ public class ExportExecutor implements IExportExecutor
     private File getFilesRepository()
     {
         return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
+    }
+
+    private static class EntitiesVo
+    {
+
+        final Collection<Space> spaces;
+
+        final Collection<Project> projects;
+
+        final Collection<Experiment> experiments;
+
+        final Collection<Sample> samples;
+
+        final Collection<DataSet> dataSets;
+
+        private EntitiesVo(final String sessionToken, final List<ExportablePermId> exportablePermIds)
+        {
+            final Map<ExportableKind, List<String>> groupedExportablePermIds = getGroupedExportablePermIds(exportablePermIds);
+
+            spaces = EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
+            projects = EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
+            experiments = EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
+            samples = EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
+            dataSets = EntitiesFinder.getDataSets(sessionToken, groupedExportablePermIds.getOrDefault(DATASET, List.of()));
+        }
+
+        private static Map<ExportableKind, List<String>> getGroupedExportablePermIds(final List<ExportablePermId> exportablePermIds)
+        {
+            final Collector<ExportablePermId, List<String>, List<String>> downstreamCollector = Collector.of(ArrayList::new,
+                    (stringPermIds, exportablePermId) -> stringPermIds.add(exportablePermId.getPermId().getPermId()),
+                    (left, right) ->
+                    {
+                        left.addAll(right);
+                        return left;
+                    });
+
+            return exportablePermIds.stream().collect(Collectors.groupingBy(ExportablePermId::getExportableKind, downstreamCollector));
+        }
+
+        public Collection<Space> getSpaces()
+        {
+            return spaces;
+        }
+
+        public Collection<Project> getProjects()
+        {
+            return projects;
+        }
+
+        public Collection<Experiment> getExperiments()
+        {
+            return experiments;
+        }
+
+        public Collection<Sample> getSamples()
+        {
+            return samples;
+        }
+
+        public Collection<DataSet> getDataSets()
+        {
+            return dataSets;
+        }
+
     }
 
 }

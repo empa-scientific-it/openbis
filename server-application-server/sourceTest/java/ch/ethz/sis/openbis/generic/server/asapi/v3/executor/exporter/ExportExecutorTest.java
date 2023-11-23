@@ -17,26 +17,11 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.NAME_PROPERTY_NAME;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_DIRECTORY;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 
 public class ExportExecutorTest
 {
@@ -240,7 +225,7 @@ public class ExportExecutorTest
     public void testGetNextZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension, final String expectedResult)
     {
-        assertEquals(ExportExecutor.getNextZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode,
+        assertEquals(ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode,
                 extension), expectedResult);
     }
 
@@ -248,7 +233,7 @@ public class ExportExecutorTest
     public void testGetNextZipEntryError(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
     {
-        ExportExecutor.getNextZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
+        ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
     }
 
 }
