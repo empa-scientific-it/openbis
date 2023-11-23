@@ -326,27 +326,23 @@ public class ExportExecutor implements IExportExecutor
                     exportDataSetsDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
                 }
 
-//                if (hasDataFormat)
-//                {
-//                    final Set<String> existingZipEntries = new HashSet<>();
-//                    exportData(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields);
-//                }
+                if (hasDataFormat)
+                {
+                    final Set<String> existingZipEntries = new HashSet<>();
+                    exportData(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields);
+                }
             }
         }
 
         return new ExportResult(fullFileName, warnings);
     }
 
-//    private void exportData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-//            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-//            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
-//    {
-//        final List<String> sampleExportablePermIds = groupedExportablePermIds.get(SAMPLE);
-//
-//
-//
-//        final List<String> experimentExportablePermIds = groupedExportablePermIds.get(EXPERIMENT);
-//    }
+    private void exportData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
+    {
+        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
+    }
 
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
