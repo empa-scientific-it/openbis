@@ -368,7 +368,7 @@ public class ExportExecutor implements IExportExecutor
 
         for (final Object entity : entities)
         {
-            if (entity instanceof Space && (hasHtmlFormat || hasPdfFormat))
+            if (entity instanceof Space)
             {
                 final Space space = (Space) entity;
 
@@ -421,7 +421,7 @@ public class ExportExecutor implements IExportExecutor
 
         for (final Object entity : entities)
         {
-            if (entity instanceof Project && (hasHtmlFormat || hasPdfFormat))
+            if (entity instanceof Project)
             {
                 final Project project = (Project) entity;
 
@@ -490,7 +490,7 @@ public class ExportExecutor implements IExportExecutor
             final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
             final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
 
-            if (entity instanceof Experiment && (hasHtmlFormat || hasPdfFormat))
+            if (entity instanceof Experiment)
             {
                 final Experiment experiment = (Experiment) entity;
                 final Project project = experiment.getProject();
