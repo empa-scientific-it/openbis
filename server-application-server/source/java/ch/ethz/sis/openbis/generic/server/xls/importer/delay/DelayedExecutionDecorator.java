@@ -112,6 +112,11 @@ public class DelayedExecutionDecorator
 
     Map<String, PropertyType> propertyTypeCache;
 
+    public boolean isSystem()
+    {
+        return sessionToken.startsWith("system");
+    }
+
     public DelayedExecutionDecorator(String sessionToken, IApplicationServerApi v3)
     {
         this.sessionToken = sessionToken;

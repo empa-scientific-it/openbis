@@ -145,7 +145,11 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (version == null || version.isEmpty()) {
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean isSystem = delayedExecutor.isSystem();
+        boolean canUpdate = (isInternalNamespace == false) || isSystem;
+
+        if (canUpdate && (version == null || version.isEmpty())) {
             return true;
         } else {
             return VersionUtils.isNewVersion(version,
