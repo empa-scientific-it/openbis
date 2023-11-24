@@ -102,12 +102,16 @@ class ImagingTestCase(unittest.TestCase):
         json_config = json.dumps(config)
         self.dataset_mock.props = {IMAGING_CONFIG_PROP_NAME: json_config}
 
-    def test_get_property_config(self):
-        self.imaging_control.get_property_config('some_perm_id')
+    def test_get_proper_config(self):
+        config = self.imaging_control.get_property_config('some_perm_id')
+        assert len(config.images) == 1
+        assert len(config.images[0].previews) == 1
 
+    def test_get_empty_config(self):
+        self.set_dataset_config(None)
+        self.assertRaises(AssertionError, self.imaging_control.get_property_config, 'some_perm_id')
 
-
-
+    #TODO expand tests
 
 
 

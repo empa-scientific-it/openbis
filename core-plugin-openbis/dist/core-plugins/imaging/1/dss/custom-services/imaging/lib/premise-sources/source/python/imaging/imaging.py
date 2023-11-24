@@ -271,13 +271,14 @@ class ImagingDataSetPropertyConfig(AbstractImagingClass):
         self.images = images if images is not None else []
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict):
+        assert data is not None and any(data), "There is no property config found!"
         config = ImagingDataSetConfig.from_dict(data.get('config'))
         attr = data.get('images')
         images = [ImagingDataSetImage.from_dict(image) for image in attr] if attr is not None else None
         return cls(config, images)
 
-    def add_image(self, image):
+    def add_image(self, image: ImagingDataSetImage):
         if self.images is None:
             self.images = []
         self.images += [image]
@@ -367,9 +368,6 @@ class ImagingControl:
             for chunk in get_response.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-
-
-
 
     def get_property_config(self, perm_id: str) -> ImagingDataSetPropertyConfig:
         dataset = self._openbis.get_dataset(perm_id)
