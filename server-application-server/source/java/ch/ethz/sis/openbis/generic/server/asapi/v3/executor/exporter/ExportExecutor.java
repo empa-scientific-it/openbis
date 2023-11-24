@@ -341,7 +341,15 @@ public class ExportExecutor implements IExportExecutor
             final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields)
     {
-        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
+//        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
+        final Collection<Sample> samples = entitiesVo.getSamples();
+
+        for (final Sample sample : samples)
+        {
+            final List<DataSet> dataSets = sample.getDataSets();
+
+
+        }
     }
 
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
@@ -826,6 +834,64 @@ public class ExportExecutor implements IExportExecutor
         return entryBuilder.toString();
     }
 
+    static String getFolderName(final char prefix, final String spaceCode, final String projectCode,
+            final String containerCode, final String entityCode, final String entityName)
+    {
+        if (prefix != 'O' && prefix != 'E')
+        {
+            throw new IllegalArgumentException("Only 'O' and 'E' can be used as prefix.");
+        }
+
+        final StringBuilder entryBuilder = new StringBuilder(String.valueOf(prefix));
+
+        if (spaceCode != null)
+        {
+            entryBuilder.append('+').append(spaceCode);
+        } else if (prefix == 'E')
+        {
+            throw new IllegalArgumentException("Space code cannot be null for experiments.");
+        } else if (projectCode != null)
+        {
+            throw new IllegalArgumentException("If space code is null project code should be also null.");
+        }
+
+        if (projectCode != null)
+        {
+            entryBuilder.append('+').append(projectCode);
+        } else if (prefix == 'E')
+        {
+            throw new IllegalArgumentException("Project code cannot be null for experiments.");
+        }
+
+        entryBuilder.append('+');
+
+        if (containerCode != null)
+        {
+            if (prefix == 'O')
+            {
+                entryBuilder.append(containerCode).append('*');
+            } else
+            {
+                throw new IllegalArgumentException("Only objects can have containers.");
+            }
+        }
+
+        if (entityCode != null)
+        {
+            entryBuilder.append(entityCode);
+        } else
+        {
+            throw new IllegalArgumentException();
+        }
+
+        if (entityName != null)
+        {
+            entryBuilder.append('+').append(entityName);
+        }
+
+        return entryBuilder.toString();
+    }
+
     private static void addFullEntityName(final StringBuilder entryBuilder, final String entityCode, final String entityName)
     {
         if (entityName == null || entityName.isEmpty())
@@ -1230,25 +1296,24 @@ public class ExportExecutor implements IExportExecutor
     private static class EntitiesVo
     {
 
-        final Collection<Space> spaces;
+        private final String sessionToken;
 
-        final Collection<Project> projects;
+        private final Map<ExportableKind, List<String>> groupedExportablePermIds;
 
-        final Collection<Experiment> experiments;
+        private Collection<Space> spaces;
 
-        final Collection<Sample> samples;
+        private Collection<Project> projects;
 
-        final Collection<DataSet> dataSets;
+        private Collection<Experiment> experiments;
+
+        private Collection<Sample> samples;
+
+        private Collection<DataSet> dataSets;
 
         private EntitiesVo(final String sessionToken, final List<ExportablePermId> exportablePermIds)
         {
-            final Map<ExportableKind, List<String>> groupedExportablePermIds = getGroupedExportablePermIds(exportablePermIds);
-
-            spaces = EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
-            projects = EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
-            experiments = EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
-            samples = EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
-            dataSets = EntitiesFinder.getDataSets(sessionToken, groupedExportablePermIds.getOrDefault(DATASET, List.of()));
+            this.sessionToken = sessionToken;
+            groupedExportablePermIds = getGroupedExportablePermIds(exportablePermIds);
         }
 
         private static Map<ExportableKind, List<String>> getGroupedExportablePermIds(final List<ExportablePermId> exportablePermIds)
@@ -1266,26 +1331,47 @@ public class ExportExecutor implements IExportExecutor
 
         public Collection<Space> getSpaces()
         {
+            if (spaces == null)
+            {
+                spaces = EntitiesFinder.getSpaces(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SPACE, List.of()));
+            }
             return spaces;
         }
 
         public Collection<Project> getProjects()
         {
+            if (projects == null)
+            {
+                projects = EntitiesFinder.getProjects(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.PROJECT, List.of()));
+            }
+
             return projects;
         }
 
         public Collection<Experiment> getExperiments()
         {
+            if (experiments == null)
+            {
+                experiments = EntitiesFinder.getExperiments(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.EXPERIMENT, List.of()));
+            }
             return experiments;
         }
 
         public Collection<Sample> getSamples()
         {
+            if (samples == null)
+            {
+                samples = EntitiesFinder.getSamples(sessionToken, groupedExportablePermIds.getOrDefault(ExportableKind.SAMPLE, List.of()));
+            }
             return samples;
         }
 
         public Collection<DataSet> getDataSets()
         {
+            if (dataSets == null)
+            {
+                dataSets = EntitiesFinder.getDataSets(sessionToken, groupedExportablePermIds.getOrDefault(DATASET, List.of()));
+            }
             return dataSets;
         }
 
