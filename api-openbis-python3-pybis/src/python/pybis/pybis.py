@@ -1608,7 +1608,7 @@ class Openbis:
         the file uploaded to.
         """
         if hasattr(self, "datastores"):
-            return self.datastores # pylint: disable=E0203
+            return self.datastores  # pylint: disable=E0203
 
         request = {
             "method": "searchDataStores",
@@ -2015,7 +2015,8 @@ class Openbis:
             user = self._get_username()
             if validTo_date > (
                     datetime.now()
-                    + relativedelta(seconds=server_info.personal_access_tokens_validity_warning_period)
+                    + relativedelta(
+                seconds=server_info.personal_access_tokens_validity_warning_period)
             ) and user == existing_pat.owner:
                 # return existing PAT which is within warning period
                 if not force:
@@ -3018,6 +3019,48 @@ class Openbis:
         )
 
     new_collection = new_experiment  # Alias
+
+    def execute_custom_dss_service(self, code, parameters):
+
+        serviceId = {
+            "@type": "dss.dto.service.id.CustomDssServiceCode",
+            "permId": code
+        }
+        options = {
+            "@type": "dss.dto.service.CustomDSSServiceExecutionOptions",
+            "parameters": parameters
+        }
+        request = {
+            "method": "executeCustomDSSService",
+            "params": [
+                self.token,
+                serviceId,
+                options
+            ],
+        }
+        return self._post_request_full_url(urljoin(self._get_dss_url(), self.dss_v3), request)
+
+    def execute_custom_as_service(self, code):
+        serviceId = {
+            "@type": "as.dto.service.id.CustomASServiceCode",
+            "permId": code
+        }
+        options = {
+            "@type": "as.dto.service.CustomASServiceExecutionOptions",
+            "parameters": {
+                "key": "value"
+            }
+        }
+        request = {
+            "method": "executeCustomASService",
+            "param": [
+                self.token,
+                serviceId,
+                options
+            ],
+        }
+        resp = self._post_request(self.as_v3, request)
+        return resp
 
     def create_external_data_management_system(
             self, code, label, address, address_type="FILE_SYSTEM"
