@@ -777,7 +777,8 @@ public class ExportExecutor implements IExportExecutor
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
             throws IOException
     {
-        final String entry = getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
+        final String entry = getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode,
+                extension);
         if (!existingZipEntries.contains(entry))
         {
             zos.putNextEntry(new ZipEntry(entry));
@@ -790,7 +791,7 @@ public class ExportExecutor implements IExportExecutor
     {
         final StringBuilder entryBuilder = new StringBuilder(PDF_DIRECTORY);
 
-        if (spaceCode == null && (projectCode != null || experimentCode != null || sampleCode != null || dataSetCode != null || extension != null))
+        if (spaceCode == null && (projectCode != null || experimentCode != null || dataSetCode != null || (sampleCode == null && extension != null)))
         {
             throw new IllegalArgumentException();
         } else if (spaceCode != null)

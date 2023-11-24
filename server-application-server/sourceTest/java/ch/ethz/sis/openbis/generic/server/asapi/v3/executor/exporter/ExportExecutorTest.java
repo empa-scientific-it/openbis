@@ -181,6 +181,22 @@ public class ExportExecutorTest
                     String.format("%s/%s/%s/%s (%s)/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
+            {
+                    null, null, null, null, SAMPLE_CODE, null, null, null,
+                    String.format("%s/%s/", PDF_DIRECTORY, SAMPLE_CODE)
+            },
+            {
+                    null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
+                    String.format("%s/%s (%s)/", PDF_DIRECTORY, SAMPLE_NAME, SAMPLE_CODE)
+            },
+            {
+                    null, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
+                    String.format("%s/%s%s", PDF_DIRECTORY, SAMPLE_CODE, EXTENSION)
+            },
+            {
+                    null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
+                    String.format("%s/%s (%s)%s", PDF_DIRECTORY, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+            },
     };
 
     private static final Object[][] ERRONEOUS_NEXT_ZIP_ENTRY_DATA = {
@@ -191,13 +207,13 @@ public class ExportExecutorTest
                     null, null, EXPERIMENT_CODE, null, null, null, null, null
             },
             {
-                    null, null, null, null, SAMPLE_CODE, null, null, null
-            },
-            {
                     null, null, null, null, null, null, DATA_SET_CODE, null
             },
             {
                     null, null, null, null, null, null, null, EXTENSION
+            },
+            {
+                    null, PROJECT_CODE, EXPERIMENT_CODE, null, SAMPLE_CODE, null, DATA_SET_CODE, null
             },
             {
                     null, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION
@@ -209,7 +225,13 @@ public class ExportExecutorTest
                     SPACE_CODE, null, null, null, null, null, DATA_SET_CODE, EXTENSION
             },
             {
+                    SPACE_CODE, null, null, null, null, null, DATA_SET_CODE, null
+            },
+            {
                     SPACE_CODE, PROJECT_CODE, null, null, null, null, DATA_SET_CODE, EXTENSION
+            },
+            {
+                    SPACE_CODE, PROJECT_CODE, null, null, null, null, DATA_SET_CODE, null
             },
     };
 
