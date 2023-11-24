@@ -52,186 +52,186 @@ public class ExportExecutorTest
 
     private static final Object[][] NEXT_ZIP_ENTRY_DATA = {
             {
-                    null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null,
                     String.format("%s/", PDF_DIRECTORY)
             },
             {
-                    SPACE_CODE, null, null, null, null, null, null, null,
+                    SPACE_CODE, null, null, null, null, null, null, null, null,
                     String.format("%s/%s/", PDF_DIRECTORY, SPACE_CODE)
             },
             {
-                    SPACE_CODE, null, null, null, null, null, null, EXTENSION,
+                    SPACE_CODE, null, null, null, null, null, null, null, EXTENSION,
                     String.format("%s/%s%s", PDF_DIRECTORY, SPACE_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, null, null, null,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, null, null,
                     String.format("%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
                     String.format("%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
                     String.format("%s/%s/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
                     String.format("%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
                     String.format("%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, EXTENSION,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, EXTENSION,
                     String.format("%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
                     String.format("%s/%s/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
-                    SPACE_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
+                    SPACE_CODE, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
                     String.format("%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, null, null, null, null,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, null, null, null, null,
                     String.format("%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, null, null, null, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, null, null, null, EXTENSION,
                     String.format("%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
                     String.format("%s/%s/%s/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
                     String.format("%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, null, null,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, null, null, null,
                     String.format("%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, null, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
                     String.format("%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
                     String.format("%s/%s/%s/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
                     String.format("%s/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE,
                             EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
                     String.format("%s/%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, SAMPLE_CODE, null, DATA_SET_CODE, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, EXTENSION,
                     String.format("%s/%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, null,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, null, null,
                     String.format("%s/%s/%s/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, null, EXTENSION,
                     String.format("%s/%s/%s/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null, null,
                     String.format("%s/%s/%s/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null, EXTENSION,
                     String.format("%s/%s/%s/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, DATA_SET_CODE, null,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, DATA_SET_CODE, null,
                     String.format("%s/%s/%s/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, DATA_SET_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, DATA_SET_CODE, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, DATA_SET_CODE, EXTENSION,
                     String.format("%s/%s/%s/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, DATA_SET_CODE,
                             EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, null, null,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
                     String.format("%s/%s/%s/%s (%s)/%s (%s)/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, SAMPLE_NAME,
                             SAMPLE_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
                     String.format("%s/%s/%s/%s (%s)/%s (%s)%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
                     String.format("%s/%s/%s/%s (%s)/%s (%s)/%s/", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE)
             },
             {
-                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
+                    SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION,
                     String.format("%s/%s/%s/%s (%s)/%s (%s)/%s%s", PDF_DIRECTORY, SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
                             SAMPLE_NAME, SAMPLE_CODE, DATA_SET_CODE, EXTENSION)
             },
             {
-                    null, null, null, null, SAMPLE_CODE, null, null, null,
+                    null, null, null, null, null, SAMPLE_CODE, null, null, null,
                     String.format("%s/%s/", PDF_DIRECTORY, SAMPLE_CODE)
             },
             {
-                    null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
+                    null, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
                     String.format("%s/%s (%s)/", PDF_DIRECTORY, SAMPLE_NAME, SAMPLE_CODE)
             },
             {
-                    null, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
+                    null, null, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
                     String.format("%s/%s%s", PDF_DIRECTORY, SAMPLE_CODE, EXTENSION)
             },
             {
-                    null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
+                    null, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
                     String.format("%s/%s (%s)%s", PDF_DIRECTORY, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
     };
 
     private static final Object[][] ERRONEOUS_NEXT_ZIP_ENTRY_DATA = {
             {
-                    null, PROJECT_CODE, null, null, null, null, null, null
+                    null, PROJECT_CODE, null, null, null, null, null, null, null
             },
             {
-                    null, null, EXPERIMENT_CODE, null, null, null, null, null
+                    null, null, EXPERIMENT_CODE, null, null, null, null, null, null
             },
             {
-                    null, null, null, null, null, null, DATA_SET_CODE, null
+                    null, null, null, null, null, null, null, DATA_SET_CODE, null
             },
             {
-                    null, null, null, null, null, null, null, EXTENSION
+                    null, null, null, null, null, null, null, null, EXTENSION
             },
             {
-                    null, PROJECT_CODE, EXPERIMENT_CODE, null, SAMPLE_CODE, null, DATA_SET_CODE, null
+                    null, PROJECT_CODE, EXPERIMENT_CODE, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null
             },
             {
-                    null, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION
+                    null, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, EXTENSION
             },
             {
-                    SPACE_CODE, null, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, EXTENSION
+                    SPACE_CODE, null, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null, EXTENSION
             },
             {
-                    SPACE_CODE, null, null, null, null, null, DATA_SET_CODE, EXTENSION
+                    SPACE_CODE, null, null, null, null, null, null, DATA_SET_CODE, EXTENSION
             },
             {
-                    SPACE_CODE, null, null, null, null, null, DATA_SET_CODE, null
+                    SPACE_CODE, null, null, null, null, null, null, DATA_SET_CODE, null
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, null, null, DATA_SET_CODE, EXTENSION
+                    SPACE_CODE, PROJECT_CODE, null, null, null, null, null, DATA_SET_CODE, EXTENSION
             },
             {
-                    SPACE_CODE, PROJECT_CODE, null, null, null, null, DATA_SET_CODE, null
+                    SPACE_CODE, PROJECT_CODE, null, null, null, null, null, DATA_SET_CODE, null
             },
     };
 
@@ -317,17 +317,19 @@ public class ExportExecutorTest
 
     @Test(dataProvider = NEXT_ZIP_ENTRY_DATA_PROVIDER)
     public void testGetNextZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
-            final String sampleCode, final String sampleName, final String dataSetCode, final String extension, final String expectedResult)
+             final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension,
+            final String expectedResult)
     {
-        assertEquals(ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode,
-                extension), expectedResult);
+        assertEquals(ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
+                sampleName, dataSetCode, extension), expectedResult);
     }
 
     @Test(dataProvider = ERRONEOUS_NEXT_ZIP_ENTRY_DATA_PROVIDER, expectedExceptions = IllegalArgumentException.class)
     public void testGetNextZipEntryError(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
-            final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
+            final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
     {
-        ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode, extension);
+        ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode, sampleName, dataSetCode,
+                extension);
     }
 
     @Test(dataProvider = FOLDER_NAME_DATA_PROVIDER)

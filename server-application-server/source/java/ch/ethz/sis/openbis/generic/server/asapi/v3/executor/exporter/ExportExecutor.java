@@ -318,7 +318,7 @@ public class ExportExecutor implements IExportExecutor
                 if (hasPdfFormat || hasHtmlFormat)
                 {
                     final Set<String> existingZipEntries = new HashSet<>();
-                    putNextDocZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null);
+                    putNextDocZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null, null);
                     exportSpacesDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
                     exportProjectsDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
                     exportExperimentsDoc(zos, bos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
@@ -382,14 +382,14 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, HTML_EXTENSION);
+                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, null, HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
                 }
 
                 if (hasPdfFormat)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, PDF_EXTENSION);
+                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, null, PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
 
@@ -399,7 +399,7 @@ public class ExportExecutor implements IExportExecutor
                 }
             } else
             {
-                putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null);
+                putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null, null);
                 zos.closeEntry();
             }
         }
@@ -435,7 +435,7 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null, null,
                             HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
@@ -443,7 +443,7 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasPdfFormat)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null,
+                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null, null,
                             PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -457,7 +457,7 @@ public class ExportExecutor implements IExportExecutor
                 final String projectCode = getProjectCode(entity);
                 if (projectCode != null)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null);
+                    putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null, null);
                     zos.closeEntry();
                 }
             }
@@ -486,7 +486,7 @@ public class ExportExecutor implements IExportExecutor
                 {
                     final Project project = experiment.getProject();
                     putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
-                            experiment.getCode(), getEntityName(experiment), null, null, null, null);
+                            experiment.getCode(), getEntityName(experiment), null, null, null, null, null);
                     zos.closeEntry();
                 }
             }
@@ -506,7 +506,7 @@ public class ExportExecutor implements IExportExecutor
                 if (hasHtmlFormat)
                 {
                     putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                            getEntityName(experiment), null, null, null, HTML_EXTENSION);
+                            getEntityName(experiment), null, null, null, null, HTML_EXTENSION);
                     writeInChunks(bos, htmlBytes);
                     zos.closeEntry();
                 }
@@ -514,7 +514,7 @@ public class ExportExecutor implements IExportExecutor
                 if (hasPdfFormat)
                 {
                     putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                            getEntityName(experiment), null, null, null, PDF_EXTENSION);
+                            getEntityName(experiment), null, null, null, null, PDF_EXTENSION);
 
                     final PdfRendererBuilder builder = new PdfRendererBuilder();
 
@@ -600,20 +600,20 @@ public class ExportExecutor implements IExportExecutor
         {
             final Project project = experiment.getProject();
             putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                    getEntityName(experiment), sample.getCode(), getEntityName(sample), null, extension);
+                    getEntityName(experiment), null, sample.getCode(), getEntityName(sample), null, extension);
         } else
         {
             final Project project = sample.getProject();
             if (project != null)
             {
-                putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null,
+                putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null,
                         sample.getCode(), getEntityName(sample), null, extension);
             } else
             {
                 final Space space = sample.getSpace();
                 if (space != null)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, sample.getCode(), getEntityName(sample),
+                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, sample.getCode(), getEntityName(sample),
                             null, extension);
                 }
             }
@@ -675,7 +675,7 @@ public class ExportExecutor implements IExportExecutor
             final Experiment experiment = sample.getExperiment();
             final Project project = getProjectForSample(sample);
             putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                    getEntityName(experiment), dataSet.getCode(), getEntityName(dataSet), null, extension);
+                    getEntityName(experiment), null, sample.getCode(), getEntityName(sample), dataSet.getCode(), extension);
         } else
         {
             final Experiment experiment = dataSet.getExperiment();
@@ -683,7 +683,7 @@ public class ExportExecutor implements IExportExecutor
             {
                 final Project project = experiment.getProject();
                 putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
-                        experiment.getCode(), getEntityName(experiment), null, null, dataSet.getCode(), extension);
+                        experiment.getCode(), getEntityName(experiment), null, null, null, dataSet.getCode(), extension);
             }
         }
 
@@ -773,12 +773,12 @@ public class ExportExecutor implements IExportExecutor
      * @throws IOException if an I/O error has occurred
      */
     private static void putNextDocZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos,
-            final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
+            final String spaceCode, final String projectCode, final String experimentCode, final String experimentName, final String containerCode,
             final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
             throws IOException
     {
-        final String entry = getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, sampleCode, sampleName, dataSetCode,
-                extension);
+        final String entry = getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode, sampleName,
+                dataSetCode, extension);
         if (!existingZipEntries.contains(entry))
         {
             zos.putNextEntry(new ZipEntry(entry));
@@ -787,7 +787,7 @@ public class ExportExecutor implements IExportExecutor
     }
 
     static String getNextDocZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
-            final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
+            final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
     {
         final StringBuilder entryBuilder = new StringBuilder(PDF_DIRECTORY);
 
