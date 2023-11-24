@@ -25,6 +25,7 @@ from .things import Things
 from .utils import (
     format_timestamp,
     extract_code,
+    extract_data_type,
     extract_name,
     VERBOSE,
 )
@@ -105,6 +106,7 @@ class EntityType:
     def get_property_assignments(self):
         attrs = [
             "propertyType",
+            "dataType",
             "section",
             "ordinal",
             "mandatory",
@@ -120,6 +122,9 @@ class EntityType:
 
         def create_data_frame(attrs, props, response):
             df = DataFrame(response, columns=attrs)
+
+            if "dataType" in df:
+                df["dataType"] = df["propertyType"].map(extract_data_type)
 
             if "propertyType" in df:
                 df["propertyType"] = df["propertyType"].map(extract_code)
@@ -142,6 +147,7 @@ class EntityType:
             totalCount=len(pas),
             response=pas,
             df_initializer=create_data_frame,
+            attrs=attrs
         )
 
     def assign_property(
