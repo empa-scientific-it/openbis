@@ -147,7 +147,7 @@ class EntitiesFinder
         fetchOptions.withModifier();
         fetchOptions.withPhysicalData();
         fetchOptions.withParents();
-        fetchOptions.withChildren();
+        fetchOptions.withChildren().withProperties();
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
     }
 
@@ -207,7 +207,7 @@ class EntitiesFinder
         fetchOptions.withSpace();
         fetchOptions.withProject().withSpace();
         fetchOptions.withParents();
-        fetchOptions.withChildren();
+        fetchOptions.withChildren().withProperties();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();

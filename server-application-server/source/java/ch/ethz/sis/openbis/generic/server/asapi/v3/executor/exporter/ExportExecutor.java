@@ -84,6 +84,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IDescriptionHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
@@ -611,11 +612,8 @@ public class ExportExecutor implements IExportExecutor
             } else
             {
                 final Space space = sample.getSpace();
-                if (space != null)
-                {
-                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, sample.getCode(), getEntityName(sample),
-                            null, extension);
-                }
+                putNextDocZipEntry(existingZipEntries, zos, space != null ? space.getCode() : null, null, null, null, null, sample.getCode(),
+                        getEntityName(sample), null, extension);
             }
         }
     }
@@ -711,12 +709,16 @@ public class ExportExecutor implements IExportExecutor
             } else
             {
                 final Experiment experiment = sample.getExperiment();
+                final Project project = sample.getProject();
                 if (experiment != null)
                 {
                     return experiment.getProject().getSpace().getCode();
+                } else if (project != null)
+                {
+                    return project.getSpace().getCode();
                 } else
                 {
-                    return sample.getProject().getSpace().getCode();
+                    return null;
                 }
             }
         } else
@@ -904,7 +906,7 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static <T extends IPropertiesHolder & ICodeHolder> String getEntityName(final T entity)
+    private static String getEntityName(final IPropertiesHolder entity)
     {
         try
         {
@@ -1035,7 +1037,11 @@ public class ExportExecutor implements IExportExecutor
 
         if (entityObj instanceof IIdentifierHolder && allowsValue(selectedExportAttributes, Attribute.IDENTIFIER.name()))
         {
-            documentBuilder.addProperty("Identifier", entityObj.getCode());
+            final ObjectIdentifier identifier = ((IIdentifierHolder) entityObj).getIdentifier();
+            if (identifier != null)
+            {
+                documentBuilder.addProperty("Identifier", identifier.getIdentifier());
+            }
         }
 
         if (entityObj instanceof IRegistratorHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATOR.name()))
@@ -1095,10 +1101,8 @@ public class ExportExecutor implements IExportExecutor
                 {
                     final String relCodeName = ((ICodeHolder) parent).getCode();
                     final Map<String, Serializable> properties = ((IPropertiesHolder) parent).getProperties();
-                    if (properties.containsKey("NAME"))
-                    {
-                        documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
-                    }
+                    final String name = getEntityName((IPropertiesHolder) parent);
+                    documentBuilder.addParagraph(relCodeName + (name != null ? " (" + properties.get("NAME") + ")" : ""));
                 }
             }
 
@@ -1110,10 +1114,8 @@ public class ExportExecutor implements IExportExecutor
                 {
                     final String relCodeName = ((ICodeHolder) child).getCode();
                     final Map<String, Serializable> properties = ((IPropertiesHolder) child).getProperties();
-                    if (properties.containsKey("NAME"))
-                    {
-                        documentBuilder.addParagraph(relCodeName + " (" + properties.get("NAME") + ")");
-                    }
+                    final String name = getEntityName((IPropertiesHolder) child);
+                    documentBuilder.addParagraph(relCodeName + (name != null ? " (" + properties.get("NAME") + ")" : ""));
                 }
             }
         }
