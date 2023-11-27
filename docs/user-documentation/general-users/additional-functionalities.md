@@ -193,17 +193,17 @@ By clicking the checkbox in the table header, all entries of the table
 are selected. After selection of entries, some actions become available:
 
 > -   **Delete**: allows to move the selected entries to the trashcan.
-> -   **Move**: allows to move the selected entries to a different
->     *Collection/Experiment.*
+> -   **Move**: allows to move the selected entries to a different existing
+>     *Collection/Experiment* or to a new one.
 > -   **Generate barcodes**: allows to generate custom barcodes for the
 >     selected entries.
-> -   **Update custom barcodes**: allows to update existing custom
+> -   **Update custom barcodes/QR codes**: allows to update existing custom
 >     barcodes of the selected entries.
 > -   **Clear selection**: allows to clear the selection made.
 
  
 
-![image info](img/selection-entries-table-1024x425.png)
+![image info](img/Object-table-buttons-on-selection.png)
 
  
 
@@ -212,8 +212,8 @@ In *Object* tables inside *Experiments/Collections* there is an
 *Object*:
 
 > 1.  Upload a file to the *Object*
-> 2.  Move the *Object* to another Experiment/Collection.
-> 3.  Update Barcode.
+> 2.  Move the *Object* to another exiting *Experiment/Collection*.
+> 3.  Update Barcode/QR code.
 > 4.  Open the hierarchy graph. This is the graph showing parent/child
 >     connections of the *Object*.
 > 5.  Open the hierarchy table. This is the table showing parent/child
@@ -221,7 +221,7 @@ In *Object* tables inside *Experiments/Collections* there is an
 
  
 
-![image info](img/operations-column-1024x405.png)
+![image info](img/Object-table-operations-column.png)
 
 Updated on April 26, 2023
  

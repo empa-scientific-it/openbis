@@ -87,10 +87,13 @@ Since openBIS 20.10.6, the import of zip files is supported.
 
 The masterdata Excel file exported from openBIS, contains in the first column the version number of the masterdata. Since openBIS version 20.10.7.2 the version number is ignored on import if:
 
-1. the version column is removed from the masterdata file
+1. the version column is completely removed from the masterdata file
+
+or
+
 2. the version column is left empty
 
-If the version column is present in the Excel file and version numbers are present, in order to update a type, the number of the type that should be updated must be increased by 1, as described in ([New entity type registration)](../new-entity-type-registration.md).
+If the version column is present in the Excel file and version numbers are present, in order to update a type, the number of the type that should be updated must be increased by 1, as described in ([New entity type registration)](docs/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.md).
 
     
 
