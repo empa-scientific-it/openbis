@@ -154,6 +154,8 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String DATA_DIRECTORY = "data";
 
+    public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
+
     public static final String HTML_EXTENSION = ".html";
 
     public static final String PDF_EXTENSION = ".pdf";
@@ -400,7 +402,9 @@ public class ExportExecutor implements IExportExecutor
                 }
             } else
             {
-                putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), null, null, null, null, null, null, null, null);
+                final String spaceCode = getSpaceCode(entity);
+                final String folderName = spaceCode == null && entity instanceof Sample ? SHARED_SAMPLES_DIRECTORY : spaceCode;
+                putNextDocZipEntry(existingZipEntries, zos, folderName, null, null, null, null, null, null, null, null);
                 zos.closeEntry();
             }
         }
@@ -612,8 +616,8 @@ public class ExportExecutor implements IExportExecutor
             } else
             {
                 final Space space = sample.getSpace();
-                putNextDocZipEntry(existingZipEntries, zos, space != null ? space.getCode() : null, null, null, null, null, sample.getCode(),
-                        getEntityName(sample), null, extension);
+                putNextDocZipEntry(existingZipEntries, zos, space != null ? space.getCode() : SHARED_SAMPLES_DIRECTORY, null, null, null, null,
+                        sample.getCode(), getEntityName(sample), null, extension);
             }
         }
     }

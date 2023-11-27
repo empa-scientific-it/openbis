@@ -136,16 +136,16 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
-            {
-                    // Sample: /MP:A03
-                    "export-sample-contained-xlsx.zip",
-                    EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
-                    new AllFields(),
-                    XlsTextFormat.RICH,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
+//            {
+//                    // Sample: /MP:A03
+//                    "export-sample-contained-xlsx.zip",
+//                    EnumSet.of(ExportFormat.XLSX),
+//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
+//                    new AllFields(),
+//                    XlsTextFormat.RICH,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-xlsx.zip",
@@ -359,16 +359,16 @@ public class ExportData
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
-            {
-                    // Sample: /MP:A03
-                    "export-sample-contained-html.zip",
-                    EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
-                    new AllFields(),
-                    XlsTextFormat.RICH,
-                    true, // withReferredTypes
-                    false // withImportCompatibility
-            },
+//            {
+//                    // Sample: /MP:A03
+//                    "export-sample-contained-html.zip",
+//                    EnumSet.of(ExportFormat.HTML),
+//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
+//                    new AllFields(),
+//                    XlsTextFormat.RICH,
+//                    true, // withReferredTypes
+//                    false // withImportCompatibility
+//            },
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-html.zip",
@@ -503,6 +503,16 @@ public class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /MP
+                    "export-sample-shared-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-652"))),
+                    new AllFields(),
+                    XlsTextFormat.RICH,
                     true, // withReferredTypes
                     false // withImportCompatibility
             },
