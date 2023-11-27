@@ -69,6 +69,7 @@ import java.util.zip.ZipOutputStream;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -101,6 +102,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHo
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
@@ -127,12 +129,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
@@ -159,6 +168,8 @@ public class ExportExecutor implements IExportExecutor
     public static final String HTML_EXTENSION = ".html";
 
     public static final String PDF_EXTENSION = ".pdf";
+
+    static final String NAME_PROPERTY_NAME = "$NAME";
 
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
@@ -209,10 +220,13 @@ public class ExportExecutor implements IExportExecutor
 
     private static final String KIND_DOCUMENT_PROPERTY_ID = "Kind";
 
-    static final String NAME_PROPERTY_NAME = "$NAME";
+    private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, ExportExecutor.class);
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
+
+    @Autowired
+    private IDataStoreServerApi v3Dss;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -342,8 +356,9 @@ public class ExportExecutor implements IExportExecutor
 
     private void exportData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
             final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields)
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
     {
+//        final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
 //        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
         final Collection<Sample> samples = entitiesVo.getSamples();
 
@@ -351,8 +366,40 @@ public class ExportExecutor implements IExportExecutor
         {
             final List<DataSet> dataSets = sample.getDataSets();
 
+            for (final DataSet dataSet : dataSets)
+            {
+                final String dataSetPermId = dataSet.getPermId().getPermId();
+                if (dataSet.getKind() != DataSetKind.LINK)
+                {
+                    final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+                    criteria.withDataSet().withPermId().thatEquals(dataSetPermId);
+                    final SearchResult<DataSetFile> results = v3Dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+                    OPERATION_LOG.info(String.format("Found: %d files", results.getTotalCount()));
 
+                    for (final DataSetFile file : results.getObjects())
+                    {
+                        final String filePath = file.getPath();
+                        final Sample container = sample.getContainer();
+                        putNextDataZipEntry(existingZipEntries, zos, 'S', getSpaceCode(sample), getProjectCode(SAMPLE),
+                                container == null ? null : container.getCode(), sample.getCode(), getEntityName(sample), getFileName(filePath));
+
+                        if (!file.isDirectory())
+                        {
+                            // TODO: add content
+                        }
+                    }
+                } else
+                {
+                    OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
+                }
+            }
         }
+    }
+
+    private static String getFileName(final String filePath)
+    {
+        final int lastSlashPos = filePath.lastIndexOf('/');
+        return lastSlashPos >= 0 ? filePath.substring(lastSlashPos + 1) : filePath;
     }
 
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
@@ -839,6 +886,19 @@ public class ExportExecutor implements IExportExecutor
 
         entryBuilder.append(extension != null ? extension : '/');
         return entryBuilder.toString();
+    }
+
+    private static void putNextDataZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final char prefix,
+            final String spaceCode, final String projectCode, final String containerCode, final String entityCode, final String entityName,
+            final String fileName)
+            throws IOException
+    {
+        final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, entityName);
+        if (!existingZipEntries.contains(entry))
+        {
+            zos.putNextEntry(new ZipEntry(entry));
+            existingZipEntries.add(entry);
+        }
     }
 
     static String getFolderName(final char prefix, final String spaceCode, final String projectCode,
