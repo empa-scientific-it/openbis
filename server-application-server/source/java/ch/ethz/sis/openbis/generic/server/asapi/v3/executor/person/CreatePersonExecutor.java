@@ -202,6 +202,19 @@ public class CreatePersonExecutor
         {
             try
             {
+                PersonPE systemUser = daoFactory.getPersonDAO().tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                if (systemUser == null)
+                {
+                    throw new UserFailureException(
+                            "Couldn't find system user with default settings in the DB.");
+                }
+
+                PersonPE existingPerson = daoFactory.getPersonDAO().tryFindPersonByUserId(person.getUserId());
+                if (existingPerson != null){
+                    throw new UserFailureException(
+                            "User with User Id [" + person.getUserId() + "] already exists!"
+                    );
+                }
                 daoFactory.getPersonDAO().createPerson(person);
             } catch (final DataAccessException e)
             {
