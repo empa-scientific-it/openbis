@@ -166,6 +166,7 @@ function StorageListView(storageListController, storageListModel) {
 					code : uuid,
 					identifier : null,
 					sampleTypeCode : "STORAGE_POSITION",
+					experimentIdentifier: null,
 					properties : {}
 			};
 			_this._storageListModel.sample.children.push(newChildSample);
@@ -244,6 +245,11 @@ function StorageListView(storageListController, storageListModel) {
                         if(sampleChild.newSampleJustCreated) {
                             sampleChild.identifier = IdentifierUtil.getSampleIdentifier(storageSpaceCode, null, sampleChild.code);
                             delete sampleChild.newSampleJustCreated;
+                            var postFix = "";
+                            if(storageSpaceCode.length > "STORAGE".length) {
+                                postFix = storageSpaceCode.substring("STORAGE".length + 1);
+                            }
+                            sampleChild.experimentIdentifier = "/" + storageSpaceCode + "/STORAGE_POSITIONS" + postFix + "/STORAGE_POSITIONS_COLLECTION" + postFix;
                         } else {
                             // On update the identifier should be set, fail if not
                         }
