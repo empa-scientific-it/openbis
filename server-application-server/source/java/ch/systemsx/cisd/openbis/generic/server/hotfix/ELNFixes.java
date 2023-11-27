@@ -46,9 +46,9 @@ public class ELNFixes {
         storageValidationLevelFix(sessionToken, api);
         nameNoRTFFix(sessionToken, api);
         // TODO(alaskowski): SSDM-13831: Do migration here!!!
-        fixProperties("sample_properties", "sample_type_property_types", "stpt_id");
-        fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id");
-        fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id");
+        fixProperties("sample_properties", "sample_type_property_types", "stpt_id", "samp_frozen");
+        fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id", "expe_frozen");
+        fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id", "dase_frozen");
         operationLog.info("ELNFixes beforeUpgrade FINISH");
     }
 
@@ -135,23 +135,24 @@ public class ELNFixes {
     }
 
     private static void fixProperties(final String propertiesTable, final String entityTypePropertyTypesTable,
-            final String entityTypePropertyTypesColumn) {
+            final String entityTypePropertyTypesColumn, final String frozenColumn) {
         ELNCollectionTypeMigration.executeNativeUpdate(
             String.format("UPDATE %s prop\n"
                     + "SET value = null\n"
                     + "FROM %s etpt\n"
                     + "INNER JOIN property_types prty ON etpt.prty_id = prty.id\n"
                     + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
-                    + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code = 'CONTROLLEDVOCABULARY'",
-                    propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn));
+                    + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code = 'CONTROLLEDVOCABULARY' AND prop.%s = false",
+                    propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn, frozenColumn));
         ELNCollectionTypeMigration.executeNativeUpdate(
             String.format("UPDATE %s prop\n"
                 + "SET cvte_id = null\n"
                 + "FROM %s etpt\n"
                 + "INNER JOIN property_types prty ON etpt.prty_id = prty.id\n"
                 + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
-                + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code != 'CONTROLLEDVOCABULARY'",
-                propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn));
+                + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code != 'CONTROLLEDVOCABULARY' AND prop.%s = false",
+                propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn, frozenColumn));
+        operationLog.info(String.format("ELNFixes fixProperties for propertiesTable %s", propertiesTable));
     }
 
 }
