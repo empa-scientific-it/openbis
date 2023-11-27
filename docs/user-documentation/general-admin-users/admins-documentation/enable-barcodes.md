@@ -20,13 +20,13 @@ edit the **Settings**, as shown below.
 
  
 
-After enabling the option, please refresh your browser. The **Barcodes
-Generator** will be shown in the main menu under **Utilities** and a
+After enabling the option, please refresh your browser. The **Barcodes/QR Codes Generator** will be shown in the main menu under **Utilities** and a
 barcode icon will be added above the menu.
 
  
 
-![image info](img/Barcode-generator-1024x466.png)
+![image info](img/Generate-custom-barcodes-qrcodes.png)
+
 ![image info](img/barcode-scan-tablet.png)
 
  

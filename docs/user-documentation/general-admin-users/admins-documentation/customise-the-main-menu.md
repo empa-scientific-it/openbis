@@ -77,7 +77,7 @@ The main menu can be customised from the **Settings**, under
     ([Export to
     Zenodo](../../general-users/data-export.md#export-to-zenodo))
     will be hidden.
-13. **showBarcodes**: if unselected, the **Barcodes Generator** under
+13. **showBarcodes**: if unselected, the **Barcodes/QR codes Generator** under
     **Utilities** in the main menu
     ([Barcodes)](../../general-users/barcodes.md)
     will be hidden.
