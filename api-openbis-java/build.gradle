@@ -73,10 +73,18 @@ generateTypeScript {
                             "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria",
                             "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult",
                             "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters"]
+    mapClasses = "asInterfaces"
     outputKind = 'module'
     outputFileType = 'declarationFile'
-    customTypeNaming = ["ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteria", "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:DSExternalDmsSearchCriteria"]
-    extensionsWithConfiguration = [new ConfiguredExtension(className: 'ch.empa.tsprocessor.MethodExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"])]
+    customTypeNaming = [
+            "ch.ethz.sis.openbis.generic.OpenBIS:facade",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:DSExternalDmsSearchCriteria"
+    ]
+    extensionsWithConfiguration = [
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.MethodExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.OpenBISModuleExtension')
+    ]
     jackson2ModuleDiscovery = true
     outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
 }
