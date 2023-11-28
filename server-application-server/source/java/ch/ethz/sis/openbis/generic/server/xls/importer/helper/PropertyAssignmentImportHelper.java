@@ -163,6 +163,9 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
             // Update property assignment
             ArrayList<PropertyAssignmentCreation> propertyAssignmentsForUpdate = getPropertyAssignmentsForUpdate();
             int index = indexOf(creation.getPropertyTypeId(), propertyAssignmentsForUpdate);
+            if (creation.getPluginId() == null && propertyAssignmentsForUpdate.get(index).getPluginId() != null) { // If the property has been made dynamic on the system
+                creation.setPluginId(propertyAssignmentsForUpdate.get(index).getPluginId()); // Keep the property dynamic
+            }
             propertyAssignmentsForUpdate.set(index, creation);
             newAssignments.set(propertyAssignmentsForUpdate.toArray());
         }
