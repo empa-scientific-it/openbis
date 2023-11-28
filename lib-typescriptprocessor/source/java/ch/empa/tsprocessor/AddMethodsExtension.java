@@ -107,7 +107,7 @@ public class AddMethodsExtension extends Extension {
      * @return true if the method should be added to the typescript interface, false otherwise
      */
     private static boolean filterMethods(Method method) {
-        return !((method.getDeclaringClass() == Object.class) || (method.getName().matches(excludedMethods)));
+        return !(method.isBridge() || (method.getDeclaringClass() == Object.class) || (method.getName().matches(excludedMethods)));
     }
 
 
