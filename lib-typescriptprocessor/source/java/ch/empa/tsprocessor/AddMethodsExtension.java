@@ -77,7 +77,7 @@ class ProcessingContext {
  *
  * @author Simone Baffelli
  */
-public class MethodExtension extends Extension {
+public class AddMethodsExtension extends Extension {
 
     //Classes whose methods should return a promise instead of a value. This is useful for methods that are called through a REST API/RPC
     //Perhaps an alternative would be to use an annotation to mark the methods that should return a promise
@@ -88,7 +88,7 @@ public class MethodExtension extends Extension {
 
     private List<String> asnycClasses = new ArrayList<>();
 
-    public MethodExtension() {
+    public AddMethodsExtension() {
     }
 
     /**
@@ -96,7 +96,7 @@ public class MethodExtension extends Extension {
      *
      * @param asyncClasses a json string with the list of classes whose methods should return a promise
      */
-    public MethodExtension(List<String> asyncClasses) {
+    public AddMethodsExtension(List<String> asyncClasses) {
         this.asnycClasses = asyncClasses;
     }
 
@@ -178,10 +178,10 @@ public class MethodExtension extends Extension {
 
     private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor) {
         Class<?> origin = bean.getOrigin();
-        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(MethodExtension::filterMethods).map(method -> propertyModelToMethodModel(processor.makeFunction(method, model, processingContext))).flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
+        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(AddMethodsExtension::filterMethods).map(method -> propertyModelToMethodModel(processor.makeFunction(method, model, processingContext))).flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
         Stream<TsMethodModel> constructors = Arrays.stream(origin.getDeclaredConstructors()).map(constructor -> makeConstructor(constructor, bean, model, processingContext));
         List<TsMethodModel> allMethods = Stream.of(params, constructors).flatMap(it -> it).collect(Collectors.toList());
-        return bean.withProperties(bean.getProperties()).withMethods(allMethods);
+        return bean.withProperties(Collections.emptyList()).withMethods(allMethods);
     }
 
 
@@ -222,9 +222,9 @@ public class MethodExtension extends Extension {
             //Add table of mapped types
             Stream<TsBeanModel> processedBeans = model.getBeans().stream().map(bean -> {
                 if (asnycClasses.contains(bean.getOrigin().getName())) {
-                    return addFunctions(bean, model, processingContext, MethodExtension::makePromiseReturningFunction);
+                    return addFunctions(bean, model, processingContext, AddMethodsExtension::makePromiseReturningFunction);
                 } else {
-                    return addFunctions(bean, model, processingContext, MethodExtension::makeFunction);
+                    return addFunctions(bean, model, processingContext, AddMethodsExtension::makeFunction);
                 }
             });
             return model.withBeans(processedBeans.collect(Collectors.toList()));

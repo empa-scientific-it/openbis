@@ -82,8 +82,9 @@ generateTypeScript {
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:DSExternalDmsSearchCriteria"
     ]
     extensionsWithConfiguration = [
-            new ConfiguredExtension(className: 'ch.empa.tsprocessor.MethodExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),
-            new ConfiguredExtension(className: 'ch.empa.tsprocessor.OpenBISModuleExtension')
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.AddMethodsExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.RemovePropertiesExtension'),
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.AddOpenBISModuleExtension')
     ]
     jackson2ModuleDiscovery = true
     outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')

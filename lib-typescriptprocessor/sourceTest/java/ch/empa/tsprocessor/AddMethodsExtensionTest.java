@@ -25,7 +25,8 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 
-public class MethodExtensionTest {
+public class AddMethodsExtensionTest
+{
 
     interface GenericTestClass<A> {
         A get();
@@ -58,7 +59,7 @@ public class MethodExtensionTest {
     public void setSettings(){
         settings.outputKind = (TypeScriptOutputKind.module);
         settings.jsonLibrary = JsonLibrary.jackson2;
-        settings.extensions = List.of(new MethodExtension());
+        settings.extensions = List.of(new AddMethodsExtension());
     }
 
 
