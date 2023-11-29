@@ -1085,7 +1085,7 @@ test("listProjects()", function() {
 			assertObjectsCount(response.result, 19);
 			assertObjectsWithCodes(response.result, [ "BACTERIA" ,"CELL_LINES" ,"DEFAULT_PROJECT" ,"FLIES" ,"ORDERS"
 			,"PLANTS" ,"PLASMIDS" ,"POLYNUCLEOTIDES" ,"PRODUCTS" ,"PROTOCOLS" ,"PUBLIC_REPOSITORIES" ,"REAGENTS"
-			,"REQUESTS" ,"SCREENING-EXAMPLES" ,"STORAGES" ,"SUPPLIERS" ,"TEMPLATES" ,"TEST-PROJECT" ,"YEASTS" ]);
+			,"REQUESTS" ,"SCREENING-EXAMPLES" ,"STORAGES" ,"STORAGE_POSITIONS", "SUPPLIERS" ,"TEMPLATES" ,"TEST-PROJECT" ,"YEASTS" ]);
 			facade.close();
 		});
 	});
