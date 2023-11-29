@@ -347,4 +347,12 @@ public class ExportExecutorTest
         ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, entityName);
     }
 
+    @Test()
+    public void testEscapeUnsafeCharacters()
+    {
+        final String input = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $!#%'()+,-.;=@[]^_{}~\\/:*?\"<>|`";
+        final String expectedOutput = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 $!#%'()+,-.;=@[]^_{}~__________";
+        assertEquals(ExportExecutor.escapeUnsafeCharacters(input), expectedOutput);
+    }
+
 }

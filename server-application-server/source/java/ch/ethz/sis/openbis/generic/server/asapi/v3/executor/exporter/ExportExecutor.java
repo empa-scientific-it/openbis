@@ -129,13 +129,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
-import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
@@ -222,11 +220,13 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, ExportExecutor.class);
 
+    /** All characters except the ones we consider safe as a folder name. */
+    private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
+
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
-    @Autowired
-    private IDataStoreServerApi v3Dss;
+//    private IDataStoreServerApi v3Dss = (IDataStoreServerApi) ServiceProvider.getDssServiceV3().getService();
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -974,11 +974,16 @@ public class ExportExecutor implements IExportExecutor
     {
         try
         {
-            return entity.getVarcharProperty(NAME_PROPERTY_NAME);
+            return escapeUnsafeCharacters(entity.getVarcharProperty(NAME_PROPERTY_NAME));
         } catch (final NotFetchedException e)
         {
             return null;
         }
+    }
+
+    static String escapeUnsafeCharacters(final String name)
+    {
+        return name.replaceAll(UNSAFE_CHARACTERS_REGEXP, "_");
     }
 
     private static void exportXls(final ZipOutputStream zos, final BufferedOutputStream bos, final XLSExport.PrepareWorkbookResult xlsExportResult,
