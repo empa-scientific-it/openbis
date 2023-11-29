@@ -36,13 +36,6 @@ The complete solution for managing your research data.
    Docker Installation </system-admin-documentation/docker-installation/index>
    Advanced Features </system-admin-documentation/advanced-features/index>
 
-.. toctree::
-   :maxdepth: 4
-   :hidden:
-   :caption: Uncategorized
-
-   Uncategorized </uncategorized/index>
-
 User Documentation
 ^^^^^^^^^^^^^^^^^^
    - :doc:`General Users </user-documentation/general-users/index>`
@@ -65,6 +58,3 @@ System Admin Documentation
    - :doc:`Docker Installation </system-admin-documentation/docker-installation/index>`
    - :doc:`Advanced Features </system-admin-documentation/advanced-features/index>`
 
-Uncategorized
-^^^^^^^^^^^^^
-   - :doc:`Uncategorized </uncategorized/index>`
