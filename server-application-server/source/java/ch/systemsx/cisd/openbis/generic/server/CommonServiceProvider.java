@@ -15,21 +15,23 @@
  */
 package ch.systemsx.cisd.openbis.generic.server;
 
-import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 import org.springframework.context.ApplicationContext;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.plugin.service.IImportService;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.SessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConfig;
 import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
-import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * Provider of common openBIS server services.
@@ -40,9 +42,20 @@ public class CommonServiceProvider
 {
     private static ApplicationContext applicationContext;
 
+    private static IDataStoreServerApi dataStoreServerApi;
+
+    private CommonServiceProvider()
+    {
+    }
+
     public static void setApplicationContext(ApplicationContext context)
     {
         applicationContext = context;
+    }
+
+    public static void setDataStoreServerApi(final String dssURL, final int timeoutInMinutes)
+    {
+        dataStoreServerApi = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeoutInMinutes * 60 * 1000);
     }
 
     public static ICommonServerForInternalUse getCommonServer()
@@ -104,8 +117,9 @@ public class CommonServiceProvider
         return applicationContext;
     }
 
-    private CommonServiceProvider()
+    public static IDataStoreServerApi getDataStoreServerApi()
     {
+        return dataStoreServerApi;
     }
 
 }
