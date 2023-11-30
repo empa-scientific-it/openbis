@@ -87,7 +87,7 @@ public class VocabularyImportHelper extends BasicImportHelper
             return false;
         } if (canUpdate && (version == null || version.isEmpty())) {
             return true;
-        } else {
+        } else { // canUpdate && (version != null) && (version.isEmpty() == false)
             return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TYPE.getType(), code));
         }
     }
