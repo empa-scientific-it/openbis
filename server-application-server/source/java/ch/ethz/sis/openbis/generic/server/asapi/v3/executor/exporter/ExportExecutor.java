@@ -129,6 +129,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
@@ -358,8 +359,11 @@ public class ExportExecutor implements IExportExecutor
             final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
     {
-//        final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-//        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
+
+        final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
+        final IDataStoreServerApi v3Dss = CommonServiceProvider.getOriginalDataStoreServer();
+
+        //        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
         final Collection<Sample> samples = entitiesVo.getSamples();
 
         for (final Sample sample : samples)
@@ -373,7 +377,9 @@ public class ExportExecutor implements IExportExecutor
                 {
                     final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
                     criteria.withDataSet().withPermId().thatEquals(dataSetPermId);
+
                     final SearchResult<DataSetFile> results = v3Dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+
                     OPERATION_LOG.info(String.format("Found: %d files", results.getTotalCount()));
 
                     for (final DataSetFile file : results.getObjects())
