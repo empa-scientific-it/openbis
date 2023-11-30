@@ -83,7 +83,9 @@ public class VocabularyImportHelper extends BasicImportHelper
         boolean isSystem = delayedExecutor.isSystem();
         boolean canUpdate = (isInternalNamespace == false) || isSystem;
 
-        if (canUpdate && (version == null || version.isEmpty())) {
+        if (canUpdate == false) {
+            return false;
+        } if (canUpdate && (version == null || version.isEmpty())) {
             return true;
         } else {
             return VersionUtils.isNewVersion(version, VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TYPE.getType(), code));

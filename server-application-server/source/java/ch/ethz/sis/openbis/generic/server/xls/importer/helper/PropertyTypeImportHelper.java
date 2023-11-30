@@ -149,7 +149,9 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         boolean isSystem = delayedExecutor.isSystem();
         boolean canUpdate = (isInternalNamespace == false) || isSystem;
 
-        if (canUpdate && (version == null || version.isEmpty())) {
+        if (canUpdate == false) {
+            return false;
+        } else if (canUpdate && (version == null || version.isEmpty())) {
             return true;
         } else {
             return VersionUtils.isNewVersion(version,
