@@ -361,7 +361,7 @@ public class ExportExecutor implements IExportExecutor
     {
 
         final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        final IDataStoreServerApi v3Dss = CommonServiceProvider.getOriginalDataStoreServer();
+        final IDataStoreServerApi v3Dss = CommonServiceProvider.getDataStoreServerApi();
 
         //        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
         final Collection<Sample> samples = entitiesVo.getSamples();

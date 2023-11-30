@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -85,6 +86,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 public class ExportTest extends AbstractTest
 {
@@ -103,6 +109,12 @@ public class ExportTest extends AbstractTest
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
     private static final String JAVA_FOLDER_PATH = "./sourceTest/java/";
+
+    private static final String DOWNLOAD_URL = "blabla";
+
+    private static final String SESSION_TOKEN = "123";
+
+    private static final String DATASTORE_CODE = "ABC";
 
     protected String sessionToken;
 
@@ -185,7 +197,29 @@ public class ExportTest extends AbstractTest
 
         samplePermId = v3api.createSamples(sessionToken, List.of(richTextSampleCreation)).get(0);
 
+        // TODO: mock DSS or start an actual one.
+        registerDss();
+
         v3api.logout(sessionToken);
+    }
+
+    private void registerDss()
+    {
+        final DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
+        dataStoreServerInfo.setDataStoreCode(DATASTORE_CODE);
+        dataStoreServerInfo.setSessionToken(SESSION_TOKEN);
+        dataStoreServerInfo.setDownloadUrl(DOWNLOAD_URL);
+        final DatastoreServiceDescription r1 =
+                DatastoreServiceDescription.reporting("R1", "r1", new String[]
+                        { "H.*", "UNKNOWN" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
+        final DatastoreServiceDescription p1 =
+                DatastoreServiceDescription.processing("P1", "p1", new String[]
+                        { "H.*", "C.*" }, DATASTORE_CODE);
+        dataStoreServerInfo.setServicesDescriptions(new DatastoreServiceDescriptions(Arrays
+                .asList(r1), Arrays.asList(p1)));
+        dataStoreServerInfo.setDataSourceDefinitions(Arrays.<DataSourceDefinition> asList());
+
+        etlService.registerDataStoreServer(systemSessionToken, dataStoreServerInfo);
     }
 
     @AfterClass

@@ -162,6 +162,7 @@ class EntitiesFinder
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
+        fetchOptions.withDataSets();
         return api.getExperiments(sessionToken, experimentPermIds, fetchOptions).values();
     }
 
@@ -212,6 +213,7 @@ class EntitiesFinder
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
+        fetchOptions.withDataSets();
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
     }
 
