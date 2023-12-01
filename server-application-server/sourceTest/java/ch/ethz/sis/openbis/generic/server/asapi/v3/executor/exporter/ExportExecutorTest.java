@@ -237,57 +237,80 @@ public class ExportExecutorTest
 
     private static final Object[][] FOLDER_NAME_DATA = {
             {
-                    'O', "SPACE", "PROJECT", null, "CODE_A", "NAME_A", "O+SPACE+PROJECT+CODE_A+NAME_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", null,
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (AD_1)"
             },
             {
-                    'O', "SPACE", null, null, "CODE_A", "NAME_A", "O+SPACE+CODE_A+NAME_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
             },
             {
-                    'O', null, null, null, "CODE_A", "NAME_A", "O+CODE_A+NAME_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", null, "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+AD_1/file"
             },
             {
-                    'E', "SPACE", "PROJECT", null, "CODE_A", null, "E+SPACE+PROJECT+CODE_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
             },
             {
-                    'O', "SPACE", "PROJECT", "CODE_B", "CODE_A", "NAME_A", "O+SPACE+PROJECT+CODE_B*CODE_A+NAME_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "AD_1", null, "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+AD_1/file"
+            },
+            {
+                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
+                    "O+OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
+            },
+            {
+                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "AD_1", null, "file",
+                    "O+OBJ1+ANALYZED_DATA+AD_1/file"
+            },
+            {
+                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
+                    "E+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+EXP1+ANALYZED_DATA+my dataset (AD_1)/file"
+            },
+            {
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ_CONTAINER*OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
             },
     };
 
     private static final Object[][] ERRONEOUS_FOLDER_NAME_DATA = {
             {
-                    'P', "SPACE", "PROJECT", null, "CODE_A", "NAME_A"
+                    'P', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
             {
-                    'O', null, "PROJECT", null, "CODE_A", "NAME_A"
+                    'O', null, "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
             {
-                    'O', "SPACE", "PROJECT", null, null, "NAME_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, null, "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
             {
-                    'O', "SPACE", "PROJECT", null, null, null
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", null, "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
             {
-                    'O', "SPACE", "PROJECT", "CODE_B", null, "NAME_A"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", null, "AD_1", "my dataset", "file"
             },
             {
-                    'O', "SPACE", "PROJECT", "CODE_B", null, null
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, "my dataset", "file"
+            },
+            {
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, null, "file"
+            },
+            {
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, null, null
             },
 
             {
                     // Experiments cannot have containers
-                    'E', "SPACE", "PROJECT", "CODE_B", "CODE_A", null
-            },
-            {
-                    // Experiments cannot have containers
-                    'E', "SPACE", "PROJECT", "CODE_B", "CODE_A", "NAME_A"
+                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "EXP_CONTAINER", "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
             {
                     // Experiments cannot be on the space level
-                    'E', "SPACE", null, null, "CODE_A", "NAME_A"
+                    'E', "DEFAULT_LAB_NOTEBOOK", null, null, "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
             {
-                    // Experiments cannot be standalone
-                    'E', null, null, null, "CODE_A", "NAME_A"
+                    // Experiments cannot be shared (w/o space)
+                    'E', null, null, null, "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
             },
     };
 
@@ -334,17 +357,19 @@ public class ExportExecutorTest
 
     @Test(dataProvider = FOLDER_NAME_DATA_PROVIDER)
     public void testGetFolderName(final char prefix, final String spaceCode, final String projectCode,
-            final String containerCode, final String entityCode, final String entityName, final String expectedResult)
+            final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
+            final String dataSetName, final String fileName, final String expectedResult)
     {
-        assertEquals(ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, entityName),
-                expectedResult);
+        assertEquals(ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
+                dataSetName, fileName), expectedResult);
     }
 
     @Test(dataProvider = ERRONEOUS_FOLDER_NAME_DATA_PROVIDER, expectedExceptions = IllegalArgumentException.class)
     public void testGetFolderNameError(final char prefix, final String spaceCode, final String projectCode,
-            final String containerCode, final String entityCode, final String entityName)
+            final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
+            final String dataSetName, final String fileName)
     {
-        ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, entityName);
+        ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode, dataSetName, fileName);
     }
 
     @Test()

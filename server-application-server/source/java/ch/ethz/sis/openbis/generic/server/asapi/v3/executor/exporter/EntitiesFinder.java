@@ -214,6 +214,7 @@ class EntitiesFinder
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
         fetchOptions.withDataSets();
+        fetchOptions.withContainer();
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
     }
 

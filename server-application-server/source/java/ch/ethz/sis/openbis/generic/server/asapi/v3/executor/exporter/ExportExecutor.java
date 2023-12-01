@@ -44,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -131,7 +132,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -226,8 +231,6 @@ public class ExportExecutor implements IExportExecutor
 
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
-
-//    private IDataStoreServerApi v3Dss = (IDataStoreServerApi) ServiceProvider.getDssServiceV3().getService();
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -369,6 +372,7 @@ public class ExportExecutor implements IExportExecutor
         for (final Sample sample : samples)
         {
             final List<DataSet> dataSets = sample.getDataSets();
+            final Sample container = sample.getContainer();
 
             for (final DataSet dataSet : dataSets)
             {
@@ -382,18 +386,49 @@ public class ExportExecutor implements IExportExecutor
 
                     OPERATION_LOG.info(String.format("Found: %d files", results.getTotalCount()));
 
-                    for (final DataSetFile file : results.getObjects())
-                    {
-                        final String filePath = file.getPath();
-                        final Sample container = sample.getContainer();
-                        putNextDataZipEntry(existingZipEntries, zos, 'S', getSpaceCode(sample), getProjectCode(SAMPLE),
-                                container == null ? null : container.getCode(), sample.getCode(), getEntityName(sample), getFileName(filePath));
+                    final List<DataSetFile> dataSetFiles = results.getObjects();
+                    final List<DataSetFilePermId> fileIds = dataSetFiles.stream().map(DataSetFile::getPermId).collect(Collectors.toList());
 
-                        if (!file.isDirectory())
+                    final DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+                    options.setRecursive(true);
+
+                    final InputStream stream = v3Dss.downloadFiles(sessionToken, fileIds, options);
+                    final DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
+
+                    DataSetFileDownload file;
+                    while ((file = reader.read()) != null)
+                    {
+                        final DataSetFile dataSetFile = file.getDataSetFile();
+                        final String filePath = dataSetFile.getPath();
+//                        putNextDataZipEntry(existingZipEntries, zos, 'O', getSpaceCode(sample), getProjectCode(sample),
+//                                container == null ? null : container.getCode(), sample.getCode(), getEntityName(sample), getFileName(filePath));
+
+                        if (!dataSetFile.isDirectory())
                         {
-                            // TODO: add content
+                            try (final InputStream is = file.getInputStream())
+                            {
+                                writeInChunks(bos, is);
+                            }
                         }
                     }
+
+//                    for (final DataSetFile dataSetFile : dataSetFiles)
+//                    {
+//                        final String filePath = dataSetFile.getPath();
+//                        final Sample container = sample.getContainer();
+//                        putNextDataZipEntry(existingZipEntries, zos, 'O', getSpaceCode(sample), getProjectCode(sample),
+//                                container == null ? null : container.getCode(), sample.getCode(), getEntityName(sample), getFileName(filePath));
+//
+//                        v3Dss.downloadFiles(sessionToken, )
+//
+//                        if (!dataSetFile.isDirectory())
+//                        {
+//                            try (final FileInputStream fis = new FileInputStream(filePath))
+//                            {
+//                                writeInChunks(bos, fis);
+//                            }
+//                        }
+//                    }
                 } else
                 {
                     OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
@@ -824,6 +859,17 @@ public class ExportExecutor implements IExportExecutor
         os.flush();
     }
 
+    private static void writeInChunks(final OutputStream os, final InputStream is) throws IOException
+    {
+        final byte[] buffer = new byte[BUFFER_SIZE];
+        int length;
+        while ((length = is.read(buffer)) > 0)
+        {
+            os.write(buffer, 0, length);
+        }
+        os.flush();
+    }
+
     /**
      * Adds an entry only if it is needed.
      *
@@ -863,7 +909,8 @@ public class ExportExecutor implements IExportExecutor
             entryBuilder.append('/').append(projectCode);
             if (experimentCode != null)
             {
-                addFullEntityName(entryBuilder, experimentCode, experimentName);
+                entryBuilder.append('/');
+                addFullEntityName(entryBuilder, null, experimentCode, experimentName);
 
                 if (sampleCode == null && dataSetCode != null)
                 {
@@ -881,7 +928,8 @@ public class ExportExecutor implements IExportExecutor
 
         if (sampleCode != null)
         {
-            addFullEntityName(entryBuilder, sampleCode, sampleName);
+            entryBuilder.append('/');
+            addFullEntityName(entryBuilder, containerCode, sampleCode, sampleName);
 
             if (dataSetCode != null)
             {
@@ -896,10 +944,11 @@ public class ExportExecutor implements IExportExecutor
 
     private static void putNextDataZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final char prefix,
             final String spaceCode, final String projectCode, final String containerCode, final String entityCode, final String entityName,
-            final String fileName)
+            final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final String fileName)
             throws IOException
     {
-        final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, entityName);
+        final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
+                dataSetName, fileName);
         if (!existingZipEntries.contains(entry))
         {
             zos.putNextEntry(new ZipEntry(entry));
@@ -908,11 +957,17 @@ public class ExportExecutor implements IExportExecutor
     }
 
     static String getFolderName(final char prefix, final String spaceCode, final String projectCode,
-            final String containerCode, final String entityCode, final String entityName)
+            final String containerCode, final String entityCode, final String dataSetTypeCode,
+            final String dataSetCode, final String dataSetName, final String fileName)
     {
         if (prefix != 'O' && prefix != 'E')
         {
-            throw new IllegalArgumentException("Only 'O' and 'E' can be used as prefix.");
+            throw new IllegalArgumentException(String.format("Only 'O' and 'E' can be used as prefix got '%c' instead.", prefix));
+        }
+
+        if (containerCode != null && prefix != 'O')
+        {
+            throw new IllegalArgumentException("Only objects can have containers.");
         }
 
         final StringBuilder entryBuilder = new StringBuilder(String.valueOf(prefix));
@@ -936,44 +991,62 @@ public class ExportExecutor implements IExportExecutor
             throw new IllegalArgumentException("Project code cannot be null for experiments.");
         }
 
-        entryBuilder.append('+');
-
-        if (containerCode != null)
-        {
-            if (prefix == 'O')
-            {
-                entryBuilder.append(containerCode).append('*');
-            } else
-            {
-                throw new IllegalArgumentException("Only objects can have containers.");
-            }
-        }
-
         if (entityCode != null)
         {
-            entryBuilder.append(entityCode);
+            entryBuilder.append('+');
+            addFullEntityCode(entryBuilder, containerCode, entityCode);
         } else
         {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Entity code is mandatory");
         }
 
-        if (entityName != null)
+        if (dataSetTypeCode != null)
         {
-            entryBuilder.append('+').append(entityName);
+            entryBuilder.append('+').append(dataSetTypeCode);
+        } else
+        {
+            throw new IllegalArgumentException("Data set type code is mandatory");
+        }
+
+        if (dataSetCode != null)
+        {
+            entryBuilder.append('+');
+            addFullEntityName(entryBuilder, null, dataSetCode, dataSetName);
+        } else
+        {
+            throw new IllegalArgumentException("Data set code is mandatory");
+        }
+
+        if (fileName != null)
+        {
+            entryBuilder.append('/').append(fileName);
         }
 
         return entryBuilder.toString();
     }
 
-    private static void addFullEntityName(final StringBuilder entryBuilder, final String entityCode, final String entityName)
+    private static void addFullEntityName(final StringBuilder entryBuilder, final String containerCode, final String entityCode,
+            final String entityName)
     {
         if (entityName == null || entityName.isEmpty())
         {
-            entryBuilder.append("/").append(entityCode);
+            addFullEntityCode(entryBuilder, containerCode, entityCode);
         } else
         {
-            entryBuilder.append("/").append(entityName).append(" (").append(entityCode).append(")");
+            entryBuilder.append(entityName).append(" (");
+            addFullEntityCode(entryBuilder, containerCode, entityCode);
+            entryBuilder.append(")");
         }
+    }
+
+    private static void addFullEntityCode(final StringBuilder entryBuilder, final String containerCode, final String entityCode)
+    {
+        if (containerCode != null)
+        {
+            entryBuilder.append(containerCode).append('*');
+        }
+
+        entryBuilder.append(entityCode);
     }
 
     private static String getEntityName(final IPropertiesHolder entity)
@@ -989,7 +1062,7 @@ public class ExportExecutor implements IExportExecutor
 
     static String escapeUnsafeCharacters(final String name)
     {
-        return name.replaceAll(UNSAFE_CHARACTERS_REGEXP, "_");
+        return name != null ? name.replaceAll(UNSAFE_CHARACTERS_REGEXP, "_") : null;
     }
 
     private static void exportXls(final ZipOutputStream zos, final BufferedOutputStream bos, final XLSExport.PrepareWorkbookResult xlsExportResult,

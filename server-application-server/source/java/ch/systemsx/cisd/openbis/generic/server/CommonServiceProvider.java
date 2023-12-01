@@ -55,7 +55,14 @@ public class CommonServiceProvider
 
     public static void setDataStoreServerApi(final String dssURL, final int timeoutInMinutes)
     {
-        dataStoreServerApi = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeoutInMinutes * 60 * 1000);
+        dataStoreServerApi = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL +
+                        "/datastore_server" + IDataStoreServerApi.SERVICE_URL,
+                timeoutInMinutes * 60 * 1000);
+    }
+
+    public static void setDataStoreServerApi(final IDataStoreServerApi dataStoreServerApi)
+    {
+        CommonServiceProvider.dataStoreServerApi = dataStoreServerApi;
     }
 
     public static ICommonServerForInternalUse getCommonServer()
