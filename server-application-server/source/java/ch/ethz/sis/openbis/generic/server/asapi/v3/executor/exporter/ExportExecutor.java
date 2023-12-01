@@ -400,19 +400,9 @@ public class ExportExecutor implements IExportExecutor
                     DataSetFileDownload file;
                     while ((file = reader.read()) != null)
                     {
-                        final DataSetFile dataSetFile = file.getDataSetFile();
-                        final String filePath = dataSetFile.getPath();
-                        putNextDataZipEntry(existingZipEntries, zos, 'O', getSpaceCode(sample), getProjectCode(sample),
+                        putNextDataZipEntry(existingZipEntries, zos, bos, 'O', getSpaceCode(sample), getProjectCode(sample),
                                 container == null ? null : container.getCode(), sample.getCode(), dataSetTypeCode, dataSetCode,
-                                getEntityName(dataSet), getFileName(filePath));
-
-                        if (!dataSetFile.isDirectory())
-                        {
-                            try (final InputStream is = file.getInputStream())
-                            {
-                                writeInChunks(bos, is);
-                            }
-                        }
+                                getEntityName(dataSet), file);
                     }
 
 //                    for (final DataSetFile dataSetFile : dataSetFiles)
@@ -945,17 +935,31 @@ public class ExportExecutor implements IExportExecutor
         return entryBuilder.toString();
     }
 
-    private static void putNextDataZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final char prefix,
-            final String spaceCode, final String projectCode, final String containerCode, final String entityCode,
-            final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final String fileName)
+    private static void putNextDataZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final BufferedOutputStream bos,
+            final char prefix, final String spaceCode, final String projectCode, final String containerCode, final String entityCode,
+            final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final DataSetFileDownload dataSetFileDownload)
             throws IOException
     {
+        final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
+        final String filePath = dataSetFile.getPath();
+        final boolean isDirectory = dataSetFile.isDirectory();
+
         final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
-                dataSetName, fileName);
+                dataSetName, filePath) + (isDirectory ? "/" : "");
         if (!existingZipEntries.contains(entry))
         {
             zos.putNextEntry(new ZipEntry(entry));
             existingZipEntries.add(entry);
+
+            if (!isDirectory)
+            {
+                try (final InputStream is = dataSetFileDownload.getInputStream())
+                {
+                    writeInChunks(bos, is);
+                }
+            }
+
+            zos.closeEntry();
         }
     }
 
