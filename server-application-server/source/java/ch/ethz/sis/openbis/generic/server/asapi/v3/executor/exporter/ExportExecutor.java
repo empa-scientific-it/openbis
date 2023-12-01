@@ -377,6 +377,8 @@ public class ExportExecutor implements IExportExecutor
             for (final DataSet dataSet : dataSets)
             {
                 final String dataSetPermId = dataSet.getPermId().getPermId();
+                final String dataSetCode = dataSet.getCode();
+                final String dataSetTypeCode = dataSet.getType().getCode();
                 if (dataSet.getKind() != DataSetKind.LINK)
                 {
                     final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
@@ -400,8 +402,9 @@ public class ExportExecutor implements IExportExecutor
                     {
                         final DataSetFile dataSetFile = file.getDataSetFile();
                         final String filePath = dataSetFile.getPath();
-//                        putNextDataZipEntry(existingZipEntries, zos, 'O', getSpaceCode(sample), getProjectCode(sample),
-//                                container == null ? null : container.getCode(), sample.getCode(), getEntityName(sample), getFileName(filePath));
+                        putNextDataZipEntry(existingZipEntries, zos, 'O', getSpaceCode(sample), getProjectCode(sample),
+                                container == null ? null : container.getCode(), sample.getCode(), dataSetTypeCode, dataSetCode,
+                                getEntityName(dataSet), getFileName(filePath));
 
                         if (!dataSetFile.isDirectory())
                         {
@@ -943,7 +946,7 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private static void putNextDataZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final char prefix,
-            final String spaceCode, final String projectCode, final String containerCode, final String entityCode, final String entityName,
+            final String spaceCode, final String projectCode, final String containerCode, final String entityCode,
             final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final String fileName)
             throws IOException
     {
