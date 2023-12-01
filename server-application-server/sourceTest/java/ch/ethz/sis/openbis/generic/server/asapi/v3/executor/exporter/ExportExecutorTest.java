@@ -237,58 +237,59 @@ public class ExportExecutorTest
 
     private static final Object[][] FOLDER_NAME_DATA = {
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", null,
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (AD_1)"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", null,
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", null, "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+AD_1/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", null, "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+20231201115004780-27/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "AD_1", null, "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+AD_1/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", null, "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+20231201115004780-27/file"
             },
             {
-                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
-                    "O+OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
+                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
+                    "O+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
             },
             {
-                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "AD_1", null, "file",
-                    "O+OBJ1+ANALYZED_DATA+AD_1/file"
+                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", null, "file",
+                    "O+OBJ1+ANALYZED_DATA+20231201115004780-27/file"
             },
             {
-                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
-                    "E+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+EXP1+ANALYZED_DATA+my dataset (AD_1)/file"
+                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
+                    "E+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+EXP1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ_CONTAINER*OBJ1+ANALYZED_DATA+my dataset (AD_1)/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset",
+                    "file", "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ_CONTAINER*OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
             },
     };
 
     private static final Object[][] ERRONEOUS_FOLDER_NAME_DATA = {
             {
-                    'P', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'P', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
             },
             {
-                    'O', null, "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'O', null, "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, null, "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, null, "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", null, "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", null, "ANALYZED_DATA", "20231201115004780-27", "my dataset",
+                    "file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", null, "AD_1", "my dataset", "file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", null, "20231201115004780-27", "my dataset", "file"
             },
             {
                     'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, "my dataset", "file"
@@ -302,15 +303,16 @@ public class ExportExecutorTest
 
             {
                     // Experiments cannot have containers
-                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "EXP_CONTAINER", "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "EXP_CONTAINER", "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset",
+                    "file"
             },
             {
                     // Experiments cannot be on the space level
-                    'E', "DEFAULT_LAB_NOTEBOOK", null, null, "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'E', "DEFAULT_LAB_NOTEBOOK", null, null, "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
             },
             {
                     // Experiments cannot be shared (w/o space)
-                    'E', null, null, null, "EXP1", "ANALYZED_DATA", "AD_1", "my dataset", "file"
+                    'E', null, null, null, "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
             },
     };
 
