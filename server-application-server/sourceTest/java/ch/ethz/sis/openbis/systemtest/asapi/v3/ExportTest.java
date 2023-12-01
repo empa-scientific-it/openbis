@@ -25,6 +25,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENS
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_IMAGE_PROPERTY_NAME;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME;
+import static org.hamcrest.EasyMock2Matchers.equalTo;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -32,16 +33,21 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.SequenceInputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,8 +61,11 @@ import java.util.zip.ZipFile;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.input.CharSequenceInputStream;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -64,6 +73,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
@@ -84,13 +95,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOpti
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 public class ExportTest extends AbstractTest
 {
@@ -116,6 +130,8 @@ public class ExportTest extends AbstractTest
 
     private static final String DATASTORE_CODE = "ABC";
 
+    private static final String DATA_FILE_CONTENT = "This is some test data.";
+
     protected String sessionToken;
 
     private PropertyTypePermId richTextPropertyTypePermId;
@@ -131,6 +147,10 @@ public class ExportTest extends AbstractTest
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
+    private Mockery mockery;
+
+    private IDataStoreServerApi v3Dss;
+
     @DataProvider
     protected Object[][] exportData()
     {
@@ -140,6 +160,8 @@ public class ExportTest extends AbstractTest
     @BeforeClass
     public void beforeClass()
     {
+        mockery = new Mockery();
+
         configurer.getResolvedProps().setProperty(REPO_PATH_KEY, JAVA_FOLDER_PATH);
 
         sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -205,22 +227,32 @@ public class ExportTest extends AbstractTest
 
     private void registerDss()
     {
-        final DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
-        dataStoreServerInfo.setDataStoreCode(DATASTORE_CODE);
-        dataStoreServerInfo.setSessionToken(SESSION_TOKEN);
-        dataStoreServerInfo.setDownloadUrl(DOWNLOAD_URL);
-        final DatastoreServiceDescription r1 =
-                DatastoreServiceDescription.reporting("R1", "r1", new String[]
-                        { "H.*", "UNKNOWN" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
-        final DatastoreServiceDescription p1 =
-                DatastoreServiceDescription.processing("P1", "p1", new String[]
-                        { "H.*", "C.*" }, DATASTORE_CODE);
-        dataStoreServerInfo.setServicesDescriptions(new DatastoreServiceDescriptions(Arrays
-                .asList(r1), Arrays.asList(p1)));
-        dataStoreServerInfo.setDataSourceDefinitions(Arrays.<DataSourceDefinition> asList());
+        v3Dss = mockery.mock(IDataStoreServerApi.class);
+        CommonServiceProvider.setDataStoreServerApi(v3Dss);
 
-        etlService.registerDataStoreServer(systemSessionToken, dataStoreServerInfo);
+//        final InvocationExpectation invocationExpectation = new InvocationExpectation();
+//        invocationExpectation.
+//        mockery.addExpectation(invocationExpectation);
     }
+
+    //    private void registerDss()
+//    {
+//        final DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
+//        dataStoreServerInfo.setDataStoreCode(DATASTORE_CODE);
+//        dataStoreServerInfo.setSessionToken(SESSION_TOKEN);
+//        dataStoreServerInfo.setDownloadUrl(DOWNLOAD_URL);
+//        final DatastoreServiceDescription r1 =
+//                DatastoreServiceDescription.reporting("R1", "r1", new String[]
+//                        { "H.*", "UNKNOWN" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
+//        final DatastoreServiceDescription p1 =
+//                DatastoreServiceDescription.processing("P1", "p1", new String[]
+//                        { "H.*", "C.*" }, DATASTORE_CODE);
+//        dataStoreServerInfo.setServicesDescriptions(new DatastoreServiceDescriptions(Arrays
+//                .asList(r1), Arrays.asList(p1)));
+//        dataStoreServerInfo.setDataSourceDefinitions(Arrays.<DataSourceDefinition> asList());
+//
+//        etlService.registerDataStoreServer(systemSessionToken, dataStoreServerInfo);
+//    }
 
     @AfterClass
     public void afterClass()
@@ -255,6 +287,7 @@ public class ExportTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
     public void testDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
             final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
@@ -262,11 +295,52 @@ public class ExportTest extends AbstractTest
     {
         processPermIds(permIds);
 
+        if (formats.contains(ExportFormat.DATA))
+        {
+            final int fileLength = DATA_FILE_CONTENT.length();
+
+            final DataSetFilePermId dataSetFilePermId = new DataSetFilePermId(new DataSetPermId("20230904175944612-1"), "data.txt");
+            final DataSetFile dataSetFile = new DataSetFile();
+            dataSetFile.setPermId(dataSetFilePermId);
+            dataSetFile.setFileLength(fileLength);
+
+            final SearchResult<DataSetFile> results = new SearchResult<>(List.of(dataSetFile), 1);
+            final InputStream is = objectToStream(dataSetFile);
+
+            mockery.checking(new Expectations()
+            {{
+                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                        with(any(DataSetFileFetchOptions.class)));
+                will(returnValue(results));
+
+                atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFilePermId))),
+                        with(any(DataSetFileDownloadOptions.class)));
+                will(returnValue(is));
+
+                is.close();
+            }});
+        }
+
         final ExportData exportData = new ExportData(permIds, fields);
         final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
+    }
+
+    private static ObjectInputStream objectToStream(final Object object) throws IOException
+    {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try (final ObjectOutputStream oos = new ObjectOutputStream(baos))
+        {
+            oos.writeObject(object);
+        }
+
+        final byte[] objectBytes = baos.toByteArray();
+        final ByteArrayInputStream bais = new ByteArrayInputStream(objectBytes);
+        final ObjectInputStream ois = new ObjectInputStream(bais);
+        return ois;
     }
 
     /**

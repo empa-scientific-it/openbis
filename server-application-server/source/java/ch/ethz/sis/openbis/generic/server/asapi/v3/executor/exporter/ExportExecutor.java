@@ -394,15 +394,16 @@ public class ExportExecutor implements IExportExecutor
                     final DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
                     options.setRecursive(true);
 
-                    final InputStream stream = v3Dss.downloadFiles(sessionToken, fileIds, options);
-                    final DataSetFileDownloadReader reader = new DataSetFileDownloadReader(stream);
-
-                    DataSetFileDownload file;
-                    while ((file = reader.read()) != null)
+                    try (final InputStream is = v3Dss.downloadFiles(sessionToken, fileIds, options))
                     {
-                        putNextDataZipEntry(existingZipEntries, zos, bos, 'O', getSpaceCode(sample), getProjectCode(sample),
-                                container == null ? null : container.getCode(), sample.getCode(), dataSetTypeCode, dataSetCode,
-                                getEntityName(dataSet), file);
+                        final DataSetFileDownloadReader reader = new DataSetFileDownloadReader(is);
+                        DataSetFileDownload file;
+                        while ((file = reader.read()) != null)
+                        {
+                            putNextDataZipEntry(existingZipEntries, zos, bos, 'O', getSpaceCode(sample), getProjectCode(sample),
+                                    container == null ? null : container.getCode(), sample.getCode(), dataSetTypeCode, dataSetCode,
+                                    getEntityName(dataSet), file);
+                        }
                     }
 
 //                    for (final DataSetFile dataSetFile : dataSetFiles)
