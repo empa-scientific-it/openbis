@@ -25,7 +25,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENS
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_IMAGE_PROPERTY_NAME;
 import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME;
-import static org.hamcrest.EasyMock2Matchers.equalTo;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -35,6 +34,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -43,10 +43,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.SequenceInputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +59,6 @@ import java.util.zip.ZipFile;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.io.input.CharSequenceInputStream;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jmock.Expectations;
@@ -129,8 +126,6 @@ public class ExportTest extends AbstractTest
     private static final String SESSION_TOKEN = "123";
 
     private static final String DATASTORE_CODE = "ABC";
-
-    private static final String DATA_FILE_CONTENT = "This is some test data.";
 
     protected String sessionToken;
 
@@ -287,7 +282,7 @@ public class ExportTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "resource" })
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
     public void testDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
             final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
@@ -297,27 +292,29 @@ public class ExportTest extends AbstractTest
 
         if (formats.contains(ExportFormat.DATA))
         {
-            final int fileLength = DATA_FILE_CONTENT.length();
+            final String fileContent1 = "This is some test data.";
+            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", fileContent1.length());
+            final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
+            final InputStream is1 = objectAndDataToStream(dataSetFile1, fileContent1);
 
-            final DataSetFilePermId dataSetFilePermId = new DataSetFilePermId(new DataSetPermId("20230904175944612-1"), "data.txt");
-            final DataSetFile dataSetFile = new DataSetFile();
-            dataSetFile.setPermId(dataSetFilePermId);
-            dataSetFile.setFileLength(fileLength);
-
-            final SearchResult<DataSetFile> results = new SearchResult<>(List.of(dataSetFile), 1);
-            final InputStream is = objectToStream(dataSetFile);
+            final String fileContent2 = "This is some other test data.";
+            final DataSetFile dataSetFile2 = createDataSetFile("my-folder/data2.txt", fileContent2.length());
+            final SearchResult<DataSetFile> results2 = new SearchResult<>(List.of(dataSetFile2), 1);
+            final InputStream is2 = objectAndDataToStream(dataSetFile2, fileContent2);
 
             mockery.checking(new Expectations()
             {{
-                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                exactly(2).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
                         with(any(DataSetFileFetchOptions.class)));
-                will(returnValue(results));
+                will(onConsecutiveCalls(returnValue(results1), returnValue(results2)));
 
-                atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFilePermId))),
+                exactly(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
                         with(any(DataSetFileDownloadOptions.class)));
-                will(returnValue(is));
+                will(returnValue(is1));
 
-                is.close();
+                exactly(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
+                        with(any(DataSetFileDownloadOptions.class)));
+                will(returnValue(is2));
             }});
         }
 
@@ -326,21 +323,66 @@ public class ExportTest extends AbstractTest
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
+        mockery.assertIsSatisfied();
+    }
+
+    private static DataSetFile createDataSetFile(final String filePath, final int fileLength)
+    {
+        final DataSetFilePermId dataSetFilePermId = new DataSetFilePermId(new DataSetPermId("20230904175944612-1"), filePath);
+        final DataSetFile dataSetFile = new DataSetFile();
+        dataSetFile.setPermId(dataSetFilePermId);
+        dataSetFile.setFileLength(fileLength);
+        dataSetFile.setPath(filePath);
+        return dataSetFile;
+    }
+
+    public static InputStream objectAndDataToStream(final Object obj, final String data) throws IOException {
+        final byte[] objectBytes = getObjectBytes(obj);
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final DataOutputStream dos = new DataOutputStream(baos);
+
+        // Write the size of the object
+        dos.writeLong(objectBytes.length);
+
+        // Write the object again
+        dos.write(objectBytes);
+
+        // Convert the string to bytes and write its size followed by the data
+        final byte[] stringBytes = data.getBytes();
+        final long stringSize = stringBytes.length;
+        dos.writeLong(stringSize);
+        dos.write(stringBytes);
+
+        dos.close();
+
+        // Return a ByteArrayInputStream containing the sequence
+        return new ByteArrayInputStream(baos.toByteArray());
+    }
+
+    private static byte[] getObjectBytes(final Object obj) throws IOException
+    {
+        try (
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ObjectOutputStream oos = new ObjectOutputStream(baos)
+        )
+        {
+            oos.writeObject(obj);
+            return baos.toByteArray();
+        }
     }
 
     private static ObjectInputStream objectToStream(final Object object) throws IOException
     {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         try (final ObjectOutputStream oos = new ObjectOutputStream(baos))
         {
             oos.writeObject(object);
         }
-
         final byte[] objectBytes = baos.toByteArray();
+
         final ByteArrayInputStream bais = new ByteArrayInputStream(objectBytes);
-        final ObjectInputStream ois = new ObjectInputStream(bais);
-        return ois;
+        return new ObjectInputStream(bais);
     }
 
     /**

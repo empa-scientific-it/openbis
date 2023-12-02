@@ -362,71 +362,61 @@ public class ExportExecutor implements IExportExecutor
             final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
     {
-
-        final IApplicationServerInternalApi v3 = CommonServiceProvider.getApplicationServerApi();
-        final IDataStoreServerApi v3Dss = CommonServiceProvider.getDataStoreServerApi();
-
-        //        final Collection<DataSet> dataSets = entitiesVo.getDataSets();
         final Collection<Sample> samples = entitiesVo.getSamples();
-
         for (final Sample sample : samples)
         {
-            final List<DataSet> dataSets = sample.getDataSets();
-            final Sample container = sample.getContainer();
+            exportDatasetsData(zos, bos, sessionToken, existingZipEntries, sample.getDataSets(), sample, sample.getContainer());
+        }
 
-            for (final DataSet dataSet : dataSets)
+        final Collection<Experiment> experiments = entitiesVo.getExperiments();
+        for (final Experiment experiment : experiments)
+        {
+            exportDatasetsData(zos, bos, sessionToken, existingZipEntries, experiment.getDataSets(), experiment, null);
+        }
+    }
+
+    private static void exportDatasetsData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries, final List<DataSet> dataSets, final ICodeHolder codeHolder,
+            final Sample container) throws IOException
+    {
+        final IDataStoreServerApi v3Dss = CommonServiceProvider.getDataStoreServerApi();
+        for (final DataSet dataSet : dataSets)
+        {
+            final String dataSetPermId = dataSet.getPermId().getPermId();
+            final String dataSetCode = dataSet.getCode();
+            final String dataSetTypeCode = dataSet.getType().getCode();
+            if (dataSet.getKind() != DataSetKind.LINK)
             {
-                final String dataSetPermId = dataSet.getPermId().getPermId();
-                final String dataSetCode = dataSet.getCode();
-                final String dataSetTypeCode = dataSet.getType().getCode();
-                if (dataSet.getKind() != DataSetKind.LINK)
+                final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+                criteria.withDataSet().withPermId().thatEquals(dataSetPermId);
+
+                final SearchResult<DataSetFile> results = v3Dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+
+                OPERATION_LOG.info(String.format("Found: %d files", results.getTotalCount()));
+
+                final List<DataSetFile> dataSetFiles = results.getObjects();
+                final List<DataSetFilePermId> fileIds = dataSetFiles.stream().map(DataSetFile::getPermId).collect(Collectors.toList());
+
+                final DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+                options.setRecursive(true);
+
+                try (final InputStream is = v3Dss.downloadFiles(sessionToken, fileIds, options))
                 {
-                    final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
-                    criteria.withDataSet().withPermId().thatEquals(dataSetPermId);
-
-                    final SearchResult<DataSetFile> results = v3Dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
-
-                    OPERATION_LOG.info(String.format("Found: %d files", results.getTotalCount()));
-
-                    final List<DataSetFile> dataSetFiles = results.getObjects();
-                    final List<DataSetFilePermId> fileIds = dataSetFiles.stream().map(DataSetFile::getPermId).collect(Collectors.toList());
-
-                    final DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
-                    options.setRecursive(true);
-
-                    try (final InputStream is = v3Dss.downloadFiles(sessionToken, fileIds, options))
+                    final DataSetFileDownloadReader reader = new DataSetFileDownloadReader(is);
+                    DataSetFileDownload file;
+                    while ((file = reader.read()) != null)
                     {
-                        final DataSetFileDownloadReader reader = new DataSetFileDownloadReader(is);
-                        DataSetFileDownload file;
-                        while ((file = reader.read()) != null)
-                        {
-                            putNextDataZipEntry(existingZipEntries, zos, bos, 'O', getSpaceCode(sample), getProjectCode(sample),
-                                    container == null ? null : container.getCode(), sample.getCode(), dataSetTypeCode, dataSetCode,
-                                    getEntityName(dataSet), file);
-                        }
+                        putNextDataZipEntry(existingZipEntries, zos, bos, 'O', getSpaceCode(codeHolder), getProjectCode(codeHolder),
+                                container == null ? null : container.getCode(), codeHolder.getCode(), dataSetTypeCode, dataSetCode,
+                                getEntityName(dataSet), file);
                     }
-
-//                    for (final DataSetFile dataSetFile : dataSetFiles)
-//                    {
-//                        final String filePath = dataSetFile.getPath();
-//                        final Sample container = sample.getContainer();
-//                        putNextDataZipEntry(existingZipEntries, zos, 'O', getSpaceCode(sample), getProjectCode(sample),
-//                                container == null ? null : container.getCode(), sample.getCode(), getEntityName(sample), getFileName(filePath));
-//
-//                        v3Dss.downloadFiles(sessionToken, )
-//
-//                        if (!dataSetFile.isDirectory())
-//                        {
-//                            try (final FileInputStream fis = new FileInputStream(filePath))
-//                            {
-//                                writeInChunks(bos, fis);
-//                            }
-//                        }
-//                    }
-                } else
+                } catch (final Exception e)
                 {
-                    OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
+                    throw new RuntimeException("Exception is thrown while reading from a file.", e);
                 }
+            } else
+            {
+                OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
             }
         }
     }
