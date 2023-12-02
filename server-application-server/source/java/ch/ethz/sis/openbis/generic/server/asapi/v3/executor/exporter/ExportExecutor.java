@@ -39,6 +39,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -67,6 +68,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
@@ -82,6 +84,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
@@ -140,6 +143,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermI
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
@@ -165,13 +169,15 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String PDF_DIRECTORY = "pdf";
 
-    public static final String DATA_DIRECTORY = "data";
+    public static final String META_FILE_NAME = "meta.json";
 
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 
     public static final String HTML_EXTENSION = ".html";
 
     public static final String PDF_EXTENSION = ".pdf";
+
+    public static final String JSON_EXTENSION = ".json";
 
     static final String NAME_PROPERTY_NAME = "$NAME";
 
@@ -232,8 +238,19 @@ public class ExportExecutor implements IExportExecutor
     @Autowired
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
+    @Resource(name = ObjectMapperResource.NAME)
+    private ObjectMapper objectMapper;
+
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
+
+    private ObjectWriter objectWriter;
+
+    @PostConstruct
+    private void postConstruct()
+    {
+        objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+    }
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)
@@ -365,26 +382,37 @@ public class ExportExecutor implements IExportExecutor
         final Collection<Sample> samples = entitiesVo.getSamples();
         for (final Sample sample : samples)
         {
-            exportDatasetsData(zos, bos, sessionToken, existingZipEntries, sample.getDataSets(), sample, sample.getContainer());
+            exportDatasetsData(zos, bos, sessionToken, existingZipEntries, 'O', sample.getDataSets(), sample, sample.getContainer());
         }
 
         final Collection<Experiment> experiments = entitiesVo.getExperiments();
         for (final Experiment experiment : experiments)
         {
-            exportDatasetsData(zos, bos, sessionToken, existingZipEntries, experiment.getDataSets(), experiment, null);
+            exportDatasetsData(zos, bos, sessionToken, existingZipEntries, 'E', experiment.getDataSets(), experiment, null);
         }
     }
 
-    private static void exportDatasetsData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
-            final Set<String> existingZipEntries, final List<DataSet> dataSets, final ICodeHolder codeHolder,
+    private void exportDatasetsData(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,
+            final Set<String> existingZipEntries, final char prefix, final List<DataSet> dataSets, final ICodeHolder codeHolder,
             final Sample container) throws IOException
     {
+        final String spaceCode = getSpaceCode(codeHolder);
+        final String projectCode = getProjectCode(codeHolder);
+        final String containerCode = container == null ? null : container.getCode();
+        final String code = codeHolder.getCode();
+        final String codeHolderJson = objectWriter.writeValueAsString(codeHolder);
         final IDataStoreServerApi v3Dss = CommonServiceProvider.getDataStoreServerApi();
+
         for (final DataSet dataSet : dataSets)
         {
             final String dataSetPermId = dataSet.getPermId().getPermId();
             final String dataSetCode = dataSet.getCode();
             final String dataSetTypeCode = dataSet.getType().getCode();
+            final String dataSetName = getEntityName(dataSet);
+
+            putNextMetadataJsonZipEntry(zos, bos, existingZipEntries, prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode,
+                    dataSetCode, dataSetName, codeHolderJson);
+
             if (dataSet.getKind() != DataSetKind.LINK)
             {
                 final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
@@ -406,13 +434,9 @@ public class ExportExecutor implements IExportExecutor
                     DataSetFileDownload file;
                     while ((file = reader.read()) != null)
                     {
-                        putNextDataZipEntry(existingZipEntries, zos, bos, 'O', getSpaceCode(codeHolder), getProjectCode(codeHolder),
-                                container == null ? null : container.getCode(), codeHolder.getCode(), dataSetTypeCode, dataSetCode,
-                                getEntityName(dataSet), file);
+                        putNextDataZipEntry(existingZipEntries, zos, bos, prefix, spaceCode, projectCode,
+                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, file);
                     }
-                } catch (final Exception e)
-                {
-                    throw new RuntimeException("Exception is thrown while reading from a file.", e);
                 }
             } else
             {
@@ -421,10 +445,25 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static String getFileName(final String filePath)
+    private static void putNextMetadataJsonZipEntry(final ZipOutputStream zos, final BufferedOutputStream bos, final Set<String> existingZipEntries,
+            final char prefix, final String spaceCode, final String projectCode, final String containerCode, final String code,
+            final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final String codeHolderJson) throws IOException
     {
-        final int lastSlashPos = filePath.lastIndexOf('/');
-        return lastSlashPos >= 0 ? filePath.substring(lastSlashPos + 1) : filePath;
+        final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode,
+                dataSetName, META_FILE_NAME);
+
+        if (!existingZipEntries.contains(entry))
+        {
+            zos.putNextEntry(new ZipEntry(entry));
+            existingZipEntries.add(entry);
+
+            try (final InputStream is = new ByteArrayInputStream(codeHolderJson.getBytes(StandardCharsets.UTF_8)))
+            {
+                writeInChunks(bos, is);
+            }
+
+            zos.closeEntry();
+        }
     }
 
     private void exportSpacesDoc(final ZipOutputStream zos, final BufferedOutputStream bos, final String sessionToken,

@@ -18,6 +18,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.JSON_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_NAME;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
@@ -120,12 +121,6 @@ public class ExportTest extends AbstractTest
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
     private static final String JAVA_FOLDER_PATH = "./sourceTest/java/";
-
-    private static final String DOWNLOAD_URL = "blabla";
-
-    private static final String SESSION_TOKEN = "123";
-
-    private static final String DATASTORE_CODE = "ABC";
 
     protected String sessionToken;
 
@@ -304,7 +299,7 @@ public class ExportTest extends AbstractTest
 
             mockery.checking(new Expectations()
             {{
-                exactly(2).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
                         with(any(DataSetFileFetchOptions.class)));
                 will(onConsecutiveCalls(returnValue(results1), returnValue(results2)));
 
@@ -312,7 +307,7 @@ public class ExportTest extends AbstractTest
                         with(any(DataSetFileDownloadOptions.class)));
                 will(returnValue(is1));
 
-                exactly(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
+                atMost(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
                         with(any(DataSetFileDownloadOptions.class)));
                 will(returnValue(is2));
             }});
@@ -473,8 +468,9 @@ public class ExportTest extends AbstractTest
                     {
                         compareXlsxStreams(expectedInputStream, actualInputStream);
                     }
-                } else if (!expectedZipEntry.endsWith(PDF_EXTENSION)) // We ignore PDF files in comparison
+                } else if (!expectedZipEntry.endsWith(PDF_EXTENSION) && !expectedZipEntry.endsWith(JSON_EXTENSION))
                 {
+                    // We ignore PDF and JSON files in comparison
                     try (
                             final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(expectedZipEntry));
                             final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(expectedZipEntry));

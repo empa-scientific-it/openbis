@@ -530,9 +530,19 @@ class ExportData
             // Data
             {
                     // Sample: /CISD/NEMO/CP-TEST-3
-                    "export-data.zip",
+                    "export-sample-data.zip",
                     EnumSet.of(ExportFormat.DATA),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false // withImportCompatibility
+            },
+            {
+                    // Sample: /CISD/NEMO/EXP1
+                    "export-experiment-data.zip",
+                    EnumSet.of(ExportFormat.DATA),
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new SamplePermId("200811050951882-1028"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
