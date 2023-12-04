@@ -17,7 +17,6 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_DIRECTORY;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -358,20 +357,20 @@ public class ExportExecutorTest
     }
 
     @Test(dataProvider = FOLDER_NAME_DATA_PROVIDER)
-    public void testGetFolderName(final char prefix, final String spaceCode, final String projectCode,
+    public void testGetDataDirectoryName(final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
             final String dataSetName, final String fileName, final String expectedResult)
     {
-        assertEquals(ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
+        assertEquals(ExportExecutor.getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
                 dataSetName, fileName), expectedResult);
     }
 
     @Test(dataProvider = ERRONEOUS_FOLDER_NAME_DATA_PROVIDER, expectedExceptions = IllegalArgumentException.class)
-    public void testGetFolderNameError(final char prefix, final String spaceCode, final String projectCode,
+    public void testGetDataDirectoryNameError(final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
             final String dataSetName, final String fileName)
     {
-        ExportExecutor.getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode, dataSetName, fileName);
+        ExportExecutor.getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode, dataSetName, fileName);
     }
 
     @Test()

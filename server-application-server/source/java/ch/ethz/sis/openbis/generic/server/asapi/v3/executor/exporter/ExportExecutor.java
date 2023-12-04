@@ -37,7 +37,6 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -355,11 +354,11 @@ public class ExportExecutor implements IExportExecutor
                 exportDataSetsDoc(sessionToken, docDirectory, entitiesVo, exportFields, exportFormats);
             }
 
-//            if (hasDataFormat)
-//            {
-//                final Set<String> existingZipEntries = new HashSet<>();
-//                exportData(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields);
-//            }
+            if (hasDataFormat)
+            {
+                final Set<String> existingZipEntries = new HashSet<>();
+                exportData(sessionToken, entitiesVo, existingZipEntries);
+            }
         }
 
         return new ExportResult(fullFileName, warnings);
@@ -407,27 +406,45 @@ public class ExportExecutor implements IExportExecutor
         warnings.addAll(xlsExportResult.getWarnings());
     }
 
-    private void exportData(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
+//    private void exportData(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
+//            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
+//            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
+//    {
+//        final Collection<Sample> samples = entitiesVo.getSamples();
+//        for (final Sample sample : samples)
+//        {
+//            exportDatasetsData(zos, os, sessionToken, existingZipEntries, 'O', sample.getDataSets(), sample, sample.getContainer());
+//        }
+//
+//        final Collection<Experiment> experiments = entitiesVo.getExperiments();
+//        for (final Experiment experiment : experiments)
+//        {
+//            exportDatasetsData(zos, os, sessionToken, existingZipEntries, 'E', experiment.getDataSets(), experiment, null);
+//        }
+//    }
+
+    private void exportData(final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries) throws IOException
     {
         final Collection<Sample> samples = entitiesVo.getSamples();
         for (final Sample sample : samples)
         {
-            exportDatasetsData(zos, os, sessionToken, existingZipEntries, 'O', sample.getDataSets(), sample, sample.getContainer());
+            exportDatasetsData(sessionToken, existingZipEntries, 'O', sample.getDataSets(), sample, sample.getContainer());
         }
 
         final Collection<Experiment> experiments = entitiesVo.getExperiments();
         for (final Experiment experiment : experiments)
         {
-            exportDatasetsData(zos, os, sessionToken, existingZipEntries, 'E', experiment.getDataSets(), experiment, null);
+            exportDatasetsData(sessionToken, existingZipEntries, 'E', experiment.getDataSets(), experiment, null);
         }
     }
 
-    private void exportDatasetsData(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
+    private void exportDatasetsData(final String sessionToken,
             final Set<String> existingZipEntries, final char prefix, final List<DataSet> dataSets, final ICodeHolder codeHolder,
             final Sample container) throws IOException
     {
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
+
         final String spaceCode = getSpaceCode(codeHolder);
         final String projectCode = getProjectCode(codeHolder);
         final String containerCode = container == null ? null : container.getCode();
@@ -442,7 +459,7 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetTypeCode = dataSet.getType().getCode();
             final String dataSetName = getEntityName(dataSet);
 
-            putNextMetadataJsonZipEntry(zos, os, existingZipEntries, prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode,
+            createMetadataJsonFile(sessionToken, prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode,
                     dataSetCode, dataSetName, codeHolderJson);
 
             if (dataSet.getKind() != DataSetKind.LINK)
@@ -466,7 +483,7 @@ public class ExportExecutor implements IExportExecutor
                     DataSetFileDownload file;
                     while ((file = reader.read()) != null)
                     {
-                        putNextDataZipEntry(existingZipEntries, zos, os, prefix, spaceCode, projectCode,
+                        createNextDataFile(sessionToken, prefix, spaceCode, projectCode,
                                 containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, file);
                     }
                 }
@@ -477,24 +494,24 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static void putNextMetadataJsonZipEntry(final ZipOutputStream zos, final OutputStream os, final Set<String> existingZipEntries,
-            final char prefix, final String spaceCode, final String projectCode, final String containerCode, final String code,
-            final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final String codeHolderJson) throws IOException
+    private static void createMetadataJsonFile(final String sessionToken, final char prefix, final String spaceCode, final String projectCode,
+            final String containerCode, final String code, final String dataSetTypeCode, final String dataSetCode, final String dataSetName,
+            final String codeHolderJson) throws IOException
     {
-        final String entry = DATA_DIRECTORY + '/' + getFolderName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode,
-                dataSetName, META_FILE_NAME);
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
+        final File dataDirectory = new File(sessionWorkspaceDirectory, DATA_DIRECTORY);
+        mkdir(dataDirectory);
 
-        if (!existingZipEntries.contains(entry))
+        final File metadataFile = new File(dataDirectory,
+                getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, META_FILE_NAME));
+
+        final File dataSubdirectory = metadataFile.getParentFile();
+        mkdir(dataSubdirectory);
+
+        try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(metadataFile)))
         {
-            zos.putNextEntry(new ZipEntry(entry));
-            existingZipEntries.add(entry);
-
-            try (final InputStream is = new ByteArrayInputStream(codeHolderJson.getBytes(StandardCharsets.UTF_8)))
-            {
-                writeInChunks(os, is);
-            }
-
-            zos.closeEntry();
+            writeInChunks(os, codeHolderJson.getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -905,35 +922,42 @@ public class ExportExecutor implements IExportExecutor
         return entryBuilder.toString();
     }
 
-    private static void putNextDataZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos, final OutputStream os,
-            final char prefix, final String spaceCode, final String projectCode, final String containerCode, final String entityCode,
-            final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final DataSetFileDownload dataSetFileDownload)
-            throws IOException
+    private static void createNextDataFile(final String sessionToken, final char prefix, final String spaceCode, final String projectCode,
+            final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
+            final String dataSetName, final DataSetFileDownload dataSetFileDownload) throws IOException
     {
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
+
         final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
         final String filePath = dataSetFile.getPath();
         final boolean isDirectory = dataSetFile.isDirectory();
 
-        final String entry = DATA_DIRECTORY + '/' + getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode,
-                dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : "");
-        if (!existingZipEntries.contains(entry))
+        final File dataDirectory = new File(sessionWorkspaceDirectory, DATA_DIRECTORY);
+        mkdir(dataDirectory);
+
+        final File dataSetFsEntry = new File(dataDirectory, getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode,
+                dataSetTypeCode, dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : ""));
+
+        final File dataSubdirectory = dataSetFsEntry.getParentFile();
+        mkdir(dataSubdirectory);
+
+        if (!isDirectory)
         {
-            zos.putNextEntry(new ZipEntry(entry));
-            existingZipEntries.add(entry);
-
-            if (!isDirectory)
+            try (
+                    final InputStream is = dataSetFileDownload.getInputStream();
+                    final BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(dataSetFsEntry))
+            )
             {
-                try (final InputStream is = dataSetFileDownload.getInputStream())
-                {
-                    writeInChunks(os, is);
-                }
+                writeInChunks(os, is);
             }
-
-            zos.closeEntry();
+        } else
+        {
+            mkdir(dataSetFsEntry);
         }
     }
 
-    static String getFolderName(final char prefix, final String spaceCode, final String projectCode,
+    static String getDataDirectoryName(final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode,
             final String dataSetCode, final String dataSetName, final String fileName)
     {
