@@ -679,10 +679,12 @@ public class ExportExecutor implements IExportExecutor
             {
                 final Sample sample = (Sample) entity;
                 final Experiment experiment = sample.getExperiment();
+                final Sample container = sample.getContainer();
 
                 createDocFilesForEntity(sessionToken, docDirectory, exportFields, sample,
                         getSpaceCode(sample), getProjectCode(sample), experiment != null ? experiment.getCode() : null,
-                        experiment != null ? getEntityName(experiment) : null, null, null, null, null, exportFormats);
+                        experiment != null ? getEntityName(experiment) : null, container != null ? container.getCode() : null, sample.getCode(),
+                        getEntityName(sample), null, exportFormats);
             }
         }
     }
@@ -703,11 +705,13 @@ public class ExportExecutor implements IExportExecutor
             {
                 final DataSet dataSet = (DataSet) entity;
                 final Sample sample = dataSet.getSample();
+                final Sample container = sample != null ? sample.getContainer() : null;
                 final Experiment experiment = sample != null ? sample.getExperiment() : dataSet.getExperiment();
 
                 createDocFilesForEntity(sessionToken, docDirectory, exportFields, dataSet,
                         getSpaceCode(entity), getProjectCode(entity), experiment != null ? experiment.getCode() : null,
-                        experiment != null ? getEntityName(experiment) : null, null, null, null, null, exportFormats);
+                        experiment != null ? getEntityName(experiment) : null, container != null ? container.getCode() : null,
+                        sample != null ? sample.getCode() : null, sample != null ? getEntityName(sample) : null, dataSet.getCode(), exportFormats);
             }
         }
     }
