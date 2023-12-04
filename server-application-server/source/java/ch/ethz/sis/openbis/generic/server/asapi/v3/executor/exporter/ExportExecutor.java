@@ -46,12 +46,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -62,6 +66,8 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -320,7 +326,7 @@ public class ExportExecutor implements IExportExecutor
             final TextFormatting textFormatting, final boolean compatibleWithImport,
             final Set<ExportFormat> exportFormats) throws IOException
     {
-        final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
+        final String zipFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
         final Collection<String> warnings = new ArrayList<>();
 
@@ -343,7 +349,7 @@ public class ExportExecutor implements IExportExecutor
                 final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
                 final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
                 final File docDirectory = new File(sessionWorkspaceDirectory, PDF_DIRECTORY);
-                mkdir(docDirectory);
+                mkdirs(docDirectory);
 
                 exportSpacesDoc(sessionToken, exportFields, entitiesVo, exportFormats, docDirectory);
                 exportProjectsDoc(sessionToken, docDirectory, entitiesVo, exportFields, exportFormats);
@@ -358,7 +364,15 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
-        return new ExportResult(fullFileName, warnings);
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final String sessionWorkspaceDirectoryPath = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalPath();
+        zipDirectory(sessionWorkspaceDirectoryPath, new File(sessionWorkspaceDirectoryPath, zipFileName));
+
+        deleteDirectory(sessionWorkspaceDirectoryPath + '/' + XLSX_DIRECTORY);
+        deleteDirectory(sessionWorkspaceDirectoryPath + '/' + PDF_DIRECTORY);
+        deleteDirectory(sessionWorkspaceDirectoryPath + '/' + DATA_DIRECTORY);
+
+        return new ExportResult(zipFileName, warnings);
     }
 
     private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final List<ExportablePermId> exportablePermIds,
@@ -371,14 +385,14 @@ public class ExportExecutor implements IExportExecutor
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
 
         final File xlsxDirectory = new File(sessionWorkspaceDirectory, XLSX_DIRECTORY);
-        mkdir(xlsxDirectory);
+        mkdirs(xlsxDirectory);
 
         final File scriptsDirectory = new File(xlsxDirectory, SCRIPTS_DIRECTORY);
 
         final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
         if (!xlsExportScripts.isEmpty())
         {
-            mkdir(scriptsDirectory);
+            mkdirs(scriptsDirectory);
 
             for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
             {
@@ -478,13 +492,13 @@ public class ExportExecutor implements IExportExecutor
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
         final File dataDirectory = new File(sessionWorkspaceDirectory, DATA_DIRECTORY);
-        mkdir(dataDirectory);
+        mkdirs(dataDirectory);
 
         final File metadataFile = new File(dataDirectory,
                 getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, META_FILE_NAME));
 
         final File dataSubdirectory = metadataFile.getParentFile();
-        mkdir(dataSubdirectory);
+        mkdirs(dataSubdirectory);
 
         try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(metadataFile)))
         {
@@ -543,7 +557,7 @@ public class ExportExecutor implements IExportExecutor
                 final String spaceCode = getSpaceCode(entity);
                 final String folderName = spaceCode == null && entity instanceof Sample ? SHARED_SAMPLES_DIRECTORY : spaceCode;
                 final File space = createNextDocFile(docDirectory, folderName, null, null, null, null, null, null, null, null);
-                mkdir(space);
+                mkdirs(space);
             }
         }
     }
@@ -574,7 +588,7 @@ public class ExportExecutor implements IExportExecutor
                 if (projectCode != null)
                 {
                     final File space = createNextDocFile(docDirectory, getSpaceCode(entity), projectCode, null, null, null, null, null, null, null);
-                    mkdir(space);
+                    mkdirs(space);
                 }
             }
         }
@@ -602,7 +616,7 @@ public class ExportExecutor implements IExportExecutor
                     final Project project = experiment.getProject();
                     final File docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
                             getEntityName(experiment), null, null, null, null, null);
-                    mkdir(docFile);
+                    mkdirs(docFile);
                 }
             }
 
@@ -611,7 +625,7 @@ public class ExportExecutor implements IExportExecutor
                 final Experiment experiment = (Experiment) entity;
                 final Project project = experiment.getProject();
 
-                createDocFilesForEntity(sessionToken, docDirectory, exportFields, project,
+                createDocFilesForEntity(sessionToken, docDirectory, exportFields, experiment,
                         project.getSpace().getCode(), project.getCode(), experiment.getCode(), getEntityName(experiment), null, null, null, null,
                         exportFormats);
             }
@@ -666,7 +680,7 @@ public class ExportExecutor implements IExportExecutor
                     }
                 }
 
-                mkdir(docFile);
+                mkdirs(docFile);
             }
 
             if (entity instanceof Sample)
@@ -675,8 +689,11 @@ public class ExportExecutor implements IExportExecutor
                 final Experiment experiment = sample.getExperiment();
                 final Sample container = sample.getContainer();
 
+                final String spaceCode = getSpaceCode(sample);
+                final String spaceFolder = spaceCode != null ? spaceCode : SHARED_SAMPLES_DIRECTORY;
+
                 createDocFilesForEntity(sessionToken, docDirectory, exportFields, sample,
-                        getSpaceCode(sample), getProjectCode(sample), experiment != null ? experiment.getCode() : null,
+                        spaceFolder, getProjectCode(sample), experiment != null ? experiment.getCode() : null,
                         experiment != null ? getEntityName(experiment) : null, container != null ? container.getCode() : null, sample.getCode(),
                         getEntityName(sample), null, exportFormats);
             }
@@ -714,57 +731,109 @@ public class ExportExecutor implements IExportExecutor
     {
         if (entity instanceof Space)
         {
-            return ((Space) entity).getCode();
+            return getSpaceCode((Space) entity);
         } else if (entity instanceof Project)
         {
-            return ((Project) entity).getSpace().getCode();
+            return getSpaceCode((Project) entity);
         } else if (entity instanceof Experiment)
         {
-            return ((Experiment) entity).getProject().getSpace().getCode();
+            return getSpaceCode((Experiment) entity);
         } else if (entity instanceof Sample)
         {
-            final Sample sample = (Sample) entity;
-            final Space space = sample.getSpace();
-            if (space != null)
-            {
-                return sample.getSpace().getCode();
-            } else
-            {
-                final Experiment experiment = sample.getExperiment();
-                final Project project = sample.getProject();
-                if (experiment != null)
-                {
-                    return experiment.getProject().getSpace().getCode();
-                } else if (project != null)
-                {
-                    return project.getSpace().getCode();
-                } else
-                {
-                    return null;
-                }
-            }
+            return getSpaceCode((Sample) entity);
+        } else if (entity instanceof DataSet)
+        {
+            return getSpaceCode((DataSet) entity);
         } else
         {
             throw new IllegalArgumentException();
         }
     }
 
+    private static String getSpaceCode(final Space entity)
+    {
+        return entity.getCode();
+    }
+
+    private static String getSpaceCode(final Project entity)
+    {
+        return entity.getSpace().getCode();
+    }
+
+    private static String getSpaceCode(final Experiment entity)
+    {
+        return entity.getProject().getSpace().getCode();
+    }
+
+    private static String getSpaceCode(final Sample sample)
+    {
+        final Space space = sample.getSpace();
+        if (space != null)
+        {
+            return sample.getSpace().getCode();
+        } else
+        {
+            final Experiment experiment = sample.getExperiment();
+            final Project project = sample.getProject();
+            if (experiment != null)
+            {
+                return experiment.getProject().getSpace().getCode();
+            } else if (project != null)
+            {
+                return project.getSpace().getCode();
+            } else
+            {
+                return null;
+            }
+        }
+    }
+
+    private static String getSpaceCode(final DataSet dataSet)
+    {
+        final Sample sample = dataSet.getSample();
+        return sample != null ? getSpaceCode(sample) :  getSpaceCode(dataSet.getExperiment());
+    }
+
     private static String getProjectCode(final Object entity)
     {
         if (entity instanceof Project)
         {
-            return ((Project) entity).getCode();
+            return getProjectCode((Project) entity);
         } else if (entity instanceof Experiment)
         {
-            return ((Experiment) entity).getProject().getCode();
+            return getProjectCode((Experiment) entity);
         } else if (entity instanceof Sample)
         {
-            final Project project = getProjectForSample((Sample) entity);
-            return project != null ? project.getCode() : null;
+            return getProjectCode((Sample) entity);
+        } else if (entity instanceof DataSet)
+        {
+            return getProjectCode((DataSet) entity);
         } else
         {
             throw new IllegalArgumentException();
         }
+    }
+
+    private static String getProjectCode(final Project project)
+    {
+        return project.getCode();
+    }
+
+    private static String getProjectCode(final Experiment experiment)
+    {
+        return experiment.getProject().getCode();
+    }
+
+    private static String getProjectCode(final Sample sample)
+    {
+        final Project project = getProjectForSample(sample);
+        return project != null ? project.getCode() : null;
+    }
+
+    private static String getProjectCode(final DataSet dataSet)
+    {
+        final Sample sample = dataSet.getSample();
+        return sample != null ? getProjectCode(sample) : getProjectCode(dataSet.getExperiment());
     }
 
     private static Project getProjectForSample(final Sample sample)
@@ -911,13 +980,13 @@ public class ExportExecutor implements IExportExecutor
         final boolean isDirectory = dataSetFile.isDirectory();
 
         final File dataDirectory = new File(sessionWorkspaceDirectory, DATA_DIRECTORY);
-        mkdir(dataDirectory);
+        mkdirs(dataDirectory);
 
         final File dataSetFsEntry = new File(dataDirectory, getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode,
                 dataSetTypeCode, dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : ""));
 
         final File dataSubdirectory = dataSetFsEntry.getParentFile();
-        mkdir(dataSubdirectory);
+        mkdirs(dataSubdirectory);
 
         if (!isDirectory)
         {
@@ -930,7 +999,7 @@ public class ExportExecutor implements IExportExecutor
             }
         } else
         {
-            mkdir(dataSetFsEntry);
+            mkdirs(dataSetFsEntry);
         }
     }
 
@@ -1402,14 +1471,57 @@ public class ExportExecutor implements IExportExecutor
      *
      * @param dir the directory to be created.
      */
-    private static void mkdir(final File dir)
+    private static void mkdirs(final File dir)
     {
         if (!dir.isDirectory())
         {
-            final boolean created = dir.mkdir();
+            final boolean created = dir.mkdirs();
             if (!created)
             {
                 throw new RuntimeException(String.format("Cannot create directory '%s'.", dir.getPath()));
+            }
+        }
+    }
+
+    private static void zipDirectory(final String sourceDirectory, final File targetZipFile) throws IOException {
+        final Path sourceDir = Paths.get(sourceDirectory);
+        try (final ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(targetZipFile)))
+        {
+            try(final Stream<Path> stream = Files.walk(sourceDir))
+            {
+                stream.filter(path -> !path.equals(sourceDir) && !path.toFile().equals(targetZipFile))
+                        .forEach(path ->
+                        {
+                            final boolean isDirectory = Files.isDirectory(path);
+                            final String entryName = sourceDir.relativize(path).toString();
+                            final ZipEntry zipEntry = new ZipEntry(entryName + (isDirectory ? "/" : ""));
+                            try
+                            {
+                                zipOutputStream.putNextEntry(zipEntry);
+                                if (!isDirectory)
+                                {
+                                    Files.copy(path, zipOutputStream);
+                                }
+                                zipOutputStream.closeEntry();
+                            } catch (final IOException e)
+                            {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+        }
+    }
+
+    public static void deleteDirectory(final String directoryPath) throws IOException {
+        final Path path = Paths.get(directoryPath);
+        if (Files.exists(path))
+        {
+            try (final Stream<Path> walkStream = Files.walk(path))
+            {
+                walkStream
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
             }
         }
     }

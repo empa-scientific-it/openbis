@@ -157,7 +157,11 @@ class EntitiesFinder
         final List<ExperimentPermId> experimentPermIds = permIds.stream().map(ExperimentPermId::new)
                 .collect(Collectors.toList());
         final ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.withProject().withSpace();
+        final ProjectFetchOptions projectFetchOptions = fetchOptions.withProject();
+        projectFetchOptions.withSpace();
+        projectFetchOptions.withRegistrator();
+        projectFetchOptions.withModifier();
+
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
