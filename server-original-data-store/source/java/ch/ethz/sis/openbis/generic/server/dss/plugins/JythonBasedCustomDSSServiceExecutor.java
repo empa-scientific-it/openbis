@@ -31,12 +31,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import java.io.Serializable;
 import java.util.Properties;
 
-public class JythonBasedCustomDSSService implements ICustomDSSServiceExecutor
+public class JythonBasedCustomDSSServiceExecutor implements ICustomDSSServiceExecutor
 {
     private static final String SCRIPT_PATH = "script-path";
 
     private final String scriptPath;
-    public JythonBasedCustomDSSService(Properties properties)
+    public JythonBasedCustomDSSServiceExecutor(Properties properties)
     {
         scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
     }
