@@ -169,6 +169,8 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String PDF_DIRECTORY = "pdf";
 
+    public static final String DATA_DIRECTORY = "data";
+
     public static final String META_FILE_NAME = "meta.json";
 
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
@@ -449,7 +451,7 @@ public class ExportExecutor implements IExportExecutor
             final char prefix, final String spaceCode, final String projectCode, final String containerCode, final String code,
             final String dataSetTypeCode, final String dataSetCode, final String dataSetName, final String codeHolderJson) throws IOException
     {
-        final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode,
+        final String entry = DATA_DIRECTORY + '/' + getFolderName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode,
                 dataSetName, META_FILE_NAME);
 
         if (!existingZipEntries.contains(entry))
@@ -974,8 +976,8 @@ public class ExportExecutor implements IExportExecutor
         final String filePath = dataSetFile.getPath();
         final boolean isDirectory = dataSetFile.isDirectory();
 
-        final String entry = getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
-                dataSetName, filePath) + (isDirectory ? "/" : "");
+        final String entry = DATA_DIRECTORY + '/' + getFolderName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode,
+                dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : "");
         if (!existingZipEntries.contains(entry))
         {
             zos.putNextEntry(new ZipEntry(entry));
