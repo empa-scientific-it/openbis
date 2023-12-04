@@ -888,7 +888,10 @@ public class ExportExecutor implements IExportExecutor
 
         if (sampleCode != null)
         {
-            entryBuilder.append('/');
+            if (spaceCode != null)
+            {
+                entryBuilder.append('/');
+            }
             addFullEntityName(entryBuilder, containerCode, sampleCode, sampleName);
 
             if (dataSetCode != null)
