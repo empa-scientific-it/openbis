@@ -26,8 +26,8 @@ public enum DssPluginType implements IPluginType
 {
     DROP_BOXES("drop-boxes", Constants.INPUT_THREAD_NAMES),
     DATA_SOURCES("data-sources", Constants.DATA_SOURCES_KEY),
-    SERVICES("services", Constants.PLUGIN_SERVICES_LIST_KEY),
-    CUSTOM("custom-services", Constants.CUSTOM_SERVICES_LIST_KEY),
+    SERVLET_SERVICES("servlet-services", Constants.PLUGIN_SERVICES_LIST_KEY),
+    SERVICES("services", Constants.CUSTOM_SERVICES_LIST_KEY),
     IMAGE_OVERVIEW_PLUGINS("image-overview-plugins", Constants.OVERVIEW_PLUGINS_SERVICES_LIST_KEY),
     REPORTING_PLUGINS("reporting-plugins", Constants.REPORTING_PLUGIN_NAMES),
     PROCESSING_PLUGINS("processing-plugins", Constants.PROCESSING_PLUGIN_NAMES),
