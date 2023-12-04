@@ -62,8 +62,6 @@ import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -356,8 +354,7 @@ public class ExportExecutor implements IExportExecutor
 
             if (hasDataFormat)
             {
-                final Set<String> existingZipEntries = new HashSet<>();
-                exportData(sessionToken, entitiesVo, existingZipEntries);
+                exportData(sessionToken, entitiesVo);
             }
         }
 
@@ -406,45 +403,25 @@ public class ExportExecutor implements IExportExecutor
         warnings.addAll(xlsExportResult.getWarnings());
     }
 
-//    private void exportData(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-//            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-//            final Map<String, Map<String, List<Map<String, String>>>> exportFields) throws IOException
-//    {
-//        final Collection<Sample> samples = entitiesVo.getSamples();
-//        for (final Sample sample : samples)
-//        {
-//            exportDatasetsData(zos, os, sessionToken, existingZipEntries, 'O', sample.getDataSets(), sample, sample.getContainer());
-//        }
-//
-//        final Collection<Experiment> experiments = entitiesVo.getExperiments();
-//        for (final Experiment experiment : experiments)
-//        {
-//            exportDatasetsData(zos, os, sessionToken, existingZipEntries, 'E', experiment.getDataSets(), experiment, null);
-//        }
-//    }
-
-    private void exportData(final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries) throws IOException
+    private void exportData(final String sessionToken, final EntitiesVo entitiesVo) throws IOException
     {
         final Collection<Sample> samples = entitiesVo.getSamples();
         for (final Sample sample : samples)
         {
-            exportDatasetsData(sessionToken, existingZipEntries, 'O', sample.getDataSets(), sample, sample.getContainer());
+            exportDatasetsData(sessionToken, 'O', sample.getDataSets(), sample, sample.getContainer());
         }
 
         final Collection<Experiment> experiments = entitiesVo.getExperiments();
         for (final Experiment experiment : experiments)
         {
-            exportDatasetsData(sessionToken, existingZipEntries, 'E', experiment.getDataSets(), experiment, null);
+            exportDatasetsData(sessionToken, 'E', experiment.getDataSets(), experiment, null);
         }
     }
 
     private void exportDatasetsData(final String sessionToken,
-            final Set<String> existingZipEntries, final char prefix, final List<DataSet> dataSets, final ICodeHolder codeHolder,
+            final char prefix, final List<DataSet> dataSets, final ICodeHolder codeHolder,
             final Sample container) throws IOException
     {
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
-
         final String spaceCode = getSpaceCode(codeHolder);
         final String projectCode = getProjectCode(codeHolder);
         final String containerCode = container == null ? null : container.getCode();
@@ -1064,32 +1041,6 @@ public class ExportExecutor implements IExportExecutor
     static String escapeUnsafeCharacters(final String name)
     {
         return name != null ? name.replaceAll(UNSAFE_CHARACTERS_REGEXP, "_") : null;
-    }
-
-    private static void exportXls(final ZipOutputStream zos, final OutputStream os, final XLSExport.PrepareWorkbookResult xlsExportResult,
-            final Workbook wb, final Collection<String> warnings) throws IOException
-    {
-        zos.putNextEntry(new ZipEntry(String.format("%s/", XLSX_DIRECTORY)));
-
-        final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
-        if (!xlsExportScripts.isEmpty())
-        {
-            zos.putNextEntry(new ZipEntry(String.format("%s/%s/", XLSX_DIRECTORY, SCRIPTS_DIRECTORY)));
-        }
-
-        for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
-        {
-            zos.putNextEntry(new ZipEntry(String.format("%s/%s/%s%s", XLSX_DIRECTORY, SCRIPTS_DIRECTORY, script.getKey(), PYTHON_EXTENSION)));
-            os.write(script.getValue().getBytes());
-            os.flush();
-            zos.closeEntry();
-        }
-
-        zos.putNextEntry(new ZipEntry(String.format("%s/%s", XLSX_DIRECTORY, METADATA_FILE_NAME)));
-        wb.write(os);
-        zos.closeEntry();
-
-        warnings.addAll(xlsExportResult.getWarnings());
     }
 
     private String getHtml(final String sessionToken, final ICodeHolder entityObj,
