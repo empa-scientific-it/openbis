@@ -20,8 +20,10 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.ATTRIBUTE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.PROPERTY;
@@ -578,8 +580,8 @@ public class ExportExecutor implements IExportExecutor
             if (entity instanceof Project)
             {
                 final Project project = (Project) entity;
-
-                createDocFilesForEntity(sessionToken, docDirectory, exportFields, project,
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, PROJECT);
+                createDocFilesForEntity(sessionToken, docDirectory, entityTypeExportFieldsMap, project,
                         project.getSpace().getCode(), project.getCode(), null, null, null, null, null, null,
                         exportFormats);
             } else
@@ -624,8 +626,8 @@ public class ExportExecutor implements IExportExecutor
             {
                 final Experiment experiment = (Experiment) entity;
                 final Project project = experiment.getProject();
-
-                createDocFilesForEntity(sessionToken, docDirectory, exportFields, experiment,
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, EXPERIMENT);
+                createDocFilesForEntity(sessionToken, docDirectory, entityTypeExportFieldsMap, experiment,
                         project.getSpace().getCode(), project.getCode(), experiment.getCode(), getEntityName(experiment), null, null, null, null,
                         exportFormats);
             }
@@ -691,8 +693,9 @@ public class ExportExecutor implements IExportExecutor
 
                 final String spaceCode = getSpaceCode(sample);
                 final String spaceFolder = spaceCode != null ? spaceCode : SHARED_SAMPLES_DIRECTORY;
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, SAMPLE);
 
-                createDocFilesForEntity(sessionToken, docDirectory, exportFields, sample,
+                createDocFilesForEntity(sessionToken, docDirectory, entityTypeExportFieldsMap, sample,
                         spaceFolder, getProjectCode(sample), experiment != null ? experiment.getCode() : null,
                         experiment != null ? getEntityName(experiment) : null, container != null ? container.getCode() : null, sample.getCode(),
                         getEntityName(sample), null, exportFormats);
@@ -718,8 +721,9 @@ public class ExportExecutor implements IExportExecutor
                 final Sample sample = dataSet.getSample();
                 final Sample container = sample != null ? sample.getContainer() : null;
                 final Experiment experiment = sample != null ? sample.getExperiment() : dataSet.getExperiment();
+                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, DATASET);
 
-                createDocFilesForEntity(sessionToken, docDirectory, exportFields, dataSet,
+                createDocFilesForEntity(sessionToken, docDirectory, entityTypeExportFieldsMap, dataSet,
                         getSpaceCode(entity), getProjectCode(entity), experiment != null ? experiment.getCode() : null,
                         experiment != null ? getEntityName(experiment) : null, container != null ? container.getCode() : null,
                         sample != null ? sample.getCode() : null, sample != null ? getEntityName(sample) : null, dataSet.getCode(), exportFormats);
@@ -878,14 +882,13 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void createDocFilesForEntity(final String sessionToken, final File docDirectory,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final ICodeHolder entity, final String spaceCode, final String projectCode, final String experimentCode,
             final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
             final Set<ExportFormat> exportFormats) throws IOException
     {
         final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
         final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-        final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, PROJECT);
         final String html = getHtml(sessionToken, entity, entityTypeExportFieldsMap);
         final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
 
