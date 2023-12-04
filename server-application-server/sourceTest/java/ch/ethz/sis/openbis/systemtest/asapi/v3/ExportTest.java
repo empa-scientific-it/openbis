@@ -209,7 +209,6 @@ public class ExportTest extends AbstractTest
 
         samplePermId = v3api.createSamples(sessionToken, List.of(richTextSampleCreation)).get(0);
 
-        // TODO: mock DSS or start an actual one.
         registerDss();
 
         v3api.logout(sessionToken);
@@ -219,30 +218,8 @@ public class ExportTest extends AbstractTest
     {
         v3Dss = mockery.mock(IDataStoreServerApi.class);
         CommonServiceProvider.setDataStoreServerApi(v3Dss);
-
-//        final InvocationExpectation invocationExpectation = new InvocationExpectation();
-//        invocationExpectation.
-//        mockery.addExpectation(invocationExpectation);
     }
 
-    //    private void registerDss()
-//    {
-//        final DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
-//        dataStoreServerInfo.setDataStoreCode(DATASTORE_CODE);
-//        dataStoreServerInfo.setSessionToken(SESSION_TOKEN);
-//        dataStoreServerInfo.setDownloadUrl(DOWNLOAD_URL);
-//        final DatastoreServiceDescription r1 =
-//                DatastoreServiceDescription.reporting("R1", "r1", new String[]
-//                        { "H.*", "UNKNOWN" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
-//        final DatastoreServiceDescription p1 =
-//                DatastoreServiceDescription.processing("P1", "p1", new String[]
-//                        { "H.*", "C.*" }, DATASTORE_CODE);
-//        dataStoreServerInfo.setServicesDescriptions(new DatastoreServiceDescriptions(Arrays
-//                .asList(r1), Arrays.asList(p1)));
-//        dataStoreServerInfo.setDataSourceDefinitions(Arrays.<DataSourceDefinition> asList());
-//
-//        etlService.registerDataStoreServer(systemSessionToken, dataStoreServerInfo);
-//    }
 
     @AfterClass
     public void afterClass()
@@ -260,7 +237,9 @@ public class ExportTest extends AbstractTest
 
         final PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
         propertyTypeDeletionOptions.setReason("Test");
-        v3api.deletePropertyTypes(sessionToken, List.of(richTextPropertyTypePermId), propertyTypeDeletionOptions);
+        v3api.deletePropertyTypes(sessionToken,
+                List.of(richTextPropertyTypePermId, richTextWithImagePropertyTypePermId, richTextWithSpreadsheetPropertyTypePermId),
+                propertyTypeDeletionOptions);
 
         v3api.logout(sessionToken);
     }

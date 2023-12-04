@@ -3751,7 +3751,7 @@ function ServerFacade(openbisServer) {
 		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
             _this.sessionInfo = sessionInfo;
 			callbackFunction(sessionInfo);
-        }).fail(function(result) {
+		}).fail(function(result) {
 			Util.showFailedServerCallError(result);
 			callbackFunction(false);
 		});
@@ -3808,7 +3808,7 @@ function ServerFacade(openbisServer) {
 				searchCriteria.withCode().thatEquals(code);
 				mainController.openbisV3.searchCustomASServices(searchCriteria, fetchOptions).done(function(result) {
 					callbackFunction(result);
-		        }).fail(function(result) {
+		    }).fail(function(result) {
 					Util.showFailedServerCallError(result);
 					callbackFunction(false);
 				});
@@ -3926,6 +3926,21 @@ function ServerFacade(openbisServer) {
 			reason: reason,
 		}
 		this.callSearchStoreService(parameters, callbackFunction);
+	}
+
+	// this.getServerPublicInformation = function(callbackFunction) {
+	// 	this.getOpenbisV3(function(openbisV3){
+	// 		openbisV3.getServerPublicInformation().done(function(serverInfo) {
+	// 			callbackFunction(serverInfo);
+	// 		}).fail(function(result) {
+	// 			Util.showFailedServerCallError(result);
+	// 			callbackFunction(false);
+	// 		});
+	// 	})
+	// }
+
+	this.executeExport = function(sessionToken, exportData, exportOptions) {
+
 	}
 
 }
