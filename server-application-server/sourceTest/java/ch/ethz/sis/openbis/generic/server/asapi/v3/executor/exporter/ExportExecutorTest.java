@@ -341,19 +341,20 @@ public class ExportExecutorTest
     }
 
     @Test(dataProvider = NEXT_ZIP_ENTRY_DATA_PROVIDER)
-    public void testGetNextZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
+    public void testGetNextDirectoryName(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
              final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension,
             final String expectedResult)
     {
-        assertEquals(ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
+        assertEquals(ExportExecutor.getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
                 sampleName, dataSetCode, extension), expectedResult);
     }
 
     @Test(dataProvider = ERRONEOUS_NEXT_ZIP_ENTRY_DATA_PROVIDER, expectedExceptions = IllegalArgumentException.class)
-    public void testGetNextZipEntryError(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
-            final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
+    public void testGetNextDirectoryNameError(final String spaceCode, final String projectCode, final String experimentCode,
+            final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
+            final String extension)
     {
-        ExportExecutor.getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode, sampleName, dataSetCode,
+        ExportExecutor.getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode, sampleName, dataSetCode,
                 extension);
     }
 

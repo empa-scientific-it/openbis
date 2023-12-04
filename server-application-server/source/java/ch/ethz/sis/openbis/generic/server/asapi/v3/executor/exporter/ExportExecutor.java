@@ -20,10 +20,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.DEFAULT_REPO_PATH;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.ATTRIBUTE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.FieldType.PROPERTY;
@@ -325,9 +323,6 @@ public class ExportExecutor implements IExportExecutor
             final TextFormatting textFormatting, final boolean compatibleWithImport,
             final Set<ExportFormat> exportFormats) throws IOException
     {
-
-
-//        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
         final Collection<String> warnings = new ArrayList<>();
@@ -342,45 +337,30 @@ public class ExportExecutor implements IExportExecutor
             exportXlsx(api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting, compatibleWithImport, warnings);
         }
 
-//        try
-//                (
-//                        final Workbook wb = xlsExportResult != null ? xlsExportResult.getWorkbook() : null;
-//                        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
-//                        final BufferedOutputStream bos = new BufferedOutputStream(os, BUFFER_SIZE);
-//                )
-//        {
-//            // This export should be done at the end because Workbook closes the whole stream
-//            if (xlsExportResult != null)
+        if (hasHtmlFormat || hasPdfFormat || hasDataFormat)
+        {
+            final EntitiesVo entitiesVo = new EntitiesVo(sessionToken, exportablePermIds);
+
+            if (hasPdfFormat || hasHtmlFormat)
+            {
+                final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+                final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
+                final File docDirectory = new File(sessionWorkspaceDirectory, PDF_DIRECTORY);
+                mkdir(docDirectory);
+
+                exportSpacesDoc(sessionToken, exportFields, entitiesVo, exportFormats, docDirectory);
+                exportProjectsDoc(sessionToken, docDirectory, entitiesVo, exportFields, exportFormats);
+                exportExperimentsDoc(sessionToken, docDirectory, entitiesVo, exportFields, exportFormats);
+                exportSamplesDoc(sessionToken, docDirectory, entitiesVo, exportFields, exportFormats);
+                exportDataSetsDoc(sessionToken, docDirectory, entitiesVo, exportFields, exportFormats);
+            }
+
+//            if (hasDataFormat)
 //            {
-//                exportXls(zos, bos, xlsExportResult, wb, warnings);
+//                final Set<String> existingZipEntries = new HashSet<>();
+//                exportData(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields);
 //            }
-//
-//            final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
-//            final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-//            final boolean hasDataFormat = exportFormats.contains(ExportFormat.DATA);
-//
-//            if (hasHtmlFormat || hasPdfFormat || hasDataFormat)
-//            {
-//                final EntitiesVo entitiesVo = new EntitiesVo(sessionToken, exportablePermIds);
-//
-//                if (hasPdfFormat || hasHtmlFormat)
-//                {
-//                    final Set<String> existingZipEntries = new HashSet<>();
-//                    putNextDocZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null, null);
-//                    exportSpacesDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-//                    exportProjectsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-//                    exportExperimentsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-//                    exportSamplesDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-//                    exportDataSetsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-//                }
-//
-//                if (hasDataFormat)
-//                {
-//                    final Set<String> existingZipEntries = new HashSet<>();
-//                    exportData(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields);
-//                }
-//            }
-//        }
+        }
 
         return new ExportResult(fullFileName, warnings);
     }
@@ -518,19 +498,16 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private void exportSpacesDoc(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
-            throws IOException
+    private void exportSpacesDoc(final String sessionToken, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final EntitiesVo entitiesVo, final Set<ExportFormat> exportFormats, final File docDirectory) throws IOException
     {
-        putZipEntriesForSpacesOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getSpaces(), exportFields, exportFormats);
-        putZipEntriesForSpacesOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getProjects(), exportFields, exportFormats);
-        putZipEntriesForSpacesOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getExperiments(), exportFields, exportFormats);
-        putZipEntriesForSpacesOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getSpaces(), exportFields, exportFormats);
+        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getProjects(), exportFields, exportFormats);
+        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
+        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
-    private void putZipEntriesForSpacesOfEntities(final ZipOutputStream zos, final OutputStream bos, final String sessionToken,
-            final Set<String> existingZipEntries, final Collection<?> entities,
+    private void createFilesAndFoldersForSpacesOfEntities(final String sessionToken, final File docDirectory, final Collection<?> entities,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
         final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
@@ -548,102 +525,78 @@ public class ExportExecutor implements IExportExecutor
 
                 if (hasHtmlFormat)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, null, HTML_EXTENSION);
-                    writeInChunks(bos, htmlBytes);
-                    zos.closeEntry();
+                    final File htmlFile = createNextDocFile(docDirectory, space.getCode(), null, null, null, null, null, null, null, HTML_EXTENSION);
+                    try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(htmlFile), BUFFER_SIZE))
+                    {
+                        writeInChunks(bos, htmlBytes);
+                        bos.flush();
+                    }
                 }
 
                 if (hasPdfFormat)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, space.getCode(), null, null, null, null, null, null, null, PDF_EXTENSION);
-
-                    final PdfRendererBuilder builder = new PdfRendererBuilder();
-
-                    builder.withHtmlContent(html, null);
-                    builder.toStream(bos);
-                    builder.run(); // zos is closed here, closing it later throws an exception
+                    final File pdfFile = createNextDocFile(docDirectory, space.getCode(), null, null, null, null, null, null, null, PDF_EXTENSION);
+                    try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
+                    {
+                        final PdfRendererBuilder builder = new PdfRendererBuilder();
+                        builder.withHtmlContent(html, null);
+                        builder.toStream(bos);
+                        builder.run();
+                    }
                 }
             } else
             {
                 final String spaceCode = getSpaceCode(entity);
                 final String folderName = spaceCode == null && entity instanceof Sample ? SHARED_SAMPLES_DIRECTORY : spaceCode;
-                putNextDocZipEntry(existingZipEntries, zos, folderName, null, null, null, null, null, null, null, null);
-                zos.closeEntry();
+                final File space = createNextDocFile(docDirectory, folderName, null, null, null, null, null, null, null, null);
+                mkdir(space);
             }
         }
     }
 
-    private void exportProjectsDoc(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
-            throws IOException
+    private void exportProjectsDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        putZipEntriesForProjectsOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getProjects(), exportFields, exportFormats);
-        putZipEntriesForProjectsOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getExperiments(), exportFields, exportFormats);
-        putZipEntriesForProjectsOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndFoldersForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getProjects(), exportFields, exportFormats);
+        createFilesAndFoldersForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
+        createFilesAndFoldersForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
-    private void putZipEntriesForProjectsOfEntities(final ZipOutputStream zos, final OutputStream os,
-            final String sessionToken, final Set<String> existingZipEntries,
-            final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final Set<ExportFormat> exportFormats) throws IOException
+    private void createFilesAndFoldersForProjectsOfEntities(final String sessionToken, final File docDirectory, final Collection<?> entities,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
-        final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-
         for (final Object entity : entities)
         {
             if (entity instanceof Project)
             {
                 final Project project = (Project) entity;
 
-                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, PROJECT);
-                final String html = getHtml(sessionToken, project, entityTypeExportFieldsMap);
-                final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
-
-                if (hasHtmlFormat)
-                {
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null, null,
-                            HTML_EXTENSION);
-                    writeInChunks(os, htmlBytes);
-                    zos.closeEntry();
-                }
-
-                if (hasPdfFormat)
-                {
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null, null, null, null,
-                            PDF_EXTENSION);
-
-                    final PdfRendererBuilder builder = new PdfRendererBuilder();
-
-                    builder.withHtmlContent(html, null);
-                    builder.toStream(os);
-                    builder.run(); // zos is closed here, closing it later throws an exception
-                }
+                createDocFilesForEntity(sessionToken, docDirectory, exportFields, project,
+                        project.getSpace().getCode(), project.getCode(), null, null, null, null, null, null,
+                        exportFormats);
             } else
             {
                 final String projectCode = getProjectCode(entity);
                 if (projectCode != null)
                 {
-                    putNextDocZipEntry(existingZipEntries, zos, getSpaceCode(entity), projectCode, null, null, null, null, null, null, null);
-                    zos.closeEntry();
+                    final File space = createNextDocFile(docDirectory, getSpaceCode(entity), projectCode, null, null, null, null, null, null, null);
+                    mkdir(space);
                 }
             }
         }
     }
 
-    private void exportExperimentsDoc(final ZipOutputStream zos, final OutputStream os,
-            final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
+    private void exportExperimentsDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        putZipEntriesForExperimentsOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getExperiments(), exportFields, exportFormats);
-        putZipEntriesForExperimentsOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getSamples(), exportFields, exportFormats);
-        putZipEntriesForExperimentsOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getDataSets(), exportFields, exportFormats);
+        createFilesAndFoldersForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
+        createFilesAndFoldersForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndFoldersForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getDataSets(), exportFields, exportFormats);
     }
 
-    private void putZipEntriesForExperimentsOfEntities(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final Set<String> existingZipEntries, final Collection<?> entities,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
+    private void createFilesAndFoldersForExperimentsOfEntities(final String sessionToken, final File docDirectory,
+            final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final Set<ExportFormat> exportFormats) throws IOException
     {
         for (final Object entity : entities)
         {
@@ -653,55 +606,29 @@ public class ExportExecutor implements IExportExecutor
                 if (experiment != null)
                 {
                     final Project project = experiment.getProject();
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
-                            experiment.getCode(), getEntityName(experiment), null, null, null, null, null);
-                    zos.closeEntry();
+                    final File docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                            getEntityName(experiment), null, null, null, null, null);
+                    mkdir(docFile);
                 }
             }
-
-            final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
-            final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
 
             if (entity instanceof Experiment)
             {
                 final Experiment experiment = (Experiment) entity;
                 final Project project = experiment.getProject();
 
-                final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, EXPERIMENT);
-                final String html = getHtml(sessionToken, (Experiment) entity, entityTypeExportFieldsMap);
-                final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
-
-                if (hasHtmlFormat)
-                {
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                            getEntityName(experiment), null, null, null, null, HTML_EXTENSION);
-                    writeInChunks(os, htmlBytes);
-                    zos.closeEntry();
-                }
-
-                if (hasPdfFormat)
-                {
-                    putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                            getEntityName(experiment), null, null, null, null, PDF_EXTENSION);
-
-                    final PdfRendererBuilder builder = new PdfRendererBuilder();
-
-                    builder.withHtmlContent(html, null);
-                    builder.toStream(os);
-                    builder.run(); // zos is closed here, closing it later throws an exception
-                }
+                createDocFilesForEntity(sessionToken, docDirectory, exportFields, project,
+                        project.getSpace().getCode(), project.getCode(), experiment.getCode(), getEntityName(experiment), null, null, null, null,
+                        exportFormats);
             }
         }
     }
 
-    private void exportSamplesDoc(final ZipOutputStream zos, final OutputStream os,
-            final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
+    private void exportSamplesDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
-        final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, SAMPLE);
-        putZipEntriesForSamplesOfEntities(zos, os, sessionToken, existingZipEntries, entitiesVo.getSamples(), entityTypeExportFieldsMap,
-                exportFormats);
+        createFilesAndFoldersForSamplesOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
     private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
@@ -713,147 +640,76 @@ public class ExportExecutor implements IExportExecutor
                 ? TYPE_EXPORT_FIELD_KEY : exportableKind.toString());
     }
 
-    private void putZipEntriesForSamplesOfEntities(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final Set<String> existingZipEntries, final Collection<?> entities,
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Set<ExportFormat> exportFormats) throws IOException
+    private void createFilesAndFoldersForSamplesOfEntities(final String sessionToken, final File docDirectory,
+            final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final Set<ExportFormat> exportFormats) throws IOException
     {
         for (final Object entity : entities)
         {
             if (entity instanceof ISampleHolder)
             {
                 final Sample sample = ((ISampleHolder) entity).getSample();
-                putNextDocZipEntryForSample(zos, existingZipEntries, sample, null);
+                final Experiment experiment = sample.getExperiment();
+                final File docFile;
+
+                if (experiment != null)
+                {
+                    final Project project = experiment.getProject();
+                    docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                            getEntityName(experiment), null, null, null, null, null);
+                } else
+                {
+                    final Project project = sample.getProject();
+                    if (project != null)
+                    {
+                        docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), null,
+                                null, null, null, null, null, null);
+                    } else
+                    {
+                        final Space space = sample.getSpace();
+                        docFile = createNextDocFile(docDirectory, space != null ? space.getCode() : SHARED_SAMPLES_DIRECTORY, null, null,
+                                null, null, null, null, null, null);
+                    }
+                }
+
+                mkdir(docFile);
             }
 
             if (entity instanceof Sample)
             {
                 final Sample sample = (Sample) entity;
+                final Experiment experiment = sample.getExperiment();
 
-                if (exportFormats.contains(ExportFormat.HTML))
-                {
-                    final byte[] htmlBytes = getHtmlEntryForSample(zos, os, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample,
-                            HTML_EXTENSION).getBytes(StandardCharsets.UTF_8);
-
-                    writeInChunks(os, htmlBytes);
-
-                    zos.closeEntry();
-                }
-
-                if (exportFormats.contains(ExportFormat.PDF))
-                {
-                    final String html =
-                            getHtmlEntryForSample(zos, os, sessionToken, existingZipEntries, entityTypeExportFieldsMap, sample, PDF_EXTENSION);
-                    final PdfRendererBuilder builder = new PdfRendererBuilder();
-
-                    builder.withHtmlContent(html, null);
-                    builder.toStream(os);
-                    builder.run(); // zos is closed here, closing it later throws an exception
-                }
+                createDocFilesForEntity(sessionToken, docDirectory, exportFields, sample,
+                        getSpaceCode(sample), getProjectCode(sample), experiment != null ? experiment.getCode() : null,
+                        experiment != null ? getEntityName(experiment) : null, null, null, null, null, exportFormats);
             }
         }
     }
 
-    private String getHtmlEntryForSample(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final Set<String> existingZipEntries, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Sample sample,
-            final String extension) throws IOException
+    private void exportDataSetsDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        putNextDocZipEntryForSample(zos, existingZipEntries, sample, extension);
-        return getHtml(sessionToken, sample, entityTypeExportFieldsMap);
+        createFilesAndFoldersForDataSetsOfEntities(sessionToken, docDirectory, entitiesVo.getDataSets(), exportFields, exportFormats);
     }
 
-    private static void putNextDocZipEntryForSample(final ZipOutputStream zos, final Set<String> existingZipEntries, final Sample sample,
-            final String extension) throws IOException
-    {
-        final Experiment experiment = sample.getExperiment();
-        if (experiment != null)
-        {
-            final Project project = experiment.getProject();
-            putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                    getEntityName(experiment), null, sample.getCode(), getEntityName(sample), null, extension);
-        } else
-        {
-            final Project project = sample.getProject();
-            if (project != null)
-            {
-                putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), null, null, null,
-                        sample.getCode(), getEntityName(sample), null, extension);
-            } else
-            {
-                final Space space = sample.getSpace();
-                putNextDocZipEntry(existingZipEntries, zos, space != null ? space.getCode() : SHARED_SAMPLES_DIRECTORY, null, null, null, null,
-                        sample.getCode(), getEntityName(sample), null, extension);
-            }
-        }
-    }
-
-    private void exportDataSetsDoc(final ZipOutputStream zos, final OutputStream os,
-            final String sessionToken, final EntitiesVo entitiesVo, final Set<String> existingZipEntries,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
-            throws IOException
-    {
-        final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, DATASET);
-        putZipEntriesForDataSets(zos, os, sessionToken, existingZipEntries, entitiesVo.getDataSets(), entityTypeExportFieldsMap, exportFormats);
-    }
-
-    private void putZipEntriesForDataSets(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final Set<String> existingZipEntries, final Collection<?> entities,
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final Set<ExportFormat> exportFormats) throws IOException
+    private void createFilesAndFoldersForDataSetsOfEntities(final String sessionToken, final File docDirectory,
+            final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final Set<ExportFormat> exportFormats) throws IOException
     {
         for (final Object entity : entities)
         {
             if (entity instanceof DataSet)
             {
                 final DataSet dataSet = (DataSet) entity;
-                final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
-                final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+                final Sample sample = dataSet.getSample();
+                final Experiment experiment = sample != null ? sample.getExperiment() : dataSet.getExperiment();
 
-                if (hasHtmlFormat)
-                {
-                    final byte[] htmlBytes = getHtmlEntryForDataSet(zos, os, sessionToken, existingZipEntries, entityTypeExportFieldsMap, dataSet,
-                            HTML_EXTENSION).getBytes(StandardCharsets.UTF_8);
-
-                    writeInChunks(os, htmlBytes);
-
-                    zos.closeEntry();
-                }
-
-                if (hasPdfFormat)
-                {
-                    final String html =
-                            getHtmlEntryForDataSet(zos, os, sessionToken, existingZipEntries, entityTypeExportFieldsMap, dataSet, PDF_EXTENSION);
-                    final PdfRendererBuilder builder = new PdfRendererBuilder();
-
-                    builder.withHtmlContent(html, null);
-                    builder.toStream(os);
-                    builder.run(); // zos is closed here, closing it later throws an exception
-                }
+                createDocFilesForEntity(sessionToken, docDirectory, exportFields, dataSet,
+                        getSpaceCode(entity), getProjectCode(entity), experiment != null ? experiment.getCode() : null,
+                        experiment != null ? getEntityName(experiment) : null, null, null, null, null, exportFormats);
             }
         }
-    }
-
-    private String getHtmlEntryForDataSet(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
-            final Set<String> existingZipEntries, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap, final DataSet dataSet,
-            final String extension) throws IOException
-    {
-        final Sample sample = dataSet.getSample();
-        if (sample != null)
-        {
-            final Experiment experiment = sample.getExperiment();
-            final Project project = getProjectForSample(sample);
-            putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                    getEntityName(experiment), null, sample.getCode(), getEntityName(sample), dataSet.getCode(), extension);
-        } else
-        {
-            final Experiment experiment = dataSet.getExperiment();
-            if (experiment != null)
-            {
-                final Project project = experiment.getProject();
-                putNextDocZipEntry(existingZipEntries, zos, project.getSpace().getCode(), project.getCode(),
-                        experiment.getCode(), getEntityName(experiment), null, null, null, dataSet.getCode(), extension);
-            }
-        }
-
-        return getHtml(sessionToken, dataSet, entityTypeExportFieldsMap);
     }
 
     private static String getSpaceCode(final Object entity)
@@ -946,38 +802,62 @@ public class ExportExecutor implements IExportExecutor
         os.flush();
     }
 
-    /**
-     * Adds an entry only if it is needed.
-     *
-     * @param existingZipEntries a set of existing entries
-     * @param zos zip output stream to write to
-     * @throws IOException if an I/O error has occurred
-     */
-    private static void putNextDocZipEntry(final Set<String> existingZipEntries, final ZipOutputStream zos,
-            final String spaceCode, final String projectCode, final String experimentCode, final String experimentName, final String containerCode,
-            final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
-            throws IOException
+    private static File createNextDocFile(final File docDirectory, final String spaceCode, final String projectCode, final String experimentCode,
+            final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
+            final String extension)
     {
-        final String entry = getNextDocZipEntry(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode, sampleName,
-                dataSetCode, extension);
-        if (!existingZipEntries.contains(entry))
+        return new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
+                sampleName, dataSetCode, extension));
+    }
+
+    private void createDocFilesForEntity(final String sessionToken, final File docDirectory,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final ICodeHolder entity, final String spaceCode, final String projectCode, final String experimentCode,
+            final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
+            final Set<ExportFormat> exportFormats) throws IOException
+    {
+        final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+        final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+        final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, PROJECT);
+        final String html = getHtml(sessionToken, entity, entityTypeExportFieldsMap);
+        final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
+
+        if (hasHtmlFormat)
         {
-            zos.putNextEntry(new ZipEntry(entry));
-            existingZipEntries.add(entry);
+            final File htmlFile = createNextDocFile(docDirectory, spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
+                    sampleName, dataSetCode, HTML_EXTENSION);
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(htmlFile), BUFFER_SIZE))
+            {
+                writeInChunks(bos, htmlBytes);
+                bos.flush();
+            }
+        }
+
+        if (hasPdfFormat)
+        {
+            final File pdfFile = createNextDocFile(docDirectory, spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
+                    sampleName, dataSetCode, PDF_EXTENSION);
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
+            {
+                final PdfRendererBuilder builder = new PdfRendererBuilder();
+                builder.withHtmlContent(html, null);
+                builder.toStream(bos);
+                builder.run();
+            }
         }
     }
 
-    static String getNextDocZipEntry(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
+    static String getNextDocDirectoryName(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
             final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension)
     {
-        final StringBuilder entryBuilder = new StringBuilder(PDF_DIRECTORY);
+        final StringBuilder entryBuilder = new StringBuilder();
 
         if (spaceCode == null && (projectCode != null || experimentCode != null || dataSetCode != null || (sampleCode == null && extension != null)))
         {
             throw new IllegalArgumentException();
         } else if (spaceCode != null)
         {
-            entryBuilder.append('/').append(spaceCode);
+            entryBuilder.append(spaceCode);
         }
 
         if (projectCode != null)
@@ -1535,12 +1415,20 @@ public class ExportExecutor implements IExportExecutor
         return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
     }
 
+    /**
+     * Safely tries to create a directory if it does not exist. If it could not be created throws an exception.
+     *
+     * @param dir the directory to be created.
+     */
     private static void mkdir(final File dir)
     {
-        final boolean created = dir.mkdir();
-        if (!created)
+        if (!dir.isDirectory())
         {
-            throw new RuntimeException(String.format("Cannot create directory '%s'.", dir.getPath()));
+            final boolean created = dir.mkdir();
+            if (!created)
+            {
+                throw new RuntimeException(String.format("Cannot create directory '%s'.", dir.getPath()));
+            }
         }
     }
 
