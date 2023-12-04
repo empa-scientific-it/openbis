@@ -70,7 +70,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.log4j.Logger;
@@ -326,66 +325,106 @@ public class ExportExecutor implements IExportExecutor
             final TextFormatting textFormatting, final boolean compatibleWithImport,
             final Set<ExportFormat> exportFormats) throws IOException
     {
-        final XLSExport.PrepareWorkbookResult xlsExportResult = exportFormats.contains(ExportFormat.XLSX)
-                ? XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting,
-                        compatibleWithImport)
-                : null;
 
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+
+//        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final String fullFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
         final Collection<String> warnings = new ArrayList<>();
-        ExplicitlyClosableOutputStream ecos = null;
-        try
-                (
-                        final Workbook wb = xlsExportResult != null ? xlsExportResult.getWorkbook() : null;
-                        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
-                        final ZipOutputStream zos = new ZipOutputStream(os);
-                        final BufferedOutputStream bos = new BufferedOutputStream(zos, BUFFER_SIZE);
-                )
+
+        final boolean hasXlsxFormat = exportFormats.contains(ExportFormat.XLSX);
+        final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+        final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+        final boolean hasDataFormat = exportFormats.contains(ExportFormat.DATA);
+
+        if (hasXlsxFormat)
         {
-            ecos = new ExplicitlyClosableOutputStream(bos);
+            exportXlsx(api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting, compatibleWithImport, warnings);
+        }
 
-            // This export should be done at the end because Workbook closes the whole stream
-            if (xlsExportResult != null)
-            {
-                exportXls(zos, ecos, xlsExportResult, wb, warnings);
-            }
+//        try
+//                (
+//                        final Workbook wb = xlsExportResult != null ? xlsExportResult.getWorkbook() : null;
+//                        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
+//                        final BufferedOutputStream bos = new BufferedOutputStream(os, BUFFER_SIZE);
+//                )
+//        {
+//            // This export should be done at the end because Workbook closes the whole stream
+//            if (xlsExportResult != null)
+//            {
+//                exportXls(zos, bos, xlsExportResult, wb, warnings);
+//            }
+//
+//            final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
+//            final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
+//            final boolean hasDataFormat = exportFormats.contains(ExportFormat.DATA);
+//
+//            if (hasHtmlFormat || hasPdfFormat || hasDataFormat)
+//            {
+//                final EntitiesVo entitiesVo = new EntitiesVo(sessionToken, exportablePermIds);
+//
+//                if (hasPdfFormat || hasHtmlFormat)
+//                {
+//                    final Set<String> existingZipEntries = new HashSet<>();
+//                    putNextDocZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null, null);
+//                    exportSpacesDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+//                    exportProjectsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+//                    exportExperimentsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+//                    exportSamplesDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+//                    exportDataSetsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
+//                }
+//
+//                if (hasDataFormat)
+//                {
+//                    final Set<String> existingZipEntries = new HashSet<>();
+//                    exportData(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields);
+//                }
+//            }
+//        }
 
-            final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
-            final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-            final boolean hasDataFormat = exportFormats.contains(ExportFormat.DATA);
+        return new ExportResult(fullFileName, warnings);
+    }
 
-            if (hasHtmlFormat || hasPdfFormat || hasDataFormat)
-            {
-                final EntitiesVo entitiesVo = new EntitiesVo(sessionToken, exportablePermIds);
+    private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final List<ExportablePermId> exportablePermIds,
+            final boolean exportReferredMasterData, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting, final boolean compatibleWithImport, final Collection<String> warnings) throws IOException
+    {
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
+        final XLSExport.PrepareWorkbookResult xlsExportResult = XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds,
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
 
-                if (hasPdfFormat || hasHtmlFormat)
-                {
-                    final Set<String> existingZipEntries = new HashSet<>();
-                    putNextDocZipEntry(existingZipEntries, zos, null, null, null, null, null, null, null, null, null);
-                    exportSpacesDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-                    exportProjectsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-                    exportExperimentsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-                    exportSamplesDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-                    exportDataSetsDoc(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields, exportFormats);
-                }
+        final File xlsxDirectory = new File(sessionWorkspaceDirectory, XLSX_DIRECTORY);
+        mkdir(xlsxDirectory);
 
-                if (hasDataFormat)
-                {
-                    final Set<String> existingZipEntries = new HashSet<>();
-                    exportData(zos, ecos, sessionToken, entitiesVo, existingZipEntries, exportFields);
-                }
-            }
-        } finally
+        final File scriptsDirectory = new File(xlsxDirectory, SCRIPTS_DIRECTORY);
+
+        final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
+        if (!xlsExportScripts.isEmpty())
         {
-            if (ecos != null)
+            mkdir(scriptsDirectory);
+
+            for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
             {
-                ecos.doClose();
+                final File scriptFile = new File(scriptsDirectory, script.getKey() + PYTHON_EXTENSION);
+                try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
+                {
+                    bos.write(script.getValue().getBytes());
+                    bos.flush();
+                }
             }
         }
 
-        return new ExportResult(fullFileName, warnings);
+        try (
+                final Workbook wb = xlsExportResult.getWorkbook();
+                final BufferedOutputStream bos = new BufferedOutputStream(
+                        new FileOutputStream(new File(xlsxDirectory, METADATA_FILE_NAME)), BUFFER_SIZE);
+        )
+        {
+            wb.write(bos);
+        }
+
+        warnings.addAll(xlsExportResult.getWarnings());
     }
 
     private void exportData(final ZipOutputStream zos, final OutputStream os, final String sessionToken,
@@ -1496,48 +1535,13 @@ public class ExportExecutor implements IExportExecutor
         return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));
     }
 
-    /**
-     * This is a wrapper class to prevent other libraries from closing an output stream.
-     */
-    private static class ExplicitlyClosableOutputStream extends OutputStream
+    private static void mkdir(final File dir)
     {
-
-        private final OutputStream out;
-
-        private ExplicitlyClosableOutputStream(final OutputStream out)
+        final boolean created = dir.mkdir();
+        if (!created)
         {
-            this.out = out;
+            throw new RuntimeException(String.format("Cannot create directory '%s'.", dir.getPath()));
         }
-
-        @Override
-        public void write(final int b) throws IOException
-        {
-            out.write(b);
-        }
-
-        @Override
-        public void write(final @NotNull byte[] b) throws IOException
-        {
-            out.write(b);
-        }
-
-        @Override
-        public void write(final @NotNull byte[] b, final int off, final int len) throws IOException
-        {
-            out.write(b, off, len);
-        }
-
-        @Override
-        public void flush() throws IOException
-        {
-            out.flush();
-        }
-
-        public void doClose() throws IOException
-        {
-            out.close();
-        }
-
     }
 
     private static class EntitiesVo
