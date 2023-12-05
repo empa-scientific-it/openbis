@@ -107,10 +107,10 @@ class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    // Sample: /CISD/NEMO/3VCP6
                     "export-sample-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
