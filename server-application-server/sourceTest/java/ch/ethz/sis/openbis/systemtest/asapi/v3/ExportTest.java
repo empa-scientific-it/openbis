@@ -346,19 +346,6 @@ public class ExportTest extends AbstractTest
         }
     }
 
-    private static ObjectInputStream objectToStream(final Object object) throws IOException
-    {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (final ObjectOutputStream oos = new ObjectOutputStream(baos))
-        {
-            oos.writeObject(object);
-        }
-        final byte[] objectBytes = baos.toByteArray();
-
-        final ByteArrayInputStream bais = new ByteArrayInputStream(objectBytes);
-        return new ObjectInputStream(bais);
-    }
-
     /**
      * Searches for ExportablePermIds with null perm IDs, which should indicate that it should be replaced with {@link #samplePermId}.
      *
