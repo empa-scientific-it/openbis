@@ -418,7 +418,7 @@ class ExportData
                     EnumSet.of(ExportFormat.HTML),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
                     new SelectedFields(
-                            List.of(CODE, PARENTS, CHILDREN, MODIFIER, MODIFICATION_DATE),
+                            List.of(CODE, PARENTS, CHILDREN),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
@@ -554,7 +554,7 @@ class ExportData
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-all.zip",
                     EnumSet.of(ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
