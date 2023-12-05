@@ -17,7 +17,8 @@
 
 define(["stjs", "as/dto/common/operation/IOperationResult"],
   function (stjs, IOperationResult) {
-    var ExportOperationResult = function() {
+    var ExportOperationResult = function(exportResult) {
+      this.exportResult = exportResult;
     }
 
     stjs.extend(
@@ -29,9 +30,15 @@ define(["stjs", "as/dto/common/operation/IOperationResult"],
 
         constructor.serialVersionUID = 1;
 
+        prototype.exportResult = null;
+
         prototype.getMessage = function() {
           return "ExportOperationResult";
         };
+
+        prototype.getExportResult = function() {
+          return this.exportResult;
+        }
       },
       {}
     );

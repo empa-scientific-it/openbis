@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,6 +31,7 @@ public class ExportOperationResult implements Serializable, IOperationResult
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
     private ExportResult exportResult;
 
     public ExportOperationResult()
@@ -39,6 +43,7 @@ public class ExportOperationResult implements Serializable, IOperationResult
         this.exportResult = exportResult;
     }
 
+    @JsonIgnore
     public ExportResult getExportResult()
     {
         return exportResult;
