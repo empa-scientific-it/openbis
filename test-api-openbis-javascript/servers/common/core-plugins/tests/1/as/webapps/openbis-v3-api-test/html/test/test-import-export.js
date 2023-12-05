@@ -169,8 +169,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         }
 
         var fCheck = function(facade, result) {
+          c.ok("Got results: " + result);
           // Simple smoke test in this case.
           c.assertNotNull(result);
+          c.finish();
           return null;
         }
 
