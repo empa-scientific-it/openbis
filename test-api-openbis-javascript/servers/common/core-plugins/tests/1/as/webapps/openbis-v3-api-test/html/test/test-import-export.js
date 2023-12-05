@@ -152,29 +152,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         testAction(c, fAction, fCheck);
       });
 
-      // QUnit.test("executeExport()", function(assert) {
-      //   var c = new common(assert, dtos);
-      //
-      //   var fAction = function(facade) {
-      //     var exportablePermId = new ExportablePermId(
-      //       ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027"));
-      //     var exportData = new dtos.ExportData(exportablePermId,
-      //       new AllFields());
-      //
-      //     var exportOptions = new dtos.ExportOptions(
-      //       [ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA],
-      //       XlsTextFormat.RICH, true, false);
-      //
-      //     return facade.executeExport(exportData, exportOptions);
-      //   }
-      //
-      //   var fCheck = function(facade, result) {
-      //     // Simple smoke test in this case.
-      //     c.assertNotNull(result);
-      //   }
-      //
-      //   testAction(c, fAction, fCheck);
-      // });
+      QUnit.test("executeExport()", function(assert) {
+        var c = new common(assert, dtos);
+
+        var fAction = function(facade) {
+          var exportablePermId = new ExportablePermId(
+            ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027"));
+          var exportData = new dtos.ExportData(exportablePermId,
+            new AllFields());
+
+          var exportOptions = new dtos.ExportOptions(
+            [ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA],
+            XlsTextFormat.RICH, true, false);
+
+          return facade.executeExport(exportData, exportOptions);
+        }
+
+        var fCheck = function(facade, result) {
+          // Simple smoke test in this case.
+          c.assertNotNull(result);
+          return null;
+        }
+
+        testAction(c, fAction, fCheck);
+      });
     }
 
     return function() {
