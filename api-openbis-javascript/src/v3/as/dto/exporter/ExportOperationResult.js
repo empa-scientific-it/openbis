@@ -40,7 +40,9 @@ define(["stjs", "as/dto/common/operation/IOperationResult"],
           return this.exportResult;
         }
       },
-      {}
+      {
+        exportResult: "ExportResult"
+      }
     );
 
     return ExportOperationResult;

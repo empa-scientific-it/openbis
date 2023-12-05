@@ -16,7 +16,9 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ExportData = function() {
+  var ExportData = function(permIds, fields) {
+    this.permIds = permIds;
+    this.fields = fields;
   }
 
   stjs.extend(
