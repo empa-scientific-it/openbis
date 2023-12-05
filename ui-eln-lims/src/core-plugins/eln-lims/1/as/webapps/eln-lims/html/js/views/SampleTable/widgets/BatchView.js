@@ -39,7 +39,7 @@ function BatchView(controller, model) {
             $sampleTypeField.append($sampleTypeDropDownLabel);
             var $sampleTypeDropDown = $('<select>', { 'id' : 'sampleTypesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
             this._model.allowedSampleTypes.forEach(function(type) {
-                $sampleTypeDropDown.append($('<option>', { 'value' : type}).html(Util.getDisplayNameFromCode(type)));
+                $sampleTypeDropDown.append($('<option>', { 'value' : type}).text(Util.getDisplayNameFromCode(type)));
             });
             $sampleTypeField.append($sampleTypeDropDown);
             $sampleTypeDropDown.multiselect();
