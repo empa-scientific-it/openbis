@@ -83,9 +83,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
           c.ok("Login");
           return fAction(facade).then(function(result) {
             c.ok("Got results");
-            var token = fCheck(facade, result);
-            if (token) {
-              token.then(function() {
+            var checkPromise = fCheck(facade, result);
+            if (checkPromise) {
+              checkPromise.then(function() {
                 c.finish()
               });
             } else {
@@ -169,10 +169,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         }
 
         var fCheck = function(facade, result) {
-          c.ok("Got results: " + result);
           // Simple smoke test in this case.
           c.assertNotNull(result);
-          c.finish();
           return null;
         }
 
