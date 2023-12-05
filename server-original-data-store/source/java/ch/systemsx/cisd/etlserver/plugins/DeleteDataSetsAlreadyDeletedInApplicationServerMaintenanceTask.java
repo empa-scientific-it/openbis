@@ -45,6 +45,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask extends
         AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
 {
+    public static final String DEFAULT_NAME = "injected-delete-datasets-already-deleted-from-application-server-task";
+
+    public static final int DEFAULT_INTERVAL = 300;
 
     static final String TIMING_PARAMETERS_KEY = "timing-parameters";
 

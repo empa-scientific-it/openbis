@@ -76,6 +76,7 @@ import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask;
+import ch.systemsx.cisd.etlserver.plugins.ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask;
 import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
@@ -95,7 +96,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * The main class of the ETL server.
- * 
+ *
  * @author Bernd Rinn
  */
 public final class ETLDaemon
@@ -363,7 +364,7 @@ public final class ETLDaemon
 
     /**
      * Utility class for initializing top level data set registrators.
-     * 
+     *
      * @author Chandrasekhar Ramakrishnan
      */
     private static class TopLevelDataSetRegistratorInititializationData
@@ -457,7 +458,7 @@ public final class ETLDaemon
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
                         initializationData.dssRegistrationLogDir,
-                        initializationData.dssRecoveryStateDir, 
+                        initializationData.dssRecoveryStateDir,
                         initializationData.dssRecoveryMarkerDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
@@ -706,11 +707,19 @@ public final class ETLDaemon
         MaintenanceTaskUtils.startupMaintenancePlugins(maintenancePlugins);
 
         injectPostRegistrationMaintenanceTaskIfNecessary(maintenancePlugins);
+
         injectMaintenanceTask(maintenancePlugins, DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.class,
-                300, "injected-delete-datasets-already-deleted-from-application-server-task");
+                DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.DEFAULT_INTERVAL,
+                DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.DEFAULT_NAME);
+
+        injectMaintenanceTask(maintenancePlugins, ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask.class,
+                ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask.DEFAULT_INTERVAL,
+                ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask.DEFAULT_NAME);
+
         injectMaintenanceTask(maintenancePlugins, DataSetRegistrationCleanUpTask.class,
                 DataSetRegistrationCleanUpTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
                 DataSetRegistrationCleanUpTask.DEFAULT_MAINTENANCE_TASK_NAME);
+
         injectMaintenanceTask(maintenancePlugins, SessionWorkspaceCleanUpMaintenanceTask.class,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
