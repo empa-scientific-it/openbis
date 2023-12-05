@@ -238,7 +238,7 @@ class ExportData
                     EnumSet.of(ExportFormat.XLSX),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
                     new SelectedFields(
-                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE),
+                            List.of(CODE, PERM_ID, IDENTIFIER, SPACE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
@@ -340,10 +340,10 @@ class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    // Sample: /CISD/NEMO/3VCP6
                     "export-sample-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
@@ -413,10 +413,10 @@ class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    // Sample: /CISD/NEMO/3VCP6
                     "export-sample-filtered-fields-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
                     new SelectedFields(
                             List.of(CODE, PARENTS, CHILDREN, MODIFIER, MODIFICATION_DATE),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
@@ -497,10 +497,10 @@ class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    // Sample: /CISD/NEMO/3VCP6
                     "export-sample-pdf.zip",
                     EnumSet.of(ExportFormat.PDF),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("201206191219327-1054"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
