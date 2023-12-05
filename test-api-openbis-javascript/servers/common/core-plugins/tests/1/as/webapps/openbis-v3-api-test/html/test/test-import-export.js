@@ -156,14 +156,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         var c = new common(assert, dtos);
 
         var fAction = function(facade) {
-          var exportablePermId = new ExportablePermId(
-            ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027"));
+          var exportablePermId = new dtos.ExportablePermId(
+            dtos.ExportableKind.SAMPLE, new dtos.SamplePermId("200902091225616-1027"));
           var exportData = new dtos.ExportData(exportablePermId,
-            new AllFields());
+            new dtos.AllFields());
 
           var exportOptions = new dtos.ExportOptions(
-            [ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA],
-            XlsTextFormat.RICH, true, false);
+            [dtos.ExportFormat.XLSX, dtos.ExportFormat.HTML, dtos.ExportFormat.PDF,
+              dtos.ExportFormat.DATA], dtos.XlsTextFormat.RICH, true, false);
 
           return facade.executeExport(exportData, exportOptions);
         }
