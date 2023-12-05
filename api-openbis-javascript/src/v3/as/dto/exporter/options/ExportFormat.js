@@ -17,7 +17,7 @@
 
 define(["stjs", "as/dto/common/Enum"], function (stjs, Enum) {
   var ExportFormat = function() {
-    Enum.call(this, ["XLS", "PDF", "DATA"]);
+    Enum.call(this, ["XLSX", "PDF", "HTML", "DATA"]);
   }
 
   stjs.extend(
