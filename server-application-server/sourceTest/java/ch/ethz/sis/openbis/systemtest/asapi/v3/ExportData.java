@@ -107,10 +107,10 @@ class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Sample: /CISD/NEMO/3VCP6
+                    // Sample: /CISD/NEMO/DYNA-TEST-1
                     "export-sample-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091219327-1053"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
@@ -340,10 +340,10 @@ class ExportData
                     false // withImportCompatibility
             },
             {
-                    // Sample: /CISD/NEMO/3VCP6
+                    // Sample: /CISD/NEMO/DYNA-TEST-1
                     "export-sample-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050946559-980"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091219327-1053"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes

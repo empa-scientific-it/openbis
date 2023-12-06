@@ -1169,7 +1169,6 @@ public class ExportExecutor implements IExportExecutor
             documentBuilder.addProperty("Type", ((IEntityTypeHolder) entityObj).getType().getCode());
         }
 
-        // TODO: what to do when typeObj is null?
         final List<Map<String, String>> selectedExportFields;
         if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty())
         {
