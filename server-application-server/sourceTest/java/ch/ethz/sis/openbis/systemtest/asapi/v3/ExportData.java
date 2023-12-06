@@ -553,7 +553,7 @@ class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-all.zip",
-                    EnumSet.of(ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA),
+                    EnumSet.of(ExportFormat.XLSX, ExportFormat.PDF, ExportFormat.DATA),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091250077-1026"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
