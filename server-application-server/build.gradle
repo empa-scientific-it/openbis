@@ -34,7 +34,15 @@ dependencies {
             'apache:commons-collections4:4.1',
             'springframework:spring-context-support:5.0.17.RELEASE',
             'ehcache:ehcache:2.10.0',
-            'jline:jline:0.9.94'
+            'jline:jline:0.9.94',
+            'jsoup:jsoup:1.14.2',
+            'org.apache.pdfbox:pdfbox:2.0.30',
+            'org.apache.pdfbox:fontbox:2.0.30',
+            'org.apache.pdfbox:xmpbox:2.0.30',
+            'org.apache.pdfbox:pdfbox-io:3.0.0',
+            'de.rototor.pdfbox:graphics2d:3.0.0',
+            'com.openhtmltopdf:openhtmltopdf-core:1.0.10',
+            'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
 
 
     runtimeOnly 'slf4j:slf4j-log4j12:1.6.2',
