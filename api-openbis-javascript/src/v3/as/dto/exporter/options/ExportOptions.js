@@ -16,7 +16,11 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ExportOptions = function() {
+  var ExportOptions = function(formats, xlsTextFormat, withReferredTypes, withImportCompatibility) {
+    this.formats = formats;
+    this.xlsTextFormat = xlsTextFormat;
+    this.withReferredTypes = withReferredTypes;
+    this.withImportCompatibility = withImportCompatibility;
   }
 
   stjs.extend(

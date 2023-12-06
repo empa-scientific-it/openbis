@@ -22,10 +22,70 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 public enum Attribute
 {
 
+    ARCHIVING_STATUS,
+
+    AUTO_GENERATE_CODES,
+
+    AUTO_GENERATE_CODE,
+
+    CHILDREN,
+
+    CODE,
+
+    DESCRIPTION,
+
+    DISALLOW_DELETION,
+
+    EXPERIMENT,
+
+    GENERATE_CODES,
+
+    GENERATED_CODE_PREFIX,
+
+    IDENTIFIER,
+
+    LABEL,
+
+    MAIN_DATA_SET_PATH,
+
+    MAIN_DATA_SET_PATTERN,
+
+    MODIFICATION_DATE,
+
+    MODIFIER,
+
+    ONTOLOGY_ID,
+
+    ONTOLOGY_VERSION,
+
+    ONTOLOGY_ANNOTATION_ID,
+
+    PARENTS,
+
+    PERM_ID,
+
+    PRESENT_IN_ARCHIVE,
+
+    PROJECT,
+
+    REGISTRATION_DATE,
+
+    REGISTRATOR,
+
+    SIZE,
+
+    SAMPLE,
+
     SPACE,
 
-    SAMPLE_TYPE,
+    STORAGE_CONFIRMATION,
 
-    EXPERIMENT_TYPE,
+    UNIQUE_SUBCODES,
+
+    URL_TEMPLATE,
+
+    VALIDATION_SCRIPT,
+
+    VERSION
 
 }

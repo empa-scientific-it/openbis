@@ -15,19 +15,15 @@
  *
  */
 
-define(["stjs", "as/dto/common/Enum"], function (stjs, Enum) {
-  var ExportFormat = function() {
-    Enum.call(this, ["XLSX", "PDF", "HTML", "DATA"]);
-  }
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-  stjs.extend(
-    ExportFormat,
-    Enum,
-    [Enum],
-    function (constructor, prototype) {
-    },
-    {}
-  );
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportOperation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ExportResult;
 
-  return new ExportFormat();
-});
+public interface IExportExecutor
+{
+
+    ExportResult doExport(final IOperationContext context, final ExportOperation operation);
+
+}

@@ -45,7 +45,6 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 
 
 /**
@@ -59,12 +58,12 @@ public class FileServiceServlet extends AbstractServlet
     public static final String FILE_SERVICE_PATH = "file-service";
     public static final String FILE_SERVICE_PATH_MAPPING = FILE_SERVICE_PATH + "/**/*";
 
-    private static final String APP_PREFIX = "/" + FILE_SERVICE_PATH + "/";
     private static final String KEY_PREFIX = "file-server.";
-    
-    private static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
-    private static final String DEFAULT_REPO_PATH = "../../../data/file-server";
-    
+    public static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
+
+    public static final String DEFAULT_REPO_PATH = "../../../data/file-server";
+    private static final String APP_PREFIX = "/" + FILE_SERVICE_PATH + "/";
+
     private static final String MAX_SIZE_KEY = KEY_PREFIX + "maximum-file-size-in-MB";
     private static final int DEFAULT_MAX_SIZE = 10;
     

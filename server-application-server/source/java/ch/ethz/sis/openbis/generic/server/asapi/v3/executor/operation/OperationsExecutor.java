@@ -70,6 +70,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchEx
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IUpdateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IVerifyExperimentsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ICreateExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IDeleteExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IGetExternalDmsOperationExecutor;
@@ -655,6 +656,9 @@ public class OperationsExecutor implements IOperationsExecutor
     @Autowired
     private ImportOperationExecutor importOperationExecutor;
 
+    @Autowired
+    private ExportOperationExecutor exportOperationExecutor;
+
     @Override
     public List<IOperationResult> execute(IOperationContext context, List<? extends IOperation> operations, IOperationExecutionOptions options)
     {
@@ -686,6 +690,7 @@ public class OperationsExecutor implements IOperationsExecutor
             executeUpdates(operations, resultMap, context);
             resultMap.putAll(internalOperationExecutor.execute(context, operations));
             resultMap.putAll(importOperationExecutor.execute(context, operations));
+            resultMap.putAll(exportOperationExecutor.execute(context, operations));
 
             flushCurrentSession();
             clearCurrentSession();

@@ -34,12 +34,12 @@ def export(context, parameters):
                         "<SAMPLE_TYPE | EXPERIMENT_TYPE | DATASET_TYPE | VOCABULARY_TYPE | SPACE | PROJECT>": [
                           {"type": "ATTRIBUTE", "id": "<attribute name>"},
                           ...
-                        ] - attribute for each type and entity without types to be exported,
+                        ] - attributes for each type and entity without types to be exported,
                             if the list is empty no attributes will be exported for the given one
                         ...
                     },
                     "SAMPLE": {
-                        "<typePermID>": [
+                        "<sampleTypePermID>": [
                           {"type": "PROPERTY", "id": "<property code>"},
                           {"type": "ATTRIBUTE", "id": "<attribute name>"},
                           ...
@@ -48,7 +48,7 @@ def export(context, parameters):
                             for the sample type
                     },
                     "EXPERIMENT": {
-                        "<typePermID>": [
+                        "<experimentTypePermID>": [
                             {"type": "PROPERTY", "id": "<property code>"},
                             {"type": "ATTRIBUTE", "id": "<attribute name>"},
                             ...
@@ -57,7 +57,7 @@ def export(context, parameters):
                             for the experiment type
                     },
                     "DATASET": {
-                        "<typePermID>": [
+                        "<dataSetTypePermID>": [
                           {"type": "PROPERTY", "id": "<property code>"},
                           {"type": "ATTRIBUTE", "id": "<attribute name>"} ,
                           ...
