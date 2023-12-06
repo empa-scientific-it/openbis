@@ -33,6 +33,7 @@ import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionActionListener;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.authentication.SessionManagerLock;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -111,7 +112,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     {
         sessionManager.updateAllSessions();
 
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             OpenBisSessionManager.updateSessions(daoFactory, sessions.values());
         }
@@ -152,7 +153,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return;
         }
 
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             Session session = sessions.get(sessionToken);
 
@@ -181,7 +182,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return;
         }
 
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             Session session = sessions.get(sessionToken);
 
@@ -216,7 +217,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.getSession(sessionToken);
         } else
         {
-            synchronized (sessions)
+            synchronized (SessionManagerLock.getInstance())
             {
                 Session session = getOrCreateSessionForPATSession(patSession);
 
@@ -253,7 +254,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return sessionManager.tryGetSession(sessionToken);
         } else
         {
-            synchronized (sessions)
+            synchronized (SessionManagerLock.getInstance())
             {
                 return getOrCreateSessionForPATSession(patSession);
             }
@@ -275,7 +276,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             allSessions.put(session.getSessionToken(), session);
         }
 
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             allSessions.putAll(sessions);
 

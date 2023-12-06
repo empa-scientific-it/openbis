@@ -214,7 +214,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         final String sessionToken = SessionTokenHash.create(user, now).toString();
 
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             int maxNumberOfSessions = getMaxNumberOfSessionsFor(user);
             if (maxNumberOfSessions > 0)
@@ -269,7 +269,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         if (sessionMonitor == null)
         {
-            synchronized (this)
+            synchronized (SessionManagerLock.getInstance())
             {
                 if (sessionMonitor == null)
                 {
@@ -395,7 +395,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     public boolean isSessionActive(final String sessionToken)
     {
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             final FullSession<T> session = sessions.get(sessionToken);
             if (session != null)
@@ -508,7 +508,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     @Override public List<T> getSessions()
     {
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             List<T> result = new ArrayList<>();
             for (FullSession<T> session : sessions.values())
@@ -522,7 +522,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Override
     public T tryGetSession(String sessionToken)
     {
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             final FullSession<T> session = sessions.get(sessionToken);
             return (session == null) ? null : session.getSession();
@@ -534,7 +534,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         checkIfNotBlank(sessionToken, "sessionToken");
 
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             final FullSession<T> session = sessions.get(sessionToken);
             
@@ -633,7 +633,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Override
     public void closeSession(final String sessionToken) throws InvalidSessionException
     {
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             final T session = getSession(sessionToken, false);
             closeSession(session, SessionClosingReason.LOGOUT);
@@ -650,7 +650,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private void closeSession(final T session, SessionClosingReason reason)
             throws InvalidSessionException
     {
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             session.cleanup();
             String sessionToken = session.getSessionToken();
