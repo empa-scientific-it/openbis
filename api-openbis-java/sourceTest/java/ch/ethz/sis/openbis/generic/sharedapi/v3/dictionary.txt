@@ -2137,6 +2137,8 @@ setExperimentId
 setExperiments
 setExperimentsByType
 setExportableKind
+setExportData
+setExportOptions
 setExternalCode
 setExternalDms
 setExternalDmsAddress
