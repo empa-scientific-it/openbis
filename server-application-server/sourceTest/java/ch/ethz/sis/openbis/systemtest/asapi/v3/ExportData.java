@@ -551,10 +551,10 @@ class ExportData
 
             // All
             {
-                    // Sample: /CISD/NOE/CP-TEST-2
+                    // Sample: /CISD/NEMO/CP-TEST-1
                     "export-sample-all.zip",
                     EnumSet.of(ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091250077-1026"))),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091219327-1025"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
