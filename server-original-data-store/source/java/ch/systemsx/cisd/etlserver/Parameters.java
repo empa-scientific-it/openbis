@@ -190,7 +190,15 @@ public class Parameters
             }
         } catch (final Exception ex)
         {
+            operationLog.error(ex.getMessage(), ex);
+
             outputException(ex);
+
+            if (SystemExit.SYSTEM_EXIT.equals(systemExitHandler))
+            {
+                operationLog.error("DSS is shutting down.");
+            }
+
             systemExitHandler.exit(1);
             // Only reached in unit tests.
             throw new AssertionError(ex.getMessage());

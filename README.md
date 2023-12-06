@@ -169,6 +169,42 @@ The project does not uses modules yet. Add '--add-opens' statements manually whe
     3. npm run dev
 4. Open in your chosen browser a url, by default: http://localhost:9999/admin
 
+## Development of Core Plugins including Webapp Plugins
+
+Plugins need to be copied or symlinked to the AS and DSS core-plugins directories found at:
+
+./server-application-server/source/core-plugins
+./server-original-data-store/source/core-plugins
+
+And the `core-plugins.properties` file in such directories need to be updated.
+
+Example mounting ELN-LIMS in development environments:
+
+1. Go to directory `./server-application-server/source/core-plugins` in the terminal.
+2. Run the commands:
+`ln -s ../../../ui-eln-lims/src/core-plugins/eln-lims`
+`ln -s ../../../ui-admin/src/core-plugins/admin`
+`ln -s ../../../core-plugin-openbis/dist/core-plugins/xls-import`
+
+3. Add all three `eln-lims`, `admin` and `xls-import` to `core-plugins.properties`.
+
+4. Go to directory `./server-original-data-store/source/core-plugins` in the terminal.
+5. Run the command: 
+`ln -s ../../../ui-eln-lims/src/core-plugins/eln-lims`
+`ln -s ../../../ui-admin/src/core-plugins/admin`.
+6. Add both `eln-lims` and `admin` to `core-plugins.properties`.
+
+After following these steps, starting the Servers in development mode using `openBISDevelopementEnvironmentASStart` and  `openBISDevelopementEnvironmentDSSStart` will automatically load such core plugins.
+
+Because plugins are symlinked, modifing the plugins code modifies the code in execution.
+
+- For Java code breakpoints can be put on the development environment. 
+Modifing Java code requires restart.
+- For Javascript Webapps like ELN-LIMS breakpoints can be put on the Browsers development tab. 
+Modifing Javascript code just requires refresh your browser tab.
+- For Jython code no breakpoints can be used. Print statements are used instead.
+Modifing Jython code refreshes it automatically.
+
 ## Setting up IntelliJ Idea
 
 1. Under "IntelliJ IDEA" -> "Preferences" -> "Languages and Frameworks" -> Javascript, set the

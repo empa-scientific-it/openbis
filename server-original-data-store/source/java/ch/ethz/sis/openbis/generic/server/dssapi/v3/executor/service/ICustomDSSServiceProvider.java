@@ -18,6 +18,7 @@
 package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSService;
+import ch.ethz.sis.openbis.generic.dssapi.v3.plugin.service.ICustomDSSServiceExecutor;
 
 import java.util.List;
 

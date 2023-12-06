@@ -79,4 +79,8 @@ public class ProxyShareIdManager implements IShareIdManager
         shareIdManager.releaseLocks();
     }
 
+    @Override public void cleanupLocks()
+    {
+        shareIdManager.cleanupLocks();
+    }
 }

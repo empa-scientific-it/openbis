@@ -18,28 +18,28 @@ This barcode can be printed and the label can be added to the vial
 containing the sample. The option to print the barcode is under the 
 **More..** menu
 
-![](img/Default-barcode-print.png)
+![](img/barcode-print-more-dropdown-slide.png)
 
-If a sample already has it own barcode, it is possible to scan this with
+If a sample already has its own barcode or QR code, it is possible to scan this with
 a scanner or the camera of a mobile device and assign it to the sample.
 This can be done after registration of a sample, with the **Custom
-Barcode Update** option under the **More..** drop down.
+Barcode/QR Code Update** option under the **More..** drop down.
 
-![](img/custom-barcode-update-1.png)
+![](img/barcode-udate-more-dropdown-slide.png)
 
 The custom barcode will appear in the *Identification Info*. If a custom
-barcode is registered, the print function shown above will print the
-custom barcode, instead of the default one.
+barcode/QR code is registered, the print function shown above will print the
+custom barcode /QR code, instead of the default one.
 
-### Generate batches of barcodes
+### Generate batches of barcodes / QR codes
 
-In some cases there is the need to generate several barcodes that can be
+In some cases there is the need to generate several barcodes/QR codes that can be
 later on assigned to samples registered in openBIS.
 
-To generate new barcodes, go to the **Barcodes Generator** in the main
+To generate new barcodes, go to the **Barcodes/QR codes Generator** in the main
 menu under **Utilities**.
 
-![](img/Barcode-generator-1024x466.png)
+![](img/Generate-custom-barcodes-qrcodes.png)
 
 Users can select:
 
@@ -58,7 +58,7 @@ After selecting the desired parameters, click the **Generate Custom
 Barcodes** button.
 
 To print the barcodes use the **print icon** on the form, next to
-**Generate Custom Barcodes**. These barcodes can be printed on labels to
+**Generate Custom Barcodes/QR Codes**. These barcodes can be printed on labels to
 be attached to vials. When the samples are registered in openBIS, these
 barcodes can be scanned and assigned to the samples as explained above.
 

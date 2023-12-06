@@ -183,7 +183,6 @@ public class FileTransferServerServlet extends HttpServlet
         }
     }
 
-
     /**
      * Helper method to extract parameters from body or query. Body should be in a simple json form
      * composed of a (key, list) pairs
@@ -471,11 +470,20 @@ public class FileTransferServerServlet extends HttpServlet
                 String[] splitted = itemId.getId().split("/", 2);
                 String dataSetCode = splitted[0];
                 IHierarchicalContent content = contentProvider.asContent(dataSetCode);
-                String path = splitted[1];
-                IHierarchicalContentNode node = content.getNode(path);
-                List<Chunk> chunks = new ArrayList<>();
-                addChunks(chunks, sequenceNumber, node, itemId);
-                result.put(itemId, chunks);
+                try
+                {
+                    String path = splitted[1];
+                    IHierarchicalContentNode node = content.getNode(path);
+                    List<Chunk> chunks = new ArrayList<>();
+                    addChunks(chunks, sequenceNumber, node, itemId);
+                    result.put(itemId, chunks);
+                } finally
+                {
+                    if (content != null)
+                    {
+                        content.close();
+                    }
+                }
             }
 
             return result;

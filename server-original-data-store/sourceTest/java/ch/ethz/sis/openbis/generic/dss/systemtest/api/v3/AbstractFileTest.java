@@ -109,7 +109,7 @@ public class AbstractFileTest extends SystemTestCase
         return dataSetCode;
     }
 
-    private void createDirectories(File dataSetDir, @SuppressWarnings("hiding") Set<String> directories)
+    protected void createDirectories(File dataSetDir, @SuppressWarnings("hiding") Set<String> directories)
     {
         for (String dir : directories)
         {
@@ -117,7 +117,7 @@ public class AbstractFileTest extends SystemTestCase
         }
     }
 
-    private void createFiles(File dataSetDir, Collection<String> paths)
+    protected void createFiles(File dataSetDir, Collection<String> paths)
     {
         for (String path : paths)
         {

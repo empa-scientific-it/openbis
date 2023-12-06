@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -122,9 +123,18 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private ExperimentIdentifier getIdentifier(Map<String, Integer> header, List<String> values)
     {
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier);
+
         String code = getValueByColumnName(header, values, Attribute.Code);
         String project = getValueByColumnName(header, values, Attribute.Project);
-        return new ExperimentIdentifier(project + "/" + code);
+
+        ExperimentIdentifier experimentIdentifier = null;
+        if (identifier != null && !identifier.isEmpty()) {
+            experimentIdentifier = new ExperimentIdentifier(identifier);
+        } else {
+            experimentIdentifier = new ExperimentIdentifier(project + "/" + code);
+        }
+        return experimentIdentifier;
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)

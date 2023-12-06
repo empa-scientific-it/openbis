@@ -1,7 +1,11 @@
 ## Changes with pybis-1.36.4
 
 - Changes to new_sample method to use v3api in all cases
-- Refactoring new_experiment documentation 
+- Refactored new_experiment documentation 
+- Fixed delete vocabulary term method
+- Fixed v1 dataset upload
+- Fixed PropertyAssignment data frame creation
+- Improved property data type validation 
 
 ## Changes with pybis-1.36.3
 

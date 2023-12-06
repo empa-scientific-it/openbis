@@ -18,8 +18,25 @@ package ch.systemsx.cisd.openbis.generic.server.hotfix;
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -43,12 +60,13 @@ public class ELNFixes {
     public static void beforeUpgrade(String sessionToken) throws Exception {
         operationLog.info("ELNFixes beforeUpgrade START");
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
+        storageCollectionIntroduction(sessionToken, api);
         storageValidationLevelFix(sessionToken, api);
         nameNoRTFFix(sessionToken, api);
         // TODO(alaskowski): SSDM-13831: Do migration here!!!
-        fixProperties("sample_properties", "sample_type_property_types", "stpt_id");
-        fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id");
-        fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id");
+        fixProperties("sample_properties", "sample_type_property_types", "stpt_id", "samp_frozen");
+        fixProperties("experiment_properties", "experiment_type_property_types", "etpt_id", "expe_frozen");
+        fixProperties("data_set_properties", "data_set_type_property_types", "dstpt_id", "dase_frozen");
         operationLog.info("ELNFixes beforeUpgrade FINISH");
     }
 
@@ -135,23 +153,146 @@ public class ELNFixes {
     }
 
     private static void fixProperties(final String propertiesTable, final String entityTypePropertyTypesTable,
-            final String entityTypePropertyTypesColumn) {
+            final String entityTypePropertyTypesColumn, final String frozenColumn) {
         ELNCollectionTypeMigration.executeNativeUpdate(
             String.format("UPDATE %s prop\n"
                     + "SET value = null\n"
                     + "FROM %s etpt\n"
                     + "INNER JOIN property_types prty ON etpt.prty_id = prty.id\n"
                     + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
-                    + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code = 'CONTROLLEDVOCABULARY'",
-                    propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn));
+                    + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code = 'CONTROLLEDVOCABULARY' AND prop.%s = false",
+                    propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn, frozenColumn));
         ELNCollectionTypeMigration.executeNativeUpdate(
             String.format("UPDATE %s prop\n"
                 + "SET cvte_id = null\n"
                 + "FROM %s etpt\n"
                 + "INNER JOIN property_types prty ON etpt.prty_id = prty.id\n"
                 + "INNER JOIN data_types daty ON prty.daty_id = daty.id\n"
-                + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code != 'CONTROLLEDVOCABULARY'",
-                propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn));
+                + "WHERE prop.%s IS NOT NULL AND prop.%s = etpt.id AND daty.code != 'CONTROLLEDVOCABULARY' AND prop.%s = false",
+                propertiesTable, entityTypePropertyTypesTable, entityTypePropertyTypesColumn, entityTypePropertyTypesColumn, frozenColumn));
+        operationLog.info(String.format("ELNFixes fixProperties for propertiesTable %s", propertiesTable));
+    }
+
+    private static void storageCollectionIntroduction(String sessionToken,
+            IApplicationServerInternalApi api)
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withType().withCode().thatEquals("STORAGE_POSITION");
+
+        SampleFetchOptions options = new SampleFetchOptions();
+        options.withSpace();
+        options.withExperiment();
+        options.withProject();
+
+        SearchResult<Sample> storagePositionResults = api.searchSamples(sessionToken, criteria, options);
+
+        Set<ProjectIdentifier> createdProjects = new HashSet<>();
+        Set<ExperimentIdentifier> createdExperiments = new HashSet<>();
+
+        List<SampleUpdate> storagePositionUpdates = new ArrayList<>();
+
+        for (Sample storagePosition:storagePositionResults.getObjects()) {
+            Space space = storagePosition.getSpace();
+            String spaceCode = space.getCode();
+            String postFix = "";
+
+            if (spaceCode.startsWith("STORAGE") && spaceCode.length() > "STORAGE".length())
+            {
+                int start = spaceCode.indexOf("_");
+                postFix = spaceCode.substring(start + 1);
+            }
+
+            ProjectIdentifier projectIdentifier = null;
+
+            if (storagePosition.getProject() == null)
+            {
+                String projectCode = "STORAGE_POSITIONS";
+                if (!postFix.isBlank()) {
+                    projectCode += "_" + postFix;
+                }
+                projectIdentifier = new ProjectIdentifier(spaceCode, projectCode);
+
+                if (createdProjects.contains(projectIdentifier) == false)
+                {
+                    Map<IProjectId, Project> projects =
+                            api.getProjects(sessionToken, Arrays.asList(projectIdentifier),
+                                    new ProjectFetchOptions());
+
+                    System.out.println("PROJECT [FETCH]: " + projectIdentifier + " " + projects.size() + " " + Thread.currentThread().getName());
+
+                    if (projects.size() == 1) {
+                        createdProjects.add(projectIdentifier);
+                    }
+                }
+
+                if (createdProjects.contains(projectIdentifier) == false)
+                {
+                    ProjectCreation creation = new ProjectCreation();
+                    creation.setSpaceId(space.getPermId());
+                    creation.setCode(projectCode);
+                    System.out.println("PROJECT [CREATION]: " + creation.getSpaceId() + " " + projectCode + " " + Thread.currentThread().getName());
+                    api.createProjects(sessionToken, Arrays.asList(creation));
+                    createdProjects.add(projectIdentifier);
+                }
+            } else {
+                projectIdentifier = storagePosition.getProject().getIdentifier();
+            }
+
+            ExperimentIdentifier experimentIdentifier;
+
+            if (storagePosition.getExperiment() == null)
+            {
+                String experimentCode = "STORAGE_POSITIONS_COLLECTION";
+                if (!postFix.isBlank()) {
+                    experimentCode += "_" + postFix;
+                }
+                String experimentType = "COLLECTION";
+
+                experimentIdentifier = new ExperimentIdentifier(spaceCode, projectIdentifier.getIdentifier().substring(projectIdentifier.getIdentifier().lastIndexOf('/') + 1), experimentCode);
+
+                if (createdExperiments.contains(experimentIdentifier) == false)
+                {
+                    Map<IExperimentId, Experiment> experiments =
+                            api.getExperiments(sessionToken, Arrays.asList(experimentIdentifier),
+                                    new ExperimentFetchOptions());
+
+                    System.out.println("EXPERIMENT [FETCH]: " + experimentIdentifier + " " + experiments.size() + " " + Thread.currentThread().getName());
+
+                    if (experiments.size() == 1) {
+                        createdExperiments.add(experimentIdentifier);
+                    }
+                }
+
+                if (createdExperiments.contains(experimentIdentifier) == false)
+                {
+                    ExperimentCreation creation = new ExperimentCreation();
+                    creation.setProjectId(projectIdentifier);
+                    creation.setCode(experimentCode);
+                    creation.setTypeId(new EntityTypePermId(experimentType, EntityKind.EXPERIMENT));
+                    System.out.println("EXPERIMENT [CREATION]: " + creation.getProjectId() + " " + experimentCode + " " + Thread.currentThread().getName());
+                    api.createExperiments(sessionToken, Arrays.asList(creation));
+                    createdExperiments.add(experimentIdentifier);
+                }
+            } else {
+                experimentIdentifier = storagePosition.getExperiment().getIdentifier();
+            }
+
+            SampleUpdate sampleUpdate = new SampleUpdate();
+            sampleUpdate.setSampleId(storagePosition.getPermId());
+            sampleUpdate.setExperimentId(experimentIdentifier);
+
+            storagePositionUpdates.add(sampleUpdate);
+
+            if (storagePositionUpdates.size() > 1000) {
+                api.updateSamples(sessionToken, storagePositionUpdates);
+                storagePositionUpdates.clear();
+            }
+        }
+
+        if (storagePositionUpdates.isEmpty() == false) {
+            api.updateSamples(sessionToken, storagePositionUpdates);
+            storagePositionUpdates.clear();
+        }
     }
 
 }

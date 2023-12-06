@@ -16,3 +16,4 @@
 26	ANY_MATERIAL	any_material	any_material	7	2009-08-18 17:52:47.771005+02	2	\N	f	\N	\N	\N	\N	\N	f
 27	DYNAMIC_DESCRIPTION	A Dynamic	Dynamic_Description	1	2008-11-05 09:18:00.622+01	1	\N	f	\N	\N	\N	\N	\N	f
 28	TEST_VOCABULARY	The test controlled vocabulary property	Organism	6	2008-11-05 09:18:31.545+01	2	6	f	\N	\N	\N	\N	\N	f
+29	IMAGING_DATA_CONFIG	The test imaging data property	Imaging_Data_Config	17	2008-11-05 09:18:31.545+01	2	\N	t	\N	\N	\N	\N	\N	f

@@ -23,6 +23,7 @@ import java.awt.image.ColorModel;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,6 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -86,10 +86,33 @@ public class ImageUtil
      */
     public static final float DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR = 0.01f;
 
+    /** Maximal size of the initial image for scaling based on the maximum heap size setting. It is set to prevent out of memory errors. */
+    private static final long MAX_IMAGE_SIZE = Runtime.getRuntime().maxMemory() * 3 / 10;
+
+    private static final String WARNING_IMAGE_PATH = "image-too-large-warning.png";
+
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImageUtil.class);
 
     private static final Set<String> FILE_TYPES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList("gif", "jpg", "jpeg", "png", "tif", "tiff")));
+
+    private static BufferedImage warningImage;
+
+    static
+    {
+        try (final InputStream is = ImageUtil.class.getResourceAsStream(WARNING_IMAGE_PATH))
+        {
+            if (is == null)
+            {
+                throw new IOException(String.format("Template image %s not found.", WARNING_IMAGE_PATH));
+            }
+
+            warningImage = ImageIO.read(is);
+        } catch (final IOException e)
+        {
+            operationLog.error(String.format("Template image %s cannot be loaded.", WARNING_IMAGE_PATH));
+        }
+    }
 
     private static interface ImageLoader
     {
@@ -1101,42 +1124,53 @@ public class ImageUtil
             boolean enlargeIfNecessary, boolean highQuality8Bit,
             IntensityRescaling.Channel representativeChannelOrNull, IImageToPixelsConverter converterOrNull)
     {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        // the image has already the required size
-        if ((width == maxWidth && maxHeight >= height)
-                || (height == maxHeight && maxWidth >= width))
+        final int imageWidth = image.getWidth();
+        final int imageHeight = image.getHeight();
+        final int bytesPerPixel = image.getColorModel().getPixelSize() >> 3;
+        final long imageSize = (long) imageWidth * imageHeight * bytesPerPixel;
+        if (imageSize <= MAX_IMAGE_SIZE)
         {
-            return image;
-        }
-        double widthScale = maxWidth / (double) width;
-        double heightScale = maxHeight / (double) height;
-        double scale = Math.min(widthScale, heightScale);
-        // image is smaller than required
-        if (enlargeIfNecessary == false && scale > 1)
-        {
-            return image;
-        }
-        int thumbnailWidth = (int) (scale * width + 0.5);
-        int thumbnailHeight = (int) (scale * height + 0.5);
+            int width = image.getWidth();
+            int height = image.getHeight();
+            // the image has already the required size
+            if ((width == maxWidth && maxHeight >= height)
+                    || (height == maxHeight && maxWidth >= width))
+            {
+                return image;
+            }
+            double widthScale = maxWidth / (double) width;
+            double heightScale = maxHeight / (double) height;
+            double scale = Math.min(widthScale, heightScale);
+            // image is smaller than required
+            if (enlargeIfNecessary == false && scale > 1)
+            {
+                return image;
+            }
+            int thumbnailWidth = (int) (scale * width + 0.5);
+            int thumbnailHeight = (int) (scale * height + 0.5);
 
-        BufferedImage thumbnail =
-                createNewEmptyImage(image, highQuality8Bit, thumbnailWidth, thumbnailHeight);
+            BufferedImage thumbnail =
+                    createNewEmptyImage(image, highQuality8Bit, thumbnailWidth, thumbnailHeight);
 
-        Graphics2D graphics2D = thumbnail.createGraphics();
-        BufferedImage imageToRescale = image;
-        if (highQuality8Bit)
+            Graphics2D graphics2D = thumbnail.createGraphics();
+            BufferedImage imageToRescale = image;
+            if (highQuality8Bit)
+            {
+                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                // WORKAROUND: non-default interpolations do not work well with 16 bit grayscale images.
+                // We have to rescale colors to 8 bit here, otherwise the result will contain only few
+                // colors.
+                imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0f, representativeChannelOrNull, converterOrNull);
+            }
+            graphics2D.drawImage(imageToRescale, 0, 0, thumbnailWidth, thumbnailHeight, null);
+            graphics2D.dispose();
+            return thumbnail;
+        } else
         {
-            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            // WORKAROUND: non-default interpolations do not work well with 16 bit grayscale images.
-            // We have to rescale colors to 8 bit here, otherwise the result will contain only few
-            // colors.
-            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0f, representativeChannelOrNull, converterOrNull);
+            operationLog.warn(String.format("Original image is too large: %d bytes.", imageSize));
+            return warningImage;
         }
-        graphics2D.drawImage(imageToRescale, 0, 0, thumbnailWidth, thumbnailHeight, null);
-        graphics2D.dispose();
-        return thumbnail;
     }
 
     public static BufferedImage convertToRGB(BufferedImage image)

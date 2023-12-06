@@ -199,9 +199,9 @@ barcode associated with it by scanning the barcode:
 
 ![](img/add-parent-via-barcode.png)
 
-2. A **Barcode Reader** window opens
+2. A **Barcode/QR code reader** window opens
 
-![](img/add-parents-with-barcodes-1024x233.png)
+![](img/scan-barcode-to-add-parent.png)
 
 3. Scan the barcode/QR code of the entry you want to add as parent with
 a scanner or with the camera of a mobile device

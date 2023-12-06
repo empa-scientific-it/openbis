@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -56,6 +57,38 @@ public class CreatePersonTest extends AbstractTest
         assertEquals(person.getUserId(), personCreation.getUserId());
         assertEquals(person.getRegistrator().getUserId(), TEST_USER);
         assertEquals(person.getSpace().getCode(), "CISD");
+    }
+
+    @Test
+    public void testCreateExistingPerson()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId("user-existing");
+        // When
+        List<PersonPermId> persons = v3api.createPersons(sessionToken, List.of(personCreation));
+
+        // Then
+        assertEquals(persons.toString(), "[" + personCreation.getUserId() + "]");
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withRegistrator();
+        Person person = v3api.getPersons(sessionToken, persons, fetchOptions).get(persons.get(0));
+        assertEquals(person.getUserId(), personCreation.getUserId());
+        assertEquals(person.getRegistrator().getUserId(), TEST_USER);
+
+        // Given
+        PersonCreation existingPersonCreation = new PersonCreation();
+        existingPersonCreation.setUserId("user-existing");
+        // When
+
+        try
+        {
+            List<PersonPermId> existingPersons = v3api.createPersons(sessionToken, List.of(existingPersonCreation));
+        } catch (UserFailureException e)
+        {
+            assertEquals("User with User Id [" + existingPersonCreation.getUserId() + "] already exists! (Context: [])", e.getMessage());
+        }
     }
 
     @Test(dataProvider = "usersNotAllowedToCreatePersons")

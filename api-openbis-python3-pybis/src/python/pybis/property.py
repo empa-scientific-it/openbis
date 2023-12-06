@@ -14,6 +14,10 @@
 #
 from tabulate import tabulate
 
+from .utils import (
+    check_datatype
+)
+
 
 class PropertyHolder:
     def __init__(self, openbis_obj, type=None):
@@ -156,12 +160,13 @@ class PropertyHolder:
             if "multiValue" in property_type and property_type["multiValue"] is True:
                 if type(value) != list:
                     value = [value]
-        elif data_type in (
-            "INTEGER", "BOOLEAN", "VARCHAR", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING",
-                "ARRAY_TIMESTAMP"):
-            pass
-            # if not check_datatype(data_type, value):
-            #     raise ValueError(f"Value must be of type {data_type}")
+        elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR", "REAL", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING"):
+            is_multi_value = property_type["multiValue"] is True if "multiValue" in property_type else False
+            if not check_datatype(data_type, value, is_multi_value):
+                if is_multi_value:
+                    raise ValueError(f"Multi-value property '{property_type['code']}' must be of type {data_type} - Provided value:{value}")
+                else:
+                    raise ValueError(f"Property '{property_type['code']}' must be of type {data_type} - Provided value:{value}")
         self.__dict__[name] = value
 
     def __setitem__(self, key, value):

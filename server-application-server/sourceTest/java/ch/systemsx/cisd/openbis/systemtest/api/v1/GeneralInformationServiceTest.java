@@ -2039,8 +2039,16 @@ public class GeneralInformationServiceTest extends SystemTestCase
             });
         assertEquals("CONTAINER_TYPE", types.get(0).getCode());
         assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("HCS_IMAGE", types.get(3).getCode());
-        List<PropertyTypeGroup> groups = types.get(3).getPropertyTypeGroups();
+        assertTrue(types.size() > 0);
+        boolean guard = false;
+        List<PropertyTypeGroup> groups = null;
+        for(int i=0; i<types.size(); i++) {
+            if(types.get(i).getCode().equalsIgnoreCase("HCS_IMAGE")) {
+                guard = true;
+                groups = types.get(i).getPropertyTypeGroups();
+            }
+        }
+        assertTrue(guard);
         List<PropertyType> propertyTypes = groups.get(0).getPropertyTypes();
         Collections.sort(propertyTypes, new Comparator<PropertyType>()
             {
@@ -2061,13 +2069,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(1, groups.size());
         assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(4).getCode());
         assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
-        assertEquals("LINK_TYPE", types.get(5).getCode());
-        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
-        assertEquals("REQUIRES_EXPERIMENT", types.get(6).getCode());
-        assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
-        assertEquals("UNKNOWN", types.get(7).getCode());
+        assertEquals("LINK_TYPE", types.get(6).getCode());
+        assertEquals("[]", types.get(6).getPropertyTypeGroups().toString());
+        assertEquals("REQUIRES_EXPERIMENT", types.get(7).getCode());
         assertEquals("[]", types.get(7).getPropertyTypeGroups().toString());
-        assertEquals(11, types.size());
+        assertEquals("UNKNOWN", types.get(8).getCode());
+        assertEquals("[]", types.get(8).getPropertyTypeGroups().toString());
+        assertEquals(12, types.size());
     }
 
     @Test

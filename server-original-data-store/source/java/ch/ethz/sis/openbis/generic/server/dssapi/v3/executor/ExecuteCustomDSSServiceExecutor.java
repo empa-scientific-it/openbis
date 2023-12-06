@@ -20,13 +20,14 @@ package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnsupportedObjectIdException;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.CustomDssServiceCode;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSServiceExecutor;
+import ch.ethz.sis.openbis.generic.dssapi.v3.plugin.service.ICustomDSSServiceExecutor;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSServiceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
 
 @Component
 public class ExecuteCustomDSSServiceExecutor implements IExecuteCustomDSSServiceExecutor
@@ -36,7 +37,7 @@ public class ExecuteCustomDSSServiceExecutor implements IExecuteCustomDSSService
     private ICustomDSSServiceProvider serviceProvider;
 
     @Override
-    public ExecuteCustomDSSServiceOperationResult execute(String sessionToken, ICustomDSSServiceId serviceId,
+    public Serializable execute(String sessionToken, ICustomDSSServiceId serviceId,
             CustomDSSServiceExecutionOptions options)
     {
         if (serviceId instanceof CustomDssServiceCode == false)
@@ -50,7 +51,7 @@ public class ExecuteCustomDSSServiceExecutor implements IExecuteCustomDSSService
             throw new ObjectNotFoundException(serviceId);
         }
 
-        return new ExecuteCustomDSSServiceOperationResult(serviceExecutor.executeService(sessionToken, serviceId, options));
+        return serviceExecutor.executeService(sessionToken, serviceId, options);
     }
 
 }

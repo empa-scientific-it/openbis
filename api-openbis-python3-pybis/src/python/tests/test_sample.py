@@ -138,7 +138,21 @@ def test_empty_data_frame(openbis_instance):
     s = openbis_instance.get_sample_type(sample_type_code)
     pa = s.get_property_assignments()
 
-    pd.testing.assert_frame_equal(pa.df, pd.DataFrame())
+    attrs = [
+        "propertyType",
+        "dataType",
+        "section",
+        "ordinal",
+        "mandatory",
+        "initialValueForExistingEntities",
+        "showInEditView",
+        "showRawValueInForms",
+        "registrator",
+        "registrationDate",
+        "plugin",
+    ]
+
+    pd.testing.assert_frame_equal(pa.df, pd.DataFrame(columns=attrs))
 
 
 def test_sample_property_in_isoformat_date(space):

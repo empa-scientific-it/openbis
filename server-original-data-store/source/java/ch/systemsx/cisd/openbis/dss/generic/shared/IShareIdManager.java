@@ -69,4 +69,9 @@ public interface IShareIdManager
      * Release all locks which have been requested in the same thread calling this method.
      */
     public void releaseLocks();
+
+    /**
+     * Release all locks which are held by dead threads.
+     */
+    public void cleanupLocks();
 }

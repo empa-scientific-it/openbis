@@ -1416,7 +1416,7 @@ class DataSetUploadQueue:
                 break
             upload_url, filename, verify_certificates = queue_item
 
-            file_size = os.path.getsize(filename[1])
+            file_size = os.path.getsize(filename)
 
             if self.multipart is True:
                 file = {filename: open(filename, "rb")}
@@ -1424,7 +1424,7 @@ class DataSetUploadQueue:
                 resp.raise_for_status()
             else:
                 # upload the file to our DSS session workspace
-                with open(filename[1], "rb") as f:
+                with open(filename, "rb") as f:
                     resp = requests.post(upload_url, data=f, verify=verify_certificates)
                     resp.raise_for_status()
                     data = resp.json()

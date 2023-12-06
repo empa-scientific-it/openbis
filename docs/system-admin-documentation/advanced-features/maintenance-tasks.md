@@ -206,6 +206,26 @@ interval = 60
 last-seen-data-set-file = lastSeenDataSetForDeletion.txt
 ```
 
+### ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask
+
+**Environment**: DSS
+
+**Relevancy:** Default
+
+**Description**: Releases data set locks held by dead threads (e.g. threads that have been finished after a thread pool had been shrunk).
+
+```{note}
+If this task isn't configured neither in service.properties nor as a core plugin it will be established automatically by using default configuration and running every 5 minutes.
+```
+
+**Example**:
+
+**plugin.properties**
+
+```
+class = ch.systemsx.cisd.etlserver.plugins.ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask
+interval = 60
+```
 
 ### DeleteFromArchiveMaintenanceTask 
 

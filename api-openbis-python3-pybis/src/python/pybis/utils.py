@@ -12,6 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import math
 import re
 from datetime import datetime
 
@@ -120,15 +121,27 @@ def parse_jackson(input_json):
     deref_graph(input_json)
 
 
-def check_datatype(type_name, value):
-    if type_name == "INTEGER":
-        return isinstance(value, int)
-    if type_name == "BOOLEAN":
-        return isinstance(value, bool)
-    if type_name == "VARCHAR":
-        return isinstance(value, str)
-    if type_name is not None and type_name.startswith("ARRAY"):
-        return isinstance(value, list)
+def check_datatype(type_name, value, is_multi_value=False):
+    if is_multi_value:
+        if type_name == "INTEGER":
+            return all([isinstance(x, int) and not math.isnan(x) for x in value])
+        if type_name == "REAL":
+            return all([isinstance(x, (int | float)) and not math.isnan(x) for x in value])
+        if type_name == "BOOLEAN":
+            return all([isinstance(x, bool) for x in value])
+        if type_name == "VARCHAR":
+            return all([isinstance(x, str) for x in value])
+    else:
+        if type_name == "INTEGER":
+            return isinstance(value, int) and not math.isnan(value)
+        if type_name == "REAL":
+            return isinstance(value, (int | float)) and not math.isnan(value)
+        if type_name == "BOOLEAN":
+            return isinstance(value, bool)
+        if type_name == "VARCHAR":
+            return isinstance(value, str)
+        if type_name is not None and type_name.startswith("ARRAY"):
+            return isinstance(value, list)
     return True
 
 
@@ -185,6 +198,12 @@ def extract_permid(permid):
     if not isinstance(permid, dict):
         return str(permid)
     return permid["permId"]
+
+
+def extract_data_type(obj):
+    if not isinstance(obj, dict):
+        return "" if obj is None else str(obj)
+    return "" if obj["dataType"] is None else obj["dataType"]
 
 
 def extract_code(obj):

@@ -26,6 +26,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 import java.util.List;
@@ -91,7 +92,11 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        if (version == null || version.isEmpty()) {
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean isSystem = delayedExecutor.isSystem();
+        boolean canUpdate = (isInternalNamespace == false) || isSystem;
+
+        if (canUpdate && (version == null || version.isEmpty())) {
             return true;
         } else {
             return VersionUtils.isNewVersion(version,

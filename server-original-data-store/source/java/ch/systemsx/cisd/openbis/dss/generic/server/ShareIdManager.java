@@ -16,7 +16,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 
 /**
  * Immplementation of {@link IShareIdManager} based on {@link CountDownLatch}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class ShareIdManager implements IShareIdManager
@@ -292,6 +294,55 @@ public class ShareIdManager implements IShareIdManager
             for (String dataSet : dataSets)
             {
                 releaseLock(dataSet);
+            }
+        }
+    }
+
+    @Override public void cleanupLocks()
+    {
+        synchronized (lockedDataSets)
+        {
+            Collection<String> dataSetsCodes = new ArrayList<>(lockedDataSets.keySet());
+
+            for (String dataSetCode : dataSetsCodes)
+            {
+                try
+                {
+                    Set<Thread> threads = lockedDataSets.get(dataSetCode);
+
+                    if (threads == null)
+                    {
+                        continue;
+                    }
+
+                    Set<Thread> removedThreads = new HashSet<>(threads);
+                    threads.removeIf(thread -> !thread.isAlive());
+                    removedThreads.removeAll(threads);
+
+                    if (threads.isEmpty())
+                    {
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog.debug("Unlock data set " + dataSetCode);
+                        }
+
+                        lockedDataSets.remove(dataSetCode);
+                        getGuardedShareId(dataSetCode).unlock();
+                    }
+
+                    log(dataSetCode, threads);
+
+                    if (!removedThreads.isEmpty())
+                    {
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog.debug("Cleaned up dataset " + dataSetCode + " locks. Removed locks held by dead threads: " + removedThreads);
+                        }
+                    }
+                } catch (Exception e)
+                {
+                    operationLog.warn("Could not clean up dataset " + dataSetCode + " locks", e);
+                }
             }
         }
     }

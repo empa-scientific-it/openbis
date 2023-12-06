@@ -32,15 +32,9 @@ The complete solution for managing your research data.
    :caption: System Admin Documentation
 
    Installation </system-admin-documentation/installation/index>
+   Configuration </system-admin-documentation/configuration/index>
    Docker Installation </system-admin-documentation/docker-installation/index>
    Advanced Features </system-admin-documentation/advanced-features/index>
-
-.. toctree::
-   :maxdepth: 4
-   :hidden:
-   :caption: Uncategorized
-
-   Uncategorized </uncategorized/index>
 
 User Documentation
 ^^^^^^^^^^^^^^^^^^
@@ -60,9 +54,7 @@ Software Developer Documentation
 System Admin Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
    - :doc:`Installation </system-admin-documentation/installation/index>`
+   - :doc:`Configuration </system-admin-documentation/configuration/index>`
    - :doc:`Docker Installation </system-admin-documentation/docker-installation/index>`
    - :doc:`Advanced Features </system-admin-documentation/advanced-features/index>`
 
-Uncategorized
-^^^^^^^^^^^^^
-   - :doc:`Uncategorized </uncategorized/index>`
