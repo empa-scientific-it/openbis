@@ -280,7 +280,7 @@ public class XLSExportTest
         }
     }
 
-    private static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
+    public static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
     {
         final int sheetsCount = expected.getNumberOfSheets();
         assertEquals(actual.getNumberOfSheets(), sheetsCount);

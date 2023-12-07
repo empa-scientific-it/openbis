@@ -61,7 +61,7 @@ public class AbstractImportTest extends AbstractTest
 
     protected static byte[] getFileContent(final String fileName)
     {
-        try (final InputStream is = AbstractImportTest.class.getResourceAsStream("test_files/xls/" + fileName))
+        try (final InputStream is = AbstractImportTest.class.getResourceAsStream("test_files/import/" + fileName))
         {
             if (is == null)
             {
