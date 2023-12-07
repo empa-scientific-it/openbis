@@ -553,9 +553,11 @@ class ExportData
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-all.zip",
-                    EnumSet.of(ExportFormat.XLSX, ExportFormat.PDF, ExportFormat.DATA),
+                    EnumSet.of(ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA),
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091250077-1026"))),
-                    new AllFields(),
+                    new SelectedFields(
+                            List.of(CODE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
+                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("SIZE"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
                     false // withImportCompatibility
