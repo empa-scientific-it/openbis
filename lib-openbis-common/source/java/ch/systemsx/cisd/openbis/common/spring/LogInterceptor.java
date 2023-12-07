@@ -108,7 +108,13 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
 
             if (ServiceCallLogConfiguration.getInstance().isLogServiceCallStartEnabled())
             {
-                method.invoke(logger, arguments);
+                try
+                {
+                    method.invoke(logger, arguments);
+                } catch (IllegalArgumentException ex)
+                {
+                    // ignored if 'method' isn't a method of 'logger'
+                }
             }
 
             final Object result = invocation.proceed();

@@ -274,7 +274,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * @author pkupczyk
  */
 public class ApplicationServerApiLogger extends AbstractServerLogger implements
-        IApplicationServerApi
+        IApplicationServerInternalApi
 {
     public ApplicationServerApiLogger(ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
@@ -314,6 +314,11 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
 
     @Override
     public String loginAs(String userId, String password, String asUser)
+    {
+        return null;
+    }
+
+    @Override public String loginAsSystem()
     {
         return null;
     }
@@ -1381,4 +1386,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override public void registerUser(final String sessionToken)
+    {
+    }
 }
