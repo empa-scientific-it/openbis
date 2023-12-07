@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
+import ch.systemsx.cisd.openbis.generic.shared.util.SupportedDateTimePattern;
 
 /**
  * Utility functions around data types.
@@ -99,7 +99,7 @@ public class DataTypeUtils
             {
                 try
                 {
-                    String pattern = SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern();
+                    String pattern = SupportedDateTimePattern.CANONICAL_DATE_PATTERN.getPattern();
                     return DateUtils.parseDate(value, new String[]
                             { pattern });
                 } catch (ParseException ex)

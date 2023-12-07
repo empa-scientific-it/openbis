@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
+import ch.systemsx.cisd.openbis.generic.shared.util.SupportedDateTimePattern;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtilsTest;
 
 /**
@@ -125,11 +125,11 @@ public final class PropertyValidatorTest extends AbstractBOTest
                 {
                         createTimestampPropertyType(),
                         DateFormatUtils.format(new Date(),
-                                SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
+                                SupportedDateTimePattern.CANONICAL_DATE_PATTERN.getPattern()) },
                 {
                         createTimestampPropertyType(),
                         DateFormatUtils.format(new Date(),
-                                SupportedDatePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
+                                SupportedDateTimePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
                 { createIntegerPropertyType(), "1" },
                 { createRealPropertyType(), "1" },
                 { createRealPropertyType(), "1.1" },
