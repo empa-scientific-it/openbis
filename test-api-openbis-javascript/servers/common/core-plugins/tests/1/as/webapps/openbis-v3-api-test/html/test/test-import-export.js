@@ -98,59 +98,59 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
         });
       }
 
-      // QUnit.test("executeImport()", function(assert) {
-      //   var c = new common(assert, dtos);
-      //
-      //   var fAction = function(facade) {
-      //     var importData = new dtos.UncompressedImportData();
-      //     importData.setFormat("XLS");
-      //     importData.setFile(fileContent);
-      //
-      //     var importOptions = new dtos.ImportOptions();
-      //     importOptions.setMode("UPDATE_IF_EXISTS");
-      //
-      //     return facade.executeImport(importData, importOptions);
-      //   }
-      //
-      //   var fCheck = function(facade) {
-      //     var criteria = new dtos.VocabularySearchCriteria();
-      //     criteria.withCode().thatEquals("VOCAB");
-      //
-      //     var vocabularyFetchOptions = c.createVocabularyFetchOptions()
-      //     vocabularyFetchOptions.withTerms();
-      //
-      //     return facade.searchVocabularies(criteria, vocabularyFetchOptions).then(function(results) {
-      //       c.assertEqual(results.getTotalCount(), 1)
-      //       var vocabulary = (results.getObjects())[0];
-      //
-      //       c.assertEqual(vocabulary.code, "VOCAB");
-      //
-      //       var terms = vocabulary.getTerms();
-      //
-      //       c.assertEqual(terms.length, 3)
-      //
-      //       var codes = terms.map(function(object) {
-      //         return object.code;
-      //       }).sort();
-      //
-      //       var labels = terms.map(function(object) {
-      //         return object.label;
-      //       }).sort();
-      //
-      //       c.assertEqual(codes[0], "TERM_A");
-      //       c.assertEqual(codes[1], "TERM_B");
-      //       c.assertEqual(codes[2], "TERM_C");
-      //
-      //       c.assertEqual(labels[0], "A");
-      //       c.assertEqual(labels[1], "B");
-      //       c.assertEqual(labels[2], "C");
-      //     }).fail(function(error) {
-      //       c.fail("Error searching vocabularies. error=" + error.message);
-      //     });
-      //   }
-      //
-      //   testAction(c, fAction, fCheck);
-      // });
+      QUnit.test("executeImport()", function(assert) {
+        var c = new common(assert, dtos);
+
+        var fAction = function(facade) {
+          var importData = new dtos.UncompressedImportData();
+          importData.setFormat("XLS");
+          importData.setFile(fileContent);
+
+          var importOptions = new dtos.ImportOptions();
+          importOptions.setMode("UPDATE_IF_EXISTS");
+
+          return facade.executeImport(importData, importOptions);
+        }
+
+        var fCheck = function(facade) {
+          var criteria = new dtos.VocabularySearchCriteria();
+          criteria.withCode().thatEquals("VOCAB");
+
+          var vocabularyFetchOptions = c.createVocabularyFetchOptions()
+          vocabularyFetchOptions.withTerms();
+
+          return facade.searchVocabularies(criteria, vocabularyFetchOptions).then(function(results) {
+            c.assertEqual(results.getTotalCount(), 1)
+            var vocabulary = (results.getObjects())[0];
+
+            c.assertEqual(vocabulary.code, "VOCAB");
+
+            var terms = vocabulary.getTerms();
+
+            c.assertEqual(terms.length, 3)
+
+            var codes = terms.map(function(object) {
+              return object.code;
+            }).sort();
+
+            var labels = terms.map(function(object) {
+              return object.label;
+            }).sort();
+
+            c.assertEqual(codes[0], "TERM_A");
+            c.assertEqual(codes[1], "TERM_B");
+            c.assertEqual(codes[2], "TERM_C");
+
+            c.assertEqual(labels[0], "A");
+            c.assertEqual(labels[1], "B");
+            c.assertEqual(labels[2], "C");
+          }).fail(function(error) {
+            c.fail("Error searching vocabularies. error=" + error.message);
+          });
+        }
+
+        testAction(c, fAction, fCheck);
+      });
 
       QUnit.test("executeExport()", function(assert) {
         var c = new common(assert, dtos);
@@ -170,9 +170,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
         var fCheck = function(facade, result) {
           c.assertNotNull(result);
-          c.assertEqual(result.results.length, 1);
-          c.assertNotNull(result.results[0].exportResult);
-          c.assertNotNull(result.results[0].exportResult.downloadURL);
+          if (!result.downloadURL) {
+            c.assertNotNull(result.results);
+            c.assertEqual(result.results.length, 1);
+            c.assertNotNull(result.results[0].exportResult);
+            c.assertNotNull(result.results[0].exportResult.downloadURL);
+          }
+
           return null;
         }
 
