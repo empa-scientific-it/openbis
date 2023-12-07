@@ -25,6 +25,7 @@ import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
+import ch.systemsx.cisd.authentication.SessionManagerLock;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
@@ -111,7 +112,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     @Override
     public void updateAllSessions()
     {
-        synchronized (sessions)
+        synchronized (SessionManagerLock.getInstance())
         {
             List<Session> list = sessions.values().stream().map(FullSession::getSession).collect(Collectors.toList());
             updateSessions(daoFactory, list);
