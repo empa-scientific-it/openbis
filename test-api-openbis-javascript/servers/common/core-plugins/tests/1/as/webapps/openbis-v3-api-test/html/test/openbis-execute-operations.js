@@ -707,6 +707,10 @@ define([], function() {
 			return this._executeOperation(new dtos.ImportOperation(importData, importOptions));
 		}
 
+		this.executeExport = function(exportData, exportOptions) {
+			return this._executeOperation(new dtos.ExportOperation(exportData, exportOptions));
+		}
+
 	}
 
 	return executeOperationsFacade;

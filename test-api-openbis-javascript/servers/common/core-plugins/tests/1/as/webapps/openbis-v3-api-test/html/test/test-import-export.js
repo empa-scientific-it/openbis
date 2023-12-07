@@ -83,9 +83,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
           c.ok("Login");
           return fAction(facade).then(function(result) {
             c.ok("Got results");
-            var token = fCheck(facade, result);
-            if (token) {
-              token.then(function() {
+            var checkPromise = fCheck(facade, result);
+            if (checkPromise) {
+              checkPromise.then(function() {
                 c.finish()
               });
             } else {
@@ -147,6 +147,37 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
           }).fail(function(error) {
             c.fail("Error searching vocabularies. error=" + error.message);
           });
+        }
+
+        testAction(c, fAction, fCheck);
+      });
+
+      QUnit.test("executeExport()", function(assert) {
+        var c = new common(assert, dtos);
+
+        var fAction = function(facade) {
+          var exportablePermId = new dtos.ExportablePermId(
+            dtos.ExportableKind.SAMPLE, new dtos.SamplePermId("200902091225616-1027"));
+          var exportData = new dtos.ExportData(exportablePermId,
+            new dtos.AllFields());
+
+          var exportOptions = new dtos.ExportOptions(
+            [dtos.ExportFormat.XLSX, dtos.ExportFormat.HTML, dtos.ExportFormat.PDF,
+              dtos.ExportFormat.DATA], dtos.XlsTextFormat.RICH, true, false);
+
+          return facade.executeExport(exportData, exportOptions);
+        }
+
+        var fCheck = function(facade, result) {
+          c.assertNotNull(result);
+          if (!result.downloadURL) {
+            c.assertNotNull(result.results);
+            c.assertEqual(result.results.length, 1);
+            c.assertNotNull(result.results[0].exportResult);
+            c.assertNotNull(result.results[0].exportResult.downloadURL);
+          }
+
+          return null;
         }
 
         testAction(c, fAction, fCheck);
