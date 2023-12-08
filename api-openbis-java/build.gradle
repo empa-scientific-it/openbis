@@ -73,7 +73,9 @@ generateTypeScript {
                             "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria",
                             "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria",
                             "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult",
-                            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters"]
+                            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters",
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdDeserializer",
+                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer"]
     mapClasses = "asInterfaces"
     outputKind = 'module'
     outputFileType = 'declarationFile'
