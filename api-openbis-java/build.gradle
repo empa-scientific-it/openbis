@@ -42,6 +42,7 @@ dependencies {
             'sis:sis-file-transfer:19.03.1',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-annotations:2.9.10',
+            'com.google.guava:guava:31.1-jre',
             "cz.habarta.typescript-generator:typescript-generator-core:3.2.1263"
 
 

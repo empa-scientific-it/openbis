@@ -22,6 +22,9 @@ package ch.empa.tsprocessor;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.google.common.reflect.TypeToken;
+
 import cz.habarta.typescript.generator.*;
 import cz.habarta.typescript.generator.compiler.ModelCompiler;
 import cz.habarta.typescript.generator.compiler.SymbolTable;
@@ -42,7 +45,7 @@ import java.util.stream.Stream;
  * implementations depending on whether the method returns a promise or not.
  */
 interface MethodProcessor {
-    TsPropertyModel makeFunction(Method method, TsModel model, ProcessingContext processingContext);
+    TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext);
 }
 
 /**
@@ -111,36 +114,36 @@ public class AddMethodsExtension extends Extension {
     }
 
 
-    private static List<TsParameter> getMethodParameters(Executable method, TsModel model, ProcessingContext processingContext) {
-        return Arrays.stream(method.getParameters()).map(parameter -> new TsParameter(parameter.getName(), resolveGenericType(parameter.getParameterizedType(), model, processingContext))).collect(Collectors.toList());
+    private static List<TsParameter> getMethodParameters(TsBeanModel bean, Executable method, TsModel model, ProcessingContext processingContext) {
+        return Arrays.stream(method.getParameters()).map(parameter -> new TsParameter(parameter.getName(), resolveGenericType(bean.getOrigin(), parameter.getParameterizedType(), model, processingContext))).collect(Collectors.toList());
     }
 
 
-    private static TsType resolveGenericType(Type type, TsModel model, ProcessingContext processingContext) {
+    private static TsType resolveGenericType(Class<?> clazz, Type type, TsModel model, ProcessingContext processingContext) {
+        TypeToken<?> typeToken = TypeToken.of(clazz).resolveType(type);
         //This is not very elegant because we are calling again the type processor. Maybe later on we can find a way to get the types from the model
         TypeProcessor.Context context = new TypeProcessor.Context(processingContext.getSymbolTable(), processingContext.getLocalProcessor(), null);
-        return context.processType(type).getTsType();
+        return context.processType(typeToken.getType()).getTsType();
 
     }
 
-    private static TsType getReturnType(Method method, TsModel model, ProcessingContext processingContext) {
-        return resolveGenericType(method.getGenericReturnType(), model, processingContext);
-
+    private static TsType getReturnType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
+        return resolveGenericType(bean.getOrigin(), method.getGenericReturnType(), model, processingContext);
     }
 
-    private static TsType.FunctionType makeFunctionType(Method method, TsModel model, ProcessingContext processingContext) {
+    private static TsType.FunctionType makeFunctionType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
         logger.info(String.format("Processing method %s, with params %s and return type %s", method, method.getParameters(), method.getGenericReturnType()));
-        List<TsParameter> params = getMethodParameters(method, model, processingContext);
-        TsType returnType = getReturnType(method, model, processingContext);
+        List<TsParameter> params = getMethodParameters(bean, method, model, processingContext);
+        TsType returnType = getReturnType(bean, method, model, processingContext);
         return new TsType.FunctionType(params, returnType);
     }
 
-    private static TsPropertyModel makeFunction(Method method, TsModel model, ProcessingContext processingContext) {
-        return new TsPropertyModel(method.getName(), makeFunctionType(method, model, processingContext), TsModifierFlags.None, false, null);
+    private static TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
+        return new TsPropertyModel(method.getName(), makeFunctionType(bean, method, model, processingContext), TsModifierFlags.None, false, null);
     }
 
-    private static TsPropertyModel makePromiseReturningFunction(Method method, TsModel model, ProcessingContext processingContext) {
-        TsType.FunctionType syncFunction = makeFunctionType(method, model, processingContext);
+    private static TsPropertyModel makePromiseReturningFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
+        TsType.FunctionType syncFunction = makeFunctionType(bean, method, model, processingContext);
         TsType promiseType = new TsType.GenericBasicType("Promise", List.of(syncFunction.type));
         return new TsPropertyModel(method.getName(), new TsType.FunctionType(syncFunction.parameters, promiseType), TsModifierFlags.None, false, null);
     }
@@ -167,9 +170,9 @@ public class AddMethodsExtension extends Extension {
      * @return the typescript constructor signature or null if the constructor is not public
      */
     private static TsMethodModel makeConstructor(Constructor<?> constructor, TsBeanModel beanModel, TsModel model, ProcessingContext processingContext) {
-        List<TsParameter> params = getMethodParameters(constructor, model, processingContext);
+        List<TsParameter> params = getMethodParameters(beanModel, constructor, model, processingContext);
         List<TsParameter> paramsWithoutDeclaringClass = params.stream().collect(Collectors.toList());
-        TsType returnType = resolveGenericType(constructor.getDeclaringClass(), model, processingContext);
+        TsType returnType = resolveGenericType(constructor.getDeclaringClass(), constructor.getDeclaringClass(), model, processingContext);
         logger.info(String.format("Processing constructor %s, with params %s and return type %s", constructor, params, returnType));
         TsType.FunctionType functionType = new TsType.FunctionType(paramsWithoutDeclaringClass, returnType);
         TsPropertyModel propertyModel = new TsPropertyModel("new ", functionType, TsModifierFlags.None, false, null);
@@ -178,7 +181,7 @@ public class AddMethodsExtension extends Extension {
 
     private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor) {
         Class<?> origin = bean.getOrigin();
-        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(AddMethodsExtension::filterMethods).map(method -> propertyModelToMethodModel(processor.makeFunction(method, model, processingContext))).flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
+        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(AddMethodsExtension::filterMethods).map(method -> propertyModelToMethodModel(processor.makeFunction(bean, method, model, processingContext))).flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
         Stream<TsMethodModel> constructors = Arrays.stream(origin.getDeclaredConstructors()).map(constructor -> makeConstructor(constructor, bean, model, processingContext));
         List<TsMethodModel> allMethods = Stream.of(params, constructors).flatMap(it -> it).collect(Collectors.toList());
         return bean.withProperties(Collections.emptyList()).withMethods(allMethods);
