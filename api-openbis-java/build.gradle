@@ -66,23 +66,22 @@ generateTypeScript {
             'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
             'ch.ethz.sis.openbis.generic.OpenBIS',
     ]
-
-    excludeClassPatterns = ["**.v1.**",
-                            "**.generic.shared.**",
-                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria",
-                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria",
-                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria",
-                            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult",
-                            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters",
-                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdDeserializer",
-                            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer"]
+    excludeClassPatterns = [
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdDeserializer",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer"]
     mapClasses = "asInterfaces"
     outputKind = 'module'
     outputFileType = 'declarationFile'
     customTypeNaming = [
             "ch.ethz.sis.openbis.generic.OpenBIS:facade",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:PersonalAccessTokenSessionNameSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria:PersonalAccessTokenSessionNameSearchCriteriaInSession",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteria",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:DSExternalDmsSearchCriteria"
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteriaInDataSet",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:AbstractExecutionOptionsWithParameters",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:AbstractExecutionOptionsWithParametersInDataStore",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult:IOperationResult",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:IOperationResultInDataStore"
     ]
     extensionsWithConfiguration = [
             new ConfiguredExtension(className: 'ch.empa.tsprocessor.AddMethodsExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),
