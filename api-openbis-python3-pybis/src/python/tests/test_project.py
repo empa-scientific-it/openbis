@@ -70,7 +70,7 @@ def test_get_project_by_code(space):
 
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
 
-    space_code_1 = "space_1_" + timestamp
+    space_code_1 = "space_1_" + timestamp + "_" + str(random.randint(0, 1000))
     project_code = "project_" + timestamp
 
     o.new_space(code=space_code_1).save()
@@ -85,8 +85,8 @@ def test_get_project_fail_because_of_multiple_projects_existing(space):
 
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
 
-    space_code_1 = "space_1_" + timestamp
-    space_code_2 = "space_2_" + timestamp
+    space_code_1 = "space_1_" + timestamp + "_" + str(random.randint(0, 1000))
+    space_code_2 = "space_2_" + timestamp + "_" + str(random.randint(0, 1000))
     project_code = "project_" + timestamp
 
     o.new_space(code=space_code_1).save()
