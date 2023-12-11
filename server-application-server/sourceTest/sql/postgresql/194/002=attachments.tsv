@@ -1,0 +1,12 @@
+1	2	exampleExperiments.txt	2008-12-10 13:48:17.996703+01	1	2	1	\N	\N	\N	\N	f	f	f
+2	2	exampleExperiments.txt	2008-12-10 13:49:14.564025+01	2	2	2	\N	\N	\N	\N	f	f	f
+3	2	exampleExperiments.txt	2008-12-10 13:49:20.23603+01	3	2	3	\N	\N	\N	Second latest version	f	f	f
+4	2	exampleExperiments.txt	2008-12-10 13:49:27.90141+01	4	2	4	\N	\N	Latest version	\N	f	f	f
+5	8	exampleExperiments.txt	2008-12-10 13:49:48.879301+01	1	2	5	\N	\N	\N	\N	f	f	f
+6	8	cellPlates.txt	2008-12-10 13:51:10.050748+01	1	2	6	\N	\N	\N	\N	f	f	f
+7	\N	sampleHistory.txt	2009-06-09 17:00:00+02	1	2	7	987	\N	\N	\N	f	f	f
+8	22	cellPlates.txt	2008-12-10 13:51:10.050748+01	1	2	8	\N	\N	\N	\N	f	f	f
+9	\N	projectDescription.txt	2012-01-03 08:27:57.123+01	1	2	9	\N	3	The Project	All about it.	f	f	f
+10	23	testExperiment.txt	2012-01-03 08:27:57.123+01	1	2	10	\N	\N	\N	\N	f	f	f
+11	\N	testProject.txt	2012-01-03 08:27:57.123+01	1	2	11	\N	5	\N	\N	f	f	f
+12	\N	testSample.txt	2009-06-09 17:00:00+02	1	2	12	1054	\N	\N	Test sample description	f	f	f
