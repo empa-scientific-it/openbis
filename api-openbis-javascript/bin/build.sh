@@ -15,7 +15,7 @@ mkdir -p $TEMP_DIR
 
 # create a list of all *.js files from chosen V3 folders
 cd $V3_DIR
-find ./as ./dss ./util -name "*.js" | sed 's/^.\//"/g' | sed 's/.js$/",/g' > $TEMP_DIR/files.js
+find ./as ./dss ./imaging ./util -name "*.js" | sed 's/^.\//"/g' | sed 's/.js$/",/g' > $TEMP_DIR/files.js
 
 # create config files from their templates by replacing '__FILES__' with a content of 'files.js'
 cd $CURRENT_DIR

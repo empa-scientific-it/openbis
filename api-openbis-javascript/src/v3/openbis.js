@@ -295,6 +295,28 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return dfd.promise();
 		}
 
+		this.executeCustomDSSService = function(serviceId, options) {
+		    var dfd = jquery.Deferred();
+            this._getDataStores().done(function(dataStores) {
+                if (dataStores.length === 1) {
+                    facade._private.ajaxRequest({
+                        url: createUrl(dataStores[0]),
+                        data: {
+                            "method": "executeCustomDSSService",
+                            "params": [facade._private.sessionToken, serviceId, options]
+                        }
+                    }).done(function (response) {
+                        dfd.resolve(response);
+                    }).fail(function (error) {
+                        dfd.reject(error);
+                    });
+                } else {
+                    dfd.reject("Please specify exactly one data store");
+                }
+            });
+            return dfd.promise();
+		}
+
 		function getUUID() {
 			return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
 				(c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
@@ -2347,27 +2369,16 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
-		this.executeExport = function(exportData, exportOptions) {
-			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
-				url : openbisUrl,
-				data : {
-					"method" : "executeExport",
-					"params" : [ thisFacade._private.sessionToken, exportData, exportOptions ]
-				}
-			});
-		}
-
-		this.isSessionActive = function() {
-				var thisFacade = this;
-				return thisFacade._private.ajaxRequest({
-						url : openbisUrl,
-						data : {
-								"method" : "isSessionActive",
-								"params" : [ thisFacade._private.sessionToken ]
-						}
-				});
-		}
+        this.isSessionActive = function() {
+            var thisFacade = this;
+            return thisFacade._private.ajaxRequest({
+                url : openbisUrl,
+                data : {
+                    "method" : "isSessionActive",
+                    "params" : [ thisFacade._private.sessionToken ]
+                }
+            });
+        }
 
 		this.getDataStoreFacade = function() {
 			var dataStoreCodes = [];
