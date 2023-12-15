@@ -16,9 +16,6 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             }
             this.properties[propertyName] = propertyValue;
         };
-        prototype.getPropertyAsString = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
 
         prototype.getIntegerProperty = function(propertyName) {
             return this.getProperty(propertyName);
@@ -26,16 +23,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setIntegerProperty = function(propertyName, propertyValue) {
             this.setProperty(propertyName, propertyValue);
         };
-        prototype.getVarcharProperty = function(propertyName) {
+        prototype.getStringProperty = function(propertyName) {
             return this.getProperty(propertyName);
         };
-        prototype.setVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getMultilineVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setMultilineVarcharProperty = function(propertyName, propertyValue) {
+        prototype.setStringProperty = function(propertyName, propertyValue) {
             this.setProperty(propertyName, propertyValue);
         };
         prototype.getRealProperty = function(propertyName) {
@@ -119,16 +110,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setMultiValueIntegerProperty = function(propertyName, propertyValue) {
             this.setProperty(propertyName, propertyValue);
         };
-        prototype.getMultiValueVarcharProperty = function(propertyName) {
+        prototype.getMultiValueStringProperty = function(propertyName) {
             return this.getProperty(propertyName);
         };
-        prototype.setMultiValueVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getMultiValueMultilineVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setMultiValueMultilineVarcharProperty = function(propertyName, propertyValue) {
+        prototype.setMultiValueStringProperty = function(propertyName, propertyValue) {
             this.setProperty(propertyName, propertyValue);
         };
         prototype.getMultiValueRealProperty = function(propertyName) {
