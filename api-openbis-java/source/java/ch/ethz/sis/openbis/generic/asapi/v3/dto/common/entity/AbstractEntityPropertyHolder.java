@@ -47,14 +47,6 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     public abstract void setProperties(Map<String, Serializable> properties);
 
     @Override
-    public String getPropertyAsString(String propertyName)
-    {
-        return getProperties() != null ?
-                PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) :
-                null;
-    }
-
-    @Override
     public Serializable getProperty(String propertyName)
     {
         return getProperties() != null ? getProperties().get(propertyName) : null;
@@ -73,7 +65,7 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     @Override
     public Long getIntegerProperty(String propertyName)
     {
-        String propertyValue = getPropertyAsString(propertyName);
+        String propertyValue = (String) getProperty(propertyName);
         return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Long.parseLong(propertyValue);
@@ -86,25 +78,13 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     }
 
     @Override
-    public String getVarcharProperty(String propertyName)
+    public String getStringProperty(String propertyName)
     {
         return (String) getProperty(propertyName);
     }
 
     @Override
-    public void setVarcharProperty(String propertyName, String propertyValue)
-    {
-        setProperty(propertyName, propertyValue);
-    }
-
-    @Override
-    public String getMultilineVarcharProperty(String propertyName)
-    {
-        return (String) getProperty(propertyName);
-    }
-
-    @Override
-    public void setMultilineVarcharProperty(String propertyName, String propertyValue)
+    public void setStringProperty(String propertyName, String propertyValue)
     {
         setProperty(propertyName, propertyValue);
     }
@@ -343,14 +323,14 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
     }
 
     @Override
-    public List<String> getMultiValueVarcharProperty(String propertyName)
+    public List<String> getMultiValueStringProperty(String propertyName)
     {
         Serializable propertyValue = getProperty(propertyName);
         return getListOfValues(propertyValue, (x) -> (String) x);
     }
 
     @Override
-    public void setMultiValueVarcharProperty(String propertyName, List<String> propertyValues)
+    public void setMultiValueStringProperty(String propertyName, List<String> propertyValues)
     {
         if (propertyValues != null)
         {
@@ -417,26 +397,6 @@ public abstract class AbstractEntityPropertyHolder implements Serializable, IPro
         setProperty(propertyName, propertyValue == null ? null : propertyValue.stream()
                 .map(ObjectPermId::getPermId)
                 .toArray(String[]::new));
-    }
-
-    @Override
-    public List<String> getMultiValueMultilineVarcharProperty(String propertyName)
-    {
-        Serializable propertyValue = getProperty(propertyName);
-        return getListOfValues(propertyValue, (x) -> (String) x);
-    }
-
-    @Override
-    public void setMultiValueMultilineVarcharProperty(String propertyName,
-            List<String> propertyValue)
-    {
-        if (propertyValue != null)
-        {
-            setProperty(propertyName, propertyValue.toArray(String[]::new));
-        } else
-        {
-            setProperty(propertyName, null);
-        }
     }
 
     @Override
