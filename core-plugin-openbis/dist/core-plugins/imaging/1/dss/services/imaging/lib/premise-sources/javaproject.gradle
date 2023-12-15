@@ -1,0 +1,412 @@
+apply plugin: 'java-library'
+apply plugin: 'project-report'
+
+evaluationDependsOnChildren()
+
+configurations {
+    implementation {
+        canBeResolved = true
+    }
+    testImplementation {
+        canBeResolved = true
+    }
+    runtimeOnly {
+        canBeResolved = true
+    }
+    tests.extendsFrom testRuntimeOnly 
+}
+
+configurations {
+	ecj
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'hours'
+    resolutionStrategy.cacheChangingModulesFor 0, 'hours'
+}
+
+//task wrapper(type: Wrapper) {
+//    gradleVersion = '4.10.3'
+//    distributionUrl = "https://services.gradle.org/distributions/gradle-4.10.3-bin.zip"
+//}
+sourceCompatibility='11'
+targetCompatibility='11'
+
+sourceSets { 
+    main {
+        java {
+            srcDirs = ['source/java']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['sourceTest/java']
+        }
+        resources {
+            srcDirs = ['sourceTest/java']
+        }
+    }
+    examples {
+        java {
+            srcDirs = ['sourceExamples/java']
+        }
+    }
+}
+
+buildDir = 'targets/gradle'
+
+buildscript {
+    apply from: './repository.gradle'
+    
+    repositories repositoryConfig
+    
+    dependencies {
+        classpath 'cisd:cisd-ant-tasks:r29834'
+    }
+}
+
+repositories repositoryConfig
+
+def execute(command, arguments) {
+    new ByteArrayOutputStream().withStream { os ->
+        print "execute: ${command}"
+        arguments.collect({print " ${it}"})
+        println ''
+        def result = exec {
+            executable = command
+            args = arguments
+            standardOutput = os
+        }
+        return os.toString().split('\n')
+    }
+}
+
+ext.executeFunction = {
+  command, arguments -> execute(command, arguments)
+}
+
+def execute_working_dir(command, arguments, working_dir) {
+    new ByteArrayOutputStream().withStream { os ->
+        print "execute: ${command}"
+        arguments.collect({print " ${it}"})
+        println ''
+        def result = exec {
+            executable = command
+            args = arguments
+            standardOutput = os
+        }
+        return os.toString().split('\n')
+    }
+}
+
+ext.svnCommand = 'svn'
+
+def isSvnProject() {
+   return new java.io.File(projectDir, ".svn").isDirectory() || new java.io.File(projectDir, "../.svn").isDirectory() 
+}
+
+def isGitProject() {
+   return new java.io.File(projectDir, ".git").isDirectory() || new java.io.File(projectDir, "../.git").isDirectory() 
+}
+
+def executeSVN(arguments) {
+    arguments.add(0, '--non-interactive')
+    return execute(svnCommand, arguments)
+}
+
+def calculateCleanFlag() {
+    return 'clean'
+    for (childProject in project.childProjects.values()) {
+        if (childProject.cleanFlag == 'dirty') {
+            return 'dirty'
+        }
+    }
+    def isSvn = isSvnProject()
+    if (isSvn) {
+        def output = executeSVN(['status', '../' + project.name])
+        def lines = output.findAll({ (it.startsWith('?') || it.trim().isEmpty()) == false})
+        return lines.isEmpty() ? 'clean' : 'dirty'
+    } else if (isGitProject()) {
+        def output = execute_working_dir('git', ['status', '--porcelain'], '../' + project.name)
+        return output.length == 0 ? 'clean' : 'dirty'
+    } else {
+    	return 'dirty'
+    }
+}
+
+def findMaximum(lines, key) {
+    return lines.findAll({ it.startsWith(key)}).collect({element -> element.split(':')[1].toInteger()}).max()
+}
+
+def calculateBuildInfo() {
+    if (isSvnProject()) {
+        def output = executeSVN(['info', '-R', '../' + project.name])
+        def maxRevisionNumber = findMaximum(output, 'Revision:')
+        project.ext.revisionNumber = findMaximum(output, 'Last Changed Rev:')
+        if (maxRevisionNumber < project.ext.revisionNumber) {
+            throw new GradleException("Maximum revision ($maxRevisionNumber) is less than the maximum "
+                      + "last changed revision ($project.ext.revisionNumber).")
+        }
+        project.ext.versionNumber = 'SNAPSHOT'
+        def url = output.findAll({ it.startsWith('URL:')})[0].split('URL:')[1].trim()
+        if (url.contains('/trunk') == false) {
+            def pathElements = url.split('/')
+            project.ext.versionNumber = 'libraries' == pathElements[-2] ? pathElements[-3] : pathElements[-2]
+        }
+    } else if (isGitProject()) {
+        def gitlogoutput = execute_working_dir('git', ['log', '-1', '--format=%at'], '../' + project.name)
+        project.ext.revisionNumber = Integer.parseInt(gitlogoutput[0])
+        def tag = 'git tag -l --points-at HEAD'.execute().text.trim()
+        if (tag == null || tag.isEmpty() || tag.contains('pybis')) {
+            project.ext.versionNumber = 'SNAPSHOT'
+        } else {
+           project.ext.versionNumber = tag
+        }
+    } else {
+        project.ext.revisionNumber = 1
+        project.ext.versionNumber = 'SNAPSHOT'
+    }
+
+    for (childProject in project.childProjects.values()) {
+        project.ext.revisionNumber = Math.max(project.ext.revisionNumber, childProject.revisionNumber)
+        if (project.ext.versionNumber != childProject.versionNumber) {
+            throw new GradleException("Inconsistent version numbers: "
+                        + "${project.name} at version ${project.ext.versionNumber} but "
+                        + "${childProject.name} at version ${childProject.versionNumber}.") 
+        } 
+    }
+    version = "${project.ext.versionNumber}-r${project.ext.revisionNumber}"
+    project.ext.revisionForPublication = project.ext.versionNumber.startsWith('SNAPSHOT') ? "r${project.ext.revisionNumber}" : project.ext.versionNumber
+    project.ext.cleanFlag = calculateCleanFlag()
+
+    def buildInfo = "${project.ext.versionNumber}:${project.ext.revisionNumber}:${project.ext.cleanFlag}"
+    def buildInfoDev = "${project.ext.versionNumber}-dev:${project.ext.revisionNumber}:${project.ext.cleanFlag}"
+
+    println "BUILD INFO for $project: $buildInfo"
+
+    def targetsDistFolder = new File("${project.projectDir}/targets/dist")
+    targetsDistFolder.deleteDir()
+    targetsDistFolder.mkdirs()
+
+    def targetDistBuildInfo = new File(targetsDistFolder, "BUILD-${project.name}.INFO")
+    targetDistBuildInfo << buildInfo
+
+    def mainClassesFolder = new File("${project.projectDir}/targets/gradle/classes/java/main")
+    mainClassesFolder.mkdirs()
+
+    def mainClassesBuildInfo = new File(mainClassesFolder, "BUILD-${project.name}.INFO")
+    mainClassesBuildInfo.delete()
+    mainClassesBuildInfo << buildInfoDev
+}
+
+calculateBuildInfo()
+
+group='cisd'
+
+task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
+    doFirst {
+/*
+        def cp = configurations.testImplementation.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
+        def cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDirs.first()]
+        if (sourceSets.test.output.classesDirs.first().exists()) {
+            cmd.add(sourceSets.test.output.classesDirs.first())
+        }
+        cmd.add('-cp')
+        cmd.add(sourceSets.main.output.classesDirs.first())
+        if (sourceSets.test.output.classesDirs.first().exists()) {
+            cmd.add(sourceSets.test.output.classesDirs.first())
+        }
+        cmd.add(configurations.testImplementation.asPath)
+        commandLine cmd
+*/
+        commandLine = ['pwd']
+    }
+}
+
+def deleteSymbolicLinksRecursively(file) {
+    def absolutePath = file.getAbsolutePath()
+    def canonicalPath = file.getCanonicalPath()
+    if (absolutePath.equals(canonicalPath) == false) {
+        file.delete();
+    } else if (file.isDirectory()) {
+        File[] files = file.listFiles()
+        for (File child : files) {
+            deleteSymbolicLinksRecursively(child)
+        }
+    }
+}
+
+task deleteSymLinks {
+    doFirst {
+        println "DELETE SYM LINKS in $buildDir"
+        deleteSymbolicLinksRecursively buildDir
+    }
+}
+
+clean.dependsOn deleteSymLinks
+
+test {
+    useTestNG()
+    options.suites('sourceTest/java/tests.xml')    
+
+    systemProperty "ant.project.name", project.name
+
+    maxHeapSize = "8192m"
+    jvmArgs '-Duser.timezone=Europe/Zurich', '-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog'
+    
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+}
+test.dependsOn checkRestrictions
+
+// Legacy Java 8 compiler from eclipse
+dependencies {
+    ecj "eclipse:ecj:4.6.1"
+}
+
+if(System.getProperty("java.version").startsWith("1.8.")) {
+    tasks.withType(JavaCompile) {
+        options.headerOutputDirectory.convention(null)
+    }
+}
+
+compileJava {
+    options.encoding = 'utf-8'
+    options.fork = true
+    doFirst {
+        // Use the legacy Java 8 compiler from eclipse for Java 8
+        if(System.getProperty("java.version").startsWith("1.8.")) {
+            options.forkOptions.with {
+                executable = 'java'
+                jvmArgs = createEclipseJDK8Args()
+            }
+        } else if(System.getProperty("java.version").startsWith("11.") || System.getProperty("java.version").startsWith("17.")) {
+            // Use modern openJDK 11 or 17 Compiler
+        } else {
+            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK17");
+        }
+    }
+}
+
+compileTestJava {
+    options.encoding = 'utf-8'
+    options.fork = true
+    doFirst {
+        // Use the legacy Java 8 compiler from eclipse for Java 8
+        if(System.getProperty("java.version").startsWith("1.8.")) {
+            options.forkOptions.with {
+                executable = 'java'
+                jvmArgs = createEclipseJDK8Args()
+            }
+        } else if(System.getProperty("java.version").startsWith("11.") || System.getProperty("java.version").startsWith("17.")) {
+            // Use modern openJDK 11 or 17 Compiler
+        } else {
+            throw new Exception("Unsupported Java version found: '" + System.getProperty("java.version") + "', please use JDK8, JDK11 or JDK17");
+        }
+    }
+}
+
+def createEclipseJDK8Args() {
+    def args = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-nowarn']
+    return args
+}
+
+processTestResources {
+    fileMode=0666
+}
+
+apply plugin: 'eclipse'
+
+eclipse {
+    classpath {
+        downloadSources=true
+        defaultOutputDir = file('targets/classes')
+    }
+}
+
+eclipse.classpath.file {
+    whenMerged{ classpath ->
+        def projectRefs = classpath.entries.findAll{entry -> entry.kind =='src' && entry.path.startsWith('/')}
+        classpath.entries.removeAll(projectRefs)
+        classpath.entries.addAll(projectRefs)   
+    }
+}
+
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
+}
+
+task sourcesJar(type: Jar) {
+    duplicatesStrategy 'include'
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+compileJava.dependsOn sourcesJar
+
+artifacts {
+    tests testJar
+}
+
+artifacts {
+	archives sourcesJar
+}
+
+task compileDependencies(type: Copy) {
+    into "$buildDir/output/compile-dependencies"
+    from configurations.implementation
+}
+
+task runtimeDependencies(type: Copy) {
+    into "$buildDir/output/runtime-dependencies"
+    from configurations.runtimeOnly
+}
+
+task testCompileDependencies(type: Copy) {
+    into "$buildDir/output/testCompile-dependencies"
+    from configurations.testImplementation
+}
+
+task testRuntimeDependencies(type: Copy) {
+    into "$buildDir/output/testRuntime-dependencies"
+    from configurations.testRuntimeOnly
+}
+
+task checkDependencies(dependsOn: classes) {
+    doLast {
+        ant.taskdef(name: 'dependencychecker', classname: 'classycle.ant.DependencyCheckingTask', classpath: configurations.testRuntime.asPath)
+        ant.dependencychecker(
+                    definitionFile: 'resource/dependency-structure.ddf',
+                    failOnUnwantedDependencies: 'true',
+                    mergeInnerClasses: 'true') {
+            fileset(dir: "${buildDir}", includes: "**/*.class")
+        }
+    }
+}
+
+apply plugin: 'ivy-publish'
+if (hasProperty('ivyRepository') == false || ''.equals(project.ivyRepository))
+{
+    project.ext.ivyRepository = "${project.projectDir}/../ivy-repository"
+}
+publishing {
+
+    repositories {
+        ivy {
+            ivyPattern "file://${project.ivyRepository}/[organisation]/[module]/[revision]/ivy.xml"
+            artifactPattern "file://${project.ivyRepository}/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        }
+    }
+}
+
+publish {
+    dependsOn build
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'utf-8')
+    }
+}
