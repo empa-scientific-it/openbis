@@ -27,6 +27,7 @@ module.exports = {
     alias: {
       'as/dto': path.resolve(__dirname, '../src/v3/as/dto/'),
       'dss/dto': path.resolve(__dirname, '../src/v3/dss/dto/'),
+      'imaging/dto': path.resolve(__dirname, '../src/v3/imaging/dto/'),
       jquery: path.resolve(__dirname, '../src/v3/lib/jquery/js/jquery.js'),
       moment: path.resolve(__dirname, '../src/v3/lib/moment/js/moment.js'),
       stjs: path.resolve(__dirname, '../src/v3/lib/stjs/js/stjs.js'),
