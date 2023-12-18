@@ -1,7 +1,34 @@
+
+import java.nio.file.Path;
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
+buildscript {
+    repositories {
+        ivy {
+            ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+            artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        }
+
+    }
+    dependencies {
+        classpath "sis:sis-base:23.06.0"
+    }
+}
+
+
+plugins {
+    id "ch.empa.schemagenerator" version "1.0"
+}
+
+
+
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 
 apply from: '../build/javaproject.gradle'
+
+
+
 
 dependencies {
     api project(':lib-common'),
@@ -14,4 +41,10 @@ dependencies {
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'reflections:reflections:0.9.10'
+}
+
+schemaGenerator{
+    packageName = "ch.systemsx.cisd.openbis.generic.shared.dto"
+    annotationClass = JsonObject.class
+    outputPath = Path.of(project.buildscript.sourceFile.parent, "a.json")
 }

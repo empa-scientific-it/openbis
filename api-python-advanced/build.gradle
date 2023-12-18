@@ -1,0 +1,8 @@
+
+//task generateModel(type: Exec) {
+//    dependsOn(':schema-generator:generate')
+//    exec {
+//        workingDir '../api-python-advanced/venv/bin'
+//        commandLine './datamodel-codegen'
+//    }
+//}

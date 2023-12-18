@@ -1,1 +1,12 @@
 includeFlat 'lib-commonbase', 'lib-common'
+includeBuild(":schema-generator")
+apply from: '../build/javaproject.gradle'
+buildscript {
+    repositories {
+        ivy {
+            ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+            artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        }
+
+    }
+}
