@@ -1400,6 +1400,7 @@ IStorageFormatId
 isUseWildcards
 isWithImportCompatibility
 isWithReferredTypes
+isZipForSingleFiles
 ITagId
 ITagsHolder
 iterator
@@ -2345,6 +2346,7 @@ setWithImportCompatibility
 setWithReferredTypes
 setXlsTextFormat
 setXmlProperty
+setZipSingleFiles
 Share Id Search Criteria
 SHORT_DATE_FORMAT
 ShortDateFormat

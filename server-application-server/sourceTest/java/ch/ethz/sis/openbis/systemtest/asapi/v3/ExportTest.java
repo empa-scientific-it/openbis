@@ -18,6 +18,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.HTML_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.JSON_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_NAME;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_EXTENSION;
@@ -46,6 +47,8 @@ import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,7 +78,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
@@ -100,6 +105,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermI
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -259,43 +265,146 @@ public class ExportTest extends AbstractTest
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
     public void testDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
             final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
-            final boolean withImportCompatibility) throws Exception
+            final boolean withImportCompatibility, final boolean zipSingleFiles) throws Exception
     {
         processPermIds(permIds);
 
         if (formats.contains(ExportFormat.DATA))
         {
+            // export-sample-data.zip refers to a test sample with more 2 datasets
+            final boolean with2FileContents = expectedResultFileName.startsWith("export-sample-data");
+
             final String fileContent1 = "This is some test data.";
             final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", fileContent1.length());
             final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
             final InputStream is1 = objectAndDataToStream(dataSetFile1, fileContent1);
 
-            final String fileContent2 = "This is some other test data.";
-            final DataSetFile dataSetFile2 = createDataSetFile("my-folder/data2.txt", fileContent2.length());
-            final SearchResult<DataSetFile> results2 = new SearchResult<>(List.of(dataSetFile2), 1);
-            final InputStream is2 = objectAndDataToStream(dataSetFile2, fileContent2);
+            final DataSetFile dataSetFile2;
+            final SearchResult<DataSetFile> results2;
+            final InputStream is2;
+            if (with2FileContents)
+            {
+                final String fileContent2 = "This is some other test data.";
+                dataSetFile2 = createDataSetFile("my-folder/data2.txt", fileContent2.length());
+                results2 = new SearchResult<>(List.of(dataSetFile2), 1);
+                is2 = objectAndDataToStream(dataSetFile2, fileContent2);
+            } else
+            {
+                dataSetFile2 = null;
+                results2 = null;
+                is2 = null;
+            }
 
             mockery.checking(new Expectations()
             {{
                 atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
                         with(any(DataSetFileFetchOptions.class)));
-                will(onConsecutiveCalls(returnValue(results1), returnValue(results2)));
+                if (with2FileContents)
+                {
+                    will(onConsecutiveCalls(returnValue(results1), returnValue(results2), returnValue(results1), returnValue(results2)));
+                } else
+                {
+                    will(onConsecutiveCalls(returnValue(results1), returnValue(results1)));
+                }
 
-                exactly(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
+                atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
                         with(any(DataSetFileDownloadOptions.class)));
                 will(returnValue(is1));
 
-                atMost(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
-                        with(any(DataSetFileDownloadOptions.class)));
-                will(returnValue(is2));
+                if (with2FileContents)
+                {
+                    atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
+                            with(any(DataSetFileDownloadOptions.class)));
+                    will(returnValue(is2));
+                }
             }});
         }
 
         final ExportData exportData = new ExportData(permIds, fields);
-        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, zipSingleFiles);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
         compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
+        mockery.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "Total data size 10485762 is larger than the data limit 10485760\\..*")
+    public void testTooLargeDataExport()
+    {
+        final Set<ExportFormat> formats = EnumSet.of(ExportFormat.DATA);
+        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027")));
+        final IExportableFields fields = new AllFields();
+        final XlsTextFormat xlsTextFormat = XlsTextFormat.PLAIN;
+        final boolean withReferredTypes = true;
+        final boolean withImportCompatibility = false;
+
+        processPermIds(permIds);
+
+        if (formats.contains(ExportFormat.DATA))
+        {
+            // The following test data are returned twice because the sample has 2 datasets.
+            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", 5242881); // 1 byte over 5000MB
+            final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
+
+            mockery.checking(new Expectations()
+            {{
+                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                        with(any(DataSetFileFetchOptions.class)));
+                will(onConsecutiveCalls(returnValue(results1), returnValue(results1)));
+
+                atMost(0).of(v3Dss).downloadFiles(with(any(String.class)), with(any(List.class)),
+                        with(any(DataSetFileDownloadOptions.class)));
+            }});
+        }
+
+        final ExportData exportData = new ExportData(permIds, fields);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, true);
+        v3api.executeExport(sessionToken, exportData, exportOptions);
+    }
+
+    @Test()
+    public void testNotTooLargeDataExport()
+    {
+        final Set<ExportFormat> formats = EnumSet.of(ExportFormat.DATA);
+        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027")));
+        final IExportableFields fields = new AllFields();
+        final XlsTextFormat xlsTextFormat = XlsTextFormat.PLAIN;
+        final boolean withReferredTypes = true;
+        final boolean withImportCompatibility = false;
+
+        processPermIds(permIds);
+
+        if (formats.contains(ExportFormat.DATA))
+        {
+            // The following test data are returned twice because the sample has 2 datasets.
+            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", 5242880); // Exactly 5000MB
+            final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
+
+            mockery.checking(new Expectations()
+            {{
+                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                        with(any(DataSetFileFetchOptions.class)));
+                will(onConsecutiveCalls(returnValue(results1), returnValue(results1), returnValue(results1), returnValue(results1)));
+
+                atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
+                        with(any(DataSetFileDownloadOptions.class)));
+                will(returnValue(new InputStream()
+                {
+                    @Override
+                    public int read()
+                    {
+                        return -1;
+                    }
+
+                }));
+            }});
+        }
+
+        final ExportData exportData = new ExportData(permIds, fields);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, true);
+        v3api.executeExport(sessionToken, exportData, exportOptions);
+
         mockery.assertIsSatisfied();
     }
 
@@ -389,6 +498,15 @@ public class ExportTest extends AbstractTest
         } else if (expectedResultFilePath.endsWith(ZIP_EXTENSION) && actualResultFilePath.endsWith(ZIP_EXTENSION))
         {
             compareZipFiles(expectedResultFilePath, actualResultFilePath);
+        } else if (expectedResultFilePath.endsWith(HTML_EXTENSION) && actualResultFilePath.endsWith(HTML_EXTENSION))
+        {
+            try (
+                    final InputStream expectedResultInputStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath);
+                    final FileInputStream actualResultInputStream = new FileInputStream(getActualFile(actualResultFilePath));
+            )
+            {
+                compareStreams(expectedResultInputStream, actualResultInputStream);
+            }
         } else
         {
             throw new IllegalArgumentException(String.format("Expected ('%s') and actual ('%s') files have different formats.",
@@ -398,12 +516,18 @@ public class ExportTest extends AbstractTest
 
     private void compareXlsxFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
     {
-        final InputStream expectedResultStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath);
-        if (expectedResultStream == null)
+        try(final InputStream expectedResultInputStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath))
         {
-            throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
+            if (expectedResultInputStream == null)
+            {
+                throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
+            }
+
+            try(final FileInputStream actualResultInputStream = new FileInputStream(getActualFile(actualResultFilePath)))
+            {
+                compareXlsxStreams(expectedResultInputStream, actualResultInputStream);
+            }
         }
-        compareXlsxStreams(expectedResultStream, new FileInputStream(getActualFile(actualResultFilePath)));
     }
 
     private void compareZipFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
@@ -524,12 +648,13 @@ public class ExportTest extends AbstractTest
         final String actualResultFileName = pathSeparatorLocation > 0
                 ? actualResultFilePath.substring(pathSeparatorLocation + 1) : actualResultFilePath;
         final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File sessionWorkspaceSubfolder = new File(sessionWorkspace, intermediatePath);
-        final File[] files = sessionWorkspaceSubfolder.listFiles((FilenameFilter) new NameFileFilter(actualResultFileName));
+        final File sessionWorkspaceSubdirectory = new File(sessionWorkspace, intermediatePath);
+        final File[] files = sessionWorkspaceSubdirectory.listFiles((FilenameFilter) new NameFileFilter(actualResultFileName));
 
         assertNotNull(files);
-        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",
-                actualResultFilePath));
+        assertEquals(1, files.length,
+                String.format("Session workspace should contain only one file with the download URL '%s' but in contains the following files: %s",
+                actualResultFilePath, Arrays.toString(files)));
 
         return files[0];
     }

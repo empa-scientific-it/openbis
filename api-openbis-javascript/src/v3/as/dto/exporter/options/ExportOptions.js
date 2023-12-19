@@ -16,11 +16,12 @@
  */
 
 define(["stjs"], function (stjs) {
-  var ExportOptions = function(formats, xlsTextFormat, withReferredTypes, withImportCompatibility) {
+  var ExportOptions = function(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, zipSingleFiles) {
     this.formats = formats;
     this.xlsTextFormat = xlsTextFormat;
     this.withReferredTypes = withReferredTypes;
     this.withImportCompatibility = withImportCompatibility;
+    this.zipSingleFiles = zipSingleFiles;
   }
 
   stjs.extend(
@@ -35,6 +36,7 @@ define(["stjs"], function (stjs) {
       prototype.xlsTextFormat = null;
       prototype.withReferredTypes = null;
       prototype.withImportCompatibility = null;
+      prototype.zipSingleFiles = null;
 
       prototype.getFormats = function() {
         return this.formats;
@@ -66,6 +68,14 @@ define(["stjs"], function (stjs) {
 
       prototype.setWithImportCompatibility = function(withImportCompatibility) {
         this.withImportCompatibility = withImportCompatibility;
+      };
+
+      prototype.isZipSingleFiles = function() {
+        return this.zipSingleFiles;
+      };
+
+      prototype.setZipSingleFiles = function(zipSingleFiles) {
+        this.zipSingleFiles = zipSingleFiles;
       };
     },
     {
