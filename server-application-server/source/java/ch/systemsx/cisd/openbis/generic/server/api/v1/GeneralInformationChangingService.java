@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -146,14 +147,18 @@ public class GeneralInformationChangingService extends
         try
         {
             final Session session = getSession(sessionToken);
-            PersonPE person = session.tryGetPerson();
+            final PersonPE person = session.tryGetPerson();
             if (person != null)
             {
-                synchronized (displaySettingsProvider)
+                displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Object>()
                 {
-                    displaySettingsProvider.replaceWebAppSettings(person, webAppSettings);
-                    getDAOFactory().getPersonDAO().updatePerson(person);
-                }
+                    @Override public Object execute(final boolean didOperationSucceed)
+                    {
+                        displaySettingsProvider.replaceWebAppSettings(person, webAppSettings);
+                        getDAOFactory().getPersonDAO().updatePerson(person);
+                        return null;
+                    }
+                });
             }
         } catch (InvalidSessionException e)
         {
