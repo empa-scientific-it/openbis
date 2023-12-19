@@ -1,6 +1,7 @@
 apply plugin: 'java-library'
 apply plugin: 'project-report'
 
+
 evaluationDependsOnChildren()
 
 configurations {
@@ -61,7 +62,7 @@ buildscript {
     repositories repositoryConfig
     
     dependencies {
-        classpath 'cisd:cisd-ant-tasks:r29834'
+        classpath 'cisd:cisd-ant-tasks:r29834', 'com.bmuschko:gradle-docker-plugin:9.4.0'
     }
 }
 
@@ -410,3 +411,4 @@ if (JavaVersion.current().isJava8Compatible()) {
         options.addStringOption('encoding', 'utf-8')
     }
 }
+

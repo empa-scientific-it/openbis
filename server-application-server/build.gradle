@@ -1,3 +1,23 @@
+buildscript {
+    apply from: '../build/repository.gradle'
+
+    repositories repositoryConfig
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:9.4.0',
+                'org.springframework.boot:spring-boot-gradle-plugin:3.1.2',
+                'org.springdoc:springdoc-openapi-gradle-plugin:1.8.0'
+//                "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0"
+    }
+}
+apply from: '../build/javaproject.gradle'
+apply plugin: org.springframework.boot.gradle.plugin.SpringBootPlugin
+apply plugin: 'io.spring.dependency-management'
+apply plugin: "org.springdoc.openapi-gradle-plugin"
+
+
+
+
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':api-openbis-java')
@@ -6,10 +26,44 @@ evaluationDependsOn(':lib-openbis-common')
 evaluationDependsOn(':lib-authentication')
 evaluationDependsOn(':lib-dbmigration')
 
-apply from: '../build/javaproject.gradle'
+
+
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.container.*
+
 
 configurations.create('testRuntimeFirst')
 configurations.create('devRuntime')
+
+repositories{
+    mavenCentral()
+}
+
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+//    dependencies {
+//        dependencySet(group:'org.springframework.security', version: '5.0.17.RELEASE') {
+//            entry 'spring-security-core'
+//            entry 'spring-security-web'
+//        }
+//    }
+    imports {
+        imports {
+            mavenBom('org.springframework.boot:spring-boot-dependencies:3.1.1') {
+                bomProperty 'spring-framework.version', '5.0.17.RELEASE'
+            }
+            mavenBom("org.springframework.security:spring-security-bom:5.0.17.RELEASE"){
+                bomProperty 'spring-framework.version', '5.0.17.RELEASE'
+            }
+        }    }
+}
+
+
+springBoot {
+    mainClass = 'ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApiServer'
+}
 
 dependencies {
     api project(':lib-common'),
@@ -32,7 +86,6 @@ dependencies {
             'hibernate:hibernate-validator:4.3.2.Final',
             'unimi:fastutil:5.1.5',
             'apache:commons-collections4:4.1',
-            'springframework:spring-context-support:5.0.17.RELEASE',
             'ehcache:ehcache:2.10.0',
             'jline:jline:0.9.94',
             'jsoup:jsoup:1.14.2',
@@ -43,6 +96,10 @@ dependencies {
             'de.rototor.pdfbox:graphics2d:3.0.0',
             'com.openhtmltopdf:openhtmltopdf-core:1.0.10',
             'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
+
+            implementation "org.springframework.security:spring-security-web:5.0.17.RELEASE"
+            implementation "org.springframework.security:spring-security-config:5.0.17.RELEASE"
+
 
 
     runtimeOnly 'slf4j:slf4j-log4j12:1.6.2',
@@ -84,6 +141,38 @@ sourceSets {
         }
     }
 }
+
+
+docker{
+    registryCredentials {
+        url = "https://registry-1.docker.io/"
+    }
+}
+
+task pullPostgresImage(type: DockerPullImage) {
+    image = "postgres:15.5-alpine"
+}
+task createPostgresContainer(type: DockerCreateContainer){
+    dependsOn pullPostgresImage
+    imageId = pullPostgresImage.image
+    containerName = "postgres"
+
+    withEnvVar("POSTGRES_PASSWORD", "postgres")
+    hostConfig.portBindings = ["5432:5432"]
+    hostConfig.autoRemove = true
+
+}
+task startPostgrs(type: DockerStartContainer){
+    dependsOn createPostgresContainer
+
+    containerId = "postgres"
+
+}
+
+task stopPostgres(type: DockerStopContainer){
+    containerId = "postgres"
+}
+
 
 task cleanDbSuite(type: Test) {
     useTestNG()
@@ -132,7 +221,7 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
     include "*.properties"
 }
 
-task openBISDevelopmentEnvironmentASStart(type: JavaExec) {
+task openBISDevelopmentEnvironmentASStart(type: JavaExec, dependsOn: startPostgrs) {
     main = 'org.eclipse.jetty.runner.Runner'
     classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
     jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
@@ -150,9 +239,11 @@ task openBISDevelopmentEnvironmentASStart(type: JavaExec) {
 }
 
 testProjectSamplesEnabled.dependsOn(copyTestData)
+testProjectSamplesEnabled.dependsOn(startPostgrs)
 cleanDbSuiteProjectSamplesEnabled.dependsOn(testProjectSamplesEnabled)
 test.maxHeapSize = "10240m"
+test.dependsOn(openBISDevelopmentEnvironmentASStart)
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
-
+test.finalizedBy(stopPostgres)
 apply from: 'gwtdev.gradle'

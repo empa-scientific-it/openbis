@@ -1,4 +1,11 @@
+
 configurations.create('gwt')
+
+
+
+
+
+
 if (System.getProperty("openbis.development-build") != null) {
     configurations.gwt {
         transitive = false
@@ -97,7 +104,9 @@ task copyV3Api(type: Copy, dependsOn: [compileGWTToTempJDK11, ':api-openbis-java
     into "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS/resources/api/v3"
 }
 
-task openBISDevelopmentEnvironmentASPrepare(type: Copy, dependsOn: copyV3Api) {
+task openBISDevelopmentEnvironmentASPrepare(type: Copy, dependsOn: [copyV3Api, pullPostgresImage]) {
     from "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS"
     into "targets/www/openbis-test"
 }
+
+
