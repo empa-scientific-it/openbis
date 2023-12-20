@@ -288,6 +288,9 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     @Override
     public void lock(PersonPE person)
     {
-        currentSession().createNativeQuery("SELECT * FROM " + TableNames.PERSONS_TABLE + " WHERE id = " + person.getId() + " FOR NO KEY UPDATE");
+        if(person != null && person.getId() != null)
+        {
+            currentSession().createNativeQuery("SELECT * FROM " + TableNames.PERSONS_TABLE + " WHERE id = " + person.getId() + " FOR NO KEY UPDATE");
+        }
     }
 }
