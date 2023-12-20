@@ -621,12 +621,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
         final Session session = sessionManager.getSession(sessionToken);
 
-        PersonPE attachedPerson = getDAOFactory().getPersonDAO().tryFindPersonByUserId(session.getUserName());
-        if(attachedPerson != null)
-        {
-            getDAOFactory().getPersonDAO().lock(attachedPerson);
-        }
-
         return displaySettingsProvider.executeActionWithPersonLock(session.getUserName(), new IDelegatedActionWithResult<SessionContextDTO>()
         {
             @Override public SessionContextDTO execute(final boolean didOperationSucceed)
