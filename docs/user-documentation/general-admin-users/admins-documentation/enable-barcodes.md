@@ -1,10 +1,10 @@
-# Enable Barcodes
+# Enable Barcodes and QR codes
 
 
 
-In order to be able to add custom barcodes to *Objects*, an *Instance
+In order to be able to add custom barcodes and QR codes to *Objects*, an *Instance
 Admin* needs to add the $BARCODE property to the object type for which
-barcodes are needed.
+barcodes/QR codes are needed.
 
  
 
