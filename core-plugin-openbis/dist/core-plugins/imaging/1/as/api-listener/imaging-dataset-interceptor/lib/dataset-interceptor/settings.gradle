@@ -1,0 +1,21 @@
+//includeFlat 'lib-commonbase', 'lib-common', 'api-openbis-java', 'lib-openbis-common', 'lib-authentication', 'lib-dbmigration', 'server-application-server',
+//        'server-original-data-store', 'server-screening', 'server-external-data-store',
+//        'ui-admin', 'lib-microservice-server', 'ui-eln-lims', 'api-openbis-javascript'
+//
+//def includes = ['lib-commonbase', 'lib-common', 'api-openbis-java', 'lib-openbis-common', 'api-openbis-javascript',
+//                'lib-authentication', 'lib-dbmigration', 'server-application-server', 'server-original-data-store']
+//
+//includes.forEach { name ->
+//    includeFlat(name)
+//    project(":${name}").projectDir = new File("../openbis/${name}")
+//}
+
+def includes = ['lib-common', 'lib-commonbase', 'api-openbis-java',
+'api-openbis-javascript', 'lib-openbis-common', 'lib-dbmigration', 'lib-authentication',
+'server-original-data-store', 'server-application-server'
+]
+
+includes.forEach { name ->
+    includeFlat(name)
+    project(":${name}").projectDir = new File("../../../../../../../../../../${name}")
+}
