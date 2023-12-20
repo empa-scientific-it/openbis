@@ -150,6 +150,12 @@ public class GeneralInformationChangingService extends
             final PersonPE person = session.tryGetPerson();
             if (person != null)
             {
+                PersonPE attachedPerson = getDAOFactory().getPersonDAO().tryFindPersonByUserId(person.getUserId());
+                if(attachedPerson != null)
+                {
+                    getDAOFactory().getPersonDAO().lock(attachedPerson);
+                }
+
                 displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Object>()
                 {
                     @Override public Object execute(final boolean didOperationSucceed)
