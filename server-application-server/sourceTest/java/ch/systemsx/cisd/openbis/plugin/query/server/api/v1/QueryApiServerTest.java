@@ -30,6 +30,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -91,6 +92,7 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     one(sessionManager).tryToOpenSession("Albert", "E=mc2");
                     will(returnValue(SESSION_TOKEN));
 
+                    Session session = new Session("Albert", SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
                     one(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
 
@@ -102,8 +104,10 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays
                             .asList(roleAssignment)));
                     person.setActive(true);
-                    one(personDAO).tryFindPersonByUserId(session.getUserName());
+                    allowing(personDAO).tryFindPersonByUserId(session.getUserName());
                     will(returnValue(person));
+
+                    one(personDAO).lock(person);
 
                     one(personDAO).updatePerson(person);
 
