@@ -202,6 +202,8 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
 
                     allowing(fileOperationsManagerFactory).create();
                     will(returnValue(fileOperationsManager));
+
+                    allowing(shareIdManager).cleanupLocks();
                 }
             });
 
