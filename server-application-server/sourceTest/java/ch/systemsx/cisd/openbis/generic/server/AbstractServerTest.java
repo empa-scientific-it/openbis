@@ -119,16 +119,20 @@ public class AbstractServerTest extends AssertJUnit
 
         final RecordingMatcher<RoleAssignmentPE> matcher = new RecordingMatcher<RoleAssignmentPE>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(personDAO).listPersons();
-                    List<PersonPE> personsList =
-                            Arrays.asList(createSystemUser(), createUser(ETL_SERVER));
-                    will(returnValue(personsList));
+                one(personDAO).tryFindPersonByUserId(with(USERNAME));
+                will(returnValue(null));
+                one(personDAO).lock(with((PersonPE) null));
 
-                    one(roleAssigmentDAO).createRoleAssignment(with(matcher));
-                }
-            });
+                one(personDAO).listPersons();
+                List<PersonPE> personsList =
+                        Arrays.asList(createSystemUser(), createUser(ETL_SERVER));
+                will(returnValue(personsList));
+
+                one(roleAssigmentDAO).createRoleAssignment(with(matcher));
+            }
+        });
         SessionContextDTO session = server.tryAuthenticate(USERNAME, PASSWORD);
         assertNotNull(session);
         RoleAssignmentPE roleAssigment = matcher.recordedObject();
@@ -143,14 +147,18 @@ public class AbstractServerTest extends AssertJUnit
         prepareLoginExpectations(USERNAME, PASSWORD);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(personDAO).listPersons();
-                    List<PersonPE> personsList =
-                            Arrays.asList(createSystemUser(), createUser("test-admin-user"));
-                    will(returnValue(personsList));
-                }
-            });
+                one(personDAO).tryFindPersonByUserId(with(USERNAME));
+                will(returnValue(null));
+                one(personDAO).lock(with((PersonPE) null));
+
+                one(personDAO).listPersons();
+                List<PersonPE> personsList =
+                        Arrays.asList(createSystemUser(), createUser("test-admin-user"));
+                will(returnValue(personsList));
+            }
+        });
         assertNotAuthorized(USERNAME);
     }
 
@@ -161,16 +169,20 @@ public class AbstractServerTest extends AssertJUnit
 
         final RecordingMatcher<RoleAssignmentPE> matcher = new RecordingMatcher<RoleAssignmentPE>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(personDAO).listPersons();
-                    List<PersonPE> personsList =
-                            Arrays.asList(createSystemUser(), createUser("admin"));
-                    will(returnValue(personsList));
+                one(personDAO).tryFindPersonByUserId(with(ETL_SERVER));
+                will(returnValue(null));
+                one(personDAO).lock(with((PersonPE) null));
 
-                    one(roleAssigmentDAO).createRoleAssignment(with(matcher));
-                }
-            });
+                one(personDAO).listPersons();
+                List<PersonPE> personsList =
+                        Arrays.asList(createSystemUser(), createUser("admin"));
+                will(returnValue(personsList));
+
+                one(roleAssigmentDAO).createRoleAssignment(with(matcher));
+            }
+        });
         SessionContextDTO session = server.tryAuthenticate(ETL_SERVER, PASSWORD);
         assertNotNull(session);
         RoleAssignmentPE roleAssigment = matcher.recordedObject();
@@ -184,14 +196,18 @@ public class AbstractServerTest extends AssertJUnit
         prepareLoginExpectations(ETL_SERVER, PASSWORD);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(personDAO).listPersons();
-                    List<PersonPE> personsList =
-                            Arrays.asList(createSystemUser(), createUser("etlserver1"));
-                    will(returnValue(personsList));
-                }
-            });
+                one(personDAO).tryFindPersonByUserId(with(ETL_SERVER));
+                will(returnValue(null));
+                one(personDAO).lock(with((PersonPE) null));
+
+                one(personDAO).listPersons();
+                List<PersonPE> personsList =
+                        Arrays.asList(createSystemUser(), createUser("etlserver1"));
+                will(returnValue(personsList));
+            }
+        });
         assertNotAuthorized(ETL_SERVER);
     }
 

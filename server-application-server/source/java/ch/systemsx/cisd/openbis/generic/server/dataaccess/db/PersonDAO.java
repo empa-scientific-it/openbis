@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Implementation of {@link IPersonDAO} for databases.
@@ -287,7 +288,9 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     @Override
     public void lock(PersonPE person)
     {
-        PersonPE mergedPerson = (PersonPE) getHibernateTemplate().merge(person);
-        getHibernateTemplate().lock(mergedPerson, LockMode.PESSIMISTIC_WRITE);
+        if(person != null && person.getId() != null)
+        {
+            currentSession().createNativeQuery("SELECT * FROM " + TableNames.PERSONS_TABLE + " WHERE id = " + person.getId() + " FOR NO KEY UPDATE");
+        }
     }
 }

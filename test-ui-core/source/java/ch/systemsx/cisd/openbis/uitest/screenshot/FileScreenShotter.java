@@ -35,6 +35,7 @@ public class FileScreenShotter implements ScreenShotter
     
     private long previousFileSize;
     private long previousTimestamp;
+    private static final long TEN_MINUTES = 10 * 60 * 1000;
 
     public FileScreenShotter(TakesScreenshot driver, String directory)
     {
@@ -55,9 +56,9 @@ public class FileScreenShotter implements ScreenShotter
             long timestamp = target.lastModified();
             System.out.println("SCREENSHOT: " + file.getAbsolutePath() + " -> " + target.getAbsolutePath()
                     + " (" + fileSize + ")");
-            if (fileSize == previousFileSize && timestamp > previousTimestamp + 5000)
+            if (fileSize == previousFileSize && timestamp > previousTimestamp + TEN_MINUTES)
             {
-                throw new RuntimeException("Unchanged screenshot after 5 seconds");
+                throw new RuntimeException("Unchanged screenshot after 10 minutes");
             }
             previousFileSize = fileSize;
             previousTimestamp = timestamp;

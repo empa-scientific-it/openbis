@@ -146,12 +146,6 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public String getPropertyAsString(String propertyName)
-                {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
                 public String getProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
@@ -263,25 +257,13 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public String getVarcharProperty(String propertyName)
+                public String getStringProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setVarcharProperty(String propertyName, String propertyValue)
-                {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public String getMultilineVarcharProperty(String propertyName)
-                {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void setMultilineVarcharProperty(String propertyName, String propertyValue)
+                public void setStringProperty(String propertyName, String propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
@@ -385,27 +367,14 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public List<String> getMultiValueVarcharProperty(String propertyName)
+                public List<String> getMultiValueStringProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setMultiValueVarcharProperty(String propertyName,
+                public void setMultiValueStringProperty(String propertyName,
                         List<String> propertyValues)
-                {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public List<String> getMultiValueMultilineVarcharProperty(String propertyName)
-                {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void setMultiValueMultilineVarcharProperty(String propertyName,
-                        List<String> propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }

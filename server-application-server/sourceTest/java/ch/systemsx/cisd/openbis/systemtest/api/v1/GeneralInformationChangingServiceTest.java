@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
@@ -68,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -1064,6 +1067,50 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
             {
             }
         }
+    }
+
+    @Test
+    public void testSetWebAppSettings()
+    {
+        String webAppId1 = UUID.randomUUID().toString();
+        String webAppId2 = UUID.randomUUID().toString();
+        String adminSessionToken = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        // get empty settings 1 and 2
+
+        WebAppSettings settings1 = generalInformationChangingService.getWebAppSettings(adminSessionToken, webAppId1);
+        assertEquals(webAppId1, settings1.getWebAppId());
+        assertEquals(Collections.emptyMap(), settings1.getSettings());
+
+        WebAppSettings settings2 = generalInformationChangingService.getWebAppSettings(adminSessionToken, webAppId2);
+        assertEquals(webAppId2, settings2.getWebAppId());
+        assertEquals(Collections.emptyMap(), settings2.getSettings());
+
+        // set settings 1
+
+        WebAppSettings settings1Creation = new WebAppSettings(webAppId1, Collections.singletonMap("test-key-1", "test-value-1"));
+        generalInformationChangingService.setWebAppSettings(adminSessionToken, settings1Creation);
+
+        settings1 = generalInformationChangingService.getWebAppSettings(adminSessionToken, webAppId1);
+        assertEquals(webAppId1, settings1.getWebAppId());
+        assertEquals(settings1Creation.getSettings(), settings1.getSettings());
+
+        settings2 = generalInformationChangingService.getWebAppSettings(adminSessionToken, webAppId2);
+        assertEquals(webAppId2, settings2.getWebAppId());
+        assertEquals(Collections.emptyMap(), settings2.getSettings());
+
+        // set settings 2
+
+        WebAppSettings settings2Creation = new WebAppSettings(webAppId2, Collections.singletonMap("test-key-2", "test-value-2"));
+        generalInformationChangingService.setWebAppSettings(adminSessionToken, settings2Creation);
+
+        settings1 = generalInformationChangingService.getWebAppSettings(adminSessionToken, webAppId1);
+        assertEquals(webAppId1, settings1.getWebAppId());
+        assertEquals(settings1Creation.getSettings(), settings1.getSettings());
+
+        settings2 = generalInformationChangingService.getWebAppSettings(adminSessionToken, webAppId2);
+        assertEquals(webAppId2, settings2.getWebAppId());
+        assertEquals(settings2.getSettings(), settings2.getSettings());
     }
 
     private class ProjectDeleteAction implements DeleteAction<Project>

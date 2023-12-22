@@ -17,7 +17,7 @@ public class ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask implements IMai
 
     public static final String DEFAULT_NAME = "injected-release-dataset-locks-held-by-dead-threads-task";
 
-    public static final int DEFAULT_INTERVAL = 300;
+    public static final int DEFAULT_INTERVAL = 60;
 
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ReleaseDataSetLocksHeldByDeadThreadsMaintenanceTask.class);
 

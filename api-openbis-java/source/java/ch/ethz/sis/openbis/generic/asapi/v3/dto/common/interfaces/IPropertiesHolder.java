@@ -34,8 +34,6 @@ public interface IPropertiesHolder
 
     void setProperties(Map<String, Serializable> properties);
 
-    String getPropertyAsString(String propertyName);
-
     Serializable getProperty(String propertyName);
 
     void setProperty(String propertyName, Serializable propertyValue);
@@ -44,13 +42,9 @@ public interface IPropertiesHolder
 
     void setIntegerProperty(String propertyName, Long propertyValue);
 
-    String getVarcharProperty(String propertyName);
+    String getStringProperty(String propertyName);
 
-    void setVarcharProperty(String propertyName, String propertyValue);
-
-    String getMultilineVarcharProperty(String propertyName);
-
-    void setMultilineVarcharProperty(String propertyName, String propertyValue);
+    void setStringProperty(String propertyName, String propertyValue);
 
     Double getRealProperty(String propertyName);
 
@@ -106,13 +100,9 @@ public interface IPropertiesHolder
 
     void setMultiValueIntegerProperty(String propertyName, List<Long> propertyValues);
 
-    List<String> getMultiValueVarcharProperty(String propertyName);
+    List<String> getMultiValueStringProperty(String propertyName);
 
-    void setMultiValueVarcharProperty(String propertyName, List<String> propertyValues);
-
-    List<String> getMultiValueMultilineVarcharProperty(String propertyName);
-
-    void setMultiValueMultilineVarcharProperty(String propertyName, List<String> propertyValue);
+    void setMultiValueStringProperty(String propertyName, List<String> propertyValues);
 
     List<Double> getMultiValueRealProperty(String propertyName);
 

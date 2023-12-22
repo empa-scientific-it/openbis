@@ -957,7 +957,7 @@ getMultiValueSampleProperty
 getMultiValueStringArrayProperty
 getMultiValueTimestampArrayProperty
 getMultiValueTimestampProperty
-getMultiValueVarcharProperty
+getMultiValueStringProperty
 getMultiValueXmlProperty
 getNotification
 getNotificationOptions
@@ -1096,7 +1096,7 @@ getValidTo
 getValidToDate
 getValue
 getValues
-getVarcharProperty
+getStringProperty
 getVersion
 getVocabulary
 GetVocabularyTermsOperation
@@ -2222,7 +2222,7 @@ setMultiValueSampleProperty
 setMultiValueStringArrayProperty
 setMultiValueTimestampArrayProperty
 setMultiValueTimestampProperty
-setMultiValueVarcharProperty
+setMultiValueStringProperty
 setMultiValueXmlProperty
 setName
 setNegated
@@ -2337,7 +2337,7 @@ setValidTo
 setValidToDate
 setValue
 setValues
-setVarcharProperty
+setStringProperty
 setVersion
 SetView
 setVocabulary

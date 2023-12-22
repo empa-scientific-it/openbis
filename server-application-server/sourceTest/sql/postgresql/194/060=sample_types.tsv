@@ -1,0 +1,12 @@
+1	MASTER_PLATE	Master Plate	t	0	0	2009-03-23 15:34:44.462776+01	f	S	f	f	\N	f	\N
+2	DILUTION_PLATE	Dilution Plate	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	\N	f	\N
+5	CONTROL_LAYOUT	Control layout	t	0	0	2009-03-23 15:34:44.462776+01	f	S	f	f	\N	f	\N
+6	WELL	Plate Well	f	0	1	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N
+3	CELL_PLATE	Cell Plate	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N
+4	REINFECT_PLATE	Re-infection Plate	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N
+7	DYNAMIC_PLATE	Dynamic Plate	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N
+8	IMPOSSIBLE	Impossible to create	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	6	f	\N
+9	IMPOSSIBLE_TO_UPDATE	Impossible to update	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	7	f	\N
+10	VALIDATE_CHILDREN	Validate children on update	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	8	f	\N
+11	NORMAL	just the normal	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N
+12	DELETION_TEST	just the normal	t	1	0	2009-03-23 15:34:44.462776+01	f	S	f	f	5	f	\N

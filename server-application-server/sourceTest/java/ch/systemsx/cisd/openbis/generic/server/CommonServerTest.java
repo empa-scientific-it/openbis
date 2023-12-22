@@ -359,8 +359,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson))); // only 'system' in database
 
-                    one(personDAO).tryFindPersonByUserId(user); // first login
+                    allowing(personDAO).tryFindPersonByUserId(user); // first login
                     will(returnValue(null));
+
+                    one(personDAO).lock(null);
 
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
@@ -405,8 +407,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
 
-                    one(personDAO).tryFindPersonByUserId(user); // first login
+                    allowing(personDAO).tryFindPersonByUserId(user); // first login
                     will(returnValue(null));
+
+                    one(personDAO).lock(null);
 
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
@@ -443,8 +447,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(mySession));
 
-                    one(personDAO).tryFindPersonByUserId(user);
+                    allowing(personDAO).tryFindPersonByUserId(user);
                     will(returnValue(person));
+
+                    one(personDAO).lock(person);
                 }
             });
         assertEquals(null, mySession.tryGetPerson());

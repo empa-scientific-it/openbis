@@ -1218,7 +1218,7 @@ public class ExportExecutor implements IExportExecutor
     {
         try
         {
-            return escapeUnsafeCharacters(entity.getVarcharProperty(NAME_PROPERTY_NAME));
+            return escapeUnsafeCharacters(entity.getStringProperty(NAME_PROPERTY_NAME));
         } catch (final NotFetchedException e)
         {
             return null;

@@ -43,45 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 public class SimplePropertyValidator
 {
 
-    public enum SupportedDatePattern
-    {
-        DAYS_DATE_PATTERN("yyyy-MM-dd"),
-
-        MINUTES_DATE_PATTERN("yyyy-MM-dd HH:mm"),
-
-        SECONDS_DATE_PATTERN("yyyy-MM-dd HH:mm:ss"),
-
-        ISO_MINUTES_DATE_PATTERN("yyyy-MM-dd'T'HH:mm"),
-
-        ISO_SECONDS_DATE_PATTERN("yyyy-MM-dd'T'HH:mm:ss"),
-
-        US_DATE_PATTERN("M/d/yy"),
-
-        US_DATE_TIME_PATTERN("M/d/yy h:mm a"),
-
-        US_DATE_TIME_24_PATTERN("M/d/yy HH:mm"),
-
-        CANONICAL_DATE_PATTERN(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN),
-
-        ISO_CANONICAL_DATE_PATTERN("yyyy-MM-dd'T'HH:mm:ssX"),
-
-        RENDERED_CANONICAL_DATE_PATTERN(BasicConstant.RENDERED_CANONICAL_DATE_FORMAT_PATTERN),
-
-        ISO_RENDERED_CANONICAL_DATE_PATTERN("yyyy-MM-dd'T'HH:mm:ssXXX");
-
-        private final String pattern;
-
-        SupportedDatePattern(String pattern)
-        {
-            this.pattern = pattern;
-        }
-
-        public String getPattern()
-        {
-            return pattern;
-        }
-    }
-
     public final static String[] DATE_PATTERNS = createDatePatterns();
 
     private final static Map<DataTypeCode, IDataTypeValidator> dataTypeValidators =
@@ -106,7 +67,7 @@ public class SimplePropertyValidator
     {
         final List<String> datePatterns = new ArrayList<String>();
         // Order does not matter due to DateUtils implementation used.
-        for (SupportedDatePattern supportedPattern : SupportedDatePattern.values())
+        for (SupportedDateTimePattern supportedPattern : SupportedDateTimePattern.values())
         {
             datePatterns.add(supportedPattern.getPattern());
         }
@@ -208,8 +169,8 @@ public class SimplePropertyValidator
     {
         public DateValidator()
         {
-            super(SupportedDatePattern.DAYS_DATE_PATTERN, SupportedDatePattern.DAYS_DATE_PATTERN.getPattern(),
-                    SupportedDatePattern.US_DATE_PATTERN.getPattern());
+            super(SupportedDateTimePattern.DAYS_DATE_PATTERN, SupportedDateTimePattern.DAYS_DATE_PATTERN.getPattern(),
+                    SupportedDateTimePattern.US_DATE_PATTERN.getPattern());
         }
     }
 
@@ -217,16 +178,16 @@ public class SimplePropertyValidator
     {
         public TimestampValidator()
         {
-            super(SupportedDatePattern.CANONICAL_DATE_PATTERN, DATE_PATTERNS);
+            super(SupportedDateTimePattern.CANONICAL_DATE_PATTERN, DATE_PATTERNS);
         }
     }
     
     private static class AbstractDateAndTimestampValidator implements IDataTypeValidator
     {
-        private SupportedDatePattern internalPattern;
+        private SupportedDateTimePattern internalPattern;
         private String[] patterns;
 
-        AbstractDateAndTimestampValidator(SupportedDatePattern internalPattern, String... patterns)
+        AbstractDateAndTimestampValidator(SupportedDateTimePattern internalPattern, String... patterns)
         {
             this.internalPattern = internalPattern;
             this.patterns = patterns;

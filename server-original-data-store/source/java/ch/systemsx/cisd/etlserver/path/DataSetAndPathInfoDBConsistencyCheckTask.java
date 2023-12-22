@@ -233,6 +233,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
 
                     private int index;
 
+                    private boolean canRestart = true;
+
                     @Override
                     public boolean hasNext()
                     {
@@ -240,8 +242,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
                         {
                             String timestampAndCode = readTimestampAndCodeFromStateFile();
                             currentChunk = getNextDataSets(lastRegistrationDate, chunkSize, timestampAndCode);
-                            if (currentChunk.isEmpty())
+                            if (currentChunk.isEmpty() && canRestart)
                             {
+                                canRestart = false;
                                 lastRegistrationDate = originalStartingTime;
                                 currentChunk = getNextDataSets(lastRegistrationDate, chunkSize, null);
                             }

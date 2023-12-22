@@ -1,0 +1,12 @@
+1	UNKNOWN	Unknown	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N
+2	HCS_IMAGE	High Content Screening Image	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N
+3	HCS_IMAGE_ANALYSIS_DATA	Data derived from analysis of HCS images	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N
+4	CONTAINER_TYPE	A container (virtual) data set type	2011-05-09 12:24:44.462776+02	\N	\N	f	\N	\N
+5	LINK_TYPE	A link data set type	2012-06-26 12:24:44.462776+02	\N	\N	f	\N	\N
+6	VALIDATED_CONTAINER_TYPE	A container test-validated data set type	2011-05-09 12:24:44.462776+02	\N	\N	f	11	\N
+7	VALIDATED_IMPOSSIBLE_TO_UPDATE_TYPE	A dataset type impossible to updatea set type	2011-05-09 12:24:44.462776+02	\N	\N	f	6	\N
+8	VALIDATED_NORMAL_TYPE	A regular test-validated type	2011-05-09 12:24:00+02	\N	\N	f	11	\N
+9	REQUIRES_EXPERIMENT	Requires experiment	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N
+10	DELETION_TEST	Deletion tests	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N
+11	DELETION_TEST_CONTAINER	Deletion tests	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N
+12	IMAGING_DATA	Imaging data	2009-03-23 15:34:44.462776+01	\N	\N	f	\N	\N

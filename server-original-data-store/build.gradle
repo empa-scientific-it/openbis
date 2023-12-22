@@ -56,6 +56,7 @@ dependencies {
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/zenodo-exports-api/lib/job-scheduler.jar"),
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/password-reset-api/lib/persistentkeyvaluestore.jar"),
             files("../../../openbis-hvl.ethz.ch/deployed/core-plugins/hvl-dropbox/1/dss/dropboxes/hvl-dropbox/lib/jmatio-1.5.jar")
+//            files("../core-plugin-openbis/dist/core-plugins/imaging/1/dss/services/imaging/lib/openBIS-premise-imaging.jar")
 
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),

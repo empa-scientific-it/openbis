@@ -154,18 +154,18 @@ public class SimplePropertyValidatorTest
         } catch (UserFailureException e)
         {
             assertEquals(e.getMessage(), "Date value '" + stringToParse + "' has improper format. " +
-                    "It must be one of '[yyyy-MM-dd\n" +
-                    "yyyy-MM-dd HH:mm\n" +
-                    "yyyy-MM-dd HH:mm:ss\n" +
-                    "yyyy-MM-dd'T'HH:mm\n" +
+                    "It must be one of '[yyyy-MM-dd'T'HH:mm:ssXXX\n" +
+                    "yyyy-MM-dd'T'HH:mm:ssX\n" +
                     "yyyy-MM-dd'T'HH:mm:ss\n" +
-                    "M/d/yy\n" +
+                    "yyyy-MM-dd'T'HH:mm\n" +
+                    "yyyy-MM-dd HH:mm:ss Z\n" +
+                    "yyyy-MM-dd HH:mm:ss Z\n" +
+                    "yyyy-MM-dd HH:mm:ss\n" +
+                    "yyyy-MM-dd HH:mm\n" +
+                    "yyyy-MM-dd\n" +
                     "M/d/yy h:mm a\n" +
                     "M/d/yy HH:mm\n" +
-                    "yyyy-MM-dd HH:mm:ss Z\n" +
-                    "yyyy-MM-dd'T'HH:mm:ssX\n" +
-                    "yyyy-MM-dd HH:mm:ss Z\n" +
-                    "yyyy-MM-dd'T'HH:mm:ssXXX]'.");
+                    "M/d/yy]'.");
         }
     }
 

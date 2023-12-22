@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.SupportedDateTimePattern;
 
 /**
  * The unique {@link IEntityPropertiesConverter} implementation.
@@ -1089,22 +1090,24 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null;
             }
-            SimpleDateFormat format =
-                    new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
             return Arrays.stream((Serializable[])value)
-                    .map(x -> parseDateFromString((String)x, format))
+                    .map(x -> parseDateFromString((String)x))
                     .toArray(Date[]::new);
         }
 
-        private Date parseDateFromString(String date, final SimpleDateFormat format)
+        private Date parseDateFromString(String dateTime)
         {
-            try
-            {
-                return format.parse(date);
-            } catch (Exception e)
-            {
-                throw new IllegalArgumentException("Wrong date format:" + date, e);
+            for(SupportedDateTimePattern format : SupportedDateTimePattern.values()){
+                try {
+                    SimpleDateFormat simpleDateFormat =
+                            new SimpleDateFormat(format.getPattern());
+                    return simpleDateFormat.parse(dateTime);
+                } catch(Exception e)
+                {
+                    //ignore
+                }
             }
+            throw new IllegalArgumentException("Wrong date format:" + dateTime);
         }
 
         public String tryGetJsonValue(final Serializable value, final PropertyTypePE propertyType)

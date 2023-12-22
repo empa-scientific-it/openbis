@@ -620,55 +620,66 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
 
         final Session session = sessionManager.getSession(sessionToken);
-        List<PersonPE> persons = null;
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
-        final Set<RoleAssignmentPE> roles;
-        if (person == null)
-        {
-            persons = daoFactory.getPersonDAO().listPersons();
-            final PersonPE systemUser = getSystemUser(persons);
-            final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
-            person = createPerson(session.getPrincipal(), systemUser, defaultDisplaySettings);
-            roles = Collections.emptySet();
-        } else
-        {
-            updatePersonIfNecessary(person, session.getPrincipal());
-            roles = person.getAllPersonRoles();
-            HibernateUtils.initialize(roles);
-        }
-        if (session.tryGetPerson() == null)
-        {
-            session.setPerson(person);
-            session.setCreatorPerson(person);
-            displaySettingsProvider.addDisplaySettingsForPerson(person);
-        }
 
-        if (roles.isEmpty())
+        PersonPE attachedPerson = getDAOFactory().getPersonDAO().tryFindPersonByUserId(session.getUserName());
+        getDAOFactory().getPersonDAO().lock(attachedPerson);
+
+        return displaySettingsProvider.executeActionWithPersonLock(session.getUserName(), new IDelegatedActionWithResult<SessionContextDTO>()
         {
-            if (persons == null)
+            @Override public SessionContextDTO execute(final boolean didOperationSucceed)
             {
-                persons = daoFactory.getPersonDAO().listPersons();
+                List<PersonPE> persons = null;
+                PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
+                final Set<RoleAssignmentPE> roles;
+
+                if (person == null)
+                {
+                    persons = daoFactory.getPersonDAO().listPersons();
+                    final PersonPE systemUser = getSystemUser(persons);
+                    final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
+                    person = createPerson(session.getPrincipal(), systemUser, defaultDisplaySettings);
+                    roles = Collections.emptySet();
+                } else
+                {
+                    updatePersonIfNecessary(person, session.getPrincipal());
+                    roles = person.getAllPersonRoles();
+                    HibernateUtils.initialize(roles);
+                }
+                if (session.tryGetPerson() == null)
+                {
+                    session.setPerson(person);
+                    session.setCreatorPerson(person);
+                    displaySettingsProvider.addDisplaySettingsForPerson(person);
+                }
+
+                if (roles.isEmpty())
+                {
+                    if (persons == null)
+                    {
+                        persons = daoFactory.getPersonDAO().listPersons();
+                    }
+                    if (isFirstLoggedUser(person, persons))
+                    {
+                        grantRoleAtFirstLogin(persons, person, RoleCode.ADMIN);
+                    } else if (isFirstLoggedETLServer(person, persons))
+                    {
+                        grantRoleAtFirstLogin(persons, person, RoleCode.ETL_SERVER);
+                    } else
+                    {
+                        throw createException(person, "has no role assignments");
+                    }
+                }
+
+                if (false == person.isActive())
+                {
+                    throw createException(person, "has been deactivated");
+                }
+
+                removeNotExistingVisits(session);
+
+                return asDTO(session);
             }
-            if (isFirstLoggedUser(person, persons))
-            {
-                grantRoleAtFirstLogin(persons, person, RoleCode.ADMIN);
-            } else if (isFirstLoggedETLServer(person, persons))
-            {
-                grantRoleAtFirstLogin(persons, person, RoleCode.ETL_SERVER);
-            } else
-            {
-                throw createException(person, "has no role assignments");
-            }
-        }
-
-        if (false == person.isActive())
-        {
-            throw createException(person, "has been deactivated");
-        }
-
-        removeNotExistingVisits(session);
-
-        return asDTO(session);
+        });
     }
 
     private UserFailureException createException(PersonPE person, String reason)

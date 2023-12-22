@@ -3206,6 +3206,8 @@ class Openbis:
             resp = self._post_request(self.as_v3, request)
             if len(resp["objects"]) == 0:
                 raise ValueError("No such project: %s" % projectId)
+            elif len(resp["objects"]) > 1:
+                raise ValueError("There is more than one project with code '%s'" % projectId)
             if only_data:
                 return resp["objects"][0]
 

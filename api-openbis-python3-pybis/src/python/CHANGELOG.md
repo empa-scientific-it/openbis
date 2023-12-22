@@ -6,6 +6,7 @@
 - Fixed v1 dataset upload
 - Fixed PropertyAssignment data frame creation
 - Improved property data type validation 
+- Improved get_project method 
 
 ## Changes with pybis-1.36.3
 

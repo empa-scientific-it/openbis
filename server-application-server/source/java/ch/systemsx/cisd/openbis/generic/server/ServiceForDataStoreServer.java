@@ -2562,7 +2562,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private long createDataSetsV3(Session session, AtomicEntityOperationDetails operationDetails,
             final IServiceConversationProgressListener conversationProgress, boolean authorize)
     {
-        if (operationDetails.getDataSetRegistrations() == null)
+        if (operationDetails.getDataSetRegistrations() == null || operationDetails.getDataSetRegistrations().isEmpty())
         {
             return 0;
         }
