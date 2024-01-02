@@ -44,7 +44,8 @@ import java.util.stream.Stream;
  * Functional interface to specify the type of method that makes a function. This is needed because we have different
  * implementations depending on whether the method returns a promise or not.
  */
-interface MethodProcessor {
+interface MethodProcessor
+{
     TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext);
 }
 
@@ -54,21 +55,25 @@ interface MethodProcessor {
  *
  * @author Simone Baffelli
  */
-class ProcessingContext {
+class ProcessingContext
+{
     private final SymbolTable symbolTable;
+
     private final TypeProcessor localProcessor;
 
-    ProcessingContext(SymbolTable symbolTable, TypeProcessor localProcessor) {
+    ProcessingContext(SymbolTable symbolTable, TypeProcessor localProcessor)
+    {
         this.symbolTable = symbolTable;
         this.localProcessor = localProcessor;
     }
 
-    public SymbolTable getSymbolTable() {
+    public SymbolTable getSymbolTable()
+    {
         return symbolTable;
     }
 
-
-    public TypeProcessor getLocalProcessor() {
+    public TypeProcessor getLocalProcessor()
+    {
         return localProcessor;
     }
 }
@@ -80,18 +85,23 @@ class ProcessingContext {
  *
  * @author Simone Baffelli
  */
-public class AddMethodsExtension extends Extension {
+public class AddMethodsExtension extends Extension
+{
 
     //Classes whose methods should return a promise instead of a value. This is useful for methods that are called through a REST API/RPC
     //Perhaps an alternative would be to use an annotation to mark the methods that should return a promise
     public static final String CFG_ASYNC_CLASSES = "asyncClasses";
+
     static final ObjectMapper mapper = new ObjectMapper();
+
     private static final String excludedMethods = "hashCode|toString|equals";
+
     private static final Logger logger = TypeScriptGenerator.getLogger();
 
     private List<String> asnycClasses = new ArrayList<>();
 
-    public AddMethodsExtension() {
+    public AddMethodsExtension()
+    {
     }
 
     /**
@@ -99,7 +109,8 @@ public class AddMethodsExtension extends Extension {
      *
      * @param asyncClasses a json string with the list of classes whose methods should return a promise
      */
-    public AddMethodsExtension(List<String> asyncClasses) {
+    public AddMethodsExtension(List<String> asyncClasses)
+    {
         this.asnycClasses = asyncClasses;
     }
 
@@ -109,56 +120,94 @@ public class AddMethodsExtension extends Extension {
      * @param method the method to be filtered
      * @return true if the method should be added to the typescript interface, false otherwise
      */
-    private static boolean filterMethods(Method method) {
+    private static boolean filterMethods(Method method)
+    {
         return !(method.isBridge() || (method.getDeclaringClass() == Object.class) || (method.getName().matches(excludedMethods)));
     }
 
-
-    private static List<TsParameter> getMethodParameters(TsBeanModel bean, Executable method, TsModel model, ProcessingContext processingContext) {
-        return Arrays.stream(method.getParameters()).map(parameter -> new TsParameter(parameter.getName(), resolveGenericType(bean.getOrigin(), parameter.getParameterizedType(), model, processingContext))).collect(Collectors.toList());
+    private static List<TsParameter> getMethodParameters(TsBeanModel bean, Executable method, TsModel model, ProcessingContext processingContext)
+    {
+        return Arrays.stream(method.getParameters()).map(parameter -> new TsParameter(parameter.getName(),
+                resolveGenericType(bean.getOrigin(), parameter.getParameterizedType(), model, processingContext))).collect(Collectors.toList());
     }
 
-
-    private static TsType resolveGenericType(Class<?> clazz, Type type, TsModel model, ProcessingContext processingContext) {
+    private static TsType resolveGenericType(Class<?> clazz, Type type, TsModel model, ProcessingContext processingContext)
+    {
         TypeToken<?> typeToken = TypeToken.of(clazz).resolveType(type);
         //This is not very elegant because we are calling again the type processor. Maybe later on we can find a way to get the types from the model
         TypeProcessor.Context context = new TypeProcessor.Context(processingContext.getSymbolTable(), processingContext.getLocalProcessor(), null);
-        return context.processType(typeToken.getType()).getTsType();
+        TsType tsType = context.processType(typeToken.getType()).getTsType();
 
+        if (tsType instanceof TsType.ReferenceType)
+        {
+            if (!((TsType.ReferenceType) tsType).symbol.isResolved())
+            {
+                throw new UnresolvedTypeException(clazz, type);
+            }
+        }
+
+        return tsType;
     }
 
-    private static TsType getReturnType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
+    private static TsType getReturnType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
+    {
         return resolveGenericType(bean.getOrigin(), method.getGenericReturnType(), model, processingContext);
     }
 
-    private static TsType.FunctionType makeFunctionType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
-        logger.info(String.format("Processing method %s, with params %s and return type %s", method, method.getParameters(), method.getGenericReturnType()));
+    private static TsType.FunctionType makeFunctionType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
+    {
+        logger.info(String.format("Processing method %s, with params %s and return type %s", method, method.getParameters(),
+                method.getGenericReturnType()));
         List<TsParameter> params = getMethodParameters(bean, method, model, processingContext);
         TsType returnType = getReturnType(bean, method, model, processingContext);
         return new TsType.FunctionType(params, returnType);
     }
 
-    private static TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
-        return new TsPropertyModel(method.getName(), makeFunctionType(bean, method, model, processingContext), TsModifierFlags.None, false, null);
-    }
-
-    private static TsPropertyModel makePromiseReturningFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext) {
-        TsType.FunctionType syncFunction = makeFunctionType(bean, method, model, processingContext);
-        TsType promiseType = new TsType.GenericBasicType("Promise", List.of(syncFunction.type));
-        return new TsPropertyModel(method.getName(), new TsType.FunctionType(syncFunction.parameters, promiseType), TsModifierFlags.None, false, null);
-    }
-
-    private static Optional<TsMethodModel> propertyModelToMethodModel(TsPropertyModel propertyModel) {
-        TsType value = propertyModel.getTsType();
-        if (value instanceof TsType.FunctionType) {
-            TsType.FunctionType functionType = (TsType.FunctionType) value;
-            List<TsParameterModel> params = functionType.parameters.stream().map(param -> new TsParameterModel(param.name, param.getTsType())).collect(Collectors.toList());
-            return Optional.of(new TsMethodModel(propertyModel.getName(), propertyModel.getModifiers(), null, params, functionType.type, null, null));
-        } else {
-            return Optional.empty();
+    private static TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
+    {
+        try
+        {
+            return new TsPropertyModel(method.getName(), makeFunctionType(bean, method, model, processingContext), TsModifierFlags.None, false, null);
+        } catch (UnresolvedTypeException e)
+        {
+            logger.warning("Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
+            return null;
         }
     }
 
+    private static TsPropertyModel makePromiseReturningFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
+    {
+        try
+        {
+            TsType.FunctionType syncFunction = makeFunctionType(bean, method, model, processingContext);
+            TsType promiseType = new TsType.GenericBasicType("Promise", List.of(syncFunction.type));
+            return new TsPropertyModel(method.getName(), new TsType.FunctionType(syncFunction.parameters, promiseType), TsModifierFlags.None, false,
+                    null);
+        } catch (UnresolvedTypeException e)
+        {
+            logger.warning("Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
+            return null;
+        }
+    }
+
+    private static Optional<TsMethodModel> propertyModelToMethodModel(TsPropertyModel propertyModel)
+    {
+        if (propertyModel == null)
+        {
+            return Optional.empty();
+        }
+        TsType value = propertyModel.getTsType();
+        if (value instanceof TsType.FunctionType)
+        {
+            TsType.FunctionType functionType = (TsType.FunctionType) value;
+            List<TsParameterModel> params =
+                    functionType.parameters.stream().map(param -> new TsParameterModel(param.name, param.getTsType())).collect(Collectors.toList());
+            return Optional.of(new TsMethodModel(propertyModel.getName(), propertyModel.getModifiers(), null, params, functionType.type, null, null));
+        } else
+        {
+            return Optional.empty();
+        }
+    }
 
     /**
      * Constructs a typescript constructor signature from a java constructor
@@ -169,7 +218,9 @@ public class AddMethodsExtension extends Extension {
      * @param processingContext the context of the processing used for type resolution
      * @return the typescript constructor signature or null if the constructor is not public
      */
-    private static TsMethodModel makeConstructor(Constructor<?> constructor, TsBeanModel beanModel, TsModel model, ProcessingContext processingContext) {
+    private static TsMethodModel makeConstructor(Constructor<?> constructor, TsBeanModel beanModel, TsModel model,
+            ProcessingContext processingContext)
+    {
         List<TsParameter> params = getMethodParameters(beanModel, constructor, model, processingContext);
         List<TsParameter> paramsWithoutDeclaringClass = params.stream().collect(Collectors.toList());
         TsType returnType = resolveGenericType(constructor.getDeclaringClass(), constructor.getDeclaringClass(), model, processingContext);
@@ -179,33 +230,51 @@ public class AddMethodsExtension extends Extension {
         return propertyModelToMethodModel(propertyModel).orElse(null);
     }
 
-    private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor) {
+    private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor)
+    {
         Class<?> origin = bean.getOrigin();
-        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(AddMethodsExtension::filterMethods).map(method -> propertyModelToMethodModel(processor.makeFunction(bean, method, model, processingContext))).flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
-        Stream<TsMethodModel> constructors = Arrays.stream(origin.getDeclaredConstructors()).map(constructor -> makeConstructor(constructor, bean, model, processingContext));
+        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(AddMethodsExtension::filterMethods)
+                .map(method -> propertyModelToMethodModel(processor.makeFunction(bean, method, model, processingContext)))
+                .flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
+        Stream<TsMethodModel> constructors = Arrays.stream(origin.getDeclaredConstructors()).map(constructor ->
+        {
+            try
+            {
+                return makeConstructor(constructor, bean, model, processingContext);
+            } catch (UnresolvedTypeException e)
+            {
+                logger.warning("Skipping constructor of " + constructor.getDeclaringClass() + " as it contains unresolved type: " + e.getType());
+                return null;
+            }
+        }).filter(Objects::nonNull);
         List<TsMethodModel> allMethods = Stream.of(params, constructors).flatMap(it -> it).collect(Collectors.toList());
         return bean.withProperties(Collections.emptyList()).withMethods(allMethods);
     }
 
-
     @Override
-    public void setConfiguration(Map<String, String> configuration) throws RuntimeException {
+    public void setConfiguration(Map<String, String> configuration) throws RuntimeException
+    {
 
-        if (configuration.containsKey(CFG_ASYNC_CLASSES)) {
+        if (configuration.containsKey(CFG_ASYNC_CLASSES))
+        {
 
             String classString = configuration.get(CFG_ASYNC_CLASSES);
-            try {
+            try
+            {
                 logger.info(String.format("MethodExtension: setConfiguration, %s, %s", configuration, classString));
-                asnycClasses = mapper.readValue(classString, new TypeReference<ArrayList<String>>() {
+                asnycClasses = mapper.readValue(classString, new TypeReference<ArrayList<String>>()
+                {
                 });
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 throw new RuntimeException(e);
             }
         }
     }
 
     @Override
-    public EmitterExtensionFeatures getFeatures() {
+    public EmitterExtensionFeatures getFeatures()
+    {
         final EmitterExtensionFeatures features = new EmitterExtensionFeatures();
         features.generatesRuntimeCode = false;
         features.generatesModuleCode = true;
@@ -214,19 +283,23 @@ public class AddMethodsExtension extends Extension {
         return features;
     }
 
-
     @Override
-    public List<TransformerDefinition> getTransformers() {
-        return List.of(new TransformerDefinition(ModelCompiler.TransformationPhase.AfterDeclarationSorting, (TsModelTransformer) (context, model) -> {
+    public List<TransformerDefinition> getTransformers()
+    {
+        return List.of(new TransformerDefinition(ModelCompiler.TransformationPhase.AfterDeclarationSorting, (TsModelTransformer) (context, model) ->
+        {
             logger.info("Started processing methods");
             //Extract all types that were mapped by the bean model to reuse them
             TypeProcessor localProcessor = new DefaultTypeProcessor();
             ProcessingContext processingContext = new ProcessingContext(context.getSymbolTable(), localProcessor);
             //Add table of mapped types
-            Stream<TsBeanModel> processedBeans = model.getBeans().stream().map(bean -> {
-                if (asnycClasses.contains(bean.getOrigin().getName())) {
+            Stream<TsBeanModel> processedBeans = model.getBeans().stream().map(bean ->
+            {
+                if (asnycClasses.contains(bean.getOrigin().getName()))
+                {
                     return addFunctions(bean, model, processingContext, AddMethodsExtension::makePromiseReturningFunction);
-                } else {
+                } else
+                {
                     return addFunctions(bean, model, processingContext, AddMethodsExtension::makeFunction);
                 }
             });
@@ -234,5 +307,27 @@ public class AddMethodsExtension extends Extension {
         }));
     }
 
+    private static class UnresolvedTypeException extends RuntimeException
+    {
+        private Class<?> clazz;
+
+        private Type type;
+
+        public UnresolvedTypeException(final Class<?> clazz, final Type type)
+        {
+            this.clazz = clazz;
+            this.type = type;
+        }
+
+        public Class<?> getClazz()
+        {
+            return clazz;
+        }
+
+        public Type getType()
+        {
+            return type;
+        }
+    }
 
 }
