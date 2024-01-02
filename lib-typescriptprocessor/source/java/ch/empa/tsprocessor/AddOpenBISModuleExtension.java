@@ -1,7 +1,9 @@
 package ch.empa.tsprocessor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import cz.habarta.typescript.generator.Extension;
 import cz.habarta.typescript.generator.Settings;
@@ -33,10 +35,32 @@ public class AddOpenBISModuleExtension extends Extension
         {
             List<TsBeanModel> beans = model.getBeans();
             List<TsPropertyModel> properties = new ArrayList<>();
+            Set<String> constructors = new HashSet<>();
 
             for (TsBeanModel bean : beans)
             {
-                properties.add(new TsPropertyModel(bean.getName().getSimpleName(), new TsType.ReferenceType(bean.getName()), null, true, null));
+                if (bean.getName().getSimpleName().endsWith("Constructor"))
+                {
+                    constructors.add(bean.getName().getSimpleName());
+                }
+            }
+
+            for (TsBeanModel bean : beans)
+            {
+                if (!bean.getName().getSimpleName().endsWith("Constructor"))
+                {
+                    boolean hasConstructor = constructors.contains(bean.getName().getSimpleName() + "Constructor");
+
+                    if (hasConstructor)
+                    {
+                        properties.add(new TsPropertyModel(bean.getName().getSimpleName(),
+                                new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+                    } else
+                    {
+                        properties.add(
+                                new TsPropertyModel(bean.getName().getSimpleName(), new TsType.ReferenceType(bean.getName()), null, true, null));
+                    }
+                }
             }
 
             beans.add(new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("openbis"), null, null, null, null, properties, null, null, null));

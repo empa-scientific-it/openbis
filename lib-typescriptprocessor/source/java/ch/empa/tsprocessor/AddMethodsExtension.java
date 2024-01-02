@@ -27,6 +27,7 @@ import com.google.common.reflect.TypeToken;
 
 import cz.habarta.typescript.generator.*;
 import cz.habarta.typescript.generator.compiler.ModelCompiler;
+import cz.habarta.typescript.generator.compiler.Symbol;
 import cz.habarta.typescript.generator.compiler.SymbolTable;
 import cz.habarta.typescript.generator.compiler.TsModelTransformer;
 import cz.habarta.typescript.generator.emitter.*;
@@ -170,7 +171,8 @@ public class AddMethodsExtension extends Extension
             return new TsPropertyModel(method.getName(), makeFunctionType(bean, method, model, processingContext), TsModifierFlags.None, false, null);
         } catch (UnresolvedTypeException e)
         {
-            logger.warning("Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
+            logger.warning(
+                    "Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
             return null;
         }
     }
@@ -185,7 +187,8 @@ public class AddMethodsExtension extends Extension
                     null);
         } catch (UnresolvedTypeException e)
         {
-            logger.warning("Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
+            logger.warning(
+                    "Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
             return null;
         }
     }
@@ -223,11 +226,18 @@ public class AddMethodsExtension extends Extension
     {
         List<TsParameter> params = getMethodParameters(beanModel, constructor, model, processingContext);
         List<TsParameter> paramsWithoutDeclaringClass = params.stream().collect(Collectors.toList());
-        TsType returnType = resolveGenericType(constructor.getDeclaringClass(), constructor.getDeclaringClass(), model, processingContext);
+        List<TsParameterModel> paramsModel =
+                paramsWithoutDeclaringClass.stream().map(param -> new TsParameterModel(param.name, param.getTsType())).collect(Collectors.toList());
+        TsType returnType = null;
+        if (beanModel.getTypeParameters() != null && !beanModel.getTypeParameters().isEmpty())
+        {
+            returnType = new TsType.GenericReferenceType(beanModel.getName(), beanModel.getTypeParameters());
+        } else
+        {
+            returnType = new TsType.ReferenceType(beanModel.getName());
+        }
         logger.info(String.format("Processing constructor %s, with params %s and return type %s", constructor, params, returnType));
-        TsType.FunctionType functionType = new TsType.FunctionType(paramsWithoutDeclaringClass, returnType);
-        TsPropertyModel propertyModel = new TsPropertyModel("new ", functionType, TsModifierFlags.None, false, null);
-        return propertyModelToMethodModel(propertyModel).orElse(null);
+        return new TsMethodModel("new ", TsModifierFlags.None, beanModel.getTypeParameters(), paramsModel, returnType, null, null);
     }
 
     private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor)
@@ -303,8 +313,51 @@ public class AddMethodsExtension extends Extension
                     return addFunctions(bean, model, processingContext, AddMethodsExtension::makeFunction);
                 }
             });
-            return model.withBeans(processedBeans.collect(Collectors.toList()));
+
+            List<TsBeanModel> processedBeansWithSeparatedConstructors = new LinkedList<>();
+
+            processedBeans.forEach(bean ->
+            {
+                List<TsMethodModel> regularMethods =
+                        bean.getMethods().stream().filter(method -> !method.getName().equals("new ")).collect(Collectors.toList());
+                List<TsMethodModel> constructors =
+                        bean.getMethods().stream().filter(method -> method.getName().equals("new ")).collect(Collectors.toList());
+
+                if (!constructors.isEmpty())
+                {
+                    TsBeanModel constructorBean =
+                            new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(),
+                                    new Symbol(bean.getName().getSimpleName() + "Constructor"),
+                                    Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null,
+                                    constructors, Collections.emptyList());
+                    processedBeansWithSeparatedConstructors.add(constructorBean);
+
+                    TsBeanModel beanWithoutConstructors =
+                            new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), bean.getTypeParameters(),
+                                    bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), bean.getProperties(), bean.getConstructor(),
+                                    regularMethods, bean.getComments());
+                    processedBeansWithSeparatedConstructors.add(beanWithoutConstructors);
+                } else
+                {
+                    processedBeansWithSeparatedConstructors.add(bean);
+                }
+            });
+
+            return model.withBeans(processedBeansWithSeparatedConstructors);
         }));
+    }
+
+    @Override public void emitElements(final Writer writer, final Settings settings, final boolean exportKeyword, final TsModel model)
+    {
+        model.getBeans().forEach(bean ->
+        {
+            if (bean.getName().getSimpleName().endsWith("Constructor"))
+            {
+                String originalBeanName =
+                        bean.getName().getSimpleName().substring(0, bean.getName().getSimpleName().lastIndexOf("Constructor"));
+                writer.writeIndentedLine("export const " + originalBeanName + ":" + bean.getName().getSimpleName());
+            }
+        });
     }
 
     private static class UnresolvedTypeException extends RuntimeException
