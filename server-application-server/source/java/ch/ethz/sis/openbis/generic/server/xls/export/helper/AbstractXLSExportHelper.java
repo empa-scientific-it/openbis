@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -65,8 +66,6 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     public static final String FIELD_TYPE_KEY = "type";
 
     public static final String FIELD_ID_KEY = "id";
-
-    private static final String EMBEDDED_SHEET = "Embedded Sheet";
 
     private final Workbook wb;
     
@@ -123,7 +122,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
             final ExportableKind exportableKind, final String idForWarningsOrErrors, final String... values)
     {
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)
@@ -140,7 +139,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 final String fileName = String.format("value-%c%d.txt", (char) ('A' + i), rowNumber + 1);
 
                 cell.setCellValue(String.format("__%s__", fileName));
-                valueFiles.add(fileName);
+                valueFiles.put(fileName, value);
             }
         }
 
@@ -148,11 +147,11 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     }
 
     protected void addRow(int rowNumber, boolean bold, final ExportableKind exportableKind, final String idForWarningsOrErrors,
-            final Collection<String> warnings, final Collection<String> valueFiles, final String... values)
+            final Collection<String> warnings, final Map<String, String> valueFiles, final String... values)
     {
         final AddRowResult addRowResult = addRow(rowNumber, bold, exportableKind, idForWarningsOrErrors, values);
         warnings.addAll(addRowResult.getWarnings());
-        valueFiles.addAll(addRowResult.getValueFiles());
+        valueFiles.putAll(addRowResult.getValueFiles());
     }
 
     @Override
@@ -205,9 +204,9 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
         private final Collection<String> warnings;
 
-        private final Collection<String> valueFiles;
+        private final Map<String, String> valueFiles;
 
-        protected AddRowResult(Collection<String> warnings, Collection<String> valueFiles)
+        protected AddRowResult(final Collection<String> warnings, final Map<String, String> valueFiles)
         {
             this.warnings = warnings;
             this.valueFiles = valueFiles;
@@ -218,7 +217,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
             return warnings;
         }
 
-        public Collection<String> getValueFiles()
+        public Map<String, String> getValueFiles()
         {
             return valueFiles;
         }

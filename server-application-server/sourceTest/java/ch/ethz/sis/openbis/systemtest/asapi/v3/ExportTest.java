@@ -17,6 +17,12 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.HTML_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.JSON_EXTENSION;
@@ -84,6 +90,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
@@ -466,11 +473,13 @@ public class ExportTest extends AbstractTest
     @Test
     public void testLargeCellXlsExport() throws IOException
     {
-        final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId)), new AllFields());
+        final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId)), new SelectedFields(
+                List.of(REGISTRATOR, CODE, IDENTIFIER, SPACE, DESCRIPTION),
+                List.of(richTextPropertyTypePermId)));
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, false);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
-        compareFiles(XLS_EXPORT_RESOURCES_PATH + "", exportResult.getDownloadURL());
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + "export-large-cell.zip", exportResult.getDownloadURL());
     }
 
     private static DataSetFile createDataSetFile(final String filePath, final int fileLength)

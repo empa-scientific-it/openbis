@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
     {
         final Collection<ENTITY> entities = getEntities(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
         // in arbitrary order.

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
         }
         final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         if (entityType != null)
         {
@@ -168,7 +169,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             final String permId, final boolean compatibleWithImport)
     {
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
         addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, ENTITY_ASSIGNMENT_COLUMNS);
         for (final PropertyAssignment propertyAssignment : propertyAssignments)
         {

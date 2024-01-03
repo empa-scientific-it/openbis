@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
     {
         final Collection<Project> projects = getProjects(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         addRow(rowNumber++, true, ExportableKind.PROJECT, null, warnings, valueFiles, ExportableKind.PROJECT.name());
 

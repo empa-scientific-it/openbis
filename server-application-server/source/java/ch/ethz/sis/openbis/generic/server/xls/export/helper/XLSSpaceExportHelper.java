@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
     {
         final Collection<Space> spaces = getSpaces(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         addRow(rowNumber++, true, ExportableKind.SPACE, null, warnings, valueFiles, ExportableKind.SPACE.toString());
 

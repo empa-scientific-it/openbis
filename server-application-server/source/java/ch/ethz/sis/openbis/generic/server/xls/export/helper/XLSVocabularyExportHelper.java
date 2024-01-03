@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +72,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         }
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         if (vocabulary != null)
         {

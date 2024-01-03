@@ -63,6 +63,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -401,22 +402,16 @@ public class ExportExecutor implements IExportExecutor
         final File xlsxDirectory = new File(exportWorkspaceDirectory, XLSX_DIRECTORY);
         mkdirs(xlsxDirectory);
 
-        final File scriptsDirectory = new File(xlsxDirectory, SCRIPTS_DIRECTORY);
-
         final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
         if (!xlsExportScripts.isEmpty())
         {
-            mkdirs(scriptsDirectory);
+            exportFiles(xlsExportScripts, new File(xlsxDirectory, SCRIPTS_DIRECTORY), fileName -> fileName + PYTHON_EXTENSION);
+        }
 
-            for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
-            {
-                final File scriptFile = new File(scriptsDirectory, script.getKey() + PYTHON_EXTENSION);
-                try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
-                {
-                    bos.write(script.getValue().getBytes());
-                    bos.flush();
-                }
-            }
+        final Map<String, String> valueFiles = xlsExportResult.getValueFiles();
+        if (!valueFiles.isEmpty())
+        {
+            exportFiles(valueFiles, new File(xlsxDirectory, DATA_DIRECTORY), Function.identity());
         }
 
         try (
@@ -429,6 +424,21 @@ public class ExportExecutor implements IExportExecutor
         }
 
         warnings.addAll(xlsExportResult.getWarnings());
+    }
+
+    private static void exportFiles(final Map<String, String> fileNameToContentsMap, final File directory,
+            final Function<String, String> fileNameTransformer) throws IOException
+    {
+        mkdirs(directory);
+        for (final Map.Entry<String, String> fileName : fileNameToContentsMap.entrySet())
+        {
+            final File scriptFile = new File(directory, fileNameTransformer.apply(fileName.getKey()));
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
+            {
+                bos.write(fileName.getValue().getBytes());
+                bos.flush();
+            }
+        }
     }
 
     private void exportData(final String sessionToken, final File exportWorkspaceDirectory, final EntitiesVo entitiesVo,

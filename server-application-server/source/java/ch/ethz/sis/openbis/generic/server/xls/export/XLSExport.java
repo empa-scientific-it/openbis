@@ -100,22 +100,23 @@ public class XLSExport
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
-        final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final Map<String, String> scripts = exportResult.getScripts();
 
         final String fullFileName = filePrefix + "." +
                 new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                 (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
         try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
         {
-            writeToOutputStream(os, filePrefix, exportResult, scripts);
+            writeToOutputStream(os, filePrefix, exportResult);
         }
         return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 
     private static void writeToOutputStream(final FileOutputStream os, final String filePrefix,
-            final PrepareWorkbookResult exportResult, final Map<String, String> scripts) throws IOException
+            final PrepareWorkbookResult exportResult) throws IOException
     {
+        final Map<String, String> scripts = exportResult.getScripts();
         if (scripts.isEmpty())
         {
             try
@@ -175,7 +176,7 @@ public class XLSExport
         int rowNumber = 0;
         final Map<String, String> scripts = new HashMap<>();
         final Collection<String> warnings = new ArrayList<>();
-        final Collection<String> valueFiles = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
@@ -189,7 +190,7 @@ public class XLSExport
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
-            valueFiles.addAll(additionResult.getValueFiles());
+            valueFiles.putAll(additionResult.getValueFiles());
             warnings.addAll(additionResult.getWarnings());
 
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
@@ -421,12 +422,12 @@ public class XLSExport
 
         private final Map<String, String> scripts;
 
-        final Collection<String> warnings;
+        private final Collection<String> warnings;
 
-        final Collection<String> valueFiles;
+        private final Map<String, String> valueFiles;
 
         public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts,
-                final Collection<String> warnings, Collection<String> valueFiles)
+                final Collection<String> warnings, final Map<String, String> valueFiles)
         {
             this.workbook = workbook;
             this.scripts = scripts;
@@ -449,7 +450,7 @@ public class XLSExport
             return warnings;
         }
 
-        public Collection<String> getValueFiles()
+        public Map<String, String> getValueFiles()
         {
             return valueFiles;
         }
