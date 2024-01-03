@@ -95,6 +95,9 @@ def test_get_project_fail_because_of_multiple_projects_existing(space):
     o.new_project(space=space_code_1, code=project_code).save()
     o.new_project(space=space_code_2, code=project_code).save()
 
+    # Delay to allow openbis instance to properly register projects
+    time.sleep(5)
+
     with pytest.raises(ValueError):
         project_exists = o.get_project(project_code)
 
