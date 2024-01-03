@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,12 +24,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.PictureData;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,13 +66,17 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     public static final String FIELD_ID_KEY = "id";
 
-    final Workbook wb;
-    
-    final CellStyle normalCellStyle;
-    
-    final CellStyle boldCellStyle;
+    private static final String EMBEDDED_SHEET = "Embedded Sheet";
 
-    final CellStyle errorCellStyle;
+    private final Workbook wb;
+    
+    private final CellStyle normalCellStyle;
+    
+    private final CellStyle boldCellStyle;
+
+    private final CellStyle errorCellStyle;
+
+    private Sheet embeddedDataSheet;
 
     public AbstractXLSExportHelper(final Workbook wb)
     {
@@ -83,6 +96,16 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         
         errorCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
         errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    }
+
+    private Sheet getEmbeddedDataSheet()
+    {
+        if (embeddedDataSheet == null)
+        {
+            embeddedDataSheet = this.wb.createSheet(EMBEDDED_SHEET);
+        }
+
+        return embeddedDataSheet;
     }
 
     protected static boolean isFieldAcceptable(final Set<Attribute> attributeSet, final Map<String, String> field)
@@ -125,27 +148,56 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                final String kindDisplayName;
-                if (exportableKind == ExportableKind.SAMPLE)
-                {
-                    kindDisplayName = "OBJECT";
-                } else if (exportableKind == ExportableKind.SAMPLE_TYPE)
-                {
-                    kindDisplayName = "OBJECT_TYPE";
-                } else if (exportableKind == ExportableKind.EXPERIMENT)
-                {
-                    kindDisplayName = "COLLECTION";
-                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE)
-                {
-                    kindDisplayName = "COLLECTION_TYPE";
-                } else
-                {
-                    kindDisplayName = exportableKind.toString();
-                }
-                warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Value exceeds " +
-                        "the maximum size supported by Excel: %d.", rowNumber + 1, idForWarningsOrErrors,
-                        kindDisplayName, Short.MAX_VALUE));
-                cell.setCellStyle(errorCellStyle);
+                // TODO: large cell workaround code here.
+//                wb.getAllNames()
+
+//                wb.addOlePackage(value.getBytes(StandardCharsets.UTF_8), );
+//                wb.
+
+                final byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
+
+                final int index = wb.addPicture(valueBytes, Workbook.PICTURE_TYPE_DIB);
+//                final PictureData pictureData = wb.getAllPictures().get(index);
+//                final byte[] data = pictureData.getData();
+//                System.out.println(data);
+
+                final CreationHelper helper = wb.getCreationHelper();
+//                final Drawing<?> drawing = getEmbeddedDataSheet().createDrawingPatriarch();
+//                ClientAnchor anchor = helper.createClientAnchor();
+
+                // Position of the object
+//                anchor.setCol1(0);
+//                anchor.setRow1(0);
+//                final Picture pict = drawing.createPicture(anchor, index);
+//                pict.resize();
+
+//                final Hyperlink link = helper.createHyperlink(HyperlinkType.DOCUMENT);
+//                link.setAddress("'" + EMBEDDED_SHEET + "'!A1");
+//
+//                cell.setHyperlink(link);
+                cell.setCellValue("__OBJECT:__" + index);
+
+                //                final String kindDisplayName;
+//                if (exportableKind == ExportableKind.SAMPLE)
+//                {
+//                    kindDisplayName = "OBJECT";
+//                } else if (exportableKind == ExportableKind.SAMPLE_TYPE)
+//                {
+//                    kindDisplayName = "OBJECT_TYPE";
+//                } else if (exportableKind == ExportableKind.EXPERIMENT)
+//                {
+//                    kindDisplayName = "COLLECTION";
+//                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE)
+//                {
+//                    kindDisplayName = "COLLECTION_TYPE";
+//                } else
+//                {
+//                    kindDisplayName = exportableKind.toString();
+//                }
+//                warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Value exceeds " +
+//                        "the maximum size supported by Excel: %d.", rowNumber + 1, idForWarningsOrErrors,
+//                        kindDisplayName, Short.MAX_VALUE));
+//                cell.setCellStyle(errorCellStyle);
             }
         }
 

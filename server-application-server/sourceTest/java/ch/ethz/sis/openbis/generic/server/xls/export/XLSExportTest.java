@@ -280,6 +280,15 @@ public class XLSExportTest
         }
     }
 
+//    /**
+//     * Tests export of cells larger than 32k.
+//     */
+//    @Test
+//    public void testLargeCellExport()
+//    {
+//
+//    }
+
     public static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
     {
         final int sheetsCount = expected.getNumberOfSheets();

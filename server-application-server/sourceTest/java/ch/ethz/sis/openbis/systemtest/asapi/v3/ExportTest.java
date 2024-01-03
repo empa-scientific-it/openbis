@@ -47,6 +47,7 @@ import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -125,6 +126,8 @@ public class ExportTest extends AbstractTest
 
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
+    private static final String BIG_CELL_SAMPLE_CODE = "BIG_CELL";
+
     private static final String JAVA_FOLDER_PATH = "./sourceTest/java/";
 
     protected String sessionToken;
@@ -135,9 +138,13 @@ public class ExportTest extends AbstractTest
 
     private PropertyTypePermId richTextWithSpreadsheetPropertyTypePermId;
 
-    private EntityTypePermId sampleTypePermId;
+    private EntityTypePermId richTextSampleTypePermId;
 
-    private SamplePermId samplePermId;
+    private EntityTypePermId bigCellSampleTypePermId;
+
+    private SamplePermId richTextSamplePermId;
+
+    private SamplePermId bigCellSamplePermId;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -188,6 +195,21 @@ public class ExportTest extends AbstractTest
         richTextWithImagePropertyTypePermId = propertyTypes.get(1);
         richTextWithSpreadsheetPropertyTypePermId = propertyTypes.get(2);
 
+        final SampleCreation richTextSampleCreation = getRichTextSampleCreation();
+
+        final SampleCreation bigCellSampleCreation = getBigCellSampleCreation();
+
+        final List<SamplePermId> samplePermsIds = v3api.createSamples(sessionToken, List.of(richTextSampleCreation, bigCellSampleCreation));
+        richTextSamplePermId = samplePermsIds.get(0);
+        bigCellSamplePermId = samplePermsIds.get(1);
+
+        registerDss();
+
+        v3api.logout(sessionToken);
+    }
+
+    private SampleCreation getRichTextSampleCreation()
+    {
         final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
         sampleTypeCreation.setCode("MULTI_LINE_VALUE_SAMPLE_TYPE");
 
@@ -202,21 +224,51 @@ public class ExportTest extends AbstractTest
 
         sampleTypeCreation.setPropertyAssignments(List.of(richTextPropertyAssignmentCreation, richTextWithImagePropertyAssignmentCreation,
                 richTextWithSpreadsheetPropertyAssignmentCreation));
-        sampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
+        richTextSampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
 
         final SampleCreation richTextSampleCreation = new SampleCreation();
         richTextSampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
         richTextSampleCreation.setCode(RICH_TEXT_SAMPLE_CODE);
-        richTextSampleCreation.setTypeId(sampleTypePermId);
+        richTextSampleCreation.setTypeId(richTextSampleTypePermId);
         richTextSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
         richTextSampleCreation.setProperty(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME, RICH_TEXT_WITH_IMAGE_VALUE);
         richTextSampleCreation.setProperty(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME, SpreadsheetData.BASE64_SPREADSHEET_DATA);
 
-        samplePermId = v3api.createSamples(sessionToken, List.of(richTextSampleCreation)).get(0);
+        return richTextSampleCreation;
+    }
 
-        registerDss();
+    private SampleCreation getBigCellSampleCreation()
+    {
+        final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
+        sampleTypeCreation.setCode("BIG_CELL_SAMPLE_TYPE");
 
-        v3api.logout(sessionToken);
+        // Big cell reuses the rich text property type
+        final PropertyAssignmentCreation bigCellPropertyAssignmentCreation = new PropertyAssignmentCreation();
+        bigCellPropertyAssignmentCreation.setPropertyTypeId(richTextPropertyTypePermId);
+
+        sampleTypeCreation.setPropertyAssignments(List.of(bigCellPropertyAssignmentCreation));
+        bigCellSampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
+
+        final SampleCreation bigCellSampleCreation = new SampleCreation();
+        bigCellSampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        bigCellSampleCreation.setCode(BIG_CELL_SAMPLE_CODE);
+        bigCellSampleCreation.setTypeId(bigCellSampleTypePermId);
+        bigCellSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, getResourceFileContent(XLS_EXPORT_RESOURCES_PATH + "lorem-ipsum.txt"));
+
+        return bigCellSampleCreation;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static String getResourceFileContent(final String filePath)
+    {
+        try (final InputStream exampleTextInputStream = ExportTest.class.getClassLoader().getResourceAsStream(filePath))
+        {
+            Objects.requireNonNull(exampleTextInputStream);
+            return new String(exampleTextInputStream.readAllBytes());
+        } catch (final IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private void registerDss()
@@ -233,12 +285,12 @@ public class ExportTest extends AbstractTest
 
         final SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
         sampleDeletionOptions.setReason("Test");
-        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(samplePermId), sampleDeletionOptions);
+        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(richTextSamplePermId, bigCellSamplePermId), sampleDeletionOptions);
         v3api.confirmDeletions(systemSessionToken, List.of(deletionId));
 
         final SampleTypeDeletionOptions sampleTypeDeletionOptions = new SampleTypeDeletionOptions();
         sampleTypeDeletionOptions.setReason("Test");
-        v3api.deleteSampleTypes(sessionToken, List.of(sampleTypePermId), sampleTypeDeletionOptions);
+        v3api.deleteSampleTypes(sessionToken, List.of(richTextSampleTypePermId, bigCellSampleTypePermId), sampleTypeDeletionOptions);
 
         final PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
         propertyTypeDeletionOptions.setReason("Test");
@@ -408,6 +460,19 @@ public class ExportTest extends AbstractTest
         mockery.assertIsSatisfied();
     }
 
+    /**
+     * Tests export of cells larger than 32k.
+     */
+    @Test
+    public void testLargeCellXlsExport() throws IOException
+    {
+        final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId)), new AllFields());
+        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, false);
+        final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
+
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + "", exportResult.getDownloadURL());
+    }
+
     private static DataSetFile createDataSetFile(final String filePath, final int fileLength)
     {
         final DataSetFilePermId dataSetFilePermId = new DataSetFilePermId(new DataSetPermId("20230904175944612-1"), filePath);
@@ -455,7 +520,7 @@ public class ExportTest extends AbstractTest
     }
 
     /**
-     * Searches for ExportablePermIds with null perm IDs, which should indicate that it should be replaced with {@link #samplePermId}.
+     * Searches for ExportablePermIds with null perm IDs, which should indicate that it should be replaced with {@link #richTextSamplePermId}.
      *
      * @param permIds the list of ExportablePermId values to be processed.
      */
@@ -465,7 +530,7 @@ public class ExportTest extends AbstractTest
         {
             if (exportablePermId.getPermId() == null)
             {
-                exportablePermId.setPermId(samplePermId);
+                exportablePermId.setPermId(richTextSamplePermId);
             }
         });
     }
@@ -523,7 +588,7 @@ public class ExportTest extends AbstractTest
                 throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
             }
 
-            try(final FileInputStream actualResultInputStream = new FileInputStream(getActualFile(actualResultFilePath)))
+            try (final FileInputStream actualResultInputStream = new FileInputStream(getActualFile(actualResultFilePath)))
             {
                 compareXlsxStreams(expectedResultInputStream, actualResultInputStream);
             }
