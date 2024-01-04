@@ -55,22 +55,14 @@ public class AddOpenBISModuleExtension extends Extension
                     {
                         properties.add(new TsPropertyModel(bean.getName().getSimpleName(),
                                 new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
-                    } else
-                    {
-                        properties.add(
-                                new TsPropertyModel(bean.getName().getSimpleName(), new TsType.ReferenceType(bean.getName()), null, true, null));
                     }
                 }
             }
 
-            beans.add(new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("openbis"), null, null, null, null, properties, null, null, null));
+            beans.add(new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("bundle"), null, null, null, null, properties, null, null, null));
 
             return model.withBeans(beans);
         }));
     }
 
-    @Override public void emitElements(final Writer writer, final Settings settings, final boolean exportKeyword, final TsModel model)
-    {
-        writer.writeIndentedLine("export default openbis");
-    }
 }

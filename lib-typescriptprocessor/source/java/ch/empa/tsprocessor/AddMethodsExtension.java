@@ -37,6 +37,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -150,6 +151,34 @@ public class AddMethodsExtension extends Extension
         return tsType;
     }
 
+    private static List<TsType.GenericVariableType> resolveTypeParameters(TsBeanModel bean, TsModel model, ProcessingContext processingContext, boolean withBounds){
+        TypeVariable<? extends Class<?>>[] typeParameters = bean.getOrigin().getTypeParameters();
+        return Arrays.stream(typeParameters).map(t ->
+        {
+            Type[] boundsTypes = t.getBounds();
+            if (withBounds && boundsTypes.length > 0)
+            {
+                try
+                {
+                    List<String> boundsStrings = new ArrayList<>();
+                    for (Type boundType : boundsTypes)
+                    {
+                        TsType tsBoundType = resolveGenericType(bean.getOrigin(), boundType, model, processingContext);
+                        boundsStrings.add(tsBoundType.toString());
+                    }
+
+                    return new TsType.GenericVariableType(t.getName() + " extends " + boundsStrings.get(0));
+                } catch (UnresolvedTypeException e)
+                {
+                    return new TsType.GenericVariableType(t.getName());
+                }
+            } else
+            {
+                return new TsType.GenericVariableType(t.getName());
+            }
+        }).collect(Collectors.toList());
+    }
+
     private static TsType getReturnType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
     {
         return resolveGenericType(bean.getOrigin(), method.getGenericReturnType(), model, processingContext);
@@ -229,13 +258,17 @@ public class AddMethodsExtension extends Extension
         List<TsParameterModel> paramsModel =
                 paramsWithoutDeclaringClass.stream().map(param -> new TsParameterModel(param.name, param.getTsType())).collect(Collectors.toList());
         TsType returnType = null;
-        if (beanModel.getTypeParameters() != null && !beanModel.getTypeParameters().isEmpty())
+
+        List<TsType.GenericVariableType> typeParameters = resolveTypeParameters(beanModel, model, processingContext, false);
+
+        if (!typeParameters.isEmpty())
         {
-            returnType = new TsType.GenericReferenceType(beanModel.getName(), beanModel.getTypeParameters());
+            returnType = new TsType.GenericReferenceType(beanModel.getName(), typeParameters);
         } else
         {
             returnType = new TsType.ReferenceType(beanModel.getName());
         }
+
         logger.info(String.format("Processing constructor %s, with params %s and return type %s", constructor, params, returnType));
         return new TsMethodModel("new ", TsModifierFlags.None, beanModel.getTypeParameters(), paramsModel, returnType, null, null);
     }
@@ -303,7 +336,16 @@ public class AddMethodsExtension extends Extension
             TypeProcessor localProcessor = new DefaultTypeProcessor();
             ProcessingContext processingContext = new ProcessingContext(context.getSymbolTable(), localProcessor);
             //Add table of mapped types
-            Stream<TsBeanModel> processedBeans = model.getBeans().stream().map(bean ->
+
+            List<TsBeanModel> processedBeans = model.getBeans().stream().map(bean ->
+            {
+                List<TsType.GenericVariableType> tsTypeParameters = resolveTypeParameters(bean, model, processingContext, true);
+                return new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), tsTypeParameters,
+                        bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), bean.getProperties(), bean.getConstructor(),
+                        bean.getMethods(), bean.getComments());
+            }).collect(Collectors.toList());
+
+            processedBeans = processedBeans.stream().map(bean ->
             {
                 if (asnycClasses.contains(bean.getOrigin().getName()))
                 {
@@ -312,7 +354,7 @@ public class AddMethodsExtension extends Extension
                 {
                     return addFunctions(bean, model, processingContext, AddMethodsExtension::makeFunction);
                 }
-            });
+            }).collect(Collectors.toList());
 
             List<TsBeanModel> processedBeansWithSeparatedConstructors = new LinkedList<>();
 
@@ -331,16 +373,13 @@ public class AddMethodsExtension extends Extension
                                     Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null,
                                     constructors, Collections.emptyList());
                     processedBeansWithSeparatedConstructors.add(constructorBean);
-
-                    TsBeanModel beanWithoutConstructors =
-                            new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), bean.getTypeParameters(),
-                                    bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), bean.getProperties(), bean.getConstructor(),
-                                    regularMethods, bean.getComments());
-                    processedBeansWithSeparatedConstructors.add(beanWithoutConstructors);
-                } else
-                {
-                    processedBeansWithSeparatedConstructors.add(bean);
                 }
+
+                TsBeanModel beanWithoutConstructors =
+                        new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), bean.getTypeParameters(),
+                                bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), bean.getProperties(), bean.getConstructor(),
+                                regularMethods, bean.getComments());
+                processedBeansWithSeparatedConstructors.add(beanWithoutConstructors);
             });
 
             return model.withBeans(processedBeansWithSeparatedConstructors);

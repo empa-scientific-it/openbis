@@ -70,8 +70,10 @@ generateTypeScript {
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdDeserializer",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer"]
     mapClasses = "asInterfaces"
+    importDeclarations = ["export default openbis"]
     outputKind = 'module'
     outputFileType = 'declarationFile'
+    namespace = 'openbis'
     customTypeNaming = [
             "ch.ethz.sis.openbis.generic.OpenBIS:facade",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:PersonalAccessTokenSessionNameSearchCriteria",
