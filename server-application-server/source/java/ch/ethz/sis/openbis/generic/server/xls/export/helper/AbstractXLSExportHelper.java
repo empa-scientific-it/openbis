@@ -76,8 +76,6 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     private final CellStyle errorCellStyle;
 
-    private Sheet embeddedDataSheet;
-
     public AbstractXLSExportHelper(final Workbook wb)
     {
         this.wb = wb;
@@ -96,16 +94,6 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         
         errorCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
         errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-    }
-
-    private Sheet getEmbeddedDataSheet()
-    {
-        if (embeddedDataSheet == null)
-        {
-            embeddedDataSheet = this.wb.createSheet(EMBEDDED_SHEET);
-        }
-
-        return embeddedDataSheet;
     }
 
     protected static boolean isFieldAcceptable(final Set<Attribute> attributeSet, final Map<String, String> field)
@@ -131,10 +119,11 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         }
     }
 
-    protected Collection<String> addRow(final int rowNumber, final boolean bold,
+    protected AddRowResult addRow(final int rowNumber, final boolean bold,
             final ExportableKind exportableKind, final String idForWarningsOrErrors, final String... values)
     {
         final Collection<String> warnings = new ArrayList<>();
+        final Collection<String> valueFiles = new ArrayList<>();
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)
@@ -148,60 +137,22 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                // TODO: large cell workaround code here.
-//                wb.getAllNames()
+                final String fileName = String.format("value-%c-%d.txt", (char) ('A' + i), rowNumber);
 
-//                wb.addOlePackage(value.getBytes(StandardCharsets.UTF_8), );
-//                wb.
-
-                final byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
-
-                final int index = wb.addPicture(valueBytes, Workbook.PICTURE_TYPE_DIB);
-//                final PictureData pictureData = wb.getAllPictures().get(index);
-//                final byte[] data = pictureData.getData();
-//                System.out.println(data);
-
-                final CreationHelper helper = wb.getCreationHelper();
-//                final Drawing<?> drawing = getEmbeddedDataSheet().createDrawingPatriarch();
-//                ClientAnchor anchor = helper.createClientAnchor();
-
-                // Position of the object
-//                anchor.setCol1(0);
-//                anchor.setRow1(0);
-//                final Picture pict = drawing.createPicture(anchor, index);
-//                pict.resize();
-
-//                final Hyperlink link = helper.createHyperlink(HyperlinkType.DOCUMENT);
-//                link.setAddress("'" + EMBEDDED_SHEET + "'!A1");
-//
-//                cell.setHyperlink(link);
-                cell.setCellValue("__OBJECT:__" + index);
-
-                //                final String kindDisplayName;
-//                if (exportableKind == ExportableKind.SAMPLE)
-//                {
-//                    kindDisplayName = "OBJECT";
-//                } else if (exportableKind == ExportableKind.SAMPLE_TYPE)
-//                {
-//                    kindDisplayName = "OBJECT_TYPE";
-//                } else if (exportableKind == ExportableKind.EXPERIMENT)
-//                {
-//                    kindDisplayName = "COLLECTION";
-//                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE)
-//                {
-//                    kindDisplayName = "COLLECTION_TYPE";
-//                } else
-//                {
-//                    kindDisplayName = exportableKind.toString();
-//                }
-//                warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Value exceeds " +
-//                        "the maximum size supported by Excel: %d.", rowNumber + 1, idForWarningsOrErrors,
-//                        kindDisplayName, Short.MAX_VALUE));
-//                cell.setCellStyle(errorCellStyle);
+                cell.setCellValue(String.format("__%s__", fileName));
+                valueFiles.add(fileName);
             }
         }
 
-        return warnings;
+        return new AddRowResult(warnings, valueFiles);
+    }
+
+    protected void addRow(int rowNumber, boolean bold, final ExportableKind exportableKind, final String idForWarningsOrErrors,
+            final Collection<String> warnings, final Collection<String> valueFiles, final String... values)
+    {
+        final AddRowResult addRowResult = addRow(rowNumber, bold, exportableKind, idForWarningsOrErrors, values);
+        warnings.addAll(addRowResult.getWarnings());
+        valueFiles.addAll(addRowResult.getValueFiles());
     }
 
     @Override
@@ -225,22 +176,53 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     private static String getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
     {
         Serializable propertyValue = properties.get(propertyType.getCode());
-        if(propertyValue == null) {
+        if(propertyValue == null)
+        {
             return null;
         }
-        if(propertyValue.getClass().isArray()) {
+        if(propertyValue.getClass().isArray())
+        {
             StringBuilder sb = new StringBuilder();
             Serializable[] values = (Serializable[]) propertyValue;
-            for(Serializable value : values) {
-                if(sb.length() > 0) {
+            for(Serializable value : values)
+            {
+                if(sb.length() > 0)
+                {
                     sb.append(", ");
                 }
                 sb.append(value);
             }
             return sb.toString();
-        } else {
+        } else
+        {
             return propertyValue.toString();
         }
+    }
+
+
+    protected static class AddRowResult
+    {
+
+        private final Collection<String> warnings;
+
+        private final Collection<String> valueFiles;
+
+        protected AddRowResult(Collection<String> warnings, Collection<String> valueFiles)
+        {
+            this.warnings = warnings;
+            this.valueFiles = valueFiles;
+        }
+
+        public Collection<String> getWarnings()
+        {
+            return warnings;
+        }
+
+        public Collection<String> getValueFiles()
+        {
+            return valueFiles;
+        }
+
     }
 
 }

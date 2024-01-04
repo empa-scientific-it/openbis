@@ -71,12 +71,13 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         }
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
+        final Collection<String> valueFiles = new ArrayList<>();
 
         if (vocabulary != null)
         {
             final String permId = vocabulary.getPermId().toString();
             final ExportableKind exportableKind = getExportableKind();
-            warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
+            addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, exportableKind.name());
 
             final Attribute[] possibleAttributes = getAttributes();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
@@ -92,11 +93,11 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
+                addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, attributeHeaders);
 
                 // Values
                 final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(vocabulary, attribute)).toArray(String[]::new);
-                warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
+                addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
             } else
             {
                 // Export selected attributes in predefined order
@@ -133,7 +134,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedAttributeHeaders), requiredForImportAttributeNameStream)
                         .toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, allAttributeNames));
+                addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, allAttributeNames);
 
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportAttributes);
@@ -156,11 +157,11 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                             }
                         }).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, entityValues));
+                addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, entityValues);
             }
 
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, VOCABULARY_ASSIGNMENT_COLUMNS));
+            addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, warnings, valueFiles, VOCABULARY_ASSIGNMENT_COLUMNS);
 
             for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
             {
@@ -168,13 +169,13 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                         vocabularyTerm.getCode(),
                         vocabularyTerm.getLabel(),
                         vocabularyTerm.getDescription() };
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId, values));
+                addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId, warnings, valueFiles, values);
             }
 
-            return new AdditionResult(rowNumber + 1, warnings);
+            return new AdditionResult(rowNumber + 1, warnings, valueFiles);
         } else
         {
-            return new AdditionResult(rowNumber, warnings);
+            return new AdditionResult(rowNumber, warnings, valueFiles);
         }
     }
 

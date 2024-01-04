@@ -70,6 +70,8 @@ public class XLSExport
 
     public static final String SCRIPTS_DIRECTORY = "scripts";
 
+    public static final String VALUES_DIRECTORY = "values";
+
     private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
 
     private XLSExport()
@@ -173,6 +175,7 @@ public class XLSExport
         int rowNumber = 0;
         final Map<String, String> scripts = new HashMap<>();
         final Collection<String> warnings = new ArrayList<>();
+        final Collection<String> valueFiles = new ArrayList<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
@@ -186,6 +189,7 @@ public class XLSExport
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
+            valueFiles.addAll(additionResult.getValueFiles());
             warnings.addAll(additionResult.getWarnings());
 
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
@@ -209,7 +213,7 @@ public class XLSExport
             }
         }
 
-        return new PrepareWorkbookResult(wb, scripts, warnings);
+        return new PrepareWorkbookResult(wb, scripts, warnings, valueFiles);
     }
 
     private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
@@ -419,12 +423,15 @@ public class XLSExport
 
         final Collection<String> warnings;
 
+        final Collection<String> valueFiles;
+
         public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts,
-                final Collection<String> warnings)
+                final Collection<String> warnings, Collection<String> valueFiles)
         {
             this.workbook = workbook;
             this.scripts = scripts;
             this.warnings = warnings;
+            this.valueFiles = valueFiles;
         }
 
         public Workbook getWorkbook()
@@ -440,6 +447,11 @@ public class XLSExport
         public Collection<String> getWarnings()
         {
             return warnings;
+        }
+
+        public Collection<String> getValueFiles()
+        {
+            return valueFiles;
         }
 
     }
