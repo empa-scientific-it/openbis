@@ -97,6 +97,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				}
 			}
 			
+            //Print
+            dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("DATASET",  _this._dataSetFormModel.dataSetV3.code));
 
 			//Hierarchy Table
 			if(toolbarConfig.HIERARCHY_TABLE) {

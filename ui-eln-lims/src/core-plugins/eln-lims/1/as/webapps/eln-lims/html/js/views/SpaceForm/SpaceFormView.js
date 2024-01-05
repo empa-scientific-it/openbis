@@ -72,7 +72,10 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                     }
                 });
             }
-            
+
+            //Print
+            dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("SPACE", _this._spaceFormModel.v3_space.permId.permId));
+
             //Export
             dropdownOptionsModel.push({
                 label : "Export Metadata",

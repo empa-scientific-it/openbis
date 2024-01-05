@@ -180,7 +180,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 //                });
 //			}
 
-			//Export
+			//Print
 			if(toolbarConfig.PRINT) {
 			    dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("SAMPLE",_this._sampleFormModel.sample.permId));
             }
