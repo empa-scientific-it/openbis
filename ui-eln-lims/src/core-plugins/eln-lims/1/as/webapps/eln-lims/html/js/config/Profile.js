@@ -76,6 +76,10 @@ $.extend(DefaultProfile.prototype, {
 				showDatasets : true
 		}
 
+        this.legacyExports = {
+            enable : true
+        }
+
 		this.MainMenuNodeNames = {
 		    Lab_Notebook : "Lab Notebook",
 		    Inventory : "Inventory",

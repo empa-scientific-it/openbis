@@ -182,38 +182,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 			//Export
 			if(toolbarConfig.PRINT) {
-			dropdownOptionsModel.push({
-                            label : "Print PDF",
-                            action : function() {
-                                 require([
-                                    "as/dto/exporter/data/ExportData",
-                                    "as/dto/exporter/data/ExportablePermId",
-                                    "as/dto/exporter/data/ExportableKind",
-                                    "as/dto/sample/id/SamplePermId",
-                                    "as/dto/exporter/data/AllFields",
-                                    "as/dto/exporter/options/ExportOptions",
-                                    "as/dto/exporter/options/ExportFormat",
-                                    "as/dto/exporter/options/XlsTextFormat"
-                                    ],
-                                    function(ExportData,
-                                             ExportablePermId,
-                                             ExportableKind,
-                                             SamplePermId,
-                                             AllFields,
-                                             ExportOptions,
-                                             ExportFormat,
-                                             XlsTextFormat) {
-                                                    var exportablePermId = new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId(_this._sampleFormModel.sample.permId));
-                                                    var exportData = new ExportData([exportablePermId], new AllFields());
-                                                    var exportOptions = new ExportOptions([ExportFormat.PDF], XlsTextFormat.RICH, false, false, false);
-                                                    mainController.openbisV3.executeExport(exportData, exportOptions).done(function(result) {
-                                                        var url = window.location.origin + "/openbis/download?sessionID=" +mainController.serverFacade.getSession() + "&filePath=" + result.downloadURL.replaceAll(" ", "%20");
-                                                        window.open(url, "_blank");
-                                                    }).fail(function(result) {
-                                                        Util.showError("Failed print PDF: " + JSON.stringify(result), function() {Util.unblockUI();});
-                                                    });
-                                             });
-                            }});
+			    dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("SAMPLE",_this._sampleFormModel.sample.permId));
             }
 
 			//Barcode
@@ -297,6 +266,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 //                            action : function() {
 //                                var $window = $('<form>', { 'action' : 'javascript:void(0);' });
 //                                    $window.append($('<legend>').append('Export'));
+//                                    if(profile.isAdmin) {
+//                                        var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
+//                                        $window.append($compatible);
+//                                    }
+//                                    var $info_formats = $("<span>")
+//                                    					.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
+//                                    					.append(" File formats");
+//                                    $window.append($info_formats);
 //                                    var $pdf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PDF-EXPORT", null, false, false), 'Export metadata as PDF');
 //                                    $window.append($pdf);
 //                                    if(profile.isAdmin) {
@@ -305,12 +282,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 //                                    }
 //                                    var $data = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("DATA-EXPORT", null, false, false), 'Export data');
 //                                    $window.append($data);
-//                                    if(profile.isAdmin) {
-//                                    var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
-//                                    $window.append($compatible);
-//                                    }
-//                                    var $linked = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LINKED-EXPORT", null, false, false), 'Include downstream entities');
-//                                    $window.append($linked);
+//                                    var $hierarchyInclusions = $("<span>")
+//                                                          .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
+//                                                          .append(" Hierarchy Inclusions");
+//                                    $window.append($hierarchyInclusions);
+//                                    var $levelsBelow = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LINKED-EXPORT", null, false, false), 'Include levels below');
+//                                    $window.append($levelsBelow);
+//                                    var $includeParents = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include parents of all objects');
+//                                    $window.append($includeParents);
+//                                    var $includeOtherSpaces = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include objects from different spaces');
+//                                    $window.append($includeOtherSpaces);
 //
 //                                    var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
 //                                	var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
@@ -332,19 +313,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 //                                	Util.blockUI($window, css);
 //                            }});
 
-            if(toolbarConfig.EXPORT_METADATA) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata",
-                    action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], true)
-                });
-            }
+            if(profile.legacyExports.enable) {
+                if(toolbarConfig.EXPORT_METADATA) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata",
+                        action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], true)
+                    });
+                }
 
-			if(toolbarConfig.EXPORT_ALL) {
-				dropdownOptionsModel.push({
-                    label : "Export Metadata & Data",
-                    action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false)
-                });
-			}
+                if(toolbarConfig.EXPORT_ALL) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata & Data",
+                        action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false)
+                    });
+                }
+            }
 
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
