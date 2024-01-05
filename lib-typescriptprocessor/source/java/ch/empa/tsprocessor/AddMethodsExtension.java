@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.google.common.reflect.TypeToken;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import cz.habarta.typescript.generator.*;
 import cz.habarta.typescript.generator.compiler.ModelCompiler;
 import cz.habarta.typescript.generator.compiler.Symbol;
@@ -151,7 +152,9 @@ public class AddMethodsExtension extends Extension
         return tsType;
     }
 
-    private static List<TsType.GenericVariableType> resolveTypeParameters(TsBeanModel bean, TsModel model, ProcessingContext processingContext, boolean withBounds){
+    private static List<TsType.GenericVariableType> resolveTypeParameters(TsBeanModel bean, TsModel model, ProcessingContext processingContext,
+            boolean withBounds)
+    {
         TypeVariable<? extends Class<?>>[] typeParameters = bean.getOrigin().getTypeParameters();
         return Arrays.stream(typeParameters).map(t ->
         {
@@ -388,13 +391,51 @@ public class AddMethodsExtension extends Extension
 
     @Override public void emitElements(final Writer writer, final Settings settings, final boolean exportKeyword, final TsModel model)
     {
+        Set<String> constructors = new HashSet<>();
+
         model.getBeans().forEach(bean ->
         {
             if (bean.getName().getSimpleName().endsWith("Constructor"))
             {
                 String originalBeanName =
                         bean.getName().getSimpleName().substring(0, bean.getName().getSimpleName().lastIndexOf("Constructor"));
+
                 writer.writeIndentedLine("export const " + originalBeanName + ":" + bean.getName().getSimpleName());
+
+                JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
+
+                if (jsonObjectAnnotation != null)
+                {
+                    writer.writeIndentedLine(
+                            "export const " + jsonObjectAnnotation.value().replaceAll("\\.", "_") + ":" + bean.getName().getSimpleName());
+                }
+
+                constructors.add(bean.getName().getSimpleName());
+            }
+        });
+
+        model.getBeans().forEach(bean ->
+        {
+            if (!bean.getName().getSimpleName().endsWith("Constructor") && constructors.contains(bean.getName().getSimpleName() + "Constructor"))
+            {
+                JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
+
+                if (jsonObjectAnnotation != null)
+                {
+                    if (bean.getTypeParameters() == null || bean.getTypeParameters().isEmpty())
+                    {
+                        writer.writeIndentedLine(
+                                "type " + jsonObjectAnnotation.value().replaceAll("\\.", "_") + " = " + bean.getName().getSimpleName());
+                    } else
+                    {
+                        List<String> typeNames = bean.getTypeParameters().stream().map(p -> p.name.split(" ")[0]).collect(Collectors.toList());
+                        List<String> typeParameters = bean.getTypeParameters().stream().map(TsType::toString).collect(Collectors.toList());
+                        writer.writeIndentedLine(
+                                "type " + jsonObjectAnnotation.value().replaceAll("\\.", "_") + "<" + String.join(", ", typeParameters) + "> = "
+                                        + bean.getName()
+                                        .getSimpleName() + "<" + String.join(", ", typeNames) + ">");
+                    }
+                }
             }
         });
     }

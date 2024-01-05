@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import cz.habarta.typescript.generator.Extension;
 import cz.habarta.typescript.generator.Settings;
 import cz.habarta.typescript.generator.TsType;
@@ -53,8 +54,16 @@ public class AddOpenBISModuleExtension extends Extension
 
                     if (hasConstructor)
                     {
+                        JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
+
                         properties.add(new TsPropertyModel(bean.getName().getSimpleName(),
                                 new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+
+                        if (jsonObjectAnnotation != null)
+                        {
+                            properties.add(new TsPropertyModel(jsonObjectAnnotation.value().replaceAll("\\.", "_"),
+                                    new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+                        }
                     }
                 }
             }
