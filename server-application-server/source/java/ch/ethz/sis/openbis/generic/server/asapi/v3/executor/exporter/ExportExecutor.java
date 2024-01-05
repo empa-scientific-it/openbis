@@ -988,8 +988,10 @@ public class ExportExecutor implements IExportExecutor
             final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
             final String extension)
     {
-        return new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
-                sampleName, dataSetCode, extension));
+        final File docFile = new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode,
+                sampleCode, sampleName, dataSetCode, extension));
+        docFile.getParentFile().mkdirs();
+        return docFile;
     }
 
     private void createDocFilesForEntity(final String sessionToken, final File docDirectory,
