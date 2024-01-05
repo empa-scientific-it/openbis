@@ -1049,7 +1049,9 @@ var FormUtil = new function() {
 
 		var $container = $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
 
-        $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
+        if(alt) {
+            $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
+        }
 
 		if (isRequired) {
             $container.attr('required', '');

@@ -170,15 +170,51 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 
-			//Print
+//			//Print
+//			if(toolbarConfig.PRINT) {
+//			    dropdownOptionsModel.push({
+//                    label : "Print",
+//                    action : function() {
+//                        PrintUtil.printEntity(_this._sampleFormModel.sample);
+//                    }
+//                });
+//			}
+
+			//Export
 			if(toolbarConfig.PRINT) {
-			    dropdownOptionsModel.push({
-                    label : "Print",
-                    action : function() {
-                        PrintUtil.printEntity(_this._sampleFormModel.sample);
-                    }
-                });
-			}
+			dropdownOptionsModel.push({
+                            label : "Print PDF",
+                            action : function() {
+                                 require([
+                                    "as/dto/exporter/data/ExportData",
+                                    "as/dto/exporter/data/ExportablePermId",
+                                    "as/dto/exporter/data/ExportableKind",
+                                    "as/dto/sample/id/SamplePermId",
+                                    "as/dto/exporter/data/AllFields",
+                                    "as/dto/exporter/options/ExportOptions",
+                                    "as/dto/exporter/options/ExportFormat",
+                                    "as/dto/exporter/options/XlsTextFormat"
+                                    ],
+                                    function(ExportData,
+                                             ExportablePermId,
+                                             ExportableKind,
+                                             SamplePermId,
+                                             AllFields,
+                                             ExportOptions,
+                                             ExportFormat,
+                                             XlsTextFormat) {
+                                                    var exportablePermId = new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId(_this._sampleFormModel.sample.permId));
+                                                    var exportData = new ExportData([exportablePermId], new AllFields());
+                                                    var exportOptions = new ExportOptions([ExportFormat.PDF], XlsTextFormat.RICH, false, false, false);
+                                                    mainController.openbisV3.executeExport(exportData, exportOptions).done(function(result) {
+                                                        var url = window.location.origin + "/openbis/download?sessionID=" +mainController.serverFacade.getSession() + "&filePath=" + result.downloadURL.replaceAll(" ", "%20");
+                                                        window.open(url, "_blank");
+                                                    }).fail(function(result) {
+                                                        Util.showError("Failed print PDF: " + JSON.stringify(result), function() {Util.unblockUI();});
+                                                    });
+                                             });
+                            }});
+            }
 
 			//Barcode
 			if(profile.mainMenu.showBarcodes) {
@@ -256,7 +292,46 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 
-			//Export
+//			dropdownOptionsModel.push({
+//                            label : "Export",
+//                            action : function() {
+//                                var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+//                                    $window.append($('<legend>').append('Export'));
+//                                    var $pdf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PDF-EXPORT", null, false, false), 'Export metadata as PDF');
+//                                    $window.append($pdf);
+//                                    if(profile.isAdmin) {
+//                                        var $xlsx = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("XLSX-EXPORT", null, false, false), 'Export metadata as XLSX');
+//                                        $window.append($xlsx);
+//                                    }
+//                                    var $data = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("DATA-EXPORT", null, false, false), 'Export data');
+//                                    $window.append($data);
+//                                    if(profile.isAdmin) {
+//                                    var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
+//                                    $window.append($compatible);
+//                                    }
+//                                    var $linked = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LINKED-EXPORT", null, false, false), 'Include downstream entities');
+//                                    $window.append($linked);
+//
+//                                    var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
+//                                	var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+//                                	$btnCancel.click(function() {
+//                                		Util.unblockUI();
+//                                	});
+//
+//                                	$window.append($btnAccept).append('&nbsp;').append($btnCancel);
+//
+//                                	var css = {
+//                                				'text-align' : 'left',
+//                                				'top' : '15%',
+//                                				'width' : '70%',
+//                                				'left' : '15%',
+//                                				'right' : '20%',
+//                                				'overflow' : 'hidden'
+//                                	};
+//
+//                                	Util.blockUI($window, css);
+//                            }});
+
             if(toolbarConfig.EXPORT_METADATA) {
                 dropdownOptionsModel.push({
                     label : "Export Metadata",

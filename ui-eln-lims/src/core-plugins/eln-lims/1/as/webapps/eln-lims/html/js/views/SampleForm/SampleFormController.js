@@ -848,7 +848,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                             _this._sampleFormModel.isFormDirty = false;
                         }
                     }).fail(function(result) {
-                        Util.showError("Failed to save annotations: " + console.log(JSON.stringify(result)), function() {Util.unblockUI();});
+                        Util.showError("Failed to save annotations: " + JSON.stringify(result), function() {Util.unblockUI();});
                     });
             });
         } else { // Branch for openBIS 19.X
