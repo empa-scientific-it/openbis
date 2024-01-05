@@ -140,6 +140,8 @@ class EntitiesFinder
                 .collect(Collectors.toList());
         final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         final SampleFetchOptions sampleFetchOptions = fetchOptions.withSample();
+        sampleFetchOptions.withSpace();
+        sampleFetchOptions.withProject().withSpace();
         sampleFetchOptions.withContainer();
         sampleFetchOptions.withExperiment().withProperties();
         fetchOptions.withExperiment().withProject().withSpace();
