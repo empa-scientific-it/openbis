@@ -137,7 +137,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                final String fileName = String.format("value-%c-%d.txt", (char) ('A' + i), rowNumber);
+                final String fileName = String.format("value-%c%d.txt", (char) ('A' + i), rowNumber + 1);
 
                 cell.setCellValue(String.format("__%s__", fileName));
                 valueFiles.add(fileName);
