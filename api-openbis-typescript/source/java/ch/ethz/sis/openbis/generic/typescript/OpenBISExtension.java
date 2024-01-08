@@ -20,28 +20,47 @@
 
 package ch.ethz.sis.openbis.generic.typescript;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.google.common.reflect.TypeToken;
-
-import ch.systemsx.cisd.base.annotation.JsonObject;
-import cz.habarta.typescript.generator.*;
-import cz.habarta.typescript.generator.compiler.ModelCompiler;
-import cz.habarta.typescript.generator.compiler.Symbol;
-import cz.habarta.typescript.generator.compiler.SymbolTable;
-import cz.habarta.typescript.generator.compiler.TsModelTransformer;
-import cz.habarta.typescript.generator.emitter.*;
-
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.google.common.reflect.TypeToken;
+
+import ch.ethz.sis.openbis.generic.OpenBIS;
+import ch.systemsx.cisd.base.annotation.JsonObject;
+import cz.habarta.typescript.generator.DefaultTypeProcessor;
+import cz.habarta.typescript.generator.Extension;
+import cz.habarta.typescript.generator.Logger;
+import cz.habarta.typescript.generator.Settings;
+import cz.habarta.typescript.generator.TsParameter;
+import cz.habarta.typescript.generator.TsType;
+import cz.habarta.typescript.generator.TypeProcessor;
+import cz.habarta.typescript.generator.TypeScriptGenerator;
+import cz.habarta.typescript.generator.compiler.ModelCompiler;
+import cz.habarta.typescript.generator.compiler.Symbol;
+import cz.habarta.typescript.generator.compiler.SymbolTable;
+import cz.habarta.typescript.generator.compiler.TsModelTransformer;
+import cz.habarta.typescript.generator.emitter.EmitterExtensionFeatures;
+import cz.habarta.typescript.generator.emitter.TsBeanCategory;
+import cz.habarta.typescript.generator.emitter.TsBeanModel;
+import cz.habarta.typescript.generator.emitter.TsMethodModel;
+import cz.habarta.typescript.generator.emitter.TsModel;
+import cz.habarta.typescript.generator.emitter.TsModifierFlags;
+import cz.habarta.typescript.generator.emitter.TsParameterModel;
+import cz.habarta.typescript.generator.emitter.TsPropertyModel;
 
 /**
  * Functional interface to specify the type of method that makes a function. This is needed because we have different
@@ -87,34 +106,17 @@ class ProcessingContext
  * The extensions can be configured to process certain classes as RPC classes, i.e. the methods of these classes will return a promise instead of a value.
  *
  * @author Simone Baffelli
+ * @author pkupczyk
  */
-public class AddMethodsExtension extends Extension
+public class OpenBISExtension extends Extension
 {
-
-    //Classes whose methods should return a promise instead of a value. This is useful for methods that are called through a REST API/RPC
-    //Perhaps an alternative would be to use an annotation to mark the methods that should return a promise
-    public static final String CFG_ASYNC_CLASSES = "asyncClasses";
-
-    static final ObjectMapper mapper = new ObjectMapper();
-
-    private static final String excludedMethods = "hashCode|toString|equals";
 
     private static final Logger logger = TypeScriptGenerator.getLogger();
 
-    private List<String> asnycClasses = new ArrayList<>();
+    private static final String excludedMethods = "hashCode|toString|equals";
 
-    public AddMethodsExtension()
+    public OpenBISExtension()
     {
-    }
-
-    /**
-     * Constructor used by the gradle plugin to pass the configuration of the extension.
-     *
-     * @param asyncClasses a json string with the list of classes whose methods should return a promise
-     */
-    public AddMethodsExtension(List<String> asyncClasses)
-    {
-        this.asnycClasses = asyncClasses;
     }
 
     /**
@@ -279,7 +281,7 @@ public class AddMethodsExtension extends Extension
     private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor)
     {
         Class<?> origin = bean.getOrigin();
-        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(AddMethodsExtension::filterMethods)
+        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(OpenBISExtension::filterMethods)
                 .map(method -> propertyModelToMethodModel(processor.makeFunction(bean, method, model, processingContext)))
                 .flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
         Stream<TsMethodModel> constructors = Arrays.stream(origin.getDeclaredConstructors()).map(constructor ->
@@ -295,27 +297,6 @@ public class AddMethodsExtension extends Extension
         }).filter(Objects::nonNull);
         List<TsMethodModel> allMethods = Stream.of(params, constructors).flatMap(it -> it).collect(Collectors.toList());
         return bean.withProperties(Collections.emptyList()).withMethods(allMethods);
-    }
-
-    @Override
-    public void setConfiguration(Map<String, String> configuration) throws RuntimeException
-    {
-
-        if (configuration.containsKey(CFG_ASYNC_CLASSES))
-        {
-
-            String classString = configuration.get(CFG_ASYNC_CLASSES);
-            try
-            {
-                logger.info(String.format("MethodExtension: setConfiguration, %s, %s", configuration, classString));
-                asnycClasses = mapper.readValue(classString, new TypeReference<ArrayList<String>>()
-                {
-                });
-            } catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     @Override
@@ -344,18 +325,18 @@ public class AddMethodsExtension extends Extension
             {
                 List<TsType.GenericVariableType> tsTypeParameters = resolveTypeParameters(bean, model, processingContext, true);
                 return new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), tsTypeParameters,
-                        bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), bean.getProperties(), bean.getConstructor(),
+                        bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), Collections.emptyList(), bean.getConstructor(),
                         bean.getMethods(), bean.getComments());
             }).collect(Collectors.toList());
 
             processedBeans = processedBeans.stream().map(bean ->
             {
-                if (asnycClasses.contains(bean.getOrigin().getName()))
+                if (OpenBIS.class.equals(bean.getOrigin()))
                 {
-                    return addFunctions(bean, model, processingContext, AddMethodsExtension::makePromiseReturningFunction);
+                    return addFunctions(bean, model, processingContext, OpenBISExtension::makePromiseReturningFunction);
                 } else
                 {
-                    return addFunctions(bean, model, processingContext, AddMethodsExtension::makeFunction);
+                    return addFunctions(bean, model, processingContext, OpenBISExtension::makeFunction);
                 }
             }).collect(Collectors.toList());
 
@@ -386,7 +367,54 @@ public class AddMethodsExtension extends Extension
             });
 
             return model.withBeans(processedBeansWithSeparatedConstructors);
+        }), new TransformerDefinition(ModelCompiler.TransformationPhase.AfterDeclarationSorting, (TsModelTransformer) (context, model) ->{
+            return addOpenBISModule(model);
         }));
+    }
+
+    private TsModel addOpenBISModule(final TsModel model){
+        List<TsBeanModel> beans = model.getBeans();
+        List<TsPropertyModel> properties = new ArrayList<>();
+        Set<String> constructors = new HashSet<>();
+
+        for (TsBeanModel bean : beans)
+        {
+            if (bean.getName().getSimpleName().endsWith("Constructor"))
+            {
+                constructors.add(bean.getName().getSimpleName());
+            }
+        }
+
+        for (TsBeanModel bean : beans)
+        {
+            if (!bean.getName().getSimpleName().endsWith("Constructor"))
+            {
+                boolean hasConstructor = constructors.contains(bean.getName().getSimpleName() + "Constructor");
+
+                if (hasConstructor)
+                {
+                    JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
+
+                    properties.add(new TsPropertyModel(bean.getName().getSimpleName(),
+                            new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+
+                    if (jsonObjectAnnotation != null)
+                    {
+                        String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
+
+                        if(!jsonName.equals(bean.getName().getSimpleName()))
+                        {
+                            properties.add(new TsPropertyModel(jsonName,
+                                    new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+                        }
+                    }
+                }
+            }
+        }
+
+        beans.add(new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("bundle"), null, null, null, null, properties, null, null, null));
+
+        return model.withBeans(beans);
     }
 
     @Override public void emitElements(final Writer writer, final Settings settings, final boolean exportKeyword, final TsModel model)
@@ -440,7 +468,7 @@ public class AddMethodsExtension extends Extension
                             List<String> typeNames = bean.getTypeParameters().stream().map(p -> p.name.split(" ")[0]).collect(Collectors.toList());
                             List<String> typeParameters = bean.getTypeParameters().stream().map(TsType::toString).collect(Collectors.toList());
                             writer.writeIndentedLine("type " + jsonName + "<" + String.join(", ", typeParameters) + "> = "
-                                            + bean.getName().getSimpleName() + "<" + String.join(", ", typeNames) + ">");
+                                    + bean.getName().getSimpleName() + "<" + String.join(", ", typeNames) + ">");
                         }
                     }
                 }

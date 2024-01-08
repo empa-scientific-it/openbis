@@ -49,9 +49,7 @@ generateTypeScript {
             "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:dss_dto_common_operation_IOperationResult"
     ]
     extensionsWithConfiguration = [
-            new ConfiguredExtension(className: 'ch.ethz.sis.openbis.generic.typescript.AddMethodsExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),
-            new ConfiguredExtension(className: 'ch.ethz.sis.openbis.generic.typescript.RemovePropertiesExtension'),
-            new ConfiguredExtension(className: 'ch.ethz.sis.openbis.generic.typescript.AddOpenBISModuleExtension')
+            new ConfiguredExtension(className: 'ch.ethz.sis.openbis.generic.typescript.OpenBISExtension')
     ]
     jackson2ModuleDiscovery = true
     outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
