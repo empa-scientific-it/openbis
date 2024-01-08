@@ -1,4 +1,4 @@
-package ch.empa.tsprocessor;
+package ch.ethz.sis.openbis.generic.typescript;
 
 import java.util.ArrayList;
 import java.util.HashSet;

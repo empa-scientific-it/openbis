@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package ch.empa.tsprocessor;
+package ch.ethz.sis.openbis.generic.typescript;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
