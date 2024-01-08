@@ -1,1 +1,1 @@
-includeFlat 'lib-commonbase', 'lib-common', 'lib-typescriptprocessor'
+includeFlat 'lib-commonbase', 'lib-common'

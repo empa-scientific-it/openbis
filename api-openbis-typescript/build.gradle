@@ -1,0 +1,58 @@
+import cz.habarta.typescript.generator.Settings.ConfiguredExtension
+
+apply from: '../build/javaproject.gradle'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "cz.habarta.typescript-generator:typescript-generator-gradle-plugin-publisher:3.2.1263"
+    }
+
+}
+
+dependencies {
+    implementation project(':api-openbis-java'), 'fasterxml:jackson-core:2.9.10', 'fasterxml:jackson-databind:2.9.10.8', 'com.google.guava:guava:31.1-jre', 'cz.habarta.typescript-generator:typescript-generator-core:3.2.1263', 'sis:sis-base:23.06.0'
+    testImplementation 'testng:testng:6.8-CISD', 'javax.activation:javax.activation-api:1.2.0'
+}
+
+apply plugin: "cz.habarta.typescript-generator"
+
+
+generateTypeScript {
+    jsonLibrary = 'jackson2'
+    classPatterns = [
+            'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
+            'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
+            'ch.ethz.sis.openbis.generic.OpenBIS',
+    ]
+    excludeClassPatterns = [
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdDeserializer",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer"]
+    mapClasses = "asInterfaces"
+    importDeclarations = ["export default openbis"]
+    outputKind = 'module'
+    outputFileType = 'declarationFile'
+    namespace = 'openbis'
+    customTypeNaming = [
+            "ch.ethz.sis.openbis.generic.OpenBIS:facade",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:as_dto_externaldms_search_ExternalDmsSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:as_dto_dataset_search_ExternalDmsSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:as_dto_service_execute_AbstractExecutionOptionsWithParameters",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:dss_dto_service_execute_AbstractExecutionOptionsWithParameters",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult:as_dto_common_operation_IOperationResult",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:dss_dto_common_operation_IOperationResult"
+    ]
+    extensionsWithConfiguration = [
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.AddMethodsExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.RemovePropertiesExtension'),
+            new ConfiguredExtension(className: 'ch.empa.tsprocessor.AddOpenBISModuleExtension')
+    ]
+    jackson2ModuleDiscovery = true
+    outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
+}
