@@ -76,14 +76,14 @@ generateTypeScript {
     namespace = 'openbis'
     customTypeNaming = [
             "ch.ethz.sis.openbis.generic.OpenBIS:facade",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:PersonalAccessTokenSessionNameSearchCriteria",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria:PersonalAccessTokenSessionNameSearchCriteriaInSession",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteria",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:ExternalDmsSearchCriteriaInDataSet",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:AbstractExecutionOptionsWithParameters",
-            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:AbstractExecutionOptionsWithParametersInDataStore",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult:IOperationResult",
-            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:IOperationResultInDataStore"
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:as_dto_externaldms_search_ExternalDmsSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ExternalDmsSearchCriteria:as_dto_dataset_search_ExternalDmsSearchCriteria",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:as_dto_service_execute_AbstractExecutionOptionsWithParameters",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:dss_dto_service_execute_AbstractExecutionOptionsWithParameters",
+            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult:as_dto_common_operation_IOperationResult",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:dss_dto_common_operation_IOperationResult"
     ]
     extensionsWithConfiguration = [
             new ConfiguredExtension(className: 'ch.empa.tsprocessor.AddMethodsExtension', configuration: ['asyncClasses': "[\"ch.ethz.sis.openbis.generic.OpenBIS\"]"]),

@@ -406,8 +406,13 @@ public class AddMethodsExtension extends Extension
 
                 if (jsonObjectAnnotation != null)
                 {
-                    writer.writeIndentedLine(
-                            "export const " + jsonObjectAnnotation.value().replaceAll("\\.", "_") + ":" + bean.getName().getSimpleName());
+                    String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
+
+                    if(!jsonName.equals(originalBeanName))
+                    {
+                        writer.writeIndentedLine(
+                                "export const " + jsonName + ":" + bean.getName().getSimpleName());
+                    }
                 }
 
                 constructors.add(bean.getName().getSimpleName());
@@ -422,18 +427,21 @@ public class AddMethodsExtension extends Extension
 
                 if (jsonObjectAnnotation != null)
                 {
-                    if (bean.getTypeParameters() == null || bean.getTypeParameters().isEmpty())
+                    String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
+
+                    if(!jsonName.equals(bean.getName().getSimpleName()))
                     {
-                        writer.writeIndentedLine(
-                                "type " + jsonObjectAnnotation.value().replaceAll("\\.", "_") + " = " + bean.getName().getSimpleName());
-                    } else
-                    {
-                        List<String> typeNames = bean.getTypeParameters().stream().map(p -> p.name.split(" ")[0]).collect(Collectors.toList());
-                        List<String> typeParameters = bean.getTypeParameters().stream().map(TsType::toString).collect(Collectors.toList());
-                        writer.writeIndentedLine(
-                                "type " + jsonObjectAnnotation.value().replaceAll("\\.", "_") + "<" + String.join(", ", typeParameters) + "> = "
-                                        + bean.getName()
-                                        .getSimpleName() + "<" + String.join(", ", typeNames) + ">");
+                        if (bean.getTypeParameters() == null || bean.getTypeParameters().isEmpty())
+                        {
+                            writer.writeIndentedLine(
+                                    "type " + jsonName + " = " + bean.getName().getSimpleName());
+                        } else
+                        {
+                            List<String> typeNames = bean.getTypeParameters().stream().map(p -> p.name.split(" ")[0]).collect(Collectors.toList());
+                            List<String> typeParameters = bean.getTypeParameters().stream().map(TsType::toString).collect(Collectors.toList());
+                            writer.writeIndentedLine("type " + jsonName + "<" + String.join(", ", typeParameters) + "> = "
+                                            + bean.getName().getSimpleName() + "<" + String.join(", ", typeNames) + ">");
+                        }
                     }
                 }
             }

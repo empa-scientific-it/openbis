@@ -61,8 +61,13 @@ public class AddOpenBISModuleExtension extends Extension
 
                         if (jsonObjectAnnotation != null)
                         {
-                            properties.add(new TsPropertyModel(jsonObjectAnnotation.value().replaceAll("\\.", "_"),
-                                    new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+                            String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
+
+                            if(!jsonName.equals(bean.getName().getSimpleName()))
+                            {
+                                properties.add(new TsPropertyModel(jsonName,
+                                        new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+                            }
                         }
                     }
                 }
