@@ -18,6 +18,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrator = null;
 		prototype.registrationDate = null;
 		prototype.plugin = null;
+		prototype.unique = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -127,6 +128,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setPlugin = function(plugin) {
 			this.plugin = plugin;
 		};
+		prototype.setUnique = function(unique) {
+            this.unique = unique;
+        };
+		prototype.isUnique = function() {
+            return this.unique;
+        };
 	}, {
 		fetchOptions : "PropertyAssignmentFetchOptions",
 		permId: "PropertyAssignmentPermId",

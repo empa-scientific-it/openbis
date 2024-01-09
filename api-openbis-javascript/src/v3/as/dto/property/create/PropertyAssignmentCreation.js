@@ -15,6 +15,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.initialValueForExistingEntities = null;
 		prototype.showInEditView = false;
 		prototype.showRawValueInForms = false;
+		prototype.unique = false;
 
 		prototype.getSection = function() {
 			return this.section;
@@ -64,6 +65,12 @@ define([ "stjs" ], function(stjs) {
 		prototype.setShowRawValueInForms = function(showRawValueInForms) {
 			this.showRawValueInForms = showRawValueInForms;
 		};
+		prototype.isUnique = function() {
+            return this.unique;
+        };
+        prototype.setUnique = function(unique) {
+            this.unique = unique;
+        };
 	}, {
 		propertyTypeId : "IPropertyTypeId",
 		pluginId : "IPluginId"
