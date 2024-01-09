@@ -45,6 +45,8 @@ public class PropertyAssignmentCreation implements ICreation
 
     private boolean showRawValueInForms = false;
 
+    private boolean unique = false;
+
     public String getSection()
     {
         return section;
@@ -123,6 +125,16 @@ public class PropertyAssignmentCreation implements ICreation
     public void setShowRawValueInForms(boolean showRawValueInForms)
     {
         this.showRawValueInForms = showRawValueInForms;
+    }
+
+    public boolean isUnique()
+    {
+        return unique;
+    }
+
+    public void setUnique(boolean unique)
+    {
+        this.unique = unique;
     }
 
     @Override
