@@ -996,16 +996,7 @@ define(fullTypes, function () {
     var Dtos = function () {
         for (var i = 0; i < fullTypes.length; i++) {
             var typeName = fullTypes[i].split("/").slice(-1)[0]
-            var typePath = fullTypes[i].split("/").slice(0, -1)
-            
-            var package = this
-
-            typePath.forEach(part => {
-                if(!package[part]){
-                    package[part] = {}
-                }
-                package = package[part]
-            })
+            var typePath = fullTypes[i].split("/")
 
             if(this[typeName] === undefined){
                 this[typeName] = dtos[i]
@@ -1013,7 +1004,7 @@ define(fullTypes, function () {
                 this[typeName] = null
             }
 
-            package[typeName] = dtos[i]
+            this[typePath.join("_")] = dtos[i]
         }
     }
     return new Dtos()

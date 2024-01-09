@@ -304,7 +304,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
                                 loadedHandler = loadedHandler(circularDependencyConfig)
 
                                 try{
-                                    var dto = eval("dtos." + jsClassName)
+                                    var dto = eval("dtos." + jsClassName.replaceAll(".", "_"))
 
                                     if(dto){
                                         loadedHandler(javaClassReport)(dto)
@@ -398,7 +398,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
 
     return function(){
         executeModule("JS VS JAVA API (RequireJS)", new openbis(), dtos);
-        executeModule("JS VS JAVA API (module VAR)", new window.openbis.openbis(), window.openbis);
-        executeModule("JS VS JAVA API (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+        executeModule("JS VS JAVA API (module VAR)", new window.openbis.facade(), window.openbis);
+        executeModule("JS VS JAVA API (module ESM)", new window.openbisESM.facade(), window.openbisESM);
     }
 })

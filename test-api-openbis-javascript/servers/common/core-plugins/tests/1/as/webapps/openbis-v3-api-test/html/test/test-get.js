@@ -917,9 +917,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
     return function() {
         executeModule("Get tests (RequireJS)", new openbis(), dtos);
         executeModule("Get tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-        executeModule("Get tests (module VAR)", new window.openbis.openbis(), window.openbis);
-        executeModule("Get tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
-        executeModule("Get tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
-        executeModule("Get tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
+        executeModule("Get tests (module VAR)", new window.openbis.facade(), window.openbis);
+        executeModule("Get tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.facade(), window.openbis), window.openbis);
+        executeModule("Get tests (module ESM)", new window.openbisESM.facade(), window.openbisESM);
+        executeModule("Get tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.facade(), window.openbisESM), window.openbisESM);
     }
 });
