@@ -231,6 +231,7 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     creation.setShowInEditView(property.showInEditView.value)
     creation.setShowRawValueInForms(property.showRawValueInForms.value)
     creation.setSection(property.section)
+    creation.setUnique(property.unique.value);
 
     if (property.code.value) {
       creation.setPropertyTypeId(

@@ -39,7 +39,8 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       internal: React.createRef(),
       plugin: React.createRef(),
       showInEditView: React.createRef(),
-      isMultiValue: React.createRef()
+      isMultiValue: React.createRef(),
+      unique: React.createRef()
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
@@ -121,6 +122,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
         {this.renderMandatory(property)}
         {this.renderIsMultiValue(property)}
         {this.renderInitialValue(property)}
+        {this.renderUniqueValue(property)}
       </Container>
     )
   }
@@ -638,6 +640,32 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       </div>
     )
   }
+
+  renderUniqueValue(property) {
+   const { visible, enabled, error, value } = { ...property.unique }
+
+   if (!visible) {
+       return null
+   }
+
+   const { mode, classes } = this.props
+   return (
+   <div className={classes.field}>
+     <CheckboxField
+       reference={this.references.unique}
+       label={messages.get(messages.IS_UNIQUE_VALUE)}
+       name='unique'
+       error={error}
+       disabled={!enabled}
+       value={value}
+       mode={mode}
+       onChange={this.handleChange}
+       onFocus={this.handleFocus}
+       onBlur={this.handleBlur}
+     />
+   </div>
+   )
+ }
 
   renderIsMultiValue(property) {
     const { visible, enabled, error, value } = { ...property.isMultiValue }
