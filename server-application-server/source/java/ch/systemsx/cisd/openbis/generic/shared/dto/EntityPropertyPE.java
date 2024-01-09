@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.*;
@@ -113,6 +114,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
      */
     protected transient Long index;
 
+    protected boolean unique;
+
     public <T extends EntityTypePropertyTypePE> void setEntityTypePropertyType(
             final T entityTypePropertyType)
     {
@@ -139,6 +142,11 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.value = value;
     }
 
+    public void setUnique(final boolean unique)
+    {
+        this.unique = unique;
+    }
+
     private void clearValues() {
         this.value = null;
         this.material = null;
@@ -148,12 +156,30 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.realArrayValue = null;
         this.timestampArrayValue = null;
         this.jsonValue = null;
+        computeUnique();
+    }
+
+    private void computeUnique()
+    {
+        if(entityTypePropertyType != null)
+        {
+            this.unique = entityTypePropertyType.isUnique();
+        } else {
+            this.unique = false;
+        }
     }
 
     @Column(name = ColumnNames.VALUE_COLUMN)
     public String getValue()
     {
         return value;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IS_UNIQUE)
+    public boolean isUnique()
+    {
+        return unique;
     }
 
     public void setVocabularyTerm(final VocabularyTermPE vt)

@@ -127,6 +127,7 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
             assignment.setShowRawValueInForms(assignmentRecord.show_raw_value);
             assignment.setSemanticAnnotationsInherited(false);
             assignment.setRegistrationDate(assignmentRecord.registration_timestamp);
+            assignment.setUnique(assignmentRecord.is_unique);
             assignment.setFetchOptions(assignmentFetchOptions);
 
             PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);

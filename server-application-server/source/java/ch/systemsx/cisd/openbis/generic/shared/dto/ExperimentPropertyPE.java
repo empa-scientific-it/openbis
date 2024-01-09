@@ -89,4 +89,16 @@ public class ExperimentPropertyPE extends EntityPropertyWithSampleDataTypePE
         return entityFrozen;
     }
 
+    @Override
+    public void setUnique(final boolean unique)
+    {
+        EntityTypePropertyTypePE et = getEntityTypePropertyType();
+        if(et != null)
+        {
+            this.unique = et.isUnique();
+        } else {
+            this.unique = unique;
+        }
+    }
+
 }

@@ -126,6 +126,10 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
           isMultiValue: {
             value: _.get(newExisting, 'multiValue', false),
             enabled: false
+          },
+          unique: {
+            value: _.get(newExisting, 'unique', false),
+            enabled: true
           }
         }
 
@@ -356,6 +360,11 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
       showInEditView: {
         ...dest.showInEditView,
         value: _.get(src, 'showInEditView.value', true)
+      },
+      unique: {
+        ...dest.unique,
+        value: _.get(src, 'unique.value', false),
+        enabled: _.get(src, 'unique.enabled', true)
       },
       showRawValueInForms: {
         ...dest.showRawValueInForms,

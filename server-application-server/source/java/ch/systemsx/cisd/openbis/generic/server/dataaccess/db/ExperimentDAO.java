@@ -419,19 +419,26 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     @Override
     public void createOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier)
     {
-        HibernateTemplate template = getHibernateTemplate();
-        lockEntity(experiment.getProject());
+        try
+        {
+            HibernateTemplate template = getHibernateTemplate();
+            lockEntity(experiment.getProject());
 
-        internalCreateOrUpdateExperiment(experiment, modifier, template);
-        template.flush();
+            internalCreateOrUpdateExperiment(experiment, modifier, template);
+            // need to deal with exception thrown by trigger checking uniqueness
+            flushWithSqlExceptionHandling(template);
 
-        scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
+            scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
 
-        // Moving the experiment to other space affects the index data of attached samples, and also
-        // might affect dynamic properties of attached samples.
-        // Thus we trigger here dynamic properties evaluation, that in turn triggers reindexing.
-        scheduleDynamicPropertiesEvaluationWithIds(getDynamicPropertyEvaluatorScheduler(),
-                SamplePE.class, getSampleIds(experiment));
+            // Moving the experiment to other space affects the index data of attached samples, and also
+            // might affect dynamic properties of attached samples.
+            // Thus we trigger here dynamic properties evaluation, that in turn triggers reindexing.
+            scheduleDynamicPropertiesEvaluationWithIds(getDynamicPropertyEvaluatorScheduler(),
+                    SamplePE.class, getSampleIds(experiment));
+        } catch (DataAccessException e)
+        {
+            ExperimentDataAccessExceptionTranslator.translateAndThrow(e);
+        }
     }
 
     @Override
@@ -439,21 +446,28 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     {
         assert experiments != null && experiments.size() > 0 : "Unspecified or empty experiments.";
 
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        for (final ExperimentPE experiment : experiments)
+        try
         {
-            internalCreateOrUpdateExperiment(experiment, modifier, hibernateTemplate);
-        }
+            final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+            for (final ExperimentPE experiment : experiments)
+            {
+                internalCreateOrUpdateExperiment(experiment, modifier, hibernateTemplate);
+            }
 
-        hibernateTemplate.flush();
+            // need to deal with exception thrown by trigger checking uniqueness
+            flushWithSqlExceptionHandling(hibernateTemplate);
 
-        if (clearCache)
+            if (clearCache)
+            {
+                // if session is not cleared registration of many experiments slows down after each batch
+                hibernateTemplate.clear();
+            }
+
+            scheduleDynamicPropertiesEvaluation(experiments);
+        } catch (DataAccessException e)
         {
-            // if session is not cleared registration of many experiments slows down after each batch
-            hibernateTemplate.clear();
+            ExperimentDataAccessExceptionTranslator.translateAndThrow(e);
         }
-
-        scheduleDynamicPropertiesEvaluation(experiments);
     }
 
     private void internalCreateOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier,

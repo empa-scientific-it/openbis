@@ -381,6 +381,8 @@ public final class ColumnNames
 
     public static final String IS_SHOWN_EDIT = "is_shown_edit";
 
+    public static final String IS_UNIQUE = "is_unique";
+
     public static final String IS_MULTI_VALUE = "is_multi_value";
 
     public static final String SHOW_RAW_VALUE = "show_raw_value";
