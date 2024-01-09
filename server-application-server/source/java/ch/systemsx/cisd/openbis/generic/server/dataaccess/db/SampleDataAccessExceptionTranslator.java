@@ -15,13 +15,9 @@
  */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.sql.SQLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniquePropertyViolationException;
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueSubcodeViolationException;
 
@@ -35,10 +31,11 @@ public class SampleDataAccessExceptionTranslator
 
     private static final String CODE_CONSTRAINT_NAME = "samp_code_unique_check_uk";
 
+    private static final String PROPERTY_CONSTRAINT_NAME = "sample_properties_unique_value";
+
     private static final String SUBCODE_CONSTRAINT_NAME = "samp_subcode_unique_check_uk";
 
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile(
-            ".*constraint \"(.*)\".*=\\((.*)\\).*", Pattern.DOTALL);
+
 
     public static void translateAndThrow(DataAccessException exception)
     {
@@ -48,6 +45,9 @@ public class SampleDataAccessExceptionTranslator
         } else if (isUniqueSubcodeViolationException(exception))
         {
             throwUniqueSubcodeViolationException(exception);
+        } else if (isUniquePropertyViolationException(exception))
+        {
+            throwUniquePropertyViolationException(exception);
         } else
         {
             throw exception;
@@ -68,12 +68,19 @@ public class SampleDataAccessExceptionTranslator
                 && SUBCODE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
+    public static boolean isUniquePropertyViolationException(DataAccessException exception)
+    {
+        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
+        return message != null
+                && PROPERTY_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+    }
+
     public static void throwUniqueCodeViolationException(DataAccessException exception)
     {
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new SampleUniqueCodeViolationException(message.getSampleCode());
+            throw new SampleUniqueCodeViolationException(message.getCode());
         }
     }
 
@@ -82,59 +89,18 @@ public class SampleDataAccessExceptionTranslator
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new SampleUniqueSubcodeViolationException(message.getSampleCode());
+            throw new SampleUniqueSubcodeViolationException(message.getCode());
         }
     }
 
-    private static class UniqueViolationMessage
+    public static void throwUniquePropertyViolationException(DataAccessException exception)
     {
-
-        private String constraintName;
-
-        private String columnValue;
-
-        public String getConstraintName()
+        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
+        if (message != null)
         {
-            return constraintName;
-        }
-
-        public String getSampleCode()
-        {
-            if (columnValue != null)
-            {
-                String[] parts = columnValue.split(",");
-                if (parts != null && parts.length > 0)
-                {
-                    return parts[0];
-                }
-            }
-            return null;
-        }
-
-        public static final UniqueViolationMessage get(DataAccessException exception)
-        {
-            final SQLException sqlException =
-                    SQLStateUtils.tryGetNextExceptionWithNonNullState(exception);
-
-            if (sqlException != null)
-            {
-                final String sqlState = sqlException.getSQLState();
-                if (SQLStateUtils.isUniqueViolation(sqlState))
-                {
-                    String message = sqlException.getMessage();
-                    Matcher matcher = MESSAGE_PATTERN.matcher(message);
-
-                    if (matcher.find())
-                    {
-                        UniqueViolationMessage result = new UniqueViolationMessage();
-                        result.constraintName = matcher.group(1);
-                        result.columnValue = matcher.group(2);
-                        return result;
-                    }
-                }
-            }
-            return null;
+            throw new SampleUniquePropertyViolationException(message.getCode(1));
         }
     }
+
 
 }
