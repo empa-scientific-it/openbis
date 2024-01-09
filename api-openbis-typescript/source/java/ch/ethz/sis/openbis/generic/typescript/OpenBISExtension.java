@@ -27,9 +27,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.reflect.TypeToken;
@@ -39,7 +37,6 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import cz.habarta.typescript.generator.DefaultTypeProcessor;
 import cz.habarta.typescript.generator.Extension;
 import cz.habarta.typescript.generator.Logger;
-import cz.habarta.typescript.generator.Settings;
 import cz.habarta.typescript.generator.TsType;
 import cz.habarta.typescript.generator.TypeProcessor;
 import cz.habarta.typescript.generator.TypeScriptGenerator;
@@ -50,6 +47,7 @@ import cz.habarta.typescript.generator.compiler.TsModelTransformer;
 import cz.habarta.typescript.generator.emitter.EmitterExtensionFeatures;
 import cz.habarta.typescript.generator.emitter.TsBeanCategory;
 import cz.habarta.typescript.generator.emitter.TsBeanModel;
+import cz.habarta.typescript.generator.emitter.TsHelper;
 import cz.habarta.typescript.generator.emitter.TsMethodModel;
 import cz.habarta.typescript.generator.emitter.TsModel;
 import cz.habarta.typescript.generator.emitter.TsModifierFlags;
@@ -78,7 +76,7 @@ public class OpenBISExtension extends Extension
         {
             if (!((TsType.ReferenceType) tsType).symbol.isResolved())
             {
-                throw new UnresolvedTypeException(bean.getOrigin(), type);
+                throw new UnresolvedTypeException(type);
             }
         }
 
@@ -141,6 +139,7 @@ public class OpenBISExtension extends Extension
 
             List<TsBeanModel> tsBeans = new ArrayList<>();
             List<TsPropertyModel> tsBundleProperties = new ArrayList<>();
+            List<TsHelper> tsHelpers = new ArrayList<>();
 
             for (TsBeanModel bean : model.getBeans())
             {
@@ -215,7 +214,7 @@ public class OpenBISExtension extends Extension
                         }
 
                         tsConstructors.add(new TsMethodModel("new ", TsModifierFlags.None, tsBeanTypeParametersWithBounds, tsConstructorParameter,
-                                tsConstructorReturnType,null, null));
+                                tsConstructorReturnType, null, null));
 
                     } catch (UnresolvedTypeException e)
                     {
@@ -237,6 +236,9 @@ public class OpenBISExtension extends Extension
                     tsBundleProperties.add(new TsPropertyModel(bean.getName().getSimpleName(),
                             new TsType.ReferenceType(new Symbol(tsConstructorBeanName)), null, true, null));
 
+                    tsHelpers.add(
+                            new TsHelper(Collections.singletonList("export const " + bean.getName().getSimpleName() + ":" + tsConstructorBeanName)));
+
                     JsonObject tsBeanJsonObject = bean.getOrigin().getAnnotation(JsonObject.class);
 
                     if (tsBeanJsonObject != null)
@@ -247,6 +249,24 @@ public class OpenBISExtension extends Extension
                         {
                             tsBundleProperties.add(new TsPropertyModel(tsBeanJsonName,
                                     new TsType.ReferenceType(new Symbol(tsConstructorBeanName)), null, true, null));
+
+                            tsHelpers.add(new TsHelper(Collections.singletonList("export const " + tsBeanJsonName + ":" + tsConstructorBeanName)));
+
+                            if (tsBeanTypeParametersWithBounds.isEmpty())
+                            {
+                                tsHelpers.add(
+                                        new TsHelper(Collections.singletonList("type " + tsBeanJsonName + " = " + bean.getName().getSimpleName())));
+                            } else
+                            {
+                                String tsBeanTypeParametersWithBoundsString =
+                                        tsBeanTypeParametersWithBounds.stream().map(TsType::toString).collect(Collectors.joining(","));
+                                String tsBeanTypeParametersWithoutBoundsString =
+                                        tsBeanTypeParametersWithoutBounds.stream().map(TsType::toString).collect(Collectors.joining(","));
+
+                                tsHelpers.add(new TsHelper(Collections.singletonList(
+                                        "type " + tsBeanJsonName + "<" + tsBeanTypeParametersWithBoundsString + "> = " + bean.getName()
+                                                .getSimpleName() + "<" + tsBeanTypeParametersWithoutBoundsString + ">")));
+                            }
                         }
                     }
                 }
@@ -260,69 +280,8 @@ public class OpenBISExtension extends Extension
                     new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("bundle"), null, null, null, null, tsBundleProperties, null, null,
                             null));
 
-            return model.withBeans(tsBeans);
+            return new TsModel(tsBeans, model.getEnums(), model.getOriginalStringEnums(), model.getTypeAliases(), tsHelpers);
         }));
-    }
-
-    @Override public void emitElements(final Writer writer, final Settings settings, final boolean exportKeyword, final TsModel model)
-    {
-        Set<String> constructors = new HashSet<>();
-
-        // create "export const bean:beanConstructor"
-        model.getBeans().forEach(bean ->
-        {
-            if (bean.getName().getSimpleName().endsWith("Constructor"))
-            {
-                String originalBeanName =
-                        bean.getName().getSimpleName().substring(0, bean.getName().getSimpleName().lastIndexOf("Constructor"));
-
-                writer.writeIndentedLine("export const " + originalBeanName + ":" + bean.getName().getSimpleName());
-
-                JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
-
-                if (jsonObjectAnnotation != null)
-                {
-                    String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
-
-                    if (!jsonName.equals(originalBeanName))
-                    {
-                        writer.writeIndentedLine(
-                                "export const " + jsonName + ":" + bean.getName().getSimpleName());
-                    }
-                }
-
-                constructors.add(bean.getName().getSimpleName());
-            }
-        });
-
-        // create "type beanJsonName:bean"
-        model.getBeans().forEach(bean ->
-        {
-            if (!bean.getName().getSimpleName().endsWith("Constructor") && constructors.contains(bean.getName().getSimpleName() + "Constructor"))
-            {
-                JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
-
-                if (jsonObjectAnnotation != null)
-                {
-                    String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
-
-                    if (!jsonName.equals(bean.getName().getSimpleName()))
-                    {
-                        if (bean.getTypeParameters() == null || bean.getTypeParameters().isEmpty())
-                        {
-                            writer.writeIndentedLine(
-                                    "type " + jsonName + " = " + bean.getName().getSimpleName());
-                        } else
-                        {
-                            List<String> typeNames = bean.getTypeParameters().stream().map(p -> p.name.split(" ")[0]).collect(Collectors.toList());
-                            List<String> typeParameters = bean.getTypeParameters().stream().map(TsType::toString).collect(Collectors.toList());
-                            writer.writeIndentedLine("type " + jsonName + "<" + String.join(", ", typeParameters) + "> = "
-                                    + bean.getName().getSimpleName() + "<" + String.join(", ", typeNames) + ">");
-                        }
-                    }
-                }
-            }
-        });
     }
 
     private static class ProcessingContext
@@ -350,19 +309,11 @@ public class OpenBISExtension extends Extension
 
     private static class UnresolvedTypeException extends RuntimeException
     {
-        private final Class<?> clazz;
-
         private final Type type;
 
-        public UnresolvedTypeException(final Class<?> clazz, final Type type)
+        public UnresolvedTypeException(final Type type)
         {
-            this.clazz = clazz;
             this.type = type;
-        }
-
-        public Class<?> getClazz()
-        {
-            return clazz;
         }
 
         public Type getType()
