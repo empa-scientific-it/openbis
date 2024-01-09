@@ -52,5 +52,5 @@ generateTypeScript {
             new ConfiguredExtension(className: 'ch.ethz.sis.openbis.generic.typescript.OpenBISExtension')
     ]
     jackson2ModuleDiscovery = true
-    outputFile = file('../api-openbis-javascript/src/v3/openbis.d.ts')
+    outputFile = file('../api-openbis-javascript/src/v3/openbis.esm.d.ts')
 }
