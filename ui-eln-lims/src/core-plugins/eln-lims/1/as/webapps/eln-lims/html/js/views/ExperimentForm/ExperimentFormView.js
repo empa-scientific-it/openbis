@@ -144,6 +144,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     }
                 });
 			}
+
+			//Print
+			dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("EXPERIMENT",  _this._experimentFormModel.experiment.permId));
+
 			if(_this._allowedToRegisterDataSet()) {
 			    if(toolbarConfig.UPLOAD_DATASET) {
                     //Create Dataset

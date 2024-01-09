@@ -1049,7 +1049,9 @@ var FormUtil = new function() {
 
 		var $container = $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
 
-        $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
+        if(alt) {
+            $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
+        }
 
 		if (isRequired) {
             $container.attr('required', '');
@@ -2826,4 +2828,62 @@ var FormUtil = new function() {
             sample.getChildren().forEach(child => this.gatherAllDescendants(samplePermIds, child, samplesList));
         }
 
+        this.getPrintPDFButtonModel = function(entityKind, entityPermId) {
+            var printButtonModel = {
+                                    label : "Print PDF",
+                                    action : function() {
+                                         require([
+                                            "as/dto/exporter/data/ExportData",
+                                            "as/dto/exporter/data/ExportablePermId",
+                                            "as/dto/exporter/data/ExportableKind",
+                                            "as/dto/space/id/SpacePermId",
+                                            "as/dto/project/id/ProjectPermId",
+                                            "as/dto/experiment/id/ExperimentPermId",
+                                            "as/dto/sample/id/SamplePermId",
+                                            "as/dto/dataset/id/DataSetPermId",
+                                            "as/dto/exporter/data/AllFields",
+                                            "as/dto/exporter/options/ExportOptions",
+                                            "as/dto/exporter/options/ExportFormat",
+                                            "as/dto/exporter/options/XlsTextFormat"
+                                            ],
+                                            function(ExportData,
+                                                     ExportablePermId,
+                                                     ExportableKind,
+                                                     SpacePermId,
+                                                     ProjectPermId,
+                                                     ExperimentPermId,
+                                                     SamplePermId,
+                                                     DataSetPermId,
+                                                     AllFields,
+                                                     ExportOptions,
+                                                     ExportFormat,
+                                                     XlsTextFormat) {
+                                                            var exportablePermId = null;
+                                                            if(entityKind === "SPACE") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.SPACE, new SpacePermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "PROJECT") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "EXPERIMENT") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "SAMPLE") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "DATASET") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.DATASET, new DataSetPermId(entityPermId));
+                                                            }
+                                                            var exportData = new ExportData([exportablePermId], new AllFields());
+                                                            var exportOptions = new ExportOptions([ExportFormat.PDF], XlsTextFormat.RICH, false, false, false);
+                                                            mainController.openbisV3.executeExport(exportData, exportOptions).done(function(result) {
+                                                                var url = window.location.origin + "/openbis/download?sessionID=" +mainController.serverFacade.getSession() + "&filePath=" + result.downloadURL.replaceAll(" ", "%20");
+                                                                window.open(url, "_blank");
+                                                            }).fail(function(result) {
+                                                                Util.showError("Failed print PDF: " + JSON.stringify(result), function() {Util.unblockUI();});
+                                                            });
+                                                     });
+             }};
+             return printButtonModel;
+        }
 }

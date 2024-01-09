@@ -95,7 +95,10 @@ function ProjectFormView(projectFormController, projectFormModel) {
                     }
                 });
 			}
-			
+
+			//Print
+			dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("PROJECT",  _this._projectFormModel.project.permId));
+
 			//Export
 			dropdownOptionsModel.push({
                 label : "Export Metadata",

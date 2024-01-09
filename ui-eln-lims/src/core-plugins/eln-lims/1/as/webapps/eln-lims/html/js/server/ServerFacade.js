@@ -3927,20 +3927,4 @@ function ServerFacade(openbisServer) {
 		}
 		this.callSearchStoreService(parameters, callbackFunction);
 	}
-
-	// this.getServerPublicInformation = function(callbackFunction) {
-	// 	this.getOpenbisV3(function(openbisV3){
-	// 		openbisV3.getServerPublicInformation().done(function(serverInfo) {
-	// 			callbackFunction(serverInfo);
-	// 		}).fail(function(result) {
-	// 			Util.showFailedServerCallError(result);
-	// 			callbackFunction(false);
-	// 		});
-	// 	})
-	// }
-
-	this.executeExport = function(sessionToken, exportData, exportOptions) {
-
-	}
-
 }

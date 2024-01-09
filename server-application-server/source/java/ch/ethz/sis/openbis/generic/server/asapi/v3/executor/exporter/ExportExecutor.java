@@ -48,6 +48,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -377,12 +378,19 @@ public class ExportExecutor implements IExportExecutor
         final ExportResult exportResult;
         if (zipSingleFiles || file == null)
         {
-            zipDirectory(exportWorkspaceDirectoryPathString, new File(sessionWorkspaceDirectory, zipFileName));
+            final File targetZipFile = new File(sessionWorkspaceDirectory, zipFileName);
+            if (targetZipFile.exists())
+            {
+                targetZipFile.delete();
+            }
+
+            zipDirectory(exportWorkspaceDirectoryPathString, targetZipFile);
             exportResult = new ExportResult(zipFileName, warnings);
         } else
         {
             final Path filePath = file.toPath();
-            final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(), filePath.getFileName().toString()));
+            final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(), filePath.getFileName().toString()),
+                    StandardCopyOption.REPLACE_EXISTING);
             exportResult = new ExportResult(targetFilePath.getFileName().toString(), warnings);
         }
 
@@ -990,8 +998,10 @@ public class ExportExecutor implements IExportExecutor
             final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
             final String extension)
     {
-        return new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
-                sampleName, dataSetCode, extension));
+        final File docFile = new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode,
+                sampleCode, sampleName, dataSetCode, extension));
+        docFile.getParentFile().mkdirs();
+        return docFile;
     }
 
     private void createDocFilesForEntity(final String sessionToken, final File docDirectory,
