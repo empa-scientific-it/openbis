@@ -205,6 +205,57 @@ define(
 					testCreate(c, fCreate, c.findExperiment, fCheck);
 				});
 
+				QUnit.test("createExperiment() with unique property", function(assert) {
+                    var c = new common(assert, dtos);
+                    var propertyTypeCodeUnique = c.generateId("PROPERTY_TYPE");
+                    var experimentTypeCode = c.generateId("EXPERIMENT_TYPE");
+                    var code = c.generateId("EXPERIMENT");
+                    var code2 = c.generateId("EXPERIMENT");
+
+                    var fCreate = function(facade) {
+                        var propertyTypeCreation1 = new dtos.PropertyTypeCreation();
+                        propertyTypeCreation1.setCode(propertyTypeCodeUnique);
+                        propertyTypeCreation1.setDescription("unique text property");
+                        propertyTypeCreation1.setDataType(dtos.DataType.VARCHAR);
+                        propertyTypeCreation1.setLabel("Test Unique Property Type");
+
+                        return facade.createPropertyTypes([ propertyTypeCreation1 ]).then(function(results) {
+                            var assignmentCreation1 = new dtos.PropertyAssignmentCreation();
+                            assignmentCreation1.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeUnique));
+                            assignmentCreation1.setUnique(true);
+                            var experimentTypeCreation = new dtos.ExperimentTypeCreation();
+                            experimentTypeCreation.setCode(experimentTypeCode);
+                            experimentTypeCreation.setPropertyAssignments([ assignmentCreation1 ]);
+                            return facade.createExperimentTypes([ experimentTypeCreation ]).then(function(results) {
+                                var creation = new dtos.ExperimentCreation();
+                                creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode));
+                                creation.setCode(code);
+                                creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
+                                creation.setProperty(propertyTypeCodeUnique, "my_unique_value");
+                                return facade.createExperiments([ creation ]).then(function(results) {
+                                     var creation2 = new dtos.ExperimentCreation();
+                                     creation2.setTypeId(new dtos.EntityTypePermId(experimentTypeCode));
+                                     creation2.setCode(code2);
+                                     creation2.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
+                                     creation2.setProperty(propertyTypeCodeUnique, "my_unique_value");
+                                     return facade.createExperiments([ creation2 ]);
+                                 });;
+                            });
+
+                        });
+                    }
+
+                    c.start();
+                    c.login(facade).then(function() {
+                        return fCreate(facade)
+                        .fail(function(error) {
+                            c.assertEqual("Insert/Update of experiment failed because property contains value that is not unique! (value:  my_unique_value) (Context: [])", error.message, "Uniqueness error message");
+                            c.finish();
+                            });
+                    });
+
+                });
+
 				QUnit.test("createExperiment() with multi-value property of type SAMPLE", function(assert) {
                     var c = new common(assert, dtos);
                     var propertyTypeCodeSample = c.generateId("PROPERTY_TYPE");
@@ -374,7 +425,7 @@ define(
 					var c = new common(assert, dtos);
 					var code = c.generateId("SAMPLE");
 					var childId = new dtos.SampleIdentifier("/TEST/TEST-SAMPLE-1");
-					
+
 					var fCreate = function(facade) {
 						var creation = new dtos.SampleCreation();
 						creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
@@ -385,7 +436,7 @@ define(
 								.addParentAnnotation("type", "mother").addChildAnnotation("type", "daughter");
 						return facade.createSamples([ creation ]);
 					}
-					
+
 					var fCheck = function(sample) {
 						c.assertEqual(sample.getCode(), code, "Sample code");
 						c.assertEqual(sample.getType().getCode(), "UNKNOWN", "Type code");
@@ -396,7 +447,7 @@ define(
 						c.assertEqualDictionary(relationship.getChildAnnotations(), {"type": "daughter"}, "Child annotations");
 						c.assertEqualDictionary(relationship.getParentAnnotations(), {"type": "mother"}, "Parent annotations");
 					}
-					
+
 					testCreate(c, fCreate, c.findSample, fCheck);
 				});
 
@@ -404,7 +455,7 @@ define(
 					var c = new common(assert, dtos);
 					var code = c.generateId("SAMPLE");
 					var parentId = new dtos.SampleIdentifier("/TEST/TEST-SAMPLE-1");
-					
+
 					var fCreate = function(facade) {
 						var creation = new dtos.SampleCreation();
 						creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"));
@@ -469,6 +520,56 @@ define(
 					
 					testCreate(c, fCreate, c.findSample, fCheck);
 				});
+
+
+				QUnit.test("createSamples() with a unique property", function(assert) {
+                    var c = new common(assert, dtos);
+                    var propertyTypeCode = c.generateId("PROPERTY_TYPE");
+                    var sampleTypeCode = c.generateId("SAMPLE_TYPE");
+                    var code = c.generateId("SAMPLE");
+                    var code2 = c.generateId("SAMPLE");
+
+                    var fCreate = function(facade) {
+                        var propertyTypeCreation = new dtos.PropertyTypeCreation();
+                        propertyTypeCreation.setCode(propertyTypeCode);
+                        propertyTypeCreation.setDescription("hello");
+                        propertyTypeCreation.setDataType(dtos.DataType.VARCHAR);
+                        propertyTypeCreation.setLabel("Test Property Type");
+                        return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
+                            var assignmentCreation = new dtos.PropertyAssignmentCreation();
+                            assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+                            assignmentCreation.setUnique(true);
+                            var sampleTypeCreation = new dtos.SampleTypeCreation();
+                            sampleTypeCreation.setCode(sampleTypeCode);
+                            sampleTypeCreation.setPropertyAssignments([ assignmentCreation ]);
+                            return facade.createSampleTypes([ sampleTypeCreation ]).then(function(results) {
+                                var creation = new dtos.SampleCreation();
+                                creation.setTypeId(new dtos.EntityTypePermId(sampleTypeCode));
+                                creation.setCode(code);
+                                creation.setSpaceId(new dtos.SpacePermId("TEST"));
+                                creation.setProperty(propertyTypeCode, "my_unique_value");
+                                return facade.createSamples([ creation ]).then(function(results) {
+                                     var creation2 = new dtos.SampleCreation();
+                                     creation2.setTypeId(new dtos.EntityTypePermId(sampleTypeCode));
+                                     creation2.setCode(code2);
+                                     creation2.setSpaceId(new dtos.SpacePermId("TEST"));
+                                     creation2.setProperty(propertyTypeCode, "my_unique_value");
+                                     return facade.createSamples([ creation2 ]);
+                                 });;
+                            });
+                        });
+                    }
+
+                   c.start();
+                   c.login(facade).then(function() {
+                       return fCreate(facade)
+                       .fail(function(error) {
+                           c.assertEqual("Insert/Update of object failed because property contains value that is not unique! (value:  my_unique_value) (Context: [])", error.message, "Uniqueness error message");
+                           c.finish();
+                           });
+                   });
+                });
+
 
 				QUnit.test("createSamples() with multi-value property of type SAMPLE", function(assert) {
                     var c = new common(assert, dtos);
@@ -550,7 +651,7 @@ define(
                     }
                     testCreate(c, fCreate, c.findSample, fCheck);
                 });
-				
+
 				QUnit.test("createSampleTypes()", function(assert) {
 					var c = new common(assert, dtos);
 					var code = c.generateId("SAMPLE_TYPE");
@@ -735,6 +836,60 @@ define(
 					testCreate(c, fCreate, c.findDataSet, fCheck);
 				});
 
+
+				QUnit.test("createDataSet() with unique property", function(assert) {
+                    var c = new common(assert, dtos);
+                    var propertyTypeCode = c.generateId("PROPERTY_TYPE");
+                    var dataSetTypeCode = c.generateId("DATA_SET_TYPE");
+                    var code = c.generateId("DATA_SET");
+                    var code2 = c.generateId("DATA_SET");
+
+                    var fCreate = function(facade) {
+                        var propertyTypeCreation = new dtos.PropertyTypeCreation();
+                        propertyTypeCreation.setCode(propertyTypeCode);
+                        propertyTypeCreation.setDescription("hello");
+                        propertyTypeCreation.setDataType(dtos.DataType.VARCHAR);
+                        propertyTypeCreation.setLabel("Test Property Type");
+                        return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
+                            var assignmentCreation = new dtos.PropertyAssignmentCreation();
+                            assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
+                            assignmentCreation.setUnique(true);
+                            var dataSetTypeCreation = new dtos.DataSetTypeCreation();
+                            dataSetTypeCreation.setCode(dataSetTypeCode);
+                            dataSetTypeCreation.setPropertyAssignments([ assignmentCreation ]);
+                            return facade.createDataSetTypes([ dataSetTypeCreation ]).then(function(results) {
+                                var creation = new dtos.DataSetCreation();
+                                creation.setTypeId(new dtos.EntityTypePermId(dataSetTypeCode));
+                                creation.setCode(code);
+                                creation.setDataSetKind(dtos.DataSetKind.CONTAINER);
+                                creation.setDataStoreId(new dtos.DataStorePermId("DSS1"));
+                                creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+                                creation.setProperty(propertyTypeCode, "my_unique_value");
+                                return facade.createDataSets([ creation ]).then(function(results) {
+                                    var creation2 = new dtos.DataSetCreation();
+                                    creation2.setTypeId(new dtos.EntityTypePermId(dataSetTypeCode));
+                                    creation2.setCode(code2);
+                                    creation2.setDataSetKind(dtos.DataSetKind.CONTAINER);
+                                    creation2.setDataStoreId(new dtos.DataStorePermId("DSS1"));
+                                    creation2.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
+                                    creation2.setProperty(propertyTypeCode, "my_unique_value");
+                                    return facade.createDataSets([ creation2 ]);
+                                });
+                            });
+                        });
+                    }
+
+                    c.start();
+                    c.login(facade).then(function() {
+                        return fCreate(facade)
+                        .fail(function(error) {
+                            c.assertEqual("Insert/Update of dataset failed because property contains value that is not unique! (value:  my_unique_value) (Context: [])", error.message, "Uniqueness error message");
+                            c.finish();
+                            });
+                    });
+
+                });
+
 				QUnit.test("createDataSet() with multi-value property of type SAMPLE", function(assert) {
                     var c = new common(assert, dtos);
                     var propertyTypeCode = c.generateId("PROPERTY_TYPE");
@@ -828,7 +983,7 @@ define(
 
                     testCreate(c, fCreate, c.findDataSet, fCheck);
                 });
-				
+
 				QUnit.test("createDataSetTypes()", function(assert) {
 					var c = new common(assert, dtos);
 					var code = c.generateId("DATA_SET_TYPE");
@@ -973,7 +1128,7 @@ define(
 						c.assertEqual(type.getDescription(), "hello", "Description");
 						c.assertEqual(type.getDataType(), dtos.DataType.INTEGER, "Data type");
 						c.assertEqual(type.getMetaData().toString(), metaData, "Meta data");
-						
+
 					}
 
 					testCreate(c, fCreate, c.findPropertyType, fCheck);
@@ -983,7 +1138,7 @@ define(
 					var c = new common(assert, dtos);
 					var code = c.generateId("PROPERTY_TYPE");
 					var metaData = {"greetings" : "hello test"};
-					
+
 					var fCreate = function(facade) {
 						var creation = new dtos.PropertyTypeCreation();
 						creation.setCode(code);
@@ -994,7 +1149,7 @@ define(
 						creation.setSampleTypeId(new dtos.EntityTypePermId("UNKNOWN", "SAMPLE"));
 						return facade.createPropertyTypes([ creation ]);
 					}
-					
+
 					var fCheck = function(type) {
 						c.assertEqual(type.getCode(), code, "Type code");
 						c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
@@ -1004,10 +1159,10 @@ define(
 						c.assertEqual(type.getMetaData().toString(), metaData, "Meta data");
 						c.assertEqual(type.getSampleType().toString(), "UNKNOWN", "Sample type");
 					}
-					
+
 					testCreate(c, fCreate, c.findPropertyType, fCheck);
 				});
-				
+
 				QUnit.test("createPlugins()", function(assert) {
 					var c = new common(assert, dtos);
 					var name = c.generateId("PLUGIN");
