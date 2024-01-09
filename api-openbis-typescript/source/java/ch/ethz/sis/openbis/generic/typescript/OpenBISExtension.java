@@ -21,21 +21,16 @@
 package ch.ethz.sis.openbis.generic.typescript;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.reflect.TypeToken;
 
@@ -45,7 +40,6 @@ import cz.habarta.typescript.generator.DefaultTypeProcessor;
 import cz.habarta.typescript.generator.Extension;
 import cz.habarta.typescript.generator.Logger;
 import cz.habarta.typescript.generator.Settings;
-import cz.habarta.typescript.generator.TsParameter;
 import cz.habarta.typescript.generator.TsType;
 import cz.habarta.typescript.generator.TypeProcessor;
 import cz.habarta.typescript.generator.TypeScriptGenerator;
@@ -63,47 +57,8 @@ import cz.habarta.typescript.generator.emitter.TsParameterModel;
 import cz.habarta.typescript.generator.emitter.TsPropertyModel;
 
 /**
- * Functional interface to specify the type of method that makes a function. This is needed because we have different
- * implementations depending on whether the method returns a promise or not.
- */
-interface MethodProcessor
-{
-    TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext);
-}
-
-/**
- * This class is used to pass the symbol table and the type processor to the method processor. It was meant for easier refactoring
- * of the methods below.
- *
- * @author Simone Baffelli
- */
-class ProcessingContext
-{
-    private final SymbolTable symbolTable;
-
-    private final TypeProcessor localProcessor;
-
-    ProcessingContext(SymbolTable symbolTable, TypeProcessor localProcessor)
-    {
-        this.symbolTable = symbolTable;
-        this.localProcessor = localProcessor;
-    }
-
-    public SymbolTable getSymbolTable()
-    {
-        return symbolTable;
-    }
-
-    public TypeProcessor getLocalProcessor()
-    {
-        return localProcessor;
-    }
-}
-
-/**
  * This extension for the typescript-generator ({@link cz.habarta.typescript.generator}) Gradle <a href="URL#https://github.com/vojtechhabarta/typescript-generator">plugin</a> adds method and constructor signatures to the generated typescript interfaces.
  * The methods are extracted from the java classes using reflection. Currently, it can only create interface signatures to be exported in a d.ts. file, not the implementation.
- * The extensions can be configured to process certain classes as RPC classes, i.e. the methods of these classes will return a promise instead of a value.
  *
  * @author Simone Baffelli
  * @author pkupczyk
@@ -113,33 +68,9 @@ public class OpenBISExtension extends Extension
 
     private static final Logger logger = TypeScriptGenerator.getLogger();
 
-    private static final String excludedMethods = "hashCode|toString|equals";
-
-    public OpenBISExtension()
+    private static TsType resolveType(ProcessingContext processingContext, TsBeanModel bean, Type type)
     {
-    }
-
-    /**
-     * This method is used to filter out the methods that should not be added to the typescript interface.
-     *
-     * @param method the method to be filtered
-     * @return true if the method should be added to the typescript interface, false otherwise
-     */
-    private static boolean filterMethods(Method method)
-    {
-        return !(method.isBridge() || (method.getDeclaringClass() == Object.class) || (method.getName().matches(excludedMethods)));
-    }
-
-    private static List<TsParameter> getMethodParameters(TsBeanModel bean, Executable method, TsModel model, ProcessingContext processingContext)
-    {
-        return Arrays.stream(method.getParameters()).map(parameter -> new TsParameter(parameter.getName(),
-                resolveGenericType(bean.getOrigin(), parameter.getParameterizedType(), model, processingContext))).collect(Collectors.toList());
-    }
-
-    private static TsType resolveGenericType(Class<?> clazz, Type type, TsModel model, ProcessingContext processingContext)
-    {
-        TypeToken<?> typeToken = TypeToken.of(clazz).resolveType(type);
-        //This is not very elegant because we are calling again the type processor. Maybe later on we can find a way to get the types from the model
+        TypeToken<?> typeToken = TypeToken.of(bean.getOrigin()).resolveType(type);
         TypeProcessor.Context context = new TypeProcessor.Context(processingContext.getSymbolTable(), processingContext.getLocalProcessor(), null);
         TsType tsType = context.processType(typeToken.getType()).getTsType();
 
@@ -147,20 +78,22 @@ public class OpenBISExtension extends Extension
         {
             if (!((TsType.ReferenceType) tsType).symbol.isResolved())
             {
-                throw new UnresolvedTypeException(clazz, type);
+                throw new UnresolvedTypeException(bean.getOrigin(), type);
             }
         }
 
         return tsType;
     }
 
-    private static List<TsType.GenericVariableType> resolveTypeParameters(TsBeanModel bean, TsModel model, ProcessingContext processingContext,
-            boolean withBounds)
+    private static List<TsType.GenericVariableType> resolveTypeParameters(ProcessingContext processingContext, TsBeanModel bean,
+            TypeVariable<?>[] typeParameters, boolean withBounds)
     {
-        TypeVariable<? extends Class<?>>[] typeParameters = bean.getOrigin().getTypeParameters();
-        return Arrays.stream(typeParameters).map(t ->
+        List<TsType.GenericVariableType> tsTypeParameters = new ArrayList<>();
+
+        for (TypeVariable<?> typeParameter : typeParameters)
         {
-            Type[] boundsTypes = t.getBounds();
+            Type[] boundsTypes = typeParameter.getBounds();
+
             if (withBounds && boundsTypes.length > 0)
             {
                 try
@@ -168,135 +101,22 @@ public class OpenBISExtension extends Extension
                     List<String> boundsStrings = new ArrayList<>();
                     for (Type boundType : boundsTypes)
                     {
-                        TsType tsBoundType = resolveGenericType(bean.getOrigin(), boundType, model, processingContext);
+                        TsType tsBoundType = resolveType(processingContext, bean, boundType);
                         boundsStrings.add(tsBoundType.toString());
                     }
 
-                    return new TsType.GenericVariableType(t.getName() + " extends " + boundsStrings.get(0));
+                    tsTypeParameters.add(new TsType.GenericVariableType(typeParameter.getName() + " extends " + boundsStrings.get(0)));
                 } catch (UnresolvedTypeException e)
                 {
-                    return new TsType.GenericVariableType(t.getName());
+                    tsTypeParameters.add(new TsType.GenericVariableType(typeParameter.getName()));
                 }
             } else
             {
-                return new TsType.GenericVariableType(t.getName());
+                tsTypeParameters.add(new TsType.GenericVariableType(typeParameter.getName()));
             }
-        }).collect(Collectors.toList());
-    }
-
-    private static TsType getReturnType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
-    {
-        return resolveGenericType(bean.getOrigin(), method.getGenericReturnType(), model, processingContext);
-    }
-
-    private static TsType.FunctionType makeFunctionType(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
-    {
-        logger.info(String.format("Processing method %s, with params %s and return type %s", method, method.getParameters(),
-                method.getGenericReturnType()));
-        List<TsParameter> params = getMethodParameters(bean, method, model, processingContext);
-        TsType returnType = getReturnType(bean, method, model, processingContext);
-        return new TsType.FunctionType(params, returnType);
-    }
-
-    private static TsPropertyModel makeFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
-    {
-        try
-        {
-            return new TsPropertyModel(method.getName(), makeFunctionType(bean, method, model, processingContext), TsModifierFlags.None, false, null);
-        } catch (UnresolvedTypeException e)
-        {
-            logger.warning(
-                    "Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
-            return null;
-        }
-    }
-
-    private static TsPropertyModel makePromiseReturningFunction(TsBeanModel bean, Method method, TsModel model, ProcessingContext processingContext)
-    {
-        try
-        {
-            TsType.FunctionType syncFunction = makeFunctionType(bean, method, model, processingContext);
-            TsType promiseType = new TsType.GenericBasicType("Promise", List.of(syncFunction.type));
-            return new TsPropertyModel(method.getName(), new TsType.FunctionType(syncFunction.parameters, promiseType), TsModifierFlags.None, false,
-                    null);
-        } catch (UnresolvedTypeException e)
-        {
-            logger.warning(
-                    "Skipping method " + method.getDeclaringClass() + "." + method.getName() + " as it contains unresolved type: " + e.getType());
-            return null;
-        }
-    }
-
-    private static Optional<TsMethodModel> propertyModelToMethodModel(TsPropertyModel propertyModel)
-    {
-        if (propertyModel == null)
-        {
-            return Optional.empty();
-        }
-        TsType value = propertyModel.getTsType();
-        if (value instanceof TsType.FunctionType)
-        {
-            TsType.FunctionType functionType = (TsType.FunctionType) value;
-            List<TsParameterModel> params =
-                    functionType.parameters.stream().map(param -> new TsParameterModel(param.name, param.getTsType())).collect(Collectors.toList());
-            return Optional.of(new TsMethodModel(propertyModel.getName(), propertyModel.getModifiers(), null, params, functionType.type, null, null));
-        } else
-        {
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Constructs a typescript constructor signature from a java constructor
-     *
-     * @param constructor       the java constructor
-     * @param beanModel         the bean model that contains the constructor
-     * @param model
-     * @param processingContext the context of the processing used for type resolution
-     * @return the typescript constructor signature or null if the constructor is not public
-     */
-    private static TsMethodModel makeConstructor(Constructor<?> constructor, TsBeanModel beanModel, TsModel model,
-            ProcessingContext processingContext)
-    {
-        List<TsParameter> params = getMethodParameters(beanModel, constructor, model, processingContext);
-        List<TsParameter> paramsWithoutDeclaringClass = params.stream().collect(Collectors.toList());
-        List<TsParameterModel> paramsModel =
-                paramsWithoutDeclaringClass.stream().map(param -> new TsParameterModel(param.name, param.getTsType())).collect(Collectors.toList());
-        TsType returnType = null;
-
-        List<TsType.GenericVariableType> typeParameters = resolveTypeParameters(beanModel, model, processingContext, false);
-
-        if (!typeParameters.isEmpty())
-        {
-            returnType = new TsType.GenericReferenceType(beanModel.getName(), typeParameters);
-        } else
-        {
-            returnType = new TsType.ReferenceType(beanModel.getName());
         }
 
-        logger.info(String.format("Processing constructor %s, with params %s and return type %s", constructor, params, returnType));
-        return new TsMethodModel("new ", TsModifierFlags.None, beanModel.getTypeParameters(), paramsModel, returnType, null, null);
-    }
-
-    private static TsBeanModel addFunctions(TsBeanModel bean, TsModel model, ProcessingContext processingContext, MethodProcessor processor)
-    {
-        Class<?> origin = bean.getOrigin();
-        Stream<TsMethodModel> params = Arrays.stream(origin.getMethods()).filter(OpenBISExtension::filterMethods)
-                .map(method -> propertyModelToMethodModel(processor.makeFunction(bean, method, model, processingContext)))
-                .flatMap(it -> it.map(Stream::of).orElse(Stream.empty()));
-        Stream<TsMethodModel> constructors = Arrays.stream(origin.getDeclaredConstructors()).map(constructor ->
-        {
-            try
-            {
-                return makeConstructor(constructor, bean, model, processingContext);
-            } catch (UnresolvedTypeException e)
-            {
-                logger.warning("Skipping constructor of " + constructor.getDeclaringClass() + " as it contains unresolved type: " + e.getType());
-                return null;
-            }
-        }).filter(Objects::nonNull);
-        List<TsMethodModel> allMethods = Stream.of(params, constructors).flatMap(it -> it).collect(Collectors.toList());
-        return bean.withProperties(Collections.emptyList()).withMethods(allMethods);
+        return tsTypeParameters;
     }
 
     @Override
@@ -315,112 +135,140 @@ public class OpenBISExtension extends Extension
     {
         return List.of(new TransformerDefinition(ModelCompiler.TransformationPhase.AfterDeclarationSorting, (TsModelTransformer) (context, model) ->
         {
-            logger.info("Started processing methods");
-            //Extract all types that were mapped by the bean model to reuse them
-            TypeProcessor localProcessor = new DefaultTypeProcessor();
-            ProcessingContext processingContext = new ProcessingContext(context.getSymbolTable(), localProcessor);
-            //Add table of mapped types
+            logger.info("Started processing beans");
 
-            List<TsBeanModel> processedBeans = model.getBeans().stream().map(bean ->
-            {
-                List<TsType.GenericVariableType> tsTypeParameters = resolveTypeParameters(bean, model, processingContext, true);
-                return new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), tsTypeParameters,
-                        bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), Collections.emptyList(), bean.getConstructor(),
-                        bean.getMethods(), bean.getComments());
-            }).collect(Collectors.toList());
+            ProcessingContext processingContext = new ProcessingContext(context.getSymbolTable());
 
-            processedBeans = processedBeans.stream().map(bean ->
+            List<TsBeanModel> tsBeans = new ArrayList<>();
+            List<TsPropertyModel> tsBundleProperties = new ArrayList<>();
+
+            for (TsBeanModel bean : model.getBeans())
             {
-                if (OpenBIS.class.equals(bean.getOrigin()))
+                List<TsType.GenericVariableType> tsBeanTypeParametersWithBounds =
+                        resolveTypeParameters(processingContext, bean, bean.getOrigin().getTypeParameters(), true);
+                List<TsType.GenericVariableType> tsBeanTypeParametersWithoutBounds =
+                        resolveTypeParameters(processingContext, bean, bean.getOrigin().getTypeParameters(), false);
+
+                List<TsMethodModel> tsBeanMethods = new ArrayList<>();
+
+                for (Method method : bean.getOrigin().getMethods())
                 {
-                    return addFunctions(bean, model, processingContext, OpenBISExtension::makePromiseReturningFunction);
-                } else
-                {
-                    return addFunctions(bean, model, processingContext, OpenBISExtension::makeFunction);
-                }
-            }).collect(Collectors.toList());
-
-            List<TsBeanModel> processedBeansWithSeparatedConstructors = new LinkedList<>();
-
-            processedBeans.forEach(bean ->
-            {
-                List<TsMethodModel> regularMethods =
-                        bean.getMethods().stream().filter(method -> !method.getName().equals("new ")).collect(Collectors.toList());
-                List<TsMethodModel> constructors =
-                        bean.getMethods().stream().filter(method -> method.getName().equals("new ")).collect(Collectors.toList());
-
-                if (!constructors.isEmpty())
-                {
-                    TsBeanModel constructorBean =
-                            new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(),
-                                    new Symbol(bean.getName().getSimpleName() + "Constructor"),
-                                    Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null,
-                                    constructors, Collections.emptyList());
-                    processedBeansWithSeparatedConstructors.add(constructorBean);
-                }
-
-                TsBeanModel beanWithoutConstructors =
-                        new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), bean.getTypeParameters(),
-                                bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), bean.getProperties(), bean.getConstructor(),
-                                regularMethods, bean.getComments());
-                processedBeansWithSeparatedConstructors.add(beanWithoutConstructors);
-            });
-
-            return model.withBeans(processedBeansWithSeparatedConstructors);
-        }), new TransformerDefinition(ModelCompiler.TransformationPhase.AfterDeclarationSorting, (TsModelTransformer) (context, model) ->{
-            return addOpenBISModule(model);
-        }));
-    }
-
-    private TsModel addOpenBISModule(final TsModel model){
-        List<TsBeanModel> beans = model.getBeans();
-        List<TsPropertyModel> properties = new ArrayList<>();
-        Set<String> constructors = new HashSet<>();
-
-        for (TsBeanModel bean : beans)
-        {
-            if (bean.getName().getSimpleName().endsWith("Constructor"))
-            {
-                constructors.add(bean.getName().getSimpleName());
-            }
-        }
-
-        for (TsBeanModel bean : beans)
-        {
-            if (!bean.getName().getSimpleName().endsWith("Constructor"))
-            {
-                boolean hasConstructor = constructors.contains(bean.getName().getSimpleName() + "Constructor");
-
-                if (hasConstructor)
-                {
-                    JsonObject jsonObjectAnnotation = bean.getOrigin().getAnnotation(JsonObject.class);
-
-                    properties.add(new TsPropertyModel(bean.getName().getSimpleName(),
-                            new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
-
-                    if (jsonObjectAnnotation != null)
+                    if (method.isBridge() || (method.getDeclaringClass() == Object.class) || (method.getName()
+                            .matches("hashCode|toString|equals")))
                     {
-                        String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
+                        continue;
+                    }
 
-                        if(!jsonName.equals(bean.getName().getSimpleName()))
+                    try
+                    {
+                        List<TsParameterModel> tsMethodParameters = new ArrayList<>();
+
+                        for (Parameter methodParameter : method.getParameters())
                         {
-                            properties.add(new TsPropertyModel(jsonName,
-                                    new TsType.ReferenceType(new Symbol(bean.getName().getSimpleName() + "Constructor")), null, true, null));
+                            TsType tsMethodParameterType = resolveType(processingContext, bean, methodParameter.getParameterizedType());
+                            tsMethodParameters.add(new TsParameterModel(methodParameter.getName(), tsMethodParameterType));
+                        }
+
+                        TsType tsMethodReturnType = resolveType(processingContext, bean, method.getGenericReturnType());
+
+                        if (OpenBIS.class.equals(bean.getOrigin()))
+                        {
+                            tsMethodReturnType = new TsType.GenericBasicType("Promise", List.of(tsMethodReturnType));
+                        }
+
+                        List<TsType.GenericVariableType> tsMethodTypeParameters =
+                                resolveTypeParameters(processingContext, bean, method.getTypeParameters(), false);
+
+                        tsBeanMethods.add(new TsMethodModel(method.getName(), TsModifierFlags.None, tsMethodTypeParameters, tsMethodParameters,
+                                tsMethodReturnType,
+                                null, null));
+
+                    } catch (UnresolvedTypeException e)
+                    {
+                        logger.warning("Skipping method " + method.getDeclaringClass() + "." + method.getName()
+                                + " as it contains unresolved type: " + e.getType());
+                    }
+                }
+
+                List<TsMethodModel> tsConstructors = new ArrayList<>();
+
+                for (Constructor<?> constructor : bean.getOrigin().getDeclaredConstructors())
+                {
+                    try
+                    {
+                        List<TsParameterModel> tsConstructorParameter = new ArrayList<>();
+
+                        for (Parameter constructorParameter : constructor.getParameters())
+                        {
+                            TsType tsConstructorParameterType = resolveType(processingContext, bean, constructorParameter.getParameterizedType());
+                            tsConstructorParameter.add(new TsParameterModel(constructorParameter.getName(), tsConstructorParameterType));
+                        }
+
+                        TsType tsConstructorReturnType;
+
+                        if (tsBeanTypeParametersWithoutBounds.isEmpty())
+                        {
+                            tsConstructorReturnType = new TsType.ReferenceType(bean.getName());
+                        } else
+                        {
+                            tsConstructorReturnType = new TsType.GenericReferenceType(bean.getName(), tsBeanTypeParametersWithoutBounds);
+                        }
+
+                        tsConstructors.add(new TsMethodModel("new ", TsModifierFlags.None, tsBeanTypeParametersWithBounds, tsConstructorParameter,
+                                tsConstructorReturnType,null, null));
+
+                    } catch (UnresolvedTypeException e)
+                    {
+                        logger.warning(
+                                "Skipping method " + constructor.getDeclaringClass() + "." + constructor.getName()
+                                        + " as it contains unresolved type: " + e.getType());
+                    }
+                }
+
+                if (!tsConstructors.isEmpty())
+                {
+                    String tsConstructorBeanName = bean.getName().getSimpleName() + "Constructor";
+
+                    tsBeans.add(new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(),
+                            new Symbol(tsConstructorBeanName),
+                            Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null,
+                            tsConstructors, Collections.emptyList()));
+
+                    tsBundleProperties.add(new TsPropertyModel(bean.getName().getSimpleName(),
+                            new TsType.ReferenceType(new Symbol(tsConstructorBeanName)), null, true, null));
+
+                    JsonObject tsBeanJsonObject = bean.getOrigin().getAnnotation(JsonObject.class);
+
+                    if (tsBeanJsonObject != null)
+                    {
+                        String tsBeanJsonName = tsBeanJsonObject.value().replaceAll("\\.", "_");
+
+                        if (!tsBeanJsonName.equals(bean.getName().getSimpleName()))
+                        {
+                            tsBundleProperties.add(new TsPropertyModel(tsBeanJsonName,
+                                    new TsType.ReferenceType(new Symbol(tsConstructorBeanName)), null, true, null));
                         }
                     }
                 }
+
+                tsBeans.add(new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), tsBeanTypeParametersWithBounds,
+                        bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), Collections.emptyList(), bean.getConstructor(),
+                        tsBeanMethods, bean.getComments()));
             }
-        }
 
-        beans.add(new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("bundle"), null, null, null, null, properties, null, null, null));
+            tsBeans.add(
+                    new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("bundle"), null, null, null, null, tsBundleProperties, null, null,
+                            null));
 
-        return model.withBeans(beans);
+            return model.withBeans(tsBeans);
+        }));
     }
 
     @Override public void emitElements(final Writer writer, final Settings settings, final boolean exportKeyword, final TsModel model)
     {
         Set<String> constructors = new HashSet<>();
 
+        // create "export const bean:beanConstructor"
         model.getBeans().forEach(bean ->
         {
             if (bean.getName().getSimpleName().endsWith("Constructor"))
@@ -436,7 +284,7 @@ public class OpenBISExtension extends Extension
                 {
                     String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
 
-                    if(!jsonName.equals(originalBeanName))
+                    if (!jsonName.equals(originalBeanName))
                     {
                         writer.writeIndentedLine(
                                 "export const " + jsonName + ":" + bean.getName().getSimpleName());
@@ -447,6 +295,7 @@ public class OpenBISExtension extends Extension
             }
         });
 
+        // create "type beanJsonName:bean"
         model.getBeans().forEach(bean ->
         {
             if (!bean.getName().getSimpleName().endsWith("Constructor") && constructors.contains(bean.getName().getSimpleName() + "Constructor"))
@@ -457,7 +306,7 @@ public class OpenBISExtension extends Extension
                 {
                     String jsonName = jsonObjectAnnotation.value().replaceAll("\\.", "_");
 
-                    if(!jsonName.equals(bean.getName().getSimpleName()))
+                    if (!jsonName.equals(bean.getName().getSimpleName()))
                     {
                         if (bean.getTypeParameters() == null || bean.getTypeParameters().isEmpty())
                         {
@@ -476,11 +325,34 @@ public class OpenBISExtension extends Extension
         });
     }
 
+    private static class ProcessingContext
+    {
+        private final SymbolTable symbolTable;
+
+        private final TypeProcessor localProcessor;
+
+        ProcessingContext(SymbolTable symbolTable)
+        {
+            this.symbolTable = symbolTable;
+            this.localProcessor = new DefaultTypeProcessor();
+        }
+
+        public SymbolTable getSymbolTable()
+        {
+            return symbolTable;
+        }
+
+        public TypeProcessor getLocalProcessor()
+        {
+            return localProcessor;
+        }
+    }
+
     private static class UnresolvedTypeException extends RuntimeException
     {
-        private Class<?> clazz;
+        private final Class<?> clazz;
 
-        private Type type;
+        private final Type type;
 
         public UnresolvedTypeException(final Class<?> clazz, final Type type)
         {
