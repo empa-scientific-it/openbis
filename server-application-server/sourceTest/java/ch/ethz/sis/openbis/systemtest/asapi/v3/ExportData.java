@@ -590,9 +590,20 @@ class ExportData
             },
             {
                     // Data set: "ROOT_CONTAINER"
-                    "export-data-set-pdf.zip",
+                    "export-data-set-experiment-pdf.zip",
                     EnumSet.of(ExportFormat.PDF),
                     List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false, // withImportCompatibility
+                    true
+            },
+            {
+                    // Data set: "20120628092259000-41" linked to a sample
+                    "export-data-set-sample-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("20120628092259000-41"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
