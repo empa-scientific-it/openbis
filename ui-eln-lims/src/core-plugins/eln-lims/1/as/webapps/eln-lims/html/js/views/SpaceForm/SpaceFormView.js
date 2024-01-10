@@ -77,16 +77,20 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
             dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("SPACE", _this._spaceFormModel.v3_space.permId.permId));
 
             //Export
-            dropdownOptionsModel.push({
-                label : "Export Metadata",
-                action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
-            });
-            
-            dropdownOptionsModel.push({
-                label : "Export Metadata & Data",
-                action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
-            });
-            
+            dropdownOptionsModel.push(FormUtil.getExportButtonModel("SPACE", _this._spaceFormModel.v3_space.permId.permId));
+
+            if(profile.legacyExports.enable) {
+                dropdownOptionsModel.push({
+                    label : "Export Metadata",
+                    action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
+                });
+
+                dropdownOptionsModel.push({
+                    label : "Export Metadata & Data",
+                    action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
+                });
+            }
+
             //Jupyter Button
             if(profile.jupyterIntegrationServerEndpoint) {
                 dropdownOptionsModel.push({

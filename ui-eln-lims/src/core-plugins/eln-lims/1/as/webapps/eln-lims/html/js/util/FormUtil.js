@@ -2877,8 +2877,7 @@ var FormUtil = new function() {
                                                             var exportData = new ExportData([exportablePermId], new AllFields());
                                                             var exportOptions = new ExportOptions([ExportFormat.PDF], XlsTextFormat.RICH, false, false, false);
                                                             mainController.openbisV3.executeExport(exportData, exportOptions).done(function(result) {
-                                                                var url = window.location.origin + "/openbis/download?sessionID=" +mainController.serverFacade.getSession() + "&filePath=" + result.downloadURL.replaceAll(" ", "%20");
-                                                                window.open(url, "_blank");
+                                                                window.open(result.downloadURL, "_blank");
                                                             }).fail(function(result) {
                                                                 Util.showError("Failed print PDF: " + JSON.stringify(result), function() {Util.unblockUI();});
                                                             });
@@ -2925,7 +2924,7 @@ var FormUtil = new function() {
                                                               .append(" Export Options");
                                         $window.append($exportOptions);
 
-                                        var $waitOrEmail = $('<div/>'); // .html(string).contents();
+                                        var $waitOrEmail = $('<div/>');
                                         $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Wait' checked>Wait for result</label></span>");
                                         $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'>Run in background (receive results by email)</label></span>");
                                         $window.append($waitOrEmail.contents());
@@ -2945,22 +2944,37 @@ var FormUtil = new function() {
                                                     data : $("#DATA-EXPORT").is(":checked") //DATA-EXPORT
                                                 },
                                                 withLevelsBelow : $("#LEVELS-BELOW-EXPORT").is(":checked"), //LEVELS-BELOW-EXPORT
-                                                withParents : $("#PARENTS-EXPORT").is(":checked"), //PARENTS-EXPORT
-                                                withOtherSpaces: $("#OTHER-SPACES-EXPORT").is(":checked") //OTHER-SPACES-EXPORT
+                                                withObjectsAndDataSetsParents : $("#PARENTS-EXPORT").is(":checked"), //PARENTS-EXPORT
+                                                withObjectsAndDataSetsOtherSpaces: $("#OTHER-SPACES-EXPORT").is(":checked") //OTHER-SPACES-EXPORT
                                             }
-                                            Util.blockUI();
-                                            mainController.serverFacade.customELNASAPI({
-                                                "method" : "getExport",
-                                                "export-model" : exportModel
-                                            }, function(result) {
-                                                if(exportModel.withEmail) {
-                                                    Util.showSuccess("Export scheduled, you will receive export by email");
-                                                    Util.unblockUI();
-                                                } else {
-                                                    Util.showSuccess("Downloading File");
-                                                    Util.unblockUI();
-                                                }
-                                            }, true);
+                                            var numberOfFormats = 0;
+                                            if(exportModel.formats.pdf) {
+                                                numberOfFormats++;
+                                            }
+                                            if(exportModel.formats.xlsx) {
+                                                numberOfFormats++;
+                                            }
+                                            if(exportModel.formats.data) {
+                                                numberOfFormats++;
+                                            }
+                                            if(numberOfFormats === 0) {
+                                                Util.showError("No format selected.", function() {}, true, true, false, true);
+                                            } else {
+                                                Util.blockUI();
+                                                mainController.serverFacade.customELNASAPI({
+                                                    "method" : "getExport",
+                                                    "export-model" : exportModel
+                                                }, function(result) {
+                                                    if(exportModel.withEmail) {
+                                                        Util.showSuccess("Export scheduled, you will receive export by email");
+                                                        Util.unblockUI();
+                                                    } else {
+                                                        window.open(result.result, "_blank");
+                                                        Util.showSuccess("Downloading File");
+                                                        Util.unblockUI();
+                                                    }
+                                                }, true);
+                                            }
                                         });
                                         var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
                                         $btnCancel.click(function() {

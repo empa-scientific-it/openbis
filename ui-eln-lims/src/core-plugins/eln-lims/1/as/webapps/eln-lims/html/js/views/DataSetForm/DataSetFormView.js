@@ -111,18 +111,22 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			}
 			
 			//Export
-            if(toolbarConfig.EXPORT_METADATA) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata",
-                    action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], true)
-                });
-            }
+			dropdownOptionsModel.push(FormUtil.getExportButtonModel("DATASET", _this._dataSetFormModel.dataSetV3.code));
 
-			if(toolbarConfig.EXPORT_ALL) {
-				dropdownOptionsModel.push({
-                    label : "Export Metadata & Data",
-                    action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], false)
-                });
+			if(profile.legacyExports.enable) {
+                if(toolbarConfig.EXPORT_METADATA) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata",
+                        action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], true)
+                    });
+                }
+
+                if(toolbarConfig.EXPORT_ALL) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata & Data",
+                        action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], false)
+                    });
+                }
 			}
 
             if (this._dataSetFormModel.availableProcessingServices.length > 0) {

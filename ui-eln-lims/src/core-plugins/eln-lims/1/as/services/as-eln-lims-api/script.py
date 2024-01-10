@@ -1,5 +1,6 @@
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames as ComponentNames
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider as CommonServiceProvider
+import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportExtendedService as XLSExportExtendedService
 import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureException
 import base64
 import json
@@ -95,7 +96,7 @@ def process(context, parameters):
 def getExport(context, parameters):
     sessionToken = context.getSessionToken()
     exportModel = parameters.get("export-model")
-    return True
+    return XLSExportExtendedService.export(sessionToken, exportModel)
 
 def getCustomImportDefinitions(context, parameters):
     from ch.systemsx.cisd.common.spring import ExposablePropertyPlaceholderConfigurer
