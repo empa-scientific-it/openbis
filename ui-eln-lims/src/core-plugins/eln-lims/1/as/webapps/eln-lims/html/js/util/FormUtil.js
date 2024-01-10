@@ -2886,4 +2886,99 @@ var FormUtil = new function() {
              }};
              return printButtonModel;
         }
+
+        this.getExportButtonModel = function(entityKind, entityPermId) {
+            var exportButtonModel = {
+                                    label : "Export",
+                                    action : function() {
+                                        var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+                                        $window.append($('<legend>').append('Export'));
+
+                                        var $waitOrEmail = $('<div/>'); // .html(string).contents();
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Wait' checked>Wait for result</label></span>");
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'>Run in background (receive results by email)</label></span>");
+                                        $window.append(FormUtil.getFieldForComponentWithLabel($waitOrEmail, "Wait for result"));
+
+                                        if(profile.isAdmin) {
+                                            var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
+                                            $window.append($compatible);
+                                        }
+                                        var $info_formats = $("<span>")
+                                                            .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
+                                                            .append(" File formats");
+                                        $window.append($info_formats);
+                                        var $pdf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PDF-EXPORT", null, false, false), 'Export metadata as PDF');
+                                        $window.append($pdf);
+                                        if(profile.isAdmin) {
+                                            var $xlsx = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("XLSX-EXPORT", null, false, false), 'Export metadata as XLSX');
+                                            $window.append($xlsx);
+                                        }
+                                        var $data = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("DATA-EXPORT", null, false, false), 'Export data');
+                                        $window.append($data);
+                                        var $hierarchyInclusions = $("<span>")
+                                                              .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
+                                                              .append(" Hierarchy Inclusions");
+                                        $window.append($hierarchyInclusions);
+                                        var $levelsBelow = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LEVELS-BELOW-EXPORT", null, false, false), 'Include levels below from same space');
+                                        $window.append($levelsBelow);
+                                        var $includeParents = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include parents from same space');
+                                        $window.append($includeParents);
+                                        var $includeOtherSpaces = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("OTHER-SPACES-EXPORT", null, false, false), 'Include objects from different spaces');
+                                        $window.append($includeOtherSpaces);
+
+                                        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
+                                        $btnAccept.click(function() {
+                                            var exportModel = {
+                                                entity : {
+                                                    kind : entityKind,
+                                                    permId : entityPermId
+                                                },
+                                                withEmail : $("#EXPORT-EMAIL").is(":checked"),
+                                                withImportCompatibility : $("#COMPATIBLE-IMPORT").is(":checked"), //COMPATIBLE-IMPORT
+                                                formats : {
+                                                    pdf : $("#PDF-EXPORT").is(":checked"), //PDF-EXPORT
+                                                    xlsx : $("#XLSX-EXPORT").is(":checked"), //XLSX-EXPORT
+                                                    data : $("#DATA-EXPORT").is(":checked") //DATA-EXPORT
+                                                },
+                                                withLevelsBelow : $("#LEVELS-BELOW-EXPORT").is(":checked"), //LEVELS-BELOW-EXPORT
+                                                withParents : $("#PARENTS-EXPORT").is(":checked"), //PARENTS-EXPORT
+                                                withOtherSpaces: $("#OTHER-SPACES-EXPORT").is(":checked") //OTHER-SPACES-EXPORT
+                                            }
+                                            Util.blockUI();
+                                            mainController.serverFacade.customELNASAPI({
+                                                "method" : "getExport",
+                                                "export-model" : exportModel
+                                            }, function(result) {
+                                                if(exportModel.withEmail) {
+                                                    Util.showSuccess("Export scheduled, you will receive export by email");
+                                                    Util.unblockUI();
+                                                } else {
+                                                    Util.showSuccess("Downloading File");
+                                                    Util.unblockUI();
+                                                }
+                                            }, true);
+                                        });
+                                        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                                        $btnCancel.click(function() {
+                                            Util.unblockUI();
+                                        });
+
+//                                        var $emailWarn = $("<span>")
+//                                                                    .append($("<span>", { class: "glyphicon glyphicon-warning-sign" }));
+
+                                        $window.append($btnAccept).append('&nbsp;').append($btnCancel); //.append('&nbsp;').append($emailWarn);
+
+                                        var css = {
+                                                    'text-align' : 'left',
+                                                    'top' : '15%',
+                                                    'width' : '70%',
+                                                    'left' : '15%',
+                                                    'right' : '20%',
+                                                    'overflow' : 'hidden'
+                                        };
+
+                                        Util.blockUI($window, css);
+                                    }};
+             return exportButtonModel;
+        }
 }

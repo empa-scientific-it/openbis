@@ -88,7 +88,14 @@ def process(context, parameters):
         result = deleteSpace(context, parameters)
     elif method == "getCustomImportDefinitions":
         result = getCustomImportDefinitions(context, parameters)
+    elif method == "getExport":
+        result = getExport(context, parameters)
     return result
+
+def getExport(context, parameters):
+    sessionToken = context.getSessionToken()
+    exportModel = parameters.get("export-model")
+    return True
 
 def getCustomImportDefinitions(context, parameters):
     from ch.systemsx.cisd.common.spring import ExposablePropertyPlaceholderConfigurer
