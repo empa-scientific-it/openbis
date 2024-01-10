@@ -20,7 +20,6 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
@@ -53,7 +52,6 @@ import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -383,7 +381,7 @@ public class ExportTest extends AbstractTest
         final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, zipSingleFiles);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
-        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, getBareFileName(exportResult.getDownloadURL()));
         mockery.assertIsSatisfied();
     }
 
@@ -479,7 +477,12 @@ public class ExportTest extends AbstractTest
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, false);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
-        compareFiles(XLS_EXPORT_RESOURCES_PATH + "export-large-cell.zip", exportResult.getDownloadURL());
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + "export-large-cell.zip", getBareFileName(exportResult.getDownloadURL()));
+    }
+
+    private static String getBareFileName(final String url)
+    {
+        return url.substring(url.lastIndexOf("=") + 1);
     }
 
     private static DataSetFile createDataSetFile(final String filePath, final int fileLength)

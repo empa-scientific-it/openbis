@@ -34,6 +34,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENS
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -44,6 +45,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,8 +85,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.TreeNode;
@@ -238,9 +241,6 @@ public class ExportExecutor implements IExportExecutor
     /** All characters except the ones we consider safe as a directory name. */
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
 
-    @Autowired
-    private ApplicationContext applicationContext;
-
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
@@ -385,18 +385,40 @@ public class ExportExecutor implements IExportExecutor
             }
 
             zipDirectory(exportWorkspaceDirectoryPathString, targetZipFile);
-            exportResult = new ExportResult(zipFileName, warnings);
+            exportResult = new ExportResult(getDownloadPath(api, sessionToken, zipFileName), warnings);
         } else
         {
             final Path filePath = file.toPath();
             final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(), filePath.getFileName().toString()),
                     StandardCopyOption.REPLACE_EXISTING);
-            exportResult = new ExportResult(targetFilePath.getFileName().toString(), warnings);
+            final String fileName = targetFilePath.getFileName().toString();
+
+            exportResult = new ExportResult(getDownloadPath(api, sessionToken, fileName), warnings);
         }
 
         deleteDirectory(exportWorkspaceDirectoryPathString);
 
         return exportResult;
+    }
+
+    private String getDownloadPath(final IApplicationServerApi api, final String sessionToken, final String fileName)
+            throws MalformedURLException
+    {
+        final String protocolWithDomain = configurer.getResolvedProps().getProperty(DOWNLOAD_URL);
+        if (protocolWithDomain == null || protocolWithDomain.isBlank())
+        {
+            throw new UserFailureException(String.format("The property '%s' is not configured for the application server.", DOWNLOAD_URL));
+        }
+
+        final URL url = new URL(String.format("%s/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken, fileName));
+        try
+        {
+            return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef())
+                    .toString();
+        } catch (final URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final File exportWorkspaceDirectory,
