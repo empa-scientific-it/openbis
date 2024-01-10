@@ -8,7 +8,6 @@
     <packages>
       <package name="ch.ethz.sis.openbis.*" />
       <package name="ch.systemsx.cisd.openbis.*" />
-      <package name="ch.empa.tsprocessor.*" />
     </packages>
   </test>
 </suite>
