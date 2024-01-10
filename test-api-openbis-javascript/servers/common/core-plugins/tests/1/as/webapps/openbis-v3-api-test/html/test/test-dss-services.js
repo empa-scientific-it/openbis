@@ -279,9 +279,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	return function() {
 		executeModule("DSS service tests (RequireJS)", new openbis(), dtos);
 		executeModule("DSS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-		executeModule("DSS service tests (module VAR)", new window.openbis.facade(), window.openbis);
-		executeModule("DSS service tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.facade(), window.openbis), window.openbis);
-		executeModule("DSS service tests (module ESM)", new window.openbisESM.facade(), window.openbisESM);
-		executeModule("DSS service tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.facade(), window.openbisESM), window.openbisESM);
+		executeModule("DSS service tests (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("DSS service tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("DSS service tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+		executeModule("DSS service tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}
 })

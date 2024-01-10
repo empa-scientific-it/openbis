@@ -131,9 +131,9 @@ define([
   return function () {
     executeModule("Evaluate tests (RequireJS)", new openbis(), dtos);
     executeModule("Evaluate tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-    executeModule("Evaluate tests (module VAR)", new window.openbis.facade(), window.openbis);
-    executeModule("Evaluate tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.facade(), window.openbis), window.openbis);
-    executeModule("Evaluate tests (module ESM)", new window.openbisESM.facade(), window.openbisESM);
-    executeModule("Evaluate tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.facade(), window.openbisESM), window.openbisESM);
+    executeModule("Evaluate tests (module VAR)", new window.openbis.openbis(), window.openbis);
+    executeModule("Evaluate tests (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+    executeModule("Evaluate tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+    executeModule("Evaluate tests (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
   };
 });

@@ -78,9 +78,9 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	return function() {
 		executeModule("Archive/Unarchive (RequireJS)", new openbis(), dtos);
 		executeModule("Archive/Unarchive (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
-		executeModule("Archive/Unarchive (module VAR)", new window.openbis.facade(), window.openbis);
-		executeModule("Archive/Unarchive (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.facade(), window.openbis), window.openbis);
-		executeModule("Archive/Unarchive (module ESM)", new window.openbisESM.facade(), window.openbisESM);
-		executeModule("Archive/Unarchive (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.facade(), window.openbisESM), window.openbisESM);
+		executeModule("Archive/Unarchive (module VAR)", new window.openbis.openbis(), window.openbis);
+		executeModule("Archive/Unarchive (module VAR - executeOperations)", new openbisExecuteOperations(new window.openbis.openbis(), window.openbis), window.openbis);
+		executeModule("Archive/Unarchive (module ESM)", new window.openbisESM.openbis(), window.openbisESM);
+		executeModule("Archive/Unarchive (module ESM - executeOperations)", new openbisExecuteOperations(new window.openbisESM.openbis(), window.openbisESM), window.openbisESM);
 	}
 })

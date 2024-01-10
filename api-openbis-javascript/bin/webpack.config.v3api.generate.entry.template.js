@@ -24,7 +24,7 @@ dtos
 
 console.log("import stjs from '../../src/v3/lib/stjs/js/stjs'")
 console.log("import underscore from '../../src/v3/lib/underscore/js/underscore'")
-console.log("import facade from '../../src/v3/openbis'")
+console.log("import openbis from '../../src/v3/openbis'")
 
 // use bundled DTOs when parsing JSON responses (i.e. overwrite the default Json.requireFn - it would load DTOs from the server using RequireJS)
 
@@ -62,7 +62,7 @@ console.log('\nstjs._ = underscore')
 // This way any DTOs with duplicated simple names can still be accessed via their full names.
 
 var exported = {
-  "facade" : "$$facade$$",
+  "openbis" : "$$openbis$$",
   "noConflict" : "$$noConflict$$"
 }
 

@@ -323,7 +323,7 @@ VAR bundle can be loaded at an HTML page using a standard script tag.
     The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
 
     The facade can be accessed via:
-    - "facade" name (e.g. var v3 = new openbis.facade())
+    - "openbis" name (e.g. var v3 = new openbis.openbis())
 
     The classes can be accessed via:
     - simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
@@ -353,7 +353,7 @@ VAR bundle can be loaded at an HTML page using a standard script tag.
 <body>
 <script>
             // create an instance of the Javascript facade
-            var v3 = new openbis.facade();
+            var v3 = new openbis.openbis();
 
             // login to obtain a session token (the token it is automatically stored in openbis object and will be used for all subsequent API calls)
             v3.login("admin", "admin").done(function() {
@@ -399,7 +399,7 @@ Import ESM (ECMAScript module) openBIS V3 API Javascript bundle as "openbis".
 The bundle contains V3 API Javascript facade and all V3 API Javascript classes.
 
 The facade can be accessed via:
-- "facade" name (e.g. var v3 = new openbis.facade())
+- "openbis" name (e.g. var v3 = new openbis.openbis())
 
 The classes can be accessed via:
 - simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
@@ -423,7 +423,7 @@ List of classes with duplicated simple names (i.e. accessible only via their ful
             import openbis from "http://localhost:8888/openbis/resources/api/v3/openbis.esm.js"
 
             // create an instance of the Javascript facade
-            var v3 = new openbis.facade();
+            var v3 = new openbis.openbis();
 
             // login to obtain a session token (the token it is automatically stored in openbis object and will be used for all subsequent API calls)
             v3.login("admin", "admin").done(function() {
@@ -521,10 +521,9 @@ import openbis from "./openbis.esm"
 
 export default class Test {
     public async test(): Promise<openbis.SearchResult<openbis.Space>> {
-        var facade = new openbis.facade("http://localhost:8888/openbis/openbis/rmi-application-server-v3.json");
+        var facade = new openbis.openbis("http://localhost:8888/openbis/openbis/rmi-application-server-v3.json");
         await facade.login("admin","password")
-        var results:openbis.SearchResult<openbis.Space> = await facade.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions())
-        return result
+        return await facade.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions())
     }
 }
 ```
@@ -552,7 +551,7 @@ import openbis from "./openbis.esm"
 
 export default class Test {
     public async test(bundle:openbis.bundle): Promise<openbis.SearchResult<openbis.Space>> {
-        var facade = new bundle.facade("http://localhost:8888/openbis/openbis/rmi-application-server-v3.json");
+        var facade = new bundle.openbis("http://localhost:8888/openbis/openbis/rmi-application-server-v3.json");
         await facade.login("admin","password")
         return await facade.searchSpaces(new bundle.SpaceSearchCriteria(), new bundle.SpaceFetchOptions())
     }
