@@ -2893,12 +2893,6 @@ var FormUtil = new function() {
                                     action : function() {
                                         var $window = $('<form>', { 'action' : 'javascript:void(0);' });
                                         $window.append($('<legend>').append('Export'));
-
-                                        var $waitOrEmail = $('<div/>'); // .html(string).contents();
-                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Wait' checked>Wait for result</label></span>");
-                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'>Run in background (receive results by email)</label></span>");
-                                        $window.append(FormUtil.getFieldForComponentWithLabel($waitOrEmail, "Wait for result"));
-
                                         if(profile.isAdmin) {
                                             var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
                                             $window.append($compatible);
@@ -2921,10 +2915,20 @@ var FormUtil = new function() {
                                         $window.append($hierarchyInclusions);
                                         var $levelsBelow = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LEVELS-BELOW-EXPORT", null, false, false), 'Include levels below from same space');
                                         $window.append($levelsBelow);
-                                        var $includeParents = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include parents from same space');
+                                        var $includeParents = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include Object and Dataset parents from same space');
                                         $window.append($includeParents);
-                                        var $includeOtherSpaces = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("OTHER-SPACES-EXPORT", null, false, false), 'Include objects from different spaces');
+                                        var $includeOtherSpaces = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("OTHER-SPACES-EXPORT", null, false, false), 'Include Objects and Datasets from different spaces');
                                         $window.append($includeOtherSpaces);
+
+                                        var $exportOptions = $("<span>")
+                                                              .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
+                                                              .append(" Export Options");
+                                        $window.append($exportOptions);
+
+                                        var $waitOrEmail = $('<div/>'); // .html(string).contents();
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Wait' checked>Wait for result</label></span>");
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'>Run in background (receive results by email)</label></span>");
+                                        $window.append($waitOrEmail.contents());
 
                                         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
                                         $btnAccept.click(function() {
@@ -2963,10 +2967,7 @@ var FormUtil = new function() {
                                             Util.unblockUI();
                                         });
 
-//                                        var $emailWarn = $("<span>")
-//                                                                    .append($("<span>", { class: "glyphicon glyphicon-warning-sign" }));
-
-                                        $window.append($btnAccept).append('&nbsp;').append($btnCancel); //.append('&nbsp;').append($emailWarn);
+                                        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
 
                                         var css = {
                                                     'text-align' : 'left',
