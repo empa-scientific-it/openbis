@@ -28,7 +28,7 @@ from datetime import datetime
 
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
-VERBOSE = False
+VERBOSE = True
 
 def get_instance(url=None):
     base_url = "http://localhost:8888/openbis"
@@ -45,10 +45,19 @@ def get_instance(url=None):
 
 
 def get_color_scale_range(img, channel):
-    minimum = str(np.min(img.get_channel(channel)[0]))
-    maximum = str(np.max(img.get_channel(channel)[0]))
-    step = str(0.01)
-    return [minimum, maximum, step]
+    minimum = np.min(img.get_channel(channel)[0])
+    maximum = np.max(img.get_channel(channel)[0])
+
+    step = abs(round((maximum - minimum) / 100, 2))
+    if step >= 1:
+        step = 1
+    elif step > 0:
+        step = 0.01
+    else:
+        step = abs((maximum - minimum) / 100)
+        step = 10 ** math.floor(math.log10(step))
+
+    return [str(minimum), str(maximum), str(step)]
 
 
 def create_sxm_dataset(openbis, experiment, file_path, sample=None):
@@ -66,7 +75,7 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         for channel in channels]
 
     exports = [imaging.ImagingDataSetControl('include', "Dropdown", values=['image', 'raw data'], multiselect=True),
-               imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg', 'csv']),
+               imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg']),
                imaging.ImagingDataSetControl('archive-format', "Dropdown", values=['zip', 'tar']),
                imaging.ImagingDataSetControl('resolution', "Dropdown", values=['original', '150dpi', '300dpi'])]
 
@@ -158,7 +167,7 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         )]
 
     exports = [imaging.ImagingDataSetControl('include', "Dropdown", values=['image', 'raw data'], multiselect=True),
-               imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg', 'csv']),
+               imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg']),
                imaging.ImagingDataSetControl('archive-format', "Dropdown", values=['zip', 'tar']),
                imaging.ImagingDataSetControl('resolution', "Dropdown", values=['original', '150dpi', '300dpi'])]
 
@@ -230,25 +239,28 @@ def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download
     imaging_control.single_export_download(perm_id, imaging_export, image_id, path_to_download)
 
 
-def demo_sxm_flow(openbis, file_sxm):
-    dataset_sxm = create_sxm_dataset(
-        openbis=openbis,
-        experiment='/IMAGING/NANONIS/SXM_COLLECTION',
-        sample='/IMAGING/NANONIS/TEMPLATE-SXM',
-        file_path=file_sxm)
-    print(f'Created imaging .SXM dataset: {dataset_dat.permId}')
+def demo_sxm_flow(openbis, file_sxm, permId=None):
+
+    perm_id = permId
+    if perm_id is None:
+        dataset_sxm = create_sxm_dataset(
+            openbis=openbis,
+            experiment='/IMAGING/NANONIS/SXM_COLLECTION',
+            sample='/IMAGING/NANONIS/TEMPLATE-SXM',
+            file_path=file_sxm)
+        perm_id = dataset_sxm.permId
+        print(f'Created imaging .SXM dataset: {dataset_sxm.permId}')
 
     config_sxm_preview = {
         "Channel": "z",  # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
-        "X-axis": [0, 3.0],  # file dependent
-        "Y-axis": [0, 3.0],  # file dependent
-        "Color-scale": [-70.24, -69.1],  # file dependent
+        "X-axis": ["0", "3.0"],  # file dependent
+        "Y-axis": ["0", "3.0"],  # file dependent
+        "Color-scale": ["-70.24", "-69.1"],  # file dependent
         "Colormap": "gray",  # [gray, YlOrBr, viridis, cividis, inferno, rainbow, Spectral, RdBu, RdGy]
         "Scaling": "linear",  # ['linear', 'logarithmic']
     }
 
     config_preview = config_sxm_preview.copy()
-    perm_id = dataset_sxm.permId
 
     preview = create_preview(openbis, perm_id, config_preview)
 
@@ -262,8 +274,8 @@ def demo_sxm_flow(openbis, file_sxm):
     update_image_with_preview(openbis, perm_id, 0, preview)
 
     config_preview = config_sxm_preview.copy()
-    config_preview['X-axis'] = [0.7, 2.7]
-    config_preview['Y-axis'] = [0.7, 2.7]
+    config_preview['X-axis'] = ["0.7", "2.7"]
+    config_preview['Y-axis'] = ["0.7", "2.7"]
     config_preview['Colormap'] = 'inferno'
     preview = create_preview(openbis, perm_id, config_preview)
     preview.index = 2
@@ -271,34 +283,38 @@ def demo_sxm_flow(openbis, file_sxm):
 
     config_preview = config_sxm_preview.copy()
     config_preview['Colormap'] = 'RdGy'
-    config_preview['Color-scale'] = [-70.10, -69.0]
+    config_preview['Color-scale'] = ["-70.10", "-69.0"]
     preview = create_preview(openbis, perm_id, config_preview)
     preview.index = 3
     update_image_with_preview(openbis, perm_id, 0, preview)
 
     config_preview = config_sxm_preview.copy()
     config_preview['Channel'] = 'I'
-    config_preview['Color-scale'] = [-55.67, -42.60]
+    config_preview['Color-scale'] = ["-55.67", "-42.60"]
     preview = create_preview(openbis, perm_id, config_preview)
     preview.index = 4
     update_image_with_preview(openbis, perm_id, 0, preview)
 
 
-def demo_dat_flow(openbis, folder_path):
+def demo_dat_flow(openbis, folder_path, permId=None):
 
-    dataset_dat = create_dat_dataset(
-        openbis=openbis,
-        experiment='/IMAGING/NANONIS/SXM_COLLECTION',
-        sample='/IMAGING/NANONIS/TEMPLATE-DAT',
-        folder_path=folder_path,
-        file_prefix='didv_')
-    print(f'Created imaging .DAT dataset: {dataset_dat.permId}')
+    perm_id = permId
+    if permId is None:
+        dataset_dat = create_dat_dataset(
+            openbis=openbis,
+            experiment='/IMAGING/NANONIS/SXM_COLLECTION',
+            sample='/IMAGING/NANONIS/TEMPLATE-DAT',
+            folder_path=folder_path,
+            file_prefix='didv_')
+        perm_id = dataset_dat.permId
+        print(f'Created imaging .DAT dataset: {dataset_dat.permId}')
+
 
     config_dat_preview = {
-        "Channel x": "V",
-        "Channel y": "dIdV",
-        "X-axis": [-2.1, 1],
-        "Y-axis": [0.00311e-11, 0.39334e-11],
+        "Channel X": "V",
+        "Channel Y": "dIdV",
+        "X-axis": ["-2.1", "1"],
+        "Y-axis": ["0.03", "13"],
         "Grouping": ["didv_00063.dat", "didv_00064.dat", "didv_00065.dat", "didv_00066.dat",
                      "didv_00067.dat", "didv_00068.dat", "didv_00069.dat", "didv_00070.dat"],
         "Colormap": "rainbow",
@@ -307,7 +323,6 @@ def demo_dat_flow(openbis, folder_path):
     }
 
     config_preview = config_dat_preview.copy()
-    perm_id = dataset_dat.permId
 
     preview = create_preview(openbis, perm_id, config_preview)
 
@@ -321,8 +336,9 @@ def demo_dat_flow(openbis, folder_path):
     update_image_with_preview(openbis, perm_id, 0, preview)
 
     config_preview = config_dat_preview.copy()
-    config_preview["Print_legend"] = "false"
-    config_preview["Grouping"] = ["didv_00063.dat", "didv_00064.dat", "didv_00068.dat", "didv_00070.dat"]
+    # config_preview["Print_legend"] = "false"
+    config_preview["Y-axis"] = ["0", "10"]
+    config_preview["Grouping"] = ["didv_00063.dat", "didv_00064.dat", "didv_00068.dat"]
     preview = create_preview(openbis, perm_id, config_preview)
     preview.index = 2
     update_image_with_preview(openbis, perm_id, 0, preview)
@@ -334,16 +350,26 @@ def demo_dat_flow(openbis, folder_path):
     update_image_with_preview(openbis, perm_id, 0, preview)
 
 
-openbis_url = sys.argv[1]
-nanonis_data_folder = sys.argv[2]
+openbis_url = None
+nanonis_data_folder = None
+
+if len(sys.argv) > 2:
+    openbis_url = sys.argv[1]
+    nanonis_data_folder = sys.argv[2]
+else:
+    raise ValueError("Missing parameters!")
 
 o = get_instance(openbis_url)
 
 sxm_files = [f for f in os.listdir(nanonis_data_folder) if f.endswith('.sxm')]
 
 for sxm_file in sxm_files:
+    print(f"SXM file: {sxm_file}")
     file_path = os.path.join(nanonis_data_folder, sxm_file)
     demo_sxm_flow(o, file_path)
 
 demo_dat_flow(o, nanonis_data_folder)
+
+# export_image(o, '20240111103504018-34', 0, '/home/alaskowski/PREMISE')
+# export_image(o, '20240111135043750-39', 0, '/home/alaskowski/PREMISE')
 
