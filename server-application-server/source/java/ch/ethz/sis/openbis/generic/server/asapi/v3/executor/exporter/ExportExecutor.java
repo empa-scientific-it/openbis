@@ -46,9 +46,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -410,15 +408,8 @@ public class ExportExecutor implements IExportExecutor
             throw new UserFailureException(String.format("The property '%s' is not configured for the application server.", DOWNLOAD_URL));
         }
 
-        final URL url = new URL(String.format("%s/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken, fileName));
-        try
-        {
-            return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef())
-                    .toString();
-        } catch (final URISyntaxException e)
-        {
-            throw new RuntimeException(e);
-        }
+        return String.format("%s/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken,
+                URLEncoder.encode(fileName, StandardCharsets.UTF_8));
     }
 
     private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final File exportWorkspaceDirectory,
