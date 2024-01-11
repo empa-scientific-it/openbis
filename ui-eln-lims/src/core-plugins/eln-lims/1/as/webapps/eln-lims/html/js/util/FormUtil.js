@@ -2892,20 +2892,16 @@ var FormUtil = new function() {
                                     action : function() {
                                         var $window = $('<form>', { 'action' : 'javascript:void(0);' });
                                         $window.append($('<legend>').append('Export'));
-                                        if(profile.isAdmin) {
-                                            var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
-                                            $window.append($compatible);
-                                        }
+                                        var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
+                                        $window.append($compatible);
                                         var $info_formats = $("<span>")
                                                             .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
                                                             .append(" File formats");
                                         $window.append($info_formats);
                                         var $pdf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PDF-EXPORT", null, false, false), 'Export metadata as PDF');
                                         $window.append($pdf);
-                                        if(profile.isAdmin) {
-                                            var $xlsx = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("XLSX-EXPORT", null, false, false), 'Export metadata as XLSX');
-                                            $window.append($xlsx);
-                                        }
+                                        var $xlsx = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("XLSX-EXPORT", null, false, false), 'Export metadata as XLSX');
+                                        $window.append($xlsx);
                                         var $data = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("DATA-EXPORT", null, false, false), 'Export data');
                                         $window.append($data);
                                         var $hierarchyInclusions = $("<span>")
