@@ -69,7 +69,7 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
             throw new RuntimeException(e);
         }
 
-        if (fullOutput.isBlank())
+        if (fullOutput.trim().isEmpty())
         {
             throw new UserFailureException("Script produced no results!");
         }

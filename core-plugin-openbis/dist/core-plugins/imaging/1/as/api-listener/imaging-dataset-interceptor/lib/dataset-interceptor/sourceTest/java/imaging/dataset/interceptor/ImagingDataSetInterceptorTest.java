@@ -40,6 +40,7 @@ import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -76,12 +77,12 @@ public final class ImagingDataSetInterceptorTest
         properConfig.setConfig(config);
         ImagingDataSetImage image1 = new ImagingDataSetImage();
         ImagingDataSetPreview preview11 = new ImagingDataSetPreview();
-        image1.setPreviews(List.of(preview11));
+        image1.setPreviews(Arrays.asList(preview11));
         ImagingDataSetImage image2 = new ImagingDataSetImage();
         ImagingDataSetPreview preview21 = new ImagingDataSetPreview();
         ImagingDataSetPreview preview22 = new ImagingDataSetPreview();
-        image2.setPreviews(List.of(preview21, preview22));
-        properConfig.setImages(List.of(image1, image2));
+        image2.setPreviews(Arrays.asList(preview21, preview22));
+        properConfig.setImages(Arrays.asList(image1, image2));
 
         dataSet = new DataSet();
         DataSetType type = new DataSetType();
@@ -164,7 +165,7 @@ public final class ImagingDataSetInterceptorTest
         DataSetCreation creation = new DataSetCreation();
         creation.setTypeId(new EntityTypePermId(ImagingDataSetInterceptor.IMAGING_TYPE, EntityKind.DATA_SET));
 
-        properConfig.setImages(List.of());
+        properConfig.setImages(Arrays.asList());
         creation.setJsonProperty(ImagingDataSetInterceptor.IMAGING_CONFIG_PROPERTY_NAME, getJson(properConfig));
         CreateDataSetsOperation operation = new CreateDataSetsOperation(creation);
 
@@ -183,7 +184,7 @@ public final class ImagingDataSetInterceptorTest
         DataSetCreation creation = new DataSetCreation();
         creation.setTypeId(new EntityTypePermId(ImagingDataSetInterceptor.IMAGING_TYPE, EntityKind.DATA_SET));
 
-        properConfig.getImages().get(0).setPreviews(List.of());
+        properConfig.getImages().get(0).setPreviews(Arrays.asList());
         creation.setJsonProperty(ImagingDataSetInterceptor.IMAGING_CONFIG_PROPERTY_NAME, getJson(properConfig));
         CreateDataSetsOperation operation = new CreateDataSetsOperation(creation);
 
@@ -246,7 +247,7 @@ public final class ImagingDataSetInterceptorTest
     public void testUpdate_missingImages() {
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(new DataSetPermId(TEST_PERM_ID));
-        properConfig.setImages(List.of());
+        properConfig.setImages(Arrays.asList());
         update.setJsonProperty(ImagingDataSetInterceptor.IMAGING_CONFIG_PROPERTY_NAME, getJson(properConfig));
 
         UpdateDataSetsOperation operation = new UpdateDataSetsOperation(update);
@@ -264,7 +265,7 @@ public final class ImagingDataSetInterceptorTest
     public void testUpdate_missingPreview() {
         DataSetUpdate update = new DataSetUpdate();
         update.setDataSetId(new DataSetPermId(TEST_PERM_ID));
-        properConfig.getImages().get(0).setPreviews(List.of());
+        properConfig.getImages().get(0).setPreviews(Arrays.asList());
         update.setJsonProperty(ImagingDataSetInterceptor.IMAGING_CONFIG_PROPERTY_NAME, getJson(properConfig));
 
         UpdateDataSetsOperation operation = new UpdateDataSetsOperation(update);

@@ -38,10 +38,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class ImagingDataSetInterceptor implements IOperationListener
 {
@@ -51,7 +48,7 @@ public class ImagingDataSetInterceptor implements IOperationListener
     static final String PREVIEW_TOTAL_COUNT = "preview-total-count";
 
     private boolean isImagingDataSet(String typePermId) {
-        if(typePermId == null || typePermId.isBlank()) {
+        if(typePermId == null || typePermId.trim().isEmpty()) {
             return false;
         }
         return typePermId.toUpperCase().contains(IMAGING_TYPE);
@@ -61,7 +58,7 @@ public class ImagingDataSetInterceptor implements IOperationListener
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withType();
 
-        Map<IDataSetId, DataSet> dataSetToUpdateSearch = api.getDataSets(sessionToken, List.of(update.getDataSetId()), fetchOptions);
+        Map<IDataSetId, DataSet> dataSetToUpdateSearch = api.getDataSets(sessionToken, Arrays.asList(update.getDataSetId()), fetchOptions);
         return dataSetToUpdateSearch.get(update.getDataSetId());
     }
 

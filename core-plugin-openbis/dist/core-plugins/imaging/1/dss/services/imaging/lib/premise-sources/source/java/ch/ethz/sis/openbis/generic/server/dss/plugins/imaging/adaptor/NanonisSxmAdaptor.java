@@ -32,7 +32,7 @@ public final class NanonisSxmAdaptor extends ImagingDataSetPythonAdaptor
     {
 
         String scriptProperty = properties.getProperty(SXM_SCRIPT_PROPERTY, "");
-        if (scriptProperty.isBlank())
+        if (scriptProperty.trim().isEmpty())
         {
             throw new UserFailureException(
                     "There is no script path property called '" + SXM_SCRIPT_PROPERTY + "' defined for this adaptor!");

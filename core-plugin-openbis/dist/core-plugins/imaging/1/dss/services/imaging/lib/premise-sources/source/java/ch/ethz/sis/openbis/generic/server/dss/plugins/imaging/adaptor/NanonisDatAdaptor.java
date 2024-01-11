@@ -33,7 +33,7 @@ public class NanonisDatAdaptor extends ImagingDataSetPythonAdaptor
     {
 
         String scriptProperty = properties.getProperty(DAT_SCRIPT_PROPERTY, "");
-        if (scriptProperty.isBlank())
+        if (scriptProperty.trim().isEmpty())
         {
             throw new UserFailureException(
                     "There is no script path property called '" + DAT_SCRIPT_PROPERTY + "' defined for this adaptor!");
