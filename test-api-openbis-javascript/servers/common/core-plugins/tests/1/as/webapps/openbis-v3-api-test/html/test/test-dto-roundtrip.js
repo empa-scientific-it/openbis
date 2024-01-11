@@ -101,7 +101,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
                         var name = dtoEntry[0]
                         var proto = dtoEntry[1]
 
-                        if (!_.isString(name) || !name.match(/[A-Z]/)) {
+                        if (!_.isString(name) || !name.match(/^[A-Z]/)) {
                             return null
                         }
 
@@ -149,7 +149,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
                             c.ok("======== Testing " + dto["@type"])
                             c.ok("Rountrip ok.")
 
-                            var proto = eval("dtos." + dto["@type"])
+                            var proto = eval("dtos." + dto["@type"].replaceAll(".","_"))
 
                             if (proto) {
                                 var subj = instantiate(proto)

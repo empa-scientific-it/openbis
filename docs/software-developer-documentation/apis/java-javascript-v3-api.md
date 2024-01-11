@@ -327,18 +327,18 @@ VAR bundle can be loaded at an HTML page using a standard script tag.
 
     The classes can be accessed via:
     - simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
-    - full name (e.g. var space = new opebis.as.dto.space.Space()) - works for all classes
+    - full name (e.g. var space = new openbis.as_dto_space_Space()) - works for all classes
 
     Classes with a unique simple name (e.g. Space) can be accessed using both their simple name (e.g. openbis.Space)
-    and their full name (e.g. openbis.as.dto.space.Space).
+    and their full name (e.g. openbis.as_dto_space_Space).
     Classes with a non-unique simple name (e.g. ExternalDmsSearchCriteria) can be accessed only using their full name
-    (i.e. as.dto.dataset.search.ExternalDmsSearchCriteria and as.dto.externaldms.search.ExternalDmsSearchCriteria).
+    (i.e. as_dto_dataset_search_ExternalDmsSearchCriteria and as_dto_externaldms_search_ExternalDmsSearchCriteria).
 
     List of classes with duplicated simple names (i.e. accessible only via their full names):
-    - as.dto.dataset.search.ExternalDmsSearchCriteria
-    - as.dto.externaldms.search.ExternalDmsSearchCriteria
-    - as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria
-    - as.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria
+    - as_dto_dataset_search_ExternalDmsSearchCriteria
+    - as_dto_externaldms_search_ExternalDmsSearchCriteria
+    - as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria
+    - as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria
 
     -->
 
@@ -403,18 +403,18 @@ The facade can be accessed via:
 
 The classes can be accessed via:
 - simple name (e.g. var space = new openbis.Space()) - works for classes with a unique simple name (see details below)
-- full name (e.g. var space = new opebis.as.dto.space.Space()) - works for all classes
+- full name (e.g. var space = new openbis.as_dto_space_Space()) - works for all classes
 
 Classes with a unique simple name (e.g. Space) can be accessed using both their simple name (e.g. openbis.Space)
-and their full name (e.g. openbis.as.dto.space.Space).
+and their full name (e.g. openbis.as_dto_space_Space).
 Classes with a non-unique simple name (e.g. ExternalDmsSearchCriteria) can be accessed only using their full name
-(i.e. as.dto.dataset.search.ExternalDmsSearchCriteria and as.dto.externaldms.search.ExternalDmsSearchCriteria).
+(i.e. as_dto_dataset_search_ExternalDmsSearchCriteria and as_dto_externaldms_search_ExternalDmsSearchCriteria).
 
 List of classes with duplicated simple names (i.e. accessible only via their full names):
-- as.dto.dataset.search.ExternalDmsSearchCriteria
-- as.dto.externaldms.search.ExternalDmsSearchCriteria
-- as.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria
-- as.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria
+- as_dto_dataset_search_ExternalDmsSearchCriteria
+- as_dto_externaldms_search_ExternalDmsSearchCriteria
+- as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria
+- as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria
 
 -->
 
@@ -508,6 +508,55 @@ when a call succeeds or fails (e.g. due to a network problem).
 A more modern and an easier to understand way of working with Promise objects is the async / await syntax (
 see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function). Our asynchronous Javascript V3 API methods support
 it as well.
+
+### TypeScript support
+
+openBIS V3 JavaScript API is compatible with TypeScript. All V3 API types are described in "openbis.esm.d.ts" TypeScript declaration file (located next to "openbis.esm.js").
+Thanks to that file your TypeScript webapps can take advantage of V3 API without giving up on the type safety.
+
+Below is an example of TypeScript code that uses V3 API ("openbis.esm.js" and "openbis.esm.d.ts" files are assumed to be in the same folder as the TypeScript code).
+```html
+// Test.ts
+import openbis from "./openbis.esm"
+
+export default class Test {
+    public async test(): Promise<openbis.SearchResult<openbis.Space>> {
+        var facade = new openbis.openbis("http://localhost:8888/openbis/openbis/rmi-application-server-v3.json");
+        await facade.login("admin","password")
+        return await facade.searchSpaces(new openbis.SpaceSearchCriteria(), new openbis.SpaceFetchOptions())
+    }
+}
+```
+
+It is also possible for the TypeScript code to use an already loaded openBIS V3 JavaScript code (e.g. bundle loaded via script tag).
+The TypeScript code below uses "openbis.esm" bundle during the compilation step for type checking, while at runtime the bundle implementation is loaded from "openbis.var" and then passed to the TypeScript code.
+This way you can mix TypeScript and non-TypeScript code that uses V3 API.
+
+```html
+// index.html
+...
+<script src="./openbis.var.js" ></script>
+<script src="/Test.js"></script>
+<script>
+  async function test(){
+      var result = await new Test().test(window.openbis);
+  }
+
+  test();
+</script>
+...
+
+// Test.ts (compiled to Test.js and loaded by index.html)
+import openbis from "./openbis.esm"
+
+export default class Test {
+    public async test(bundle:openbis.bundle): Promise<openbis.SearchResult<openbis.Space>> {
+        var facade = new bundle.openbis("http://localhost:8888/openbis/openbis/rmi-application-server-v3.json");
+        await facade.login("admin","password")
+        return await facade.searchSpaces(new bundle.SpaceSearchCriteria(), new bundle.SpaceFetchOptions())
+    }
+}
+```
 
 ## IV. AS Methods
 

@@ -2164,7 +2164,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, dtos);
 
 			var fSearch = function(facade) {
-				var criteria = new dtos.as.dto.externaldms.search.ExternalDmsSearchCriteria();
+				var criteria = new dtos.as_dto_externaldms_search_ExternalDmsSearchCriteria();
 				criteria.withCode().thatEquals("DMS_2");
 				return facade.searchExternalDataManagementSystems(criteria, c.createExternalDmsFetchOptions());
 			}
@@ -2187,7 +2187,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, dtos);
 
 			var fSearch = function(facade) {
-				var criteria = new dtos.as.dto.externaldms.search.ExternalDmsSearchCriteria();
+				var criteria = new dtos.as_dto_externaldms_search_ExternalDmsSearchCriteria();
 				criteria.withCodes().thatIn(["DMS_2"]);
 				return facade.searchExternalDataManagementSystems(criteria, c.createExternalDmsFetchOptions());
 			}

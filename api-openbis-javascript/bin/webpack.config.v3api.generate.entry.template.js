@@ -76,23 +76,13 @@ console.log('  return exported')
 console.log('}')
 
 dtos.forEach(dto => {
-  var package = exported
-
-  dto.pathWithSlashes.split('/').slice(0,-1).forEach(pathPart => {
-    if(!package[pathPart]){
-      package[pathPart] = {}
-    }
-    package = package[pathPart]
-  })
-
   if(exported[dto.name] === undefined){
     exported[dto.name] = "$$" + dto.pathWithUnderscores + "$$"
   }else{
-    // for duplicated simple names use null to avoid accidental mistakes where one DTOs is used instead of another
-    exported[dto.name] = null
+    // for duplicated simple names do not export anything via a simple name to avoid accidental mistakes where one DTOs is used instead of another
+    delete exported[dto.name]
   }
-
-  package[dto.name] = "$$" + dto.pathWithUnderscores + "$$"
+  exported[dto.pathWithUnderscores] = "$$" + dto.pathWithUnderscores + "$$"
 })
 
 // remove quotes after JSON.stringify, the quotes to remove have $$ (e.g. "$$as_dto_sample_Sample$$" => as_dto_sample_Sample)
