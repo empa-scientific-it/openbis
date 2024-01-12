@@ -101,8 +101,6 @@ public class ExportablePermId implements Serializable
     @Override
     public int hashCode()
     {
-        int result = exportableKind.hashCode();
-        result = 31 * result + permId.hashCode();
-        return result;
+        return ((this.getPermId() == null) ? 0 : this.getPermId().hashCode());
     }
 }

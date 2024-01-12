@@ -49,12 +49,7 @@ define(["stjs"], function (stjs) {
       };
 
       prototype.hashCode = function() {
-        if(this.exportableKind == null || this.permId == null) {
-            return 0;
-        }
-        var result = this.exportableKind.hashCode();
-        result = 31 * result + this.permId.hashCode();
-        return result;
+        return ((this.getPermId() == null) ? 0 : this.getPermId().hashCode());
       };
 
       prototype.equals = function(obj) {
