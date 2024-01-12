@@ -248,9 +248,6 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
       }),
       unique: FormUtil.createField({
         value: _.get(loadedAssignment, 'unique', false),
-//        visible: ![openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
-//                   openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
-//                   openbis.DataType.JSON, null].includes(dataType),
         enabled: false
       }),
       showRawValueInForms: FormUtil.createField({
