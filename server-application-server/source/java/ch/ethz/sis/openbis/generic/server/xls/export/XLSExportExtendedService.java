@@ -23,11 +23,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
+import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
@@ -81,8 +84,60 @@ public class XLSExportExtendedService
         exportOptions.setWithImportCompatibility(withImportCompatibility);
         exportOptions.setZipSingleFiles(Boolean.TRUE);
 
-        ExportResult exportResult = api.executeExport(sessionToken, exportData, exportOptions);
-        return exportResult.getDownloadURL();
+        ExportThread exportThread = new ExportThread(api, sessionToken, exportData, exportOptions, withEmail);
+        if (withEmail) {
+            Thread thread = new Thread(exportThread);
+            thread.start();
+            return Boolean.TRUE.toString();
+        } else {
+            exportThread.run();
+            return exportThread.getExportResult().getDownloadURL();
+        }
+    }
+
+    private static class ExportThread implements Runnable {
+
+        private final IApplicationServerInternalApi api;
+        private final String sessionToken;
+        private final ExportData exportData;
+        private final ExportOptions exportOptions;
+        private final boolean withEmail;
+        private ExportResult exportResult = null;
+
+        public ExportThread(IApplicationServerInternalApi api,
+                String sessionToken,
+                ExportData exportData,
+                ExportOptions exportOptions,
+                boolean withEmail)
+        {
+            this.api = api;
+            this.sessionToken = sessionToken;
+            this.exportData = exportData;
+            this.exportOptions = exportOptions;
+            this.withEmail = withEmail;
+        }
+
+        @Override
+        public void run()
+        {
+            exportResult = api.executeExport(sessionToken, exportData, exportOptions);
+            if (withEmail) {
+                sentEmail();
+            }
+        }
+
+        private void sentEmail() {
+            String downloadURL = exportResult.getDownloadURL();
+            SessionInformation sessionInformation = api.getSessionInformation(sessionToken);
+            EMailAddress eMailAddress = new EMailAddress(sessionInformation.getPerson().getEmail());
+            IMailClient eMailClient = CommonServiceProvider.createEMailClient();
+            String subject = "openBIS Export Download Ready";
+            eMailClient.sendEmailMessage(subject, downloadURL, null, null, eMailAddress);
+        }
+
+        public ExportResult getExportResult() {
+            return exportResult;
+        }
     }
 
     private static void collectEntities(
