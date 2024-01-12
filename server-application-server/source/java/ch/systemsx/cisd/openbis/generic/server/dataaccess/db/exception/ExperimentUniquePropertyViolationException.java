@@ -24,10 +24,22 @@ public final class ExperimentUniquePropertyViolationException extends UniqueProp
         super(code, getMessage(code));
     }
 
+    public ExperimentUniquePropertyViolationException(String code, String value)
+    {
+        super(code, getPropertyTypeMessage(value));
+    }
+
     private static String getMessage(String value)
     {
         return String
                 .format("Insert/Update of experiment failed because property contains value that is not unique! (value: %s)",
+                        value);
+    }
+
+    private static String getPropertyTypeMessage(String value)
+    {
+        return String
+                .format("Insert/Update of experiment failed because %s property contains value that is not unique!",
                         value);
     }
 }

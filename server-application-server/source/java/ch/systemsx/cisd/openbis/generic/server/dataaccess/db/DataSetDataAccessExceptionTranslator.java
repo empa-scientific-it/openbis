@@ -22,35 +22,53 @@ import org.springframework.dao.DataAccessException;
 
 public final class DataSetDataAccessExceptionTranslator
 {
-    private static final String PROPERTY_CONSTRAINT_NAME = "data_set_properties_unique_value";
+    private static final String PROPERTY_VALUE_CONSTRAINT_NAME = "data_set_properties_unique_value";
 
+    private static final String PROPERTY_SAMPLE_VALUE_CONSTRAINT_NAME =
+            "data_set_properties_unique_samp";
+
+    private static final String PROPERTY_VOCAB_VALUE_CONSTRAINT_NAME =
+            "data_set_properties_unique_cvte";
 
     public static void translateAndThrow(DataAccessException exception)
-    {
-        if(isUniquePropertyViolationException(exception))
-        {
-            throwUniquePropertyViolationException(exception);
-        } else
-        {
-            throw exception;
-        }
-    }
-
-    public static boolean isUniquePropertyViolationException(DataAccessException exception)
-    {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        return message != null
-                && PROPERTY_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
-    }
-
-    public static void throwUniquePropertyViolationException(DataAccessException exception)
     {
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new DataSetUniquePropertyViolationException(message.getCode(1));
+            if (isUniquePropertyViolationException(message))
+            {
+                throw new DataSetUniquePropertyViolationException(message.getCode(1));
+            } else if (isUniqueSamplePropertyViolationException(message))
+            {
+                throw new DataSetUniquePropertyViolationException(message.getCode(1), "sample");
+            } else if (isUniqueVocabPropertyViolationException(message))
+            {
+                throw new DataSetUniquePropertyViolationException(message.getCode(1),
+                        "controlled vocabulary");
+            } else
+            {
+                throw exception;
+            }
+        } else
+        {
+            throw exception;
         }
+
     }
 
+    public static boolean isUniquePropertyViolationException(UniqueViolationMessage message)
+    {
+        return PROPERTY_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+    }
+
+    public static boolean isUniqueSamplePropertyViolationException(UniqueViolationMessage message)
+    {
+        return PROPERTY_SAMPLE_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+    }
+
+    public static boolean isUniqueVocabPropertyViolationException(UniqueViolationMessage message)
+    {
+        return PROPERTY_VOCAB_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+    }
 
 }

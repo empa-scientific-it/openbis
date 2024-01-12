@@ -22,32 +22,56 @@ import org.springframework.dao.DataAccessException;
 
 public final class ExperimentDataAccessExceptionTranslator
 {
-    private static final String PROPERTY_CONSTRAINT_NAME = "experiment_properties_unique_value";
+    private static final String PROPERTY_VALUE_CONSTRAINT_NAME =
+            "experiment_properties_unique_value";
+
+    private static final String PROPERTY_SAMPLE_VALUE_CONSTRAINT_NAME =
+            "experiment_properties_unique_samp";
+
+    private static final String PROPERTY_VOCABULARY_VALUE_CONSTRAINT_NAME =
+            "experiment_properties_unique_cvte";
 
     public static void translateAndThrow(DataAccessException exception)
     {
-        if(isUniquePropertyViolationException(exception)) {
-            throwUniquePropertyViolationException(exception);
-        } else {
+        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
+        if (message != null)
+        {
+            if (isUniquePropertyViolationException(message))
+            {
+                throw new ExperimentUniquePropertyViolationException(message.getCode(1));
+            } else if (isUniqueSamplePropertyViolationException(message))
+            {
+                throw new ExperimentUniquePropertyViolationException(message.getCode(1), "sample");
+            } else if (isUniqueVocabularyPropertyViolationException(message))
+            {
+                throw new ExperimentUniquePropertyViolationException(message.getCode(1),
+                        "controlled vocabulary");
+            } else
+            {
+                throw exception;
+            }
+        } else
+        {
             throw exception;
         }
+
     }
 
-    public static boolean isUniquePropertyViolationException(DataAccessException exception)
+    public static boolean isUniquePropertyViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        return message != null
-                && PROPERTY_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+        return PROPERTY_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
-
-    public static void throwUniquePropertyViolationException(DataAccessException exception)
+    public static boolean isUniqueSamplePropertyViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        if(message != null)
-        {
-            throw new ExperimentUniquePropertyViolationException(message.getCode(1));
-        }
+        return PROPERTY_SAMPLE_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+    }
+
+    public static boolean isUniqueVocabularyPropertyViolationException(
+            UniqueViolationMessage message)
+    {
+        return PROPERTY_VOCABULARY_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(
+                message.getConstraintName());
     }
 
 }

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUni
 
 /**
  * Extracts information about an actual cause of sample related DataAccessException.
- * 
+ *
  * @author pkupczyk
  */
 public class SampleDataAccessExceptionTranslator
@@ -31,34 +31,51 @@ public class SampleDataAccessExceptionTranslator
 
     private static final String CODE_CONSTRAINT_NAME = "samp_code_unique_check_uk";
 
-    private static final String PROPERTY_CONSTRAINT_NAME = "sample_properties_unique_value";
+    private static final String PROPERTY_VALUE_CONSTRAINT_NAME = "sample_properties_unique_value";
+
+    private static final String PROPERTY_SAMPLE_VALUE_CONSTRAINT_NAME =
+            "sample_properties_unique_samp";
+
+    private static final String PROPERTY_VOCAB_VALUE_CONSTRAINT_NAME =
+            "sample_properties_unique_cvte";
 
     private static final String SUBCODE_CONSTRAINT_NAME = "samp_subcode_unique_check_uk";
 
-
-
     public static void translateAndThrow(DataAccessException exception)
     {
-        if (isUniqueCodeViolationException(exception))
+        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
+        if (message != null)
         {
-            throwUniqueCodeViolationException(exception);
-        } else if (isUniqueSubcodeViolationException(exception))
-        {
-            throwUniqueSubcodeViolationException(exception);
-        } else if (isUniquePropertyViolationException(exception))
-        {
-            throwUniquePropertyViolationException(exception);
+            if (isUniqueCodeViolationException(message))
+            {
+                throw new SampleUniqueCodeViolationException(message.getCode());
+            } else if (isUniqueSubcodeViolationException(message))
+            {
+                throw new SampleUniqueSubcodeViolationException(message.getCode());
+            } else if (isUniquePropertyViolationException(message))
+            {
+                throw new SampleUniquePropertyViolationException(message.getCode(1));
+            } else if (isUniqueSamplePropertyViolationException(message))
+            {
+                throw new SampleUniquePropertyViolationException(message.getCode(1), "sample");
+            } else if (isUniqueVocabPropertyViolationException(message))
+            {
+                throw new SampleUniquePropertyViolationException(message.getCode(1),
+                        "controlled vocabulary");
+            } else
+            {
+                throw exception;
+            }
         } else
         {
             throw exception;
         }
+
     }
 
-    public static boolean isUniqueCodeViolationException(DataAccessException exception)
+    public static boolean isUniqueCodeViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        return message != null
-                && CODE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+        return CODE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
     public static boolean isUniqueSubcodeViolationException(DataAccessException exception)
@@ -68,39 +85,24 @@ public class SampleDataAccessExceptionTranslator
                 && SUBCODE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
-    public static boolean isUniquePropertyViolationException(DataAccessException exception)
+    public static boolean isUniqueSubcodeViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        return message != null
-                && PROPERTY_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
+        return SUBCODE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
-    public static void throwUniqueCodeViolationException(DataAccessException exception)
+    public static boolean isUniquePropertyViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        if (message != null)
-        {
-            throw new SampleUniqueCodeViolationException(message.getCode());
-        }
+        return PROPERTY_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
-    public static void throwUniqueSubcodeViolationException(DataAccessException exception)
+    public static boolean isUniqueSamplePropertyViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        if (message != null)
-        {
-            throw new SampleUniqueSubcodeViolationException(message.getCode());
-        }
+        return PROPERTY_SAMPLE_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
 
-    public static void throwUniquePropertyViolationException(DataAccessException exception)
+    public static boolean isUniqueVocabPropertyViolationException(UniqueViolationMessage message)
     {
-        UniqueViolationMessage message = UniqueViolationMessage.get(exception);
-        if (message != null)
-        {
-            throw new SampleUniquePropertyViolationException(message.getCode(1));
-        }
+        return PROPERTY_VOCAB_VALUE_CONSTRAINT_NAME.equalsIgnoreCase(message.getConstraintName());
     }
-
 
 }
