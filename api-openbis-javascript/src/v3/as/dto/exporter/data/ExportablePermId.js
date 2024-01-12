@@ -49,6 +49,9 @@ define(["stjs"], function (stjs) {
       };
 
       prototype.hashCode = function() {
+        if(this.exportableKind == null || this.permId == null) {
+            return 0;
+        }
         var result = this.exportableKind.hashCode();
         result = 31 * result + this.permId.hashCode();
         return result;
@@ -63,11 +66,11 @@ define(["stjs"], function (stjs) {
         }
         var that = obj;
 
-        if (exportableKind != that.exportableKind)
+        if (this.exportableKind != that.exportableKind)
         {
             return false;
         }
-        return permId.equals(that.permId);
+        return this.permId.equals(that.permId);
       };
     },
     {
