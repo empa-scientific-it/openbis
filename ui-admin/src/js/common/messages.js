@@ -432,7 +432,7 @@ const messages_en = {
   [keys.INTERNAL]: 'Internal',
   [keys.INVALID]: 'Invalid',
   [keys.IS_MULTI_VALUE]: 'Multivalued',
-  [keys.IS_UNIQUE_VALUE]: 'Unique valued',
+  [keys.IS_UNIQUE_VALUE]: 'Unique',
   [keys.IS_NEW_ENTITY]: 'Is New Entity',
   [keys.LABEL]: 'Label',
   [keys.LAST_NAME]: 'Last Name',

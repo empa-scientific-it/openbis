@@ -279,7 +279,6 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
     }
 
     const options = []
-
     if (property.originalGlobal || property.original) {
       const {
         dataType: { value: originalValue }
@@ -318,7 +317,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       }
     } else {
       const objectType = this.getType().objectType.value;
-      if(objectType == 'materialType') {
+      if(objectType == 'materialType' || objectType == 'newMaterialType') {
         //Filter out new data types for materials
         const filtered = [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
             openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP, openbis.DataType.JSON];
@@ -644,7 +643,9 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
   renderUniqueValue(property) {
    const { visible, enabled, error, value } = { ...property.unique }
 
-   if (!visible) {
+   if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                      openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                      openbis.DataType.JSON, null].includes(property.dataType.value)) {
        return null
    }
 

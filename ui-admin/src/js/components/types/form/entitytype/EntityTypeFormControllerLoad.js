@@ -247,7 +247,10 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
           !assignmentInternal || AppController.getInstance().isSystemUser()
       }),
       unique: FormUtil.createField({
-        value: _.get(loadedAssignment, 'unique', true),
+        value: _.get(loadedAssignment, 'unique', false),
+//        visible: ![openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+//                   openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+//                   openbis.DataType.JSON, null].includes(dataType),
         enabled: false
       }),
       showRawValueInForms: FormUtil.createField({
