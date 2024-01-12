@@ -48,6 +48,27 @@ define(["stjs"], function (stjs) {
         this.permId = permId;
       };
 
+      prototype.hashCode = function() {
+        var result = this.exportableKind.hashCode();
+        result = 31 * result + this.permId.hashCode();
+        return result;
+      };
+
+      prototype.equals = function(obj) {
+        if (this == obj) {
+          return true;
+        }
+        if (obj == null || this.getClass() != obj.getClass()) {
+          return false;
+        }
+        var that = obj;
+
+        if (exportableKind != that.exportableKind)
+        {
+            return false;
+        }
+        return permId.equals(that.permId);
+      };
     },
     {
       exportableKind: "ExportableKind",
