@@ -1,5 +1,4 @@
 Legacy Advance Features
-
 =======================
 
 .. toctree::
