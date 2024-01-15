@@ -408,7 +408,7 @@ public class ExportExecutor implements IExportExecutor
             throw new UserFailureException(String.format("The property '%s' is not configured for the application server.", DOWNLOAD_URL));
         }
 
-        return String.format("%s/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken,
+        return String.format("%s/openbis/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken,
                 URLEncoder.encode(fileName, StandardCharsets.UTF_8));
     }
 
