@@ -1,4 +1,4 @@
-Advanced Features test
+Advanced Features
 =================
 
 .. toctree::
