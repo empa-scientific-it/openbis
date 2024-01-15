@@ -91,7 +91,11 @@ public class XLSExportExtendedService
             return Boolean.TRUE.toString();
         } else {
             exportThread.run();
-            return exportThread.getExportResult().getDownloadURL();
+            if (exportThread.getExportException() != null) {
+                throw new RuntimeException(exportThread.getExportException());
+            } else {
+                return exportThread.getExportResult().getDownloadURL();
+            }
         }
     }
 
@@ -103,6 +107,7 @@ public class XLSExportExtendedService
         private final ExportOptions exportOptions;
         private final boolean withEmail;
         private ExportResult exportResult = null;
+        private Exception exportException = null;
 
         public ExportThread(IApplicationServerInternalApi api,
                 String sessionToken,
@@ -120,7 +125,13 @@ public class XLSExportExtendedService
         @Override
         public void run()
         {
-            exportResult = api.executeExport(sessionToken, exportData, exportOptions);
+            try
+            {
+                exportResult = api.executeExport(sessionToken, exportData, exportOptions);
+            } catch (Exception ex) {
+                exportException = ex;
+            }
+
             if (withEmail) {
                 sentEmail();
             }
@@ -137,6 +148,10 @@ public class XLSExportExtendedService
 
         public ExportResult getExportResult() {
             return exportResult;
+        }
+
+        public Exception getExportException() {
+            return exportException;
         }
     }
 
