@@ -76,6 +76,10 @@ bootRun {
 
 }
 
+openApi{
+
+}
+
 
 
 dependencies {

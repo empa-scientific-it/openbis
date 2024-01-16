@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
@@ -44,16 +45,21 @@ import javax.servlet.ServletRegistration;
 import java.util.Arrays;
 
 
-@SpringBootApplication
-@Import({ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration.ApplicationServerApiRestApplicationConfig.class, ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration.SecurityConfig.class})
-@ComponentScan("ch.ethz.sis.openbis.generic")
-@ComponentScan("ch.systemsx.cisd.openbis")
-@ConfigurationPropertiesScan("ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration")
+@Import({ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration.ApplicationServerApiRestApplicationConfig.class})
+@EnableAutoConfiguration(exclude = {
+        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class
+})
+
+//@ComponentScan("ch.ethz.sis.openbis.generic")
+//@ComponentScan("ch.systemsx.cisd.openbis")
+//@ConfigurationPropertiesScan("ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration")
+
 public class ApplicationServerApiRestApplication {
 
 
     public static void main(String[] args) {
         System.out.println("Hello World");
+        System.setProperty("spring.config.name", "service");
         new SpringApplicationBuilder(ApplicationServerApiRestApplication.class).web(WebApplicationType.SERVLET).lazyInitialization(true).run(args);
     }
 

@@ -36,7 +36,7 @@ import javax.annotation.Resource;
 import  ch.ethz.sis.openbis.generic.server.asapi.v3.rest.service.PersonalAccessTokenAuthenticationService;
 
 @RestController
-@EnableWebSecurity
+//@EnableWebSecurity
 @RequestMapping("/api/v3")
 public class ApplicationServerApiRestServer {
     @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
