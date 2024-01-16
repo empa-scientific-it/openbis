@@ -3751,7 +3751,7 @@ function ServerFacade(openbisServer) {
 		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
             _this.sessionInfo = sessionInfo;
 			callbackFunction(sessionInfo);
-        }).fail(function(result) {
+		}).fail(function(result) {
 			Util.showFailedServerCallError(result);
 			callbackFunction(false);
 		});
@@ -3808,7 +3808,7 @@ function ServerFacade(openbisServer) {
 				searchCriteria.withCode().thatEquals(code);
 				mainController.openbisV3.searchCustomASServices(searchCriteria, fetchOptions).done(function(result) {
 					callbackFunction(result);
-		        }).fail(function(result) {
+		    }).fail(function(result) {
 					Util.showFailedServerCallError(result);
 					callbackFunction(false);
 				});
@@ -3927,5 +3927,4 @@ function ServerFacade(openbisServer) {
 		}
 		this.callSearchStoreService(parameters, callbackFunction);
 	}
-
 }

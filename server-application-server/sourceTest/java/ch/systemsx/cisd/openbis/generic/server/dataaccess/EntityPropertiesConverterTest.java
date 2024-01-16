@@ -285,7 +285,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                         + "propertyType=COLOR,entityType=SampleTypePE{code=MASTER_PLATE,description=<null>,"
                         + "listable=<null>,containerHierarchyDepth=<null>,"
                         + "generatedFromHierarchyDepth=<null>},ordinal=<null>,"
-                        + "section=<null>,dynamic=false,managed=true},value=Hello alpha}]",
+                        + "section=<null>,dynamic=false,managed=true,unique=false},value=Hello alpha}]",
                 convertedProperties.toString());
 
         // Check that for sample type SAMPLE_TYPE2_CODE property is not mandatory as for previous

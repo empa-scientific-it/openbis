@@ -17,7 +17,13 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
 import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.HTML_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.JSON_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_NAME;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_EXTENSION;
@@ -46,6 +52,8 @@ import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,9 +83,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
@@ -100,6 +111,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermI
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -119,6 +131,8 @@ public class ExportTest extends AbstractTest
 
     private static final String RICH_TEXT_SAMPLE_CODE = "RICH_TEXT";
 
+    private static final String BIG_CELL_SAMPLE_CODE = "BIG_CELL";
+
     private static final String JAVA_FOLDER_PATH = "./sourceTest/java/";
 
     protected String sessionToken;
@@ -129,9 +143,13 @@ public class ExportTest extends AbstractTest
 
     private PropertyTypePermId richTextWithSpreadsheetPropertyTypePermId;
 
-    private EntityTypePermId sampleTypePermId;
+    private EntityTypePermId richTextSampleTypePermId;
 
-    private SamplePermId samplePermId;
+    private EntityTypePermId bigCellSampleTypePermId;
+
+    private SamplePermId richTextSamplePermId;
+
+    private SamplePermId bigCellSamplePermId;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -182,6 +200,21 @@ public class ExportTest extends AbstractTest
         richTextWithImagePropertyTypePermId = propertyTypes.get(1);
         richTextWithSpreadsheetPropertyTypePermId = propertyTypes.get(2);
 
+        final SampleCreation richTextSampleCreation = getRichTextSampleCreation();
+
+        final SampleCreation bigCellSampleCreation = getBigCellSampleCreation();
+
+        final List<SamplePermId> samplePermsIds = v3api.createSamples(sessionToken, List.of(richTextSampleCreation, bigCellSampleCreation));
+        richTextSamplePermId = samplePermsIds.get(0);
+        bigCellSamplePermId = samplePermsIds.get(1);
+
+        registerDss();
+
+        v3api.logout(sessionToken);
+    }
+
+    private SampleCreation getRichTextSampleCreation()
+    {
         final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
         sampleTypeCreation.setCode("MULTI_LINE_VALUE_SAMPLE_TYPE");
 
@@ -196,21 +229,51 @@ public class ExportTest extends AbstractTest
 
         sampleTypeCreation.setPropertyAssignments(List.of(richTextPropertyAssignmentCreation, richTextWithImagePropertyAssignmentCreation,
                 richTextWithSpreadsheetPropertyAssignmentCreation));
-        sampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
+        richTextSampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
 
         final SampleCreation richTextSampleCreation = new SampleCreation();
         richTextSampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
         richTextSampleCreation.setCode(RICH_TEXT_SAMPLE_CODE);
-        richTextSampleCreation.setTypeId(sampleTypePermId);
+        richTextSampleCreation.setTypeId(richTextSampleTypePermId);
         richTextSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, RICH_TEXT_VALUE);
         richTextSampleCreation.setProperty(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME, RICH_TEXT_WITH_IMAGE_VALUE);
         richTextSampleCreation.setProperty(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME, SpreadsheetData.BASE64_SPREADSHEET_DATA);
 
-        samplePermId = v3api.createSamples(sessionToken, List.of(richTextSampleCreation)).get(0);
+        return richTextSampleCreation;
+    }
 
-        registerDss();
+    private SampleCreation getBigCellSampleCreation()
+    {
+        final SampleTypeCreation sampleTypeCreation = new SampleTypeCreation();
+        sampleTypeCreation.setCode("BIG_CELL_SAMPLE_TYPE");
 
-        v3api.logout(sessionToken);
+        // Big cell reuses the rich text property type
+        final PropertyAssignmentCreation bigCellPropertyAssignmentCreation = new PropertyAssignmentCreation();
+        bigCellPropertyAssignmentCreation.setPropertyTypeId(richTextPropertyTypePermId);
+
+        sampleTypeCreation.setPropertyAssignments(List.of(bigCellPropertyAssignmentCreation));
+        bigCellSampleTypePermId = v3api.createSampleTypes(sessionToken, List.of(sampleTypeCreation)).get(0);
+
+        final SampleCreation bigCellSampleCreation = new SampleCreation();
+        bigCellSampleCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        bigCellSampleCreation.setCode(BIG_CELL_SAMPLE_CODE);
+        bigCellSampleCreation.setTypeId(bigCellSampleTypePermId);
+        bigCellSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, getResourceFileContent(XLS_EXPORT_RESOURCES_PATH + "lorem-ipsum.txt"));
+
+        return bigCellSampleCreation;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static String getResourceFileContent(final String filePath)
+    {
+        try (final InputStream exampleTextInputStream = ExportTest.class.getClassLoader().getResourceAsStream(filePath))
+        {
+            Objects.requireNonNull(exampleTextInputStream);
+            return new String(exampleTextInputStream.readAllBytes());
+        } catch (final IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private void registerDss()
@@ -227,12 +290,12 @@ public class ExportTest extends AbstractTest
 
         final SampleDeletionOptions sampleDeletionOptions = new SampleDeletionOptions();
         sampleDeletionOptions.setReason("Test");
-        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(samplePermId), sampleDeletionOptions);
+        final IDeletionId deletionId = v3api.deleteSamples(sessionToken, List.of(richTextSamplePermId, bigCellSamplePermId), sampleDeletionOptions);
         v3api.confirmDeletions(systemSessionToken, List.of(deletionId));
 
         final SampleTypeDeletionOptions sampleTypeDeletionOptions = new SampleTypeDeletionOptions();
         sampleTypeDeletionOptions.setReason("Test");
-        v3api.deleteSampleTypes(sessionToken, List.of(sampleTypePermId), sampleTypeDeletionOptions);
+        v3api.deleteSampleTypes(sessionToken, List.of(richTextSampleTypePermId, bigCellSampleTypePermId), sampleTypeDeletionOptions);
 
         final PropertyTypeDeletionOptions propertyTypeDeletionOptions = new PropertyTypeDeletionOptions();
         propertyTypeDeletionOptions.setReason("Test");
@@ -259,44 +322,167 @@ public class ExportTest extends AbstractTest
     @Test(dataProvider = EXPORT_DATA_PROVIDER)
     public void testDataExport(final String expectedResultFileName, final Set<ExportFormat> formats, final List<ExportablePermId> permIds,
             final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
-            final boolean withImportCompatibility) throws Exception
+            final boolean withImportCompatibility, final boolean zipSingleFiles) throws Exception
     {
         processPermIds(permIds);
 
         if (formats.contains(ExportFormat.DATA))
         {
+            // export-sample-data.zip refers to a test sample with more 2 datasets
+            final boolean with2FileContents = expectedResultFileName.startsWith("export-sample-data");
+
             final String fileContent1 = "This is some test data.";
             final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", fileContent1.length());
             final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
             final InputStream is1 = objectAndDataToStream(dataSetFile1, fileContent1);
 
-            final String fileContent2 = "This is some other test data.";
-            final DataSetFile dataSetFile2 = createDataSetFile("my-folder/data2.txt", fileContent2.length());
-            final SearchResult<DataSetFile> results2 = new SearchResult<>(List.of(dataSetFile2), 1);
-            final InputStream is2 = objectAndDataToStream(dataSetFile2, fileContent2);
+            final DataSetFile dataSetFile2;
+            final SearchResult<DataSetFile> results2;
+            final InputStream is2;
+            if (with2FileContents)
+            {
+                final String fileContent2 = "This is some other test data.";
+                dataSetFile2 = createDataSetFile("my-folder/data2.txt", fileContent2.length());
+                results2 = new SearchResult<>(List.of(dataSetFile2), 1);
+                is2 = objectAndDataToStream(dataSetFile2, fileContent2);
+            } else
+            {
+                dataSetFile2 = null;
+                results2 = null;
+                is2 = null;
+            }
 
             mockery.checking(new Expectations()
             {{
                 atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
                         with(any(DataSetFileFetchOptions.class)));
-                will(onConsecutiveCalls(returnValue(results1), returnValue(results2)));
+                if (with2FileContents)
+                {
+                    will(onConsecutiveCalls(returnValue(results1), returnValue(results2), returnValue(results1), returnValue(results2)));
+                } else
+                {
+                    will(onConsecutiveCalls(returnValue(results1), returnValue(results1)));
+                }
 
-                exactly(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
+                atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
                         with(any(DataSetFileDownloadOptions.class)));
                 will(returnValue(is1));
 
-                atMost(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
-                        with(any(DataSetFileDownloadOptions.class)));
-                will(returnValue(is2));
+                if (with2FileContents)
+                {
+                    atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile2.getPermId()))),
+                            with(any(DataSetFileDownloadOptions.class)));
+                    will(returnValue(is2));
+                }
             }});
         }
 
         final ExportData exportData = new ExportData(permIds, fields);
-        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, zipSingleFiles);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
-        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, exportResult.getDownloadURL());
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + expectedResultFileName, getBareFileName(exportResult.getDownloadURL()));
         mockery.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = UserFailureException.class,
+            expectedExceptionsMessageRegExp = "Total data size 10485762 is larger than the data limit 10485760\\..*")
+    public void testTooLargeDataExport()
+    {
+        final Set<ExportFormat> formats = EnumSet.of(ExportFormat.DATA);
+        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027")));
+        final IExportableFields fields = new AllFields();
+        final XlsTextFormat xlsTextFormat = XlsTextFormat.PLAIN;
+        final boolean withReferredTypes = true;
+        final boolean withImportCompatibility = false;
+
+        processPermIds(permIds);
+
+        if (formats.contains(ExportFormat.DATA))
+        {
+            // The following test data are returned twice because the sample has 2 datasets.
+            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", 5242881); // 1 byte over 5000MB
+            final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
+
+            mockery.checking(new Expectations()
+            {{
+                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                        with(any(DataSetFileFetchOptions.class)));
+                will(onConsecutiveCalls(returnValue(results1), returnValue(results1)));
+
+                atMost(0).of(v3Dss).downloadFiles(with(any(String.class)), with(any(List.class)),
+                        with(any(DataSetFileDownloadOptions.class)));
+            }});
+        }
+
+        final ExportData exportData = new ExportData(permIds, fields);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, true);
+        v3api.executeExport(sessionToken, exportData, exportOptions);
+    }
+
+    @Test()
+    public void testNotTooLargeDataExport()
+    {
+        final Set<ExportFormat> formats = EnumSet.of(ExportFormat.DATA);
+        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027")));
+        final IExportableFields fields = new AllFields();
+        final XlsTextFormat xlsTextFormat = XlsTextFormat.PLAIN;
+        final boolean withReferredTypes = true;
+        final boolean withImportCompatibility = false;
+
+        processPermIds(permIds);
+
+        if (formats.contains(ExportFormat.DATA))
+        {
+            // The following test data are returned twice because the sample has 2 datasets.
+            final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", 5242880); // Exactly 5000MB
+            final SearchResult<DataSetFile> results1 = new SearchResult<>(List.of(dataSetFile1), 1);
+
+            mockery.checking(new Expectations()
+            {{
+                atLeast(1).of(v3Dss).searchFiles(with(equal(sessionToken)), with(any(DataSetFileSearchCriteria.class)),
+                        with(any(DataSetFileFetchOptions.class)));
+                will(onConsecutiveCalls(returnValue(results1), returnValue(results1), returnValue(results1), returnValue(results1)));
+
+                atLeast(1).of(v3Dss).downloadFiles(with(equal(sessionToken)), with(equal(List.<IDataSetFileId>of(dataSetFile1.getPermId()))),
+                        with(any(DataSetFileDownloadOptions.class)));
+                will(returnValue(new InputStream()
+                {
+                    @Override
+                    public int read()
+                    {
+                        return -1;
+                    }
+
+                }));
+            }});
+        }
+
+        final ExportData exportData = new ExportData(permIds, fields);
+        final ExportOptions exportOptions = new ExportOptions(formats, xlsTextFormat, withReferredTypes, withImportCompatibility, true);
+        v3api.executeExport(sessionToken, exportData, exportOptions);
+
+        mockery.assertIsSatisfied();
+    }
+
+    /**
+     * Tests export of cells larger than 32k.
+     */
+    @Test
+    public void testLargeCellXlsExport() throws IOException
+    {
+        final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId)), new SelectedFields(
+                List.of(REGISTRATOR, CODE, IDENTIFIER, SPACE, DESCRIPTION),
+                List.of(richTextPropertyTypePermId)));
+        final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, false);
+        final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
+
+        compareFiles(XLS_EXPORT_RESOURCES_PATH + "export-large-cell.zip", getBareFileName(exportResult.getDownloadURL()));
+    }
+
+    private static String getBareFileName(final String url)
+    {
+        return url.substring(url.lastIndexOf("=") + 1);
     }
 
     private static DataSetFile createDataSetFile(final String filePath, final int fileLength)
@@ -346,7 +532,7 @@ public class ExportTest extends AbstractTest
     }
 
     /**
-     * Searches for ExportablePermIds with null perm IDs, which should indicate that it should be replaced with {@link #samplePermId}.
+     * Searches for ExportablePermIds with null perm IDs, which should indicate that it should be replaced with {@link #richTextSamplePermId}.
      *
      * @param permIds the list of ExportablePermId values to be processed.
      */
@@ -356,7 +542,7 @@ public class ExportTest extends AbstractTest
         {
             if (exportablePermId.getPermId() == null)
             {
-                exportablePermId.setPermId(samplePermId);
+                exportablePermId.setPermId(richTextSamplePermId);
             }
         });
     }
@@ -389,6 +575,15 @@ public class ExportTest extends AbstractTest
         } else if (expectedResultFilePath.endsWith(ZIP_EXTENSION) && actualResultFilePath.endsWith(ZIP_EXTENSION))
         {
             compareZipFiles(expectedResultFilePath, actualResultFilePath);
+        } else if (expectedResultFilePath.endsWith(HTML_EXTENSION) && actualResultFilePath.endsWith(HTML_EXTENSION))
+        {
+            try (
+                    final InputStream expectedResultInputStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath);
+                    final FileInputStream actualResultInputStream = new FileInputStream(getActualFile(actualResultFilePath));
+            )
+            {
+                compareStreams(expectedResultInputStream, actualResultInputStream);
+            }
         } else
         {
             throw new IllegalArgumentException(String.format("Expected ('%s') and actual ('%s') files have different formats.",
@@ -398,12 +593,18 @@ public class ExportTest extends AbstractTest
 
     private void compareXlsxFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
     {
-        final InputStream expectedResultStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath);
-        if (expectedResultStream == null)
+        try(final InputStream expectedResultInputStream = getClass().getClassLoader().getResourceAsStream(expectedResultFilePath))
         {
-            throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
+            if (expectedResultInputStream == null)
+            {
+                throw new IllegalArgumentException(String.format("Expected result file '%s' not found.", expectedResultFilePath));
+            }
+
+            try (final FileInputStream actualResultInputStream = new FileInputStream(getActualFile(actualResultFilePath)))
+            {
+                compareXlsxStreams(expectedResultInputStream, actualResultInputStream);
+            }
         }
-        compareXlsxStreams(expectedResultStream, new FileInputStream(getActualFile(actualResultFilePath)));
     }
 
     private void compareZipFiles(final String expectedResultFilePath, final String actualResultFilePath) throws IOException
@@ -524,12 +725,13 @@ public class ExportTest extends AbstractTest
         final String actualResultFileName = pathSeparatorLocation > 0
                 ? actualResultFilePath.substring(pathSeparatorLocation + 1) : actualResultFilePath;
         final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File sessionWorkspaceSubfolder = new File(sessionWorkspace, intermediatePath);
-        final File[] files = sessionWorkspaceSubfolder.listFiles((FilenameFilter) new NameFileFilter(actualResultFileName));
+        final File sessionWorkspaceSubdirectory = new File(sessionWorkspace, intermediatePath);
+        final File[] files = sessionWorkspaceSubdirectory.listFiles((FilenameFilter) new NameFileFilter(actualResultFileName));
 
         assertNotNull(files);
-        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",
-                actualResultFilePath));
+        assertEquals(1, files.length,
+                String.format("Session workspace should contain only one file with the download URL '%s' but in contains the following files: %s",
+                actualResultFilePath, Arrays.toString(files)));
 
         return files[0];
     }

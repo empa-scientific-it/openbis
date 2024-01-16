@@ -254,6 +254,37 @@ async function testLoadMaintainsPropertySelection() {
         id: 'section-1',
         properties: ['property-1', 'property-2']
       }
+    ],
+    properties: [
+      {
+        id: 'property-0'
+      },
+      {
+        id: 'property-1',
+        isMultiValue: {
+         value: true,
+         visible: true,
+         enabled: false
+        },
+        unique: {
+          value: false,
+          visible: true,
+          enabled: false
+        }
+      },
+      {
+        id: 'property-2',
+        isMultiValue: {
+         value: false,
+         visible: true,
+         enabled: false
+        },
+        unique: {
+          value: true,
+          visible: true,
+          enabled: false
+        }
+      }
     ]
   })
 }
@@ -275,6 +306,7 @@ TEST_PROPERTY_TYPE_1_DTO.setCode('TEST_PROPERTY_TYPE_1')
 TEST_PROPERTY_TYPE_1_DTO.setLabel('TEST_LABEL_1')
 TEST_PROPERTY_TYPE_1_DTO.setDescription('TEST_DESCRIPTION_1')
 TEST_PROPERTY_TYPE_1_DTO.setDataType(openbis.DataType.INTEGER)
+TEST_PROPERTY_TYPE_1_DTO.setMultiValue(false)
 
 const TEST_PROPERTY_TYPE_2_DTO = new openbis.PropertyType()
 TEST_PROPERTY_TYPE_2_DTO.setCode('TEST_PROPERTY_TYPE_2')
@@ -282,6 +314,7 @@ TEST_PROPERTY_TYPE_2_DTO.setLabel('TEST_LABEL_2')
 TEST_PROPERTY_TYPE_2_DTO.setDescription('TEST_DESCRIPTION_2')
 TEST_PROPERTY_TYPE_2_DTO.setDataType(openbis.DataType.CONTROLLEDVOCABULARY)
 TEST_PROPERTY_TYPE_2_DTO.setVocabulary(TEST_VOCABULARY)
+TEST_PROPERTY_TYPE_2_DTO.setMultiValue(true)
 
 const TEST_PROPERTY_TYPE_3_DTO = new openbis.PropertyType()
 TEST_PROPERTY_TYPE_3_DTO.setCode('TEST_PROPERTY_TYPE_3')
@@ -289,6 +322,7 @@ TEST_PROPERTY_TYPE_3_DTO.setLabel('TEST_LABEL_3')
 TEST_PROPERTY_TYPE_3_DTO.setDescription('TEST_DESCRIPTION_3')
 TEST_PROPERTY_TYPE_3_DTO.setDataType(openbis.DataType.MATERIAL)
 TEST_PROPERTY_TYPE_3_DTO.setMaterialType(TEST_MATERIAL_TYPE)
+TEST_PROPERTY_TYPE_3_DTO.setMultiValue(false)
 
 const TEST_PROPERTY_ASSIGNMENT_1 = new openbis.PropertyAssignment()
 TEST_PROPERTY_ASSIGNMENT_1.setPropertyType(TEST_PROPERTY_TYPE_1_DTO)
@@ -297,6 +331,7 @@ TEST_PROPERTY_ASSIGNMENT_1.setMandatory(true)
 TEST_PROPERTY_ASSIGNMENT_1.setShowInEditView(true)
 TEST_PROPERTY_ASSIGNMENT_1.setShowRawValueInForms(true)
 TEST_PROPERTY_ASSIGNMENT_1.setPlugin(TEST_PLUGIN_1)
+TEST_PROPERTY_ASSIGNMENT_1.unique = false
 
 const TEST_PROPERTY_ASSIGNMENT_2 = new openbis.PropertyAssignment()
 TEST_PROPERTY_ASSIGNMENT_2.setPropertyType(TEST_PROPERTY_TYPE_2_DTO)
@@ -304,6 +339,7 @@ TEST_PROPERTY_ASSIGNMENT_2.setSection('TEST_SECTION_2')
 TEST_PROPERTY_ASSIGNMENT_2.setMandatory(true)
 TEST_PROPERTY_ASSIGNMENT_2.setShowInEditView(false)
 TEST_PROPERTY_ASSIGNMENT_2.setShowRawValueInForms(true)
+TEST_PROPERTY_ASSIGNMENT_2.unique = false
 
 const TEST_PROPERTY_ASSIGNMENT_3 = new openbis.PropertyAssignment()
 TEST_PROPERTY_ASSIGNMENT_3.setPropertyType(TEST_PROPERTY_TYPE_3_DTO)
@@ -311,6 +347,7 @@ TEST_PROPERTY_ASSIGNMENT_3.setSection('TEST_SECTION_2')
 TEST_PROPERTY_ASSIGNMENT_3.setMandatory(false)
 TEST_PROPERTY_ASSIGNMENT_3.setShowInEditView(true)
 TEST_PROPERTY_ASSIGNMENT_3.setShowRawValueInForms(false)
+TEST_PROPERTY_ASSIGNMENT_3.unique = true
 
 const TEST_SAMPLE_TYPE_DTO = new openbis.SampleType()
 TEST_SAMPLE_TYPE_DTO.setCode('TEST_TYPE')

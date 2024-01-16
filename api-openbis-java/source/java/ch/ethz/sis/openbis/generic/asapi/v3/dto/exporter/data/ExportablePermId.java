@@ -78,4 +78,29 @@ public class ExportablePermId implements Serializable
         return new ObjectToString(this).append("exportableKind", exportableKind).append("permId", permId).toString();
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+        ExportablePermId that = (ExportablePermId) o;
+
+        if (exportableKind != that.exportableKind)
+        {
+            return false;
+        }
+        return permId.equals(that.permId);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return ((this.getPermId() == null) ? 0 : this.getPermId().hashCode());
+    }
 }

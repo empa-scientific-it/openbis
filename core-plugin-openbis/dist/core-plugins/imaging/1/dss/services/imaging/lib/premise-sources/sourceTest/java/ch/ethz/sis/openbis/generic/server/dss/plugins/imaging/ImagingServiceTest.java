@@ -95,9 +95,9 @@ public class ImagingServiceTest
         ImagingDataSetPropertyConfig propertyConfig = new ImagingDataSetPropertyConfig();
         ImagingDataSetConfig config = new ImagingDataSetConfig();
         ImagingDataSetImage image = new ImagingDataSetImage();
-        image.setPreviews(List.of(new ImagingDataSetPreview()));
+        image.setPreviews(Arrays.asList(new ImagingDataSetPreview()));
         propertyConfig.setConfig(config);
-        propertyConfig.setImages(List.of(image));
+        propertyConfig.setImages(Arrays.asList(image));
 
         DataSet dataSet = new DataSet();
 

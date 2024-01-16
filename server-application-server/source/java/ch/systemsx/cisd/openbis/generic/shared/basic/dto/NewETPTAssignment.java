@@ -54,6 +54,8 @@ public class NewETPTAssignment implements Serializable
 
     private Date modificationDate;
 
+    private boolean unique;
+
     public NewETPTAssignment()
     {
     }
@@ -63,13 +65,21 @@ public class NewETPTAssignment implements Serializable
             boolean managed, String scriptOrNull, boolean shownInEditView, boolean showRawValue)
     {
         this(entityKind, propertyTypeCode, entityTypeCode, mandatory, defaultValue, section,
-                ordinal, dynamic, managed, null, scriptOrNull, shownInEditView, showRawValue);
+                ordinal, dynamic, managed, null, scriptOrNull, shownInEditView, showRawValue, false);
     }
 
     public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
             boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
             boolean managed, Date modificationDate, String scriptOrNull, boolean shownInEditView,
-            boolean showRawValue)
+            boolean showRawValue) {
+        this(entityKind, propertyTypeCode, entityTypeCode, mandatory, defaultValue, section, ordinal,
+                dynamic, managed, modificationDate, scriptOrNull, shownInEditView, showRawValue, false);
+    }
+
+    public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
+            boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
+            boolean managed, Date modificationDate, String scriptOrNull, boolean shownInEditView,
+            boolean showRawValue, boolean unique)
     {
         this.entityKind = entityKind;
         this.propertyTypeCode = propertyTypeCode;
@@ -84,6 +94,7 @@ public class NewETPTAssignment implements Serializable
         this.scriptName = scriptOrNull;
         this.shownInEditView = shownInEditView;
         this.showRawValue = showRawValue;
+        this.unique = unique;
     }
 
     public Date getModificationDate()
@@ -214,5 +225,13 @@ public class NewETPTAssignment implements Serializable
     public void setShowRawValue(boolean showRawValue)
     {
         this.showRawValue = showRawValue;
+    }
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public void setUnique(boolean unique) {
+        this.unique = unique;
     }
 }

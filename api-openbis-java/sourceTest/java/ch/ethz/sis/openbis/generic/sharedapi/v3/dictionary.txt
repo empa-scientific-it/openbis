@@ -1397,9 +1397,11 @@ isShowParents
 isStorageConfirmation
 isSubcodeUnique
 IStorageFormatId
+isUnique
 isUseWildcards
 isWithImportCompatibility
 isWithReferredTypes
+isZipForSingleFiles
 ITagId
 ITagsHolder
 iterator
@@ -2329,6 +2331,7 @@ setup
 setUrlTemplate
 setUserId
 setUserName
+setUnique
 setValidationPluginId
 setValidFrom
 setValidFromDate
@@ -2345,6 +2348,7 @@ setWithImportCompatibility
 setWithReferredTypes
 setXlsTextFormat
 setXmlProperty
+setZipSingleFiles
 Share Id Search Criteria
 SHORT_DATE_FORMAT
 ShortDateFormat

@@ -89,4 +89,5 @@ public class ExperimentPropertyPE extends EntityPropertyWithSampleDataTypePE
         return entityFrozen;
     }
 
+
 }

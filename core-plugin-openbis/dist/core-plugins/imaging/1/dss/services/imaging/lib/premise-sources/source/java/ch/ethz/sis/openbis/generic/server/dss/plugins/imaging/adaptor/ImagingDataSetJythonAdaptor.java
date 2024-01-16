@@ -37,7 +37,7 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
 
     public ImagingDataSetJythonAdaptor(Properties properties) {
         this.scriptPath = properties.getProperty("script-path", "");
-        if(scriptPath.isBlank()) {
+        if(scriptPath.trim().isEmpty()) {
             throw new UserFailureException("There is no script defined for this adaptor!");
         }
     }

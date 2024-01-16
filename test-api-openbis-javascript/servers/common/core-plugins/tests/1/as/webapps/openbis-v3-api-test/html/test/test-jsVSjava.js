@@ -304,7 +304,7 @@ define(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function
                                 loadedHandler = loadedHandler(circularDependencyConfig)
 
                                 try{
-                                    var dto = eval("dtos." + jsClassName)
+                                    var dto = eval("dtos." + jsClassName.replaceAll(".", "_"))
 
                                     if(dto){
                                         loadedHandler(javaClassReport)(dto)

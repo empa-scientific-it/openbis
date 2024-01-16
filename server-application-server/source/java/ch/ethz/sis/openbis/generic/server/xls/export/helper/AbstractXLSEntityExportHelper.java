@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
     {
         final Collection<ENTITY> entities = getEntities(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
         // in arbitrary order.
@@ -76,9 +78,9 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
             final String typePermId = typePermIdToString(entry.getKey());
 
             final ExportableKind typeExportableKind = getTypeExportableKind();
-            warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, exportableKind.toString()));
-            warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, entityTypeName));
-            warnings.addAll(addRow(rowNumber++, false, typeExportableKind, typePermId, typePermId));
+            addRow(rowNumber++, true, typeExportableKind, typePermId, warnings, valueFiles, exportableKind.toString());
+            addRow(rowNumber++, true, typeExportableKind, typePermId, warnings, valueFiles, entityTypeName);
+            addRow(rowNumber++, false, typeExportableKind, typePermId, warnings, valueFiles, typePermId);
 
             final Attribute[] possibleAttributes = getAttributes(entry.getValue());
             final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream().map(PropertyAssignment::getPropertyType)
@@ -100,7 +102,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                         propertyTypes.stream().map(PropertyType::getLabel)
                 ).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, fieldHeaders));
+                addRow(rowNumber++, true, typeExportableKind, typePermId, warnings, valueFiles, fieldHeaders);
 
                 // Values
                 for (final ENTITY entity : entry.getValue())
@@ -110,7 +112,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                             propertyTypes.stream().map(getPropertiesMappingFunction(textFormatting, entity.getProperties()))
                     ).toArray(String[]::new);
 
-                    warnings.addAll(addRow(rowNumber++, false, exportableKind, getIdentifier(entity), values));
+                    addRow(rowNumber++, true, exportableKind, getIdentifier(entity), warnings, valueFiles, values);
                 }
             } else
             {
@@ -160,7 +162,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 final String[] allFieldHeaders = Stream.concat(Arrays.stream(selectedFieldHeaders), requiredForImportAttributeNameStream)
                         .toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, typeExportableKind, typePermId, allFieldHeaders));
+                addRow(rowNumber++, true, typeExportableKind, typePermId, warnings, valueFiles, allFieldHeaders);
 
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportFields);
@@ -201,14 +203,14 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                 }
                             }).toArray(String[]::new);
 
-                    warnings.addAll(addRow(rowNumber++, false, exportableKind, getIdentifier(entity), entityValues));
+                    addRow(rowNumber++, false, exportableKind, getIdentifier(entity), warnings, valueFiles, entityValues);
                 }
             }
 
             rowNumber++;
         }
 
-        return new AdditionResult(rowNumber, warnings);
+        return new AdditionResult(rowNumber, warnings, valueFiles);
     }
 
     protected abstract ExportableKind getExportableKind();

@@ -246,6 +246,10 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
         enabled:
           !assignmentInternal || AppController.getInstance().isSystemUser()
       }),
+      unique: FormUtil.createField({
+        value: _.get(loadedAssignment, 'unique', false),
+        enabled: false
+      }),
       showRawValueInForms: FormUtil.createField({
         value: _.get(loadedAssignment, 'showRawValueInForms', false),
         enabled:

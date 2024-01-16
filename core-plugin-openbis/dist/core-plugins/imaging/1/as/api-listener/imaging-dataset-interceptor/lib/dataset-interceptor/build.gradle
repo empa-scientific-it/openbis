@@ -1,0 +1,58 @@
+plugins {
+    id "com.github.node-gradle.node" version "3.2.1"
+}
+
+apply from: 'javaproject.gradle'
+apply from: 'repository.gradle'
+
+
+dependencies {
+    api project(':api-openbis-java'),
+            project(':server-original-data-store')
+
+    implementation 'fasterxml:jackson-annotations:2.9.10',
+            'fasterxml:jackson-core:2.9.10',
+            'fasterxml:jackson-databind:2.9.10.8',
+            'fasterxml:jackson-datatype-jsr310:2.9.10'
+
+    testImplementation 'junit:junit:4.10',
+            'testng:testng:6.8-CISD'
+
+    testRuntimeOnly 'hamcrest:hamcrest-core:1.3',
+            project(':server-original-data-store')
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['source/java/*']
+        }
+    }
+    test {
+        resources {
+            srcDirs = ['sourceTest/java']
+        }
+    }
+}
+
+
+def premiseArchiveName = 'imaging-dataset-interceptor.jar'
+jar {
+    dependsOn compileJava
+    archiveName premiseArchiveName
+    includeEmptyDirs false
+}
+
+
+task premiseImagingDatasetInterceptorJar(type: Copy) {
+    dependsOn jar
+    from("${project.buildDir}/libs/${premiseArchiveName}")
+    into ".."
+}
+
+
+
+
+
+
+

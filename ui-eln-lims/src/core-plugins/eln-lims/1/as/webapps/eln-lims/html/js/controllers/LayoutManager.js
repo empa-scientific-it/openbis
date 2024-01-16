@@ -549,7 +549,7 @@ var LayoutManager = {
 }
 
 $(window).resize(function() {
-	if(mainController && mainController.views) {
+	if(mainController && mainController.views && mainController.sideMenu) {
 		LayoutManager.resize(mainController.views, false);
 	}
 });

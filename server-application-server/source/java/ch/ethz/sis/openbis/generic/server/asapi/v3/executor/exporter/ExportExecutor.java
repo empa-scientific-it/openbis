@@ -33,24 +33,25 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.TextFormat
 import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_ID_KEY;
 import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper.FIELD_TYPE_KEY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -65,6 +66,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -74,14 +77,12 @@ import java.util.zip.ZipOutputStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.TreeNode;
@@ -162,8 +163,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 public class ExportExecutor implements IExportExecutor
 {
 
-    public static final String METADATA_FILE_PREFIX = "metadata";
-
     public static final String EXPORT_FILE_PREFIX = "export";
 
     public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
@@ -237,11 +236,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Logger OPERATION_LOG = LogFactory.getLogger(LogCategory.OPERATION, ExportExecutor.class);
 
-    /** All characters except the ones we consider safe as a folder name. */
+    /** All characters except the ones we consider safe as a directory name. */
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
-
-    @Autowired
-    private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -250,6 +246,8 @@ public class ExportExecutor implements IExportExecutor
     private ExposablePropertyPlaceholderConfigurer configurer;
 
     private ObjectWriter objectWriter;
+
+    private long dataLimit = -1;
 
     @PostConstruct
     private void postConstruct()
@@ -316,17 +314,18 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return doExport(applicationServerApi, sessionToken,
-                exportablePermIds, exportOptions.isWithReferredTypes(), exportFields,
-                TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.isWithImportCompatibility(),
-                exportOptions.getFormats());
+                exportablePermIds, exportFields, TextFormatting.valueOf(exportOptions.getXlsTextFormat().name()), exportOptions.getFormats(),
+                exportOptions.isWithReferredTypes(),
+                exportOptions.isWithImportCompatibility(),
+                exportOptions.isZipForSingleFiles()
+        );
     }
 
     private ExportResult doExport(final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
-            final boolean exportReferredMasterData,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting, final boolean compatibleWithImport,
-            final Set<ExportFormat> exportFormats) throws IOException
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final TextFormatting textFormatting,
+            final Set<ExportFormat> exportFormats, final boolean exportReferredMasterData,
+            final boolean compatibleWithImport, final boolean zipSingleFiles) throws IOException
     {
         final String zipFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
                 ZIP_EXTENSION);
@@ -337,9 +336,16 @@ public class ExportExecutor implements IExportExecutor
         final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
         final boolean hasDataFormat = exportFormats.contains(ExportFormat.DATA);
 
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
+        final File exportWorkspaceDirectory = new File(sessionWorkspaceDirectory, UUID.randomUUID().toString());
+        final Path exportWorkspaceDirectoryPath = exportWorkspaceDirectory.toPath();
+        exportWorkspaceDirectory.mkdir();
+
         if (hasXlsxFormat)
         {
-            exportXlsx(api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting, compatibleWithImport, warnings);
+            exportXlsx(api, sessionToken, exportWorkspaceDirectory, exportablePermIds, exportReferredMasterData, exportFields, textFormatting,
+                    compatibleWithImport, warnings);
         }
 
         if (hasHtmlFormat || hasPdfFormat || hasDataFormat)
@@ -348,9 +354,7 @@ public class ExportExecutor implements IExportExecutor
 
             if (hasPdfFormat || hasHtmlFormat)
             {
-                final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-                final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
-                final File docDirectory = new File(sessionWorkspaceDirectory, PDF_DIRECTORY);
+                final File docDirectory = new File(exportWorkspaceDirectory, PDF_DIRECTORY);
                 mkdirs(docDirectory);
 
                 exportSpacesDoc(sessionToken, exportFields, entitiesVo, exportFormats, docDirectory);
@@ -362,49 +366,73 @@ public class ExportExecutor implements IExportExecutor
 
             if (hasDataFormat)
             {
-                exportData(sessionToken, entitiesVo);
+                exportData(sessionToken, exportWorkspaceDirectory, entitiesVo, compatibleWithImport);
             }
         }
 
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final String sessionWorkspaceDirectoryPath = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalPath();
-        zipDirectory(sessionWorkspaceDirectoryPath, new File(sessionWorkspaceDirectoryPath, zipFileName));
+        final File file = getSingleFile(exportWorkspaceDirectoryPath);
+        final String exportWorkspaceDirectoryPathString = exportWorkspaceDirectory.getPath();
 
-        deleteDirectory(sessionWorkspaceDirectoryPath + '/' + XLSX_DIRECTORY);
-        deleteDirectory(sessionWorkspaceDirectoryPath + '/' + PDF_DIRECTORY);
-        deleteDirectory(sessionWorkspaceDirectoryPath + '/' + DATA_DIRECTORY);
+        final ExportResult exportResult;
+        if (zipSingleFiles || file == null)
+        {
+            final File targetZipFile = new File(sessionWorkspaceDirectory, zipFileName);
+            if (targetZipFile.exists())
+            {
+                targetZipFile.delete();
+            }
 
-        return new ExportResult(zipFileName, warnings);
+            zipDirectory(exportWorkspaceDirectoryPathString, targetZipFile);
+            exportResult = new ExportResult(getDownloadPath(api, sessionToken, zipFileName), warnings);
+        } else
+        {
+            final Path filePath = file.toPath();
+            final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(), filePath.getFileName().toString()),
+                    StandardCopyOption.REPLACE_EXISTING);
+            final String fileName = targetFilePath.getFileName().toString();
+
+            exportResult = new ExportResult(getDownloadPath(api, sessionToken, fileName), warnings);
+        }
+
+        deleteDirectory(exportWorkspaceDirectoryPathString);
+
+        return exportResult;
     }
 
-    private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final List<ExportablePermId> exportablePermIds,
-            final boolean exportReferredMasterData, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+    private String getDownloadPath(final IApplicationServerApi api, final String sessionToken, final String fileName)
+            throws MalformedURLException
+    {
+        final String protocolWithDomain = configurer.getResolvedProps().getProperty(DOWNLOAD_URL);
+        if (protocolWithDomain == null || protocolWithDomain.isBlank())
+        {
+            throw new UserFailureException(String.format("The property '%s' is not configured for the application server.", DOWNLOAD_URL));
+        }
+
+        return String.format("%s/openbis/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken,
+                URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+    }
+
+    private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final File exportWorkspaceDirectory,
+            final List<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final TextFormatting textFormatting, final boolean compatibleWithImport, final Collection<String> warnings) throws IOException
     {
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
         final XLSExport.PrepareWorkbookResult xlsExportResult = XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds,
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
 
-        final File xlsxDirectory = new File(sessionWorkspaceDirectory, XLSX_DIRECTORY);
+        final File xlsxDirectory = new File(exportWorkspaceDirectory, XLSX_DIRECTORY);
         mkdirs(xlsxDirectory);
-
-        final File scriptsDirectory = new File(xlsxDirectory, SCRIPTS_DIRECTORY);
 
         final Map<String, String> xlsExportScripts = xlsExportResult.getScripts();
         if (!xlsExportScripts.isEmpty())
         {
-            mkdirs(scriptsDirectory);
+            exportFiles(xlsExportScripts, new File(xlsxDirectory, SCRIPTS_DIRECTORY), fileName -> fileName + PYTHON_EXTENSION);
+        }
 
-            for (final Map.Entry<String, String> script : xlsExportScripts.entrySet())
-            {
-                final File scriptFile = new File(scriptsDirectory, script.getKey() + PYTHON_EXTENSION);
-                try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
-                {
-                    bos.write(script.getValue().getBytes());
-                    bos.flush();
-                }
-            }
+        final Map<String, String> valueFiles = xlsExportResult.getValueFiles();
+        if (!valueFiles.isEmpty())
+        {
+            exportFiles(valueFiles, new File(xlsxDirectory, DATA_DIRECTORY), Function.identity());
         }
 
         try (
@@ -419,24 +447,96 @@ public class ExportExecutor implements IExportExecutor
         warnings.addAll(xlsExportResult.getWarnings());
     }
 
-    private void exportData(final String sessionToken, final EntitiesVo entitiesVo) throws IOException
+    private static void exportFiles(final Map<String, String> fileNameToContentsMap, final File directory,
+            final Function<String, String> fileNameTransformer) throws IOException
     {
-        final Collection<Sample> samples = entitiesVo.getSamples();
-        for (final Sample sample : samples)
+        mkdirs(directory);
+        for (final Map.Entry<String, String> fileName : fileNameToContentsMap.entrySet())
         {
-            exportDatasetsData(sessionToken, 'O', sample.getDataSets(), sample, sample.getContainer());
-        }
-
-        final Collection<Experiment> experiments = entitiesVo.getExperiments();
-        for (final Experiment experiment : experiments)
-        {
-            exportDatasetsData(sessionToken, 'E', experiment.getDataSets(), experiment, null);
+            final File scriptFile = new File(directory, fileNameTransformer.apply(fileName.getKey()));
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
+            {
+                bos.write(fileName.getValue().getBytes());
+                bos.flush();
+            }
         }
     }
 
-    private void exportDatasetsData(final String sessionToken,
-            final char prefix, final List<DataSet> dataSets, final ICodeHolder codeHolder,
-            final Sample container) throws IOException
+    private void exportData(final String sessionToken, final File exportWorkspaceDirectory, final EntitiesVo entitiesVo,
+            final boolean compatibleWithImport) throws IOException
+    {
+        final Collection<Sample> samples = entitiesVo.getSamples();
+        final Collection<Experiment> experiments = entitiesVo.getExperiments();
+        final long totalSize = Stream.concat(samples.stream(), experiments.stream())
+                .flatMap(dataSetHolder -> getDatasetsFiles(sessionToken, dataSetHolder.getDataSets()).stream())
+                .mapToLong(DataSetFile::getFileLength).reduce(0L, Long::sum);
+
+        final long totalDataLimit = getDataLimit();
+        if (totalSize > totalDataLimit)
+        {
+            throw UserFailureException.fromTemplate("Total data size %d is larger than the data limit %d.", totalSize, totalDataLimit);
+        }
+
+        for (final Sample sample : samples)
+        {
+            exportDatasetsData(sessionToken, exportWorkspaceDirectory, 'O', sample.getDataSets(), sample, sample.getContainer(),
+                    compatibleWithImport);
+        }
+
+        for (final Experiment experiment : experiments)
+        {
+            exportDatasetsData(sessionToken, exportWorkspaceDirectory, 'E', experiment.getDataSets(), experiment, null, compatibleWithImport);
+        }
+    }
+
+    private long getDataLimit()
+    {
+        if (dataLimit < 0)
+        {
+            final String dataLimitString = ((ExposablePropertyPlaceholderConfigurer) CommonServiceProvider
+                    .tryToGetBean(PROPERTY_CONFIGURER_BEAN_NAME))
+                    .getResolvedProps().getProperty("export.data-limit", "10485760");
+
+            try
+            {
+                dataLimit = Long.parseLong(dataLimitString);
+            } catch (final NumberFormatException e)
+            {
+                throw UserFailureException.fromTemplate(e, "Error parsing string '%s' to long.", dataLimitString);
+            }
+        }
+
+        return dataLimit;
+    }
+
+    private static List<DataSetFile> getDatasetsFiles(final String sessionToken, final List<DataSet> dataSets)
+    {
+        final IDataStoreServerApi v3Dss = CommonServiceProvider.getDataStoreServerApi();
+        final List<DataSetFile> files = new ArrayList<>();
+        for (final DataSet dataSet : dataSets)
+        {
+            final String dataSetPermId = dataSet.getPermId().getPermId();
+
+            if (dataSet.getKind() != DataSetKind.LINK)
+            {
+                final DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+                criteria.withDataSet().withPermId().thatEquals(dataSetPermId);
+
+                final SearchResult<DataSetFile> results = v3Dss.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+
+                OPERATION_LOG.info(String.format("Found: %d files", results.getTotalCount()));
+
+                files.addAll(results.getObjects());
+            } else
+            {
+                OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
+            }
+        }
+        return files;
+    }
+
+    private void exportDatasetsData(final String sessionToken, final File exportWorkspaceDirectory, final char prefix, final List<DataSet> dataSets,
+            final ICodeHolder codeHolder, final Sample container, final boolean compatibleWithImport) throws IOException
     {
         final String spaceCode = getSpaceCode(codeHolder);
         final String projectCode = getProjectCode(codeHolder);
@@ -445,6 +545,10 @@ public class ExportExecutor implements IExportExecutor
         final String codeHolderJson = objectWriter.writeValueAsString(codeHolder);
         final IDataStoreServerApi v3Dss = CommonServiceProvider.getDataStoreServerApi();
 
+        final File parentDataDirectory = compatibleWithImport
+                ? exportWorkspaceDirectory
+                : createDirectoriesForSampleOrExperiment(prefix, new File(exportWorkspaceDirectory, PDF_DIRECTORY), codeHolder);
+
         for (final DataSet dataSet : dataSets)
         {
             final String dataSetPermId = dataSet.getPermId().getPermId();
@@ -452,8 +556,8 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetTypeCode = dataSet.getType().getCode();
             final String dataSetName = getEntityName(dataSet);
 
-            createMetadataJsonFile(sessionToken, prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode,
-                    dataSetCode, dataSetName, codeHolderJson);
+            createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
+                    dataSetTypeCode, dataSetCode, dataSetName, codeHolderJson, compatibleWithImport);
 
             if (dataSet.getKind() != DataSetKind.LINK)
             {
@@ -476,8 +580,8 @@ public class ExportExecutor implements IExportExecutor
                     DataSetFileDownload file;
                     while ((file = reader.read()) != null)
                     {
-                        createNextDataFile(sessionToken, prefix, spaceCode, projectCode,
-                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, file);
+                        createNextDataFile(parentDataDirectory, prefix, spaceCode, projectCode,
+                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, file, compatibleWithImport);
                     }
                 }
             } else
@@ -487,17 +591,37 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static void createMetadataJsonFile(final String sessionToken, final char prefix, final String spaceCode, final String projectCode,
-            final String containerCode, final String code, final String dataSetTypeCode, final String dataSetCode, final String dataSetName,
-            final String codeHolderJson) throws IOException
+    private static File createDirectoriesForSampleOrExperiment(final char prefix, final File documentDirectory, final ICodeHolder codeHolder)
     {
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
-        final File dataDirectory = new File(sessionWorkspaceDirectory, DATA_DIRECTORY);
-        mkdirs(dataDirectory);
+        if (prefix != 'O' && prefix != 'E')
+        {
+            throw new IllegalArgumentException(String.format("Only 'O' and 'E' can be used as prefix got '%c' instead.", prefix));
+        }
 
-        final File metadataFile = new File(dataDirectory,
-                getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, META_FILE_NAME));
+        return prefix == 'O'
+                ? createDirectoriesForSample(documentDirectory, (Sample) codeHolder)
+                : createDirectoriesForExperiment(documentDirectory, (Experiment) codeHolder);
+    }
+
+    private static void createMetadataJsonFile(final File parentDataDirectory, final char prefix,
+            final String spaceCode, final String projectCode, final String containerCode, final String code, final String dataSetTypeCode,
+            final String dataSetCode, final String dataSetName, final String codeHolderJson, final boolean compatibleWithImport) throws IOException
+    {
+        final File metadataFile;
+
+        if (compatibleWithImport)
+        {
+            final File dataDirectory = new File(parentDataDirectory, DATA_DIRECTORY + '/');
+            mkdirs(dataDirectory);
+            metadataFile = new File(dataDirectory,
+                    getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode, dataSetName,
+                            META_FILE_NAME));
+        } else
+        {
+            final File datasetDirectory = new File(parentDataDirectory, getFullEntityName(dataSetCode, dataSetName));
+            mkdirs(datasetDirectory);
+            metadataFile = new File(new File(datasetDirectory, DATA_DIRECTORY), META_FILE_NAME);
+        }
 
         final File dataSubdirectory = metadataFile.getParentFile();
         mkdirs(dataSubdirectory);
@@ -511,13 +635,13 @@ public class ExportExecutor implements IExportExecutor
     private void exportSpacesDoc(final String sessionToken, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final EntitiesVo entitiesVo, final Set<ExportFormat> exportFormats, final File docDirectory) throws IOException
     {
-        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getSpaces(), exportFields, exportFormats);
-        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getProjects(), exportFields, exportFormats);
-        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
-        createFilesAndFoldersForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndDirectoriesForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getSpaces(), exportFields, exportFormats);
+        createFilesAndDirectoriesForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getProjects(), exportFields, exportFormats);
+        createFilesAndDirectoriesForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
+        createFilesAndDirectoriesForSpacesOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
-    private void createFilesAndFoldersForSpacesOfEntities(final String sessionToken, final File docDirectory, final Collection<?> entities,
+    private void createFilesAndDirectoriesForSpacesOfEntities(final String sessionToken, final File docDirectory, final Collection<?> entities,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
         final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
@@ -557,8 +681,8 @@ public class ExportExecutor implements IExportExecutor
             } else
             {
                 final String spaceCode = getSpaceCode(entity);
-                final String folderName = spaceCode == null && entity instanceof Sample ? SHARED_SAMPLES_DIRECTORY : spaceCode;
-                final File space = createNextDocFile(docDirectory, folderName, null, null, null, null, null, null, null, null);
+                final String directoryName = spaceCode == null && entity instanceof Sample ? SHARED_SAMPLES_DIRECTORY : spaceCode;
+                final File space = createNextDocFile(docDirectory, directoryName, null, null, null, null, null, null, null, null);
                 mkdirs(space);
             }
         }
@@ -567,12 +691,12 @@ public class ExportExecutor implements IExportExecutor
     private void exportProjectsDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        createFilesAndFoldersForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getProjects(), exportFields, exportFormats);
-        createFilesAndFoldersForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
-        createFilesAndFoldersForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndDirectoriesForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getProjects(), exportFields, exportFormats);
+        createFilesAndDirectoriesForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
+        createFilesAndDirectoriesForProjectsOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
     }
 
-    private void createFilesAndFoldersForProjectsOfEntities(final String sessionToken, final File docDirectory, final Collection<?> entities,
+    private void createFilesAndDirectoriesForProjectsOfEntities(final String sessionToken, final File docDirectory, final Collection<?> entities,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
         for (final Object entity : entities)
@@ -599,12 +723,12 @@ public class ExportExecutor implements IExportExecutor
     private void exportExperimentsDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        createFilesAndFoldersForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
-        createFilesAndFoldersForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
-        createFilesAndFoldersForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getDataSets(), exportFields, exportFormats);
+        createFilesAndDirectoriesForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getExperiments(), exportFields, exportFormats);
+        createFilesAndDirectoriesForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndDirectoriesForExperimentsOfEntities(sessionToken, docDirectory, entitiesVo.getDataSets(), exportFields, exportFormats);
     }
 
-    private void createFilesAndFoldersForExperimentsOfEntities(final String sessionToken, final File docDirectory,
+    private void createFilesAndDirectoriesForExperimentsOfEntities(final String sessionToken, final File docDirectory,
             final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final Set<ExportFormat> exportFormats) throws IOException
     {
@@ -615,10 +739,7 @@ public class ExportExecutor implements IExportExecutor
                 final Experiment experiment = ((IExperimentHolder) entity).getExperiment();
                 if (experiment != null)
                 {
-                    final Project project = experiment.getProject();
-                    final File docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                            getEntityName(experiment), null, null, null, null, null);
-                    mkdirs(docFile);
+                    createDirectoriesForExperiment(docDirectory, experiment);
                 }
             }
 
@@ -638,7 +759,7 @@ public class ExportExecutor implements IExportExecutor
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats)
             throws IOException
     {
-        createFilesAndFoldersForSamplesOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats);
+        createFilesAndDirectoriesForSamplesOfEntities(sessionToken, docDirectory, entitiesVo.getSamples(), exportFields, exportFormats, true);
     }
 
     private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
@@ -650,66 +771,79 @@ public class ExportExecutor implements IExportExecutor
                 ? TYPE_EXPORT_FIELD_KEY : exportableKind.toString());
     }
 
-    private void createFilesAndFoldersForSamplesOfEntities(final String sessionToken, final File docDirectory,
+    private void createFilesAndDirectoriesForSamplesOfEntities(final String sessionToken, final File docDirectory,
             final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final Set<ExportFormat> exportFormats) throws IOException
+            final Set<ExportFormat> exportFormats, final boolean createFiles) throws IOException
     {
         for (final Object entity : entities)
         {
             if (entity instanceof ISampleHolder)
             {
                 final Sample sample = ((ISampleHolder) entity).getSample();
-                final Experiment experiment = sample.getExperiment();
-                final File docFile;
-
-                if (experiment != null)
-                {
-                    final Project project = experiment.getProject();
-                    docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
-                            getEntityName(experiment), null, null, null, null, null);
-                } else
-                {
-                    final Project project = sample.getProject();
-                    if (project != null)
-                    {
-                        docFile = createNextDocFile(docDirectory, project.getSpace().getCode(), project.getCode(), null,
-                                null, null, null, null, null, null);
-                    } else
-                    {
-                        final Space space = sample.getSpace();
-                        docFile = createNextDocFile(docDirectory, space != null ? space.getCode() : SHARED_SAMPLES_DIRECTORY, null, null,
-                                null, null, null, null, null, null);
-                    }
-                }
-
-                mkdirs(docFile);
+                createDirectoriesForSample(docDirectory, sample);
             }
 
-            if (entity instanceof Sample)
+            if (createFiles && entity instanceof Sample)
             {
                 final Sample sample = (Sample) entity;
                 final Experiment experiment = sample.getExperiment();
                 final Sample container = sample.getContainer();
 
                 final String spaceCode = getSpaceCode(sample);
-                final String spaceFolder = spaceCode != null ? spaceCode : SHARED_SAMPLES_DIRECTORY;
+                final String spaceDirectory = spaceCode != null ? spaceCode : SHARED_SAMPLES_DIRECTORY;
                 final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, SAMPLE);
 
                 createDocFilesForEntity(sessionToken, docDirectory, entityTypeExportFieldsMap, sample,
-                        spaceFolder, getProjectCode(sample), experiment != null ? experiment.getCode() : null,
+                        spaceDirectory, getProjectCode(sample), experiment != null ? experiment.getCode() : null,
                         experiment != null ? getEntityName(experiment) : null, container != null ? container.getCode() : null, sample.getCode(),
                         getEntityName(sample), null, exportFormats);
             }
         }
     }
 
+    private static File createDirectoriesForSample(final File parentDirectory, final Sample sample)
+    {
+        final Experiment experiment = sample.getExperiment();
+        final File docFile;
+
+        if (experiment != null)
+        {
+            return createDirectoriesForExperiment(parentDirectory, experiment);
+        } else
+        {
+            final Project project = sample.getProject();
+            if (project != null)
+            {
+                docFile = createNextDocFile(parentDirectory, project.getSpace().getCode(), project.getCode(), null,
+                        null, null, null, null, null, null);
+            } else
+            {
+                final Space space = sample.getSpace();
+                docFile = createNextDocFile(parentDirectory, space != null ? space.getCode() : SHARED_SAMPLES_DIRECTORY, null, null,
+                        null, null, null, null, null, null);
+            }
+            mkdirs(docFile);
+
+            return docFile;
+        }
+    }
+
+    private static File createDirectoriesForExperiment(final File parentDirectory, final Experiment experiment)
+    {
+        final Project project = experiment.getProject();
+        final File docFile = createNextDocFile(parentDirectory, project.getSpace().getCode(), project.getCode(), experiment.getCode(),
+                getEntityName(experiment), null, null, null, null, null);
+        mkdirs(docFile);
+        return docFile;
+    }
+
     private void exportDataSetsDoc(final String sessionToken, final File docDirectory, final EntitiesVo entitiesVo,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields, final Set<ExportFormat> exportFormats) throws IOException
     {
-        createFilesAndFoldersForDataSetsOfEntities(sessionToken, docDirectory, entitiesVo.getDataSets(), exportFields, exportFormats);
+        createFilesAndDirectoriesForDataSetsOfEntities(sessionToken, docDirectory, entitiesVo.getDataSets(), exportFields, exportFormats);
     }
 
-    private void createFilesAndFoldersForDataSetsOfEntities(final String sessionToken, final File docDirectory,
+    private void createFilesAndDirectoriesForDataSetsOfEntities(final String sessionToken, final File docDirectory,
             final Collection<?> entities, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final Set<ExportFormat> exportFormats) throws IOException
     {
@@ -877,8 +1011,10 @@ public class ExportExecutor implements IExportExecutor
             final String experimentName, final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode,
             final String extension)
     {
-        return new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
-                sampleName, dataSetCode, extension));
+        final File docFile = new File(docDirectory, getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode,
+                sampleCode, sampleName, dataSetCode, extension));
+        docFile.getParentFile().mkdirs();
+        return docFile;
     }
 
     private void createDocFilesForEntity(final String sessionToken, final File docDirectory,
@@ -971,22 +1107,27 @@ public class ExportExecutor implements IExportExecutor
         return entryBuilder.toString();
     }
 
-    private static void createNextDataFile(final String sessionToken, final char prefix, final String spaceCode, final String projectCode,
+    private static void createNextDataFile(final File parentDataDirectory, final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
-            final String dataSetName, final DataSetFileDownload dataSetFileDownload) throws IOException
+            final String dataSetName, final DataSetFileDownload dataSetFileDownload, final boolean compatibleWithImport) throws IOException
     {
-        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
-        final File sessionWorkspaceDirectory = sessionWorkspaceProvider.getSessionWorkspace(sessionToken).getCanonicalFile();
-
         final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
         final String filePath = dataSetFile.getPath();
         final boolean isDirectory = dataSetFile.isDirectory();
 
-        final File dataDirectory = new File(sessionWorkspaceDirectory, DATA_DIRECTORY);
-        mkdirs(dataDirectory);
-
-        final File dataSetFsEntry = new File(dataDirectory, getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode,
-                dataSetTypeCode, dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : ""));
+        final File dataSetFsEntry;
+        if (compatibleWithImport)
+        {
+            final File dataDirectory = new File(parentDataDirectory, DATA_DIRECTORY + '/');
+            mkdirs(dataDirectory);
+            dataSetFsEntry = new File(dataDirectory, getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode,
+                    dataSetTypeCode, dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : ""));
+        } else
+        {
+            final File datasetDirectory = new File(parentDataDirectory, getFullEntityName(dataSetCode, dataSetName));
+            mkdirs(datasetDirectory);
+            dataSetFsEntry = new File(new File(datasetDirectory, DATA_DIRECTORY), filePath + (isDirectory ? "/" : ""));
+        }
 
         final File dataSubdirectory = dataSetFsEntry.getParentFile();
         mkdirs(dataSubdirectory);
@@ -1073,6 +1214,13 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return entryBuilder.toString();
+    }
+
+    private static String getFullEntityName(final String entityCode, final String entityName)
+    {
+        final StringBuilder stringBuilder = new StringBuilder();
+        addFullEntityName(stringBuilder, null, entityCode, entityName);
+        return stringBuilder.toString();
     }
 
     private static void addFullEntityName(final StringBuilder entryBuilder, final String containerCode, final String entityCode,
@@ -1440,21 +1588,6 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private File getActualFile(final String sessionToken, final String actualResultFilePath)
-    {
-        final File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(sessionToken);
-        final File[] files = sessionWorkspace.listFiles((FilenameFilter) new NameFileFilter(actualResultFilePath));
-
-        assertNotNull(files);
-        assertEquals(1, files.length, String.format("Session workspace should contain only one file with the download URL '%s'.",
-                actualResultFilePath));
-
-        final File file = files[0];
-
-        assertTrue(file.getName().startsWith(METADATA_FILE_PREFIX + "."));
-        return file;
-    }
-
     private static Map<String, List<Map<String, String>>> findExportAttributes(final ExportableKind exportableKind, final SelectedFields selectedFields)
     {
         final List<Map<String, String>> attributes = selectedFields.getAttributes().stream()
@@ -1485,11 +1618,12 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static void zipDirectory(final String sourceDirectory, final File targetZipFile) throws IOException {
+    private static void zipDirectory(final String sourceDirectory, final File targetZipFile) throws IOException
+    {
         final Path sourceDir = Paths.get(sourceDirectory);
         try (final ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(targetZipFile)))
         {
-            try(final Stream<Path> stream = Files.walk(sourceDir))
+            try (final Stream<Path> stream = Files.walk(sourceDir))
             {
                 stream.filter(path -> !path.equals(sourceDir) && !path.toFile().equals(targetZipFile))
                         .forEach(path ->
@@ -1525,6 +1659,22 @@ public class ExportExecutor implements IExportExecutor
                         .map(Path::toFile)
                         .forEach(File::delete);
             }
+        }
+    }
+
+    /**
+     * Finds the only file in the directory structure.
+     *
+     * @param sourceDirectory the directory to be scanned for the file.
+     * @return the only file in the directory structure if it exists and no other files are present, <code>null</code> otherwise.
+     * @throws IOException if an IO exception occurs.
+     */
+    private static File getSingleFile(final Path sourceDirectory) throws IOException
+    {
+        try (final Stream<Path> stream = Files.walk(sourceDirectory))
+        {
+            final List<Path> filePaths = stream.filter(path -> path.toFile().isFile()).limit(2).collect(Collectors.toList());
+            return filePaths.size() == 1 ? filePaths.get(0).toFile() : null;
         }
     }
 

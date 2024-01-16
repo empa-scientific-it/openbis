@@ -195,9 +195,8 @@ public class DisplaySettingsProvider
             });
     }
 
-    public <T> T executeActionWithPersonLock(PersonPE person, IDelegatedActionWithResult<T> action)
-    {
-        Lock lock = getPersonLock(person);
+    public <T> T executeActionWithPersonLock(String userId, IDelegatedActionWithResult<T> action){
+        Lock lock = getPersonLock(userId);
         lock.lock();
         try
         {
@@ -208,13 +207,18 @@ public class DisplaySettingsProvider
         }
     }
 
-    private synchronized Lock getPersonLock(PersonPE person)
+    public <T> T executeActionWithPersonLock(PersonPE person, IDelegatedActionWithResult<T> action)
     {
-        Lock lock = locksMap.get(person.getUserId());
+        return executeActionWithPersonLock(person.getUserId(), action);
+    }
+
+    private synchronized Lock getPersonLock(String userId)
+    {
+        Lock lock = locksMap.get(userId);
         if (lock == null)
         {
             lock = new ReentrantLock();
-            locksMap.put(person.getUserId(), lock);
+            locksMap.put(userId, lock);
         }
         return lock;
     }

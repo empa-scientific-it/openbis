@@ -422,6 +422,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         entityPropertyBase.setRegistrator(registrator);
         entityPropertyBase.setAuthor(registrator);
         entityPropertyBase.setEntityTypePropertyType(entityTypePropertyType);
+        entityPropertyBase.setUnique(entityTypePropertyType.isUnique());
         return entityPropertyBase;
     }
 

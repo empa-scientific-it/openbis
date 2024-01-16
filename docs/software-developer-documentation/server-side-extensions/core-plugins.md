@@ -32,7 +32,8 @@ The folder structure is organized as follows:
         - `maintenance-tasks`: Maintenance tasks triggered by some time schedule. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.common.maintenance.IMaintenanceTask`. For more details see [Maintenance Tasks](../../system-admin-documentation/advanced-features/maintenance-tasks.md).
         - `search-domain-services`: Services for variaous search domains (e.g. search on sequence databases using BLAST). Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService`.
         - `data-sources`: Internal or external database sources.
-        - `services`: Services based on servlets. Property `class` denotes fully-qualified class name of a class implementing `javax.servlet.Servlet`.
+        - `services`: Custom services. For more details see [Custom Datastore Server Services](./dss-services.md).
+        - `servlet-services`: Services based on servlets. Property `class` denotes fully-qualified class name of a class implementing `javax.servlet.Servlet`.
         - `imaging-overview-plugins`: Data set type specific provider of the overview image of a data set. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.openbis.dss.generic.server.IDatasetImageOverviewPlugin`.
         - `file-system-plugins`: Provider of a custom DSS file system (FTP/SFTP) view hierarchy. Property `class` denotes fully-qualified class name of a class
             implementing `ch.systemsx.cisd.openbis.dss.generic.server.fs.IResolverPlugin`  

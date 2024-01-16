@@ -43,18 +43,22 @@ public class ExportOptions implements Serializable
     @JsonProperty
     private Boolean withImportCompatibility;
 
+    @JsonProperty
+    private Boolean zipSingleFiles;
+
     @SuppressWarnings("unused")
     public ExportOptions()
     {
     }
 
     public ExportOptions(final Set<ExportFormat> formats, final XlsTextFormat xlsTextFormat, final Boolean withReferredTypes,
-            final Boolean withImportCompatibility)
+            final Boolean withImportCompatibility, final Boolean zipSingleFiles)
     {
         this.formats = formats;
         this.xlsTextFormat = xlsTextFormat;
         this.withReferredTypes = withReferredTypes;
         this.withImportCompatibility = withImportCompatibility;
+        this.zipSingleFiles = zipSingleFiles;
     }
 
     @JsonIgnore
@@ -103,6 +107,18 @@ public class ExportOptions implements Serializable
     public void setWithImportCompatibility(final Boolean withImportCompatibility)
     {
         this.withImportCompatibility = withImportCompatibility;
+    }
+
+    @JsonIgnore
+    public Boolean isZipForSingleFiles()
+    {
+        return zipSingleFiles;
+    }
+
+    @JsonIgnore
+    public void setZipSingleFiles(final Boolean zipSingleFiles)
+    {
+        this.zipSingleFiles = zipSingleFiles;
     }
 
     @Override

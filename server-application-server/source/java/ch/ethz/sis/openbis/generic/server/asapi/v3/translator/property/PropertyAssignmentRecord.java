@@ -52,4 +52,6 @@ public class PropertyAssignmentRecord extends ObjectBaseRecord
     public Date registration_timestamp;
 
     public Long script_id;
+
+    public Boolean is_unique;
 }

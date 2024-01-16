@@ -76,6 +76,8 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     private Date modificationDate;
 
+    private boolean unique;
+
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
     {
@@ -212,6 +214,18 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         return section;
     }
 
+    @NotNull
+    @Column(name = ColumnNames.IS_UNIQUE, updatable = false)
+    public boolean isUnique()
+    {
+        return unique;
+    }
+
+    public void setUnique(final boolean unique)
+    {
+        this.unique = unique;
+    }
+
     public void setSection(String section)
     {
         this.section = section;
@@ -251,6 +265,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         builder.append("section", getSection());
         builder.append("dynamic", isDynamic());
         builder.append("managed", isManaged());
+        builder.append("unique", isUnique());
         return builder.toString();
     }
 

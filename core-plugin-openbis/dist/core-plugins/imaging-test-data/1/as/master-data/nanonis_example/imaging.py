@@ -32,6 +32,7 @@ import json
 import base64
 import requests
 import os
+import threading
 from urllib.parse import urljoin
 
 
@@ -54,9 +55,29 @@ def get_instance(url="http://localhost:8888/openbis"):
     return openbis_instance
 
 
+class AtomicIncrementer:
+    def __init__(self, value=0):
+        self._value = int(value)
+        self._lock = threading.Lock()
+
+    def inc(self, d=1):
+        with self._lock:
+            self._value += int(d)
+            return self._value
+
+
 class AbstractImagingClass(metaclass=abc.ABCMeta):
     def to_json(self):
-        return json.dumps(self, default=lambda x: x.__dict__, sort_keys=True, indent=4)
+
+        c = AtomicIncrementer()
+
+        def dictionary_creator(x):
+            dictionary = x.__dict__
+            val = c.inc()
+            dictionary['@id'] = val
+            return dictionary
+
+        return json.dumps(self, default=dictionary_creator, sort_keys=True, indent=4)
 
     def __str__(self):
         return json.dumps(self.__dict__, default=lambda x: x.__dict__)
@@ -108,7 +129,9 @@ class ImagingDataSetPreview(AbstractImagingRequest):
     def from_dict(cls, data):
         if data is None:
             return None
-        preview = cls(None, None, None)
+        if "@id" in data:
+            del data["@id"]
+        preview = cls('', None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
             preview.__dict__[prop] = attribute
@@ -174,6 +197,8 @@ class ImagingDataSetControlVisibility(AbstractImagingClass):
     def from_dict(cls, data):
         if data is None:
             return None
+        if "@id" in data:
+            del data["@id"]
         control = cls(None, None, None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
@@ -205,7 +230,7 @@ class ImagingDataSetControl(AbstractImagingClass):
         self.unit = unit
         if control_type.lower() in ["slider", "range"]:
             self.range = values_range
-        elif control_type.lower() == "dropdown":
+        elif control_type.lower() in ["dropdown", "colormap"]:
             self.values = values
             if multiselect is None:
                 self.multiselect = False
@@ -222,6 +247,8 @@ class ImagingDataSetControl(AbstractImagingClass):
     def from_dict(cls, data):
         if data is None:
             return None
+        if "@id" in data:
+            del data["@id"]
         control = cls(None, "", None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
@@ -259,6 +286,8 @@ class ImagingDataSetConfig(AbstractImagingClass):
     def from_dict(cls, data):
         if data is None:
             return None
+        if "@id" in data:
+            del data["@id"]
         config = cls(None, None, None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
@@ -289,11 +318,13 @@ class ImagingDataSetImage(AbstractImagingClass):
     def from_dict(cls, data):
         if data is None:
             return None
+        if "@id" in data:
+            del data["@id"]
         image = cls(None, None, None)
         for prop in cls.__annotations__.keys():
             attribute = data.get(prop)
-            if prop == 'images' and attribute is not None:
-                attribute = [ImagingDataSetPreview.from_dict(image) for image in attribute]
+            if prop == 'previews' and attribute is not None:
+                attribute = [ImagingDataSetPreview.from_dict(preview) for preview in attribute]
             image.__dict__[prop] = attribute
         return image
 
@@ -311,6 +342,8 @@ class ImagingDataSetPropertyConfig(AbstractImagingClass):
     @classmethod
     def from_dict(cls, data: dict):
         assert data is not None and any(data), "There is no property config found!"
+        if "@id" in data:
+            del data["@id"]
         config = ImagingDataSetConfig.from_dict(data.get('config'))
         attr = data.get('images')
         images = [ImagingDataSetImage.from_dict(image) for image in attr] if attr is not None else None

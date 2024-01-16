@@ -1558,14 +1558,27 @@ public class UserManager
                 List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
                 for (RoleAssignmentCreation roleAssignmentCreationToCheck : roleCreations)
                 {
-                    PersonPermId userId = (PersonPermId) roleAssignmentCreationToCheck.getUserId();
-                    SpacePermId spaceId = (SpacePermId) roleAssignmentCreationToCheck.getSpaceId();
+                    IPersonId userId = roleAssignmentCreationToCheck.getUserId();
+                    IAuthorizationGroupId groupId = roleAssignmentCreationToCheck.getAuthorizationGroupId();
+                    ISpaceId spaceId = roleAssignmentCreationToCheck.getSpaceId();
                     RoleAssignmentSearchCriteria roleAssignmentSearchCriteria =
                             new RoleAssignmentSearchCriteria();
-                    roleAssignmentSearchCriteria.withUser().withUserId()
-                            .thatEquals(userId.getPermId());
-                    roleAssignmentSearchCriteria.withSpace().withCode()
-                            .thatEquals(spaceId.getPermId());
+                    if (userId != null)
+                    {
+                        roleAssignmentSearchCriteria.withUser().withId()
+                                .thatEquals(userId);
+                    }
+                    if (groupId != null)
+                    {
+                        roleAssignmentSearchCriteria.withAuthorizationGroup().withId()
+                                .thatEquals(groupId);
+                    }
+                    if (spaceId != null)
+                    {
+                        roleAssignmentSearchCriteria.withSpace().withId()
+                                .thatEquals(spaceId);
+                    }
+
                     SearchResult<RoleAssignment> roleAssignmentSearchResult =
                             service.searchRoleAssignments(sessionToken,
                                     roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());

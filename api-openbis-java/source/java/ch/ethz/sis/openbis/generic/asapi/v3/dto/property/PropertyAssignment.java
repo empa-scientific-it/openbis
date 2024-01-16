@@ -87,6 +87,9 @@ public class PropertyAssignment
     @JsonProperty
     private Plugin plugin;
 
+    @JsonProperty
+    private Boolean unique;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public PropertyAssignmentFetchOptions getFetchOptions()
@@ -306,6 +309,17 @@ public class PropertyAssignment
     public void setPlugin(Plugin plugin)
     {
         this.plugin = plugin;
+    }
+
+    @JsonIgnore
+    public Boolean isUnique()
+    {
+        return unique;
+    }
+
+    public void setUnique(Boolean unique)
+    {
+        this.unique = unique;
     }
 
     // Method automatically generated with DtoGenerator

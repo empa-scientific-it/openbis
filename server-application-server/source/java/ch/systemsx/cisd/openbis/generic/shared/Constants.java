@@ -40,6 +40,8 @@ public class Constants
 
     public static final String CREATE_CONTINUOUS_SAMPLES_CODES_KEY = "create-continuous-sample-codes";
 
+    public static final String DOWNLOAD_URL = "download-url";
+
     public static final String SUB_DIR_KEY = "sub-directory";
 
     public static final String SWITCH_AAI_LINK = "switch-aai.link";

@@ -54,12 +54,6 @@ public class XLSExportData
             "    if start_date is not None and end_date is not None and start_date > end_date:\n" +
             "        return \"End date cannot be before start date!\"";
 
-    private static final List<String> EXPERIMENT_EXPORT_WARNINGS = List.of(
-            "Line: 6 Kind: /TEST/TEST/TEST ID: 'COLLECTION' - "
-                    + "Value exceeds the maximum size supported by Excel: 32767.",
-            "Line: 5 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
-                    + "Value exceeds the maximum size supported by Excel: 32767.");
-
     public static final Map<String, Map<String, List<Map<String, String>>>> EXPORT_FIELDS =
             Map.of(
                     "TYPE", Map.of(
@@ -563,7 +557,7 @@ public class XLSExportData
                                     true,
                                     null,
                                     XLSExport.TextFormatting.PLAIN,
-                                    EXPERIMENT_EXPORT_WARNINGS,
+                                    List.of(),
                                     false
                             },
                             {
@@ -595,7 +589,7 @@ public class XLSExportData
                                             )
                                     ),
                                     XLSExport.TextFormatting.PLAIN,
-                                    EXPERIMENT_EXPORT_WARNINGS,
+                                    List.of(),
                                     false
                             },
                             {
@@ -626,7 +620,7 @@ public class XLSExportData
                                             )
                                     ),
                                     XLSExport.TextFormatting.PLAIN,
-                                    EXPERIMENT_EXPORT_WARNINGS,
+                                    List.of(),
                                     false
                             },
                             {

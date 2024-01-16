@@ -713,18 +713,26 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         assert dataSets != null && dataSets.size() > 0 : "Unspecified or empty dataSets.";
 
-        for (final DataPE dataPE : dataSets)
+        try
         {
-            internalCreateOrUpdateDataSet(dataPE, modifier);
-        }
+            for (final DataPE dataPE : dataSets)
+            {
+                internalCreateOrUpdateDataSet(dataPE, modifier);
+            }
 
-        if (operationLog.isInfoEnabled())
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("ADD: %d dataSets.", dataSets.size()));
+            }
+
+            // need to deal with exception thrown by trigger checking uniqueness
+            flushWithSqlExceptionHandling(getHibernateTemplate());
+
+            scheduleDynamicPropertiesEvaluation(dataSets);
+        } catch (DataAccessException e)
         {
-            operationLog.info(String.format("ADD: %d dataSets.", dataSets.size()));
+            DataSetDataAccessExceptionTranslator.translateAndThrow(e);
         }
-
-        getHibernateTemplate().flush();
-        scheduleDynamicPropertiesEvaluation(dataSets);
     }
 
     private void internalCreateOrUpdateDataSet(DataPE dataset, PersonPE modifier)
@@ -1343,24 +1351,30 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         assert dataSets != null : "Data sets not defined";
 
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        for (DataPE data : dataSets)
+        try
         {
-            validatePE(data);
-            data.setCode(CodeConverter.tryToDatabase(data.getCode()));
-            hibernateTemplate.saveOrUpdate(data);
-        }
+            final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+            for (DataPE data : dataSets)
+            {
+                validatePE(data);
+                data.setCode(CodeConverter.tryToDatabase(data.getCode()));
+                hibernateTemplate.saveOrUpdate(data);
+            }
 
-        if (operationLog.isInfoEnabled())
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("UPDATE: %d data sets.", dataSets.size()));
+            }
+
+            flushWithSqlExceptionHandling(getHibernateTemplate());
+            scheduleDynamicPropertiesEvaluation(dataSets);
+
+            // if session is not cleared registration of many samples slows down after each batch
+            hibernateTemplate.clear();
+        } catch (DataAccessException e)
         {
-            operationLog.info(String.format("UPDATE: %d data sets.", dataSets.size()));
+            DataSetDataAccessExceptionTranslator.translateAndThrow(e);
         }
-
-        flushWithSqlExceptionHandling(getHibernateTemplate());
-        scheduleDynamicPropertiesEvaluation(dataSets);
-
-        // if session is not cleared registration of many samples slows down after each batch
-        hibernateTemplate.clear();
     }
 
     @Override

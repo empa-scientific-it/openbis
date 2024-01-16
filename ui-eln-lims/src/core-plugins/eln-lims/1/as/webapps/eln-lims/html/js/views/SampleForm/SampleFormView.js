@@ -170,15 +170,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 
+//			//Print
+//			if(toolbarConfig.PRINT) {
+//			    dropdownOptionsModel.push({
+//                    label : "Print",
+//                    action : function() {
+//                        PrintUtil.printEntity(_this._sampleFormModel.sample);
+//                    }
+//                });
+//			}
+
 			//Print
 			if(toolbarConfig.PRINT) {
-			    dropdownOptionsModel.push({
-                    label : "Print",
-                    action : function() {
-                        PrintUtil.printEntity(_this._sampleFormModel.sample);
-                    }
-                });
-			}
+			    dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("SAMPLE",_this._sampleFormModel.sample.permId));
+            }
 
 			//Barcode
 			if(profile.mainMenu.showBarcodes) {
@@ -256,20 +261,23 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 
-			//Export
-            if(toolbarConfig.EXPORT_METADATA) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata",
-                    action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], true)
-                });
-            }
+            dropdownOptionsModel.push(FormUtil.getExportButtonModel("SAMPLE",_this._sampleFormModel.sample.permId));
 
-			if(toolbarConfig.EXPORT_ALL) {
-				dropdownOptionsModel.push({
-                    label : "Export Metadata & Data",
-                    action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false)
-                });
-			}
+            if(profile.legacyExports.enable) {
+                if(toolbarConfig.EXPORT_METADATA) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata",
+                        action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], true)
+                    });
+                }
+
+                if(toolbarConfig.EXPORT_ALL) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata & Data",
+                        action : FormUtil.getExportAction([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false)
+                    });
+                }
+            }
 
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {

@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +58,9 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
     {
         final Collection<Project> projects = getProjects(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
-        warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, ExportableKind.PROJECT.name()));
+        addRow(rowNumber++, true, ExportableKind.PROJECT, null, warnings, valueFiles, ExportableKind.PROJECT.name());
 
         final Attribute[] possibleAttributes = getAttributes();
         if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
@@ -74,13 +76,13 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
             final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
             final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, attributeHeaders));
+            addRow(rowNumber++, true, ExportableKind.PROJECT, null, warnings, valueFiles, attributeHeaders);
 
             // Values
             for (final Project project : projects)
             {
                 final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(project, attribute)).toArray(String[]::new);
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, null, values));
+                addRow(rowNumber++, false, ExportableKind.PROJECT, null, warnings, valueFiles, values);
             }
         } else
         {
@@ -118,7 +120,7 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
             final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedAttributeHeaders), requiredForImportAttributeNameStream)
                     .toArray(String[]::new);
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.PROJECT, null, allAttributeNames));
+            addRow(rowNumber++, true, ExportableKind.PROJECT, null, warnings, valueFiles, allAttributeNames);
 
             // Values
             final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportAttributes);
@@ -143,11 +145,11 @@ public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
                             }
                         }).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.PROJECT, null, entityValues));
+                addRow(rowNumber++, false, ExportableKind.PROJECT, null, warnings, valueFiles, entityValues);
             }
         }
 
-        return new AdditionResult(rowNumber + 1, warnings);
+        return new AdditionResult(rowNumber + 1, warnings, valueFiles);
     }
 
     protected Attribute[] getAttributes()

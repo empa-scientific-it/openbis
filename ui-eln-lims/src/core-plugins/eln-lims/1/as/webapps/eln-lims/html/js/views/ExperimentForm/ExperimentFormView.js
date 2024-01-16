@@ -144,6 +144,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     }
                 });
 			}
+
+			//Print
+			dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("EXPERIMENT",  _this._experimentFormModel.experiment.permId));
+
 			if(_this._allowedToRegisterDataSet()) {
 			    if(toolbarConfig.UPLOAD_DATASET) {
                     //Create Dataset
@@ -183,18 +187,22 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			}
 
 			//Export
-			if(toolbarConfig.EXPORT_METADATA) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata",
-                    action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], true)
-                });
-            }
+			dropdownOptionsModel.push(FormUtil.getExportButtonModel("EXPERIMENT", _this._experimentFormModel.experiment.permId));
 
-            if(toolbarConfig.EXPORT_ALL) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata & Data",
-                    action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], false)
-                });
+			if(profile.legacyExports.enable) {
+                if(toolbarConfig.EXPORT_METADATA) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata",
+                        action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], true)
+                    });
+                }
+
+                if(toolbarConfig.EXPORT_ALL) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata & Data",
+                        action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], false)
+                    });
+                }
             }
 
 			//Jupyter Button

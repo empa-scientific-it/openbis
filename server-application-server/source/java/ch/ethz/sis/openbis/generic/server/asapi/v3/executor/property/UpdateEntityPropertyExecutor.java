@@ -238,6 +238,7 @@ public class UpdateEntityPropertyExecutor implements IUpdateEntityPropertyExecut
                             entityProperty.setEntityTypePropertyType(etpt);
                             ((EntityPropertyWithSampleDataTypePE) entityProperty).setSampleValue(
                                     sample);
+                            entityProperty.setUnique(etpt.isUnique());
                         }
                         newProperties.add(entityProperty);
                     }

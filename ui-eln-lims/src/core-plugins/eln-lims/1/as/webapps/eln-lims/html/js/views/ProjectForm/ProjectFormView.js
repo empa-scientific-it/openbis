@@ -95,17 +95,24 @@ function ProjectFormView(projectFormController, projectFormModel) {
                     }
                 });
 			}
-			
-			//Export
-			dropdownOptionsModel.push({
-                label : "Export Metadata",
-                action : FormUtil.getExportAction([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], true)
-            });
 
-            dropdownOptionsModel.push({
-                label : "Export Metadata & Data",
-                action : FormUtil.getExportAction([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], false)
-            });
+			//Print
+			dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("PROJECT",  _this._projectFormModel.project.permId));
+
+			//Export
+			dropdownOptionsModel.push(FormUtil.getExportButtonModel("PROJECT", _this._projectFormModel.project.permId));
+
+			if(profile.legacyExports.enable) {
+                dropdownOptionsModel.push({
+                    label : "Export Metadata",
+                    action : FormUtil.getExportAction([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], true)
+                });
+
+                dropdownOptionsModel.push({
+                    label : "Export Metadata & Data",
+                    action : FormUtil.getExportAction([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], false)
+                });
+            }
 
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {

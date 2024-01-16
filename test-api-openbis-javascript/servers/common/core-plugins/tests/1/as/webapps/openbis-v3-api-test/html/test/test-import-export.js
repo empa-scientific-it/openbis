@@ -163,7 +163,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
           var exportOptions = new dtos.ExportOptions(
             [dtos.ExportFormat.XLSX, dtos.ExportFormat.HTML, dtos.ExportFormat.PDF,
-              dtos.ExportFormat.DATA], dtos.XlsTextFormat.RICH, true, false);
+              dtos.ExportFormat.DATA], dtos.XlsTextFormat.RICH, true, false, true);
 
           return facade.executeExport(exportData, exportOptions);
         }

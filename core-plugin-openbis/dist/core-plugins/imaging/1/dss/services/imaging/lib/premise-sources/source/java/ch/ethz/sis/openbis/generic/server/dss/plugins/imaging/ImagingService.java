@@ -99,7 +99,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
     {
         final String adaptorName = config.getConfig().getAdaptor();
 
-        if (adaptorName == null || adaptorName.isBlank())
+        if (adaptorName == null || adaptorName.trim().isEmpty())
         {
             throw new UserFailureException("Adaptor name is missing from the config!");
         }
@@ -141,7 +141,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
         }
         ImagingDataSetImage image = config.getImages().get(index);
 
-        if (format == null || format.isBlank())
+        if (format == null || format.trim().isEmpty())
         {
             throw new UserFailureException("Format can not be empty!");
         }
@@ -302,7 +302,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
         fetchOptions.withDataStore();
         fetchOptions.withPhysicalData();
         Map<IDataSetId, DataSet> result = getApplicationServerApi()
-                .getDataSets(sessionToken, List.of(new DataSetPermId(permId)),
+                .getDataSets(sessionToken, Arrays.asList(new DataSetPermId(permId)),
                         fetchOptions);
         if (result.isEmpty())
         {

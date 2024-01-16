@@ -59,10 +59,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 class ExportData
 {
     static final String RICH_TEXT_PROPERTY_NAME = "MULTILINE";
-
     static final String RICH_TEXT_WITH_IMAGE_PROPERTY_NAME = "MULTILINE_WITH_IMAGE";
 
     static final String RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME = "MULTILINE_WITH_SPREADSHEET";
+
+    static final String BIG_CELL_PROPERTY_NAME = "BIG_CELL";
 
     static final Object[][] EXPORT_DATA = {
             // XLS: All fields
@@ -74,7 +75,19 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
+            },
+            {
+                    // Non-existing sample, not zipping single files
+                    "metadata.xlsx",
+                    EnumSet.of(ExportFormat.XLSX),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("WrongPermId"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false, // withImportCompatibility
+                    false
             },
             {
                     // Space: TEST-SPACE
@@ -84,7 +97,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Project: TEST-PROJECT
@@ -94,7 +108,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment: EXP-SPACE-TEST
@@ -104,7 +119,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/EV-TEST
@@ -114,7 +130,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
@@ -124,7 +141,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    true // withImportCompatibility
+                    true, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /MP
@@ -134,7 +152,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 //            {
 //                    // Sample: /MP:A03
@@ -144,7 +163,8 @@ class ExportData
 //                    new AllFields(),
 //                    XlsTextFormat.RICH,
 //                    true, // withReferredTypes
-//                    false // withImportCompatibility
+//                    false, // withImportCompatibility
+//                    true
 //            },
             {
                     // Data set: "ROOT_CONTAINER"
@@ -154,7 +174,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample Type: CELL_PLATE
@@ -164,7 +185,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample Type: CELL_PLATE
@@ -174,7 +196,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment Type: SIRNA_HCS
@@ -184,7 +207,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Dataset Type: HCS_IMAGE
@@ -194,7 +218,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 
             // XLS: Selected fields
@@ -206,7 +231,8 @@ class ExportData
                     new SelectedFields(List.of(CODE, REGISTRATOR, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Project: TEST-PROJECT
@@ -218,7 +244,8 @@ class ExportData
                             List.of()),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment: EXP-SPACE-TEST
@@ -230,7 +257,8 @@ class ExportData
                             List.of(new PropertyTypePermId("GENDER"), new PropertyTypePermId("DESCRIPTION"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
@@ -242,7 +270,8 @@ class ExportData
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Data set: "20081105092159188-3", type: "HCS_IMAGE"
@@ -255,7 +284,8 @@ class ExportData
                             List.of(new PropertyTypePermId("COMMENT"), new PropertyTypePermId("GENDER"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample Type: CELL_PLATE
@@ -265,7 +295,8 @@ class ExportData
                     new SelectedFields(List.of(CODE, AUTO_GENERATE_CODES, DESCRIPTION, GENERATED_CODE_PREFIX, UNIQUE_SUBCODES), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment Type: SIRNA_HCS
@@ -275,7 +306,8 @@ class ExportData
                     new SelectedFields(List.of(DESCRIPTION, CODE, MODIFICATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Dataset Type: HCS_IMAGE
@@ -285,27 +317,32 @@ class ExportData
                     new SelectedFields(List.of(CODE, DISALLOW_DELETION, DESCRIPTION), List.of()),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-plain-text-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)),
+                    // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-rich-text-xlsx.zip",
                     EnumSet.of(ExportFormat.XLSX),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)),
+                    // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 
             // HTML: All fields
@@ -317,7 +354,19 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
+            },
+            {
+                    // Space: TEST-SPACE, not zipping single files
+                    "TEST-SPACE.html",
+                    EnumSet.of(ExportFormat.HTML),
+                    List.of(new ExportablePermId(ExportableKind.SPACE, new SpacePermId("TEST-SPACE"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false, // withImportCompatibility
+                    false
             },
             {
                     // Project: TEST-PROJECT
@@ -327,7 +376,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment: EXP-SPACE-TEST
@@ -337,7 +387,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/EV-TEST
@@ -347,7 +398,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /MP
@@ -357,7 +409,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 //            {
 //                    // Sample: /MP:A03
@@ -367,7 +420,8 @@ class ExportData
 //                    new AllFields(),
 //                    XlsTextFormat.RICH,
 //                    true, // withReferredTypes
-//                    false // withImportCompatibility
+//                    false, // withImportCompatibility
+//                    true
 //            },
             {
                     // Data set: "ROOT_CONTAINER"
@@ -377,7 +431,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 
             // HTML: Selected fields
@@ -389,7 +444,8 @@ class ExportData
                     new SelectedFields(List.of(CODE, PERM_ID, MODIFICATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Project: TEST-PROJECT
@@ -399,7 +455,8 @@ class ExportData
                     new SelectedFields(List.of(PERM_ID, IDENTIFIER, REGISTRATOR, REGISTRATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment: EXP-SPACE-TEST
@@ -410,7 +467,8 @@ class ExportData
                             List.of(new PropertyTypePermId("DESCRIPTION"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /CISD/NEMO/3VCP6
@@ -422,47 +480,56 @@ class ExportData
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("COMMENT"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     false, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-plain-text-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)),
+                    // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-rich-text-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)),
+                    // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-with-image-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)),
+                    // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-with-spreadsheet-html.zip",
                     EnumSet.of(ExportFormat.HTML),
-                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)), // null perm ID indicates that the newly created value in the setup of the test should be used.
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, null)),
+                    // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 
             // PDF: All fields
@@ -474,7 +541,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Project: TEST-PROJECT
@@ -484,7 +552,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Experiment: EXP-SPACE-TEST
@@ -494,7 +563,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /CISD/NEMO/3VCP6
@@ -504,7 +574,8 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Sample: /MP
@@ -514,20 +585,44 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.RICH,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
                     // Data set: "ROOT_CONTAINER"
-                    "export-data-set-pdf.zip",
+                    "export-data-set-experiment-pdf.zip",
                     EnumSet.of(ExportFormat.PDF),
                     List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("ROOT_CONTAINER"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
+            },
+            {
+                    // Data set: "20120628092259000-41" linked to a sample
+                    "export-data-set-sample-pdf.zip",
+                    EnumSet.of(ExportFormat.PDF),
+                    List.of(new ExportablePermId(ExportableKind.DATASET, new DataSetPermId("20120628092259000-41"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    false, // withImportCompatibility
+                    true
             },
 
             // Data
+            {
+                    // Sample: /CISD/NEMO/CP-TEST-3
+                    "export-sample-data-compatible-with-import.zip",
+                    EnumSet.of(ExportFormat.DATA),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    true, // withImportCompatibility
+                    true
+            },
             {
                     // Sample: /CISD/NEMO/CP-TEST-3
                     "export-sample-data.zip",
@@ -536,20 +631,46 @@ class ExportData
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
             {
-                    // Sample: /CISD/NEMO/EXP1
+                    // Experiment: /CISD/NEMO/EXP1
+                    "export-experiment-data-compatible-with-import.zip",
+                    EnumSet.of(ExportFormat.DATA),
+                    List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new SamplePermId("200811050951882-1028"))),
+                    new AllFields(),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    true, // withImportCompatibility
+                    true
+            },
+            {
+                    // Experiment: /CISD/NEMO/EXP1
                     "export-experiment-data.zip",
                     EnumSet.of(ExportFormat.DATA),
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, new SamplePermId("200811050951882-1028"))),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
 
             // All
+            {
+                    // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
+                    "export-sample-all-compatible-with-import.zip",
+                    EnumSet.of(ExportFormat.XLSX, ExportFormat.HTML, ExportFormat.PDF, ExportFormat.DATA),
+                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091250077-1026"))),
+                    new SelectedFields(
+                            List.of(CODE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
+                            List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("SIZE"), new PropertyTypePermId("ORGANISM"))),
+                    XlsTextFormat.PLAIN,
+                    true, // withReferredTypes
+                    true, // withImportCompatibility
+                    true
+            },
             {
                     // Sample: /TEST-SPACE/TEST-PROJECT/FV-TEST
                     "export-sample-all.zip",
@@ -560,7 +681,8 @@ class ExportData
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("SIZE"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
                     true, // withReferredTypes
-                    false // withImportCompatibility
+                    false, // withImportCompatibility
+                    true
             },
     };
 

@@ -72,6 +72,9 @@ export default class EntityTypeFormControllerAddProperty {
       isMultiValue: FormUtil.createField({
         value: false
       }),
+      unique: FormUtil.createField({
+        value: false
+      }),
       showRawValueInForms: FormUtil.createField({
         value: false
       }),

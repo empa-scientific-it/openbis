@@ -39,7 +39,8 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       internal: React.createRef(),
       plugin: React.createRef(),
       showInEditView: React.createRef(),
-      isMultiValue: React.createRef()
+      isMultiValue: React.createRef(),
+      unique: React.createRef()
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
@@ -121,6 +122,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
         {this.renderMandatory(property)}
         {this.renderIsMultiValue(property)}
         {this.renderInitialValue(property)}
+        {this.renderUniqueValue(property)}
       </Container>
     )
   }
@@ -277,7 +279,6 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
     }
 
     const options = []
-
     if (property.originalGlobal || property.original) {
       const {
         dataType: { value: originalValue }
@@ -316,7 +317,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       }
     } else {
       const objectType = this.getType().objectType.value;
-      if(objectType == 'materialType') {
+      if(objectType == 'materialType' || objectType == 'newMaterialType') {
         //Filter out new data types for materials
         const filtered = [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
             openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP, openbis.DataType.JSON];
@@ -638,6 +639,34 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       </div>
     )
   }
+
+  renderUniqueValue(property) {
+   const { visible, enabled, error, value } = { ...property.unique }
+
+   if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                      openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                      openbis.DataType.JSON, null].includes(property.dataType.value)) {
+       return null
+   }
+
+   const { mode, classes } = this.props
+   return (
+   <div className={classes.field}>
+     <CheckboxField
+       reference={this.references.unique}
+       label={messages.get(messages.IS_UNIQUE_VALUE)}
+       name='unique'
+       error={error}
+       disabled={!enabled}
+       value={value}
+       mode={mode}
+       onChange={this.handleChange}
+       onFocus={this.handleFocus}
+       onBlur={this.handleBlur}
+     />
+   </div>
+   )
+ }
 
   renderIsMultiValue(property) {
     const { visible, enabled, error, value } = { ...property.isMultiValue }

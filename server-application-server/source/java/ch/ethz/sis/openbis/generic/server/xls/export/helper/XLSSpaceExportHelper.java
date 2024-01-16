@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +55,9 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
     {
         final Collection<Space> spaces = getSpaces(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
-        warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, ExportableKind.SPACE.toString()));
+        addRow(rowNumber++, true, ExportableKind.SPACE, null, warnings, valueFiles, ExportableKind.SPACE.toString());
 
         final Attribute[] possibleAttributes = new Attribute[] { Attribute.CODE, Attribute.DESCRIPTION, Attribute.REGISTRATOR,
                 Attribute.REGISTRATION_DATE };
@@ -70,14 +72,14 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
             final Attribute[] attributes = compatibleWithImport ? importableAttributes : possibleAttributes;
             final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, attributeHeaders));
+            addRow(rowNumber++, true, ExportableKind.SPACE, null, warnings, valueFiles, attributeHeaders);
 
             // Values
             for (final Space space : spaces)
             {
                 final String[] values = Arrays.stream(attributes)
                         .map(attribute -> getAttributeValue(space, attribute)).toArray(String[]::new);
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SPACE, null, values));
+                addRow(rowNumber++, false, ExportableKind.SPACE, null, warnings, valueFiles, values);
             }
         } else
         {
@@ -115,7 +117,7 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
             final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedAttributeHeaders), requiredForImportAttributeNameStream)
                     .toArray(String[]::new);
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SPACE, null, allAttributeNames));
+            addRow(rowNumber++, true, ExportableKind.SPACE, null, warnings, valueFiles, allAttributeNames);
 
             // Values
             final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportAttributes);
@@ -140,11 +142,11 @@ public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
                             }
                         }).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SPACE, null, entityValues));
+                addRow(rowNumber++, false, ExportableKind.SPACE, null, warnings, valueFiles, entityValues);
             }
         }
 
-        return new AdditionResult(rowNumber + 1, warnings);
+        return new AdditionResult(rowNumber + 1, warnings, valueFiles);
     }
 
     protected String getAttributeValue(final Space space, final Attribute attribute)
