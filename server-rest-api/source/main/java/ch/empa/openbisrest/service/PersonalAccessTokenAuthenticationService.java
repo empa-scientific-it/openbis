@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.rest.service;
+package ch.empa.openbisrest.service;
 
+import ch.empa.openbisrest.configuration.TokenConfig;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.rest.PersonalAccessTokenAuthenticationToken;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration.TokenConfig;
+import ch.empa.openbisrest.PersonalAccessTokenAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;

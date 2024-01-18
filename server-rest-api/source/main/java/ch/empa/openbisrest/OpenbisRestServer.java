@@ -16,8 +16,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration;
+package ch.empa.openbisrest;
 
-public class TokenConfig {
-    public static final String TOKEN_HEADER = "PAT";
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
+
+@SpringBootApplication
+@PropertySource("classpath:application.properties")
+public class OpenbisRestServer {
+
+        public static void main(String[] args) {
+            System.out.println("Hello World");
+            System.setProperty("spring.config.name", "service");
+            new org.springframework.boot.builder.SpringApplicationBuilder(OpenbisRestServer.class).web(org.springframework.boot.WebApplicationType.SERVLET).lazyInitialization(true).run(args);
+        }
 }

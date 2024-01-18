@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.rest.configuration;
+package ch.empa.openbisrest.configuration;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.rest.PersonalAccessTokenAuthenticationFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,35 +26,35 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.context.annotation.Bean;
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf()
-                .ignoringRequestMatchers(request -> "/api/v3/login".equals(request.getRequestURI()))
-                .ignoringRequestMatchers(request -> "/api/v3/info".equals(request.getRequestURI()))
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/**")
-                .authenticated()
-                .and()
-                .httpBasic()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .addFilter(new PersonalAccessTokenAuthenticationFilter(TokenConfig.TOKEN_HEADER));
-
-
-        return http.build();
-    }
-
-}
 //public class SecurityConfig {
 //
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.authorizeHttpRequests().anyRequest().permitAll();
+//        http.csrf()
+//                .ignoringRequestMatchers(request -> "/api/v3/login".equals(request.getRequestURI()))
+//                .ignoringRequestMatchers(request -> "/api/v3/info".equals(request.getRequestURI()))
+//                .disable()
+//                .authorizeRequests()
+//                .antMatchers("/**")
+//                .authenticated()
+//                .and()
+//                .httpBasic()
+//                .and()
+//                .sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+//                .addFilter(new PersonalAccessTokenAuthenticationFilter(TokenConfig.TOKEN_HEADER));
+//
+//
 //        return http.build();
 //    }
+//
 //}
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests().anyRequest().permitAll();
+        return http.build();
+    }
+}

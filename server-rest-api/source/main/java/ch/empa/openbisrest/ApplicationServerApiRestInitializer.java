@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright 2023 Simone Baffelli (simone.baffelli@empa.ch)
+ * Copyright 2024 Simone Baffelli (simone.baffelli@empa.ch)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.rest;
+package ch.empa.openbisrest;
 
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
